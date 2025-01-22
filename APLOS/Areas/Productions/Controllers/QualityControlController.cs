@@ -91,13 +91,13 @@ namespace Aplos.Areas.Productions.Controllers
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection  from 
 TRN.QualityIssueControl QIC
 left join dbo.EmployeeInformation EI on EI.SystemId=QIC.QGIEmployeeId
-LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+							LEFT OUTER JOIN org.Position P ON P.Id=mb.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
 where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QIC.QGIEmployeeId is not null 
 and QIC.QCId is null";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
@@ -112,13 +112,13 @@ and QIC.QCId is null";
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection  from 
 TRN.QualityPlanControl QPC
 left join dbo.EmployeeInformation EI on EI.SystemId=QPC.QPEmployeeId
-LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+							LEFT OUTER JOIN org.Position P ON P.Id=mb.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
 where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QPC.QPEmployeeId is not null 
 and QPC.QCId is null";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
@@ -786,13 +786,13 @@ and  PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id=
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
                             FROM dbo.EmployeeInformation AS EI
-                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+							LEFT OUTER JOIN org.Position P ON P.Id=mb.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
                             WHERE EI.EmployeeStatus='Active' and EI.EmployeeCode is not null";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
@@ -806,13 +806,13 @@ and  PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id=
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
                             FROM dbo.EmployeeInformation AS EI
-                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+							LEFT OUTER JOIN org.Position P ON P.Id=mb.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
                             WHERE EI.EmployeeStatus='Active' and  EI.PositionID in (select PositionCodeId from MST.QualityManagementPositionCode where QMID='" + IssueId + "')";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
@@ -2024,82 +2024,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             }
         }
 
-        //[HttpPost]
-        //public JsonResult CreateWC(ProductionSummary ps, string ProcessId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    ps.PlantId = identity.PlantId;
-        //    _ProductionSummaryService.SaveMasterWC(ps, identity.CompanyGroupId, ProcessId);
-        //    return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
-        //}
-        //[HttpPost]
-        //public JsonResult UpdateWC(ProductionSummary ps, string ProcessId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    ps.PlantId = identity.PlantId;
-        //    _ProductionSummaryService.SaveMasterWC(ps, identity.CompanyGroupId, ProcessId);
-        //    return Json(new { ProductionSummary = ps, Message = AplosMessage.Updated });
-        //}
-        //[HttpPost]
-        //public JsonResult createDetentionWC(List<Dictionary<string, object>> DataList)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    _ProductionSummaryService.SaveDetentionWC(DataList);
-        //    return Json(new { Message = AplosMessage.Success });
-        //}
-        //public void SaveMasterOrderItemCostingRateData(List<Dictionary<string, object>> data, string masterId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    try
-        //    {
-        //        if (string.IsNullOrEmpty(masterId))
-        //        {
-        //            throw new Exception("Select Line Item.");
-        //        }
-        //        #region FUND 
-        //        ConnectionManager.DAL.ConManager objCon;
-        //        DataSet dsMaster = null;
-        //        objCon = new ConnectionManager.DAL.ConManager("1");
-        //        objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionSummaryParameterValue where  ProductionSummaryId='" + masterId + "'", out dsMaster, false, "1");
-        //        int idc = 0;
-        //        if (data != null)
-        //        {
-        //            foreach (var item in data)
-        //            {
-        //                idc++;
-        //                DataView dv = new DataView(dsMaster.Tables[0]);
-        //                dv.RowFilter = "Id='" + item["Id"] + "'";
-
-        //                if (dv.Count == 0)
-        //                {
-        //                    string id = _pkGeneratorService.MakePK(masterId, idc, 3);
-        //                    item["Id"] = id;
-        //                    item["ProductionSummaryId"] = masterId;
-
-        //                    AddNewRow(dsMaster.Tables[0], item);
-        //                }
-        //                else
-        //                {
-        //                    DataRow drmo = dv[0].Row;
-        //                    item["ProductionSummaryId"] = masterId;
-        //                    EditRow(drmo, item);
-        //                }
-        //            }
-        //        }
-
-        //        #endregion
-
-        //        clsStaticInfo obj = new clsStaticInfo();
-        //        obj.SaveDataSets(dsMaster);
-
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw (ex);
-        //    }
-        //}
-
+        
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -3921,18 +3846,5 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
         #endregion
     }
-    //public class OpenHeadModelNew
-    //{
-    //    public string Id { get; set; }
-    //    public string ProductionSummaryId { get; set; }
-    //    public string ProductionBookingParameterId { get; set; }
-    //    public string DetentionMasterMachineParameterId { get; set; }
-    //    public string UserName { get; set; }
-    //    public string Formula { get; set; }
-    //    public string FormulaId { get; set; }
-    //    public decimal Value { get; set; }
-    //    public string EntryState { get; set; }
-    //    public string ValueIN { get; set; }
-    //    public bool IsProduction { get; set; }
-    //}
+  
 }

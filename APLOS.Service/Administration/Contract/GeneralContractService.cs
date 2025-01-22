@@ -644,11 +644,13 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
                                     from [MST].[GeneralContractVendorEmployee] GCV
                                     left join MST.GeneralContract GC on GC.Id=GCV.GeneralContractId
                                     left join EmployeeInformation ei on ei.SystemId=GCV.EmployeeId
-                                    left join ORG.Department D on D.Id=ei.DepartmentId
-                                    left join ORG.Section S on S.Id=ei.SectionId
-                                    left join ORG.SubSection SS on SS.Id=ei.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                                    left join ORG.Department D on D.Id=pr.DepartmentId
+                                    left join ORG.Section S on S.Id=pr.SectionId
+                                    left join ORG.SubSection SS on SS.Id=pr.SubSectionId
                                     left join HKP.LegalDesignation LD on LD.Id=ei.LegalDesignationId
-                                    left join HKP.Designation DD on DD.Id=ei.DesignationSystemID
+                                    left join HKP.Designation DD on DD.Id=pr.DesignationID
                             where GC.Id = '" + gcId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -707,10 +709,10 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
                             left join ORG.Department DP on DP.ID = POS.DepartmentId
                             left join ORG.Section SC on SC.Id = POS.SectionId
                             left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
-                            LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=ei.DesignationGroupId
                             LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
                             LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=ei.LegalDesignationId
                             left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+                            LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=dm.DesignationGroupId
                             left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
 							where GC.Id = '" + gcId + "'";
 

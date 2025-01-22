@@ -454,10 +454,12 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                                 from TRN.DetentionLogResponsiblePerson DLRP
                                 LEFT JOIN TRN.DetentionLog DL on DL.Id = DLRP.DetentionLogId
 								LEFT JOIN EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 								LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-								LEFT JOIN ORG.Department AS DEP ON DEP.id=EI.DepartmentId
-								LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-								LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+								LEFT JOIN ORG.Department AS DEP ON DEP.id=pr.DepartmentId
+								LEFT OUTER JOIN ORG.Section S ON S.Id=pr.SectionId
+								LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId
                                 where DLRP.DetentionLogId  = '" + detentionLogId + "' and DLRP.isActive = 1";
                 return _sqlRepository.GetDataCollection(sql);
 

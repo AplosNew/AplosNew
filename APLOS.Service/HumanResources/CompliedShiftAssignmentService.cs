@@ -850,7 +850,7 @@ namespace Library.Service.HumanResources
                     sheet1.Range[xlsRow, iEmpCode].Text = dataList[i]["EmployeeCode"].ToString().Trim();
                     sheet1.Range[xlsRow, iEmpName].Text = dataList[i]["EmployeeName"].ToString().ToUpper();
                     sheet1.Range[xlsRow, iDepart].Text = dataList[i]["Department"].ToString().Trim();
-                    sheet1.Range[xlsRow, iDesig].Text = dataList[i]["Designation"].ToString().Trim();
+                    sheet1.Range[xlsRow, iDesig].Text = dataList[i]["GivenDesignation"].ToString().Trim();
 
 
 
@@ -1235,7 +1235,7 @@ namespace Library.Service.HumanResources
                         //sheet1.Range[xlsRow, iSrNo].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                         //sheet1.Range[xlsRow, iSrNo].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                        sheet1.Range[xlsRow, iEmpCode].Text = "Emp. Code :" + dataList[i]["EmployeeCode"].ToString().Trim() + Environment.NewLine + "Name :" + dataList[i]["EmployeeName"].ToString().ToUpper() + Environment.NewLine + "F. Name :" + dataList[i]["EmployeeFatherName"].ToString().ToUpper() + Environment.NewLine + "Dept :" + dataList[i]["Department"].ToString().Trim() + Environment.NewLine + "Desg :" + dataList[i]["Designation"].ToString().Trim();
+                        sheet1.Range[xlsRow, iEmpCode].Text = "Emp. Code :" + dataList[i]["EmployeeCode"].ToString().Trim() + Environment.NewLine + "Name :" + dataList[i]["EmployeeName"].ToString().ToUpper() + Environment.NewLine + "F. Name :" + dataList[i]["EmployeeFatherName"].ToString().ToUpper() + Environment.NewLine + "Dept :" + dataList[i]["Department"].ToString().Trim() + Environment.NewLine + "Desg :" + dataList[i]["GivenDesignation"].ToString().Trim();
 
                         sheet1.Range[xlsRow, colSection].Text = dataList[i]["Section"].ToString().Trim();
 
@@ -1563,7 +1563,7 @@ namespace Library.Service.HumanResources
             var dMonth = monthStartDate;
             var sql = @"SELECT A.* FROM
                                     (SELECT E.SystemId EmployeePK,E.FatherName EmployeeFatherName,CONVERT (int,E.EmployeeCode) EmployeeCode, E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ,REPLACE(CONVERT(VARCHAR(11), E.DOS, 113), ' ', '-') DOS, E.EmpType,
-                                            D.UserName Designation, DG.UserName GivenDesignation, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
+                                            DG.UserName GivenDesignation, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
                                             S.UserName Section, SB.UserName SubSection, L.UserName Line, REPLACE(CONVERT(VARCHAR(11), ADM.FromDate, 113), ' ', '-') FromDate,
                                             REPLACE(CONVERT(VARCHAR(11), ADM.ToDate, 113), ' ', '-') ToDate, ADM.MonthNo, ADM.YearNo,
                                             ADM.TotalProcDate, ADM.TotalPresent, ADM.TotalLate, ADM.TotalAbsent, ADM.TotalLv, ADM.TotalLWP, ADM.TotalMLv, ADM.TotalOTHr,
@@ -1581,7 +1581,6 @@ namespace Library.Service.HumanResources
                                     LEFT JOIN [ORG].[SubSection] SB ON SB.Id = PO.SubSectionId
                                     LEFT JOIN [ORG].[Unit] U ON U.Id = EN.UnitId                                    
                                     LEFT OUTER JOIN ORG.Line L on L.id=mpb.LineId
-                                                LEFT JOIN HKP.Designation D ON E.DesignationSystemID = D.Id
                                                 LEFT JOIN HKP.Designation DG ON DG.Id=E.GivenDesignationId
                                             LEFT JOIN (
 												SELECT EmpSystemID,sum(CountedShortLeave) ShortLeave,DATEPART(year,workdate) _year,DATEPART(month,workdate) _month
@@ -1595,7 +1594,7 @@ namespace Library.Service.HumanResources
                         AND (EmployeeStatus = 'Active' OR COnvert(date,DOS) >= Convert(Date,'" + dMonth + @"'))
 
                         ) A  " + wc + @"
-                        GROUP BY A.EmployeeCode, A.EmployeeName, A.DOJ,A.DOS, A.EmpType, A.Designation, A.GivenDesignation,A.Unit, A.Division, A.Department,
+                        GROUP BY A.EmployeeCode, A.EmployeeName, A.DOJ,A.DOS, A.EmpType, A.GivenDesignation,A.Unit, A.Division, A.Department,
 		                            A.Section, A.SubSection, A.Line, A.FromDate, A.ToDate, A.MonthNo, A.YearNo,
                                     A.TotalProcDate, A.TotalPresent, A.TotalLate, A.TotalAbsent, A.TotalLv,A.TotalLWP, A.TotalMLv, A.TotalOTHr,
                                     A.TotalNormalOTHr, A.TotalExtraOTHr, A.TotalHoliDay, A.TotalWeekOff, A.TotalWeekOffHoliDay,A.EmployeePK,A.ShortLeave,A.EmployeeFatherName
@@ -1635,18 +1634,19 @@ namespace Library.Service.HumanResources
                                     FROM dbo.EmployeeInformation E
                                                 INNER JOIN AttdnProcessFinalData AD ON E.SystemID = AD.EmpSystemID
                                                 LEFT JOIN dbo.AttdnRawData ARIN ON AD.ShiftID = ARIN.RowID
-
+ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
                                                 LEFT JOIN HKP.CompliedShift CS ON AD.ShiftID = CS.Id
                                                 LEFT JOIN dbo.AttdnRawData AROUT ON AD.ShiftID = AROUT.RowID
                                                 LEFT JOIN dbo.LeaveType LT ON AD.ShiftID = LT.Id
-                                                LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                                                LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                                                LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
-                                                LEFT JOIN ORG.Section S ON E.SectionID = S.Id
-                                                LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
+                                                LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                                                LEFT JOIN ORG.Division Dv ON PR.DivisionID = Dv.Id
+                                                LEFT JOIN ORG.Department Dp ON PR.DepartmentID = Dp.Id
+                                                LEFT JOIN ORG.Section S ON PR.SectionID = S.Id
+                                                LEFT JOIN ORG.SubSection SB ON pr.SubSectionID = SB.Id
                                                 Left join HKP.LegalDesignation LD ON LD.Id = e.LegalDesignationId
-                                                LEFT JOIN ORG.Line L ON E.LineID = L.Id
-                                                LEFT JOIN HKP.Designation D ON E.DesignationSystemID = D.Id
+                                                LEFT JOIN ORG.Line L ON mb.LineID = L.Id
 												LEFT JOIN HKP.Designation DD ON E.GivenDesignationId = DD.Id
                                     WHERE AD.PlantID = '" + objm.PlantId + @"' AND AD.WorkDate BETWEEN '" + objm.FDate + @"' AND '" + objm.TDate + @"' --AND e.SystemId=1800001
                                     AND (E.EmployeeStatus='Active' or E.dos>'" + objm.FDate + @"' or e.dos is null) " + wc + @"
@@ -1676,74 +1676,7 @@ namespace Library.Service.HumanResources
                             EXEC sp_executesql @sql
                             drop table #tempOT";
 
-            //if (objm.UnitId != "ALL")
-            //{
-            //    strSql = strSql + @" AND E.UnitID = '" + objm.UnitId + "'";
-            //}
-            //if (objm.DepartmentId != "ALL")
-            //{
-            //    strSql = strSql + @" AND E.DepartmentID = '" + objm.DepartmentId + "'";
-            //}
-            //if (objm.DivisionId != "ALL")
-            //{
-            //    strSql = strSql + @" AND E.DivisionID = '" + objm.DivisionId + "'";
-            //}
-
-            //if (objm.SectionId != "ALL")
-            //{
-            //    strSql = strSql + @" AND E.SectionID = '" + objm.SectionId + "'";
-            //}
-            //if (objm.SubsectionId != "ALL")
-            //{
-            //    strSql = strSql + @" AND E.SubSectionID = '" + objm.SubsectionId + "'";
-            //}
-            //if (objm.LineId != "ALL")
-            //{
-            //    strSql = strSql + @" AND E.LineID = '" + objm.LineId + "'";
-            //}
-            ////if (sSbSeStr != "ALL")
-            ////{
-            ////    strSql = strSql + @" AND E.SubSecStrucSystemID = '" + sSbSeStr + "'";
-            ////}
-            //if (objm.EmpCat != "ALL")
-            //{
-            //    strSql = strSql + @" AND E.EmployeeCategorySystemID = '" + objm.EmpCat + "'";
-            //}
-            //if (objm.DesignationGroupId != "ALL")
-            //{
-            //    strSql = strSql + @" AND E.DesignationGroupID = '" + objm.DesignationGroupId + "'";
-            //}
-            //if (objm.DesignationId != "ALL")
-            //{
-            //    strSql = strSql + @" AND E.DesignationSystemID = '" + objm.DesignationId + "'";
-            //}
-
-            //strSql += strSql + @") A
-            //             GROUP BY A.EmployeeCode, A.EmployeeName, A.DOJ, A.Designation, A.Unit, A.Division, A.Department,
-            //                  A.Section, A.SubSection, A.Line, A.PDate, A.DayStatus, A.InTime, A.InDeviceID, A.OutTime,
-            //                        A.OutDeviceID, A.LvShortName, WorkDate, GivenDesignation, A.EmployeePK,A.ShiftCode 
-
-
-            //                ) TT
-            //                 DECLARE @sql nvarchar(max),
-            //                        @col nvarchar(max)
-
-            //                SELECT @col = (
-            //                    SELECT DISTINCT ','+QUOTENAME(REPLACE(CONVERT(VARCHAR(11), WorkDate, 113), ' ', '-'))	
-            //                    FROM #tempOT 
-            //                    FOR XML PATH ('')
-            //                )
-
-            //                SELECT @sql = N'
-            //                (SELECT *
-            //                FROM #tempOT
-            //                PIVOT (
-            //                    MAX([ShiftCode]) FOR [WorkDate] IN ('+STUFF(@col,1,1,'')+')
-            //                ) as pvt)'
-
-            //                EXEC sp_executesql @sql
-            //                drop table #tempOT";
-
+           
             if (_sqlRepository.GetDataTable(strSql).Rows.Count > 0)
             {
 
@@ -1806,19 +1739,21 @@ namespace Library.Service.HumanResources
                                              LT.UserName LvShortName, LT.Code LEAVE
 											, AD.WorkDate, DD.UserName GivenDesignation
                                     FROM dbo.EmployeeInformation E
+ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
                                                 INNER JOIN AttdnProcessFinalData AD ON E.SystemID = AD.EmpSystemID
                                                 INNER JOIN AttdnProcessData APD ON E.SystemID = APD.EmpSystemID and APD.WorkDate = AD.WorkDate
 												left Join DayType DT oN DT.DayType = AD.DayStatus
                                                 LEFT JOIN dbo.LeaveType LT ON APD.LTSystemID = LT.Id												
 												 LEFT JOIN HKP.CompliedShift CS ON AD.ShiftID = CS.Id
                                                 --LEFT JOIN dbo.LeaveType LT ON APD.LTSystemID = LT.Id
-                                                LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                                                LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                                                LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
-                                                LEFT JOIN ORG.Section S ON E.SectionID = S.Id
-                                                LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
-                                                LEFT JOIN ORG.Line L ON E.LineID = L.Id
-                                                LEFT JOIN HKP.Designation D ON E.DesignationSystemID = D.Id
+                                                LEFT JOIN ORG.Unit U ON En.UnitID = U.Id
+                                                LEFT JOIN ORG.Division Dv ON pr.DivisionID = Dv.Id
+                                                LEFT JOIN ORG.Department Dp ON pr.DepartmentID = Dp.Id
+                                                LEFT JOIN ORG.Section S ON pr.SectionID = S.Id
+                                                LEFT JOIN ORG.SubSection SB ON pr.SubSectionID = SB.Id
+                                                LEFT JOIN ORG.Line L ON mb.LineID = L.Id
                                                 Left join HKP.LegalDesignation LD ON LD.Id = e.LegalDesignationId
 												LEFT JOIN HKP.Designation DD ON E.GivenDesignationId = DD.Id
                                     WHERE AD.PlantID = '" + objm.PlantId + @"' AND AD.WorkDate BETWEEN '" + objm.FDate + @"' AND '" + objm.TDate + @"' --AND e.SystemId=1800001
@@ -1922,17 +1857,18 @@ namespace Library.Service.HumanResources
                                                 INNER JOIN AttdnProcessData APD ON E.SystemID = APD.EmpSystemID and APD.WorkDate = AD.WorkDate
 
                                                 LEFT JOIN dbo.AttdnRawData ARIN ON AD.ShiftID = ARIN.RowID
-
+ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
                                                 LEFT JOIN HKP.CompliedShift CS ON AD.ShiftID = CS.Id
                                                 LEFT JOIN dbo.AttdnRawData AROUT ON AD.ShiftID = AROUT.RowID
                                                 LEFT JOIN dbo.LeaveType LT ON APD.LTSystemID = LT.Id
-                                                LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                                                LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                                                LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
-                                                LEFT JOIN ORG.Section S ON E.SectionID = S.Id
-                                                LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
-                                                LEFT JOIN ORG.Line L ON E.LineID = L.Id
-                                                LEFT JOIN HKP.Designation D ON E.DesignationSystemID = D.Id
+                                                LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                                                LEFT JOIN ORG.Division Dv ON PR.DivisionID = Dv.Id
+                                                LEFT JOIN ORG.Department Dp ON PR.DepartmentID = Dp.Id
+                                                LEFT JOIN ORG.Section S ON PR.SectionID = S.Id
+                                                LEFT JOIN ORG.SubSection SB ON PR.SubSectionID = SB.Id
+                                                LEFT JOIN ORG.Line L ON MB.LineID = L.Id
 Left join HKP.LegalDesignation LD ON LD.Id = e.LegalDesignationId
 												LEFT JOIN HKP.Designation DD ON E.GivenDesignationId = DD.Id
                                     WHERE AD.PlantID = '" + objm.PlantId + @"' AND AD.WorkDate BETWEEN '" + objm.FDate + @"' AND '" + objm.TDate + @"' --AND e.SystemId=1800001
@@ -1977,17 +1913,16 @@ Left join HKP.LegalDesignation LD ON LD.Id = e.LegalDesignationId
         }
         private List<Dictionary<string, object>> GetDailyCompliance(string plantId, string workDate)
         {
-            var sql = @"SELECT EmpSystemId, EmployeeCode, EmployeeName, DOJ, DOS,DesignationGroupID, UnitID, DivisionID, DepartmentID,SectionID,SubSectionID,LineID	,EmpCategoryID
+            var sql = @"SELECT EmpSystemId, EmployeeCode, EmployeeName, DOJ, DOS
                         	,dti,dto,PDate,DayStatus,InTime,ShiftName,ShiftInTimeShow,ShiftOutTimeShow,InTimeShow,OutTimeShow,LeastPunchTime,OutTime,ShiftInTime,PlantID,'0' Duration,'0' LateBy
-                        	,DesignationGroup,Designation,GivenDesignation,EmpCategory,Line,SubSection,Section,Department,Division,Unit
+                        	,Designation,GivenDesignation,EmpCategory,Line,SubSection,Section,Department,Division,Unit
                         FROM (
                         	SELECT E.SystemId EmpSystemId,CONVERT(int, E.EmployeeCode) EmployeeCode,E.EmployeeName
                         		,REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ
                                 ,REPLACE(CONVERT(VARCHAR(11), E.DOS, 113), ' ', '-') DOS
-                        		,E.DesignationGroupID,E.UnitID,E.DivisionID,E.DepartmentID
-                        		,E.SectionID,E.SubSectionID,E.LineID,AD.InTime dti,AD.OutTime dto
+                        		,AD.InTime dti,AD.OutTime dto
                         		,REPLACE(CONVERT(VARCHAR(11), AD.WorkDate, 113), ' ', '-') PDate
-                        		,E.EmployeeCategorySystemID EmpCategoryID,AD.DayStatus
+                        		,AD.DayStatus
                         		,CONVERT(VARCHAR(15), CAST(LIT.ptime AS TIME), 100) + ' (' + ARD.PType + ')' LeastPunchTime
                         		,CONVERT(VARCHAR(5), AD.InTime, 108) InTime
                         		,CONVERT(VARCHAR(15), CAST(AD.InTime AS TIME), 100) InTimeShow
@@ -1997,42 +1932,39 @@ Left join HKP.LegalDesignation LD ON LD.Id = e.LegalDesignationId
                         		,CONVERT(VARCHAR(5), SD.InTime, 108) ShiftInTime
                         		,CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100) ShiftInTimeShow
                         	    ,CASE When Convert(Datetime,CONCAT(Format(AD.WorkDate,'dd-MMM-yyyy'),' ', CONVERT(VARCHAR(5), SD.OutTime, 108))) < Convert(Datetime,CONCAT(Format(AD.WorkDate,'dd-MMM-yyyy'),' ', CONVERT(VARCHAR(5), SD.InTime, 108))) then DateAdd(day,1,Convert(Datetime,CONCAT(Format(AD.WorkDate,'dd-MMM-yyyy'),' ', CONVERT(VARCHAR(5), SD.OutTime, 108)))) Else Convert(Datetime,CONCAT(Format(AD.WorkDate,'dd-MMM-yyyy'),' ', CONVERT(VARCHAR(5), SD.OutTime, 108))) END ShiftOutTimeShow
-                        		,SD.ShiftName,AD.PlantID,E.GivenDesignationId,DG.UserName DesignationGroup
+                        		,SD.ShiftName,AD.PlantID,E.GivenDesignationId
                         		,LD.UserName Designation,GVD.UserName GivenDesignation,L.UserName Line
                         		,U.UserName Unit,Dv.UserName Division,SubDv.UserName SubDivision
                         		,Dp.UserName Department,S.UserName Section,SB.UserName SubSection
                         		,EC.UserName AS EmpCategory FROM dbo.EmployeeInformation E
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
                         	INNER JOIN (SELECT * FROM dbo.AttdnProcessFinalData) AD ON E.SystemID = AD.EmpSystemID
                         	LEFT JOIN HKP.CompliedShift SD ON AD.ShiftID = SD.Id
                         	LEFT JOIN (SELECT LogDownLoadNum,min(ptime) ptime FROM AttdnRawData	WHERE pdate = '" + workDate + @"'
                         		GROUP BY LogDownLoadNum) LIT ON LIT.LogDownLoadNum = E.SystemId
                         	LEFT JOIN AttdnRawData ARD ON ARD.LogDownLoadNum = LIT.LogDownLoadNum AND ARD.PTime = LIT.ptime
-                        	LEFT JOIN org.Unit U ON E.UnitID = U.Id
-                        	LEFT JOIN org.Division Dv ON E.DivisionID = Dv.Id
-                        	LEFT JOIN org.SubDivision SubDv ON E.SubdivisionID = SubDv.Id
-                        	LEFT JOIN org.Department Dp ON E.DepartmentID = Dp.Id
-                        	LEFT JOIN org.Section S ON E.SectionID = S.Id
-                        	LEFT JOIN org.SubSection SB ON E.SubSectionID = SB.Id
-                        	LEFT JOIN org.Line L ON E.LineID = L.Id
-                        	LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupID = Dg.Id
-                        	LEFT JOIN hkp.Designation D ON E.DesignationSystemID = D.Id
+                        	LEFT JOIN org.Unit U ON EN.UnitID = U.Id
+                        	LEFT JOIN org.Division Dv ON PR.DivisionID = Dv.Id
+                        	LEFT JOIN org.SubDivision SubDv ON PR.SubdivisionID = SubDv.Id
+                        	LEFT JOIN org.Department Dp ON PR.DepartmentID = Dp.Id
+                        	LEFT JOIN org.Section S ON PR.SectionID = S.Id
+                        	LEFT JOIN org.SubSection SB ON PR.SubSectionID = SB.Id
+                        	LEFT JOIN org.Line L ON MB.LineID = L.Id
 Left join HKP.LegalDesignation LD ON LD.Id = E.LegalDesignationId
                         	LEFT JOIN hkp.Designation GVD ON E.GivenDesignationId = GVD.Id
-                        	LEFT JOIN (SELECT ECT.Id,ECT.UserName,DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
-                        		LEFT JOIN MST.DesignationMaster DM ON ECT.Id = DM.EmployeeCategoryId
-                        		) EC ON EC.DesignationId = E.GivenDesignationId
+                        		LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+                            LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
                         	WHERE AD.WorkDate = '" + workDate + @"' AND (EmployeeStatus = 'Active' OR COnvert(date,E.DOS) >= Convert(Date,'" + workDate + @"'))
 ) A
                         WHERE PlantID = '" + plantId + @"'
-                        GROUP BY EmpSystemId,EmployeeCode,EmployeeName,DOJ,DOS,DesignationGroupID
-                        	,UnitID,DivisionID,DepartmentID,SectionID,SubSectionID,LineID
-                        	,EmpCategoryID,dti,dto,PDate,DayStatus,InTime,LeastPunchTime
+                        GROUP BY EmpSystemId,EmployeeCode,EmployeeName,DOJ,DOS,dti,dto,PDate,DayStatus,InTime,LeastPunchTime
                         	,OutTime,ShiftName,ShiftInTimeShow,ShiftOutTimeShow,InTimeShow
-                        	,OutTimeShow,ShiftInTime,PlantID,DesignationGroup,Designation
+                        	,OutTimeShow,ShiftInTime,PlantID,Designation
                         	,GivenDesignation,EmpCategory,Line,SubSection,Section,Department
                         	,Division,Unit 
-                        	ORDER BY   --Unit,Section,SubSection,DayStatus,EmployeeCode
-                             UnitId, SectionId, SubSectionId, DayStatus ,EmployeeCode
+                        	ORDER BY  DayStatus ,EmployeeCode
                     
 ";
             if (_sqlRepository.GetDataCollection(sql).Count > 0)
@@ -2490,10 +2422,6 @@ Left join HKP.LegalDesignation LD ON LD.Id = E.LegalDesignationId
                                     LEFT OUTER JOIN ORG.SubSection ess on ess.id=e.SubSectionId
                                     LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
                                     LEFT OUTER JOIN ORG.Unit eu on eu.id=e.UnitId
-                                   -- left outer join [ORG].[PlantDesignationGroupSalaryRule] srs on srs.DesignationGroupId=e.DesignationGroupId
-                                    --left outer join SalaryRuleMaster srm on srm.SystemId=srs.SalaryRuleMasterId
-                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
 									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=e.LegalDesignationId
 

@@ -165,6 +165,10 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
             "value": "EntityName"
         },
         {
+            "name": "Created From",
+            "value": "CreatedFrom"
+        },
+        {
             "name": "Currency",
             "value": "Currency"
         },

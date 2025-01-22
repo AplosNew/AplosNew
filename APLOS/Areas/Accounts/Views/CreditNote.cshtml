@@ -345,6 +345,7 @@
                 <th>Posting Date</th>
                 <th>Doc Ref No</th>
                 <th>Entity</th>
+                <th>Created From</th>
                 <th>Currency</th>
                 <th>Amount</th>
                 <th>Status</th>
@@ -359,6 +360,7 @@
                 <td>{{x.PostingDate| dateFiltering}}</td>
                 <td>{{x.DocRefNo}}</td>
                 <td>{{x.EntityName}}</td>
+                <td>{{x.CreatedFrom}}</td>
                 <td>{{x.CurrencyCode}}</td>
                 <td class="text-right">{{x.Amount | number:2}}</td>
                 <td>{{x.IsPark?'Parked':'Posted'}}</td>

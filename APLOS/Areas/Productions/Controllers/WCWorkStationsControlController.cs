@@ -164,13 +164,13 @@ where RD.ProcessId='" + ProcessId + "'";
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
                             FROM dbo.EmployeeInformation AS EI
-                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+							LEFT OUTER JOIN org.Position P ON P.Id=mb.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
                             WHERE EI.EmployeeStatus='Active'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
@@ -2650,18 +2650,5 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
         #endregion
     }
-    //public class OpenHeadModelNew
-    //{
-    //    public string Id { get; set; }
-    //    public string ProductionSummaryId { get; set; }
-    //    public string ProductionBookingParameterId { get; set; }
-    //    public string DetentionMasterMachineParameterId { get; set; }
-    //    public string UserName { get; set; }
-    //    public string Formula { get; set; }
-    //    public string FormulaId { get; set; }
-    //    public decimal Value { get; set; }
-    //    public string EntryState { get; set; }
-    //    public string ValueIN { get; set; }
-    //    public bool IsProduction { get; set; }
-    //}
+   
 }

@@ -2279,6 +2279,8 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
 				,D.UserName GivenDesignation,SS.UserName SubSection,S.UserName Section,Dep.UserName Department,apd.ProcessIntime,apd.ProcessOuttime,apd.Duration
 				,apd.OTHr,apd.WorkingDayValue,apd.ActualWorkingDayValue,apd.PresentValue,apd.AbsentValue,T.Code Leave
 				FROM  EmployeeInformation AS ei 
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                 JOIN AttdnProcessData AS apd ON apd.EmpSystemID=ei.SystemId
                 LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
                 LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
@@ -2287,9 +2289,9 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                 left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
                 LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
                 LEFT JOIN HKP.Designation D on D.Id=ei.GivenDesignationId
-                LEFT JOIN ORG.SubSection SS on SS.Id=ei.SubSectionId
-                LEFT JOIN ORG.Section S on S.Id=ei.SectionId
-                LEFT JOIN ORG.Department Dep on Dep.Id=ei.DepartmentId
+                LEFT JOIN ORG.SubSection SS on SS.Id=pr.SubSectionId
+                LEFT JOIN ORG.Section S on S.Id=pr.SectionId
+                LEFT JOIN ORG.Department Dep on Dep.Id=pr.DepartmentId
                 JOIN LeaveType T ON t.Id=L.LeaveTypeId
                 where apd.workdate between '" + fromdate + @"' and '" + todate + @"' and APD.EmpSystemID='" + empId + @"' ";
                 return _sqlRepository.GetDataCollection(sql);
@@ -2539,6 +2541,8 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
 				,ISNULL(apd.ActualWorkingDayValue,0)ActualWorkingDayValue,ISNULL(apd.PresentValue,0)PresentValue,ISNULL(apd.AbsentValue,0)AbsentValue,ISNULL(T.Code,'') Leave
 
 				FROM  EmployeeInformation AS ei 
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                 JOIN AttdnProcessData AS apd ON apd.EmpSystemID=ei.SystemId
                 LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
                 LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
@@ -2547,9 +2551,9 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                 left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
                 LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
                 LEFT JOIN HKP.Designation D on D.Id=ei.GivenDesignationId
-                LEFT JOIN ORG.SubSection SS on SS.Id=ei.SubSectionId
-                LEFT JOIN ORG.Section S on S.Id=ei.SectionId
-                LEFT JOIN ORG.Department Dep on Dep.Id=ei.DepartmentId
+                LEFT JOIN ORG.SubSection SS on SS.Id=pr.SubSectionId
+                LEFT JOIN ORG.Section S on S.Id=pr.SectionId
+                LEFT JOIN ORG.Department Dep on Dep.Id=pr.DepartmentId
                 JOIN LeaveType T ON t.Id=L.LeaveTypeId
                 where apd.workdate between '" + fromdate + @"' and '" + todate + @"'
                 and APD.EmpSystemID " + empId + " ";
@@ -2570,6 +2574,8 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
 				,apd.WorkingDayValue,apd.ActualWorkingDayValue,apd.PresentValue,apd.AbsentValue,T.Code Leave,T.LeaveType,l.EarnValue,l.AvailedValue
 				
 				FROM  EmployeeInformation AS ei 
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                 JOIN AttdnProcessData AS apd ON apd.EmpSystemID=ei.SystemId
                 LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
                 LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
@@ -2578,9 +2584,9 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                 left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
                 LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
                 LEFT JOIN HKP.Designation D on D.Id=ei.GivenDesignationId
-                LEFT JOIN ORG.SubSection SS on SS.Id=ei.SubSectionId
-                LEFT JOIN ORG.Section S on S.Id=ei.SectionId
-                LEFT JOIN ORG.Department Dep on Dep.Id=ei.DepartmentId
+                LEFT JOIN ORG.SubSection SS on SS.Id=pr.SubSectionId
+                LEFT JOIN ORG.Section S on S.Id=pr.SectionId
+                LEFT JOIN ORG.Department Dep on Dep.Id=pr.DepartmentId
                 JOIN LeaveType T ON t.Id=L.LeaveTypeId
                  where apd.workdate between '" + fromdate + @"' and '" + todate + @"'";
                 return _sqlRepository.GetDataCollection(CmdText);

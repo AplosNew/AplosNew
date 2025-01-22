@@ -99,11 +99,11 @@ namespace Aplos.Areas.Attendances.Controllers
             }
             if (parameters["SectionId"] != "null")
             {
-                sec = "and EI.SectionId in (" + parameters["SectionId"] + @")";
+                sec = "and pr.SectionId in (" + parameters["SectionId"] + @")";
             }
             if (parameters["SubSectionId"] != "null")
             {
-                subsec = "and EI.SubSectionId in (" + parameters["SubSectionId"] + @")";
+                subsec = "and pr.SubSectionId in (" + parameters["SubSectionId"] + @")";
             }
             if (parameters["DesignationId"] != "null")
             {
@@ -136,11 +136,11 @@ namespace Aplos.Areas.Attendances.Controllers
                          LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                          LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
                          LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
-                         LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId	
+                         LEFT JOIN ORG.Department DP on DP.Id=pr.DepartmentId	
                          LEFT join MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
 						 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
-                         LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-                         LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                         LEFT JOIN ORG.Section S ON S.Id=pr.SectionId
+                         LEFT JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId
 						 left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate='" + workDate + @"'
                          WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + @"  " + dep + @"  " + sec + @"   " + subsec + @"   " + des + @" " + userGr + @"
                           AND ei.SystemId in (select EmpSystemID from dbo.AttdnProcessData where ShiftSystemId='" + shiftId + @"' and WorkDate='" + workDate + @"')  
@@ -394,13 +394,13 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
                             ,LateDuration=CASE WHEN APD.DayStatus='L' THEN cast(DATEDIFF(MINUTE, cast(SD.InTime as time ), cast(APD.InTime as time ))as float) ElSE 0 END
                             from GoodworkDetail GWD 
                             left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId 
-							LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                            LEFT JOIN ORG.Department DEPT ON EI.DepartmentId=DEPT.Id
-							LEFT join MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
-							LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
 							LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
 							LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+							LEFT JOIN ORG.Section S ON S.Id=pr.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId
+                            LEFT JOIN ORG.Department DEPT ON pr.DepartmentId=DEPT.Id
+							LEFT join MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
+							LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
 							LEFT JOIN ORG.Position PR1 ON PR1.Id=PR.GoodWorkPositionCodeId
 							left join hkp.Designation D on D.Id=ei.GivenDesignationId
                             left join GoodWork GW on GW.Id=GWD.GoodWorkId
@@ -437,11 +437,11 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
                          LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                          LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                          LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
-                         LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId	
+                         LEFT JOIN ORG.Department DP on DP.Id=pr.DepartmentId	
                          LEFT join MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
 						 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
-                         LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-                         LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                         LEFT JOIN ORG.Section S ON S.Id=pr.SectionId
+                         LEFT JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId
 						 where EI.EmployeeStatus='Active' and ei.SystemId in (select EmpSystemID from dbo.AttdnProcessData where WorkDate='" + date + @"') and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup where GoodWorkSetUpId= '" + userGroupId + @"')";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -652,13 +652,13 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
                             from GoodWork GW 
                             left join GoodworkDetail GWD on GW.Id=GWD.GoodWorkId
                             left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId 
-							LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                            LEFT JOIN ORG.Department DEPT ON EI.DepartmentId=DEPT.Id
-							LEFT join MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
-							LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
 							LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
 							LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+							LEFT JOIN ORG.Section S ON S.Id=pr.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId
+                            LEFT JOIN ORG.Department DEPT ON pr.DepartmentId=DEPT.Id
+							LEFT join MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
+							LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
 							LEFT JOIN ORG.Position PR1 ON PR1.Id=PR.GoodWorkPositionCodeId
 							left join hkp.Designation D on D.Id=ei.GivenDesignationId
 							left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate=GW.WorkDate
@@ -856,11 +856,12 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
 from GoodWork GW 
 left join GoodworkDetail GWD on GW.Id=GWD.GoodWorkId
 left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId 
-LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-LEFT JOIN ORG.Department DEPT ON EI.DepartmentId=DEPT.Id
+LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+LEFT JOIN ORG.Section S ON S.Id=pr.SectionId
+LEFT JOIN ORG.Department DEPT ON pr.DepartmentId=DEPT.Id
 LEFT join MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
-LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
 left join hkp.LegalDesignation D on D.Id=ei.LegalDesignationId
 left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate=GW.WorkDate
 LEFT JOIN dbo.GoodWorkSetup GWS ON GWS.Id=GW.UserGroupId
@@ -890,11 +891,12 @@ Order By GW.WorkDate";
 from GoodWork GW 
 left join GoodworkDetail GWD on GW.Id=GWD.GoodWorkId
 left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId 
-LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-LEFT JOIN ORG.Department DEPT ON EI.DepartmentId=DEPT.Id
+LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+LEFT JOIN ORG.Section S ON S.Id=pr.SectionId
+LEFT JOIN ORG.Department DEPT ON pr.DepartmentId=DEPT.Id
 LEFT join MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
-LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
 left join hkp.LegalDesignation D on D.Id=ei.LegalDesignationId
 left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate=GW.WorkDate
 LEFT JOIN dbo.GoodWorkSetup GWS ON GWS.Id=GW.UserGroupId
@@ -948,9 +950,11 @@ Order By GW.WorkDate";
                             from [TRN].[EmployeeAdvanceDetail] wad
                             left join [TRN].[EmployeeAdvance] wa on wa.Id=wad.EmployeeAdvanceId
                             left join EmployeeInformation ei on ei.SystemId=wad.EmpSystemId
-                            left join org.Section AS s ON s.Id=ei.SectionId
-                            left join org.SubSection AS ss ON ss.Id=ei.SubSectionId
-                            left join org.Department d on d.Id=ei.DepartmentId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            left join org.Section AS s ON s.Id=pr.SectionId
+                            left join org.SubSection AS ss ON ss.Id=pr.SubSectionId
+                            left join org.Department d on d.Id=pr.DepartmentId
                             where wad.EmployeeAdvanceId in ('" + workAdvanceId + "') AND wa.SourceType='MultipleEmployeeAdvance' AND wad.IsApprove IS NULL";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -1135,10 +1139,12 @@ Order By GW.WorkDate";
 						from GoodWorkPaymentAdvise gwpa
 						left join GoodWorkPaymentAdviseDetail gwpad on gwpa.Id=gwpad.PaymentAdviseId
 						left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 						LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
-						LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
-						LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-                        LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+						LEFT JOIN ORG.Department DP on DP.Id=pr.DepartmentId
+						LEFT JOIN ORG.Section S ON S.Id=pr.SectionId
+                        LEFT JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId
                         where gwpa.FromDate between '" + fromDate + @"' and '" + toDate + @"' and gwpa.ToDate between '" + fromDate + @"' and '" + toDate + @"'
                         and gwpa.PaymentSource='" + payDaysType + @"'
                         and gwpa.Id not in(select GoodWorkPaymentAdviseId from [TRN].[EmployeeAdvanceDetail]) ";

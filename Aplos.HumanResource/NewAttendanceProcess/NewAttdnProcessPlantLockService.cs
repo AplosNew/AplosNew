@@ -218,7 +218,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             , DP.UserName Department
                             , se.UserName Section
                             , Sus.UserName SubSection
-                            , FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ,ei.SubSectionId,ei.DepartmentId,ei.SectionId,
+                            , FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ,pr.SubSectionId,pr.DepartmentId,pr.SectionId,
                             ld.UserName as LegalDesignation
 							
                             ,Jan=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
@@ -334,7 +334,7 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
                             , DP.UserName Department
                             , se.UserName Section
                             , Sus.UserName SubSection
-                            , FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ,ei.SubSectionId,ei.DepartmentId,ei.SectionId,
+                            , FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ,pr.SubSectionId,pr.DepartmentId,pr.SectionId,
                             ld.UserName as LegalDesignation
 							
                             ,Jan=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
@@ -486,11 +486,12 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
                             left join EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
                             left join mst.ManpowerBudget mb on mb.Id = ei.BudgetCode
                             left join org.Position pos on pos.Id = mb.PositionId
-                            left join org.Section s on s.Id=ei.SectionId
-                            left join ORG.SubSection ss on ss.Id=ei.SubSectionId
-                            left join org.Unit u on u.Id=ei.UnitId
+left outer join ORG.Entity  as en on en.Id=mb.EntityId
+                            left join org.Section s on s.Id=pos.SectionId
+                            left join ORG.SubSection ss on ss.Id=pos.SubSectionId
+                            left join org.Unit u on u.Id=en.UnitId
                             left join hkp.LegalDesignation l on l.Id=ei.LegalDesignationId
-                            where apd.WorkDate between '"+FDt+@"' and '"+TDt+@"' and ei.PlantId = '" + plantId + @"'
+                            where apd.WorkDate between '" + FDt+@"' and '"+TDt+@"' and ei.PlantId = '" + plantId + @"'
                             and apd.IsOTEntitled=1
                             and apd.EmpSystemID IN(SELECT EmpSystemID FROM AttdnProcessData WHERE PlantId='" + plantId + @"'
                             AND WorkDate='"+Today+@"' AND InStatus='IM' )
@@ -559,9 +560,10 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
                             left join EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
                             left join mst.ManpowerBudget mb on mb.Id = ei.BudgetCode
                             left join org.Position pos on pos.Id = mb.PositionId
-                            left join org.Section s on s.Id=ei.SectionId
-                            left join ORG.SubSection ss on ss.Id=ei.SubSectionId
-                            left join org.Unit u on u.Id=ei.UnitId
+left outer join ORG.Entity  as en on en.Id=mb.EntityId
+                            left join org.Section s on s.Id=pos.SectionId
+                            left join ORG.SubSection ss on ss.Id=pos.SubSectionId
+                            left join org.Unit u on u.Id=en.UnitId
                             left join hkp.LegalDesignation l on l.Id=ei.LegalDesignationId
                             where apd.WorkDate between '" + FDt + @"' and '" + TDt + @"' and ei.PlantId = '" + plantId + @"'
                             and apd.IsOTEntitled=1

@@ -112,6 +112,7 @@ namespace Library.Service.Invoices
                                 ,IsExpenseDistribution=CASE WHEN ISNULL((select COUNT(ID.Id) from TRN.InvoiceDetailCharges ID
 										INNER JOIN TRN.VoucherDetail VD ON VD.Id=ID.VoucherDetailId
 										WHERE VD.VoucherId=A.VoucherId),0)>0 THEN 1 ELSE 0 END
+                                ,CreatedFrom=case when (select count(Id) FROM [TRN].[SalesReturn] Where IsCreditNote=1AND VoucherId=A.VoucherId)>0 then 'SetOff'  ELSE 'General' END
                                 ,E.UserName EntityName,V.EntityId,V.Narration
                                 FROM [TRN].[AdjustmentNote] AS A
                                 LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId

@@ -225,17 +225,18 @@ namespace Aplos.Areas.HumanResource.Controllers
                 var sql = @"select ei.SystemId EmployeeId,DE.UserName Designation,ei.EmployeeName,S.UserName Section,SS.UserName SubSection,D.UserName Department
                             ,RG.UserName ResidenceGroup,RM.Id ResidenceId,RM.ResidenceNumber,RM.[Block],RM.ResidentType,RM.ResidenceSubCategory
 							,E.UserName Entity
-
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
-                            left join HKP.Designation DE on DE.Id=ei.DesignationSystemID
+left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+LEFT JOIN ORG.Position PR ON MPB.PositionId=PR.Id
+                            left join org.Entity E on E.Id =MPB.EntityId
+                            left join HKP.Designation DE on DE.Id=pr.DesignationID
                             left join dbo.ResidenceMaster RM on RM.Id = rae.ResidenceId
                             left join dbo.ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
-                            left join org.Section S on S.Id = ei.SectionId
-                            left join org.SubSection SS on SS.Id = ei.SubSectionId
-                            left join org.Department D on D.Id = ei.DepartmentId
-							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-                            left join org.Entity E on E.Id =MPB.EntityId";
+                            left join org.Section S on S.Id = pr.SectionId
+                            left join org.SubSection SS on SS.Id = pr.SubSectionId
+                            left join org.Department D on D.Id = pr.DepartmentId
+							";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -468,16 +469,17 @@ namespace Aplos.Areas.HumanResource.Controllers
 							E.UserName Entity
 							,P.PaymentLink Skill,ei.EmployeeStatus
 							from dbo.ResidenceAllocatedEmployees rae
-                            left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
+                            left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId
+left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                            left join org.Entity E on E.Id =MPB.EntityId
+							left join ORG.Position P on P.Id=ei.PositionID
                             left join HKP.Designation DE on DE.Id=ei.GivenDesignationId
                             left join dbo.ResidenceMaster RM on RM.Id = rae.ResidenceId
                             left join dbo.ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
-                            left join org.Section S on S.Id = ei.SectionId
-                            left join org.SubSection SS on SS.Id = ei.SubSectionId
-                            left join org.Department D on D.Id = ei.DepartmentId
-							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-                            left join org.Entity E on E.Id =MPB.EntityId
-							left join ORG.Position P on P.Id=ei.PositionID
+                            left join org.Section S on S.Id = p.SectionId
+                            left join org.SubSection SS on SS.Id = p.SubSectionId
+                            left join org.Department D on D.Id = p.DepartmentId
+							
 
 							LEFT JOIN (
 							SELECT dm.DesignationId,ec.Id EmployeeCategoryId,ec.UserName EmployeeCategory FROM MST.DesignationMaster AS dm

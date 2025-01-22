@@ -3503,9 +3503,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 LEFT JOIN dbo.AttdnRawData ARIN ON AR.InTimeRowID = ARIN.RowID
                                 LEFT JOIN dbo.AttdnRawData AROUT ON AR.OutTimeRowID = AROUT.RowID
                                 LEFT JOIN dbo.LeaveType LT ON AR.LTSystemID = LT.Id
-                                LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                                LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                                LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
+                                LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                                LEFT JOIN ORG.Division Dv ON PO.DivisionID = Dv.Id
+                                LEFT JOIN ORG.Department Dp ON PO.DepartmentID = Dp.Id
 
                                   LEFT JOIN ORG.Section S ON PO.SectionID = S.Id
                                 LEFT JOIN ORG.SubSection SB ON PO.SubSectionID = SB.Id

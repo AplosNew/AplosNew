@@ -319,12 +319,14 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
             string sql = @"SELECT distinct convert(bit,0) AS chk,DMR.Id,DMR.ResponsibleMasterId,EI.SystemId,EI.EmployeeCode,EI.EmployeeName,DEP.UserName AS Department,S.UserName as Section,
                             SS.UserName as SubSection,DEG.UserName AS [LegalDesignation]
                             FROM dbo.EmployeeInformation AS EI
-                            LEFT JOIN DetentionMasterResponsible DMR ON DMR.ResponsibleMasterId=EI.SystemId and DetentionMasterId='"+ DetentionId + @"'
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN DetentionMasterResponsible DMR ON DMR.ResponsibleMasterId=EI.SystemId and DetentionMasterId='" + DetentionId + @"'
                             LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
-							LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                            WHERE EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and EI.DepartmentId in (select distinct DepartmentId from DetentionMasterDepartment)";
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=pr.DepartmentId
+							LEFT OUTER JOIN ORG.Section S ON S.Id=pr.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId
+                            WHERE EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and pr.DepartmentId in (select distinct DepartmentId from DetentionMasterDepartment)";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -637,12 +639,12 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
                             FROM dbo.EmployeeInformation AS EI
                             LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+							LEFT OUTER JOIN org.Position P ON P.Id=MB.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.Section SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
+							LEFT OUTER JOIN ORG.Section SS ON SS.Id=p.SubSectionId
                             WHERE EI.EmployeeStatus='Active'";
 
                 return Json(_sqlRepository.GetGridData(parameters), JsonRequestBehavior.AllowGet);

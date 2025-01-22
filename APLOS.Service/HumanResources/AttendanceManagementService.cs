@@ -170,7 +170,9 @@ namespace Library.Service.HumanResources
 											   CONVERT(VARCHAR(5), isnull( sdfx.OutTime,'')+isnull(sdrs.OutTime,''), 108) outtime,
                                                Replace(CONVERT(VARCHAR(11), esa.effectivedate, 106), ' ', '-') effectivedate                                             										                                                 
                                         FROM   employeeinformation EI
-                                        LEFT JOIN ORG.Department DEPT ON EI.DepartmentId=DEPT.Id
+ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                                        LEFT JOIN ORG.Department DEPT ON pr.DepartmentId=DEPT.Id
 									    LEFT JOIN HKP.Designation DEG ON EI.GivenDesignationId=DEG.Id  
 										left outer JOIN EmployeeShiftAssign ESA ON EI.SystemId = esa.EmpSystemID 
 										LEFT JOIN dbo.ShiftRosterMaster SR ON ESA.RosterSystemID=SR.SystemID
@@ -29546,12 +29548,6 @@ namespace Library.Service.HumanResources
                 try
                 {
                     objRpt = new clsReport();
-
-
-
-
-
-
                     #region DataSet
                     DataSet dsLocalHRMSSetting = null;
                     clsStaticInfo objStatic = null;
@@ -29593,8 +29589,6 @@ namespace Library.Service.HumanResources
                     objRpt.SelectedPlant(plantId, out dsFactory);
 
                     #endregion DataSet
-
-
 
                     excelEngine = new ExcelEngine();
                     application = excelEngine.Excel;

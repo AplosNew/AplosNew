@@ -99,17 +99,19 @@ namespace Aplos.Areas.Payrolls.Controllers
 							
 		
 							LEFT OUTER JOIN SalaryIncrementNextDueDate ND ON nd.EmpSystemId=sidm.EmpInfoSystemID	AND ND.EffectiveDate = sidm.EffectiveDate	
-                            LEFT JOIN HKP.EmployeeCategory AS EC ON EI.EmployeeCategorySystemID = EC.Id
-                            LEFT JOIN ORG.Unit U ON Ei.UnitID = U.Id
-                            LEFT JOIN ORG.Division Dv ON Ei.DivisionID = Dv.Id
-                            LEFT JOIN ORG.Department Dp ON Ei.DepartmentID = Dp.Id
-                            LEFT JOIN ORG.Section S ON Ei.SectionID = S.Id
-                            LEFT JOIN ORG.SubSection SB ON Ei.SubSectionID = SB.Id
-                            LEFT JOIN ORG.Line L ON Ei.LineID = L.Id
+							LEFT JOIN MST.ManpowerBudget mb ON mb.Id=ei.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
+                            LEFT JOIN ORG.Unit U ON En.UnitID = U.Id
+                            LEFT JOIN ORG.Division Dv ON pr.DivisionID = Dv.Id
+                            LEFT JOIN ORG.Department Dp ON pr.DepartmentID = Dp.Id
+                            LEFT JOIN ORG.Section S ON pr.SectionID = S.Id
+                            LEFT JOIN ORG.SubSection SB ON pr.SubSectionID = SB.Id
+                            LEFT JOIN ORG.Line L ON mb.LineID = L.Id
                             LEFT JOIN HKP.Designation D ON Ei.DesignationSystemID = D.Id
                             LEFT JOIN HKP.LegalDesignation AS ld  ON Ei.LegalDesignationId = ld.Id
 							LEFT JOIN MST.DesignationMaster dm ON Ei.GivenDesignationId = dm.DesignationId
-							LEFT JOIN MST.ManpowerBudget mb ON mb.Id=ei.BudgetCode
+                            LEFT JOIN HKP.EmployeeCategory AS EC ON DM.EmployeeCategoryId = EC.Id
 							WHERE  ei.EmployeeStatus='Active' AND sidm.IsApproved=1  AND ei.PlantId='" + identity.PlantId + @"' 
 							AND  ei.SystemId NOT IN (SELECT EmpSystemId FROM ExceptionEmployee)
 							AND  ei.SystemId NOT IN (SELECT EmpInfoSystemID  FROM SalaryInfoDefineMaster WHERE IsApproved=0)
@@ -177,17 +179,19 @@ namespace Aplos.Areas.Payrolls.Controllers
 							
 		
 							LEFT OUTER JOIN SalaryIncrementNextDueDate ND ON nd.EmpSystemId=sidm.EmpInfoSystemID	AND ND.EffectiveDate = sidm.EffectiveDate	
-                            LEFT JOIN HKP.EmployeeCategory AS EC ON EI.EmployeeCategorySystemID = EC.Id
-                            LEFT JOIN ORG.Unit U ON Ei.UnitID = U.Id
-                            LEFT JOIN ORG.Division Dv ON Ei.DivisionID = Dv.Id
-                            LEFT JOIN ORG.Department Dp ON Ei.DepartmentID = Dp.Id
-                            LEFT JOIN ORG.Section S ON Ei.SectionID = S.Id
-                            LEFT JOIN ORG.SubSection SB ON Ei.SubSectionID = SB.Id
-                            LEFT JOIN ORG.Line L ON Ei.LineID = L.Id
+							LEFT JOIN MST.ManpowerBudget mb ON mb.Id=ei.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
+                            LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                            LEFT JOIN ORG.Division Dv ON pr.DivisionID = Dv.Id
+                            LEFT JOIN ORG.Department Dp ON pr.DepartmentID = Dp.Id
+                            LEFT JOIN ORG.Section S ON pr.SectionID = S.Id
+                            LEFT JOIN ORG.SubSection SB ON pr.SubSectionID = SB.Id
+                            LEFT JOIN ORG.Line L ON mb.LineID = L.Id
                             LEFT JOIN HKP.Designation D ON Ei.DesignationSystemID = D.Id
                             LEFT JOIN HKP.LegalDesignation AS ld  ON Ei.LegalDesignationId = ld.Id
 							LEFT JOIN MST.DesignationMaster dm ON Ei.GivenDesignationId = dm.DesignationId
-							LEFT JOIN MST.ManpowerBudget mb ON mb.Id=ei.BudgetCode
+                            LEFT JOIN HKP.EmployeeCategory AS EC ON DM.EmployeeCategoryId = EC.Id
 							WHERE  ei.EmployeeStatus='Active' AND sidm.IsApproved=1  AND ei.PlantId='" + identity.PlantId + @"' 
 							AND  ei.SystemId NOT IN (SELECT EmpSystemId FROM ExceptionEmployee)
 							AND  ei.SystemId NOT IN (SELECT EmpInfoSystemID  FROM SalaryInfoDefineMaster WHERE IsApproved=0)
@@ -283,83 +287,6 @@ namespace Aplos.Areas.Payrolls.Controllers
             return json;
         }
 
-
-       // [HttpGet, Authorize]
-       // public ActionResult xGetAllIncrementedEmployeeListWithSalaryInfo()
-       // {
-       //     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-       //     string sql = @" SELECT * FROM (SELECT  [CheckBoxSelect] = Convert(bit, 'False'), 
-       //                      ei.SystemId 
-       //                     ,ei.EmployeeCode                          
-       //                     ,ei.EmployeeName
-                           
-       //                     --,sidm.SystemID
-       //                     , EC.UserName EmpCategoryName  
-       //                     ,ld.UserName Designation
-       //                     ,U.UserName Unit 
-       //                     ,Dv.UserName Division
-       //                     ,Dp.UserName Department
-       //                     ,S.UserName Section 
-       //                     ,SB.UserName SubSection 
-       //                     ,L.UserName Line
-       //                     ,srm.SalaryRuleName
-       //                     ,sid1.EntryAmount Basic
-       //                     ,sidBasicA.EntryAmount BasicOld
-       //                     ,sidGross.EntryAmount Gross
-       //                     ,sidGrossA.EntryAmount GrossOld
-       //                     ,sidm.SalaryRuleMasterSystemID  
-       //                     ,sidm.SystemID SalaryId
-       //                     ,FORMAT(ei.DOJ,'dd-MMM-yyyy') DOJ
-							//,FORMAT(sidmA.EffectiveDate,'dd-MMM-yyyy') EffectiveDate
-	      //                  ,FORMAT(sidm.EffectiveDate,'dd-MMM-yyyy') EffectiveDateNew
-							//,FORMAT(ND.NextDueDate,'dd-MMM-yyyy') NextDueDate
-							//,DENSE_RANK() OVER (PARTITION BY sidm.SystemID ORDER BY NextDueDate DESC) AS LastDueFlag							
-							//,DateDiff(MONTH, sidm.EffectiveDate,'" + DateTime.Now + @"') diff
-
-							//,sidG.SalaryHeadID SalaryHeadID
-							//,sidG.Sequence SalaryHdSequence							
-							//,sidG.SalaryHead 
-							//,sidG.HeadCategory
-							//,sid1.EntryCurrencyID EntryCurrency
-
-       //                     FROM SalaryInfoDefineMaster sidm
-       //                     LEFT JOIN EmployeeInformation ei ON sidm.EmpInfoSystemID = ei.SystemId
-       //                     LEFT JOIN SalaryRuleMaster srm ON srm.SystemID=sidm.SalaryRuleMasterSystemID
-             
-							//INNER JOIN SalaryInfoDefine AS sid1 ON sid1.SalaryID = sidm.SystemID 
-							//INNER JOIN SalaryHead sidH ON sidh.SalaryHeadID=sid1.SalaryHeadID AND  sidH.HeadCategory='Basic'
-											
-       //                     INNER JOIN SalaryInfoDefine AS sidGross ON sidGross.SalaryID = sidm.SystemID 
-       //                     INNER JOIN SalaryHead sidG ON sidG.SalaryHeadID=sidGross.SalaryHeadID AND  sidG.HeadCategory='Gross'
-                            
-       //                     LEFT JOIN  SalaryInfoDefineMaster sidmA ON sidmA.EmpInfoSystemID = ei.SystemId AND sidmA.IsApproved=1
-							//INNER JOIN SalaryInfoDefine AS sidBasicA ON sidBasicA.SalaryID = sidmA.SystemID 
-							//INNER JOIN SalaryHead sidHA ON sidHA.SalaryHeadID=sidBasicA.SalaryHeadID AND  sidHA.HeadCategory='Basic'
-											
-       //                     INNER JOIN SalaryInfoDefine AS sidGrossA ON sidGrossA.SalaryID = sidmA.SystemID 
-       //                     INNER JOIN SalaryHead sidGA ON sidGA.SalaryHeadID=sidGrossA.SalaryHeadID AND  sidGA.HeadCategory='Gross'
-		
-							//LEFT OUTER JOIN SalaryIncrementNextDueDate ND ON nd.EmpSystemId=sidm.EmpInfoSystemID	AND ND.EffectiveDate = sidm.EffectiveDate	
-       //                     LEFT JOIN HKP.EmployeeCategory AS EC ON EI.EmployeeCategorySystemID = EC.Id
-       //                     LEFT JOIN ORG.Unit U ON Ei.UnitID = U.Id
-       //                     LEFT JOIN ORG.Division Dv ON Ei.DivisionID = Dv.Id
-       //                     LEFT JOIN ORG.Department Dp ON Ei.DepartmentID = Dp.Id
-       //                     LEFT JOIN ORG.Section S ON Ei.SectionID = S.Id
-       //                     LEFT JOIN ORG.SubSection SB ON Ei.SubSectionID = SB.Id
-       //                     LEFT JOIN ORG.Line L ON Ei.LineID = L.Id
-       //                     LEFT JOIN HKP.Designation D ON Ei.DesignationSystemID = D.Id
-       //                     LEFT JOIN HKP.LegalDesignation AS ld  ON Ei.LegalDesignationId = ld.Id
-							//LEFT JOIN MST.DesignationMaster dm ON Ei.GivenDesignationId = dm.DesignationId
-							//LEFT JOIN MST.ManpowerBudget mb ON mb.Id=ei.BudgetCode
-							//WHERE  ei.EmployeeStatus='Active' AND sidm.IsApproved=0  AND ei.PlantId='" + identity.PlantId + @"' 
-							//AND  ei.SystemId NOT IN (SELECT EmpSystemId FROM ExceptionEmployee)
-							//AND  ei.SystemId  IN (SELECT EmpInfoSystemID  FROM SalaryInfoDefineMaster WHERE IsApproved=1)
-							
-							//) AS K WHERE isnull(K.LastDueFlag,0)=1 ";
-
-       //     var data = _sqlRepository.GetDataCollection(sql);
-       //     return Json(data, JsonRequestBehavior.AllowGet);
-       // }
 
         //with back
         [HttpGet]
@@ -470,59 +397,6 @@ namespace Aplos.Areas.Payrolls.Controllers
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
-
-
-
-
-       // [HttpGet, Authorize]
-       // public ActionResult xGetEmployeeListWithSalaryInfo()
-       // {
-       //     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-       //     string sql = @"  SELECT  [CheckBoxSelect] = Convert(bit, 'False'), 
-       //                      ei.SystemId 
-       //                     ,ei.EmployeeCode                          
-       //                     ,ei.EmployeeName
-       //                     --,sidm.SystemID
-       //                     , EC.UserName EmpCategoryName  
-       //                     ,ld.UserName Designation
-       //                     ,U.UserName Unit 
-       //                     ,Dv.UserName Division
-       //                     ,Dp.UserName Department
-       //                     ,S.UserName Section 
-       //                     ,SB.UserName SubSection 
-       //                     ,L.UserName Line
-       //                     ,srm.SalaryRuleName
-       //                     ,sid1.EntryAmount Basic
-       //                     ,sid1.EntryAmount BasicOld
-       //                     ,sidGross.EntryAmount Gross
-       //                     ,sidGross.EntryAmount GrossOld
-       //                     ,sidm2.SalaryRuleMasterSystemID  
-       //                     ,sidm.SystemID SalaryId
-       //                     FROM SalaryInfoDefineMaster sidm
-       //                     LEFT JOIN EmployeeInformation ei ON sidm.EmpInfoSystemID = ei.SystemId
-       //                     LEFT JOIN SalaryRuleMaster srm ON srm.SystemID=sidm.SalaryRuleMasterSystemID
-       //                     LEFT JOIN SalaryInfoDefineMaster AS sidm2 ON sidm2.EmpInfoSystemID = ei.SystemId 
-							//											AND sidm2.SalaryRuleMasterSystemID = srm.SystemID
-							//INNER JOIN SalaryInfoDefine AS sid1 ON sid1.SalaryID = sidm2.SystemID 
-							//					AND sid1.SalaryHeadID =( SELECT SalaryHeadID  FROM SalaryHead WHERE HeadCategory='Basic'	)	
-       //                     LEFT JOIN SalaryInfoDefine AS sidGross ON sidGross.SalaryID = sidm2.SystemID 
-							//					AND sidGross.SalaryHeadID =( SELECT SalaryHeadID  FROM SalaryHead WHERE HeadCategory='Gross'	)
-       //                     LEFT JOIN HKP.EmployeeCategory AS EC ON EI.EmployeeCategorySystemID = EC.Id
-       //                     LEFT JOIN ORG.Unit U ON Ei.UnitID = U.Id
-       //                     LEFT JOIN ORG.Division Dv ON Ei.DivisionID = Dv.Id
-       //                     LEFT JOIN ORG.Department Dp ON Ei.DepartmentID = Dp.Id
-       //                     LEFT JOIN ORG.Section S ON Ei.SectionID = S.Id
-       //                     LEFT JOIN ORG.SubSection SB ON Ei.SubSectionID = SB.Id
-       //                     LEFT JOIN ORG.Line L ON Ei.LineID = L.Id
-       //                     LEFT JOIN HKP.Designation D ON Ei.DesignationSystemID = D.Id
-       //                     LEFT JOIN HKP.LegalDesignation AS ld  ON Ei.LegalDesignationId = ld.Id
-							//LEFT JOIN MST.DesignationMaster dm ON Ei.GivenDesignationId = dm.DesignationId
-							//LEFT JOIN MST.ManpowerBudget mb ON mb.Id=ei.BudgetCode
-							//WHERE  ei.EmployeeStatus='Active' AND sidm.IsApproved=1  AND ei.PlantId='" + identity.PlantId + @"' AND  ei.SystemId NOT IN (SELECT EmpSystemId FROM ExceptionEmployee)";
-
-       //     var data = _sqlRepository.GetDataCollection(sql);
-       //     return Json(data, JsonRequestBehavior.AllowGet);
-       // }
 
 
         [HttpPost, Authorize]

@@ -245,16 +245,18 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"' ) " + filters + 
 						isnull(p.Id,'') as PlantId , isnull(ei.PlantId,'') as ppId , isnull (p.UserName,'') as PlantName
                         from
                         dbo.EmployeeInformation ei
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                         left join org.Plant p on p.Id = ei.PlantId
                         left join org.Entity e on e.PlantId = p.Id
-                        left join org.Department dept on dept.Id = ei.DepartmentId
-                        left join org.Section sec on sec.Id = ei.SectionId
-                        left join org.SubSection ssec on ssec.Id = ei.SubSectionId
+                        left join org.Department dept on dept.Id = pr.DepartmentId
+                        left join org.Section sec on sec.Id = pr.SectionId
+                        left join org.SubSection ssec on ssec.Id = pr.SubSectionId
                         left join mst.PayrollGroupMaster pgm on pgm.EmployeeId = ei.SystemId
                         left join hkp.PayrollGroup pg on pg.id = pgm.PayrollGroupId
                         left join dbo.EmployeeAttendanceGroup eag on eag.EmployeeId = ei.SystemId
                         left join dbo.AttendanceGroup ag on ag.Id = eag.AttendanceGroupId
-						where p.Id is not null and p.CompanyId = '"+CompanyId+@"'
+						where p.Id is not null and p.CompanyId = '" + CompanyId+@"'
                         group by e.Id , e.UserName ,
                         dept.Id , dept.UserName ,
                         sec.Id  , sec.UserName ,
