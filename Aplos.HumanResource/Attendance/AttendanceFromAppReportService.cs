@@ -47,9 +47,9 @@ namespace Library.HumanResource.Attendances {
                     as OutLocation,attnd.AttndType from dbo.AttdnRawDataFromApp attnd left join org.Plant p on attnd.PlantId=p.Id
                     left join org.Company c on c.Id=p.CompanyId
                     join dbo.EmployeeInformation emp on emp.SystemId=attnd.EmployeeId
-                    LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                    LEFT JOIN MST.ManpowerBudget mb ON mb.Id = emp.BudgetCode
                     LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
-                    LEFT JOIN ORG.Entity EN ON En.Id=MB.EEntityId
+                    LEFT JOIN ORG.Entity EN ON En.Id=MB.EntityId
                     left join org.Unit u on u.Id=EN.UnitId
                     left join org.Section s on s.Id=PR.SectionId
                     left join org.SubSection ss on ss.Id=PR.SubSectionId
@@ -71,9 +71,9 @@ namespace Library.HumanResource.Attendances {
                     attnd.AttndType from dbo.AttdnRawDataFromApp attnd left join org.Plant p on attnd.PlantId=p.Id
                     left join org.Company c on c.Id=p.CompanyId
                     join dbo.EmployeeInformation emp on emp.SystemId=attnd.EmployeeId
-                    LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                    LEFT JOIN MST.ManpowerBudget mb ON mb.Id = emp.BudgetCode
                     LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
-                    LEFT JOIN ORG.Entity EN ON En.Id=MB.EEntityId
+                    LEFT JOIN ORG.Entity EN ON En.Id=MB.EntityId
                     left join org.Unit u on u.Id=EN.UnitId
                     left join org.Section s on s.Id=PR.SectionId
                     left join org.SubSection ss on ss.Id=PR.SubSectionId
@@ -122,9 +122,9 @@ namespace Library.HumanResource.Attendances {
                     as OutLocation,attnd.AttndType,attnd.Remarks as InRemarks,attnd.RemarksOUT as OutRemarks from dbo.AttdnRawDataFromApp attnd left join org.Plant p on attnd.PlantId=p.Id
                     left join org.Company c on c.Id=p.CompanyId
                     join dbo.EmployeeInformation emp on emp.SystemId=attnd.EmployeeId
-                    LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                    LEFT JOIN MST.ManpowerBudget mb ON mb.Id = emp.BudgetCode
                     LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
-                    LEFT JOIN ORG.Entity EN ON En.Id=MB.EEntityId
+                    LEFT JOIN ORG.Entity EN ON En.Id=MB.EntityId
                     left join org.Unit u on u.Id=EN.UnitId
                     left join org.Section s on s.Id=PR.SectionId
                     left join org.SubSection ss on ss.Id=PR.SubSectionId
@@ -153,9 +153,9 @@ namespace Library.HumanResource.Attendances {
                     as OutLocation,attnd.AttndType,attnd.Remarks as InRemarks,attnd.RemarksOUT as OutRemarks from dbo.AttdnRawDataFromApp attnd left join org.Plant p on attnd.PlantId=p.Id
                     left join org.Company c on c.Id=p.CompanyId
                     join dbo.EmployeeInformation emp on emp.SystemId=attnd.EmployeeId
-                    LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                    LEFT JOIN MST.ManpowerBudget mb ON mb.Id = emp.BudgetCode
                     LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
-                    LEFT JOIN ORG.Entity EN ON En.Id=MB.EEntityId
+                    LEFT JOIN ORG.Entity EN ON En.Id=MB.EntityId
                     left join org.Unit u on u.Id=EN.UnitId
                     left join org.Section s on s.Id=PR.SectionId
                     left join org.SubSection ss on ss.Id=PR.SubSectionId

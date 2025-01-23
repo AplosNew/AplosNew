@@ -4737,16 +4737,18 @@ namespace Library.HumanResource.Report.OT
                                     ,ISNULL(ec.UserName,'') EmployeeCategory
                                       FROM HourlyOT  HO 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=HO.EmpSystemId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
                                       LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
-                                      LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
-                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
+                                      LEFT JOIN [ORG].[Section] s on s.Id=p.SectionId
+                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=p.SubSectionId
                                         left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=ei.LegalDesignationId
                                         left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
                                         left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                                         left join hkp.LegalDesignation LG on LG.Id = ei.LegalDesignationId
-                                      LEFT JOIN [ORG].[Department] d on d.Id=ei.DepartmentId
-                                      LEFT JOIN [ORG].[Line] l on l.Id=ei.LineId
+                                      LEFT JOIN [ORG].[Department] d on d.Id=p.DepartmentId
+                                      LEFT JOIN [ORG].[Line] l on l.Id=mb.LineId
                                       LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=HO.PlantId   
                                       LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=ho.PlantId
                                       LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=ei.SystemId
@@ -4862,16 +4864,18 @@ namespace Library.HumanResource.Report.OT
                                     ,ISNULL(ec.UserName,'') EmployeeCategory
                                       FROM HourlyOT  HO 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=HO.EmpSystemId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
                                       LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
-                                      LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
-                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
+                                      LEFT JOIN [ORG].[Section] s on s.Id=p.SectionId
+                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=p.SubSectionId
                                         left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=ei.LegalDesignationId
                                         left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
                                         left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                                         left join hkp.LegalDesignation LG on LG.Id = ei.LegalDesignationId
-                                      LEFT JOIN [ORG].[Department] d on d.Id=ei.DepartmentId
-                                      LEFT JOIN [ORG].[Line] l on l.Id=ei.LineId
+                                      LEFT JOIN [ORG].[Department] d on d.Id=p.DepartmentId
+                                      LEFT JOIN [ORG].[Line] l on l.Id=mb.LineId
                                       LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=HO.PlantId   
                                       LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=ho.PlantId
                                       LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=ei.SystemId
@@ -5374,16 +5378,18 @@ namespace Library.HumanResource.Report.OT
                                     ,ISNULL(ec.UserName,'') EmployeeCategory
                                       FROM HourlyOT  HO 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=HO.EmpSystemId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
                                       LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
-                                      LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
-                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
+                                      LEFT JOIN [ORG].[Section] s on s.Id=p.SectionId
+                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=p.SubSectionId
                                         left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=ei.LegalDesignationId
                                         left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
                                         left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                                         left join hkp.LegalDesignation LG on LG.Id = ei.LegalDesignationId
-                                      LEFT JOIN [ORG].[Department] d on d.Id=ei.DepartmentId
-                                      LEFT JOIN [ORG].[Line] l on l.Id=ei.LineId
+                                      LEFT JOIN [ORG].[Department] d on d.Id=p.DepartmentId
+                                      LEFT JOIN [ORG].[Line] l on l.Id=mb.LineId
                                       LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=HO.PlantId   
                                       LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=ho.PlantId
                                       LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=ei.SystemId
@@ -5655,16 +5661,18 @@ namespace Library.HumanResource.Report.OT
                                     ,ISNULL(ec.UserName,'') EmployeeCategory
                                       FROM AttdnProcessData ap 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
                                      -- LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
-                                      LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
-                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
+                                      LEFT JOIN [ORG].[Section] s on s.Id=p.SectionId
+                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=p.SubSectionId
                                         left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=ei.LegalDesignationId
                                         left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
                                         left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                                         left join hkp.LegalDesignation LG on LG.Id = ei.LegalDesignationId
-                                      LEFT JOIN [ORG].[Department] d on d.Id=ei.DepartmentId
-                                      LEFT JOIN [ORG].[Line] l on l.Id=ei.LineId
+                                      LEFT JOIN [ORG].[Department] d on d.Id=p.DepartmentId
+                                      LEFT JOIN [ORG].[Line] l on l.Id=mb.LineId
                                       LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=HO.PlantId   
                                       LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=ho.PlantId
                                       LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=ei.SystemId
@@ -5876,16 +5884,18 @@ namespace Library.HumanResource.Report.OT
                                     ,ISNULL(ec.UserName,'') EmployeeCategory
                                       FROM AttdnProcessData ap 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
                                     LEFT JOIN ORG.Plant  on Plant.Id=ei.PlantId
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
-                                      LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
-                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
+                                      LEFT JOIN [ORG].[Section] s on s.Id=p.SectionId
+                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=p.SubSectionId
                                         left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=ei.LegalDesignationId
                                         left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
                                         left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                                         left join hkp.LegalDesignation LG on LG.Id = ei.LegalDesignationId
-                                      LEFT JOIN [ORG].[Department] d on d.Id=ei.DepartmentId
-                                      LEFT JOIN [ORG].[Line] l on l.Id=ei.LineId
+                                      LEFT JOIN [ORG].[Department] d on d.Id=p.DepartmentId
+                                      LEFT JOIN [ORG].[Line] l on l.Id=mb.LineId
                                       LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=EI.PlantId   
                                       LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=EI.PlantId
                                       LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=ei.SystemId
@@ -7255,15 +7265,17 @@ namespace Library.HumanResource.Report.OT
                                     ,ISNULL(ec.UserName,'') EmployeeCategory , p.UserName as Plant
                                       FROM AttdnProcessData ap 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
-                                      LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
-                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
+                                      LEFT JOIN [ORG].[Section] s on s.Id=p.SectionId
+                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=p.SubSectionId
                                         left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=ei.LegalDesignationId
                                         left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
                                         left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                                         left join hkp.LegalDesignation LG on LG.Id = ei.LegalDesignationId
-                                      LEFT JOIN [ORG].[Department] d on d.Id=ei.DepartmentId
-                                      LEFT JOIN [ORG].[Line] l on l.Id=ei.LineId
+                                      LEFT JOIN [ORG].[Department] d on d.Id=p.DepartmentId
+                                      LEFT JOIN [ORG].[Line] l on l.Id=mb.LineId
                                       LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=ei.PlantId   
                                       LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=ei.PlantId
                                       LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=ei.SystemId
@@ -7370,15 +7382,17 @@ namespace Library.HumanResource.Report.OT
                                     ,ISNULL(ec.UserName,'') EmployeeCategory
                                       FROM AttdnProcessData ap 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
-                                      LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
-                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
+                                      LEFT JOIN [ORG].[Section] s on s.Id=p.SectionId
+                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=p.SubSectionId
                                         left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=ei.LegalDesignationId
                                         left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
                                         left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                                         left join hkp.LegalDesignation LG on LG.Id = ei.LegalDesignationId
-                                      LEFT JOIN [ORG].[Department] d on d.Id=ei.DepartmentId
-                                      LEFT JOIN [ORG].[Line] l on l.Id=ei.LineId
+                                      LEFT JOIN [ORG].[Department] d on d.Id=p.DepartmentId
+                                      LEFT JOIN [ORG].[Line] l on l.Id=mb.LineId
                                       LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=EI.PlantId   
                                       LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=EI.PlantId
                                       LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=ei.SystemId

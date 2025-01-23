@@ -89,10 +89,10 @@ where P.Active = 1 and DM.EmployeeCategoryId='"+ EmployeeCategoryid + "'";
                             LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
                             LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+							LEFT OUTER JOIN org.Position P ON P.Id=mb.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
                             WHERE EI.EmployeeStatus='Active'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
@@ -344,11 +344,13 @@ TRN.PositionWiseDesignation PWD
 LEFT OUTER JOIN hkp.EmployeeCategory E ON E.Id=PWD.EmployeeCategoryId
 LEFT OUTER JOIN org.Position P ON P.Id=PWD.PositionCodeId
 LEFT OUTER join EmployeeInformation EI ON EI.PositionID=P.Id
+left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+							left join ORG.Position PP on PP.Id=mPB.PositionID
 LEFT OUTER join EmployeeInformation RP ON RP.SystemId=PWD.ResponsiblePersonId
-LEFT OUTER JOIN ORG.Department DEP ON DEP.Id=EI.DepartmentId
-LEFT OUTER join ORG.Division D ON D.Id=EI.DivisionId
-LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+LEFT OUTER JOIN ORG.Department DEP ON DEP.Id=PP.DepartmentId
+LEFT OUTER join ORG.Division D ON D.Id=PP.DivisionId
+LEFT OUTER JOIN ORG.Section S ON S.Id=PP.SectionId
+LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=PP.SubSectionId
 LEFT OUTER JOIN hkp.Process PS ON PS.Id=P.ProcessId
 LEFT OUTER JOIN TRN.PositionWiseDesignationGroup PWDG ON PWDG.PDID=PWD.Id
 LEFT OUTER JOIN hkp.DesignationGroup DG ON DG.Id=PWDG.DesignationGroupId

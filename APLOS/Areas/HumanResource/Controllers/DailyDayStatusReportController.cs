@@ -80,16 +80,17 @@ namespace Aplos.Areas.HumanResource.Controllers
 							) EI
 							
 							left outer join MST.ManpowerBudget as m on m.Id=ei.BudgetCode
+LEFT JOIN ORG.Position PR ON m.PositionId=PR.Id
                             left outer join ORG.Entity  as en on en.Id=m.EntityId
                             LEFT JOIN PlantWiseHRMSSetting hr on HR.PlantID=ei.PlantId
 					        LEFT JOIN HKP.LegalDesignation LG on EI.LegalDesignationId = LG.Id
                             LEFT JOIN HKP.Designation GD on GD.Id = EI.GivenDesignationId
-                            LEFT JOIN ORG.Section S ON S.Id = EI.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.ID = EI.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id = pr.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.ID = pr.SubSectionId
 							LEFT JOIN (select dm.EmployeeCategoryId,d.LegalDesignationId from mst.DesignationMasterLegalDesignation d
 							 left join MST.DesignationMaster as dm on dm.Id=d.DesignationMasterId
 							 ) kk on kk.LegalDesignationId=ei.LegalDesignationId
-							LEFT JOIN ORG.Line L ON L.Id = EI.LineId
+							LEFT JOIN ORG.Line L ON L.Id = m.LineId
 							left join HKP.EmployeeCategory as EC on ec.Id=kk.EmployeeCategoryId
                             LEFT JOIN  EmployeeOTEntitle OT ON OT.EmpSystemID=EI.SystemId
 					        INNER JOIN (SELECT APD.*, FIOT.NormalOTHr, FIOT.WorkDate FIOTWorkDate,dt.Category ToDayDayCategory,Dt.Category

@@ -205,15 +205,15 @@ LEFT JOIN dbo.EmployeeInformation AS eiw ON eiw.SystemId = OTL.ByWhom";
         {
             string sql = @"SELECT FORMAT(apd.WorkDate,'dd-MMM-yyyy')WorkDate,e.UserName Entity,d.UserName Department,s.UserName Section,SS.UserName SubSection,DGm.EmployeeCategory,DG.UserName Designation
 ,p.Activity,Direct=CASE WHEN P.IsDirect=1 THEN 'Yes' ELSE 'No' END,ag.UserName AttendanceGroup,P.UserDefineGroup2, p.Code PositionCode
-,SUM(CAST(Deployment AS int))Deployment,SUM(mbd.TotalNumber)BudgetedManPower,COUNT(apd.EmpSystemID)ONRoll,PMP.PresentManpower,LMP.LateManpower
+,SUM(CAST(mb.Deployment AS int))Deployment,SUM(mbd.TotalNumber)BudgetedManPower,COUNT(apd.EmpSystemID)ONRoll,PMP.PresentManpower,LMP.LateManpower
 ,ISNULL(POT.ProcessedOT,0)TotalOT
 ,((ISNULL(POT.ProcessedOT,0)/60)/8) OTManDays
 ,(ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+((ISNULL(POT.ProcessedOT,0)/60)/8)+ISNULL(EOD.OD,0)) TotalDeployedMandays
-,ExcessDeploymentMandays=CASE WHEN (ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+((ISNULL(POT.ProcessedOT,0)/60)/8)+ISNULL(EOD.OD,0))> SUM(CAST(Deployment AS int)) 
-								THEN ((ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+((ISNULL(POT.ProcessedOT,0)/60)/8)+ISNULL(EOD.OD,0))-SUM(CAST(Deployment AS int))) 
+,ExcessDeploymentMandays=CASE WHEN (ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+((ISNULL(POT.ProcessedOT,0)/60)/8)+ISNULL(EOD.OD,0))> SUM(CAST(mb.Deployment AS int)) 
+								THEN ((ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+((ISNULL(POT.ProcessedOT,0)/60)/8)+ISNULL(EOD.OD,0))-SUM(CAST(mb.Deployment AS int))) 
 								ELSE 0 END
-,ShortDeploymentMandays=CASE WHEN (ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+((ISNULL(POT.ProcessedOT,0)/60)/8)+ISNULL(EOD.OD,0))< SUM(CAST(Deployment AS int)) 
-								THEN (SUM(CAST(Deployment AS int))-(ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+((ISNULL(POT.ProcessedOT,0)/60)/8)+ISNULL(EOD.OD,0))) 
+,ShortDeploymentMandays=CASE WHEN (ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+((ISNULL(POT.ProcessedOT,0)/60)/8)+ISNULL(EOD.OD,0))< SUM(CAST(mb.Deployment AS int)) 
+								THEN (SUM(CAST(mb.Deployment AS int))-(ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+((ISNULL(POT.ProcessedOT,0)/60)/8)+ISNULL(EOD.OD,0))) 
 								ELSE 0 END	
 								  
 ,ExcessOT=CASE WHEN ISNULL(POT.ProcessedOT,0) > ISNULL(old.DailyOTLimit,0) 
@@ -229,7 +229,7 @@ LEFT JOIN MST.ManpowerBudgetDetail mbd ON mbd.ManpowerBudgetId = mb.Id
 LEFT JOIN ORG.Position P ON P.Id=mb.PositionId
 LEFT JOIN ORG.Entity E ON E.Id=mb.EntityId
 LEFT JOIN dbo.OTControlLimitDetail AS old ON old.BudgetCodeId = mb.Id 
-LEFT JOIN dbo.OTControlLimit AS ol ON ol.Id = old.OTControlLimitId  AND ol.EffectiveDate BETWEEN '"+fromDate+@"' AND '"+todate+@"' 
+LEFT JOIN dbo.OTControlLimit AS ol ON ol.Id = old.OTControlLimitId  AND ol.EffectiveDate BETWEEN '" + fromDate+@"' AND '"+todate+@"' 
 LEFT JOIN ORG.Department AS d ON d.Id = p.DepartmentId
 LEFT JOIN ORG.Section AS S ON S.Id = p.SectionId
 LEFT JOIN ORG.SubSection AS SS ON SS.Id = p.SubSectionId
@@ -257,14 +257,16 @@ WHERE dmc.IsOTEntitled=1
  JOIN (
 		SELECT SUM(ISNULL(APD.ProcessedOT,0))ProcessedOT,mb.PositionId,apd.WorkDate FROM dbo.AttdnProcessData AS apd
 		LEFT JOIN MST.ManpowerBudget AS mb ON mb.id=apd.BudgetId
-		WHERE apd.WorkDate BETWEEN '"+fromDate+@"' AND '"+todate+@"' GROUP BY apd.WorkDate,mb.PositionId
+		WHERE apd.WorkDate BETWEEN '"+fromDate+@"' AND '"+todate+ @"' GROUP BY apd.WorkDate,mb.PositionId
         ) POT ON POT.PositionId=MB.PositionId AND POT.WorkDate=apd.WorkDate
         
 LEFT JOIN (
-		SELECT COUNT(D.Id) OD,E.PositionId FROM dbo.EmployeeOnDuty AS eod
+		SELECT COUNT(D.Id) OD,P.Id PositionId FROM dbo.EmployeeOnDuty AS eod
 		LEFT JOIN [dbo].[EmployeeOnDutyDetails] D ON D.OndutyId=eod.Id
 		LEFT JOIN EmployeeInformation E ON E.SystemId = eod.EmpSystemId
-		WHERE D.WorkDate BETWEEN '"+fromDate+@"' AND '"+todate+@"' GROUP BY E.PositionId,eod.EmpSystemId
+		LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=E.BudgetCode
+LEFT JOIN ORG.Position P ON P.Id=mb.PositionId
+		WHERE D.WorkDate BETWEEN '" + fromDate+@"' AND '"+todate+@"' GROUP BY P.Id,eod.EmpSystemId
         ) EOD ON EOD.PositionId=MB.PositionId
         
 WHERE mb.Active=1 AND ISNULL(DGm.EmployeeCategory,'')<>'' AND apd.WorkDate BETWEEN '"+fromDate+@"' AND '"+todate+@"'

@@ -1184,13 +1184,15 @@ FROM [dbo].[LCClauses] CT
                     ,L.Id LineId,L.UserName Line
                     FROM dbo.GoodWorkAuthoritySetUp GWA
                     left join EmployeeInformation ei on ei.SystemId=GWA.AuthorityId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                     left join org.Company C on C.Id=ei.CompanyId
                     left join org.Plant P on P.Id=ei.PlantId
                     LEFT JOIN HKP.LegalDesignation LDEG ON ei.LegalDesignationId=LDEG.Id
-                    LEFT JOIN ORG.Department DP ON DP.Id=ei.DepartmentId
-                    LEFT JOIN ORG.Section S ON S.Id=ei.SectionId                    
-                    LEFT JOIN ORG.SubSection SS ON SS.Id=ei.SubSectionId 
-                    LEFT JOIN ORG.Line L on L.Id=ei.LineId
+                    LEFT JOIN ORG.Department DP ON DP.Id=pr.DepartmentId
+                    LEFT JOIN ORG.Section S ON S.Id=pr.SectionId                    
+                    LEFT JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId 
+                    LEFT JOIN ORG.Line L on L.Id=mb.LineId
                     where  GoodWorkSetupId='" + goodWorkSetupId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -1210,13 +1212,15 @@ FROM [dbo].[LCClauses] CT
                     ,L.Id LineId,L.UserName Line
                     FROM dbo.GoodWorkCheckBySetUp GWC
                     left join EmployeeInformation ei on ei.SystemId=GWC.CheckById
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                     left join org.Company C on C.Id=ei.CompanyId
                     left join org.Plant P on P.Id=ei.PlantId
                     LEFT JOIN HKP.LegalDesignation LDEG ON ei.LegalDesignationId=LDEG.Id
-                    LEFT JOIN ORG.Department DP ON DP.Id=ei.DepartmentId
-                    LEFT JOIN ORG.Section S ON S.Id=ei.SectionId                    
-                    LEFT JOIN ORG.SubSection SS ON SS.Id=ei.SubSectionId 
-                    LEFT JOIN ORG.Line L on L.Id=ei.LineId
+                    LEFT JOIN ORG.Department DP ON DP.Id=pr.DepartmentId
+                    LEFT JOIN ORG.Section S ON S.Id=pr.SectionId                    
+                    LEFT JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId 
+                    LEFT JOIN ORG.Line L on L.Id=mb.LineId
                     where  GoodWorkSetupId='" + goodWorkSetupId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
