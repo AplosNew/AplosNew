@@ -63,7 +63,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
                                 LEFT JOIN ORG.Entity ET ON PMB.EntityId = ET.Id
         						LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
                                         left join [HKP].[LocalLanguage] ll on ll.LegalDesignationId=e.LegalDesignationId and ll.LanguageId='" + LanguageId + @"'
-                                        left join [HKP].[LocalLanguage] lls on lls.SectionId=e.SectionId and lls.LanguageId='" + LanguageId + @"'
+                                        left join [HKP].[LocalLanguage] lls on lls.SectionId=PR.SectionId and lls.LanguageId='" + LanguageId + @"'
                                         left join [ORG].[Plant] p on p.Id=e.PlantId
                                         LEFT JOIN org.CompanyGroup  CG on e.GroupID=cg.Id and CG.LanguageId='" + LanguageId + @"'
                                         where e.SystemId='" + SystemId + @"'and p.Id='" + plantId + @"' ";

@@ -31227,7 +31227,7 @@ namespace Library.Service.HumanResources
                                 LEFT JOIN EmployeeInformation E ON E.SystemId=efs.EmpSystemID
                                 LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
                                 LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
-                                LEFT JOIN ORG.Entity EN ON En.Id=MB.EEntityId
+                                LEFT JOIN ORG.Entity EN ON En.Id=MB.EntityId
                                 LEFT OUTER JOIN ORG.Department edept on edept.id=PR.DepartmentId
                                 LEFT OUTER JOIN ORG.Line eL on eL.id=MB.LineId
                                 LEFT OUTER JOIN ORG.Division ediv on ediv.id=PR.DivisionId
@@ -31236,10 +31236,9 @@ namespace Library.Service.HumanResources
                                 LEFT OUTER JOIN ORG.SubSection ess on ess.id=PR.SubSectionId
                                 LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
                                 LEFT OUTER JOIN ORG.Unit eu on eu.id=EN.UnitId
-                                Left join  MST.DesignationMaster DeM on DeM.DesignationId = DEM.GivenDesignationId
+                                Left join  MST.DesignationMaster DeM on DeM.DesignationId = E.GivenDesignationId
                                 left outer join [ORG].[PlantDesignationGroupSalaryRule] srs on srs.DesignationGroupId=DEM.DesignationGroupId
                                 LEFT OUTER JOIN HKP.Designation edsg on edsg.id=PR.DesignationID
-                                LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
                                 left join HKP.DesignationGroup egdsg on egdsg.id=e.GivenDesignationId
                                 LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=e.LegalDesignationId
                                 where ep.Id='" + plantId + @"' and efs.EmpSystemId in (select EmpSystemId from [dbo].[EmployeeFinalSettlement])";
