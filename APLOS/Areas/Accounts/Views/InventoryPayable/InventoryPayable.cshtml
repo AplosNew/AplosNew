@@ -590,7 +590,7 @@
                 </div>
                 <div class="clearfix"></div>
             </div>
-           
+
         </div>
     </div>
     <div class="clearfix"></div>
@@ -660,7 +660,7 @@
                 <div e-column e-field="TDSVoucherNo" e-headertext="TDS VoucherNo" e-width="100" textAlign='Right'></div>
                 <div e-column e-field="IsTDSTaxPost" e-headertext="Tax Status" e-width="100" textAlign='Right'></div>
                 <div e-column e-headertext="Report" e-template="#ReportTemplate" e-width="100"></div>
-                <div e-column e-headertext=" Action " e-template="#DeleteTemplate" e-width="120"></div>
+                <div e-column e-headertext=" Action " e-template="#DeleteTemplate" e-width="180"></div>
 
             </div>
 
@@ -703,6 +703,9 @@
                         <button ng-show="data.IsPark==true" ng-click="$parent.confirmPost(data.InvoiceId,data.BeneficiaryType,data.AdditionalTaxId,data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Post">
                             Post
                         </button>
+                        <button ng-click="$parent.confirmPaymentTermUpdate(data);" class="btn small tooltip-here" style="height: 28px; width: 50px; padding: 0px; margin: 0px;" title="Update Payment Term">
+                            Update
+                        </button>
                     </li>
                 </ul>
             </div>
@@ -736,6 +739,7 @@
 @Html.Partial("~/Areas/Accounts/Views/_PartyFiscalInvoiceAmountPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_InvoiceSetOffDetailByInvoicePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_PaymentTermUpdatePopUp.cshtml")
 
 
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(GRNId,VoucherId,InvoiceId,Type,TDSTaxVoucherId,TDSVoucherNo)"></confirm-archive-generic>
