@@ -287,8 +287,8 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
             {
                  str = @"SELECT  DISTINCT E.SystemID EmpSystemId,[isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'), isnull(E.VendorId,'') as Vendor 
 									, isnull(p.UserName,'') as Contractor, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus 
-											, E.DesignationSystemID, DE.UserName DesignationName,
-											  F.Id PlantID, F.UserName PlantName, 
+											
+											  ,F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
 											 S.UserName SectionName
 											 , SS.UserName SubSectionName,
@@ -299,7 +299,6 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                                      FROM EmployeeInformation E
                                      left join hkp.Party p on p.Id = E.VendorId
 									 			LEFT JOIN ORG.Plant F ON F.Id= E.PlantId
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON E.LegalDesignationId = LDS.Id
 LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LDS.Id
@@ -328,8 +327,8 @@ WHERE  MONTH(ES.Date)='" + month + @"' AND Year(ES.Date)='" + year + @"') ";
             {
                  str = @"SELECT  DISTINCT E.SystemID EmpSystemId,[isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'), isnull(E.VendorId,'') as Vendor 
 									, isnull(p.UserName,'') as Contractor, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus 
-											, E.DesignationSystemID, DE.UserName DesignationName,
-											  F.Id PlantID, F.UserName PlantName, 
+
+											  ,F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
 											 S.UserName SectionName
 											 , SS.UserName SubSectionName,
@@ -340,7 +339,6 @@ WHERE  MONTH(ES.Date)='" + month + @"' AND Year(ES.Date)='" + year + @"') ";
                                      FROM EmployeeInformation E
                                      left join hkp.Party p on p.Id = E.VendorId
 									 			LEFT JOIN ORG.Plant F ON F.Id= E.PlantId
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON E.LegalDesignationId = LDS.Id
 LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LDS.Id

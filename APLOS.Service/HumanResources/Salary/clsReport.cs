@@ -17037,8 +17037,8 @@ LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
                                 , REPLACE(Convert(VARCHAR(11), EmpBasic.DOB, 106), ' ', '-') AS DOB,REPLACE(Convert(VARCHAR(11), EmpBasic.DOS, 106), ' ', '-') AS DOS,
                                 EmpBasic.EmployeeStatus, EmpBasic.UnitID, EmpBasic.UnitName, EmpBasic.DivisionID, EmpBasic.DivisionName,
                                 EmpBasic.DepartmentID, EmpBasic.DepartmentName, EmpBasic.SectionID, EmpBasic.SectionName, EmpBasic.SubSectionID,EmpBasic.SubDivision,EmpBasic.SubdivisionID,
-                                EmpBasic.SubSectionName, EmpBasic.EmployeeCategorySystemID, EmpBasic.EmpCategoryName, EmpBasic.DesignationGroupName,
-                                EmpBasic.DesignationSystemID, EmpBasic.DesignationName,EmpBasic.GivenDesignationName,EmpBasic.GivenDesignationGroup
+                                EmpBasic.SubSectionName, EmpBasic.EmployeeCategorySystemID, EmpBasic.EmpCategoryName--, EmpBasic.DesignationGroupName,
+                                --EmpBasic.DesignationSystemID, EmpBasic.DesignationName,EmpBasic.GivenDesignationName,EmpBasic.GivenDesignationGroup
                                 , EmpBasic.PlantName
 							     , EmpBasic.LDDesignationGD,EmpBasic.EmployeeCategorySequence
 		                            ,  ISNULL(EmpBasic.DesignationLocal, EmpBasic.LDDesignationGD) DesignationLocal,EmpBasic.GradeCode,EmpBasic.FatherName
@@ -17080,10 +17080,10 @@ LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
                                 FROM
                                     (
 									 SELECT E.SystemID, convert(int, E.EmployeeCode)EmployeeCode, E.EmployeeName,E.EmployeeNameLocal,E.FatherName, E.DOJ,E.DOB,E.DOS, E.EmployeeStatus,E.PaymentMode,
-											DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,GVDE.UserName GivenDesignationName,GVDE.Sequence DesignationSequence,
-											'' UserGroupSystemID, E.PlantID, F.UserName PlantName, F.Sequence PlantSequence, E.UnitID
-											,FU.UserName UnitName,FU.Sequence UnitSequence, E.DivisionID, DV.UserName DivisionName,DV.Sequence DivisionSequence,E.SubdivisionID,subDV.UserName SubDivision,subDV.Sequence SubDivisionSequence, E.DepartmentID, DP.UserName DepartmentName,DP.Sequence DepartmentSequence,
-											E.SectionID, S.UserName SectionName,S.Sequence SectionSequence, E.SubSectionID, SS.UserName SubSectionName,SS.Sequence SubSectionSequence, EC.Id EmployeeCategorySystemID,
+											 DE.UserName DesignationName,GVDE.UserName GivenDesignationName,GVDE.Sequence DesignationSequence,
+											'' UserGroupSystemID, E.PlantID, F.UserName PlantName, F.Sequence PlantSequence, ENT.UnitID
+											,FU.UserName UnitName,FU.Sequence UnitSequence, PO.DivisionID, DV.UserName DivisionName,DV.Sequence DivisionSequence,PO.SubdivisionID,subDV.UserName SubDivision,subDV.Sequence SubDivisionSequence, PO.DepartmentID, DP.UserName DepartmentName,DP.Sequence DepartmentSequence,
+											PO.SectionID, S.UserName SectionName,S.Sequence SectionSequence, PO.SubSectionID, SS.UserName SubSectionName,SS.Sequence SubSectionSequence, EC.Id EmployeeCategorySystemID,
 											EC.UserName EmpCategoryName,EC.Sequence EmployeeCategorySequence--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo
                                             ,ENT.UserName EntityName,Ent.Id EntityId,egdsgg.GivenDesignationGroup,e.SalaryRuleMasterSystemID,L.UserName Line, LD.UserName LegalDesignation--,eoe.IsOTEntitle
 											,IsOTEntitle = Case  when ISNULL(EOE.IsOTEntitle,0) =1 then EOE.IsOTEntitle else ISNULL(DMCT.IsOTEntitled,0) end
@@ -17091,26 +17091,28 @@ LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
 		                                  , ISNULL(LocLangLD.Name,LocLangGD.Name) DesignationLocal
 											,OverTimePmtPolicyMasterID=case when isnull(eoe.EmpSystemID,'')<>'' then (select id from OverTimePmtPolicyMaster where IsDefault=1)
 											when DMCT.IsOTEntitled=1 and isnull(DMCT.OverTimePmtPolicyMasterID,'')<>'' then DMCT.OverTimePmtPolicyMasterID
-											else null end,E.LineId,EGDSGG.DesignationGroupId,L.Sequence LineSequence
+											else null end,MB.LineId,EGDSGG.DesignationGroupId,L.Sequence LineSequence
                                       ,E.CompanyId
                                            FROM EmployeeInformation E
-												LEFT JOIN org.Plant F ON E.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
-												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
-												LEFT JOIN hkp.Designation GVDE ON E.GivenDesignationId = GVDE.Id
-												LEFT JOIN org.Unit FU ON E.UnitID = FU.Id
-												LEFT JOIN org.Division DV ON E.DivisionID = DV.Id
-												LEFT JOIN org.Department DP ON E.DepartmentID = DP.Id
-												LEFT JOIN org.Section S ON E.SectionID = S.Id
-												LEFT JOIN org.SubSection SS ON E.SubSectionID = SS.Id
-                                                LEFT JOIN org.Line L ON L.Id = E.LineId
+
                                                 LEFT  JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = E.BudgetCode
 								                LEFT  JOIN ORG.Entity AS ENT ON ENT.Id = MB.EntityId
+                            LEFT JOIN ORG.Position PO ON MB.PositionId=PO.Id
+												LEFT JOIN org.Plant F ON E.PlantID = F.Id
+												--LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
+												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
+												LEFT JOIN hkp.Designation GVDE ON E.GivenDesignationId = GVDE.Id
+												LEFT JOIN org.Unit FU ON ENT.UnitID = FU.Id
+												LEFT JOIN org.Division DV ON PO.DivisionID = DV.Id
+												LEFT JOIN org.Department DP ON PO.DepartmentID = DP.Id
+												LEFT JOIN org.Section S ON PO.SectionID = S.Id
+												LEFT JOIN org.SubSection SS ON PO.SubSectionID = SS.Id
+                                                LEFT JOIN org.Line L ON L.Id = MB.LineId
 												LEFT JOIN HKP.LegalDesignation LD ON LD.Id=E.LegalDesignationId
 												LEFT JOIN HKP.Designation GVD ON GVD.Id=E.GivenDesignationId
                                                 LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId = LD.Id AND LSGD.PlantId = '" + para.PlantId + @"'
                                               LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = LSGD.LegalSalaryGradeId and LSalGr.PlantId = '" + para.PlantId + @"'
-												LEFT JOIN org.SubDivision subDV ON E.SubdivisionID = subDV.Id
+												LEFT JOIN org.SubDivision subDV ON PO.SubdivisionID = subDV.Id
 												LEFT JOIN
                                                 --hkp.EmployeeCategory EC ON E.EmployeeCategorySystemID = EC.Id
                                                 (

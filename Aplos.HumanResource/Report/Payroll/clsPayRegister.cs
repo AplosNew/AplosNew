@@ -12332,7 +12332,7 @@ where h.HeadCategory='GROSS'
 									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
                          
 									 			LEFT JOIN ORG.Plant F ON SPLD.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
+												
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON SPLD.LegalDesignationId = LDS.Id
 								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode
@@ -14638,15 +14638,17 @@ where h.HeadCategory='GROSS'
                                                 INNER JOIN dbo.AttdnProcessData AD ON E.SystemID = AD.EmpSystemID
                                                 LEFT JOIN dbo.AttdnRawData ARIN ON AD.InTimeRowID = ARIN.RowID
                                                 LEFT JOIN dbo.AttdnRawData AROUT ON AD.OutTimeRowID = AROUT.RowID
-											    LEFT JOIN dbo.FinalOT FinalOT ON  FinalOT.EmpSystemID = E.SystemId AND AD.WorkDate = FinalOT.WorkDate                                                
+											    LEFT JOIN dbo.FinalOT FinalOT ON  FinalOT.EmpSystemID = E.SystemId AND AD.WorkDate = FinalOT.WorkDate                                                 LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
                                                 LEFT JOIN dbo.LeaveType LT ON AD.LTSystemID = LT.Id
-                                                LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                                                LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                                                LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
-                                                LEFT JOIN ORG.Section S ON E.SectionID = S.Id
-                                                LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
-                                                LEFT JOIN ORG.Line L ON E.LineID = L.Id
-                                                LEFT JOIN HKP.Designation D ON E.DesignationSystemID = D.Id
+                                                LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                                                LEFT JOIN ORG.Division Dv ON PR.DivisionID = Dv.Id
+                                                LEFT JOIN ORG.Department Dp ON PR.DepartmentID = Dp.Id
+                                                LEFT JOIN ORG.Section S ON PR.SectionID = S.Id
+                                                LEFT JOIN ORG.SubSection SB ON PR.SubSectionID = SB.Id
+                                                LEFT JOIN ORG.Line L ON MB.LineID = L.Id
+                                                LEFT JOIN HKP.Designation D ON PR.DesignationID = D.Id
 												LEFT JOIN HKP.Designation DD ON E.GivenDesignationId = DD.Id
                                     WHERE AD.PlantID = '" + objm.PlantId + @"' AND AD.WorkDate BETWEEN '" + objm.FDate + @"' AND '" + objm.TDate + @"' 
                                     AND (E.EmployeeStatus='Active' OR E.dos>'" + objm.FDate + @"' OR e.dos IS NULL)";
@@ -14703,15 +14705,17 @@ where h.HeadCategory='GROSS'
                                                 Left JOIN dbo.DayType DT ON DT.DayType = AD.DayStatus
                                                 LEFT JOIN dbo.AttdnRawData ARIN ON AD.InTimeRowID = ARIN.RowID
                                                 LEFT JOIN dbo.AttdnRawData AROUT ON AD.OutTimeRowID = AROUT.RowID
-											    LEFT JOIN dbo.FinalOT FinalOT ON  FinalOT.EmpSystemID = E.SystemId AND AD.WorkDate = FinalOT.WorkDate                                                
+											    LEFT JOIN dbo.FinalOT FinalOT ON  FinalOT.EmpSystemID = E.SystemId AND AD.WorkDate = FinalOT.WorkDate                                                 LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
                                                 LEFT JOIN dbo.LeaveType LT ON AD.LTSystemID = LT.Id
-                                                LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                                                LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                                                LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
-                                                LEFT JOIN ORG.Section S ON E.SectionID = S.Id
-                                                LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
-                                                LEFT JOIN ORG.Line L ON E.LineID = L.Id
-                                                LEFT JOIN HKP.Designation D ON E.DesignationSystemID = D.Id
+                                                LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                                                LEFT JOIN ORG.Division Dv ON PR.DivisionID = Dv.Id
+                                                LEFT JOIN ORG.Department Dp ON PR.DepartmentID = Dp.Id
+                                                LEFT JOIN ORG.Section S ON PR.SectionID = S.Id
+                                                LEFT JOIN ORG.SubSection SB ON PR.SubSectionID = SB.Id
+                                                LEFT JOIN ORG.Line L ON MB.LineID = L.Id
+                                                LEFT JOIN HKP.Designation D ON PR.DesignationID = D.Id
 												LEFT JOIN HKP.Designation DD ON E.GivenDesignationId = DD.Id
                                     WHERE AD.PlantID = '" + objm.PlantId + @"' AND AD.WorkDate BETWEEN '" + objm.FDate + @"' AND '" + objm.TDate + @"' 
                                     AND (E.DOS is null or E.DOS >= '" + objm.FDate + @"')									
@@ -15211,7 +15215,6 @@ where h.HeadCategory='GROSS'
 									  SPLD.SalaryProcessId=SPM.SlrProcMstSystemID
 									 AND SPM.EmpInfoSystemID = SPLD.EmpSystemId 
                                     LEFT OUTER JOIN HKP.Designation edsg on edsg.id=SPLD.DesignationId
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
 									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=SPLD.LegalDesignationId
 
@@ -15386,7 +15389,7 @@ where h.HeadCategory='GROSS'
 									  SPLD.SalaryProcessId=SPM.SlrProcMstSystemID
 									 AND SPM.EmpInfoSystemID = SPLD.EmpSystemId 
                                     LEFT OUTER JOIN HKP.Designation edsg on edsg.id=SPLD.DesignationId
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
+                                    
 									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=SPLD.LegalDesignationId
 
@@ -15539,9 +15542,7 @@ where h.HeadCategory='GROSS'
                 wcEmpStatus += ")";
 
                 strSQL = @"SELECT * FROM (SELECT DISTINCT  E.SystemID,  E.EmployeeCode , E.EmployeeName,ISNULL(E.EmployeeNameLocal,E.EmployeeName) EmployeeNameLocal,E.FatherName,ISNULL(SPM.EntryAmount,0) GrossAmount,  Format(E.DOJ,'dd-MMM-yyy') DOJ, Format(E.DOB,'dd-MMM-yyy') DOB,Format(E.DOS,'dd-MMM-yyy') DOS, E.EmployeeStatus,SPLD.PaymentMode,
-											--DG.UserName DesignationGroupName
-											 E.DesignationSystemID, --GVDE.UserName GivenDesignationName,
-											'' UserGroupSystemID, E.PlantID, F.UserName PlantName, F.Sequence PlantSequence, E.UnitID
+											'' UserGroupSystemID, E.PlantID, F.UserName PlantName, F.Sequence PlantSequence, EN.UnitID
 											,Unit.UserName UnitName,Unit.Sequence UnitSequence, Division.Id DivisionID,
 											 Division.UserName DivisionName,Division.Sequence DivisionSequence
 											,Department.Id DepartmentID, Department.UserName DepartmentName,Department.Sequence DepartmentSequence,
@@ -15556,7 +15557,7 @@ where h.HeadCategory='GROSS'
 										   ,CASE WHEN MONTH(DOS) =  MONTH('" + toDate + @"')  AND YEAR(DOS) = YEAR('" + toDate + @"') THEN 'Separated' else 'Active' end CurrentMonthEmployeeStatus
                                            , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
 		                                   ,ISNULL(LocLangLD.Name,LD.UserName) DesignationLocal
-										   ,E.LineId,L.Sequence LineSequence, esic.ESICNo,pf.UANNo,SPLD.BankAccNo,bb.BankName, '' BankNameFull
+										   ,MB.LineId,L.Sequence LineSequence, esic.ESICNo,pf.UANNo,SPLD.BankAccNo,bb.BankName, '' BankNameFull
                                            ,MMDSA.*
                                            FROM EmployeeInformation E
  JOIN (
@@ -16235,9 +16236,8 @@ where h.HeadCategory='GROSS'
                 wcEmpStatus += ")";
 
                 strSQL = @"SELECT * FROM (SELECT DISTINCT  E.SystemID,  E.EmployeeCode , E.EmployeeName,ISNULL(E.EmployeeNameLocal,E.EmployeeName) EmployeeNameLocal,E.FatherName,ISNULL(SPM.EntryAmount,0) GrossAmount,  Format(E.DOJ,'dd-MMM-yyy') DOJ, Format(E.DOB,'dd-MMM-yyy') DOB,Format(E.DOS,'dd-MMM-yyy') DOS, E.EmployeeStatus,SPLD.PaymentMode,
-											--DG.UserName DesignationGroupName
-											 E.DesignationSystemID, --GVDE.UserName GivenDesignationName,
-											'' UserGroupSystemID, E.PlantID, F.UserName PlantName, F.Sequence PlantSequence, E.UnitID
+											
+											'' UserGroupSystemID, E.PlantID, F.UserName PlantName, F.Sequence PlantSequence, EN.UnitID
 											,Unit.UserName UnitName,Unit.Sequence UnitSequence, Division.Id DivisionID,
 											 Division.UserName DivisionName,Division.Sequence DivisionSequence
 											,Department.Id DepartmentID, Department.UserName DepartmentName,Department.Sequence DepartmentSequence,
@@ -16252,7 +16252,7 @@ where h.HeadCategory='GROSS'
 										   ,CASE WHEN MONTH(DOS) =  MONTH('" + toDate + @"')  AND YEAR(DOS) = YEAR('" + toDate + @"') THEN 'Separated' else 'Active' end CurrentMonthEmployeeStatus
                                            , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
 		                                   ,ISNULL(LocLangLD.Name,LD.UserName) DesignationLocal
-										   ,E.LineId,L.Sequence LineSequence, esic.ESICNo,pf.UANNo,SPLD.BankAccNo,bb.BankName, '' BankNameFull
+										   ,MB.LineId,L.Sequence LineSequence, esic.ESICNo,pf.UANNo,SPLD.BankAccNo,bb.BankName, '' BankNameFull
                                            ,MMDSA.*
                                            FROM EmployeeInformation E
  JOIN (
@@ -16630,9 +16630,7 @@ where h.HeadCategory='GROSS'
                 }
 
                 strSQL = @"SELECT * FROM (SELECT DISTINCT  E.SystemID,  E.EmployeeCode , E.EmployeeName,ISNULL(E.EmployeeNameLocal,E.EmployeeName) EmployeeNameLocal,E.FatherName,ISNULL(SPC.DisbusmentAmount,0) GrossAmount,  Format(E.DOJ,'dd-MMM-yyy') DOJ, Format(E.DOB,'dd-MMM-yyy') DOB,Format(E.DOS,'dd-MMM-yyy') DOS, E.EmployeeStatus,SPLD.PaymentMode,
-											--DG.UserName DesignationGroupName
-											 E.DesignationSystemID, --GVDE.UserName GivenDesignationName,
-											'' UserGroupSystemID, E.PlantID, F.UserName PlantName, F.Sequence PlantSequence, E.UnitID
+											'' UserGroupSystemID, E.PlantID, F.UserName PlantName, F.Sequence PlantSequence, EN.UnitID
 											,Unit.UserName UnitName,Unit.Sequence UnitSequence, Division.Id DivisionID,
 											 Division.UserName DivisionName,Division.Sequence DivisionSequence
 											,Department.Id DepartmentID, Department.UserName DepartmentName,Department.Sequence DepartmentSequence,
@@ -16645,7 +16643,7 @@ where h.HeadCategory='GROSS'
 										   ,CASE WHEN MONTH(DOS) =  MONTH('" + toDate + @"')  AND YEAR(DOS) = YEAR('" + toDate + @"') THEN 'Separated' else 'Active' end CurrentMonthEmployeeStatus
                                            , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
 		                                   ,ISNULL(LocLangLD.Name,LD.UserName) DesignationLocal
-										   ,E.LineId,L.Sequence LineSequence, esic.ESICNo,pf.UANNo,SPLD.BankAccNo,bb.BankName, '' BankNameFull
+										   ,MB.LineId,L.Sequence LineSequence, esic.ESICNo,pf.UANNo,SPLD.BankAccNo,bb.BankName, '' BankNameFull
                                            ,MMDSA.*
                                            FROM EmployeeInformation E
 												LEFT OUTER JOIN (Select EmpInfoSystemID,DisbusmentAmount,SlrProcMstSystemID from SalaryProcChild SPC Left join SalaryHead SH ON SH.SalaryHeadID = SPC.SalaryHeadID where HeadCategory = 'GROSS') SPC ON SPC.EmpInfoSystemID = E.SystemId
