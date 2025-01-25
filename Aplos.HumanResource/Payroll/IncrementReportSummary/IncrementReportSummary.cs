@@ -79,7 +79,9 @@ namespace Library.HumanResource.Payroll.IncrementReportSummary
               ) salaryInfoFrom on IH.EmpSystemID=salaryInfoFrom.EmpInfoSystemID AND IH.FromEffectiveDate=salaryInfoFrom.EffectiveDate --and IH.FromSalaryId=salaryInfoFrom.SystemID
             LEFT JOIN SalaryHead SH1 ON SH1.SalaryHeadID=salaryInfoFrom.SalaryHeadID
             LEFT JOIN EmployeeInformation ei ON EI.SystemId=salaryInfoTo.EmpInfoSystemID
-			left join org.Department dep on dep.Id = ei.DepartmentId     
+			LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
+            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+			left join org.Department dep on dep.Id = PR.DepartmentId   
             LEFT JOIN hkp.LegalDesignation LD ON IH.ToLegalDesignationId = LD.Id
             left join (
             --Select distinct dep.Id as DepartmentId, dep.UserName as Department ,mpb.Code
@@ -100,7 +102,8 @@ namespace Library.HumanResource.Payroll.IncrementReportSummary
             --left join org.Department dep on dep.Id = p.DepartmentId  
 			select dep.Id as DepartmentId, dep.UserName as Department ,e.BudgetCode Code from EmployeeInformation E 
 			left join mst.ManpowerBudget mpb on mpb.Id = e.BudgetCode
-			left join org.Department dep on dep.Id = e.DepartmentId  
+            LEFT JOIN ORG.Position PR ON mpb.PositionId=PR.Id
+			left join org.Department dep on dep.Id = PR.DepartmentId  
             ) NEW on NEW.Code=IH.ToBudgetCode  
             left join (
             select LSG.Id as SalaryGradeId, LSG.UserName SalaryGrade,LD.UserName LegalDesignation,LSGD.LegalDesignationId,lsgd.PlantId from [MST].[LegalSalaryGradeDesignation] LSGD
@@ -449,13 +452,16 @@ e.EmployeeNameLocal,e.EmployeeName
 ,ISNULL(SC.Name,S.UserName) as Section
 ,ISNULL(CT.Name,C.UserName) as Category
 from EmployeeInformation as e
-left outer join ORG.Department as d on d.Id=e.DepartmentId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+LEFT JOIN ORG.Position PO ON MB.PositionId=PO.Id
+left outer join ORG.Department as d on d.Id=PO.DepartmentId
 left outer join HKP.LegalDesignation as LG on LG.Id=e.LegalDesignationId
-left outer join org.Section as S on S.Id=e.SectionId
-left outer join HKP.EmployeeCategory as C on c.Id=e.EmployeeCategorySystemID
-left outer join ORG.line as L on L.Id=e.LineId
-LEFT JOIN HKP.LocalLanguage DP ON DP.DepartmentId =e.DepartmentId AND DP.LanguageId='" + languageId + @"'
-LEFT JOIN HKP.LocalLanguage SC on SC.SectionId=e.SectionId AND SC.LanguageId='" + languageId + @"'
+left outer join org.Section as S on S.Id=PO.SectionId
+LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+LEFT JOIN HKP.EmployeeCategory C ON C.Id=DM.EmployeeCategoryId
+left outer join ORG.line as L on L.Id=MB.LineId
+LEFT JOIN HKP.LocalLanguage DP ON DP.DepartmentId =PO.DepartmentId AND DP.LanguageId='" + languageId + @"'
+LEFT JOIN HKP.LocalLanguage SC on SC.SectionId=PO.SectionId AND SC.LanguageId='" + languageId + @"'
 LEFT JOIN HKP.LocalLanguage DG ON DG.LegalDesignationId=e.LegalDesignationId AND DG.LanguageId='" + languageId + @"'
 LEFT JOIN HKP.LocalLanguage CT ON CT.EmployeeCategoryId=e.BudgetCategoryID AND CT.LanguageId='" + languageId + @"'
 

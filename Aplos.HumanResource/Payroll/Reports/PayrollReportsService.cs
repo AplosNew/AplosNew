@@ -5188,9 +5188,9 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                 LEFT JOIN dbo.AttdnRawData ARIN ON AR.InTimeRowID = ARIN.RowID
                                 LEFT JOIN dbo.AttdnRawData AROUT ON AR.OutTimeRowID = AROUT.RowID
                                 LEFT JOIN dbo.LeaveType LT ON AR.LTSystemID = LT.Id
-                                LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                                LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                                LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
+                                LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                                LEFT JOIN ORG.Division Dv ON PO.DivisionID = Dv.Id
+                                LEFT JOIN ORG.Department Dp ON PO.DepartmentID = Dp.Id
 
                                   LEFT JOIN ORG.Section S ON PO.SectionID = S.Id
                                 LEFT JOIN ORG.SubSection SB ON PO.SubSectionID = SB.Id
@@ -15554,21 +15554,9 @@ ELSE CONVERT(BIT,0) END  ---No
 
                                     FROM EmployeeInformation e
                                 
-                                   -- left outer join [ORG].[PlantDesignationGroupSalaryRule] srs on srs.DesignationGroupId=e.DesignationGroupId
-                                    --left outer join SalaryRuleMaster srm on srm.SystemId=srs.SalaryRuleMasterId
-                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
 									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=e.LegalDesignationId
 
-                                    LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
-									,dg.UserName GivenDesignationGroup--,srm.SalaryRuleName
-									FROM mst.DesignationMaster dm
-									LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
-		                           -- left outer join [ORG].[PlantDesignationGroupSalaryRule] srs on srs.DesignationGroupId=dm.DesignationGroupId
-                                   -- left outer join SalaryRuleMaster srm on srm.SystemId=srs.SalaryRuleMasterId
-									) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
-									AND egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
                                     LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
 									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
                                     LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
@@ -16539,29 +16527,11 @@ AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where m
 									,ISNULL(bb.UserName,'') BankName
 
                                     FROM EmployeeInformation e
-                                    LEFT OUTER JOIN ORG.Department edept on edept.id=e.DepartmentId
-                                    LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId
-                                    LEFT OUTER JOIN ORG.Division ediv on ediv.id=e.DivisionId
-                                    LEFT OUTER JOIN ORG.SubDivision esdiv on esdiv.id=e.SubDivisionId
-                                    LEFT OUTER JOIN ORG.Section es on es.id=e.SectionId
-                                    LEFT OUTER JOIN ORG.SubSection ess on ess.id=e.SubSectionId
-                                    LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
-                                    LEFT OUTER JOIN ORG.Unit eu on eu.id=e.UnitId
-                                   -- left outer join [ORG].[PlantDesignationGroupSalaryRule] srs on srs.DesignationGroupId=e.DesignationGroupId
-                                    --left outer join SalaryRuleMaster srm on srm.SystemId=srs.SalaryRuleMasterId
-                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
+                                    
 									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=e.LegalDesignationId
 
-                                    LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
-									,dg.UserName GivenDesignationGroup--,srm.SalaryRuleName
-									FROM mst.DesignationMaster dm
-									LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
-		                           -- left outer join [ORG].[PlantDesignationGroupSalaryRule] srs on srs.DesignationGroupId=dm.DesignationGroupId
-                                   -- left outer join SalaryRuleMaster srm on srm.SystemId=srs.SalaryRuleMasterId
-									) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
-									AND egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
+                                  
                                     LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
 									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
                                     LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
@@ -16571,7 +16541,7 @@ AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where m
                                     LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
                                     LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
                                     LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId
-                                    
+                                    LEFT OUTER JOIN ORG.Line eL on eL.id=mpb.LineId
 
                                     LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
                                     LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
@@ -16717,12 +16687,11 @@ AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where m
 	                              E.FatherName, E.MotherName, E.EmpType EmployeeType, E.EmploymentType EmploymentNature, E.NationalID,
 	                              E.GenderID GenderName, REPLACE(Convert(VARCHAR(11), E.DOJ, 106), ' ', '-') AS DOJ,
                                   REPLACE(Convert(VARCHAR(11), E.DOS, 106), ' ', '-') AS DOS,
-	                              REPLACE(Convert(VARCHAR(11), E.DOC, 106), ' ', '-') AS DOC, DG.UserName DesignationGroup, D.UserName Designation,ISNULL(LG.UserName,'') LegalDesignation,
-								  D.UserName GivenDesignation, L.UserName Line, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
+	                              REPLACE(Convert(VARCHAR(11), E.DOC, 106), ' ', '-') AS DOC,ISNULL(LG.UserName,'') LegalDesignation,
+								  DG.UserName Designation,D.UserName GivenDesignation, L.UserName Line, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
 								  S.UserName Section, SB.UserName SubSection, EC.UserName AS EmpCategory, Cm.UserName CompanyName, CAM.Address1,
-	                              CAM.Address2, E.EmployeeCategorySystemID, E.UnitID, E.DivisionID, E.DepartmentID, E.DesignationSystemID,
-	                              E.SectionID, E.SubSectionID, E.LineID, E.DesignationGroupID, E.SubSecStrucSystemID, E.EmployeeStatus,
-	                              P.UserName PlantName, (PAM.[Address1] + ', ' + PAM.[Address2] + ', ' + PAMC.UserName + ' - ' + PAM.Postcode) FactoryAddress,
+	                              CAM.Address2, E.SubSecStrucSystemID, E.EmployeeStatus,
+	                              PL.UserName PlantName, (PAM.[Address1] + ', ' + PAM.[Address2] + ', ' + PAMC.UserName + ' - ' + PAM.Postcode) FactoryAddress,
 	                              GC.UserName GroupName, (CGAM.[Address1] + ', ' + CGAM.[Address2] + ', ' + CT.UserName + ' - ' + CGAM.Postcode + ', Contact: ' + CGAM.Phone) GroupAddress,
 	                              E.PlantID, BK.UserName BankNameShort, E.BankAccNo, 
 								  EmpSlr.SalaryHeadID, SH.SalaryHead, ISNULL(PSH.Sequence, 99) Sequence, SH.HeadType, ISNULL(SH.HeadCategory,'') HeadCategory, EmpSlr.EntryCurrencyID, EmpSlr.EntryAmount,
@@ -16739,32 +16708,32 @@ AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where m
 									,ISNULL(bb.UserName,'') BankName
 				            FROM (SELECT * FROM EmployeeInformation  WHERE (EmployeeStatus != 'Separated' or DOS is null or DOS >='" + effectiveDate + @"')) AS E
 
-                                            LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                                            LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                                            LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
-                                            LEFT JOIN ORG.Section S ON E.SectionID = S.Id
-                                            LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
                                            LEFT JOIN[MST].[ManpowerBudget] AS MB  on MB.Id = E.BudgetCode
-
+                                            LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
+                                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
+                                            LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                                            LEFT JOIN ORG.Division Dv ON P.DivisionID = Dv.Id
+                                            LEFT JOIN ORG.Department Dp ON P.DepartmentID = Dp.Id
+                                            LEFT JOIN ORG.Section S ON P.SectionID = S.Id
+                                            LEFT JOIN ORG.SubSection SB ON P.SubSectionID = SB.Id
+                                            LEFT JOIN HKP.Designation DG ON P.DesignationId = DG.Id
                                             LEFT JOIN ORG.Line L ON MB.LineID = L.Id
 											LEFT JOIN [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
 												  LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
 									LEFT JOIN [HKP].[Bank] bb on bb.Id = ebi.BankSystemID
                                     LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
-
+                                        LEFT JOIN HKP.Designation D ON E.GivenDesignationId = D.Id
 									LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
-                                            LEFT JOIN HKP.DesignationGroup DG ON E.DesignationGroupID = Dg.Id
-                                            LEFT JOIN HKP.Designation D ON E.DesignationSystemID = D.Id
                                             LEFT JOIN HKP.LegalDesignation LG ON E.LegalDesignationId = LG.Id
                                             LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId = LG.Id and E.PlantId = LSGD.PlantId
                                             LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = LSGD.LegalSalaryGradeId  and E.PlantId = LSalGr.PlantId
 												
-											LEFT JOIN ORG.Plant AS p ON E.PlantId = p.Id
+											LEFT JOIN ORG.Plant AS PL ON E.PlantId = PL.Id
 											LEFT JOIN ORG.Company AS Cm ON E.CompanyID = Cm.Id
 											LEFT JOIN ORG.CompanyGroup AS GC ON E.GroupID = GC.Id
 											LEFT JOIN HKP.Bank AS BK ON E.BankSystemID = BK.Id
 											LEFT JOIN MST.AddressMaster AS CAM ON Cm.AddressMasterId = CAM.Id
-											LEFT JOIN MST.AddressMaster AS PAM ON P.AddressMasterId = PAM.Id
+											LEFT JOIN MST.AddressMaster AS PAM ON PL.AddressMasterId = PAM.Id
 											LEFT JOIN MST.AddressMaster AS CGAM ON GC.AddressMasterId = CGAM.Id
 											LEFT JOIN SCS.City AS PAMC ON PAM.CityId = PAMC.Id
 											LEFT JOIN SCS.City AS CT ON CGAM.CityId = CT.Id
@@ -16902,12 +16871,11 @@ AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where m
 	                              E.FatherName, E.MotherName, E.EmpType EmployeeType, E.EmploymentType EmploymentNature, E.NationalID,
 	                              E.GenderID GenderName, REPLACE(Convert(VARCHAR(11), E.DOJ, 106), ' ', '-') AS DOJ,
                                   REPLACE(Convert(VARCHAR(11), E.DOS, 106), ' ', '-') AS DOS,
-	                              REPLACE(Convert(VARCHAR(11), E.DOC, 106), ' ', '-') AS DOC, DG.UserName DesignationGroup, D.UserName Designation,ISNULL(LG.UserName,'') LegalDesignation,
+	                              REPLACE(Convert(VARCHAR(11), E.DOC, 106), ' ', '-') AS DOC,ISNULL(LG.UserName,'') LegalDesignation,
 								  D.UserName GivenDesignation, L.UserName Line, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
 								  S.UserName Section, SB.UserName SubSection, EC.UserName AS EmpCategory, Cm.UserName CompanyName, CAM.Address1,
-	                              CAM.Address2, E.EmployeeCategorySystemID, E.UnitID, E.DivisionID, E.DepartmentID, E.DesignationSystemID,
-	                              E.SectionID, E.SubSectionID, E.LineID, E.DesignationGroupID, E.SubSecStrucSystemID, E.EmployeeStatus,
-	                              P.UserName PlantName, (PAM.[Address1] + ', ' + PAM.[Address2] + ', ' + PAMC.UserName + ' - ' + PAM.Postcode) FactoryAddress,
+	                              CAM.Address2, E.SubSecStrucSystemID, E.EmployeeStatus,
+	                              PL.UserName PlantName, (PAM.[Address1] + ', ' + PAM.[Address2] + ', ' + PAMC.UserName + ' - ' + PAM.Postcode) FactoryAddress,
 	                              GC.UserName GroupName, (CGAM.[Address1] + ', ' + CGAM.[Address2] + ', ' + CT.UserName + ' - ' + CGAM.Postcode + ', Contact: ' + CGAM.Phone) GroupAddress,
 	                              E.PlantID, BK.UserName BankNameShort, E.BankAccNo, MW.SalaryHeadValue,MW.Grade,
 								  --EmpSlr.SalaryHeadID, SH.SalaryHead, ISNULL(PSH.Sequence, 99) Sequence, SH.HeadType, ISNULL(SH.HeadCategory,'') HeadCategory, EmpSlr.EntryCurrencyID, EmpSlr.EntryAmount,
@@ -16923,13 +16891,14 @@ AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where m
 									,ISNULL(e.PaymentMode,'') PaymentMode
 									,ISNULL(bb.UserName,'') BankName
 				            FROM EmployeeInformation  AS E
-
-                                            LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                                            LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                                            LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
-                                            LEFT JOIN ORG.Section S ON E.SectionID = S.Id
-                                            LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
                                            LEFT JOIN[MST].[ManpowerBudget] AS MB  on MB.Id = E.BudgetCode
+ LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
+ LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
+                                            LEFT JOIN ORG.Unit U ON EN .UnitID = U.Id
+                                            LEFT JOIN ORG.Division Dv ON P.DivisionID = Dv.Id
+                                            LEFT JOIN ORG.Department Dp ON P.DepartmentID = Dp.Id
+                                            LEFT JOIN ORG.Section S ON P.SectionID = S.Id
+                                            LEFT JOIN ORG.SubSection SB ON P.SubSectionID = SB.Id
 
                                             LEFT JOIN ORG.Line L ON MB.LineID = L.Id
 											LEFT JOIN [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
@@ -16938,18 +16907,16 @@ AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where m
                                     LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
 
 									LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
-                                            LEFT JOIN HKP.DesignationGroup DG ON E.DesignationGroupID = Dg.Id
-                                            LEFT JOIN HKP.Designation D ON E.DesignationSystemID = D.Id
                                             LEFT JOIN HKP.LegalDesignation LG ON E.LegalDesignationId = LG.Id
                                             LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId = LG.Id and E.PlantId = LSGD.PlantId
                                             LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = LSGD.LegalSalaryGradeId  and E.PlantId = LSalGr.PlantId
 												
-											LEFT JOIN ORG.Plant AS p ON E.PlantId = p.Id
+											LEFT JOIN ORG.Plant AS PL ON E.PlantId = PL.Id
 											LEFT JOIN ORG.Company AS Cm ON E.CompanyID = Cm.Id
 											LEFT JOIN ORG.CompanyGroup AS GC ON E.GroupID = GC.Id
 											LEFT JOIN HKP.Bank AS BK ON E.BankSystemID = BK.Id
 											LEFT JOIN MST.AddressMaster AS CAM ON Cm.AddressMasterId = CAM.Id
-											LEFT JOIN MST.AddressMaster AS PAM ON P.AddressMasterId = PAM.Id
+											LEFT JOIN MST.AddressMaster AS PAM ON PL.AddressMasterId = PAM.Id
 											LEFT JOIN MST.AddressMaster AS CGAM ON GC.AddressMasterId = CGAM.Id
 											LEFT JOIN SCS.City AS PAMC ON PAM.CityId = PAMC.Id
 											LEFT JOIN SCS.City AS CT ON CGAM.CityId = CT.Id
@@ -16965,7 +16932,7 @@ AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where m
 												                LEFT JOIN (
 															                SELECT MAX(EffectiveDate) EffectiveDate, LegalSalaryGradeId, EmployeeLocationId 
 																                FROM MST.LegalSalaryStructure 
-																                WHERE EffectiveDate <= '30-Sep-2021'
+																                WHERE EffectiveDate <= '"+ effectiveDate + @"'
 															                GROUP BY LegalSalaryGradeId, EmployeeLocationId 
 															                ) S ON S.LegalSalaryGradeId = GD.LegalSalaryGradeId AND S.EmployeeLocationId = B.EmployeeLocationId
 												                LEFT JOIN MST.LegalSalaryStructure SS ON SS.LegalSalaryGradeId = S.LegalSalaryGradeId 
@@ -17079,11 +17046,10 @@ AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where m
 	                              E.FatherName, E.MotherName, E.EmpType EmployeeType, E.EmploymentType EmploymentNature, E.NationalID,
 	                              E.GenderID GenderName, REPLACE(Convert(VARCHAR(11), E.DOJ, 106), ' ', '-') AS DOJ,
                                   REPLACE(Convert(VARCHAR(11), E.DOS, 106), ' ', '-') AS DOS,
-	                              REPLACE(Convert(VARCHAR(11), E.DOC, 106), ' ', '-') AS DOC, DG.UserName DesignationGroup, D.UserName Designation,ISNULL(LG.UserName,'') LegalDesignation,
+	                              REPLACE(Convert(VARCHAR(11), E.DOC, 106), ' ', '-') AS DOC,ISNULL(LG.UserName,'') LegalDesignation,
 								  D.UserName GivenDesignation, L.UserName Line, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
 								  S.UserName Section, SB.UserName SubSection, EC.UserName AS EmpCategory, Cm.UserName CompanyName, CAM.Address1,
-	                              CAM.Address2, E.EmployeeCategorySystemID, E.UnitID, E.DivisionID, E.DepartmentID, E.DesignationSystemID,
-	                              E.SectionID, E.SubSectionID, E.LineID, E.DesignationGroupID, E.SubSecStrucSystemID, E.EmployeeStatus,
+	                              CAM.Address2, E.SubSecStrucSystemID, E.EmployeeStatus,
 	                              P.UserName PlantName, (PAM.[Address1] + ', ' + PAM.[Address2] + ', ' + PAMC.UserName + ' - ' + PAM.Postcode) FactoryAddress,
 	                              GC.UserName GroupName, (CGAM.[Address1] + ', ' + CGAM.[Address2] + ', ' + CT.UserName + ' - ' + CGAM.Postcode + ', Contact: ' + CGAM.Phone) GroupAddress,
 	                              E.PlantID, BK.UserName BankNameShort, E.BankAccNo, 
@@ -17092,15 +17058,15 @@ AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where m
 	                              , EmpSlr.EmpInfoSystemID, MW.SalaryHeadValue                                
 	                            ,CRC.IntegerInDisb, CRC.DecimalNo, MW.Grade,CRC.IsDecimalInDisb IsDecimal
 				            FROM (SELECT * FROM EmployeeInformation  WHERE (DOS is not null and  DOS Between '" + FromDate + @"' and '" + ToDate + @"')) AS E
-
-                                            LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                                            LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                                            LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
-                                            LEFT JOIN ORG.Section S ON E.SectionID = S.Id
-                                            LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
-                                            LEFT JOIN ORG.Line L ON E.LineID = L.Id
-                                            LEFT JOIN HKP.DesignationGroup DG ON E.DesignationGroupID = Dg.Id
-                                            LEFT JOIN HKP.Designation D ON E.DesignationSystemID = D.Id
+ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
+                                            LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                                            LEFT JOIN ORG.Division Dv ON P.DivisionID = Dv.Id
+                                            LEFT JOIN ORG.Department Dp ON P.DepartmentID = Dp.Id
+                                            LEFT JOIN ORG.Section S ON P.SectionID = S.Id
+                                            LEFT JOIN ORG.SubSection SB ON P.SubSectionID = SB.Id
+                                            LEFT JOIN ORG.Line L ON MB.LineID = L.Id
                                             LEFT JOIN HKP.LegalDesignation LG ON E.LegalDesignationId = LG.Id
 											LEFT JOIN ORG.Plant AS p ON E.PlantId = p.Id
 											LEFT JOIN ORG.Company AS Cm ON E.CompanyID = Cm.Id
@@ -17297,7 +17263,6 @@ AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where m
 											,ISNULL(LDS.UserName,'') LegalDesignation,ISNULL(E.NationalID,'') NationalID
                                      FROM EmployeeInformation E
 												LEFT JOIN ORG.Plant F ON E.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON E.LegalDesignationId = LDS.Id
 
@@ -17421,144 +17386,7 @@ AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where m
             }
         }//End Function
 
-        public void xxGetEmployeeInfoDetail(string plantId, string fromDate, string toDate, string salaryProcessSystemId, string payRollGroup, Dictionary<string, string> parameters, out DataSet dsRef)
-        {
-            string strSQL;
-            ConnectionManager.DAL.ConManager objCon;
-            var _wc = string.Empty;
-            var wcSalaryProcessSystemIdStr = "";
-
-
-            if (!string.IsNullOrEmpty(salaryProcessSystemId) && salaryProcessSystemId != "undefined" && salaryProcessSystemId != "null")
-            {
-                wcSalaryProcessSystemIdStr = "SystemID IN ('" + salaryProcessSystemId + @"')";
-            }
-            else
-            {
-                wcSalaryProcessSystemIdStr = @"SystemID IN( SELECT SystemID FROM SalaryProcMaster
-                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-                                                        WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
-                                        AND MonthNo = Month('" + fromDate + "') AND YearNo = Year('" + fromDate + "')  )";
-            }
-
-
-            try
-            {
-                strSQL = @"SELECT EmpBasic.*,MMDSA.*,ISNULL(MW.Grade,'') Grade,ISNULL(MW.SalaryHeadValue,0) MinimumWage
-
-                            FROM
-
-                                    
-		                                    (
-												select EmpSystemID,MonthNo,YearNo, ISNULL(TotalProcDate,0) TotalProcDate,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,'') TotalAbsent
-										,ISNULL(TotalLv,0) TotalLv
-										,ISNULL(TotalMLv,0) TotalMLv,ISNULL(TotalCompAssignLv,0) TotalCompAssignLv,ISNULL(TotalWeekOff,0) TotalWeekOff, ISNULL(TotalWeekOffHoliDay,0) TotalWeekOffHoliDay
-										,ISNULL(TotalOTHr,0) TotalOTHr,ISNULL(TotalNormalOTHr,0) TotalNormalOTHr,ISNULL(TotalExtraOTHr,0) TotalExtraOTHr,ISNULL(WeekOffOTHr,0) WeekOffOTHr
-										,ISNULL(HoliDayOTHr,0) HoliDayOTHr,ISNULL(TotalLWP,0) TotalLWP,ISNULL(IsOTEntitled,0) IsOTEntitled,ISNULL(OTRate,0) OTRate
-										  FROM SalaryProceAttdnData MMDSA where MMDSA.MonthNo = MONTH('" + fromDate + @"') AND
-						                               MMDSA.YearNo = YEAR('" + fromDate + @"')
-											) MMDSA 
-INNER JOIN
-                                    (
-									 SELECT E.SystemID EmpSystemId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus,E.EmployeeCurrentStatus
-											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
-											'' UserGroupSystemID, E.PlantID, F.UserName PlantName, E.UnitID,
-											FU.UserName UnitName, E.DivisionID, DV.UserName DivisionName, E.DepartmentID, DP.UserName DepartmentName,
-											E.SectionID, S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
-											EC.UserName EmpCategoryName--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo
-                                            ,egdsgg.GivenDesignationGroup,e.SalaryRuleMasterSystemID,Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
-											,ISNULL(LDS.UserName,'') LegalDesignation,ISNULL(E.NationalID,'') NationalID
-											,ISNULL(Line.UserName,'') LineName
-											,ISNULL(E.GenderID,'') Gender
-
-
-											,ISNULL(PG.UserName,'') PayRollGroup
-
-                                    ,ISNULL(jl.JobLocation, '') JobLocation
-									,ISNULL(e.PaymentMode,'') PaymentMode
-									,ISNULL(bb.UserName,'') BankName
-                                     FROM EmployeeInformation E
-												LEFT JOIN ORG.Plant F ON E.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
-												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
-												LEFT JOIN hkp.LegalDesignation LDS ON E.LegalDesignationId = LDS.Id
-								LEFT outer join[MST].[ManpowerBudget] AS MB  on MB.Id = E.BudgetCode
-
-												LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
-												  Left Join [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
-												  left join [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
-									left join [HKP].[Bank] bb on bb.Id = ebi.BankSystemID
-                                    Left outer join MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
-
-									Left outer join HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
-
-												LEFT JOIN org.Unit FU ON E.UnitID = FU.Id
-												LEFT JOIN org.Division DV ON E.DivisionID = DV.Id
-												LEFT JOIN org.Department DP ON E.DepartmentID = DP.Id
-												LEFT JOIN org.Section S ON E.SectionID = S.Id
-												LEFT JOIN org.SubSection SS ON E.SubSectionID = SS.Id
-												LEFT JOIN
-                                                --hkp.EmployeeCategory EC ON E.EmployeeCategorySystemID = EC.Id
-                                                (
-                                                SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
-												LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
-												)EC ON EC.DesignationId=E.GivenDesignationId
-												LEFT JOIN (SELECT dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
-									            ,dg.UserName GivenDesignationGroup
-									            FROM MST.DesignationMaster dm
-									            LEFT JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
-									            ) egdsgg ON egdsgg.DesignationId=e.GivenDesignationId
-									            AND egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
-
-									) EmpBasic ON EmpBasic.EmpSystemID = MMDSA.EmpSystemID
-                                   LEFT JOIN 
-													(
-													 SELECT E.SystemID, SUM(SV.SalaryHeadValue) SalaryHeadValue,LSG.UserName Grade
-														FROM EmployeeInformation E   
-																LEFT JOIN MST.ManpowerBudget b ON e.BudgetCode = b.Id
-																LEFT JOIN MST.LegalSalaryGradeDesignation GD ON GD.LegalDesignationId = E.LegalDesignationId 
-                                                                                                AND E.PlantId = gd.PlantId
-																LEFT JOIN (
-																			SELECT MAX(EffectiveDate) EffectiveDate, LegalSalaryGradeId, EmployeeLocationId 
-																				FROM MST.LegalSalaryStructure 
-																				WHERE EffectiveDate <= '" + fromDate + @"'
-																			GROUP BY LegalSalaryGradeId, EmployeeLocationId 
-																		  ) S ON S.LegalSalaryGradeId = GD.LegalSalaryGradeId AND S.EmployeeLocationId = B.EmployeeLocationId
-																LEFT JOIN MST.LegalSalaryStructure SS ON SS.LegalSalaryGradeId = S.LegalSalaryGradeId 
-                                                                                            AND SS.EmployeeLocationId = S.EmployeeLocationId 
-                                                                                            AND SS.EffectiveDate = S.EffectiveDate
-																LEFT JOIN MST.LegalSalaryStructureValue SV ON SV.LegalSalaryStructureId = SS.Id 	
-                                                                left join  [SCS].[LegalSalaryGrade] LSG ON LSG.Id=S.LegalSalaryGradeId	
-														GROUP BY E.SystemId,LSG.UserName
-													) MW ON MW.SystemId = EmpBasic.EmpSystemId
- 
-                                            where EmpBasic.PlantId ='" + plantId + @"' ";
-
-                if (parameters.Count > 0)
-                {
-                    if (parameters.Keys.ElementAt(0) != "")
-                    {
-                        strSQL += @"and EmployeeCode IN(" + parameters["EmployeeCode"] + ")";
-
-                    }
-                }
-
-                strSQL += @"Order by EmpBasic.EmployeeCode ";
-
-                ConnectionManager.clsConnectionManager con = new clsConnectionManager(600);
-                con.getDataSet(strSQL, out dsRef);
-
-
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
-            }
-        }//End Function
+     
         public void GetEmployeeInfoDetail(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string salaryProcessSystemId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool sa, bool ca, string userId, string typeLists, out DataSet dsRef)
         {
             string xx = "";
@@ -17648,11 +17476,10 @@ INNER JOIN
 
                             FROM
                                     (
-									 SELECT DISTINCT E.SystemID EmpSystemId,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
-											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
-											'' UserGroupSystemID, E.PlantID, F.UserName PlantName, E.UnitID,
-											FU.UserName UnitName, E.DivisionID, DV.UserName DivisionName, E.DepartmentID, DP.UserName DepartmentName
-											,E.SectionID, S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID
+									 SELECT DISTINCT E.SystemID EmpSystemId,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus, DE.UserName DesignationName,
+											'' UserGroupSystemID, E.PlantID, F.UserName PlantName, EN.UnitID,
+											FU.UserName UnitName, PO.DivisionID, DV.UserName DivisionName, PO.DepartmentID, DP.UserName DepartmentName
+											,PO.SectionID, S.UserName SectionName, PO.SubSectionID, SS.UserName SubSectionName, EC.ID
 											,EC.UserName EmpCategoryName , EC.WorkingDaysInAMonth--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo
                                             ,e.SalaryRuleMasterSystemID,Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
 											,ISNULL(LDS.UserName,'') LegalDesignation,ISNULL(E.NationalID,'') NationalID
@@ -17675,12 +17502,12 @@ INNER JOIN
 												Left JOin SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId
                                      
 												LEFT JOIN ORG.Plant F ON E.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
+												--LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON E.LegalDesignationId = LDS.Id
 								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = E.BudgetCode
 								LEFT OUTER JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
-
+ LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
 												LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
 												  LEFT JOIN [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
 												  LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
@@ -17691,11 +17518,11 @@ INNER JOIN
                                                 LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId = LDS.Id and E.PlantId = LSGD.PlantId
                                                 LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = LSGD.LegalSalaryGradeId  and E.PlantId = LSalGr.PlantId
 												
-												LEFT JOIN org.Unit FU ON E.UnitID = FU.Id
-												LEFT JOIN org.Division DV ON E.DivisionID = DV.Id
-												LEFT JOIN org.Department DP ON E.DepartmentID = DP.Id
-												LEFT JOIN org.Section S ON E.SectionID = S.Id
-												LEFT JOIN org.SubSection SS ON E.SubSectionID = SS.Id
+												LEFT JOIN org.Unit FU ON EN.UnitID = FU.Id
+												LEFT JOIN org.Division DV ON PO.DivisionID = DV.Id
+												LEFT JOIN org.Department DP ON PO.DepartmentID = DP.Id
+												LEFT JOIN org.Section S ON PO.SectionID = S.Id
+												LEFT JOIN org.SubSection SS ON PO.SubSectionID = SS.Id
 
 											left join HKP.EmployeeCategory EC ON  EC.Id = spld.EmployeeCategoryId
 												LEFT JOIN [dbo].[EmployeeCodeType] eact ON eact.Id = e.EmployeeCodeTypeId
@@ -17835,10 +17662,10 @@ INNER JOIN
                             FROM
                                     (
 									SELECT DISTINCT E.SystemID EmpSystemId,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
-											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
+											, DE.UserName DesignationName,
 											'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
-											 S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
+											 S.UserName SectionName, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
 											EC.UserName EmpCategoryName,EC.WorkingDaysInAMonth--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo
                                             ,e.SalaryRuleMasterSystemID,Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
 											,ISNULL(LDS.UserName,'') LegalDesignation,ISNULL(E.NationalID,'') NationalID
@@ -17865,7 +17692,6 @@ INNER JOIN
 									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
                          
 									 			LEFT JOIN ORG.Plant F ON SPLD.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON SPLD.LegalDesignationId = LDS.Id
 								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode
@@ -18021,10 +17847,10 @@ INNER JOIN
                             FROM
                                     (
 									SELECT DISTINCT E.SystemID EmpSystemId,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
-											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
+											,DE.UserName DesignationName,
 											'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
-											 S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
+											 S.UserName SectionName, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
 											EC.UserName EmpCategoryName,EC.WorkingDaysInAMonth--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo
                                             ,e.SalaryRuleMasterSystemID,Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
 											,ISNULL(LDS.UserName,'') LegalDesignation,ISNULL(E.NationalID,'') NationalID
@@ -18051,7 +17877,6 @@ INNER JOIN
 									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
                          
 									 			LEFT JOIN ORG.Plant F ON SPLD.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON SPLD.LegalDesignationId = LDS.Id
 								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode
@@ -18206,10 +18031,10 @@ INNER JOIN
                             FROM
                                     (
 									SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as Vendor , isnull(p.UserName,'') as Contractor ,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
-											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
+											, DE.UserName DesignationName,
 											'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
-											 S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
+											 S.UserName SectionName, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
 											EC.UserName EmpCategoryName,EC.WorkingDaysInAMonth--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo
                                             ,e.SalaryRuleMasterSystemID,Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
 											,ISNULL(LDS.UserName,'') LegalDesignation,ISNULL(E.NationalID,'') NationalID
@@ -18236,7 +18061,6 @@ INNER JOIN
 									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '"+plantId+ @"' 
                          
 									 			LEFT JOIN ORG.Plant F ON F.Id= E.PlantId
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON SPLD.LegalDesignationId = LDS.Id
 																LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode
@@ -18333,206 +18157,6 @@ INNER JOIN
             }
         }//End Function
 
-        //        public void GeFinalDeductionReportCompanyWiseSQL(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, Dictionary<string, string> parameters, out DataSet dsRef)
-        //        {
-        //            string strSQL;
-        //            ConnectionManager.DAL.ConManager objCon;
-        //            string salaryProcessId = "";
-        //            var _wc = string.Empty;
-        //            var wcSalaryProcessSystemIdStr = "";
-        //            plantId = "'" + plantId.Replace(",", "','") + "'";
-
-        //            if (!string.IsNullOrEmpty(salaryProcessSystemId) && salaryProcessSystemId != "undefined" && salaryProcessSystemId != "null")
-        //            {
-        //                wcSalaryProcessSystemIdStr = "SystemID IN ('" + salaryProcessSystemId + @"')";
-        //            }
-        //            else
-        //            {
-        //                wcSalaryProcessSystemIdStr = @"SystemID IN( SELECT SystemID FROM SalaryProcMaster
-        //                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-        //                                                        WHERE PlantID IN(" + plantId + @") GROUP BY SlrProcMstSystemID)
-        //                                        AND MonthNo = Month('" + fromDate + "') AND YearNo = Year('" + fromDate + "')  )";
-
-
-        //                string strSql = @"SELECT SystemID FROM SalaryProcMaster
-        //                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-        //                                                        WHERE PlantID IN(" + plantId + @") GROUP BY SlrProcMstSystemID)
-        //                                        AND MonthNo =  MONTH('" + fromDate + @"') AND YearNo =  YEAR('" + fromDate + @"')";
-
-        //                DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSql);
-        //                salaryProcessId = "''";
-        //                for (int si = 0; si < dtSalPrcId.Rows.Count; si++)
-        //                {
-        //                    salaryProcessId += ",'" + dtSalPrcId.Rows[si]["SystemID"].ToString() + "'";
-        //                }
-        //            }
-        //            string wcEmpStatus = " AND (1=0 ";
-
-        //            if (isActive == true && isSeperated == true && isMaternity == true)
-        //            {
-        //                wcEmpStatus = " AND (1=1 ";
-        //            }
-        //            else
-        //            {
-        //                if (isActive == true)
-        //                {
-        //                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='Regular'";
-        //                }
-        //                if (isSeperated == true)
-        //                {
-        //                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='SEPARATED'";
-        //                }
-        //                if (isMaternity == true)
-        //                {
-        //                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='MLV_PRE'";
-
-        //                }
-        //            }
-
-        //            wcEmpStatus += ")";
-
-        //            try
-        //            {
-        //                strSQL = @"SELECT EmpBasic.*,MMDSA.*,ISNULL(MW.Grade,'') Grade,ISNULL(MW.SalaryHeadValue,0) MinimumWage,SH.SalaryHead,SH.EntryAmount 
-        //                            FROM
-        //                                    (
-        //									SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as Vendor , isnull(p.UserName,'') as Contractor ,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
-        //											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
-        //											'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
-        //											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
-        //											 S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
-        //											EC.UserName EmpCategoryName,EC.WorkingDaysInAMonth--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo
-        //                                            ,e.SalaryRuleMasterSystemID,Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
-        //											,ISNULL(LDS.UserName,'') LegalDesignation,ISNULL(E.NationalID,'') NationalID
-        //											,ISNULL(Line.UserName,'') LineName
-        //											,ISNULL(E.GenderID,'') Gender
-        //                                            ,ISNULL(LSalGr.Code,'') GradeCode
-        //											,ISNULL(PG.UserName,'') PayRollGroup
-        //                                    , CASE WHEN ISNULL(SPM.SalaryProcFlag,'') = '' THEN 'Regular' ELSE SalaryProcFlag END EmployeeStatus
-        //                                    ,ISNULL(jl.JobLocation, '') JobLocation
-        //									,ISNULL(SPLD.PaymentMode,'') PaymentMode
-        //									,ISNULL(bb.UserName,'') BankName
-        //                                    ,ISNULL(spld.BankAccNo,'') BankAccNo
-        //                                    ,ISNULL(spld.IFSCCode,'') IFSCCode
-        //                                    ,CASE WHEN ISNULL(PO.IsDirect,0) = 0 THEN 'No' ELSE 'Yes' END IsDirect
-        //                                    ,CASE WHEN ISNULL(PO.DirectManpowerCost,0) = 0 THEN 'No' ELSE 'Yes' END DirectManpowerCost
-
-        //                                     FROM EmployeeInformation E
-        //                                     left join hkp.Party p on p.Id = E.VendorId
-        //                                          Left JOIN (
-        //                                    SELECT DISTINCT EmpInfoSystemID,SlrProcMstSystemID,PlantID ,m.Description,m.SalaryProcFlag
-        //                                    FROM SalaryProcChild c
-        //                                    JOIN SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID
-        //                                    WHERE SlrProcMstSystemID IN(" + salaryProcessId + @") 
-        //                                    ) SPM ON spm.EmpInfoSystemID=e.SystemId
-        //									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
-
-        //									 			LEFT JOIN ORG.Plant F ON F.Id= E.PlantId
-        //												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
-        //												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
-        //												LEFT JOIN hkp.LegalDesignation LDS ON SPLD.LegalDesignationId = LDS.Id
-        //								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode
-        //								LEFT OUTER JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
-        //                                LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
-
-        //												LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
-        //												  LEFT JOIN [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
-        //												  LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
-        //									LEFT JOIN [HKP].[Bank] bb on bb.Id = SPLD.BankSystemID
-        //                                    LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
-
-        //									LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
-        //                                                LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId = LDS.Id and E.PlantId = LSGD.PlantId
-        //                                                LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = SPLD.LegalSalaryGradeId  --and SPLD.PlantId = LSalGr.PlantId
-
-        //												LEFT JOIN org.Unit FU ON ENT.UnitID = FU.Id
-        //												LEFT JOIN org.Division DV ON PO.DivisionID = DV.Id
-        //												LEFT JOIN org.Department DP ON PO.DepartmentID = DP.Id
-        //												LEFT JOIN org.Section S ON PO.SectionID = S.Id
-        //												LEFT JOIN org.SubSection SS ON PO.SubSectionID = SS.Id
-
-        //												LEFT JOIN
-        //                                                --hkp.EmployeeCategory EC ON E.EmployeeCategorySystemID = EC.Id
-        //            --                                    (
-        //            --                                    SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
-        //												--LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
-        //												--)EC ON EC.DesignationId=E.GivenDesignationId
-        //												[HKP].[EmployeeCategory] EC ON EC.Id = SPLD.EmployeeCategoryId
-
-
-
-        //									) EmpBasic
-        //									LEFT JOIN (select EF.SystemId,EF.EmployeeName,sh.SalaryHead,mwesac.EntryAmount,mwesam.YearNo,mwesam.MonthNo from EmployeeInformation EF 
-
-        //left outer join MonthWiseExtraSalaryAmtMaster AS mwesam on mwesam.EmpInfoSystemID=EF.SystemId
-        //left outer join MonthWiseExtraSalaryAmtChild AS mwesac on mwesam.SystemID=mwesac.MWESAMasterSystemID
-        //left outer join SalaryHead AS sh on mwesac.SalaryHeadID=sh.SalaryHeadID
-        //) SH on SH.SystemId=EmpBasic.EmpSystemId
-
-        //                                   LEFT JOIN 
-        //													(
-        //													 SELECT E.SystemID, SUM(SV.SalaryHeadValue) SalaryHeadValue,LSG.UserName Grade
-        //														FROM EmployeeInformation E   
-        //																LEFT JOIN MST.ManpowerBudget b ON e.BudgetCode = b.Id
-        //																LEFT JOIN MST.LegalSalaryGradeDesignation GD ON GD.LegalDesignationId = E.LegalDesignationId 
-        //                                                                                                AND E.PlantId = gd.PlantId
-        //																LEFT JOIN (
-        //																			SELECT MAX(EffectiveDate) EffectiveDate, LegalSalaryGradeId, EmployeeLocationId 
-        //																				FROM MST.LegalSalaryStructure 
-        //																				WHERE EffectiveDate <= '" + fromDate + @"'
-        //																			GROUP BY LegalSalaryGradeId, EmployeeLocationId 
-        //																		  ) S ON S.LegalSalaryGradeId = GD.LegalSalaryGradeId AND S.EmployeeLocationId = B.EmployeeLocationId
-        //																LEFT JOIN MST.LegalSalaryStructure SS ON SS.LegalSalaryGradeId = S.LegalSalaryGradeId 
-        //                                                                                            AND SS.EmployeeLocationId = S.EmployeeLocationId 
-        //                                                                                            AND SS.EffectiveDate = S.EffectiveDate
-        //																LEFT JOIN MST.LegalSalaryStructureValue SV ON SV.LegalSalaryStructureId = SS.Id 	
-        //                                                                left join  [SCS].[LegalSalaryGrade] LSG ON LSG.Id=S.LegalSalaryGradeId	
-        //														GROUP BY E.SystemId,LSG.UserName
-        //													) MW ON MW.SystemId = EmpBasic.EmpSystemId
-        //                                    INNER JOIN
-        //		                                    (
-        //											SELECT EmpSystemID,WeekoffDays,MonthNo,YearNo, ISNULL(TotalWorkingDay,0) TotalWorkingDay,ISNULL(TotalPayDay,0)TotalPayDay,ISNULL(TotalNonPayDay,0)TotalNonPayDay,ISNULL(ActualWorkingDay,0)ActualWorkingDay,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,'') TotalAbsent
-        //										,ISNULL(TotalLv,0) TotalLv
-        //										,ISNULL(TotalMLv,0) TotalMLv,ISNULL(TotalCompAssignLv,0) TotalCompAssignLv,ISNULL(TotalWeekOff,0) +  ISNULL(TotalWeekOffHoliDay,0) TotalWeekOff, ISNULL(TotalWeekOffHoliDay,0) TotalWeekOffHoliDay
-        //										,ISNULL(TotalOTHr,0) TotalOTHr,ISNULL(TotalNormalOTHr,0) TotalNormalOTHr,ISNULL(TotalExtraOTHr,0) TotalExtraOTHr,ISNULL(WeekOffOTHr,0) WeekOffOTHr
-        //										,ISNULL(HoliDayOTHr,0) HoliDayOTHr,ISNULL(TotalLWP,0) TotalLWP,ISNULL(IsOTEntitled,0) IsOTEntitled,ISNULL(OTRate,0) OTRate,ISNULL(TotalHoliDay,0) TotalHoliDay
-        //										  FROM SalaryProceAttdnData MMDSA where MMDSA.MonthNo = MONTH('" + fromDate + @"') AND
-        //						                               MMDSA.YearNo = YEAR('" + fromDate + @"') --AND MMDSA.PlantID = '" + plantId + @"' 
-        //											) MMDSA ON EmpBasic.EmpSystemID = MMDSA.EmpSystemID 
-        //                                            WHERE EmpBasic.PlantId IN (" + plantId + @") " + wcEmpStatus + @"";
-        //                try
-        //                {
-        //                    if (parameters.Count > 0)
-        //                    {
-        //                        if (parameters.Keys.ElementAt(0) != "")
-        //                        {
-        //                            strSQL += @"and EmpBasic.EmpSystemId IN(" + parameters["EmpSystemId"] + ")";
-        //                        }
-        //                    }
-        //                }
-        //                catch (Exception)
-        //                {
-
-        //                }
-
-        //                strSQL += @"Order by EmpBasic.EmployeeCodePreFix,EmpBasic.EmployeeCodeNumeric ";
-
-        //                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
-        //                con.getDataSet(strSQL, out dsRef);
-
-
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                throw (ex);
-        //            }
-        //            finally
-        //            {
-        //                objCon = null;
-        //            }
-        //        }//End Function
-
-
         private void SalaryHeadSQL(string plantId, string month, string year, Dictionary<string, string> parameters, string format, out DataSet dsRef)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -18542,7 +18166,7 @@ INNER JOIN
             {
                 strSQL = @"SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as Vendor ,F.UserName Plant
 									, isnull(p.UserName,'') as Contractor, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus 
-											, E.DesignationSystemID, DE.UserName DesignationName,
+											 DE.UserName DesignationName,
 											  F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
 											 S.UserName SectionName
@@ -18555,7 +18179,6 @@ INNER JOIN
                                      FROM EmployeeInformation E
                                      left join hkp.Party p on p.Id = E.VendorId
 									 			LEFT JOIN ORG.Plant F ON F.Id= E.PlantId
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON E.LegalDesignationId = LDS.Id
 LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LDS.Id
@@ -18597,7 +18220,7 @@ group by x.EmpSystemId,SalaryHeadId,x.SalaryHead) SH on SH.EmpSystemId=E.SystemI
             {
                 strSQL = @"SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as Vendor ,F.UserName Plant
 									, isnull(p.UserName,'') as Contractor, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus 
-											, E.DesignationSystemID, DE.UserName DesignationName,
+											 DE.UserName DesignationName,
 											  F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
 											 S.UserName SectionName
@@ -18610,7 +18233,7 @@ CASE WHEN SH.ExtDataUploadApp='Yes' THEN 'System' ELSE 'Excel' END as ExtDataUpl
                                      FROM EmployeeInformation E
                                      left join hkp.Party p on p.Id = E.VendorId
 									 			LEFT JOIN ORG.Plant F ON F.Id= E.PlantId
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
+												
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON E.LegalDesignationId = LDS.Id
 LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LDS.Id
@@ -18706,10 +18329,10 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                             FROM
                                     (
 									SELECT DISTINCT E.SystemID EmpSystemId,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
-											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
+											, DE.UserName DesignationName,
 											'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
-											 S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
+											 S.UserName SectionName, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
 											
                                             e.SalaryRuleMasterSystemID,Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
 											,ISNULL(LDS.UserName,'') LegalDesignation,ISNULL(E.NationalID,'') NationalID
@@ -18733,7 +18356,6 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 									
 									 			
 									 			LEFT JOIN ORG.Plant F ON E.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON E.LegalDesignationId = LDS.Id
 								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = E.BudgetCode
@@ -18866,10 +18488,10 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                             FROM
                                     (
 									SELECT DISTINCT E.SystemID EmpSystemId,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
-											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
+											, DE.UserName DesignationName,
 											'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
-											 S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
+											 S.UserName SectionName, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
 											EC.UserName EmpCategoryName,EC.WorkingDaysInAMonth--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo
                                             ,e.SalaryRuleMasterSystemID,Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
 											,ISNULL(LDS.UserName,'') LegalDesignation,ISNULL(E.NationalID,'') NationalID
@@ -18897,7 +18519,6 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                          
 									 		
 									 			LEFT JOIN ORG.Plant F ON E.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.LegalDesignation LDS ON E.LegalDesignationId = LDS.Id
 												LEFT JOIN [MST].[DesignationMasterLegalDesignation] DTAG ON dtag.LegalDesignationId=e.LegalDesignationId
 												LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dtag.DesignationMasterId
@@ -19059,10 +18680,10 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                             FROM
                                     (
 										SELECT DISTINCT E.SystemID EmpSystemId,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
-											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
+											, DE.UserName DesignationName,
 											'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
-											 S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
+											 S.UserName SectionName, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
 											
                                             e.SalaryRuleMasterSystemID,Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
 											,ISNULL(LDS.UserName,'') LegalDesignation,ISNULL(E.NationalID,'') NationalID
@@ -19088,7 +18709,6 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 									 		
 									 			
 									 			LEFT JOIN ORG.Plant F ON E.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON E.LegalDesignationId = LDS.Id
 								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = E.BudgetCode
@@ -19222,7 +18842,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                             FROM
                                     (
 									SELECT DISTINCT E.SystemID EmpSystemId,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
-											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
+											, DE.UserName DesignationName,
 											'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
 											 S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
@@ -19253,7 +18873,6 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
                          
 									 			LEFT JOIN ORG.Plant F ON SPLD.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON SPLD.LegalDesignationId = LDS.Id
 								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode
@@ -19276,13 +18895,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 												LEFT JOIN org.Section S ON PO.SectionID = S.Id
 												LEFT JOIN org.SubSection SS ON PO.SubSectionID = SS.Id
 												LEFT JOIN [HKP].[EmployeeCategory] EC ON EC.Id = SPLD.EmployeeCategoryId
-												LEFT JOIN (SELECT dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
-									            ,dg.UserName GivenDesignationGroup
-									            FROM MST.DesignationMaster dm
-									            LEFT JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
-									            ) egdsgg ON egdsgg.DesignationId=e.GivenDesignationId
-									            AND egdsgg.EmployeeCategoryId=SPLD.EmployeeCategoryId
-
+												
                                       --Where SPC.SlrProcMstSystemID IN( SELECT SystemID FROM SalaryProcMaster
                                       --WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
                                                         --WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
@@ -20543,10 +20156,10 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                             FROM
                                     (
 									SELECT DISTINCT E.SystemID EmpSystemId,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
-											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
+											, DE.UserName DesignationName,
 											'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
-											 S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
+											 S.UserName SectionName, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
 											EC.UserName EmpCategoryName,EC.WorkingDaysInAMonth--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo
                                             ,e.SalaryRuleMasterSystemID,Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
 											,ISNULL(LDS.UserName,'') LegalDesignation,ISNULL(E.NationalID,'') NationalID
@@ -20577,7 +20190,6 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
                                     left join SalaryLock sl on sl.EmpSystemId = e.SystemId and MonthNo = Month('" + fromDate + "') AND YearNo = Year('" + fromDate + @"')
                                                  LEFT JOIN ORG.Plant F ON SPLD.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON SPLD.LegalDesignationId = LDS.Id
 								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode

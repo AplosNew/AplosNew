@@ -489,8 +489,9 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 from [dbo].[EmpServiceData] esd
                                 left join EmployeeInformation ei on ei.SystemId = esd.EmployeeId
                                 left join mst.ManpowerBudget mb on mb.Id = ei.BudgetCode
+                                LEFT JOIN ORG.Position PO ON MB.PositionId=PO.Id
                                 left join org.Entity e on e.Id = mb.EntityId
-                                left join ORG.Department d on d.Id = ei.DepartmentId
+                                left join ORG.Department d on d.Id = PO.DepartmentId
                                 left join HKP.LegalDesignation ld on ld.Id = ei.LegalDesignationId
                                 left join [dbo].[EmpServiceCategory] esc on esc.Id = esd.EmployeeServiceCategoryId
                                 left join [dbo].[EmpServiceType] est on est.Id= esc.EmpServiceTypeId
@@ -516,8 +517,9 @@ select ei.EmployeeCode EmpId, ei.EmployeeName EmpName, e.UserName EmpEntity, d.U
                                 from[dbo].[EmpServiceData] esd
                                left join EmployeeInformation ei on ei.SystemId = esd.EmployeeId
                                 left join mst.ManpowerBudget mb on mb.Id = ei.BudgetCode
+                                LEFT JOIN ORG.Position PO ON MB.PositionId=PO.Id
                                 left join org.Entity e on e.Id = mb.EntityId
-                                left join ORG.Department d on d.Id = ei.DepartmentId
+                                left join ORG.Department d on d.Id = PO.DepartmentId
                                 left join HKP.LegalDesignation ld on ld.Id = ei.LegalDesignationId
                                 left join[dbo].[EmpServiceCategory] esc on esc.Id = esd.EmployeeServiceCategoryId
                                 left join[dbo].[EmpServiceType] est on est.Id = esc.EmpServiceTypeId
