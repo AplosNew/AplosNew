@@ -9093,7 +9093,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                 strSQL = @"SELECT IR.Id CustomerNo, IRD.Id SalesMaterialId
                                  , IR.CompanyGroupId
                                 ,IR.CompanyId,CRNC.Code
-								,p.UserName Customer
+								,Customer=case when CP.PartyPlantNo>1 and p.UserName!=INVPARTYPL.UserName  then p.UserName + ' ( '+ INVPARTYPL.UserName + ' )' else p.UserName end
                                 , P.UserName Buyer
                                  , ir.CurrencyId
 								,cmp.BaseCurrencyId
@@ -9228,15 +9228,16 @@ AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.Sa
                          LEFT JOIN HKP.PartyPlant INVPARTYPL ON INVPARTYPL.Id = IR.InvoicingPartyPlantId
                          LEFT JOIN HKP.PartyPlant DPARTYPL ON DPARTYPL.Id = IR.DeliveryPartyPlantId
                          LEFT JOIN HKP.Party P ON P.Id = IR.PartyId
+                         LEFT JOIN (select PartyId,Count(Id) PartyPlantNo from  HKP.PartyPlant Group By PartyId) CP ON  CP.PartyId=P.Id
                          LEFT JOIN[MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
                          LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
- LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
-LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+                         LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
+                         LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
                          LEFT JOIN (Select distinct HsnCodeId,SalesMaterialId FROM TRN.SalesTax ) STH ON STH.SalesMaterialId=IRD.Id
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
                          LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
-LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id AND AA.MasterOrderItemID=MOI.Id
+                         LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id AND AA.MasterOrderItemID=MOI.Id
                          LEFT JOIN[HKP].[HSNCode] AS MHSN ON MHSN.ID = STH.HSNCodeId
                          LEFT JOIN[HKP].[HSNCode] AS MHC ON MHC.ID = MMA.HSNCodeId
                          LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
