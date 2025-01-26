@@ -945,8 +945,8 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
 												   ) S ON E.SystemID = S.EmpInfoSystemID
                                         LEFT OUTER JOIN org.Plant F ON E.PlantID = F.Id
                                         LEFT OUTER JOIN hkp.Designation dgs ON dgs.Id = E.GivenDesignationId
-LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=E.GivenDesignationID
-                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = DM.DesignationGroupID
+LEFT JOIN MST.DesignationMaster DEM ON DEM.DesignationId=E.GivenDesignationID
+                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = DEM.DesignationGroupID
                             WHERE E.systemid in (" + _emps + ")";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
