@@ -223,8 +223,8 @@ namespace Library.Service.Attendances
         					 LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
         					 LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                              LEFT JOIN ORG.Plant P ON P.Id=EMP.PlantId
-        					 LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-        					 LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+        					 LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+        					 LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
         					 WHERE EMP.EmployeeStatus='Active' AND EMP.PlantId='" + plantId + "'";
                 return _sqlRepository.GetGridData(parameters);
             }
@@ -274,11 +274,13 @@ namespace Library.Service.Attendances
 											FROM [dbo].[AccessControllerEmployeeTag] E
 							  LEFT JOIN MST.AccessControllerList ACL ON ACL.Id=E.DeviceSystemID
 							  LEFT JOIN EmployeeInformation EMP ON EMP.SystemId=E.EmpInfoSystemID
-							  LEFT JOIN ORG.Department DEPT ON DEPT.Id=EMP.DepartmentId
+                              LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EMP.BudgetCode
+						      LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+							  LEFT JOIN ORG.Department DEPT ON DEPT.Id=P.DepartmentId
         					  LEFT JOIN HKP.Designation DEG ON DEG.Id=EMP.GivenDesignationId
         					  LEFT JOIN ORG.Plant P ON P.Id=EMP.PlantId
-        					  LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-        					  LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+        					  LEFT JOIN ORG.Section S ON S.Id=P.SectionId
+        					  LEFT JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
 							  WHERE E.DeviceSystemID='" + deviceId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }

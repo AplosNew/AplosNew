@@ -5349,11 +5349,11 @@ DSG.StandardName Designation ,MBGT.Code BudgetCode, sd.ShiftDefinationName Shift
 From EmployeeInformation EMP 
 LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
 left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
-left join ORG.Section SC on SC.Id = EMP.SectionId
-left join ORG.SubSection SBC on SBC.Id = EMP.SubSectionId
-LEFT JOIN hkp.Designation DSG on DSG.id = Emp.DesignationSystemID
-left join ShiftDefination sd on sd.systemid = mbgt.shiftdefinationid
 left join ORG.Position POS on POS.Id = MBGT.PositionId
+left join ORG.Section SC on SC.Id = POS.SectionId
+left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+LEFT JOIN hkp.Designation DSG on DSG.id = POS.DesignationID
+left join ShiftDefination sd on sd.systemid = mbgt.shiftdefinationid
 left join mst.DesignationMaster DM on DM.DesignationId = POS.DesignationId
 left join HKP.EmployeeCategory EC on EC.Id = Dm.EmployeeCategoryId
 where emp.EmployeeStatus = 'Active' and  Emp.EmployeeCode = '" + Empcode + "'";

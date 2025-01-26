@@ -1801,45 +1801,49 @@ namespace Library.General.TaskScheduler
 SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup
 ,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
  FROM EmployeeInformation ei
-LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId 
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId 
+LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
+LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
 UNION ALL
 SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup
 ,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END 
 FROM EmployeeInformation ei
-LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId 
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId 
+LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
+LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
 UNION ALL
 SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup
 ,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
    FROM EmployeeInformation ei
-LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId 
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId 
+LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
+LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
 UNION ALL
 SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup
 ,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
  FROM EmployeeInformation ei
-LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId 
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId 
+LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
+LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
 ) A --WHERE A.DesignationGroup<>'Unclassified'
 
@@ -1900,14 +1904,14 @@ FROM (
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM dbo.EmployeeInformation AS ei 
 --LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '"+todate+ @"')) "+tcb+ @") TA ON TA.ResponsiblePersonId= ei.SystemId 
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
@@ -1917,13 +1921,13 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit UR 
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -1937,13 +1941,16 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
@@ -1957,13 +1964,13 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit OTT 
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -1977,14 +1984,14 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND LT.AuthorizationType='AssignTo'  AND tmm.currentstatus='Closed' AND ISNULL(LT.isDone,0)=1 " + tcb + @"
@@ -1997,13 +2004,13 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -2019,13 +2026,13 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask ,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -2042,13 +2049,13 @@ SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
 --LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit WHERE ISNULL(isDone,0)=0 AND (Convert(date,DueDate) < Convert(date,'" + fromDate + @"')) " + tcb + @") PPDT ON PPDT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -2065,13 +2072,13 @@ SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CheckBy' 
@@ -2087,13 +2094,13 @@ SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CrossCheckBy' 
@@ -2109,13 +2116,13 @@ SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='ApproveBy' 
@@ -2138,12 +2145,13 @@ LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit
 Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) " + tcb + @"
 ) TA ON TA.ResponsiblePersonId= ei.SystemId 
 LEFT JOIN TaskAudit TTA ON TTA.ResponsiblePersonId=TA.ResponsiblePersonId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TTA.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -2155,11 +2163,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit UR
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
@@ -2175,11 +2184,12 @@ SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,
   FROM TaskAudit TD 
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
 --LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit WHERE (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))AND ISNULL(isDone,0)=0 " + tcb + @") TD ON TD.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
@@ -2194,11 +2204,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit OTT
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
@@ -2213,11 +2224,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
@@ -2233,11 +2245,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=P.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
@@ -2255,11 +2268,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask ,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
@@ -2276,11 +2290,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
@@ -2299,11 +2314,12 @@ INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CheckBy' 
@@ -2320,11 +2336,12 @@ INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CrossCheckBy' 
@@ -2341,11 +2358,12 @@ INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='ApproveBy' 
@@ -2367,11 +2385,12 @@ LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit
 Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) " + tcb + @"
 ) TA ON TA.ResponsiblePersonId= ei.SystemId 
 LEFT JOIN TaskAudit TTA ON TTA.ResponsiblePersonId=TA.ResponsiblePersonId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TTA.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
@@ -2384,11 +2403,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit UR
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
@@ -2422,11 +2442,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead, 0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit OTT
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
@@ -2441,11 +2462,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead, 0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
@@ -2461,11 +2483,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId 
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
@@ -2483,11 +2506,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
@@ -2505,11 +2529,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
@@ -2528,11 +2553,12 @@ INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CheckBy' 
@@ -2549,11 +2575,12 @@ INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CrossCheckBy' 
@@ -2570,11 +2597,12 @@ INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='ApproveBy' 
@@ -2596,11 +2624,12 @@ SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,
 LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit 
 Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) " + tcb + @"
 ) TA ON TA.ResponsiblePersonId= ei.SystemId 
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN dbo.TaskAudit TTA ON TTA.ResponsiblePersonId=TA.ResponsiblePersonId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TTA.TaskManagerMasterId
@@ -2615,11 +2644,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,ISNULL(COUNT(UR.Id),0) UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit UR
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -2634,11 +2664,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
@@ -2653,11 +2684,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead, 0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit OTT
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -2672,11 +2704,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead, 0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -2691,11 +2724,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId 
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -2711,11 +2745,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask ,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -2731,11 +2766,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -2752,11 +2788,12 @@ SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CheckBy' 
@@ -2772,11 +2809,12 @@ SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CrossCheckBy' 
@@ -2792,11 +2830,12 @@ SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='ApproveBy' 
@@ -2856,14 +2895,14 @@ FROM (
 SELECT DP.UserName Department,COUNT(ei.SystemId) NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM dbo.EmployeeInformation AS ei 
 LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit 
-Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) "+tcb+@"
+Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) "+tcb+ @"
 ) TA ON TA.ResponsiblePersonId= ei.SystemId 
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
---LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TA.TaskManagerMasterId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
@@ -2875,11 +2914,12 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit UR
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(UR.isRead,0)=0 AND ISNULL(UR.IsDone,0)=0 AND (Convert(date,UR.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND UR.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
@@ -2893,11 +2933,12 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=DM.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
 AND (Convert(date,TD.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND TD.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
@@ -2911,11 +2952,12 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit OTT
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 AND OTT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -2929,11 +2971,13 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=DM.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(LT.isDone,0)=1 AND LT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -2947,11 +2991,12 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
@@ -2966,11 +3011,12 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date,ET.DueDate) BETWEEN '" + fromDate+@"' AND '"+todate+ @"'
@@ -2986,11 +3032,12 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + fromDate + @"')) AND PPDT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -3006,11 +3053,12 @@ SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateT
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CheckBy' 
@@ -3026,11 +3074,12 @@ SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateT
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CrossCheckBy' 
@@ -3046,11 +3095,12 @@ SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateT
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='ApproveBy' 
@@ -3072,11 +3122,12 @@ SELECT DP.UserName Department,COUNT(ei.SystemId) NoOfEmp,0 UnRead, 0 TaskDue,0 O
   FROM dbo.EmployeeInformation AS ei 
 LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit WHERE (Convert(date,AddedDate) Between Convert(date,'" + fromDate+@"') AND Convert(date, '"+todate+ @"')) " + tcb + @") TA ON TA.ResponsiblePersonId= ei.SystemId
 LEFT JOIN(SELECT distinct ResponsiblePersonId,TaskManagerMasterId from TaskAudit) TTA ON TTA.ResponsiblePersonId= ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TTA.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
@@ -3089,11 +3140,12 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,ISNULL(COUNT(UR.Id),0) UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit UR 
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(UR.isRead,0)=0 AND ISNULL(UR.IsDone,0)=0 AND (Convert(date,UR.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND UR.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
@@ -3107,11 +3159,12 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
 AND (Convert(date,TD.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND TD.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
@@ -3125,11 +3178,12 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit OTT
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 AND OTT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -3142,11 +3196,12 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei  ON LT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND ISNULL(LT.isDone,0)=1 AND LT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -3160,11 +3215,12 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
@@ -3179,11 +3235,12 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date,ET.DueDate) BETWEEN '" + fromDate + @"' AND '" + todate + @"'
@@ -3199,11 +3256,12 @@ SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTa
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
 --LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit WHERE ISNULL(isDone,0)=0 AND (Convert(date,DueDate) < Convert(date,'" + fromDate + @"')) " + tcb + @") PPDT ON PPDT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + fromDate + @"')) AND PPDT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -3219,11 +3277,12 @@ SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateT
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CheckBy' 
@@ -3239,11 +3298,12 @@ SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateT
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CrossCheckBy' 
@@ -3259,11 +3319,12 @@ SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateT
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='ApproveBy' 
@@ -3286,11 +3347,12 @@ SELECT DP.UserName Department,COUNT(ei.SystemId) NoOfEmp,0 UnRead, 0 TaskDue,0 O
   FROM dbo.EmployeeInformation AS ei 
 LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit) TA ON TA.ResponsiblePersonId= ei.SystemId
 LEFT JOIN(SELECT distinct ResponsiblePersonId,TaskManagerMasterId from TaskAudit Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) " + tcb + @") TTA ON TTA.ResponsiblePersonId= ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TTA.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -3304,12 +3366,13 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,ISNULL(COUNT(UR.Id),0) UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit UR
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
-
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -3324,11 +3387,13 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
@@ -3343,11 +3408,13 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit OTT
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -3362,11 +3429,13 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -3381,11 +3450,13 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -3401,11 +3472,13 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -3421,11 +3494,13 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId 
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -3443,11 +3518,13 @@ INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CheckBy' 
@@ -3464,11 +3541,13 @@ INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CrossCheckBy' 
@@ -3485,11 +3564,13 @@ INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='ApproveBy' 
@@ -3510,11 +3591,13 @@ SELECT DP.UserName Department,COUNT(ei.SystemId) NoOfEmp,0 UnRead, 0 TaskDue,0 O
 LEFT JOIN dbo.EmployeeInformation AS ei ON TTA.ResponsiblePersonId= ei.SystemId
 LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit) TA ON TA.ResponsiblePersonId= ei.SystemId
 --LEFT JOIN(SELECT distinct ResponsiblePersonId,TaskManagerMasterId from TaskAudit Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) " + tcb + @") TTA ON TTA.ResponsiblePersonId= ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TTA.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -3529,11 +3612,13 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,ISNULL(COUNT(UR.Id),0) UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit UR
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -3548,11 +3633,13 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
@@ -3567,11 +3654,13 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit OTT
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -3586,11 +3675,13 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -3605,11 +3696,13 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -3625,11 +3718,12 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -3645,11 +3739,12 @@ UNION ALL
 SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -3667,11 +3762,12 @@ INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CheckBy' 
@@ -3688,11 +3784,12 @@ INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CrossCheckBy' 
@@ -3709,11 +3806,12 @@ INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='ApproveBy' 
@@ -3780,11 +3878,12 @@ SELECT DG.UserName DesignationGroup,COUNT(ei.SystemId) NoOfEmp,0 UnRead, 0 TaskD
   FROM dbo.EmployeeInformation AS ei 
 LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit) TA ON TA.ResponsiblePersonId= ei.SystemId
 LEFT JOIN(SELECT distinct ResponsiblePersonId,TaskManagerMasterId from TaskAudit Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) " + tcb + @") TTA ON TTA.ResponsiblePersonId= ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TTA.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
@@ -3797,11 +3896,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit UR
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(UR.isRead,0)=0 AND ISNULL(UR.IsDone,0)=0 AND (Convert(date,UR.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND UR.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
@@ -3815,11 +3915,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
 AND (Convert(date,TD.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND TD.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
@@ -3832,11 +3933,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit OTT 
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 AND OTT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -3849,11 +3951,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND ISNULL(LT.isDone,0)=1 AND LT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -3867,11 +3970,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
@@ -3886,11 +3990,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date,ET.DueDate) BETWEEN '" + fromDate+@"' AND '"+todate+@"'
@@ -3905,11 +4010,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + fromDate + @"')) AND PPDT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -3925,11 +4031,12 @@ SELECT  DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CheckBy' 
@@ -3945,11 +4052,12 @@ SELECT  DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CrossCheckBy' 
@@ -3965,11 +4073,12 @@ SELECT  DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='ApproveBy' 
@@ -3991,11 +4100,12 @@ SELECT DG.UserName DesignationGroup,COUNT(ei.SystemId) NoOfEmp,0 UnRead, 0 TaskD
   FROM dbo.EmployeeInformation AS ei 
 LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) " + tcb + @") TA ON TA.ResponsiblePersonId= ei.SystemId
 LEFT JOIN(SELECT distinct ResponsiblePersonId,TaskManagerMasterId from TaskAudit Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) " + tcb + @") TTA ON TTA.ResponsiblePersonId= ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TTA.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -4009,11 +4119,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit UR
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -4028,11 +4139,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
@@ -4047,11 +4159,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit OTT
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -4066,11 +4179,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -4085,11 +4199,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -4105,11 +4220,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -4126,11 +4242,12 @@ SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
 --LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit WHERE ISNULL(isDone,0)=0 AND (Convert(date,DueDate) < Convert(date,'" + fromDate + @"')) " + tcb + @") PPDT ON PPDT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -4148,11 +4265,12 @@ INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CheckBy' 
@@ -4169,11 +4287,12 @@ INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CrossCheckBy' 
@@ -4190,11 +4309,12 @@ INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='ApproveBy' 
@@ -4214,11 +4334,12 @@ SELECT DG.UserName DesignationGroup,COUNT(ei.SystemId) NoOfEmp,0 UnRead, 0 TaskD
   FROM dbo.EmployeeInformation AS ei 
 LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) " + tcb + @") TA ON TA.ResponsiblePersonId= ei.SystemId
 LEFT JOIN(SELECT distinct ResponsiblePersonId,TaskManagerMasterId from TaskAudit Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) " + tcb + @") TTA ON TTA.ResponsiblePersonId= ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TTA.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -4232,11 +4353,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit UR
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -4251,11 +4373,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
@@ -4270,11 +4393,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit OTT
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -4289,11 +4413,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -4308,11 +4433,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -4328,11 +4454,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -4348,11 +4475,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
@@ -4370,11 +4498,12 @@ INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CheckBy' 
@@ -4391,11 +4520,12 @@ INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CrossCheckBy' 
@@ -4412,11 +4542,12 @@ INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='ApproveBy' 
@@ -4436,11 +4567,12 @@ FROM (
 SELECT DG.UserName DesignationGroup,COUNT(ei.SystemId) NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM dbo.EmployeeInformation AS ei 
 LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) " + tcb + @") TA ON TA.ResponsiblePersonId= ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 --LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TA.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
@@ -4453,11 +4585,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit UR
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(UR.isRead,0)=0 AND ISNULL(UR.IsDone,0)=0 AND (Convert(date,UR.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND UR.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
@@ -4471,11 +4604,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
 AND (Convert(date,TD.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND TD.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
@@ -4489,11 +4623,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit OTT
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 AND OTT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -4507,11 +4642,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(LT.isDone,0)=1 AND LT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -4525,11 +4661,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET 
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date, '" + todate+@"') > Convert(date,ET.UpdatedDate) 
@@ -4545,11 +4682,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit ET 
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date,ET.DueDate) BETWEEN '" + fromDate+@"' AND '"+todate+@"'
@@ -4564,11 +4702,12 @@ UNION ALL
 SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask ,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + fromDate + @"')) AND PPDT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -4584,11 +4723,12 @@ SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CheckBy' 
@@ -4604,11 +4744,12 @@ SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='CrossCheckBy' 
@@ -4624,11 +4765,12 @@ SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationType='ApproveBy' 
