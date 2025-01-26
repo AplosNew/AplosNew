@@ -114,7 +114,7 @@ LEFT JOIN MST.ManpowerBudget AS mb ON MB.Id=MS.BudgetId WHERE MS.CompanyGroupId=
         {
             try
             {
-                return from m in base.Query(t => t.CompanyGroupId == groupId && t.CompanyId == companyId && t.PlantId == plantId && t.Active && !t.Archive)
+                return from m in base.Query(t => t.CompanyGroupId == groupId && t.CompanyId == companyId && t.PlantId == plantId && t.Active && !t.Archive).Select().OrderBy(x=>x.Sequence)
                        select new { Text = m.UserName, Value = m.Id };
             }
             catch (Exception ex)
