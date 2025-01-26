@@ -601,7 +601,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             EMP.BudgetCode,sd.UserName as EmpShift,E.Id as EntityId,E.UserName EntityName,div.Id as DivisionId,div.UserName as Division,D.Id as DesignationId, isnull(D.UserName, '') Designation,
                             PR.UserName PositionName,DEPT.Id as DepartmentId,
                             DEPT.UserName DepartmentName, S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection,SS.Id as SubSectionId
+                            PR.SectionId,SS.UserName SubSection,SS.Id as SubSectionId
                             ,PL.UserName Plant, PL.Id as PlantId
                             --, mo.OThour as ManualOT
                           --  ,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then apd.ManualOt when mo.EmpSystemId is not null then mo.OThour else '0' End 
@@ -628,7 +628,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             left join DayType dt on dt.DayType = apd.DayStatus
                             left join OTfromApp mo on mo.EmpSystemID = emp.SystemId and (mo.[WorkDate] between CONVERT(DATE, '" + From + @"') AND CONVERT(DATE, '" + To + @"'))
 							left join ORG.Company cm on cm.Id=EMP.CompanyId
-							left join ORG.Division div on div.Id=EMP.DivisionId
+							left join ORG.Division div on div.Id=PR.DivisionId
 							left join dbo.ShiftDefination sd on sd.SystemID=apd.ShiftSystemID
 							where PL.Id IN ( " + PlantId + " ) and E.Id IN ( " + EntityId + " ) and EMP.EmployeeCode IN ( " + Code + " ) and div.Id IN ( " + DivisionId + " ) and DEPT.Id IN ( " + DepartmentId + " ) and S.Id IN ( " + SectionId + " ) and SS.Id IN( " + SubSectionId + " ) and D.Id IN( " + DesignationId + " ) and (apd.WorkDate IN( " + APDEmpWorkDate + " ) or mo.WorkDate IN( " + APDEmpWorkDate + ")) ";
 

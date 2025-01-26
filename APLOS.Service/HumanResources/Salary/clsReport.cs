@@ -17322,22 +17322,24 @@ LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
                             FROM
                                     (
 									 SELECT E.SystemID, E.EmployeeCode, E.EmployeeName, E.DOJ, E.EmployeeStatus,
-											DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,GVDE.UserName GivenDesignationName,
-											'' UserGroupSystemID, E.PlantID, F.UserName PlantName, E.UnitID,
-											FU.UserName UnitName, E.DivisionID, DV.UserName DivisionName, E.DepartmentID, DP.UserName DepartmentName,
-											E.SectionID, S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
+											 DE.UserName DesignationName,GVDE.UserName GivenDesignationName,
+											'' UserGroupSystemID, E.PlantID, F.UserName PlantName,
+											FU.UserName UnitName, DV.UserName DivisionName, DP.UserName DepartmentName,
+											S.UserName SectionName, SS.UserName SubSectionName,
 											EC.UserName EmpCategoryName--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo
                                             ,egdsgg.GivenDesignationGroup,e.SalaryRuleMasterSystemID
                                      FROM EmployeeInformation E
+LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode
+								LEFT OUTER JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
+                                LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
 												LEFT JOIN org.Plant F ON E.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.Designation GVDE ON E.GivenDesignationId = GVDE.Id
-												LEFT JOIN org.Unit FU ON E.UnitID = FU.Id
-												LEFT JOIN org.Division DV ON E.DivisionID = DV.Id
-												LEFT JOIN org.Department DP ON E.DepartmentID = DP.Id
-												LEFT JOIN org.Section S ON E.SectionID = S.Id
-												LEFT JOIN org.SubSection SS ON E.SubSectionID = SS.Id
+												LEFT JOIN org.Unit FU ON EN.UnitID = FU.Id
+												LEFT JOIN org.Division DV ON PO.DivisionID = DV.Id
+												LEFT JOIN org.Department DP ON PO.DepartmentID = DP.Id
+												LEFT JOIN org.Section S ON PO.SectionID = S.Id
+												LEFT JOIN org.SubSection SS ON PO.SubSectionID = SS.Id
 												LEFT JOIN
                                                 --hkp.EmployeeCategory EC ON E.EmployeeCategorySystemID = EC.Id
                                                 (
@@ -17349,7 +17351,6 @@ LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
 									            FROM MST.DesignationMaster dm
 									            LEFT JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
 									            ) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
-									            and egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
 
 									) EmpBasic
                                     INNER JOIN

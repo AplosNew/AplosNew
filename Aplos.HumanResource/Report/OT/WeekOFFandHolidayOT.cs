@@ -5884,7 +5884,7 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
                                     ,ISNULL(ec.UserName,'') EmployeeCategory
                                       FROM AttdnProcessData ap 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
-LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
                             LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
                                     LEFT JOIN ORG.Plant  on Plant.Id=ei.PlantId
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
@@ -6016,10 +6016,9 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
                             FROM
                                     (
 									SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as ContractorId , isnull(P.UserName,'') as Contractor ,AP.WorkDays,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
-											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
 											'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
-											 S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
+											 S.UserName SectionName, SS.UserName SubSectionName,
 											EC.UserName EmpCategoryName,EC.WorkingDaysInAMonth--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo
                                             ,egdsgg.GivenDesignationGroup,e.SalaryRuleMasterSystemID,Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
 											,ISNULL(LDS.UserName,'') LegalDesignation,ISNULL(E.NationalID,'') NationalID
@@ -6047,7 +6046,6 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
 									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
                          
 									 			LEFT JOIN ORG.Plant F ON SPLD.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON SPLD.LegalDesignationId = LDS.Id
 								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode
@@ -6219,10 +6217,9 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
                             FROM
                                     (
 									SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as ContractorId , isnull(P.UserName,'') as Contractor ,AP.WorkDays,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
-											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
-											'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
+											,'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
-											 S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
+											 S.UserName SectionName, SS.UserName SubSectionName,
 											EC.UserName EmpCategoryName,EC.WorkingDaysInAMonth--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo
                                             ,egdsgg.GivenDesignationGroup,e.SalaryRuleMasterSystemID,Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
 											,ISNULL(LDS.UserName,'') LegalDesignation,ISNULL(E.NationalID,'') NationalID
@@ -6250,7 +6247,6 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
 									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
                          
 									 			LEFT JOIN ORG.Plant F ON SPLD.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON SPLD.LegalDesignationId = LDS.Id
 								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode
@@ -7262,10 +7258,10 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
 									,ISNULL(PG.UserName,'') PayRollGroup
                                     ,ISNULL(ebi.IFSCCode,'') IFSCCode
 									,ISNULL(ebi.BankAccNo,'') BankAccNo
-                                    ,ISNULL(ec.UserName,'') EmployeeCategory , p.UserName as Plant
+                                    ,ISNULL(ec.UserName,'') EmployeeCategory , pl.UserName as Plant
                                       FROM AttdnProcessData ap 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
-LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
                             LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
                                       LEFT JOIN [ORG].[Section] s on s.Id=p.SectionId
@@ -7283,7 +7279,7 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
 									  LEFT JOIN [HKP].[BankBranch] bbranch on bbranch.Id = ebi.BankBranchId
 									  LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = ei.SystemId
                                         LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
-                                        left join org.Plant p on p.Id = ei.PlantId
+                                        left join org.Plant pl on pl.Id = ei.PlantId
                                       LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ei.PlantId AND dar.DesignationId=DM.DesignationId
                                     WHERE  ap.AdditionalOT is not null and Month(ap.WorkDate) = " + MonthNo + @" and Year(ap.WorkDate) = " + YearNo + @"
                                    AND (ISNULL(ap.HoliDayValue,0)=0 AND ISNULL(ap.WeekOffValue,0)=0)
@@ -7291,7 +7287,7 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
                                     GROUP BY  EmployeeName,EmployeeCode,ei.SystemId,DOJ
 									,s.UserName,sb.UserName,lg.UserName,d.UserName,ei.GenderID,ap.EmpSystemId,l.UserName,hr.OTConsiderOn ,ad.IsAllDesignation 
                                     ,ad.IsFixed,ad.FormulaDesID,dar.IsFixed,dar.FormulaDesID,ad.Rate ,dar.rate,ei.DOS	,bb.UserName,PG.UserName
-                                    ,ebi.IFSCCode,ebi.BankAccNo ,ec.UserName,p.UserName
+                                    ,ebi.IFSCCode,ebi.BankAccNo ,ec.UserName,pl.UserName
                                    ORDER BY ei.EmployeeCode
                                     ";
 
