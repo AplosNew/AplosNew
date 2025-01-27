@@ -109,9 +109,9 @@ LEFT OUTER JOIN (SELECT
 								LEFT OUTER JOIN EmployeeInformation AS EATO ON EATO.SystemId=ATO.ResponsiblePersonId
                                 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EATO.BudgetCode
 						        LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
-								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=eato.DepartmentId
+								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=p.DepartmentId
                                 WHERE convert(date,tm.AddedDate) BETWEEN  '" + fromDate + @"' and '" + ToDate + @"'  " + TaskTypeGroupSql + @"
-                                         GROUP BY eato.DepartmentId,ATO.ResponsiblePersonId,AB.ResponsiblePersonId,
+                                         GROUP BY p.DepartmentId,ATO.ResponsiblePersonId,AB.ResponsiblePersonId,
 										tm.TaskCategoryId,tm.TaskSubCategoryId) TC
 										ON tc.DepartmentId=k.DepartmentId AND tc.AssignToId=k.AssignToId AND tc.AssignById=k.AssignById
 										AND tc.TaskCategoryId=k.TaskCategoryId and tc.TaskSubCategoryId=k.TaskSubCategoryId
