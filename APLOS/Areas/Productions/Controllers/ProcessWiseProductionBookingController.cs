@@ -181,11 +181,11 @@ namespace Aplos.Areas.Productions.Controllers
         //{
         //    try
         //    {
-        //        parameters.CmdText = @"SELECT EI.SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+        //        parameters.CmdText = @"SELECT EI.SystemId, MB.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
         //                            , EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [Designation], MB.EntityId
         //                            , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType
         //                    FROM dbo.EmployeeInformation AS EI
-        //                    LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.DesignationSystemID
+        //                    LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.GivenDesignationID
         //                    LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
         //                    LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
         //                    LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId

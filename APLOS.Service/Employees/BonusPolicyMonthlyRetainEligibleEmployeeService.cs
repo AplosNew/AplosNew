@@ -223,7 +223,7 @@ namespace Library.Service.Employees
                                     LEFT JOIN EmployeeInformation EI ON PE.EmpSystemID=EI.SystemId
 LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
                             LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
-									LEFT JOIN HKP.Designation D ON EI.DesignationSystemID = D.Id
+									LEFT JOIN HKP.Designation D ON EI.GivenDesignationID = D.Id
 									LEFT JOIN ORG.Department DP ON pr.DepartmentId = DP.Id
 									LEFT JOIN ORG.Section S ON pr.SectionId=S.Id
 									LEFT JOIN ORG.SubSection SS ON pr.SubSectionId = SS.Id

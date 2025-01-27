@@ -253,7 +253,7 @@ where ItemId in (select Id from MST.QualityManagementParameterItem where Custome
         public ActionResult GetEmployee()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"SELECT EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+            string str = @"SELECT EI.SystemId as SystemId, mb.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
                             FROM dbo.EmployeeInformation AS EI

@@ -1257,7 +1257,7 @@ Where SO.CheckByStatus = 'Checked' AND ApprovedStatus = 'To Be Approve' AND SO.A
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode
                             FROM dbo.EmployeeInformation AS EI
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+							LEFT OUTER JOIN org.Position P ON P.Id=MB.PositionId
                             LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.GivenDesignationId
                             LEFT JOIN ORG.Department AS DEP ON DEP.Id=P.DepartmentId
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId

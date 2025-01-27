@@ -1627,7 +1627,7 @@ APD.Grade,APD.GradeRemark
 from TRN.SkillManagement SM
 left join HKP.Process PRO ON PRO.Id=SM.ProcessId
 left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id
- left join EmployeeInformation EI ON EI.EmployeeStatus='Active' and EI.PositionID=SPC.PositionCodeId 
+ left join EmployeeInformation EI ON EI.EmployeeStatus='Active' --and MB.PositionId=SPC.PositionCodeId 
  left join TRN.SkillManagementEntity SPE ON SPE.SMID=SM.Id
  left Join TRN.EmployeePlannedDetails APD ON APD.PositionCodeId=SPC.Id and APD.Id=(select top 1 Id from TRN.EmployeePlannedDetails MAPD where MAPD.PositionCodeId=SPC.Id and MAPD.EmployeeId=EI.SystemId and MAPD.EntityId=SPE.Id order by MAPD.ActualDate desc)
  left join MST.ManpowerBudget EB ON EB.Id=EI.BudgetCode

@@ -82,11 +82,11 @@ namespace Library.Service.WorkCenters
         {
             try
             {
-                parameters.CmdText = @" SELECT EI.SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                parameters.CmdText = @" SELECT EI.SystemId, mb.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
 								, EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [DesignationName], MB.EntityId,PR.UserName PositionName
         						, DEG.UserName GivenDesignation,DEPT.UserName Department
                                     FROM dbo.EmployeeInformation AS EI
-									LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.DesignationSystemID
+									LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.GivenDesignationID
                                     LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
         					        LEFT OUTER JOIN ORG.Position PR ON MB.PositionId=PR.Id
 									LEFT OUTER JOIN ORG.Entity E ON MB.EntityId=E.Id
@@ -542,14 +542,16 @@ namespace Library.Service.WorkCenters
                                 , EI.FirstName
                                 , EI.MiddleName
                                 , EI.LastName
-                                , EI.PositionId AS PositionCode
+                                , mb.PositionId AS PositionCode
                                 , EI.BudgetCode
                                 , EI.EmailId
                                 , EI.CellPhnNo
                                 , EI.EmpPicPath AS [Image]
                                 , REPLACE(CONVERT(CHAR(11), EI.DOB, 106),' ','-') AS DateOfBirth
                         FROM dbo.EmployeeInformation AS EI
-                        WHERE EI.PlantId='" + plantId + "' AND EI.EmployeeStatus='Active'";
+LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+							LEFT OUTER JOIN org.Position P ON P.Id=MB.PositionID
+                        WHERE EI.PlantId='" + plantId + "' AND EI.EmployeeStatus='Active'  and ei.EmpType<>'Guest'";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception)

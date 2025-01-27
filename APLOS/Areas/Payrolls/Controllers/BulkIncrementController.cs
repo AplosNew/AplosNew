@@ -108,7 +108,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                             LEFT JOIN ORG.Section S ON pr.SectionID = S.Id
                             LEFT JOIN ORG.SubSection SB ON pr.SubSectionID = SB.Id
                             LEFT JOIN ORG.Line L ON mb.LineID = L.Id
-                            LEFT JOIN HKP.Designation D ON Ei.DesignationSystemID = D.Id
+                            LEFT JOIN HKP.Designation D ON EI.GivenDesignationID = D.Id
                             LEFT JOIN HKP.LegalDesignation AS ld  ON Ei.LegalDesignationId = ld.Id
 							LEFT JOIN MST.DesignationMaster dm ON Ei.GivenDesignationId = dm.DesignationId
                             LEFT JOIN HKP.EmployeeCategory AS EC ON DM.EmployeeCategoryId = EC.Id
@@ -188,7 +188,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                             LEFT JOIN ORG.Section S ON pr.SectionID = S.Id
                             LEFT JOIN ORG.SubSection SB ON pr.SubSectionID = SB.Id
                             LEFT JOIN ORG.Line L ON mb.LineID = L.Id
-                            LEFT JOIN HKP.Designation D ON Ei.DesignationSystemID = D.Id
+                            LEFT JOIN HKP.Designation D ON EI.GivenDesignationID = D.Id
                             LEFT JOIN HKP.LegalDesignation AS ld  ON Ei.LegalDesignationId = ld.Id
 							LEFT JOIN MST.DesignationMaster dm ON Ei.GivenDesignationId = dm.DesignationId
                             LEFT JOIN HKP.EmployeeCategory AS EC ON DM.EmployeeCategoryId = EC.Id

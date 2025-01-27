@@ -1237,7 +1237,7 @@ namespace Library.Accounting.FixedAssets
                 left join  TRN.AssetRegister AR on AR.Id=rdd.AssetRegisterId
                 left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
 				left join ORG.Department D on D.Id=ei.DepartmentId
-				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
+				left join HKP.Designation DG ON DG.Id=EI.GivenDesignationID
 				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
 	            LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
@@ -1280,7 +1280,7 @@ namespace Library.Accounting.FixedAssets
                 left join TRN.FixedAssetRegister FR on FR.Id=rdd.FixedAssetRegisterId
                 left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
 				left join ORG.Department D on D.Id=ei.DepartmentId
-				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
+				left join HKP.Designation DG ON DG.Id=EI.GivenDesignationID
 				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
 	            LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
@@ -1330,7 +1330,7 @@ namespace Library.Accounting.FixedAssets
                 left join TRN.FixedAssetRegister FR on FR.Id=rdd.FixedAssetRegisterId
                 left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
 				left join ORG.Department D on D.Id=ei.DepartmentId
-				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
+				left join HKP.Designation DG ON DG.Id=EI.GivenDesignationID
 				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
 	            LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
@@ -1363,7 +1363,7 @@ namespace Library.Accounting.FixedAssets
                 left join  TRN.AssetRegister AR on AR.Id=rdd.AssetRegisterId
                 left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
 				left join ORG.Department D on D.Id=ei.DepartmentId
-				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
+				left join HKP.Designation DG ON DG.Id=EI.GivenDesignationID
 				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
 	            LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
@@ -1404,7 +1404,7 @@ namespace Library.Accounting.FixedAssets
                 left join TRN.FixedAssetRegister FR on FR.Id=rdd.FixedAssetRegisterId
                 left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
 				left join ORG.Department D on D.Id=ei.DepartmentId
-				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
+				left join HKP.Designation DG ON DG.Id=EI.GivenDesignationID
 				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
 				JOIN TRN.Voucher V ON V.Id=frd.DisposedVoucherId
@@ -1433,7 +1433,7 @@ namespace Library.Accounting.FixedAssets
                 left join  TRN.AssetRegister AR on AR.Id=rdd.AssetRegisterId
                 left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
 				left join ORG.Department D on D.Id=ei.DepartmentId
-				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
+				left join HKP.Designation DG ON DG.Id=EI.GivenDesignationID
 				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
 	            LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId

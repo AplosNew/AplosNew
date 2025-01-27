@@ -126,7 +126,7 @@ left join MST.ManpowerBudget MB ON MB.id=SM.ResponsiblePersoneBgtCodeId
 left join TRN.SkillManagementEntity SME ON SME.SMID=SM.Id
 left Join Org.Entity E ON E.Id=SME.EntityId
 left join [TRN].[SkillManagementPositionCode] SPC ON SPC.SMID=SM.Id
-left join EmployeeInformation EI ON EI.EmployeeStatus='Active' --and EI.PositionID=SPC.PositionCodeId
+left join EmployeeInformation EI ON EI.EmployeeStatus='Active' --and MB.PositionId=SPC.PositionCodeId
 left join MST.ManpowerBudget EB ON EB.Id=EI.BudgetCode
 left Join ORG.Position P ON P.Id=EB.PositionID
 left join org.Division DIV ON DIV.Id=P.DivisionId
@@ -180,7 +180,7 @@ left join TRN.SkillManagementEntity SME ON SME.SMID=SM.Id
 left Join Org.Entity E ON E.Id=SME.EntityId
 left join [TRN].[SkillManagementPositionCode] SPC ON SPC.SMID=SM.Id
 --left join MST.ManpowerBudget B ON B.PositionId=SPC.PositionCodeId
-left join EmployeeInformation EI ON EI.EmployeeStatus='Active' and EI.PositionID=SPC.PositionCodeId
+left join EmployeeInformation EI ON EI.EmployeeStatus='Active' and MB.PositionId=SPC.PositionCodeId
 left join TRN.EmployeePlannedDetails EPD ON EPD.Id=(select top 1 Id from [TRN].EmployeePlannedDetails ED where ED.EmployeeId=EI.SystemId and ED.PositionCodeId=SPC.Id order by ED.ActualDate desc)
  where SM.IsActive=1 and EI.SystemId is not null and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[EmployeePlannedDetails] APD where APD.Id=EPD.Id
  ORDER BY APD.Id DESC),'')='' then GETDATE() else (SM.ScheduleDays+(select top 1 ActualDate from [TRN].[EmployeePlannedDetails] APD where APD.Id=EPD.Id
@@ -221,7 +221,7 @@ APD.Remarks as Remark
  from TRN.SkillManagement SM
  left join TRN.SkillManagementEntity SPE ON SPE.SMID=SM.Id
  left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id
- left join EmployeeInformation EI ON EI.EmployeeStatus='Active' --and EI.PositionID=SPC.PositionCodeId 
+ left join EmployeeInformation EI ON EI.EmployeeStatus='Active' --and MB.PositionId=SPC.PositionCodeId 
  left Join TRN.EmployeePlannedDetails APD ON APD.PositionCodeId=SPC.Id and APD.Id=(select top 1 Id from TRN.EmployeePlannedDetails MAPD where MAPD.PositionCodeId=SPC.Id and MAPD.EntityId=SPE.Id and MAPD.EmployeeId=EI.SystemId order by MAPD.ActualDate desc)
   LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
  left Join Org.Entity E ON E.Id=SPE.EntityId
@@ -271,7 +271,7 @@ APD.Remarks
  left join TRN.SkillManagementEntity SPE ON SPE.SMID=SM.Id
  left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id
  left Join TRN.EmployeePlannedDetails APD ON APD.PositionCodeId=SPC.Id
- left join EmployeeInformation EI ON EI.EmployeeStatus='Active' --and EI.PositionID=SPC.PositionCodeId 
+ left join EmployeeInformation EI ON EI.EmployeeStatus='Active' --and MB.PositionId=SPC.PositionCodeId 
  left join MST.ManpowerBudget EB ON EB.Id=EI.BudgetCode
  left Join Org.Entity E ON E.Id=SPE.EntityId
  left Join ORG.Position P ON P.Id=eb.PositionID
@@ -318,7 +318,7 @@ APD.Remarks
  left join TRN.SkillManagementEntity SPE ON SPE.SMID=SM.Id
  left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id
  left Join TRN.EmployeePlannedDetails APD ON APD.PositionCodeId=SPC.Id and APD.Id=(select top 1 Id from TRN.EmployeePlannedDetails MAPD where MAPD.PositionCodeId=SPC.Id and MAPD.EmployeeId='" + EmployeeId + @"' and MAPD.EntityId=SPE.Id order by MAPD.ActualDate desc)
- left join EmployeeInformation EI ON EI.EmployeeStatus='Active' --and EI.PositionID=SPC.PositionCodeId
+ left join EmployeeInformation EI ON EI.EmployeeStatus='Active' --and MB.PositionId=SPC.PositionCodeId
 and EI.SystemId='" + EmployeeId + @"'
  left join MST.ManpowerBudget EB ON EB.Id=EI.BudgetCode
  left Join Org.Entity E ON E.Id=SPE.EntityId
@@ -368,7 +368,7 @@ APD.Remarks
  left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id
  left Join TRN.EmployeePlannedDetails APD ON APD.PositionCodeId=SPC.Id
  left join EmployeeInformation EI ON EI.EmployeeStatus='Active' 
---and EI.PositionID=SPC.PositionCodeId 
+--and MB.PositionId=SPC.PositionCodeId 
 and EI.SystemId='" + EmployeeId + @"'
  left join MST.ManpowerBudget EB ON EB.Id=EI.BudgetCode
  left Join Org.Entity E ON E.Id=SPE.EntityId
@@ -418,7 +418,7 @@ APD.FileName,'id' as test,APD.Grade,APD.GradeRemark
  left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id
  left Join TRN.EmployeePlannedDetails APD ON APD.PositionCodeId=SPC.Id
  left join EmployeeInformation EI ON EI.EmployeeStatus='Active' 
---and EI.PositionID=SPC.PositionCodeId 
+--and MB.PositionId=SPC.PositionCodeId 
 and EI.SystemId=APD.EmployeeId
  left join MST.ManpowerBudget EB ON EB.Id=EI.BudgetCode
  --left Join Org.Entity E ON E.Id=SPE.EntityId
@@ -441,7 +441,7 @@ and EI.SystemId=APD.EmployeeId
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"select 
 RPD.IsActive,RPD.Id,RPD.PlanMinutes,RPD.ActualMinutes,
-EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, MB.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection,'No' EmployeeFlag  
 from TRN.SkillManagement SM
@@ -458,7 +458,7 @@ LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
 WHERE EI.EmployeeStatus='Active' and SM.Id='" + SMId + @"' 
 union 
 select RPD.IsActive,RPD.Id,RPD.PlanMinutes,RPD.ActualMinutes,
-EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, MB.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS[LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode, P.Code PCode, S.UserName as Section,SS.UserName as SubSection,'Yes' EmployeeFlag 
 from TRN.TeamDefinitionEmployee TDE

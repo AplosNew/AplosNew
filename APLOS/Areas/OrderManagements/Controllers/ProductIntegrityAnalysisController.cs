@@ -329,7 +329,7 @@ where PAI.PIAMID ='" + ProductId + "' order by SNO";
         public ActionResult GetEmployee()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"SELECT EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+            string str = @"SELECT EI.SystemId as SystemId, MB.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
                             FROM dbo.EmployeeInformation AS EI
@@ -349,7 +349,7 @@ where PAI.PIAMID ='" + ProductId + "' order by SNO";
         public ActionResult GetPresentyNames(string PId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"SELECT PN.Id,CAST (CASE WHEN PN.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,EI.SystemId as PresentyNameId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+            string str = @"SELECT PN.Id,CAST (CASE WHEN PN.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,EI.SystemId as PresentyNameId, MB.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
                             FROM dbo.EmployeeInformation AS EI

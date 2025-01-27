@@ -1649,13 +1649,14 @@ where VIO.OutReading is null and VA.Id is not null and VA.VehicleMasterId is not
         {
             try
             {
-                parameters.CmdText = @"SELECT EI.SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                parameters.CmdText = @"SELECT EI.SystemId, mb.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [Designation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType
                             FROM dbo.EmployeeInformation AS EI
-                            LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.DesignationSystemID
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
-                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+                            LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
+                            LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.GivenDesignationID
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
                             WHERE EI.CompanyId='" + companyId + "' AND EI.PlantId='" + plantId + "' AND EI.EmployeeStatus='Active'";
 

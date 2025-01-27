@@ -567,7 +567,8 @@ namespace Library.General.TaskScheduler
                     var sql = @"SELECT * FROM (SELECT ei.SystemId AS Id,ei.EmployeeCode,ei.EmployeeName,convert(bit,0) as IsConnected,isnull(ei.EmpType,'') AS EmpType,
                             isnull(D.UserName,'') Designation,DEPT.UserName Department
                               FROM EmployeeInformation AS ei 
-                            INNER JOIN org.Position AS p ON p.Id=ei.PositionID
+                            LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            INNER JOIN org.Position AS p ON p.Id=mb.PositionID
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=ei.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON P.DepartmentId=DEPT.Id
                             WHERE ISNULL(p.TaskManagementApplicable,0)=1 AND ei.GroupId=(SELECT GroupId FROM EmployeeInformation AS e WHERE e.SystemId='" + EmpId + @"')
@@ -603,7 +604,8 @@ namespace Library.General.TaskScheduler
                     var sql = @"SELECT * FROM (SELECT ei.SystemId AS Id,ei.EmployeeCode,ei.EmployeeName,convert(bit,0) as IsConnected,isnull(ei.EmpType,'') AS EmpType,
                             isnull(D.UserName,'') Designation,DEPT.UserName Department
                               FROM EmployeeInformation AS ei 
-                            INNER JOIN org.Position AS p ON p.Id=ei.PositionID
+                            LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            INNER JOIN org.Position AS p ON p.Id=mb.PositionID
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=ei.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON P.DepartmentId=DEPT.Id
                             WHERE ISNULL(p.TaskManagementApplicable,0)=1 --AND ei.PlantId=(SELECT plantid FROM EmployeeInformation AS e WHERE e.SystemId='" + EmpId + @"')
@@ -2423,11 +2425,12 @@ UNION ALL
 SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=mb.PositionId
+
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId

@@ -260,7 +260,7 @@ namespace Aplos.Areas.Productions.Controllers
                             LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                             LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
     
-                        WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.EmployeeStatus='Active'
+                        WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.EmployeeStatus='Active' and emp.EmpType<>'Guest'
                    AND isnull(Emp.SystemID,'') not in (select isnull(ResponsiblePersonId,'') from dbo.ProcessConstraint where Id='" + Id + @"')
                   order by EmployeeCodePreFix,EmployeeCodeNumeric";
 
@@ -452,7 +452,7 @@ namespace Aplos.Areas.Productions.Controllers
                             LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                             LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
     
-                        WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.EmployeeStatus='Active'
+                        WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.EmployeeStatus='Active'  and emp.EmpType<>'Guest'
                    AND isnull(Emp.SystemID,'') not in (select isnull(ResponsiblePersonId,'') from dbo.ResourcesConstraint where Id='" + Id + @"')
                   order by EmployeeCodePreFix,EmployeeCodeNumeric";
 
