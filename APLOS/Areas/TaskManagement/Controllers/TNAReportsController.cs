@@ -82,7 +82,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
             string sql = @"SELECT * FROM (SELECT DISTINCT
                                 t.ProcessId,MO.BuyerId, MO.Buyer,   MO.MasterOrderId, isnull(MO.StyleNo,'') AS StyleNo, isnull(MO.SONo,'') AS SONo, isnull(MO.PRNo,'') AS PRNo,
-                                eato.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,
+                                pr.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,
                                 isnull(T.TaskCategoryId,'')TaskCategoryId,isnull(T.TaskSubCategoryId,'')AS TaskSubCategoryId,
                                 p.UserName AS ProcessName,
                                 isnull(DTO.UserName,'') AS Department,isnull(EATO.EmployeeName,'') AS AssignToEmployeeName,isnull(EAB.EmployeeName,'') AS AssignByEmployeeName,
@@ -97,7 +97,9 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                 LEFT OUTER JOIN EmployeeInformation AS EAB ON eab.SystemId=ab.ResponsiblePersonId
                                 LEFT OUTER JOIN EmployeeInformation AS EATO ON EATO.SystemId=ATO.ResponsiblePersonId
 
-                                LEFT OUTER JOIN org.Department AS DTO ON dto.Id=eato.DepartmentId
+                                LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EATO.BudgetCode
+						        LEFT JOIN ORG.Position pr ON pr.Id=MB.PositionId
+								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
 
                                 LEFT OUTER JOIN MasterOrderTaskTemplate AS mott ON mott.Id=MO.TaskTemplateId
                                 LEFT OUTER JOIN TaskMaster AS T ON t.Id=mott.TaskMasterId
@@ -1131,7 +1133,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
             string sql = @"SELECT K.*
                                   FROM (SELECT 
                                 TAM.ProcessId,CASE WHEN tm.CurrentStatus='Closed' THEN format(tm.ClosingDate,'dd-MMM-yyyy') ELSE NULL END AS ClosingDate,
-                                eato.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,
+                                pr.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,
                                 isnull(TAM.TaskCategoryId,'')TaskCategoryId,isnull(TAM.TaskSubCategoryId,'')AS TaskSubCategoryId,
                                 mott.TaskMasterId,format(ato.DueDate,'dd-MMM-yyyy') AS DueDate,
 	                            tm.TaskDescription,format(ISNULL(ATO.RevisedCommitmentDate,ISNULL(ATO.CommitmentDate,NULL)),'dd-MMM-yyyy') AS CommitmentDate,
@@ -1147,7 +1149,9 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                 LEFT OUTER JOIN EmployeeInformation AS EAB ON eab.SystemId=ab.ResponsiblePersonId
                                 LEFT OUTER JOIN EmployeeInformation AS EATO ON EATO.SystemId=ATO.ResponsiblePersonId
 
-                                LEFT OUTER JOIN org.Department AS DTO ON dto.Id=eato.DepartmentId
+                               LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EATO.BudgetCode
+						        LEFT JOIN ORG.Position pr ON pr.Id=MB.PositionId
+								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
 
                               
                                 LEFT OUTER JOIN MasterOrderTaskTemplate AS mott ON mott.Id=MO.TaskTemplateId
@@ -1254,7 +1258,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
             string sql = @"SELECT K.*
                                   FROM (SELECT 
                                 TAM.ProcessId,CASE WHEN tm.CurrentStatus='Closed' THEN format(tm.ClosingDate,'dd-MMM-yyyy') ELSE NULL END AS ClosingDate,
-                                eato.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,
+                                pr.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,
                                 isnull(TAM.TaskCategoryId,'')TaskCategoryId,isnull(TAM.TaskSubCategoryId,'')AS TaskSubCategoryId,
                                 mott.TaskMasterId,format(" + DueDate + @",'dd-MMM-yyyy') AS DueDate,
                                 FORMAT(TT.TempStartDate,'dd-MMM-yyyy') AS TempStartDate,FORMAT(TT.TempEndDate,'dd-MMM-yyyy') AS TempEndDate,
@@ -1275,7 +1279,9 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                 LEFT OUTER JOIN EmployeeInformation AS EAB ON eab.SystemId=ab.ResponsiblePersonId
                                 LEFT OUTER JOIN EmployeeInformation AS EATO ON EATO.SystemId=ATO.ResponsiblePersonId
 
-                                LEFT OUTER JOIN org.Department AS DTO ON dto.Id=eato.DepartmentId
+                               LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EATO.BudgetCode
+						        LEFT JOIN ORG.Position pr ON pr.Id=MB.PositionId
+								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
 
                               
                                 LEFT OUTER JOIN MasterOrderTaskTemplate AS mott ON mott.Id=MO.TaskTemplateId
@@ -1497,7 +1503,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                   FROM (SELECT 
                                 TAM.ProcessId,CASE WHEN tm.CurrentStatus='Closed' THEN format(tm.ClosingDate,'dd-MMM-yyyy') ELSE NULL END AS ClosingDate,
                                 CASE WHEN tm.CurrentStatus='Closed' THEN isnull(USRCL.FullName,isnull(EACL.EmployeeName,TM.ClosedBy)) ELSE NULL END AS ClosedBy,
-                                eato.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,TM.CurrentStatus,
+                                pr.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,TM.CurrentStatus,
                                mott.Sequence, isnull(TAM.TaskCategoryId,'')TaskCategoryId,isnull(TAM.TaskSubCategoryId,'')AS TaskSubCategoryId,
                                 tc.UserName AS Category,tsc.UserName as SubCategory,FORMAT(TSK.CreatedTime,'dd-MMM-yyyy hh:mm:ss tt') AS LastChat,
                                 format(" + DueDate + @",'dd-MMM-yyyy') AS DueDate,
@@ -1519,7 +1525,9 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                 LEFT OUTER JOIN EmployeeInformation AS EACL ON EACL.SystemId=TM.ClosedBy
                                 LEFT OUTER JOIN SEC.[USER] AS USRCL ON USRCL.UserId=TM.ClosedBy
 
-                                LEFT OUTER JOIN org.Department AS DTO ON dto.Id=eato.DepartmentId
+                               LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EATO.BudgetCode
+						        LEFT JOIN ORG.Position pr ON pr.Id=MB.PositionId
+								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
                                 left outer join TaskComments TSK on TSK.TaskManagerMasterId=TM.Id AND TSK.ID=(SELECT TOP 1 ID FROM TaskComments T WHERE T.TaskManagerMasterId=TM.ID ORDER BY T.CreatedTime DESC)
 
                               
@@ -1589,7 +1597,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                   FROM (SELECT 
                                 TAM.ProcessId,CASE WHEN tm.CurrentStatus='Closed' THEN format(tm.ClosingDate,'dd-MMM-yyyy') ELSE NULL END AS ClosingDate,
                                 CASE WHEN tm.CurrentStatus='Closed' THEN isnull(USRCL.FullName,isnull(EACL.EmployeeName,TM.ClosedBy)) ELSE NULL END AS ClosedBy,
-                                eato.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,TM.CurrentStatus,
+                                pr.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,TM.CurrentStatus,
                                mott.Sequence, isnull(TAM.TaskCategoryId,'')TaskCategoryId,isnull(TAM.TaskSubCategoryId,'')AS TaskSubCategoryId,
                                 tc.UserName AS Category,tsc.UserName as SubCategory,FORMAT(TSK.CreatedTime,'dd-MMM-yyyy hh:mm:ss tt') AS LastChat,
                                 format(" + DueDate + @",'dd-MMM-yyyy') AS DueDate,
@@ -1611,7 +1619,9 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                 LEFT OUTER JOIN EmployeeInformation AS EACL ON EACL.SystemId=TM.ClosedBy
                                 LEFT OUTER JOIN SEC.[USER] AS USRCL ON USRCL.UserId=TM.ClosedBy
 
-                                LEFT OUTER JOIN org.Department AS DTO ON dto.Id=eato.DepartmentId
+                                LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EATO.BudgetCode
+						        LEFT JOIN ORG.Position pr ON pr.Id=MB.PositionId
+								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
                                 left outer join TaskComments TSK on TSK.TaskManagerMasterId=TM.Id AND TSK.ID=(SELECT TOP 1 ID FROM TaskComments T WHERE T.TaskManagerMasterId=TM.ID ORDER BY T.CreatedTime DESC)
 
                               
@@ -1822,7 +1832,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
             string sql = @"SELECT K.*
                                   FROM (SELECT 
                                Tm.ID TaskManagerMasterId, TAM.ProcessId,CASE WHEN tm.CurrentStatus='Closed' THEN format(tm.ClosingDate,'dd-MMM-yyyy') ELSE NULL END AS ClosingDate,
-                                eato.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,TM.CurrentStatus,
+                                pr.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,TM.CurrentStatus,
                                 isnull(TAM.TaskCategoryId,'')TaskCategoryId,isnull(TAM.TaskSubCategoryId,'')AS TaskSubCategoryId,
                                 tc.UserName AS Category,tsc.UserName as SubCategory,
                                 format(ato.DueDate,'dd-MMM-yyyy') AS DueDate,concat(TM.TaskType,'/',MO.Dependency) AS TaskType,
@@ -1844,7 +1854,9 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                 LEFT OUTER JOIN EmployeeInformation AS EAB ON eab.SystemId=ab.ResponsiblePersonId
                                 LEFT OUTER JOIN EmployeeInformation AS EATO ON EATO.SystemId=ATO.ResponsiblePersonId
 
-                                LEFT OUTER JOIN org.Department AS DTO ON dto.Id=eato.DepartmentId
+                                LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EATO.BudgetCode
+						        LEFT JOIN ORG.Position pr ON pr.Id=MB.PositionId
+								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
 
                               
                                 LEFT OUTER JOIN MasterOrderTaskTemplate AS mott ON mott.Id=MO.TaskTemplateId
@@ -1857,32 +1869,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                     " + TaskTypeFilter + @"
                                 ) AS K " + FilterText + @"   order by TaskManagerMasterId,convert(datetime,CreatedTime)";
 
-
-
-
-            //string sql = @"select * from (SELECT tcom.TaskManagerMasterId, TMM.CurrentStatus, TSC.UserName as SubCategory,TC.UserName as Category, TMM.TaskType,
-            //                    TMM.TaskDescription AS Task, EBy.EmployeeName as AssignBy,ETo.EmployeeName as AssignTo,
-            //                    format(TATo.DueDate,'dd-MMM-yyyy') as DueDate, ISNULL(format(TATo.RevisedCommitmentDate,'dd-MMM-yyyy'),
-            //                    ISNULL(format(TATo.CommitmentDate,'dd-MMM-yyyy'),format(TATo.DueDate,'dd-MMM-yyyy'))) as CommitmentDate,  NULL MasterOrderNo,
-            //                FORMAT(tcom.CreatedTime,'dd-MMM-yyyy HH:mm:ss tt') AS CreatedTime,ei.EmployeeName AS CommentedBy,
-            //                        tcom.CommentText,
-            //                Buyer=null
-            //                ,StyleNo= NULL
-            //                ,SONo=NULL
-            //                ,PRNo=NULL
-            //                ,datediff(day,tato.duedate,TMM.closingDate) AS EarlyOrLateBy,FORMAT(TMM.ClosingDate,'dd-MMM-yyyy') AS ClosingDate
-            //                ,Department=NULL,Division=NULL
-            //                FROM TaskManagerMaster AS TMM
-            //                 INNER JOIN TaskComments AS tcom ON tcom.TaskManagerMasterId=tmm.Id
-            //                INNER JOIN EmployeeInformation AS ei ON ei.SystemId=tcom.CreatedById
-
-            //                LEFT OUTER JOIN TaskAudit AS TATo on TATo.TaskManagerMasterId = TMM.Id AND TATo.AuthorizationType = 'AssignTo'
-            //                LEFT OUTER JOIN TaskAudit AS TABy on TABy.TaskManagerMasterId = TMM.Id AND TABy.AuthorizationType = 'CreatedBy' 
-            //                LEFT OUTER JOIN [dbo].[EmployeeInformation] AS ETo ON ETo.SystemId = TATo.ResponsiblePersonId 
-            //                LEFT OUTER JOIN [dbo].[EmployeeInformation] AS EBy ON EBy.SystemId = TABy.ResponsiblePersonId 
-            //                LEFT OUTER JOIN [HKP].[TaskSubCategory] AS TSC ON TSC.Id = TMM.TaskSubCategoryId
-            //                LEFT OUTER JOIN HKP.TaskCategory AS TC ON TC.Id = TMM.TaskCategoryId
-            //                where isnull(TMM.isOwnTask,0)=0) AS K " + FilterString + " order by TaskManagerMasterId,convert(datetime,CreatedTime)";
+            
             DataTable dt = _sqlRepository.GetDataTable(sql);
 
             Dictionary<string, List<DataRow>> dicComments = new Dictionary<string, List<DataRow>>();

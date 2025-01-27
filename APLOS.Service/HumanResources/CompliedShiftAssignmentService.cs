@@ -290,7 +290,7 @@ namespace Library.Service.HumanResources
                 var shift = "";
                 if (sectionId != "null" && sectionId != "undefined")
                 {
-                    sec = @"AND EMP.SectionId='" + sectionId + @"'";
+                    sec = @"AND pr.SectionId='" + sectionId + @"'";
                 }
                 if (compliedShiftGroupId != "null" && compliedShiftGroupId != "undefined")
                 {
@@ -309,8 +309,8 @@ namespace Library.Service.HumanResources
                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                        LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                                       LEFT JOIN ORG.Section SE ON SE.Id=EMP.SectionId
-                                       LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                       LEFT JOIN ORG.Section SE ON SE.Id=pr.SectionId
+                                       LEFT JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId
                                        WHERE S.PlantID='" + plantId + @"'
                                        AND WorkDate='" + workDate + @"' " + sec + " " + shift + " " +
                                        "AND EmpSystemID NOT IN (select EmpSystemId from CompliedShiftAssignment where WorkDate = '" + workDate + @"')";
@@ -338,8 +338,8 @@ namespace Library.Service.HumanResources
                                        LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                        LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                                       LEFT JOIN ORG.Section SE ON SE.Id=EMP.SectionId
-                                       LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                       LEFT JOIN ORG.Section SE ON SE.Id=pr.SectionId
+                                       LEFT JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId
                                        WHERE EMP.EmployeeStatus='Active' AND EMP.SystemId NOT IN (SELECT EmpSystemId FROM CompliedShiftAssignment) AND EMP.PlantID='" + plantId + "'";
                 return _sqlRepository.GetGridData(parameters);
             }

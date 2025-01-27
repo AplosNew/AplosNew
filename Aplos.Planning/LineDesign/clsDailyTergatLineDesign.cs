@@ -517,7 +517,7 @@ CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 'Unassigned' ELSE CONCAT('Assi
 				                        JOIN mst.OperationVariation AS ovx ON ovx.Id=eox.OperationVariationId                                             
 			                            where eox.EmpSystemId=EMP.SystemId and eox.OperationVariationId<>EMP.OperationVariationId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
                             DEPT.UserName Department,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant
                             FROM EmployeeInformation EMP
                             join (
@@ -534,8 +534,8 @@ CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 'Unassigned' ELSE CONCAT('Assi
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                             LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
@@ -597,7 +597,7 @@ CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 'Unassigned' ELSE CONCAT('Assi
 			                            where eox.EmpSystemId=EMP.SystemId 	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
                             NULL AS SkillList,
                             DEPT.UserName Department,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant
                             FROM EmployeeInformation EMP
                           	LEFT JOIN AttdnProcessData AS apd ON apd.EmpSystemID=emp.SystemId AND apd.WorkDate='" + TargetDate + @"'
@@ -606,8 +606,8 @@ CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 'Unassigned' ELSE CONCAT('Assi
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                             LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
