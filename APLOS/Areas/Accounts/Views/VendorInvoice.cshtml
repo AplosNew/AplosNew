@@ -624,6 +624,7 @@
                         <li ng-show="x.IsPark"><a ng-click="ShowJournalPopUp(x.Id,x.BeneficiaryType,x.AdditionalTaxId,x);" ng-disabled="x.ApprovedByStatus=='ToBeApproved'" href="" class="btn btn-action tooltip-here">Post</a></li>
                         <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId,x.BeneficiaryType,x.TDSVoucherId,x.TDSVoucherNo);" href="" class="btn btn-action tooltip-here">Delete</a></li>
                         <li ng-show="x.IsTDSTaxPost=='TDSParked'"><a ng-disabled="x.IsPark" ng-click="onClickadditionalTaxPop(x);" href="" class="btn btn-action tooltip-here">Post TDS</a></li>
+                        <li><a ng-click="confirmPaymentTermUpdate(x);" href="" class="btn btn-action tooltip-here">Update</a></li>
                         <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Pdf',x.VoucherId,x.BeneficiaryType)"><i class="fa fa-file-pdf-o"></i></a></li>
                         <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Excel',x.VoucherId,x.BeneficiaryType)"><i class="fa fa-file-excel-o"></i></a></li>
                         <li ng-show="x.IsTDSTaxPost=='TDSPosted'"><a ng-click="TDSVouchereReport('Pdf',x.TDSVoucherId);" href="" class="btn btn-action tooltip-here">TDS Report</a></li>
@@ -655,6 +656,7 @@
 @Html.Partial("~/Areas/Accounts/Views/Loan/_LoanListPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_AssetDistributePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_MachineMasterAssetPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_PaymentTermUpdatePopUp.cshtml")
 
 <div class="modal fade site-modal in" id="ChangeInvoiceGLPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog" style="width:1000px">
