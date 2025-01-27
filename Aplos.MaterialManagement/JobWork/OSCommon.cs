@@ -58,14 +58,14 @@ namespace Library.MaterialManagement.JobWork
             {
                 string strSql = "";
                 strSql = @"SELECT Emp.SystemId,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,PR.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
                                         EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
                                         FROM EmployeeInformation EMP
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
                                         LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
                                         LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id

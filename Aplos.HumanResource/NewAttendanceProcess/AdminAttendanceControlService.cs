@@ -603,10 +603,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
-                            LEFT JOIN ORG.Department DEPT ON EMP.DepartmentId=DEPT.Id	
+                            LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id	
                         where emp.plantid='" + PlantId + @"'
                         ORDER BY kk.EmployeeCode,CONVERT(DATE, WorkDate) ASC ";
 
@@ -629,10 +629,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var str = @"select EMP.EmployeeName,APD.RowId,APD.EmpSystemID,APD.WorkDate,APD.InTime,APD.OutTime,APD.ShiftSystemID,APD.DayStatus,DEPT.UserName Department,S.UserName Section,SS.UserName SubSection,LN.UserName Line
                             from AttdnProcessData APD
 							LEFT OUTER JOIN EmployeeInformation EMP ON APD.EmpSystemid=EMP.SystemID
-                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
-                            LEFT JOIN ORG.Line LN ON LN.Id=EMP.LineId
-                            LEFT JOIN ORG.Department DEPT ON EMP.DepartmentId=DEPT.Id
+                            LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                            LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
+                            LEFT JOIN ORG.Line LN ON LN.Id=PMB.LineId
+                            LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
 							where APD.WorkDate between '" + FD + @"' and '" + TD + @"'
                             AND APD.PlantID='" + PlId + @"' "+EmpSel+"";
                 return _sqlRepository.GetDataTable(str);

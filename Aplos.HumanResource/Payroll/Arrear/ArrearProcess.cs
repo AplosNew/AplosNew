@@ -163,7 +163,7 @@ namespace Library.HumanResource.Payroll.Arrear
                                     FORMAT(emp.DOJ,'dd-MMM-yyyy') AS DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') AS DOS,EMP.EmployeeStatus,DIV.UserName AS Division,
                                     EMP.EmployeeName,EMP.EmployeeCode,emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric,concat( sl.YearNo,'/', sl.MonthNo) LastLocked
                                     ,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation, PR.UserName PositionName,format(SEFD.EffectiveDate,'dd-MMM-yyyy') AS LastSalaryEffectiveDate,
-                                    DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection,PL.UserName Plant,SEFD.SalaryRuleMasterSystemID 
+                                    DEPT.UserName Department,S.UserName Section,PR.SectionId,SS.UserName SubSection,PL.UserName Plant,SEFD.SalaryRuleMasterSystemID 
                                     ,srm.SalaryRuleName,srmLA.SalaryRuleName AS LastSalaryRuleName,format(LSA.EffectiveDate,'dd-MMM-yyyy') AS LatestSalaryEffectiveDate
                                      FROM  EmployeeInformation EMP 
                                         LEFT JOIN(
@@ -218,8 +218,8 @@ namespace Library.HumanResource.Payroll.Arrear
 			                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
 										LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
 										LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-										LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-										LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+										LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+										LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
 										LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
 										LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
 										LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
@@ -255,7 +255,7 @@ namespace Library.HumanResource.Payroll.Arrear
                                 FORMAT(emp.DOJ,'dd-MMM-yyyy') AS DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') AS DOS,EMP.EmployeeStatus,DIV.UserName AS Division,
                                 EMP.EmployeeName,EMP.EmployeeCode,emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric
                                 ,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation, PR.UserName PositionName,
-                                DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection,PL.UserName Plant
+                                DEPT.UserName Department,S.UserName Section,PR.SectionId,SS.UserName SubSection,PL.UserName Plant
                                   
 
                                 FROM ArrearSummaryBatchWise AS B
@@ -265,13 +265,13 @@ namespace Library.HumanResource.Payroll.Arrear
                                 LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                 LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                 LEFT JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
                                 LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                 LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                                 LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
-                                LEFT JOIN org.Division AS DIV ON DIV.Id=emp.DivisionId
+                                LEFT JOIN org.Division AS DIV ON DIV.Id=PR.DivisionId
 
                                 WHERE B.ArrearProcessBatchId='" + BatchSystemId + @"' ";
 

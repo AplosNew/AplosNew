@@ -158,10 +158,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode = PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId = E.Id
-                            LEFT JOIN ORG.Section S ON S.Id = EMP.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id = EMP.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id = PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id = PR.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id = EMP.LegalDesignationId
-                            LEFT JOIN ORG.Department DEPT ON EMP.DepartmentId = DEPT.Id
+                            LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
                         where emp.plantid = '" + identity.PlantId + @"') AS KK WHERE ISNULL(kk.IsOTEntitled,0)= 1 AND
                            CONVERT(DATETIME, FORMAT(CONVERT(DATETIME, KK.ProcessOuttime),'dd-MMM-yyyy hh:mm tt'))
                         BETWEEN CONVERT(DATETIME, '" + parameters["FromDate"].ToString() + " " + parameters["FromTime"].ToString() + @"') AND CONVERT(DATETIME,'" + parameters["ToDate"].ToString() + " " + parameters["ToTime"].ToString() + @"')
@@ -228,10 +228,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode = PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId = E.Id
-                            LEFT JOIN ORG.Section S ON S.Id = EMP.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id = EMP.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id = PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id = PR.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id = EMP.LegalDesignationId
-                            LEFT JOIN ORG.Department DEPT ON EMP.DepartmentId = DEPT.Id
+                            LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
                         where emp.plantid = '" + identity.PlantId + @"') AS KK where  ISNULL(kk.IsOTEntitled,0)= 1
                        
                         AND CONVERT(DATETIME, FORMAT(CONVERT(DATETIME, KK.ProcessOuttime),'dd-MMM-yyyy hh:mm tt'))> CONVERT(DATETIME, '" + parameters["ToDate"].ToString() + " " + parameters["ToTime"].ToString() + @"')

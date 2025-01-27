@@ -129,7 +129,7 @@ where UM.Active = 1 order by PMU.IsActive desc";
                                   Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,
                                     Emp.DOS,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                     
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,PR.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') DOS
                                         ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric, PR.PaymentLink Skill, EC.UserName EmployeeCategory
                                          ,EMP.GenderID
@@ -137,12 +137,12 @@ where UM.Active = 1 order by PMU.IsActive desc";
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                         LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
+                                        LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
                                      
