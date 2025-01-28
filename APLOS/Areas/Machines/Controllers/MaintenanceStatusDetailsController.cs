@@ -367,7 +367,7 @@ APD.FileName,'id' as test
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"select 
 RPD.IsActive,RPD.Id,RPD.PlanMinutes,RPD.ActualMinutes,
-EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, MB.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection,'No' EmployeeFlag  
 from TRN.Maintenancescheduling MS
@@ -384,7 +384,7 @@ LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
 WHERE EI.EmployeeStatus='Active' and MS.Id='" + MaintenanceId + @"' 
 union 
 select RPD.IsActive,RPD.Id,RPD.PlanMinutes,RPD.ActualMinutes,
-EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, MB.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS[LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode, P.Code PCode, S.UserName as Section,SS.UserName as SubSection,'Yes' EmployeeFlag 
 from TRN.TeamDefinitionEmployee TDE

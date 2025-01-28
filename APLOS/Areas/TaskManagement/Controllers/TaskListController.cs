@@ -77,7 +77,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                             CASE WHEN ISNULL(cp.Id,'')='' THEN 0 ELSE 1 END AS UnreadChatCount
 
                               FROM EmployeeInformation AS ei 
-                            INNER JOIN org.Position AS p ON p.Id=ei.PositionID
+                            INNER JOIN org.Position AS p ON p.Id=MB.PositionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=ei.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON P.DepartmentId=DEPT.Id
                             
@@ -108,7 +108,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sql = @"SELECT * FROM (SELECT ei.SystemId AS Id,ei.EmployeeCode,ei.EmployeeName,ei.EmpPicPath,convert(bit,0) as IsConnected,isnull(ei.EmpType,'') AS EmpType,
                             isnull(D.UserName,'') Designation,DEPT.UserName Department
                               FROM EmployeeInformation AS ei 
-                            INNER JOIN org.Position AS p ON p.Id=ei.PositionID
+                            INNER JOIN org.Position AS p ON p.Id=MB.PositionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=ei.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON P.DepartmentId=DEPT.Id
                             WHERE ISNULL(p.TaskManagementApplicable,0)=1 AND ei.GroupId=(SELECT GroupId FROM EmployeeInformation AS e WHERE e.SystemId='" + identity.EmployeeId + @"')
@@ -144,7 +144,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sql = @"SELECT * FROM (SELECT ei.SystemId AS Id,ei.EmployeeCode,ei.EmployeeName,ei.EmpPicPath,convert(bit,0) as IsConnected,isnull(ei.EmpType,'') AS EmpType,
                             isnull(D.UserName,'') Designation,DEPT.UserName Department
                               FROM EmployeeInformation AS ei 
-                            INNER JOIN org.Position AS p ON p.Id=ei.PositionID
+                            INNER JOIN org.Position AS p ON p.Id=MB.PositionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=ei.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON P.DepartmentId=DEPT.Id
                             WHERE ISNULL(p.TaskManagementApplicable,0)=1 --AND ei.PlantId=(SELECT plantid FROM EmployeeInformation AS e WHERE e.SystemId='" + identity.EmployeeId + @"')
@@ -1211,14 +1211,14 @@ namespace Aplos.Areas.TaskManagement.Controllers
 						isnull(D.UserName,'') Designation,
       
                             DEPT.UserName Department,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant
                             FROM EmployeeInformation EMP
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                             LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
@@ -1238,13 +1238,15 @@ namespace Aplos.Areas.TaskManagement.Controllers
                       isnull(D.UserName,'') Designation,
       
                             DEPT.UserName Department,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                             ,'' Plant
                               FROM EmployeeInformation AS EMP 
+                             LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EMP.BudgetCode
+						    LEFT JOIN ORG.Position PR ON PR.Id=MB.PositionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON EMP.DepartmentId=DEPT.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                             WHERE  isnull(empType,'')='Guest'  AND EMP.EmployeeStatus='active' AND  emp.GroupID IN (select GroupID
                                                  from employeeinformation where systemid='" + identity.EmployeeId + @"')
                 ) AS TEMP where " + strkey + " Order By Id";

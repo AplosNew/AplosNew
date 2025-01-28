@@ -133,7 +133,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName DepartmentName,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant,PL.Id as PlantId
                             ,mo.OThour as ManualOT
                             ,dmc.IsOTEntitled

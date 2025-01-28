@@ -533,7 +533,11 @@ namespace Library.Accounting.Accounts
                                         ,IsAssetDistribution=CASE WHEN ISNULL((select COUNT(AD.Id) from TRN.MachineMasterAssetSeviceDistribution AD
 										        INNER JOIN TRN.VoucherDetail VD ON VD.Id=AD.VoucherDetailId
 										        WHERE VD.VoucherId=I.VoucherId),0)>0 THEN 1 ELSE 0 END
-                                        ,E.UserName EntityName,V.EntityId
+                                        ,E.UserName EntityName,V.EntityId,I.PaymentTermId,I.BaseNoOfDays
+										,REPLACE(CONVERT(CHAR(11), I.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate
+										,REPLACE(CONVERT(CHAR(11), I.ActualDueDate, 106),' ','-') AS ActualDueDate
+										,REPLACE(CONVERT(CHAR(11), I.RevisedDueDate, 106),' ','-') AS RevisedDueDate
+                                        ,REPLACE(CONVERT(CHAR(11), I.ActualDueDate, 106),' ','-') AS MatureDate
                                         FROM TRN.[Invoice] AS I
                                         JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
                                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId
@@ -556,7 +560,11 @@ namespace Library.Accounting.Accounts
                                         ,case when AV.ApprovedBystatus is null then 'To Be Checked' else  AV.ApprovedBystatus end CheckStatus
                                         ,AV.VoucherNo TDSVoucherNo,ADT.VoucherId TDSVoucherId,[Status]= case when I.IsPark=1 then 'Parked' else 'Posted' end
                                         ,NULL OtherInvoiceId,NULL OtherIsPark,NULL OtherInvoiceVoucherId,0 IsExpenseDistribution,V.ApprovedByStatus,EIA.EmployeeName ApprovedBy,V.ApprovedById,V.ApprovedDate,V.Narration
-                                        ,0 IsAssetDistribution,E.UserName EntityName,V.EntityId
+                                        ,0 IsAssetDistribution,E.UserName EntityName,V.EntityId,I.PaymentTermId,I.BaseNoOfDays
+										,REPLACE(CONVERT(CHAR(11), I.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate
+										,REPLACE(CONVERT(CHAR(11), I.ActualDueDate, 106),' ','-') AS ActualDueDate
+										,REPLACE(CONVERT(CHAR(11), I.RevisedDueDate, 106),' ','-') AS RevisedDueDate
+                                        ,REPLACE(CONVERT(CHAR(11), I.ActualDueDate, 106),' ','-') AS MatureDate
                                         FROM TRN.[EmployeePayable] AS I
                                        LEFT JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
                                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId

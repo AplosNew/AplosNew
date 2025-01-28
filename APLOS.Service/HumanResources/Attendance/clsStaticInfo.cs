@@ -2975,14 +2975,15 @@ namespace OTSBD
 	                                            LEFT OUTER JOIN [MST].[ManpowerBudget] PMB ON pmb.Id = e.BudgetCode
 	                                            LEFT OUTER JOIN [ORG].[Position] PR ON PR.Id = PMB.PositionId
                                                 LEFT OUTER JOIN [ORG].[Entity] Ent ON PMB.EntityId=Ent.Id
-	                                            LEFT OUTER JOIN [HKP].[EmployeeCategory] AS EC ON E.EmployeeCategorySystemID = EC.ID
+                                                LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
+	                                            LEFT OUTER JOIN [HKP].[EmployeeCategory] AS EC ON DM.EmployeeCategoryID = EC.ID
 	                                            LEFT OUTER JOIN [ORG].[Unit] AS U ON U.ID = ENT.UnitID
 	                                            LEFT OUTER JOIN [ORG].Division AS Dv ON Dv.ID = PR.DivisionID
 	                                            LEFT OUTER JOIN [ORG].Department AS De ON De.ID = PR.DepartmentID
 	                                            LEFT OUTER JOIN [HKP].Designation AS Dsg ON Dsg.ID = PR.DesignationID
                                                 LEFT OUTER JOIN [HKP].Designation AS DsgGiv ON DsgGiv.ID = E.GivenDesignationId
-	                                            LEFT OUTER JOIN [ORG].Section AS Se ON Se.ID = E.SectionID
-	                                            LEFT OUTER JOIN [ORG].SubSection AS SuS ON SuS.ID = E.SubSectionID) A";
+	                                            LEFT OUTER JOIN [ORG].Section AS Se ON Se.ID = PR.SectionID
+	                                            LEFT OUTER JOIN [ORG].SubSection AS SuS ON SuS.ID = PR.SubSectionID) A";
 
                 return strSQL;
             }

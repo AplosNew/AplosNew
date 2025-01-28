@@ -129,7 +129,7 @@ LEFT OUTER JOIN ORG.Department d2 ON d2.Id=pr.DepartmentID
 LEFT OUTER JOIN ORG.Section s ON s.Id=pr.SectionID
 LEFT OUTER JOIN ORG.SubSection ss ON ss.Id=pr.SubSectionID
 LEFT OUTER JOIN HKP.DesignationGroup dg ON dg.Id=ei.DesignationGroupID
-LEFT OUTER JOIN HKP.Designation d3 ON d3.Id=ei.DesignationSystemID
+LEFT OUTER JOIN HKP.Designation d3 ON d3.Id=EI.GivenDesignationID
 LEFT OUTER JOIN (SELECT C.EmpInfoSystemID,MIN(spm.YearNo) AS MinYear,MIN(spm.MonthNo) AS MinMonth
                    FROM SalaryProcChild C
                    LEFT OUTER JOIN SalaryProcMaster spm ON spm.SystemID=c.SlrProcMstSystemID
@@ -2680,7 +2680,7 @@ LEFT OUTER JOIN ORG.Department d2 ON d2.Id=pr.DepartmentID
 LEFT OUTER JOIN ORG.Section s ON s.Id=pr.SectionID
 LEFT OUTER JOIN ORG.SubSection ss ON ss.Id=pr.SubSectionID
 LEFT OUTER JOIN HKP.DesignationGroup dg ON dg.Id=ei.DesignationGroupID
-LEFT OUTER JOIN HKP.Designation d3 ON d3.Id=ei.DesignationSystemID
+LEFT OUTER JOIN HKP.Designation d3 ON d3.Id=EI.GivenDesignationID
 LEFT OUTER JOIN (SELECT C.EmpInfoSystemID,MIN(spm.YearNo) AS MinYear,MIN(spm.MonthNo) AS MinMonth
                    FROM SalaryProcChild C
                    LEFT OUTER JOIN SalaryProcMaster spm ON spm.SystemID=c.SlrProcMstSystemID
@@ -5349,11 +5349,11 @@ DSG.StandardName Designation ,MBGT.Code BudgetCode, sd.ShiftDefinationName Shift
 From EmployeeInformation EMP 
 LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
 left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
-left join ORG.Section SC on SC.Id = EMP.SectionId
-left join ORG.SubSection SBC on SBC.Id = EMP.SubSectionId
-LEFT JOIN hkp.Designation DSG on DSG.id = Emp.DesignationSystemID
-left join ShiftDefination sd on sd.systemid = mbgt.shiftdefinationid
 left join ORG.Position POS on POS.Id = MBGT.PositionId
+left join ORG.Section SC on SC.Id = POS.SectionId
+left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+LEFT JOIN hkp.Designation DSG on DSG.id = POS.DesignationID
+left join ShiftDefination sd on sd.systemid = mbgt.shiftdefinationid
 left join mst.DesignationMaster DM on DM.DesignationId = POS.DesignationId
 left join HKP.EmployeeCategory EC on EC.Id = Dm.EmployeeCategoryId
 where emp.EmployeeStatus = 'Active' and  Emp.EmployeeCode = '" + Empcode + "'";
@@ -8528,7 +8528,7 @@ TRN.QualityIssueControl QIC
 left join dbo.EmployeeInformation EI on EI.SystemId=QIC.QGIEmployeeId
 LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+							LEFT OUTER JOIN org.Position P ON P.Id=mb.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
                             LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
                             LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
@@ -8572,7 +8572,7 @@ TRN.QualityPlanControl QPC
 left join dbo.EmployeeInformation EI on EI.SystemId=QPC.QPEmployeeId
 LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+							LEFT OUTER JOIN org.Position P ON P.Id=mb.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
                             LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
                             LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
@@ -11017,7 +11017,7 @@ TRN.QualityControlDetails QCD
 left join dbo.EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
 LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+							LEFT OUTER JOIN org.Position P ON P.Id=MB.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
                             LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
                             LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId

@@ -748,13 +748,13 @@ namespace Aplos.Areas.JobWork.Controllers
                         EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName DepartmentName,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant
                             FROM EmployeeInformation EMP
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
                             LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
@@ -1361,13 +1361,13 @@ namespace Aplos.Areas.JobWork.Controllers
                         EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName DepartmentName,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant
                             FROM EmployeeInformation EMP
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
                             LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
@@ -1839,14 +1839,14 @@ namespace Aplos.Areas.JobWork.Controllers
                         EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName DepartmentName,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant
                             FROM EmployeeInformation EMP
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                             LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
@@ -2068,44 +2068,7 @@ namespace Aplos.Areas.JobWork.Controllers
             return jsondata;
         }
 
-        //[HttpPost, Authorize]
-        //public ActionResult LoadByProductResponsiblePersonDetails(string Id)
-        //{
-
-        //    try
-        //    {
-        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //        string sql = @"SELECT distinct convert(bit,0) AS isSelected, Emp.SystemID AS Id, EMP.EmployeeStatus,
-        //                EMP.EmployeeName,EMP.EmployeeCode AS Code,
-        //                EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
-        //                    PR.UserName PositionName,
-        //                    DEPT.UserName DepartmentName,S.UserName Section,
-        //                    EMP.SectionId,SS.UserName SubSection
-        //                    ,PL.UserName Plant
-        //                    FROM EmployeeInformation EMP
-        //                    LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
-        //                    LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-        //                    LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-        //                    LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-        //                    LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
-        //                    LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
-        //                    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
-        //                    LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-        //                    LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
-
-        //                WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.CompanyId='" + identity.CompanyId + @"' and emp.EmployeeStatus='Active' and EMP.EmpType='Local'
-        //           AND isnull(Emp.SystemID,'') not in (select isnull(ResponsiblePersonId,'') from dbo.JobWorkTransformationContractChild4 where JobWorkTransformationContractChild3MasterId='" + Id + @"')
-        //          order by EMP.EmployeeCode";
-
-        //        var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-        //        jsondata.MaxJsonLength = int.MaxValue;
-        //        return jsondata;
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw;
-        //    }
-        //}
+        
 
         #region Reports for Value Added Contract
 
@@ -3667,207 +3630,3 @@ namespace Aplos.Areas.JobWork.Controllers
 
     }
 }
-//public class JobWorkValueAddedContractChild : BaseModel
-//{
-
-//    #region Scalar Properties
-
-//    /// <summary>
-//    /// Primary key.
-//    /// </summary>
-//    public string Id { get; set; }
-
-
-//    /// <summary>
-//    /// This is Item Code.
-//    /// </summary>
-//    public string JobWorkValueAddedContractMasterId { get; set; }
-//    public string JobWorkItemMasterId { get; set; }
-//    public string MaterialSpecification { get; set; }
-//    public string MaterialReference { get; set; }
-//    public string OutputMaterialUOMId { get; set; }
-//    public string Quantity { get; set; }
-//    public string ArticleCodeId { get; set; }
-//    public string OrderSpecific { get; set; }
-//    public string RequiredCapacity { get; set; }
-//    public string RateApplyId { get; set; }
-//    public string CurrencyId { get; set; }
-//    public string RatePerUnit { get; set; }
-//    public string Rejection { get; set; }
-//    public string ValueLoss { get; set; }
-//    public string ResponsiblePersonId { get; set; }
-//    public string Remarks { get; set; }
-//    public string FileName { get; set; }
-
-//    public string MaterialLocationId { get; set; }
-//    public string MaterialType { get; set; }
-//    public string FinalOutputCategory { get; set; }
-//    public string JobActivityId { get; set; }
-
-//    /// <summary>
-
-//    #endregion Scalar Properties
-
-//    #region Audit Properties
-
-//    /// <summary>
-//    ///This is  AddedBy.Who add data keep track by AddedBy.
-//    /// </summary>
-//    [NeverUpdate]
-//    public string AddedBy { get; set; }
-
-//    /// <summary>
-//    ///This is  AddedDate.Added date keep track by AddedDate.
-//    /// </summary>
-//    [NeverUpdate]
-//    public DateTime AddedDate { get; set; }
-
-//    /// <summary>
-//    /// Record insert by user from IP address.
-//    /// </summary>
-//    [NeverUpdate]
-//    public string AddedFromIP { get; set; }
-
-//    /// <summary>
-//    /// Record updated user name.
-//    /// </summary>
-//    public string UpdatedBy { get; set; }
-
-
-//    /// <summary>
-//    /// Record updated by user date and time.
-//    /// </summary>
-//    public DateTime? UpdatedDate { get; set; }
-
-
-//    /// <summary>
-//    /// Record updated by user IP address.
-//    /// </summary>
-//    public string UpdatedFromIP { get; set; }
-
-//    #endregion Audit Properties
-//}
-
-//public class OSTransformationPODetail : BaseModel
-//{
-
-//    #region Scalar Properties
-
-//    /// <summary>
-//    /// Primary key.
-//    /// </summary>
-//    public string Id { get; set; }
-
-
-//    /// <summary>
-//    /// This is Item Code.
-//    /// </summary>
-//    public string OSTransformationPOId { get; set; }
-//    public string JobWorkItemMasterId { get; set; }
-//    public string MaterialSpecification { get; set; }
-//    public string MaterialReference { get; set; }
-//    public string OutputMaterialUOMId { get; set; }
-//    public string Quantity { get; set; }
-//    public string ArticleCodeId { get; set; }
-//    public string OrderSpecific { get; set; }
-//    public string RequiredCapacity { get; set; }
-//    public string ByProductApplicable { get; set; }
-//    public string RateApplyId { get; set; }
-//    public string CurrencyId { get; set; }
-//    public string RatePerUnit { get; set; }
-//    public string Rejection { get; set; }
-//    public string ValueLoss { get; set; }
-//    public string ResponsiblePersonId { get; set; }
-//    public string Remarks { get; set; }
-//    public string FileName { get; set; }
-
-//    public string MaterialLocationId { get; set; }
-//    public string MaterialType { get; set; }
-//    public string FinalOutputCategory { get; set; }
-//    public string JobActivityId { get; set; }
-//    public string Tolerance { get; set; }
-
-//    /// <summary>
-
-//    #endregion Scalar Properties
-
-//    #region Audit Properties
-
-//    /// <summary>
-//    ///This is  AddedBy.Who add data keep track by AddedBy.
-//    /// </summary>
-//    [NeverUpdate]
-//    public string AddedBy { get; set; }
-
-//    /// <summary>
-//    ///This is  AddedDate.Added date keep track by AddedDate.
-//    /// </summary>
-//    [NeverUpdate]
-//    public DateTime AddedDate { get; set; }
-
-//    /// <summary>
-//    /// Record insert by user from IP address.
-//    /// </summary>
-//    [NeverUpdate]
-//    public string AddedFromIP { get; set; }
-
-//    /// <summary>
-//    /// Record updated user name.
-//    /// </summary>
-//    public string UpdatedBy { get; set; }
-
-
-//    /// <summary>
-//    /// Record updated by user date and time.
-//    /// </summary>
-//    public DateTime? UpdatedDate { get; set; }
-
-
-//    /// <summary>
-//    /// Record updated by user IP address.
-//    /// </summary>
-//    public string UpdatedFromIP { get; set; }
-
-//    #endregion Audit Properties
-//}
-
-//public class JobWorkByProductData
-//{
-
-//    #region Scalar Properties
-
-//    public string Id { get; set; }
-//    public string JobWorkItemId { get; set; }
-//    public string ItemSpecification { get; set; }
-//    public string CurrencyId { get; set; }
-//    public string StandardRate { get; set; }
-//    public string EmployeeCode { get; set; }
-//    public string EmployeeName { get; set; }
-//    public string ResponsiblePersonId { get; set; }
-//    public string PercentageOfInput { get; set; }
-//    public string Remarks { get; set; }
-//    public string BPArticleId { get; set; }
-//    public string Tolerance { get; set; }
-
-//    #endregion Scalar Properties
-//}
-//public class JobWorkMaterialInputData
-//{
-
-//    #region Scalar Properties
-
-//    public string Id { get; set; }
-//    public string JobWorkItemId { get; set; }
-//    public string ItemSpecification { get; set; }
-//    public string NetConsumption { get; set; }
-//    public string Rejection { get; set; }
-//    public string ValueLoss { get; set; }
-//    public string GrossConsumption { get; set; }
-//    public string ResponsiblePersonId { get; set; }
-//    public string EmployeeName { get; set; }
-//    public string EmployeeCode { get; set; }
-//    public string Remarks { get; set; }
-//    public string ArticleId { get; set; }
-
-//    #endregion Scalar Properties
-//}

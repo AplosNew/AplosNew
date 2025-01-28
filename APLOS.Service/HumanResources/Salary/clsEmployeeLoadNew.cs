@@ -610,6 +610,7 @@ select EmpInfoSystemID from SalaryInfoBackMaster where PlantId='" + sPlantID + @
 	                                            , E.EmployeeStatus
 	                                            , E.EmployeeCategorySystemID
 	                                            , EC.StandardName EmpCategoryName
+                                                ,DG.Id DesignationGroupId
 	                                            , DG.StandardName DesignationGroupName
 	                                            , E.LVPolicyMasterSystemID
 	                                            , DGM.LeavePolicyMasterId
@@ -9027,7 +9028,7 @@ LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
                                   S.SlrProcMstSystemID AS SystemID, ISNULL(S.IsApproved, 0) IsApproved, ISNULL(S.IsDisbursed, 0) IsDisbursed, E.SystemID AS EmpSystemID,
                                   E.EmployeeCode, E.EmployeeName, F.UserName PlantName, E.PlantID, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106),' ','-') DOJ,
                                   REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS, E.EmployeeStatus, '' UserGroupSystemID,
-                                  E.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID,EmployeeCodePreFix,EmployeeCodeNumeric
+                                   DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID,EmployeeCodePreFix,EmployeeCodeNumeric
                            FROM EmployeeInformation E
                                         INNER JOIN (
 										            SELECT SC.SlrProcMstSystemID, SC.IsApproved, SC.IsDisbursed, SC.EmpInfoSystemID, SM.MonthNo, SM.YearNo
@@ -9037,7 +9038,6 @@ LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
 					                                 GROUP BY SC.SlrProcMstSystemID, SC.IsApproved, SC.IsDisbursed, SC.EmpInfoSystemID, SM.MonthNo, SM.YearNo
 												   ) S ON E.SystemID = S.EmpInfoSystemID
                                         LEFT JOIN org.Plant F ON E.PlantID = F.Id
-                                        LEFT JOIN hkp.DesignationGroup DG ON DG.Id = E.DesignationGroupID
                            WHERE S.IsApproved = 0 ";
 
                 if (sUserGroupID != "ALL")
@@ -9077,7 +9077,7 @@ LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
                                   S.SlrProcMstSystemID AS SystemID, ISNULL(S.IsApproved, 0) IsApproved, ISNULL(S.IsDisbursed, 0) IsDisbursed, E.SystemID AS EmpSystemID,
                                   E.EmployeeCode, E.EmployeeName, F.PlantName, E.PlantID, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106),' ','-') DOJ,
                                   REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS, E.EmployeeStatus, E.UserGroupSystemID,
-                                  E.DesignationGroupID, DG.DesignationGroupName AS DesignationGroup, E.SalaryRuleMasterSystemID
+                                   E.SalaryRuleMasterSystemID
                            FROM EmployeeInformation E
                                         INNER JOIN (
 										            SELECT SC.SlrProcMstSystemID, SC.IsApproved, SC.IsDisbursed, SC.EmpInfoSystemID, SM.MonthNo, SM.YearNo
@@ -9087,7 +9087,6 @@ LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
 					                                 GROUP BY SC.SlrProcMstSystemID, SC.IsApproved, SC.IsDisbursed, SC.EmpInfoSystemID, SM.MonthNo, SM.YearNo
 												   ) S ON E.SystemID = S.EmpInfoSystemID
                                         LEFT JOIN ORG.Plant F ON E.PlantID = F.PlantID
-                                        LEFT JOIN HKP.DesignationGroup DG ON DG.SystemID = E.DesignationGroupID
                            WHERE IsDisbursed = 0 ";
 
                 if (sUserGroupID != "ALL")

@@ -1322,7 +1322,7 @@ namespace Library.HumanResource.Report.Payroll
 								  , L.UserName Line, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
 								  S.UserName Section, SB.UserName SubSection, EC.UserName AS EmpCategory, Cm.UserName CompanyName
 								  ,  E.EmployeeCategorySystemID, E.UnitID, E.DivisionID, E.DepartmentID, E.DesignationSystemID,
-	                              E.SectionID, E.SubSectionID, E.LineID, E.DesignationGroupID, E.SubSecStrucSystemID, E.EmployeeStatus,
+	                               E.SubSecStrucSystemID, E.EmployeeStatus,
 	                              P.UserName PlantName, 
 	                              GC.UserName GroupName,
 	                              E.PlantID, BK.UserName BankNameShort, E.BankAccNo, 
@@ -4853,8 +4853,8 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
 										 SELECT  E.SystemID, E.EmployeeCode, E.EmployeeName,E.DOB, E.DOJ,E.DOS, E.EmployeeStatus,DATEDIFF(YY,E.DOB,'" + fromDate + @"') As Age
 											--DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,GVDE.UserName GivenDesignationName,
 											,'' UserGroupSystemID, E.PlantID, F.UserName PlantName, E.UnitID,
-											FU.UserName UnitName, E.DivisionID, DV.UserName DivisionName, E.DepartmentID, DP.UserName DepartmentName,
-											E.SectionID, S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
+											FU.UserName UnitName, DV.UserName DivisionName, DP.UserName DepartmentName,
+											S.UserName SectionName, SS.UserName SubSectionName,
 											EC.UserName EmpCategoryName, Bank.ShortName BankShortName, Bank.UserName BankName, EBI.BankAccNo
                                             ,E.PaymentMode,ISNULL(EC.UserName,'') EmployeeCategory, ISNULL(EC.WorkingDaysInAMonth,'') WorkingDaysInAMonth
                                      FROM EmployeeInformation E
@@ -4862,7 +4862,6 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
 left join org.Entity en on en.id=mb.EntityId   
                             LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
 												LEFT JOIN org.Plant F ON E.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.LegalDesignation DE ON E.LegalDesignationId = DE.Id
 												LEFT JOIN hkp.Designation GVDE ON E.GivenDesignationId = GVDE.Id
 												LEFT JOIN org.Unit FU ON EN.UnitID = FU.Id

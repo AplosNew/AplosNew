@@ -238,11 +238,11 @@ namespace Library.Service.EmployeeServices
 								left join hkp.Designation d on d.Id=emp.DesignationSystemID
 								left join org.Department dx on dx.Id=emp.DepartmentId
 					LEFT JOIN MST.ManpowerBudget MB ON apd.BudgetId = MB.Id
-					left join hkp.LegalDesignation l on l.Id=emp.LegalDesignationId
-					left join ORG.Section SC on SC.Id = EMP.SectionId
-left join ORG.SubSection SBC on SBC.Id = EMP.SubSectionId
-left join ShiftDefination sd on sd.systemid = MB.shiftdefinationid
 left join ORG.Position POS on POS.Id = MB.PositionId
+					left join hkp.LegalDesignation l on l.Id=emp.LegalDesignationId
+					left join ORG.Section SC on SC.Id = POS.SectionId
+left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+left join ShiftDefination sd on sd.systemid = MB.shiftdefinationid
 left join org.Department DP on DP.Id= POS.DepartmentId
 LEFT JOIN hkp.Designation DSG on DSG.id = POS.DesignationId
 left join mst.DesignationMaster DM on DM.DesignationId = POS.DesignationId
@@ -703,9 +703,10 @@ left join org.Line LL on LL.Id	= MB.LineId
 				p.EmpSystemID =emp.SystemId
                 left join DayType d on d.DayType=p.DayStatus			    
 				left join mst.ManpowerBudget mb on emp.BudgetCode=mb.Id
-                left join org.Department dp on dp.Id=emp.DepartmentId
-                left join Org.SubSection s on s.Id=emp.SubSectionId
-                left join org.section ss on ss.Id=emp.SectionId			    
+                LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                left join org.Department dp on dp.Id=PR.DepartmentId
+                left join Org.SubSection s on s.Id=PR.SubSectionId
+                left join org.section ss on ss.Id=PR.SectionId			    
 			    left join dbo.ShiftDefination sh on sh.SystemID=p.ShiftSystemID
 				where emp.EmployeeStatus = 'Active' and ROBudgetCode='" + BudgetId+@"' and ISNULL(p.DayStatus,'')!='' and
 				p.WorkDate between '"+FromDate+@"' and '"+ToDate+@"'
@@ -753,9 +754,10 @@ left join org.Line LL on LL.Id	= MB.LineId
 				p.EmpSystemID =emp.SystemId
                 left join DayType d on d.DayType=p.DayStatus			    
 				left join mst.ManpowerBudget mb on emp.BudgetCode=mb.Id
-                left join org.Department dp on dp.Id=emp.DepartmentId
-                left join Org.SubSection s on s.Id=emp.SubSectionId
-                left join org.section ss on ss.Id=emp.SectionId			    
+                LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                left join org.Department dp on dp.Id=PR.DepartmentId
+                left join Org.SubSection s on s.Id=PR.SubSectionId
+                left join org.section ss on ss.Id=PR.SectionId			    
 			    left join dbo.ShiftDefination sh on sh.SystemID=p.ShiftSystemID
 				where emp.EmployeeStatus = 'Active' and PRBudgetCode='" + BudgetId+ @"' and ISNULL(p.DayStatus,'')!='' and
 				p.WorkDate between '"+FromDate+"' and '"+ToDate+"' order by emp.SystemId,WorkDate";

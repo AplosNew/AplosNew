@@ -1028,7 +1028,7 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
         public ActionResult GetEmployee(string IssueId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"SELECT EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+            string str = @"SELECT EI.SystemId as SystemId, mb.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
                             FROM dbo.EmployeeInformation AS EI
@@ -1047,7 +1047,7 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
         public ActionResult GetResponsiblePerson(string IssueId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"SELECT EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+            string str = @"SELECT EI.SystemId as SystemId, mb.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
                             FROM dbo.EmployeeInformation AS EI
@@ -1059,7 +1059,7 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
                             LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
                             WHERE EI.EmployeeStatus='Active' 
-							and EI.PositionID in (select PositionCodeId from MST.QualityManagementPositionCode where QMID='" + IssueId + "')";
+							and mb.PositionID in (select PositionCodeId from MST.QualityManagementPositionCode where QMID='" + IssueId + "')";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 

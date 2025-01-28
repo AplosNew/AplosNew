@@ -439,10 +439,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
-                            LEFT JOIN ORG.Department DEPT ON EMP.DepartmentId=DEPT.Id	
+                            LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id	
                             LEFT JOIN AttdnProcessData AS apd ON apd.EmpSystemID=app.EmployeeId AND apd.WorkDate=APP.Pdate
 
                           WHERE (

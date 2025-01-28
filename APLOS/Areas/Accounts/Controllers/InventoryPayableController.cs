@@ -277,6 +277,21 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Updated });
         }
 
+        [HttpPost]
+        public JsonResult UpdateInvoicePaymentTerm(VoucherViewModel voucherVM)
+        {
+            var inDirect = new System.Text.StringBuilder();
+            var inDirectsql = "";
+
+            inDirectsql = @"DECLARE @PaymentTermId varchar(50)='" + voucherVM.PaymentTermId + @"',@BaseNoOfDays int=" + voucherVM.BaseNoOfDays + @"
+                            update [TRN].[Voucher] set EntityId='" + voucherVM.EntityId + @"' where Id='" + voucherVM.VoucherId + @"'
+                            update [TRN].[VoucherDetail]  set EntityId='" + voucherVM.EntityId + @"' where VoucherId='" + voucherVM.VoucherId + @"' 
+                            update [TRN].[Invoice]  set PaymentTermId=@PaymentTermId,BaseNoOfDays=@BaseNoOfDays,ActualDueDate=DATEADD(DAY,@BaseNoOfDays,BaseOnDueDate),RevisedDueDate=DATEADD(DAY,@BaseNoOfDays,BaseOnDueDate), EntityId='" + voucherVM.EntityId + @"' where VoucherId='" + voucherVM.VoucherId + @"' ";
+            inDirect.Append(inDirectsql);
+            _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
+            return Json(new { Message = AplosMessage.Updated });
+        }
+
         #endregion
         #region InventoryJobWorkReceived
 

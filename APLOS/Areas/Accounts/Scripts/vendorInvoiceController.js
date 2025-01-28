@@ -3112,4 +3112,92 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
             ShowResult('Distributed Amount must be equal Taxable Amount.!', 'failure', 'ExpenseDistributePopUp');
         }
     }
+
+    $scope.voucher_PaymentTerm = {
+        Id: null,
+        InventoryReceiveId: null,
+        PaymentTermId: null,
+        BaseNoOfDays: null,
+        PaymentTermCode: null,
+        BaseOnDueDate: null,
+        MatureDate: null,
+        EntityId: null,
+        CurrencyId: null,
+        CurrencyCode: null,
+        VoucherNo: null,
+        PostingDate: null,
+        DocDate: null,
+        DocRefNo: null,
+        Narration: null,
+        Amount: null
+    };
+
+    $scope.confirmPaymentTermUpdate = function (data) {
+        $scope.voucher_PaymentTerm = data;
+        angular.element(document.querySelector('#PaymentTermUpdatePopUp')).modal('show');
+    };
+    $scope.closePaymentTermUpdatePopUp = function () {
+        angular.element(document.querySelector("#PaymentTermUpdatePopUp")).modal("hide");
+    };
+    $scope.changePaymentTerm_Update = function (id) {
+        if (!baseService.isUndefinedOrNull(id)) {
+            var paymentTerm = $.grep($scope.paymentTermList, function (item) {
+                return item.Value === id;
+            })[0];
+            $scope.voucher_PaymentTerm.PaymentTermCode = paymentTerm.PaymentTermCode;
+            $scope.voucher_PaymentTerm.BaseNoOfDays = paymentTerm.NoOfDay;
+            if (paymentTerm.BaseLineDate !== null)
+                if (paymentTerm.BaseLineDate === "documentdate") {
+                    $scope.voucher_PaymentTerm.BaseOnDueDate = $scope.voucher_PaymentTerm.DocDate;
+                    $scope.IsBaseOnDueDateEnable = true;
+                } else if (paymentTerm.BaseLineDate === "postingdate") {
+                    $scope.voucher_PaymentTerm.BaseOnDueDate = $scope.voucher_PaymentTerm.PostingDate;
+                    $scope.IsBaseOnDueDateEnable = true;
+                }
+                else if (paymentTerm.BaseLineDate === "voucherdate") {
+                    $scope.voucher_PaymentTerm.BaseOnDueDate = $filter("dateFiltering")(Date.now());
+                    $scope.IsBaseOnDueDateEnable = true;
+                }
+                else {
+                    $scope.IsBaseOnDueDateEnable = false;
+                    $scope.voucher_PaymentTerm.BaseOnDueDate = $filter("dateFiltering")(Date.now());
+                }
+            $scope.getMatureDate_Update($scope.voucher_PaymentTerm.BaseOnDueDate, $scope.voucher_PaymentTerm.BaseNoOfDays);
+        }
+    };
+
+    $scope.getMatureDate_Update = function (date, days) {
+        if (!baseService.isUndefinedOrNull(date)) {
+            date = new Date(date);
+            date.setDate(date.getDate() + days);
+            $scope.voucher_PaymentTerm.MatureDate = $filter("date")(date, "dd-MMM-yyyy");
+        }
+    };
+    $scope.updatePaymentTermUrl = "Accounts/InventoryPayable/UpdateInvoicePaymentTerm";
+    $scope.updatePaymentTerm = function () {
+        if ($scope.voucher_PaymentTerm.PaymentTermId == null || $scope.voucher_PaymentTerm.PaymentTermId == "" || $scope.voucher_PaymentTerm.PaymentTermId == undefined) {
+            ShowResult("Please select Payment Term First!!", "failure");
+        }
+        $http({
+            method: "POST",
+            url: $scope.updatePaymentTermUrl,
+            data: {
+                "voucherVM": $scope.voucher_PaymentTerm
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                $scope.closePaymentTermUpdatePopUp();
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
 }

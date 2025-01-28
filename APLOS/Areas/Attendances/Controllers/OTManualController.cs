@@ -298,7 +298,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName DepartmentName,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant,PL.Id as PlantId
                             ,mo.OThour as ManualOT
                             ,IsOTEntitled =CASE WHEN dmc.IsOTEntitled=1 THEN 'Yes' ELSE 'No' END
@@ -318,7 +318,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             left join OTfromApp mo on mo.EmpSystemID=emp.SystemId and mo.WorkDate=apd.WorkDate
                             WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.doj<='" + EmpWorkDate + @"' and (dos is null or dos>='" + EmpWorkDate + @"')
                             And EMP.PlantId='" + PlantId + @"'
-                            and (EMP.DepartmentId='" + DepartmentId + @"' or EMP.SectionId='" + SectionId + @"' or EMP.SubSectionId='" + SubSectionId + @"')";
+                            and (PR.DepartmentId='" + DepartmentId + @"' or PR.SectionId='" + SectionId + @"' or PR.SubSectionId='" + SubSectionId + @"')";
 
                 }
                 else
@@ -329,7 +329,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName DepartmentName,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant,PL.Id as PlantId
                             ,mo.OThour as ManualOT
                             ,IsOTEntitled =CASE WHEN dmc.IsOTEntitled=1 THEN 'Yes' ELSE 'No' END
@@ -384,7 +384,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName DepartmentName,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant,PL.Id as PlantId
                             ,mo.OThour as ManualOT
                             ,dmc.IsOTEntitled
@@ -404,7 +404,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             left join OTfromApp mo on mo.EmpSystemID=emp.SystemId and mo.WorkDate=apd.WorkDate
                             WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.doj<='" + EmpWorkDate + @"' and (dos is null or dos>='" + EmpWorkDate + @"')
                             And EMP.PlantId='" + PlantId + @"' and EMP.EmployeeCode='"+ EmpCode + @"'
-                            and (EMP.DepartmentId='" + DepartmentId + @"' or EMP.SectionId='" + SectionId + @"' or EMP.SubSectionId='" + SubSectionId + @"')";
+                            and (PR.DepartmentId='" + DepartmentId + @"' or PR.SectionId='" + SectionId + @"' or PR.SubSectionId='" + SubSectionId + @"')";
 
                    }
                     else
@@ -415,7 +415,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName DepartmentName,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant,PL.Id as PlantId
                             ,mo.OThour as ManualOT
                             ,dmc.IsOTEntitled

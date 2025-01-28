@@ -214,13 +214,15 @@ namespace Library.OrderManagement.OrderControl
                       isnull(D.UserName,'') Designation,
       
                             DEPT.UserName Department,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                             ,'' Plant
                               FROM EmployeeInformation AS EMP 
+                            LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                            LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
-                            LEFT JOIN ORG.Department DEPT ON EMP.DepartmentId=DEPT.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                            LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                             WHERE  isnull(empType,'')<>'Guest'  AND EMP.EmployeeStatus='active' AND  emp.GroupID ='" + identity.CompanyGroupId + @"'
                 ) AS TEMP where " + strkey + " Order By Id";
 

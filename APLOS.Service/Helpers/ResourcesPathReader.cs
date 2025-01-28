@@ -890,7 +890,7 @@ namespace Library.Service.Helpers
 		{
 			try
 			{
-				return ResolveFilePath(GetVirtualDirectory() + "\\Templates\\");
+				return ResolveFilePath(GetVirtualDirectory() + "Templates");
 			}
 			catch
 			{

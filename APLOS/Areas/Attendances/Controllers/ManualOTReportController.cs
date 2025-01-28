@@ -105,7 +105,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             EMP.BudgetCode,sd.UserName as EmpShift,E.Id as EntityId,E.UserName EntityName,div.Id as DivisionId,div.UserName as Division,D.Id as DesignationId, isnull(D.UserName, '') Designation,
                             PR.UserName PositionName,DEPT.Id as DepartmentId,
                             DEPT.UserName DepartmentName, S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection,SS.Id as SubSectionId
+                            SS.UserName SubSection,SS.Id as SubSectionId
                             ,PL.UserName Plant, PL.Id as PlantId,
                              mo.OThour as ManualOT, ExcessOT= case when(mo.OThour>apd.OTHr) then (mo.OThour - apd.OTHr) else '0' end, LessOT= case when(mo.OThour<apd.OTHr) then (apd.OTHr-mo.OThour) else '0' end
 							,Remarks= case when(FORMAT(apd.OutTime,'dd-MMM-yyyy')='0' or FORMAT(apd.OutTime,'dd-MMM-yyyy')='') and mo.OThour>0 then 'OT without Out-time' when (mo.OThour - apd.OTHr)>0 then 'Excess OT' when (apd.OTHr-mo.OThour)>0 then 'Less OT' else 'NIL'  end
@@ -127,7 +127,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             left join DayType dt on dt.DayType = apd.DayStatus
                             left join OTfromApp mo on mo.EmpSystemID = emp.SystemId and mo.WorkDate = apd.WorkDate
 							left join ORG.Company cm on cm.Id=EMP.CompanyId
-							left join ORG.Division div on div.Id=EMP.DivisionId
+							left join ORG.Division div on div.Id=pr.DivisionId
 							left join dbo.ShiftDefination sd on sd.SystemID=apd.ShiftSystemID
                             WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.doj<='" + ToDate + @"' and (dos is null or dos>='"+ FromDate + @"')
                             and EMP.CompanyId='"+ identity.CompanyId + @"' and EMP.PlantId='" + PlantId + @"' and EMP.EmployeeStatus='Active' and apd.WorkDate!='' ";
@@ -141,7 +141,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             EMP.BudgetCode,sd.UserName as EmpShift,E.Id as EntityId,E.UserName EntityName,div.Id as DivisionId,div.UserName as Division,D.Id as DesignationId, isnull(D.UserName, '') Designation,
                             PR.UserName PositionName,DEPT.Id as DepartmentId,
                             DEPT.UserName DepartmentName, S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection,SS.Id as SubSectionId
+                            SS.UserName SubSection,SS.Id as SubSectionId
                             ,PL.UserName Plant, PL.Id as PlantId,
                              mo.OThour as ManualOT, ExcessOT= case when(mo.OThour>apd.OTHr) then (mo.OThour - apd.OTHr) else '0' end, LessOT= case when(mo.OThour<apd.OTHr) then (apd.OTHr-mo.OThour) else '0' end
 							,Remarks= case when(FORMAT(apd.OutTime,'dd-MMM-yyyy')='0' or FORMAT(apd.OutTime,'dd-MMM-yyyy')='') and mo.OThour>0 then 'OT without Out-time' when (mo.OThour - apd.OTHr)>0 then 'Excess OT' when (apd.OTHr-mo.OThour)>0 then 'Less OT' else 'NIL'  end
@@ -163,7 +163,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             left join DayType dt on dt.DayType = apd.DayStatus
                             left join OTfromApp mo on mo.EmpSystemID = emp.SystemId and mo.WorkDate = apd.WorkDate
 							left join ORG.Company cm on cm.Id=EMP.CompanyId
-							left join ORG.Division div on div.Id=EMP.DivisionId
+							left join ORG.Division div on div.Id=pr.DivisionId
 							left join dbo.ShiftDefination sd on sd.SystemID=apd.ShiftSystemID
                             WHERE emp.GroupID = '" + identity.CompanyGroupId + @"' and emp.doj <= '" + ToDate + @"' and(dos is null or dos >= '"+ FromDate + @"')
                             and EMP.CompanyId = '"+ identity.CompanyId + @"' And EMP.PlantId='"+ PlantId + @"' and E.Id='"+ EntityId + @"' and EMP.EmployeeStatus='Active' and apd.WorkDate!='' ";
@@ -462,7 +462,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             EMP.BudgetCode,sd.UserName as EmpShift,E.Id as EntityId,E.UserName EntityName,div.Id as DivisionId,div.UserName as Division,D.Id as DesignationId, isnull(D.UserName, '') Designation,
                             PR.UserName PositionName,DEPT.Id as DepartmentId,
                             DEPT.UserName DepartmentName, S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection,SS.Id as SubSectionId
+                            PR.SectionId,SS.UserName SubSection,SS.Id as SubSectionId
                             ,PL.UserName Plant, PL.Id as PlantId,
                              mo.OThour as ManualOT, ExcessOT= case when(mo.OThour>apd.OTHr) then (mo.OThour - apd.OTHr) else '0' end, LessOT= case when(mo.OThour<apd.OTHr) then (apd.OTHr-mo.OThour) else '0' end
 							,Remarks= case when(FORMAT(apd.OutTime,'dd-MMM-yyyy')='0' or FORMAT(apd.OutTime,'dd-MMM-yyyy')='') and mo.OThour>0 then 'OT without Out-time' when (mo.OThour - apd.OTHr)>0 then 'Excess OT' when (apd.OTHr-mo.OThour)>0 then 'Less OT' else 'NIL'  end
@@ -484,7 +484,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             left join DayType dt on dt.DayType = apd.DayStatus
                             left join OTfromApp mo on mo.EmpSystemID = emp.SystemId and mo.WorkDate = apd.WorkDate
 							left join ORG.Company cm on cm.Id=EMP.CompanyId
-							left join ORG.Division div on div.Id=EMP.DivisionId
+							left join ORG.Division div on div.Id=PR.DivisionId
 							left join dbo.ShiftDefination sd on sd.SystemID=apd.ShiftSystemID
 							where PL.Id IN ( " + PlantId + " ) and E.Id IN ( " + EntityId + " ) and EMP.EmployeeCode IN ( " + Code + " ) and div.Id IN ( " + DivisionId + " ) and DEPT.Id IN ( " + DepartmentId + " ) and S.Id IN ( " + SectionId + " ) and SS.Id IN( " + SubSectionId + " ) and D.Id IN( " + DesignationId + " ) and apd.WorkDate IN( " + APDEmpWorkDate + " ) ";
 

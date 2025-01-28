@@ -252,7 +252,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public ActionResult GetEmployee()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"SELECT EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+            string str = @"SELECT EI.SystemId as SystemId, P.Id AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
                             FROM dbo.EmployeeInformation AS EI
@@ -263,9 +263,10 @@ namespace Aplos.Areas.OrderManagements.Controllers
                             LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
                             LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
-                            WHERE EI.EmployeeStatus='Active'";
-
-            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+                            WHERE EI.EmployeeStatus='Active' AND EI.EmpType<>'Guest'";
+            JsonResult json = Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
 
         [Authorize, HttpGet]

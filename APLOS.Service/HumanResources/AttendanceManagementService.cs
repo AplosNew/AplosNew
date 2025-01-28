@@ -31277,9 +31277,6 @@ namespace Library.Service.HumanResources
                                     ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOS, 106), ' ', '-'),'') DOS
                                     ,ISNULL(e.EmployeeStatus,'') EmployeeStatus 
 									FROM EmployeeInformation e
-                                                             
-                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
 									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=e.LegalDesignationId
 									LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode

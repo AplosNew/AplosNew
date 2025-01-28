@@ -48,7 +48,7 @@ namespace Aplos.Areas.Productions.Controllers
         public ActionResult GetEmployee()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select distinct EI.SystemId,EI.EmployeeName, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+            string str = @"select distinct EI.SystemId,EI.EmployeeName, mb.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     ,EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection  from 
 TRN.QualityControlDetails QCD

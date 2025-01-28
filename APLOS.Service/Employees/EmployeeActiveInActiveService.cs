@@ -4416,19 +4416,19 @@ LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
             try
             {
                 parameters.CmdText = @"SELECT Emp.SystemID,EMP.EmployeeName,CONVERT (int, EMP.EmployeeCode) EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,PR.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant
                                         FROM EmployeeInformation EMP
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                         LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
-                                        WHERE emp.PlantID='" + plantId + @"'  and EMP.CompanyId='" + companyId + @"' and EMP.EmployeeStatus='Active' and EMP.SectionId='" + SectionId + "'";
+                                        WHERE emp.PlantID='" + plantId + @"'  and EMP.CompanyId='" + companyId + @"' and EMP.EmployeeStatus='Active' and PR.SectionId='" + SectionId + "'";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
@@ -4742,19 +4742,19 @@ LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
         public IEnumerable<object> GetSuperVisor(string companyid, string plantid)
         {
             var sql = @"SELECT Emp.SystemID,EMP.EmployeeName,CONVERT (int, EMP.EmployeeCode) EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,PR.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant,DV.UserName Division,EC.UserName EmployeeCategory,EMP.EmployeeStatus
                                         FROM EmployeeInformation EMP
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                         LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
-                                        LEFT JOIN ORG.Division DV on DV.Id = EMP.DivisionId
+                                        LEFT JOIN ORG.Division DV on DV.Id = PR.DivisionId
                                         LEFT JOIN
 									   (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
 									                ,dg.UserName GivenDesignationGroup
