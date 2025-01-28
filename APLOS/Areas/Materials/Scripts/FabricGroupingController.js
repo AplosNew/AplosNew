@@ -379,7 +379,17 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.MakeMarkerGroup = function (data) {
         var objt = data.data;
-        objt.MarkerGroup = objt.CutableWidthGroup + "/" + objt.ShrinkageWidthGroup + "/" + objt.ShrinkageLengthGroup;
+       
+        if (!baseService.isUndefinedOrNull(objt.CutableWidthGroup)) {
+            objt.MarkerGroup = objt.CutableWidthGroup;
+        }
+        if (!baseService.isUndefinedOrNull(objt.ShrinkageWidthGroup)) {
+            objt.MarkerGroup = objt.CutableWidthGroup + "/" + objt.ShrinkageWidthGroup;
+        }
+        if (!baseService.isUndefinedOrNull(objt.ShrinkageLengthGroup)) {
+            objt.MarkerGroup = objt.CutableWidthGroup + "/" + objt.ShrinkageWidthGroup + "/" + objt.ShrinkageLengthGroup;
+        }
+        
         var gridObj = $("#GridGD").data("ejGrid");
         gridObj.refreshContent();
         gridObj.refreshTemplate();

@@ -1665,7 +1665,7 @@ LEFT OUTER JOIN MaterialGridMaster mgm ON mgm.SystemID=mm.materialGridMasterSyst
 							LEFT JOIN SCS.BusinessProcess BP ON MMBP.BusinessProcessId=BP.Id
                         WHERE BP.BusinessProcessName='FabricRollManagement'
 						) D ON D.InventoryReceiveId=IR.Id --and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN','GRNBYBOQ')
-					  and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN','GRNBYBOQ') AND IR.AddedDate between '" + fromDate + @"' AND '" + toDate + @"') AS TEMP WHERE " + strkey;
+					  and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN','GRNBYBOQ') AND IR.AddedDate between '" + fromDate + @"' AND '" + toDate + @"' And IR.Id Not IN(SELECT GRNId FROM [BPDT].[FabricRollManagementMaster] Where PlantId='" + PlantId + @"' AND ISNULL(IsConfirm,0)=1)) AS TEMP WHERE " + strkey;
                 return _sqlRepository.GetDataCollection(_sql, null);
 
             }
@@ -2107,6 +2107,10 @@ Where F.GRNId='" + GRNId + "'"; ;
                     if (item["SupplierQty"] == null)
                     {
                         throw new Exception("Supplier Qty is required.");
+                    }
+                    if (item["ActualQty"] == null)
+                    {
+                        throw new Exception("Actual Qty is required.");
                     }
                     if (item["CutableWidth"] == null)
                     {
