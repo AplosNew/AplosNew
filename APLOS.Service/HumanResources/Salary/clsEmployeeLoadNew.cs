@@ -610,6 +610,7 @@ select EmpInfoSystemID from SalaryInfoBackMaster where PlantId='" + sPlantID + @
 	                                            , E.EmployeeStatus
 	                                            , E.EmployeeCategorySystemID
 	                                            , EC.StandardName EmpCategoryName
+                                                ,DG.Id DesignationGroupId
 	                                            , DG.StandardName DesignationGroupName
 	                                            , E.LVPolicyMasterSystemID
 	                                            , DGM.LeavePolicyMasterId

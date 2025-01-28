@@ -1713,7 +1713,7 @@ namespace Aplos.Areas.Accounts.Controllers
 					LEFT JOIN [HKP].[GLManagementEmployee] GME ON GME.GLManagementId=GLM.Id
                     LEFT JOIN [DBO].[EmployeeInformation] EI ON EI.SystemId=GME.EmpSystemId 
 										   
-					LEFT JOIN [HKP].[GLManagementPositionCode] GMPC ON GMPC.GLManagementId=GLM.Id AND GMPC.PositionCodeId=EI.PositionID
+					LEFT JOIN [HKP].[GLManagementPositionCode] GMPC ON GMPC.GLManagementId=GLM.Id AND GMPC.PositionCodeId=MB.PositionId
                     LEFT JOIN ORG.Position PO  ON PO.Id=GMPC.PositionCodeId  
                     LEFT JOIN [HKP].[GLManagementDesignation] GMD ON GMD.GLManagementId=GLM.Id AND PO.DesignationId=GMD.DesignationId AND EI.GivenDesignationId=GMD.DesignationId
                     LEFT JOIN [HKP].[Designation] DE ON DE.Id=GMD.DesignationId AND PO.DesignationId=GMD.DesignationId

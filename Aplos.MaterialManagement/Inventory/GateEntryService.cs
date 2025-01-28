@@ -3305,11 +3305,11 @@ ORDER BY IR.ID DESC";
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                parameters.CmdText = @"SELECT EI.SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                parameters.CmdText = @"SELECT EI.SystemId, MB.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
 								, EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS Designation, MB.EntityId,PR.UserName PositionName
         						, DEG.UserName GivenDesignation,DEPT.UserName Department
                                     FROM dbo.EmployeeInformation AS EI
-									LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.DesignationSystemID
+									LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.GivenDesignationID
                                     LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
         					        LEFT OUTER JOIN ORG.Position PR ON MB.PositionId=PR.Id
 									LEFT OUTER JOIN ORG.Entity E ON MB.EntityId=E.Id

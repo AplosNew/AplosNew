@@ -156,7 +156,7 @@ Format(MPD.ActualDate,'dd-MMM-yyyy') as ActualDate
  left join MST.ManpowerBudget MB ON MB.id=SM.ResponsiblePersoneBgtCodeId
  left join TRN.SkillManagementEntity SPE ON SPE.SMID=SM.Id
  left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id
- left join EmployeeInformation EI ON EI.EmployeeStatus='Active' and EI.PositionID=SPC.PositionCodeId 
+ left join EmployeeInformation EI ON EI.EmployeeStatus='Active' and MB.PositionId=SPC.PositionCodeId 
  left join MST.ManpowerBudget EB ON EB.Id=EI.BudgetCode
  left Join Org.Entity E ON E.Id=SPE.EntityId
  left Join ORG.Position P ON P.Id=eb.PositionID

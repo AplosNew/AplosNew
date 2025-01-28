@@ -82,7 +82,7 @@ where P.Active = 1 and DM.EmployeeCategoryId='"+ EmployeeCategoryid + "'";
         public ActionResult GetEmployee()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"SELECT EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+            string str = @"SELECT EI.SystemId as SystemId, MB.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
                             FROM dbo.EmployeeInformation AS EI
@@ -343,7 +343,7 @@ DG.UserName as DesignationGroup,isnull(DE.UserName,'') as Designation,isnull(LD.
 TRN.PositionWiseDesignation PWD
 LEFT OUTER JOIN hkp.EmployeeCategory E ON E.Id=PWD.EmployeeCategoryId
 LEFT OUTER JOIN org.Position P ON P.Id=PWD.PositionCodeId
-LEFT OUTER join EmployeeInformation EI ON EI.PositionID=P.Id
+LEFT OUTER join EmployeeInformation EI ON MB.PositionId=P.Id
 left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 							left join ORG.Position PP on PP.Id=mPB.PositionID
 LEFT OUTER join EmployeeInformation RP ON RP.SystemId=PWD.ResponsiblePersonId
