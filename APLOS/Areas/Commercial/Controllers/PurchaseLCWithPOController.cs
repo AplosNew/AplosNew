@@ -869,7 +869,7 @@ namespace Aplos.Areas.Commercial.Controllers
             try
             {
 
-                var sql = @"SELECT [check]=CAST (CASE WHEN PO.PurchaseLCId IS NULL THEN 0 ELSE 0 END AS bit),
+                var sql = @"SELECT [check]=CAST (0 AS bit),
                                     PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
                                     InvPP.StandardName ,ISNULL(PO.OrderSpecific,'')OrderSpecifi,PO.ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
                                     ,CONVERT(NUMERIC(10,2),POD.TransactionAmount+ISNULL(POC.Amount,0)) TransactionAmount,ISNULL(C.ContractNo,'')ContractNo,Flag='MaterialPO',CC.UserName CustomerName,PT.UserName PaymentTerm
