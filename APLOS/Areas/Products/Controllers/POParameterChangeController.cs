@@ -176,7 +176,7 @@ namespace Aplos.Areas.Products.Controllers
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
                     DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-                    if (Convert.ToDecimal(dr["GRNRcvQty"].ToString()) > 0)
+                    if (Convert.ToDecimal(dr["GRNRcvQty"].ToString()) > 0 && Convert.ToDecimal(dr["Tolerance"])> data.Tolerance)
                     {
                         throw new CustomException(@"GRN have been created against this PO.  PO Update is not allow !!!");
                     }
