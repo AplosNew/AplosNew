@@ -1043,7 +1043,7 @@ namespace Library.Service.HumanResources
                                   ,PerCT.UserName PresCityName,ParCT.UserName ParmCityName,AM.CountryId
 								  ,CG.[Image] CompanyGroupLogo, CNT.PhoneLength, COM.IsTINRequiredForSalaryAbove
 								  ,CNT.TINCaption, CNT.NIDCaption, CNT.NIDLength, CNT.TINLength, COM.TINRequiredForSalaryAbove
-								  ,DG.UserName GivenDesignation, DP.UserName Department, PMB.Code,PR.UserName PositionName,E.UserName EntityName,DSG.UserName Designation,PR.DesignationId,PG.StandardName PayRollGroupName,PG.Id PayRollGroupId, ApprovedStatus=case when SM.IsApproved=1 then 'Approved' when SM.IsApproved=0 then 'Un-approved' when SM.IsApproved is null then 'Not Defined' end  , DeG.UserName DesignationGroupName
+								  ,DG.UserName GivenDesignation, DP.UserName Department, PMB.Code,PR.UserName PositionName,E.UserName EntityName,DSG.UserName Designation,PR.DesignationId,PG.StandardName PayRollGroupName,PG.Id PayRollGroupId, ApprovedStatus=case when SM.IsApproved=1 then 'Approved' when SM.IsApproved=0 then 'Un-approved' when SM.IsApproved is null then 'Not Defined' end  , DG.UserName DesignationGroupName
                               FROM dbo.Employeeinformation EI
                               LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id
 							  LEFT JOIN scs.PoliceStation PO ON EI.PresThanaID=PO.Id

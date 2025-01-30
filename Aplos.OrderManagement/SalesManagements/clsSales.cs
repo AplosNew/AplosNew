@@ -450,7 +450,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
 											WHERE SM.SalesId=S.Id
 											FOR XML PATH('')
 											), 1, 1, '')
-									,S.IsAdditionalInfoApplicable , S.AdditionalFrieght , S.AdditionalFrieghtValue , S.Incoterms , S.IncotermsValue
+									,S.IsAdditionalInfoApplicable , S.AdditionalFrieght , S.AdditionalFrieghtValue , S.Incoterms , S.IncotermsValue,S.TrancastionTypeId
 									FROM [TRN].[Sales] AS S
                                     LEFT JOIN [ORG].[Company] AS CO ON CO.Id=S.CompanyId
                                     JOIN [HKP].[Party] AS P ON P.Id=S.PartyId

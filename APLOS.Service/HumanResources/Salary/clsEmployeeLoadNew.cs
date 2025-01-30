@@ -500,7 +500,6 @@ select EmpInfoSystemID from SalaryInfoBackMaster where PlantId='" + sPlantID + @
 	                                            , REPLACE(Convert(VARCHAR(11), E.DOB, 106), ' ', '-') AS DOB
 	                                            , REPLACE(Convert(VARCHAR(11), E.DOJ, 106), ' ', '-') AS DOJ
 	                                            , E.EmployeeStatus
-	                                            , E.EmployeeCategorySystemID
 	                                            , EC.StandardName EmpCategoryName
 	                                            , DG.StandardName DesignationGroupName
 	                                            , E.LVPolicyMasterSystemID
@@ -524,14 +523,15 @@ select EmpInfoSystemID from SalaryInfoBackMaster where PlantId='" + sPlantID + @
 	                                            , tgr.TaxGroupName
 	                                            , dgSRM.TaxGroupID TaxGroupIDSR
 	                                            , REPLACE(Convert(VARCHAR(11), SSA.EffectiveDate, 106), ' ', '-') AS EffectiveDate
+                                                ,DEM.DesignationGroupID
                                             FROM EmployeeInformation AS E
 						                            LEFT OUTER JOIN   [HKP].[EmployeeBudgetCategory] EBC ON E.BudgetCategoryID = EBC.ID
 						                            LEFT OUTER JOIN   [ORG].[CompanyGroup] GC ON E.GroupID = GC.ID
 						                            LEFT OUTER JOIN   [ORG].[Company] CMP ON E.CompanyID = CMP.ID
 						                            LEFT OUTER JOIN   [ORG].Plant Pt ON E.PlantID = Pt.ID
 						                            LEFT OUTER JOIN    [MST].[ManpowerBudget] pmb on e.BudgetCode=pmb.Id
-						                            LEFT OUTER JOIN [HKP].[EmployeeCategory] AS EC ON E.EmployeeCategorySystemID = EC.ID
 						                           LEFT JOIN MST.DesignationMaster DEM ON DEM.DesignationId=E.GivenDesignationID
+						                            LEFT OUTER JOIN [HKP].[EmployeeCategory] AS EC ON DEM.EmployeeCategoryID = EC.ID
                                         LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = DEM.DesignationGroupID
                                                     LEFT OUTER JOIN  (               SELECT DC.SalaryRuleMasterId,dc.PlantId,dm.*,dc.LeavePolicyMasterId 
                                                                                 FROM MST.DesignationMaster DM
