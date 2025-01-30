@@ -15,6 +15,7 @@ namespace Library.Service.HumanResources
 {
     public interface IAttendanceManagementService 
     {
+        void EmployeeSattlementReport(string empSystemId, string PlantId);
         IWorkbook GetShiftReport(string companyGroupId, string companyId, string plantId, string plantName, string employeeId, string fromDate, string toDate ,string EmpDoj);
 
         IWorkbook GetJobCardReport(string username, string companyGroupId, string companyId, string plantId, string plantName, string employeeId, string fromDate, string toDate, bool chkAdditionInfo);

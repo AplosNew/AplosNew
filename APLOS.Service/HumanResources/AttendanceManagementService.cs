@@ -4414,7 +4414,7 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, CriticalLevel].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, CriticalLevel].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            
+
 
                             sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
                             sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -4491,7 +4491,7 @@ namespace Library.Service.HumanResources
                                     sheet1.Range[xlsRow, CriticalLevel].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, CriticalLevel].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    
+
 
                                     sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
                                     sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
@@ -4854,7 +4854,7 @@ namespace Library.Service.HumanResources
 
                             xlsCol = 3;
                             xlsRow = 5;
-                            
+
                             sheet1.Range[xlsRow, xlsCol].Text = "Due Date";
                             sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[0]["QualityIssueDate"].ToString().Trim();
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -27439,7 +27439,7 @@ namespace Library.Service.HumanResources
             }
             return input;
         }
-       
+
         #endregion
 
         #region Salary Certificate Report
@@ -30421,647 +30421,313 @@ namespace Library.Service.HumanResources
 
 
         }
-        public IWorkbook xGetTiffinBillReport(string plantId, string FromDate, string ToDate, string ShiftId, string Hr, string Min)
+
+        public void EmployeeSattlementReport(string empSystemId, string PlantId)
         {
+            try
             {
-                #region Variable
-                string month = ""; string year = "";
-                string outTime = string.Empty;
 
-
-                ReportUtility oru = new ReportUtility();
-                clsReport objRpt = null;
-
-                DataSet dsHeading = null;
-
-                DataSet dsMonthlyAttnSumm = null;
-                DataView dvMonthlyAttnSumm = null;
-
-                DataSet dsTiffinBill = null;
-                DataSet dsTiffinBillsummary = null;
-                DataTable dtOT = null;
-                DataView dvOT = null;
-
-                DataSet dsCmp = null;
-                DataSet dsFactory = null;
-
-                string FactoryName = "";
-                string CmpName = "";
-
-                ExcelEngine excelEngine = null;
-                IApplication application = null;
-                IWorkbook workbook = null;
-                IWorksheet sheet1 = null;
-
-                int xlsRow = 1, xlsCol = 1;
-                int endXlsCol = 1;
-
-                DateTime dtFrmDt = DateTime.Now;
-                DateTime dtEndDate = DateTime.Now;
-
-                #endregion Variable
-
-                try
+                string UserName = null;
+                ReportUtility oRU = new ReportUtility();
+                cFinalSettlement ob = new cFinalSettlement(_sqlRepository);
+                string strPath = "";
+                string filepath = "";
+                string File = "Fs" + PlantId + "English.docx";
+                strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), File);
+                if (System.IO.File.Exists(strPath))
                 {
-                    objRpt = new clsReport();
+                    filepath = strPath;
+                }
 
 
-                    #region Validation
+                FileInfo DocFile = new FileInfo(strPath);
+                if (DocFile.Exists == false)
+                {
+                    throw new Exception("File Not Found");
+                }
+                WordDocument document = new WordDocument(DocFile.FullName);
 
-                    //if (month.Trim() == "--")
-                    //{
+                DataTable dtEmpInformation = GetEmpInformationforfinalsettlement(empSystemId);
 
-                    //    Exception ex = new Exception("Please select Month !!");
-                    //    throw ex;
-                    //}
+                var nd = 0;
+                var ExtraDays = 0;
+                var monthName = "";
+                var doj = Convert.ToDateTime(dtEmpInformation.Rows[0]["DOJ"]).ToString("dd-MMM-yyyy");
+                DateTime edoj = Convert.ToDateTime(dtEmpInformation.Rows[0]["DOJ"]);
+                nd = Convert.ToDateTime(doj).Day;
+                monthName = Convert.ToDateTime(doj).ToString("MMM");
+                var monthNo = Convert.ToDateTime(doj).ToString("MM");
+                var yearNo = Convert.ToDateTime(dtEmpInformation.Rows[0]["DOS"]).ToString("yyyy");
+                if (monthNo == "12")
+                {
+                    yearNo = Convert.ToDateTime(dtEmpInformation.Rows[0]["DOS"]).AddYears(-1).ToString("yyyy");
+                }
+                DateTime lastDay = new DateTime(edoj.Year, edoj.Month, 1).AddMonths(1).AddDays(-1);
+                var ld = Convert.ToDateTime(lastDay).Day;
+                if (nd == ld)
+                {
+                    DateTime nxtM = new DateTime(edoj.AddMonths(1).Year, edoj.AddMonths(1).Month, 1);
+                    nd = Convert.ToDateTime(nxtM).Day;
+                    monthName = Convert.ToDateTime(nxtM).ToString("MMM");
+                }
+                var fromDate = Convert.ToDateTime(nd + monthName + yearNo).AddDays(1).ToString("dd-MMM-yyyy");
 
-                    //if (year.Trim() == "ALL")
-                    //{
-
-                    //    Exception ex = new Exception("Ooops.....Select Year !!!");
-                    //    throw (ex);
-                    //}
-
-                    #endregion Validation
-
-
-
-                    #region DataSet
-                    DataSet dsLocalHRMSSetting = null;
-                    clsStaticInfo objStatic = null;
-                    objStatic = new clsStaticInfo();
-
-
-                    string MinimumOTMinute = string.Empty;
-                    string OTConsiderOn = string.Empty;
-                    string OTFractionCalculate = string.Empty;
-                    bool IsPunchBasedOT = false;
-                    bool IsPreallocationBasedOT = false;
-
-                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                    objStatic.GetPlantWiseHRMSSetting(identity.CompanyGroupId, identity.PlantId, out dsLocalHRMSSetting);
-                    if (dsLocalHRMSSetting.Tables[0].Rows.Count > 0)
+                DateTime _DOS = Convert.ToDateTime(dtEmpInformation.Rows[0]["DOS"].ToString());
+                int years = new DateTime(_DOS.Subtract(Convert.ToDateTime(dtEmpInformation.Rows[0]["DOJ"].ToString())).Ticks).Year - 1;
+                DateTime PastYearDate = (Convert.ToDateTime(dtEmpInformation.Rows[0]["DOJ"].ToString())).AddYears(years);
+                int month = 0;
+                for (int i = 1; i <= 12; i++)
+                {
+                    if (PastYearDate.AddMonths(i) == _DOS)
                     {
-                        MinimumOTMinute = dsLocalHRMSSetting.Tables[0].Rows[0]["MinimumOTMinute"].ToString().Trim();
-                        OTConsiderOn = dsLocalHRMSSetting.Tables[0].Rows[0]["OTConsiderOn"].ToString().Trim();
-                        OTFractionCalculate = dsLocalHRMSSetting.Tables[0].Rows[0]["OTFractionCalculation"].ToString().Trim();
-                        IsPunchBasedOT = Convert.ToBoolean(dsLocalHRMSSetting.Tables[0].Rows[0]["IsPunchBasedOT"].ToString().Trim());
-                        IsPreallocationBasedOT = Convert.ToBoolean(dsLocalHRMSSetting.Tables[0].Rows[0]["IsPreallocationBasedOT"].ToString().Trim());
+                        month = i;
+                        break;
+                    }
+                    else if (PastYearDate.AddMonths(i) >= _DOS)
+                    {
+                        month = i - 1;
+                        break;
+                    }
+                }
+                int days = _DOS.Subtract(PastYearDate.AddMonths(month)).Days + 1;
+                int Hours = _DOS.Subtract(PastYearDate).Hours;
+                int Minutes = _DOS.Subtract(PastYearDate).Minutes;
+                int Seconds = _DOS.Subtract(PastYearDate).Seconds;
 
+                int TenureDayNo = days;
+                int TenureMonthNo = month;
+                int TenureYearNo = years;
+
+                TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
+                Dictionary<string, int> replaced = new Dictionary<string, int>();
+
+                string value = "";
+                foreach (TextSelection item in allresult)
+                {
+                    string foundText = item.SelectedText;
+                    if (foundText == "LvEncashmentRateAmount")
+                    {
 
                     }
+                    if (replaced.ContainsKey(foundText) == false)
+                        replaced.Add(foundText, 0);
 
+                    //for fixed info
+                    string colName = foundText.Trim().Replace("{", "").Replace("}", "");
 
-
-                    objRpt.GetTiffinBillSummaryRpt(plantId, FromDate, ToDate, ShiftId, Hr, Min, out dsTiffinBillsummary);
-                    objRpt.GetTiffinBillRpt(plantId, FromDate, ToDate, ShiftId, Hr, Min, out dsTiffinBill);
-                    dtOT = dsTiffinBill.Tables[0];
-                    dvOT = new DataView();
-
-
-                    DataTable dtEmp = dsTiffinBill.Tables[0];
-
-                    objRpt.SelectedPlantWiseCompany(plantId, out dsCmp);
-
-                    objRpt.SelectedPlant(plantId, out dsFactory);
-
-                    #endregion DataSet
-
-
-
-                    excelEngine = new ExcelEngine();
-                    application = excelEngine.Excel;
-
-                    workbook = application.Workbooks.Create(1);
-                    sheet1 = workbook.Worksheets[0];
-                    sheet1.IsGridLinesVisible = true;
-
-                    xlsRow = 5;
-                    //int intRow = 0;
-
-                    #region Variables
-
-                    string x = "";
-                    //string strEmpType = "";
-                    int strCount = 0;
-
-                    int iSrNo = 0;
-                    int iEmpCode = 0;
-                    int iEmpName = 0;
-                    //int iDOJ = 0;
-                    //int iUnit = 0;
-                    int iDepart = 0;
-                    int iSec = 0;
-                    int iDesig = 0;
-                    int iSubSec = 0;
-                    int iWorkDate = 0;
-                    int iDayName = 0;
-                    int iShiftName = 0;
-                    int iShiftOutTime = 0;
-                    int iShiftInTime = 0;
-                    int iInTime = 0;
-                    int iOutTime = 0;
-                    int iDayStatus = 0;
-                    int iOverStay = 0;
-                    int iIsManualOutTime = 0;
-                    int iIsOTEntitled = 0;
-                    int iNormalOTHr = 0;
-                    int iIsOTComfirm = 0;
-                    //int iTotal = 0;
-
-                    //int iGDesig = 0;
-                    //int iWD = 0;
-                    //int iTOT = 0;
-                    //int iNOT = 0;
-                    //int iEOT = 0;
-                    //int iTtlWOHD = 0;
-                    //int iTtlPst = 0;
-                    //int iTtlAbs = 0;
-                    //int iTtlLte = 0;
-                    //int iTtlLv = 0;
-
-                    #endregion Variables
-
-                    #region ------------------Column Header------------------
-
-                    #region ------------------Details Header-----------------
-
-                    xlsRow += 1;
-
-                    xlsCol = 1;
-                    iSrNo = xlsCol;
-                    sheet1.Range[xlsRow, iSrNo].Text = "Sl No.";
-                    sheet1.Range[xlsRow, iSrNo].ColumnWidth = 4.70;
-                    sheet1.Range[xlsRow, iSrNo].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iSrNo].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-                    iEmpCode = xlsCol;
-                    sheet1.Range[xlsRow, iEmpCode].Text = "Employee Code";
-                    sheet1.Range[xlsRow, iEmpCode].ColumnWidth = 8.50;
-                    sheet1.Range[xlsRow, iEmpCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iEmpCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-                    iEmpName = xlsCol;
-                    sheet1.Range[xlsRow, iEmpName].Text = "Employee Name";
-                    sheet1.Range[xlsRow, iEmpName].ColumnWidth = 22;
-                    sheet1.Range[xlsRow, iEmpName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iEmpName].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                    xlsCol += 1;
-                    iDepart = xlsCol;
-                    sheet1.Range[xlsRow, iDepart].Text = "Department";
-                    sheet1.Range[xlsRow, iDepart].ColumnWidth = 15;
-                    sheet1.Range[xlsRow, iDepart].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iDepart].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-                    iSec = xlsCol;
-                    sheet1.Range[xlsRow, iSec].Text = "Section";
-                    sheet1.Range[xlsRow, iSec].ColumnWidth = 15;
-                    sheet1.Range[xlsRow, iSec].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iSec].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-                    iSubSec = xlsCol;
-                    sheet1.Range[xlsRow, iSubSec].Text = "Sub-Section";
-                    sheet1.Range[xlsRow, iSubSec].ColumnWidth = 15;
-                    sheet1.Range[xlsRow, iSubSec].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iSubSec].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-                    iDesig = xlsCol;
-                    sheet1.Range[xlsRow, iDesig].Text = "Designation";
-                    sheet1.Range[xlsRow, iDesig].ColumnWidth = 15;
-                    sheet1.Range[xlsRow, iDesig].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iDesig].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                    xlsCol += 1;
-                    iWorkDate = xlsCol;
-                    sheet1.Range[xlsRow, iWorkDate].Text = "Work Date";
-                    sheet1.Range[xlsRow, iWorkDate].ColumnWidth = 15;
-                    sheet1.Range[xlsRow, iWorkDate].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iWorkDate].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-                    //xlsCol += 1;
-                    //iDayName = xlsCol;
-                    //sheet1.Range[xlsRow, iDayName].Text = "Day Name";
-                    //sheet1.Range[xlsRow, iDayName].ColumnWidth = 15;
-                    //sheet1.Range[xlsRow, iDayName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    //sheet1.Range[xlsRow, iDayName].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                    xlsCol += 1;
-                    iShiftName = xlsCol;
-                    sheet1.Range[xlsRow, iShiftName].Text = "Shift Name";
-                    sheet1.Range[xlsRow, iShiftName].ColumnWidth = 15;
-                    sheet1.Range[xlsRow, iShiftName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iShiftName].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-                    xlsCol += 1;
-                    iShiftInTime = xlsCol;
-                    sheet1.Range[xlsRow, iShiftInTime].Text = "Shift InTime";
-                    sheet1.Range[xlsRow, iShiftInTime].ColumnWidth = 15;
-                    sheet1.Range[xlsRow, iShiftInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iShiftInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-                    xlsCol += 1;
-                    iShiftOutTime = xlsCol;
-                    sheet1.Range[xlsRow, iShiftOutTime].Text = "Shift OutTime";
-                    sheet1.Range[xlsRow, iShiftOutTime].ColumnWidth = 15;
-                    sheet1.Range[xlsRow, iShiftOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iShiftOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                    xlsCol += 1;
-                    iInTime = xlsCol;
-                    sheet1.Range[xlsRow, iInTime].Text = "InTime";
-                    sheet1.Range[xlsRow, iInTime].ColumnWidth = 15;
-                    sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-                    xlsCol += 1;
-                    iOutTime = xlsCol;
-                    sheet1.Range[xlsRow, iOutTime].Text = "OutTime";
-                    sheet1.Range[xlsRow, iOutTime].ColumnWidth = 15;
-                    sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                    //xlsCol += 1;
-                    //iIsManualOutTime = xlsCol;
-                    //sheet1.Range[xlsRow, iIsManualOutTime].Text = "IsManualOutTime";
-                    //sheet1.Range[xlsRow, iIsManualOutTime].ColumnWidth = 15;
-                    //sheet1.Range[xlsRow, iIsManualOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    //sheet1.Range[xlsRow, iIsManualOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                    xlsCol += 1;
-                    iOverStay = xlsCol;
-                    sheet1.Range[xlsRow, iOverStay].Text = "Over Stay";
-                    sheet1.Range[xlsRow, iOverStay].ColumnWidth = 15;
-                    sheet1.Range[xlsRow, iOverStay].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iOverStay].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-
-
-
-                    xlsCol += 1;
-                    iIsOTEntitled = xlsCol;
-                    sheet1.Range[xlsRow, iIsOTEntitled].Text = "OT Entitled Status";
-                    sheet1.Range[xlsRow, iIsOTEntitled].ColumnWidth = 15;
-                    sheet1.Range[xlsRow, iIsOTEntitled].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iIsOTEntitled].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                    xlsCol += 1;
-                    iNormalOTHr = xlsCol;
-                    sheet1.Range[xlsRow, iNormalOTHr].Text = "Final OT";
-                    sheet1.Range[xlsRow, iNormalOTHr].ColumnWidth = 15;
-                    sheet1.Range[xlsRow, iNormalOTHr].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iNormalOTHr].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                    xlsCol += 1;
-                    iIsOTComfirm = xlsCol;
-                    sheet1.Range[xlsRow, iIsOTComfirm].Text = "OT Confirmation Status";
-                    sheet1.Range[xlsRow, iIsOTComfirm].ColumnWidth = 15;
-                    sheet1.Range[xlsRow, iIsOTComfirm].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iIsOTComfirm].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-                    xlsCol += 1;
-                    iDayStatus = xlsCol;
-                    sheet1.Range[xlsRow, iDayStatus].Text = "Day Status";
-                    sheet1.Range[xlsRow, iDayStatus].ColumnWidth = 15;
-                    sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol = iDayStatus;
-
-
-                    #endregion ------------------Details Header-----------------
-
-                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Interior.Color = System.Drawing.Color.LightYellow;
-                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
-                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
-                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
-
-                    endXlsCol = xlsCol;
-                    xlsCol = 1;
-                    xlsRow += 1;
-
-                    #endregion ------------------Column Header------------------
-
-                    for (int i = 0; i <= dtEmp.Rows.Count - 1; i++)
+                    if (dtEmpInformation.Columns.Contains(colName))
                     {
-                        xlsCol = 1;
 
-                        #region ----------------------Data-----------------------
-                        //chequeAmount = dsTiffinBill.Tables[0].Compute(@"Sum(TotalOTHr)", "EmployeeCode ='" + dtEmp.Rows[i]["EmployeeCode"].ToString().Trim() + "'");
-                        strCount += 1;
-                        sheet1.Range[xlsRow, iSrNo].Number = strCount;
-                        sheet1.Range[xlsRow, iSrNo].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow, iSrNo].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        ///=====
+                        value = dtEmpInformation.Rows[0][dtEmpInformation.Columns[colName].ColumnName].ToString();
 
-                        sheet1.Range[xlsRow, iEmpCode].Text = dtEmp.Rows[i]["EmployeeCode"].ToString().Trim();
-                        sheet1.Range[xlsRow, iEmpCode].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, iEmpCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        sheet1.Range[xlsRow, iEmpName].Text = dtEmp.Rows[i]["EmployeeName"].ToString().Trim();
-                        sheet1.Range[xlsRow, iEmpName].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, iEmpName].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-                        sheet1.Range[xlsRow, iDepart].Text = dtEmp.Rows[i]["Department"].ToString().Trim();
-                        sheet1.Range[xlsRow, iDepart].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, iDepart].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        sheet1.Range[xlsRow, iSec].Text = dtEmp.Rows[i]["Section"].ToString().Trim();
-                        sheet1.Range[xlsRow, iSec].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, iSec].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        sheet1.Range[xlsRow, iSubSec].Text = dtEmp.Rows[i]["SubSection"].ToString().Trim();
-                        sheet1.Range[xlsRow, iSubSec].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, iSubSec].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        sheet1.Range[xlsRow, iDesig].Text = dtEmp.Rows[i]["Designation"].ToString().Trim();
-                        sheet1.Range[xlsRow, iDesig].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, iDesig].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        sheet1.Range[xlsRow, iWorkDate].Text = dtEmp.Rows[i]["WorkDate"].ToString().Trim();
-                        sheet1.Range[xlsRow, iWorkDate].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, iWorkDate].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-                        //sheet1.Range[xlsRow, iDayName].Text = dtEmp.Rows[i]["DayName"].ToString().Trim();
-                        //sheet1.Range[xlsRow, iDayName].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, iDayName].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        sheet1.Range[xlsRow, iShiftName].Text = dtEmp.Rows[i]["ShiftName"].ToString().Trim();
-                        sheet1.Range[xlsRow, iShiftName].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, iShiftName].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        if (dtEmp.Rows[i]["ShiftInTime"].ToString().Trim() != "")
+                        if (bplib.clsWebLib.IsNumeric(value))
                         {
-                            sheet1.Range[xlsRow, iShiftInTime].NumberFormat = "hh:mm AM/PM";
-                            sheet1.Range[xlsRow, iShiftInTime].DateTime = Convert.ToDateTime(dtEmp.Rows[i]["ShiftInTime"].ToString().Trim());
-                            sheet1.Range[xlsRow, iShiftInTime].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                            sheet1.Range[xlsRow, iShiftInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
                         }
-                        if (dtEmp.Rows[i]["ShiftOutTime"].ToString().Trim() != "")
+                        else if (bplib.clsWebLib.IsDateOK(value))
+                            replaced[foundText] = document.Replace(foundText, GetFormatedDate(value, UserName), false, true);
+                        else
+                            replaced[foundText] = document.Replace(foundText, value, false, true);
+                    }
+                    if (dtEmpInformation.Columns.Contains(colName))
+                    {
+
+                        ///=====
+                        value = dtEmpInformation.Rows[0][dtEmpInformation.Columns[colName].ColumnName].ToString();
+
+                        if (bplib.clsWebLib.IsNumeric(value))
                         {
-                            sheet1.Range[xlsRow, iShiftOutTime].NumberFormat = "hh:mm AM/PM";
-                            sheet1.Range[xlsRow, iShiftOutTime].DateTime = Convert.ToDateTime(dtEmp.Rows[i]["ShiftOutTime"].ToString().Trim());
-                            sheet1.Range[xlsRow, iShiftOutTime].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                            sheet1.Range[xlsRow, iShiftOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        }
-                        //sheet1.Range[xlsRow, iInTime].Text = dtEmp.Rows[i]["InTime"].ToString().Trim();
-                        //sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        if (dtEmp.Rows[i]["InTime"].ToString().Trim() != "")
-                        {
-                            sheet1.Range[xlsRow, iInTime].NumberFormat = "hh:mm AM/PM";
-                            sheet1.Range[xlsRow, iInTime].DateTime = Convert.ToDateTime(dtEmp.Rows[i]["InTime"].ToString().Trim());
-                            sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                            sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        }
-
-                        if (bplib.clsWebLib.GetBoolData(dtEmp.Rows[i]["IsManualInTime"].ToString().Trim()))
-                        {
-                            sheet1.Range[xlsRow, iInTime].CellStyle.Font.Color = ExcelKnownColors.Orange;
-                        }
-
-
-
-
-                        if (dtEmp.Rows[i]["OutTime"].ToString().Trim() != "")
-                        {
-                            sheet1.Range[xlsRow, iOutTime].NumberFormat = "hh:mm AM/PM";
-                            sheet1.Range[xlsRow, iOutTime].DateTime = Convert.ToDateTime(dtEmp.Rows[i]["OutTime"].ToString().Trim());
-                            sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                            sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        }
-
-                        if (bplib.clsWebLib.GetBoolData(dtEmp.Rows[i]["IsManualOutTime"].ToString().Trim()))
-                        {
-                            sheet1.Range[xlsRow, iOutTime].CellStyle.Font.Color = ExcelKnownColors.Orange;
-                        }
-
-
-                        //sheet1.Range[xlsRow, iOutTime].Text = dtEmp.Rows[i]["OutTime"].ToString().Trim();
-                        //sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        //sheet1.Range[xlsRow, iIsManualOutTime].Text = dtEmp.Rows[i]["IsManualOutTime"].ToString().Trim();
-                        //sheet1.Range[xlsRow, iIsManualOutTime].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, iIsManualOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        string yos = string.Empty;//OTConsiderOn
-
-
-                        if (dtEmp.Rows[i]["OverStay"].ToString().Trim() != "")
-                        {
-                            oru.GetOT(OTConsiderOn, dtEmp.Rows[i]["OverStay"].ToString().Trim(), out yos);
-
-                        }
-
-
-                        sheet1.Range[xlsRow, iOverStay].Text = yos;
-
-
-
-                        //sheet1.Range[xlsRow, iOverStay].Text = dtEmp.Rows[i]["OverStay"].ToString().Trim();
-                        sheet1.Range[xlsRow, iOverStay].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, iOverStay].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-
-                        sheet1.Range[xlsRow, iIsOTEntitled].Text = dtEmp.Rows[i]["IsOTEntitled"].ToString().Trim();
-                        sheet1.Range[xlsRow, iIsOTEntitled].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, iIsOTEntitled].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-
-
-                        string yot = string.Empty;//OTConsiderOn
-
-                        if (bplib.clsWebLib.GetBoolData(dtEmp.Rows[i]["IsOTEntitled"].ToString().Trim()) == true)
-                        {
-                            if (dtEmp.Rows[i]["OutTime"].ToString().Trim() != "")
+                            if (colName == "LvEncashmentDayNo")
                             {
-                                oru.GetOT(OTConsiderOn, dtEmp.Rows[i]["NormalOTHr"].ToString().Trim(), out yot);
+                                replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
+
+                            }
+                            if (colName == "TotalPayDay")
+                            {
+                                replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
+
+                            }
+                            else if (colName == "LvEncashmentRateAmount")
+                            {
+                                replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
+
+                            }
+                            else if (colName == "SalRate")
+                            {
+                                replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
+
+                            }
+                            else if (colName == "OTRate")
+                            {
+                                replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
+
+                            }
+                            else
+                            {
+                                replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString("N2"), UserName), false, true);
 
                             }
                         }
-
-                        sheet1.Range[xlsRow, iNormalOTHr].Text = yot;
-                        sheet1.Range[xlsRow, iNormalOTHr].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, iNormalOTHr].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-
-
-
-                        sheet1.Range[xlsRow, iIsOTComfirm].Text = dtEmp.Rows[i]["IsOTComfirm"].ToString().Trim();
-                        sheet1.Range[xlsRow, iIsOTComfirm].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, iIsOTComfirm].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        sheet1.Range[xlsRow, iDayStatus].Text = dtEmp.Rows[i]["DayStatus"].ToString().Trim();
-                        sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-                        xlsRow += 1;
-
-                        #endregion ----------------------Data-----------------------
-
-                        #region Line Setup
-
-                        sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
-                        sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
-                        sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].WrapText = true;
-
-                        #endregion Line Setup
+                        else if (bplib.clsWebLib.IsDateOK(value))
+                            replaced[foundText] = document.Replace(foundText, GetFormatedDate(value, UserName), false, true);
+                        else
+                            replaced[foundText] = document.Replace(foundText, value, false, true);
                     }
-
-                    #region UsedRange Alignment
-
-                    sheet1.UsedRange.WrapText = true;
-                    sheet1.UsedRange.CellStyle.Font.Size = 8;
-                    sheet1.Range["A1"].CellStyle.Font.Size = 14;
-                    sheet1.Range["A2"].CellStyle.Font.Size = 10;
-                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
-
-                    #endregion UsedRange Alignment
-
-                    #region ******************Report Header******************
-
-                    xlsRow = 1;
-                    xlsCol = 1;
-
-                    FactoryName = string.Empty;
-
-                    string FactoryAddress = string.Empty;
-
-                    if (dsCmp.Tables[0].Rows.Count > 0)
-                    {
-                        CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
-                    }
-                    else
-                    {
-                        CmpName = "";
-                    }
-                    sheet1.Range[xlsRow, xlsCol].Text = CmpName;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
-                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
-                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 12;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 30;
-                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                    xlsRow += 1;
-                    if (dsFactory.Tables[0].Rows.Count > 0)
-                    {
-                        FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
-                        //FactoryName = dsFactory.Tables[0].Rows[0]["PlantName"].ToString();
-                    }
-                    else
-                    {
-                        FactoryName = "";
-                    }
-                    sheet1.Range[xlsRow, xlsCol].Text = FactoryName;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
-                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
-                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                    xlsRow += 1;
-                    if (dsFactory.Tables[0].Rows.Count > 0)
-                    {
-                        FactoryAddress = dsFactory.Tables[0].Rows[0]["Address1"].ToString();
-                    }
-                    else
-                    {
-                        FactoryAddress = "";
-                    }
-                    sheet1.Range[xlsRow, xlsCol].Text = FactoryAddress;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
-                    //sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
-                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 26;
-                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                    xlsRow += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "Over Stay list";
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
-                    sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
-                    sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 11;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
-                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                    xlsRow += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "Based on Out time :";
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
-                    sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
-                    sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 9;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
-                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                    #endregion ******************Report Header******************
-
-                    #region Freeze Panes
-
-                    sheet1.IsDisplayZeros = false;
-                    sheet1.UsedRange["A7"].FreezePanes();
-                    sheet1.FirstVisibleColumn = 1;
-                    sheet1.FirstVisibleRow = 6;
-
-                    #endregion Freeze Panes
-
-                    #region Page Setup
-
-                    sheet1.PageSetup.TopMargin = 0.5;
-                    sheet1.PageSetup.BottomMargin = 0.7;
-                    sheet1.PageSetup.PrintTitleRows = "$1:$5";
-                    sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
-                    sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + " " + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
-                    sheet1.PageSetup.LeftMargin = 0.5;
-                    sheet1.PageSetup.RightMargin = 0.2;
-                    sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
-                    sheet1.PageSetup.FitToPagesTall = 0;
-                    sheet1.PageSetup.FitToPagesWide = 1;
-                    sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
-                    sheet1.Name = "Over Stay list";
-
-                    #endregion Page Setup
-                    return workbook;
                 }
-                catch (Exception ex)
+
+
+
+                WSection section = document.Sections[0];
+                WTable table1 = (WTable)section.Body.Tables[1];
+
+
+                DataTable dtFinalSettlementDedutionData = null;
+                DataTable dtFinalSettlementEarningData = null;
+                double TotalEarning = 0;
+                double TotalEarningAmount = 0;
+                double SeparationTypeAmount = 0;
+                double LvEncashmentAmount = 0;
+                double LeaveEncash = 0;
+                double LastMonthNetPayAmount = 0;
+                double FinalSettlementEarningData = 0;
+                double SepTypeAmount = 0;
+                double PayableNetPayAmount = 0;
+                double NetPayAmount = 0;
+
+
+                //ob.GetFinalSettlementHeadWiseData("{EarningPart}", document, null, UserName);
+
+
+                //ob.GetFinalSettlementHeadWiseData("{DedutionPart}", document, null, UserName);
+
+
+
+                if (dtEmpInformation.Rows.Count > 0)
                 {
-                    throw ex;
+                    if (dtEmpInformation.Rows[0]["SeparationTypeAmount"].ToString() != "N/A")
+                        SepTypeAmount = Convert.ToDouble(dtEmpInformation.Rows[0]["SeparationTypeAmount"].ToString());
+
+                    SeparationTypeAmount = SepTypeAmount;
+                    LvEncashmentAmount = Convert.ToDouble(dtEmpInformation.Rows[0]["LvEncashmentAmount"].ToString());
+                    LeaveEncash = Convert.ToDouble(dtEmpInformation.Rows[0]["LeaveEncash"].ToString());
+                    LastMonthNetPayAmount = Convert.ToDouble(dtEmpInformation.Rows[0]["LastMonthNetPayAmount"].ToString());
+                    //                    FinalSettlementEarningData = dtFinalSettlementEarningData.Rows.Count > 0 ? Convert.ToDouble(dtFinalSettlementEarningData.Compute("SUM(Amount)", string.Empty)) : 0;
+
+                    TotalEarning = clsStaticInfo.dbl(dtEmpInformation.Rows[0]["Payable"].ToString());
+                    TotalEarningAmount = clsStaticInfo.dbl(dtEmpInformation.Rows[0]["Payable"].ToString());
+
+                    double TotalDeduction = clsStaticInfo.dbl(dtEmpInformation.Rows[0]["TotalDeduction"].ToString()); // dtFinalSettlementDedutionData.Rows.Count > 0 ? Convert.ToDouble(dtFinalSettlementDedutionData.Compute("SUM(Amount)", string.Empty)) : 0;
+                    double Payable = clsStaticInfo.dbl(dtEmpInformation.Rows[0]["Payable"].ToString());
+                    double TotalPayable = clsStaticInfo.dbl(dtEmpInformation.Rows[0]["NetPayAmount"].ToString());
+                    NetPayAmount = clsStaticInfo.dbl(dtEmpInformation.Rows[0]["NetPayAmount"].ToString());
+                    PayableNetPayAmount = clsStaticInfo.dbl(dtEmpInformation.Rows[0]["NetPayAmount"].ToString());
+                    document.Replace("{TotalEarning}", cnDgt(TotalEarning.ToString("N0"), UserName), false, true);
+                    document.Replace("{TotalEarningAmount}", cnDgt(TotalEarningAmount.ToString("N0"), UserName), false, true);
+                    document.Replace("{TotalDeduction}", cnDgt(TotalDeduction.ToString("N0"), UserName), false, true);
+                    document.Replace("{Payable}", cnDgt(Payable.ToString("N0"), UserName), false, true);
+                    document.Replace("{TotalPayable}", cnDgt(TotalPayable.ToString("N0"), UserName), false, true);
+                    document.Replace("{NetPayableAmount}", cnDgt(NetPayAmount.ToString("N0"), UserName), false, true);
+                    document.Replace("{PayableNetPayAmount}", cnDgt(PayableNetPayAmount.ToString("N0"), UserName), false, true);
+                    document.Replace("{TenureYearNo}", cnDgt(TenureYearNo.ToString("N0"), UserName), false, true);
+                    document.Replace("{TenureMonthNo}", cnDgt(TenureMonthNo.ToString("N0"), UserName), false, true);
+                    document.Replace("{TenureDayNo}", cnDgt(TenureDayNo.ToString("N0"), UserName), false, true);
+
                 }
-                finally
+
+                #region Total In Word
+                //if (UserName.ToUpper() == "BANGLA")
+                //{
+
+                //    //strnumberToString(string numberToConvert)
+                //    numberToString.numberToStringBuilder bangla = new numberToString.numberToStringBuilder();
+                //    document.Replace("{TotalInWords}", bangla.strnumberToString(NetPayAmount.ToString()), true, true);
+                //    document.Replace("{TotalInWord}", bangla.strnumberToString(PayableNetPayAmount.ToString()), true, true);
+
+                //    // document.Replace("{TotalInWords}", ru.InWord((materialTotal + serviceTotal), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+
+
+                //}
+                //else
+                //{
+                //    document.Replace("{TotalInWords}", oRU.InWord(Convert.ToDouble(NetPayAmount.ToString()), ""), true, true);
+                //    document.Replace("{TotalInWord}", oRU.InWord(Convert.ToDouble(PayableNetPayAmount.ToString()), ""), true, true);
+                //}
+
+                document.Replace("{TotalInWords}", oRU.InWord(Convert.ToDouble(NetPayAmount.ToString()), ""), true, true);
+                document.Replace("{TotalInWord}", oRU.InWord(Convert.ToDouble(PayableNetPayAmount.ToString()), ""), true, true);
+
+                #endregion Total In Word
+
+
+                foreach (string item in replaced.Keys)
                 {
-                    //objStatic = null;
-                    objRpt = null;
-                    dsHeading = null;
+                    if (replaced[item] == 0)
+                        document.Replace(item, "", false, true);
 
-                    excelEngine = null;
-                    application = null;
-                    workbook = null;
                 }
 
+                string fileNames = string.Empty;
+                if (dtEmpInformation.Rows.Count > 0)
+                {
+                    fileNames = dtEmpInformation.Rows[0]["EmployeeCode"] + "-FinalSettlement.docx";
+                }
+                else
+                {
+                    fileNames = "FinalSettlement.docx";
+                }
+
+                document.Save(fileNames, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+                document.Close();
             }
-
-
-
-
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
+
+        public DataTable GetEmpInformationforfinalsettlement(string empSystemId)
+        {
+            try
+            {
+
+                string sql = @"select E.EmployeeCode,E.EmployeeName,E.FatherName,Designation=D.UserName,S.UserName Section,FORMAT(M.FinalSettlementDate,'dd-MMM-yyy') FinalSettlementDate, 0 LvEncashmentRateAmount,0 LvEncashmentAmount,0 GratuityAmount,SalRate=B.Basic/30,G.Gross GrossAmount,B.Basic BasicAmount,format(apd.WorkDate,'dd-MMM-yyyy') LastPayDate,SPAD.TotalPayDay
+,SY.UserName AS SeparationType,0 SeparationTypeDay,LvEncashmentDayNo=(Select [Value] from dbo.EmployeeFullAndFinalSettlementItem Where UserName='EarnLeave' AND empsystemId='" + empSystemId + @"')
+,0 SeparationTypeRate,0 SeparationTypeAmount,LeaveEncash =(Select [Value] from dbo.EmployeeFullAndFinalSettlementItem Where UserName='LeaveEncashment' AND empsystemId='" + empSystemId + @"')
+,LastMonthNetPayAmount =(Select [Value] from dbo.EmployeeFullAndFinalSettlementItem Where UserName IN('SalaryPayble','UnPaidSalary') AND empsystemId='" + empSystemId + @"')
+,TotalDeduction=(Select [Value] from dbo.EmployeeFullAndFinalSettlementItem Where UserName IN('ShortNoticePeriodDeduction') AND empsystemId='" + empSystemId + @"')
+,Payable=(Select [Value] from dbo.EmployeeFullAndFinalSettlementItem Where UserName IN('NetPayable') AND empsystemId='" + empSystemId + @"')
+,NetPayAmount=(Select [Value] from dbo.EmployeeFullAndFinalSettlementItem Where UserName IN('NetPayable') AND empsystemId='" + empSystemId + @"')
+,DOJ=FORMAT(E.DOJ,'dd-MMM-yyyy'),DOS=FORMAT(E.DOS,'dd-MMM-yyyy')
+from dbo.EmployeeFullAndFinalSettlement efs
+left join dbo.EmployeeFullAndFinalSettlementMaster M ON M.Id=efs.FinalSettlementId
+LEFT JOIN TRN.Resignation R ON R.EmployeeId=efs.EmpSystemId
+LEFT JOIN [HKP].[SeparationType] SY ON SY.Id=R.SeparationTypeId
+LEFT JOIN EmployeeInformation E ON E.SystemId=efs.EmpSystemID
+LEFT JOIN MST.ManpowerBudget MB ON MB.Id=E.BudgetCode
+LEFT JOIN ORG.Position P ON P.Id=MB.PositionId
+LEFT JOIN HKP.Designation D ON D.Id=E.GivenDesignationId
+LEFT JOIN ORG.Section S ON S.Id=P.SectionId
+Left join AttdnProcessData APD ON CONCAT(apd.WorkDate,'-',APD.EmpSystemId)=(select top 1 CONCAT(WorkDate,'-',EmpSystemId) from AttdnProcessData where EmpSystemID='" + empSystemId + @"' and PayDayValue=1 and WorkDate <= E.DOS order by workdate desc ) 
+left join (select top 1 * from SalaryProceAttdnData where empsystemId='" + empSystemId + @"' order by FromDate Desc) SPAD on SPAD.EmpSystemID=efs.EmpSystemID
+LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = E.SystemId and sidm.IsApproved =1
+LEFT JOIN(SELECT SID.SalaryID,SID.DefineAmount Gross,SH.SalaryHeadID GrossSalaryHeadID
+                                                                          FROM SalaryInfoDefine SID 
+								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+                                                                        WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
+left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.SalaryID
+                                                                          FROM SalaryInfoDefine SID 
+								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+                                                                        WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
+Where efs.EmpSystemId='" + empSystemId + @"'";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         #region EmployeeInformation
         public IEnumerable<object> GetEmpInfo(string companyGroupId, string plantId, string fromDate, string toDate, string criteria)
         {
@@ -31203,7 +30869,7 @@ namespace Library.Service.HumanResources
                     LEFT JOIN org.Section s ON s.id=PR.SectionId
                     LEFT JOIN org.SubSection ss ON ss.Id=PR.SubSectionId
                     left join org.Line ll on ll.id=MB.LineId
-                    left join (select * FROM LeaveTransaction where LTSystemID in (select id from LeaveType where LeaveType='Maternity')) t on t.EmpSystemID=ei.SystemId and t.SystemID=mbm.LeaveTransactionId  and t.PlantID='"+ plantId + @"'
+                    left join (select * FROM LeaveTransaction where LTSystemID in (select id from LeaveType where LeaveType='Maternity')) t on t.EmpSystemID=ei.SystemId and t.SystemID=mbm.LeaveTransactionId  and t.PlantID='" + plantId + @"'
                     left join mst.MaternityLeavePolicy mp on mp.id=t.MaternityLeavePolicyId		
                     WHERE (IsPaidAfter=1 or IsPaidBefore=1) 
 					and mbm.PlantId='" + identity.PlantId + @"'";

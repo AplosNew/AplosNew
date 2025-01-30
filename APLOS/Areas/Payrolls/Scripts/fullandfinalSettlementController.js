@@ -426,4 +426,21 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         }
     };
 
+    $scope.MaternityLeaveReport = function (obj) {
+        try {
+            //$scope.UserName = $("#Lan option:selected").text();
+            //if (baseService.isUndefinedOrNull($scope.NationlFestival.LanguageId)) {
+            //    throw 'Please Select Language';
+            //}
+            var datum = obj.data;
+            var url = 'Payrolls/FinalSettlement/EmployeeSattlementReport?empSystemId=' + datum.EmpSystemId;
+            $rootScope.report(url);
+        }
+
+        catch (e) {
+            ShowResult(e, 'failure');
+
+        }
+    };
+
 };
