@@ -30596,13 +30596,6 @@ namespace Library.Service.HumanResources
                 double NetPayAmount = 0;
 
 
-                //ob.GetFinalSettlementHeadWiseData("{EarningPart}", document, null, UserName);
-
-
-                //ob.GetFinalSettlementHeadWiseData("{DedutionPart}", document, null, UserName);
-
-
-
                 if (dtEmpInformation.Rows.Count > 0)
                 {
                     if (dtEmpInformation.Rows[0]["SeparationTypeAmount"].ToString() != "N/A")
@@ -30636,24 +30629,7 @@ namespace Library.Service.HumanResources
                 }
 
                 #region Total In Word
-                //if (UserName.ToUpper() == "BANGLA")
-                //{
-
-                //    //strnumberToString(string numberToConvert)
-                //    numberToString.numberToStringBuilder bangla = new numberToString.numberToStringBuilder();
-                //    document.Replace("{TotalInWords}", bangla.strnumberToString(NetPayAmount.ToString()), true, true);
-                //    document.Replace("{TotalInWord}", bangla.strnumberToString(PayableNetPayAmount.ToString()), true, true);
-
-                //    // document.Replace("{TotalInWords}", ru.InWord((materialTotal + serviceTotal), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
-
-
-                //}
-                //else
-                //{
-                //    document.Replace("{TotalInWords}", oRU.InWord(Convert.ToDouble(NetPayAmount.ToString()), ""), true, true);
-                //    document.Replace("{TotalInWord}", oRU.InWord(Convert.ToDouble(PayableNetPayAmount.ToString()), ""), true, true);
-                //}
-
+                
                 document.Replace("{TotalInWords}", oRU.InWord(Convert.ToDouble(NetPayAmount.ToString()), ""), true, true);
                 document.Replace("{TotalInWord}", oRU.InWord(Convert.ToDouble(PayableNetPayAmount.ToString()), ""), true, true);
 
