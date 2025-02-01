@@ -3175,7 +3175,11 @@ Order By ESI.Sequence";
                 edCRow++;
                 string inWord = reportUtility.InWord(NetPayable, null);
                 ROW = edCRow; COL = 1;
-                sheet.Range[ROW, COL, ROW, COL + 2].Text = "I have received a sum of Rs. " + NetPayable + ", Rupees. " + inWord + " towards full and final settlement of all my dues from " + dtOrder.Rows[0]["Company"].ToString() + " and have no other";
+                sheet.Range[ROW, COL, ROW, COL + 2].Text = "I have received a sum of Rs. " + NetPayable + ", Rupees. " + inWord + " towards full and final settlement of all my dues ";
+                sheet.Range[ROW, COL, ROW, COL + 2].Merge();
+                ROW++;
+
+                sheet.Range[ROW, COL, ROW, COL + 2].Text = "from " + dtOrder.Rows[0]["Company"].ToString() + " and have no other";
                 sheet.Range[ROW, COL, ROW, COL + 2].Merge();
                 ROW++;
 
