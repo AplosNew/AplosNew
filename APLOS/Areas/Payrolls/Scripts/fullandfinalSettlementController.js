@@ -426,4 +426,18 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         }
     };
 
+    $scope.MaternityLeaveReport = function (obj) {
+        try {
+          
+            var datum = obj.data;
+            var url = 'Payrolls/FinalSettlement/EmployeeSattlementReport?empSystemId=' + datum.EmpSystemId;
+            $rootScope.report(url);
+        }
+
+        catch (e) {
+            ShowResult(e, 'failure');
+
+        }
+    };
+
 };

@@ -287,6 +287,8 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
                     else {
                         ShowResult(response.data.Message, "success");
                         $scope.getData();
+                        $scope.voucher.DocDate = $filter('dateFiltering')(new Date($scope.voucher.DocDate), 'dd-MM-yyyy');
+                        $scope.getTaxCodeByTaxYearWithhold($scope.voucher.DocDate);
                         $scope.Clear();
                     }
                 }, function errorCallback(response) {
@@ -294,126 +296,7 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
                 });
                 return true;
             }
-            //if ($scope.Action === "Save" && $scope.voucher.Status == 'Sales') {
-            //    $http({
-            //        method: "POST",
-            //        url: "fixedassets/fixedassetregister/CreateFixedAssetSales",
-            //        data: {
-            //            "fixedAssetDisposed": $scope.voucher,
-            //            "fixedAssetRegister": $scope.voucherDetailList
-                       
-            //        },
-            //        dataType: "JSON"
-            //    }).then(function successCallback(response) {
-            //        if (response.data.Error === true) {
-            //            ShowResult(response.data.Message, "failure");
-            //        }
-            //        else {
-            //            ShowResult(response.data.Message, "success");
-            //            $scope.getData();
-            //            $scope.Clear();
-            //        }
-            //    }, function errorCallback(response) {
-            //        ShowResult(response.status.Message, "failure");
-            //    });
-            //    return true;
-            //}
-            //if ($scope.Action === "Save" && ($scope.voucher.Status == 'Scrap' || $scope.voucher.Status == 'Theft')) {
-            //    $http({
-            //        method: "POST",
-            //        url: "fixedassets/fixedassetregister/CreateFixedAssetScrap",
-            //        data: {
-            //            "fixedAssetDisposed": $scope.voucher,
-            //            "fixedAssetRegister": $scope.voucherDetailList
-                        
-            //        },
-            //        dataType: "JSON"
-            //    }).then(function successCallback(response) {
-            //        if (response.data.Error === true) {
-            //            ShowResult(response.data.Message, "failure");
-            //        }
-            //        else {
-            //            ShowResult(response.data.Message, "success");
-            //            $scope.getData();
-            //            $scope.Clear();
-            //        }
-            //    }, function errorCallback(response) {
-            //        ShowResult(response.status.Message, "failure");
-            //    });
-            //    return true;
-            //}
-            //if ($scope.Action === "Update" && $scope.voucher.Status == 'CompensateByEmployee' ) {
-            //    $http({
-            //        method: "POST",
-            //        url: "fixedassets/fixedassetregister/UpdateFixedAssetLost",
-            //        data: {
-            //            "fixedAssetDisposed": $scope.voucher,
-            //            "fixedAssetRegister": $scope.voucherDetailList
-
-            //        },
-            //        dataType: "JSON"
-            //    }).then(function successCallback(response) {
-            //        if (response.data.Error === true) {
-            //            ShowResult(response.data.Message, "failure");
-            //        }
-            //        else {
-            //            ShowResult(response.data.Message, "success");
-            //            $scope.getData();
-            //            $scope.Clear();
-            //        }
-            //    }, function errorCallback(response) {
-            //        ShowResult(response.status.Message, "failure");
-            //    });
-            //    return true;
-            //}
-            //if ($scope.Action === "Update" && ($scope.voucher.Status == 'Scrap' || $scope.voucher.Status == 'Theft')) {
-            //    $http({
-            //        method: "POST",
-            //        url: "fixedassets/fixedassetregister/UpdateFixedAssetScrap",
-            //        data: {
-            //            "fixedAssetDisposed": $scope.voucher,
-            //            "fixedAssetRegister": $scope.voucherDetailList
-                        
-            //        },
-            //        dataType: "JSON"
-            //    }).then(function successCallback(response) {
-            //        if (response.data.Error === true) {
-            //            ShowResult(response.data.Message, "failure");
-            //        }
-            //        else {
-            //            ShowResult(response.data.Message, "success");
-            //            $scope.getData();
-            //            $scope.Clear();
-            //        }
-            //    }, function errorCallback(response) {
-            //        ShowResult(response.status.Message, "failure");
-            //    });
-            //    return true;
-            //}
-            //else if ($scope.Action === "Update" && $scope.voucher.Status == 'Sales') {
-            //    $http({
-            //        method: "POST",
-            //        url: "fixedassets/fixedassetregister/UpdateFixedAssetSales",
-            //        data: {
-            //            "status": $scope.voucher.Status,
-            //            "disposeVM": $scope.voucher,
-            //            "fixedAssetRegister": $scope.voucherDetailList,
-            //        },
-            //        dataType: 'JSON'
-            //        , contentType: "application/json charset=utf-8"
-            //    }).then(function successCallback(response) {
-            //        if (response.data.Error === true) {
-            //            ShowResult(response.data.Message, "failure");
-            //        }
-            //        else {
-            //            ShowResult(response.data.Message, "success");
-            //            $scope.getData();
-            //            $scope.Clear();
-            //        }
-            //    }, function errorCallback(response) {
-            //        ShowResult(response.status.Message, "failure");
-            //    });
-            //}
+            
             return true;
         }
     };
@@ -772,4 +655,180 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
     $scope.FixedDisposeTaxInvoice = function (data) {
         location.href = "FixedAssets/FixedAssetRegister/FixedDisposeTaxInvoice?disposeId=" + data.data.Id;
     };
+
+    //#region Additional TAX Code
+    $scope.advanceTax = { TotalSumAfterTCSVal: 0 };
+    $scope.advanceTaxesList = [];
+    $scope.additionalTax = function () {
+        for (var i = 0; i < $scope.advanceTaxesList.length; i++) {
+            if ($scope.advanceTaxesList[i].TaxCodeId === $scope.advanceTax.TaxCodeId) {
+                ShowResult("Tax Already Added");
+                return false;
+            }
+
+        }
+
+        if (manualValidation("td_TaxCode", baseService.isUndefinedOrNull($scope.advanceTax.TaxCodeId), "Tax Code is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_TaxCodeAmount", baseService.isUndefinedOrNull($scope.advanceTax.TaxAmount), "Amount is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_TaxCodeCompanyCurrencyAmount", baseService.isUndefinedOrNull($scope.advanceTax.CompanyCurrencyAmount), $scope.companyCurrencyCode + " is required.")) {
+            $scope.invalidRow = true;
+        }
+        else {
+            $scope.advanceTax.TaxName = $.grep($scope.taxCodCboListWithhold, function (item) {
+                return item.Id === $scope.advanceTax.TaxCodeId;
+            })[0].UserName;
+
+            $scope.advanceTaxesList.push($scope.advanceTax);
+            $scope.advanceTax = {};
+            $scope.TotalSumAfterTCS();
+        }
+
+    };
+
+    $scope.taxCodCboListWithhold = [];
+    $scope.taxcodelistMessage = "";
+    $scope.getTaxCodeByTaxYearWithhold = function (date) {
+        $scope.voucher.TaxOptionAddiTax = 'Yes';
+        $http({
+            method: "Get",
+            url: "accounts/TaxCode/GetAdditionalTaxOutputCbo?postingDate=" + $filter("dateFiltering")(date)
+        }).then(
+            function successCallback(response) {
+                if (response.data.Error === true) {
+                    $scope.taxcodelistMessage = response.data.Message;
+                }
+                else {
+                    $scope.taxCodCboListWithhold = response.data;;
+                }
+            },
+            function errorCallback(response) {
+            });
+    };
+    //$scope.getTaxCodeByTaxYearWithhold($filter("dateFiltering")(Date.now()));
+    $scope.selectadditionalTax = function () {
+        $scope.advanceTax.ValueOfFixed = $.grep($scope.taxCodCboListWithhold, function (item) {
+            return item.Id === $scope.advanceTax.TaxCodeId;
+        })[0].ValueOfFixed;
+        $scope.advanceTax.Type = $.grep($scope.taxCodCboListWithhold, function (item) {
+            return item.Id === $scope.advanceTax.TaxCodeId;
+        })[0].Type;
+        $scope.advanceTax.TaxCategoryId = $.grep($scope.taxCodCboListWithhold, function (item) {
+            return item.Id === $scope.advanceTax.TaxCodeId;
+        })[0].TaxCategoryId;
+        if ($scope.advanceTax.Type == 'FixedPercentage' && !baseService.isUndefinedOrNull($scope.advanceTax.ValueOfFixed)) {//* $scope.advanceTax.ValueOfFixed / 100
+
+            $scope.advanceTax.TaxAmount = parseFloat(((parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceTax"))) * $scope.advanceTax.ValueOfFixed) / 100).toFixed(2);
+            //$scope.advanceTax.TaxAmount = parseFloat(((parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceCharge"))) * $scope.advanceTax.ValueOfFixed) / 100).toFixed(2);
+        } else {
+            $scope.advanceTax.TaxAmount = $scope.advanceTax.ValueOfFixed;
+        }
+        $scope.TotalSumAfterTCS();
+    }
+
+    $scope.SaveAdditinalTax = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.voucher.ToCurrencyRate) || $scope.voucher.ToCurrencyRate == 0) {
+                $scope.voucher.ToCurrencyRate = $scope.voucher.CompanyCurrencyRate;
+            }
+
+            if ($scope.voucher.IsPark == 0) {
+                throw "Posted data cann't save";
+            }
+            if (baseService.arrayLength($scope.advanceTaxesList) == 0) {
+                throw "Add row for Additional Tax.";
+            }
+            $http({
+                method: 'POST',
+                url: 'SalesManagements/Sales/SaveAdditinalTax',
+                data:
+                {
+                    'salesId': $scope.voucher.Id,
+                    'BooksCurrencyBaseRate': $scope.voucher.ToCurrencyRate,
+                    'UserSendData': $scope.advanceTaxesList
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.TotalSumAfterTCS();
+
+                }
+            }, function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+
+
+    $scope.GetAdvanceTaxInfo = function (Id) {
+
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'SalesManagements/Sales/GetAdvanceTaxInfo?SalesId=' + Id,
+        }).then(function successCallback(response) {
+            $scope.advanceTaxesList = response.data;
+
+            $scope.advanceTax.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
+
+        });
+
+    }
+    $scope.removeTaxesRow = function (Id, index) {
+        if (baseService.isUndefinedOrNull(Id)) {
+            $scope.advanceTaxesList.splice(index, 1);
+
+        }
+        else {
+            $scope.DeleteAdditinalTax(Id);
+            $scope.GetAdvanceTaxInfo($scope.salesVM.Id);
+        }
+    };
+    $scope.DeleteAdditinalTax = function (Id) {
+        $http({
+            method: 'POST',
+            url: 'SalesManagements/Sales/AdditionalTaxDelete?Id=' + Id,
+            dataType: 'JSON'
+        }).then(function (response) {
+            if (response.data.Error === true)
+                ShowResult(response.data.Message, 'failure');
+            else {
+                ShowResult(response.data.Message, 'success');
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+    $scope.TaxOptionAdditax = function (data) {
+        $scope.salesVM.TaxOptionAddiTax = data;
+    };
+
+    $scope.calculateTaxAmountForAdditionalTax = function (data) {
+        $scope.TaxAmountVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceTax"))).toFixed(2);
+
+        $scope.advanceTax.TaxAmount = (($scope.TaxAmountVal * data) / 100).toFixed(2);
+
+    };
+    $scope.checkRowValidationSdditionalTax = function (data) {
+
+        $scope.TaxAmountVal1 = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceTax"))).toFixed(2);
+        $scope.advanceTax.ValueOfFixed = ((data / $scope.TaxAmountVal1) * 100).toFixed(4);
+    }
+    //$scope.TotalSumAfterTCSVal = "";
+    $scope.TotalSumAfterTCS = function () {
+        $scope.advanceTax.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
+    }
+
+    //#endregion
 }

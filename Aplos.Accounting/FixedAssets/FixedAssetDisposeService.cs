@@ -3262,7 +3262,7 @@ namespace Library.Accounting.FixedAssets
                          LEFT JOIN HKP.Party P ON P.Id = IR.PartyId
                          LEFT JOIN[MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
 						 Left JOIN TRN.AssetRegister AR ON AR.Id=IRD.AssetRegisterId
-						 Left JOIN TRN.AssetRegisterChild ARC ON ARC.AssetRegisterId=AR.Id
+						 Left JOIN (select distinct PlantId,AssetRegisterId,CompanyGroupId,CompanyId from TRN.AssetRegisterChild) ARC ON ARC.AssetRegisterId=AR.Id
                          LEFT JOIN ORG.Plant Plant ON Plant.Id = ARC.PlantId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = Plant.CompanyId
 						 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = Plant.CompanyGroupId
