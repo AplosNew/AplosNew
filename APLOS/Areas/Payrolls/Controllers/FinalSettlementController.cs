@@ -11,9 +11,11 @@ using Library.Model.Enums;
 using Library.Service.Employees;
 using Library.Service.Enums;
 using Library.Service.Helpers;
+using Library.Service.HumanResources;
 using Library.Service.SalaryDisbursement;
 using Library.ViewModel.Vouchers;
 using OTSBD;
+using Syncfusion.DocIO.DLS;
 using Syncfusion.ExcelToPdfConverter;
 using Syncfusion.Pdf;
 using Syncfusion.XlsIO;
@@ -22,6 +24,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -35,10 +38,12 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         private readonly ISqlRepository _sqlRepository;
         private readonly ISalaryDisbursementService _salaryDisbursementService;
-        public FinalSettlementController(ISqlRepository sqlRepository, ISalaryDisbursementService salaryDisbursementService)
+        private readonly IAttendanceManagementService _AttendanceManagementService;
+        public FinalSettlementController(ISqlRepository sqlRepository, ISalaryDisbursementService salaryDisbursementService, IAttendanceManagementService AttendanceManagementService)
         {
             _sqlRepository = sqlRepository;
             _salaryDisbursementService = salaryDisbursementService;
+            _AttendanceManagementService = AttendanceManagementService;
         }
         #endregion
 
@@ -3036,7 +3041,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
                 DataTable dtOrder = null;
 
                 string sql = @"SELECT EI.EmpSystemId,EM.EmployeeCode,EM.EmployeeName,FORMAT(EM.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EM.DOS,'dd-MMM-yyyy')DOS,FORMAT(R.ResignationDate,'dd-MMM-yyyy')ResignationDate,ESI.SandardName ItemName,EI.Value,EI.Remarks,ESI.EntryState 
-,EM.FatherName,DP.UserName Department,S.UserName Section,LD.UserName Designation,EI.AddedBy,AEM.EmployeeName ApproveBy,EM.PaymentMode,ApproveStatus=CASE WHEN  M.IsApproved=1 THEN 'Approved' ELSE 'Pending' END, M.IsApproved,EB.BankAccNo,B.UserName Bank,EB.IFSCCode
+,EM.FatherName,DP.UserName Department,S.UserName Section,LD.UserName Designation,EI.AddedBy,AEM.EmployeeName ApproveBy,EM.PaymentMode,ApproveStatus=CASE WHEN  M.IsApproved=1 THEN 'Approved' ELSE 'Pending' END, M.IsApproved,EB.BankAccNo,B.UserName Bank,EB.IFSCCode,C.UserName Company
 FROM dbo.EmployeeFullAndFinalSettlementItem  EI
 LEFT JOIN dbo.EmployeeSeperationItem ESI ON ESI.Id=EI.EmployeeSeperationItemId
 LEFT JOIN dbo.EmployeeInformation EM ON EM.SystemId=EI.EmpSystemId
@@ -3049,6 +3054,7 @@ LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
 LEFT JOIN HKP.LegalDesignation LD ON LD.Id=EM.LegalDesignationId
 LEFT JOIN EmployeeFullAndFinalSettlementMaster M ON M.Id=EI.FinalSettlementId
 LEFT JOIN dbo.EmployeeInformation AEM ON AEM.SystemId=M.ApproveById
+LEFT JOIN ORG.Company C ON C.Id=AEM.CompanyId
 LEFT JOIN [TRN].[Resignation] R ON R.EmployeeId=EM.SystemId
 AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)
 Where EI.EmpSystemId='" + empId + @"' AND ESI.IsReportItem=1
@@ -3169,7 +3175,11 @@ Order By ESI.Sequence";
                 edCRow++;
                 string inWord = reportUtility.InWord(NetPayable, null);
                 ROW = edCRow; COL = 1;
-                sheet.Range[ROW, COL, ROW, COL + 2].Text = "I have received a sum of Rs. " + NetPayable + ", Rupees. " + inWord + " towards full and final settlement of all my dues from Cedaar Textile Pvt Ltd. and have no other";
+                sheet.Range[ROW, COL, ROW, COL + 2].Text = "I have received a sum of Rs. " + NetPayable + ", Rupees. " + inWord + " towards full and final settlement of all my dues ";
+                sheet.Range[ROW, COL, ROW, COL + 2].Merge();
+                ROW++;
+
+                sheet.Range[ROW, COL, ROW, COL + 2].Text = "from " + dtOrder.Rows[0]["Company"].ToString() + " and have no other";
                 sheet.Range[ROW, COL, ROW, COL + 2].Merge();
                 ROW++;
 
@@ -3397,6 +3407,26 @@ where M.AddedDate between '" + fromDate+@"' AND '"+toDate+"'";
                 throw ex;
             }
         }
+
+        [HttpGet]
+        public ActionResult EmployeeSattlementReport(string empSystemId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                _AttendanceManagementService.EmployeeSattlementReport(empSystemId,identity.PlantId);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            return View();
+        }
+
+       
+
         #endregion
 
     }
