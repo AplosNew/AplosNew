@@ -104,7 +104,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
                     DataRow dr = dsOut.Tables[0].NewRow();
                     _genId.GenID("trn.JobWorkEntry", out Id);
                  //   Id = "JWI-" + Id;
-                    dr["Id"] = "JWE" + GetPK();
+                    dr["Id"] = "JWE" + saveData["Sequence"];
                     dr["Sequence"] = saveData["Sequence"];
                     dr["CustomerInvoiceNo"] = saveData["CustomerInvoiceNo"];
                     dr["CustomerInvoiceDate"] = saveData["CustomerInvoiceDate"];
@@ -222,9 +222,11 @@ namespace Aplos.Areas.Outsourcing.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"select GE.Id GateEntryNo , format(GE.GateEntryTime,'dd-MMM-yyyy') GateEntryDate , GE.PackageQty Quantity , PT.StandardName Party , GE.Remarks   from trn.GateEntry GE
+            string sql = @"select GE.Id GateEntryNo , format(GE.GateEntryTime,'dd-MMM-yyyy') GateEntryDate , GE.PackageQty Quantity , PT.StandardName Party , GE.Remarks , JWE.Id   from trn.GateEntry GE
 left join hkp.Party PT on PT.Id = GE.PartyId 
-order by GE.GateEntryTime desc --where Convert(date,GE.GateEntryTime) between DATEADD(day, -2, CAST(GETDATE() AS date)) and GETDATE() ";
+left join trn.JobWorkEntry JWE on JWE.GateEntryNo = GE.Id
+where JWE.Id is null and Convert(date,GE.GateEntryTime) between '01-Feb-2025' and GETDATE()  
+order by GE.GateEntryTime desc  ";
 
             var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
