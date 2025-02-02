@@ -508,29 +508,11 @@ namespace Aplos.Areas.Payrolls.Controllers
 									,ISNULL(bb.UserName,'') BankName
 
                                     FROM EmployeeInformation e
-                                    LEFT OUTER JOIN ORG.Department edept on edept.id=e.DepartmentId
-                                    LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId
-                                    LEFT OUTER JOIN ORG.Division ediv on ediv.id=e.DivisionId
-                                    LEFT OUTER JOIN ORG.SubDivision esdiv on esdiv.id=e.SubDivisionId
-                                    LEFT OUTER JOIN ORG.Section es on es.id=e.SectionId
-                                    LEFT OUTER JOIN ORG.SubSection ess on ess.id=e.SubSectionId
-                                    LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
-                                    LEFT OUTER JOIN ORG.Unit eu on eu.id=e.UnitId
-                                   -- left outer join [ORG].[PlantDesignationGroupSalaryRule] srs on srs.DesignationGroupId=e.DesignationGroupId
-                                    --left outer join SalaryRuleMaster srm on srm.SystemId=srs.SalaryRuleMasterId
-                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
+                                    
 									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=e.LegalDesignationId
 
-                                    LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
-									,dg.UserName GivenDesignationGroup--,srm.SalaryRuleName
-									FROM mst.DesignationMaster dm
-									LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
-		                           -- left outer join [ORG].[PlantDesignationGroupSalaryRule] srs on srs.DesignationGroupId=dm.DesignationGroupId
-                                   -- left outer join SalaryRuleMaster srm on srm.SystemId=srs.SalaryRuleMasterId
-									) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
-									AND egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
+                                   
                                     LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
 									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
                                     LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
@@ -540,7 +522,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                     LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
                                     LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
                                     LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId
-                                    
+                                    LEFT OUTER JOIN ORG.Line eL on eL.id=mpb.LineId
 
                                     LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
                                     LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
@@ -600,14 +582,13 @@ namespace Aplos.Areas.Payrolls.Controllers
                 wcEmpStatus += ")";
 
                 strSQL = @"SELECT * FROM (SELECT Distinct  E.SystemID,  E.EmployeeCode , E.EmployeeName,ISnull(E.EmployeeNameLocal,EmployeeName) EmployeeNameLocal,E.FatherName,  Format(E.DOJ,'dd-MMM-yyy') DOJ, Format(E.DOB,'dd-MMM-yyy') DOB,Format(E.DOS,'dd-MMM-yyy') DOS, E.EmployeeStatus,E.PaymentMode,
-											 E.PlantID,  E.UnitID
-											,Unit.UserName UnitName,Unit.Sequence UnitSequence, Division.Id DivisionID,
+											 E.PlantID,Unit.UserName UnitName,Unit.Sequence UnitSequence, Division.Id DivisionID,
 											 Division.UserName DivisionName,Division.Sequence DivisionSequence
 											,Department.Id DepartmentID, Department.UserName DepartmentName,Department.Sequence DepartmentSequence,
 											Section.Id SectionID, Section.UserName SectionName,Section.Sequence SectionSequence,
 											 SubSection.Id SubSectionID, SubSection.UserName SubSectionName,SubSection.Sequence SubSectionSequence,EC.Id EmployeeCategorySystemID,
 											EC.UserName EmpCategoryName,EC.Sequence EmployeeCategorySequence--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo
-                                            ,ENT.UserName EntitySequence,egdsgg.GivenDesignationGroup,e.SalaryRuleMasterSystemID,LD.UserName LegalDesignation--,eoe.IsOTEntitle
+                                            ,ENT.UserName EntitySequence,e.SalaryRuleMasterSystemID,LD.UserName LegalDesignation--,eoe.IsOTEntitle
 											,IsOTEntitle = Case  when ISNULL(EOE.IsOTEntitle,0) = 1 then EOE.IsOTEntitle else ISNULL(DMCT.IsOTEntitled,0) end
 										   ,ISNULL(LD.Id,'') DesignationId,LD.UserName DesignationName,LD.Sequence DesignationSequence,ISNULL(EmpC.Id,'') EmployeeCategoryId,ISNULL(EmpC.UserName,'') EmployeeCategoryName
                                             , ISNULL(LD.UserName,'') LDDesignationGD,LSalGr.Code GradeCode,E.EmployeeCodePreFix, E.EmployeeCodeNumeric
@@ -616,7 +597,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 		                                  , ISNULL(LocLangLD.Name,LD.UserName) DesignationLocal
 											,OverTimePmtPolicyMasterID=case when isnull(eoe.EmpSystemID,'')<>'' then (select id from OverTimePmtPolicyMaster where IsDefault=1)
 											when DMCT.IsOTEntitled=1 and isnull(DMCT.OverTimePmtPolicyMasterID,'')<>'' then DMCT.OverTimePmtPolicyMasterID
-											else null end,E.LineId,EGDSGG.DesignationGroupId, bb.BankAccNo,bb.BankName, '' BankNameFull
+											else null end, bb.BankAccNo,bb.BankName, '' BankNameFull
                                      ,otd.FormulaDesID,otd.FormulaDes
                                            FROM EmployeeInformation E
 												
@@ -627,7 +608,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 									LEFT OUTER JOIN ORG.Position PO ON MB.PositionId=PO.Id
                                     LEFT OUTER JOIN ORG.Entity EN ON MB.EntityId=EN.Id
                                     LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
-                                    LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
+                                    LEFT JOIN [ORG].[Division] ON Division.Id = PO.DivisionId
                                     LEFT JOIN [ORG].[Plant] ON Plant.Id = EN.PlantId
                                     LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
                                     LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
@@ -637,7 +618,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 												LEFT JOIN HKP.Designation GVD ON GVD.Id=E.GivenDesignationId
                                                 LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId = LD.Id and E.PlantId = LSGD.PlantId
                                                 LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = LSGD.LegalSalaryGradeId  and E.PlantId = LSalGr.PlantId
-												LEFT JOIN org.SubDivision subDV ON E.SubdivisionID = subDV.Id
+												LEFT JOIN org.SubDivision subDV ON PO.SubdivisionID = subDV.Id
 												LEFT JOIN  MST.DesignationMaster DMOT ON DMOT.DesignationId = E.GivenDesignationId
  
                                     LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DMOT.EmployeeCategoryId
@@ -651,12 +632,6 @@ namespace Aplos.Areas.Payrolls.Controllers
                                                 SELECT ECT.Id, ECT.UserName,ECT.Sequence , DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
 												LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
 												)EC ON EC.DesignationId=E.GivenDesignationId
-												LEFT JOIN (SELECT dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
-									            ,DG.UserName GivenDesignationGroup
-									            FROM MST.DesignationMaster DM
-									            LEFT JOIN HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
-									            ) EGDSGG ON EGDSGG.DesignationId=e.GivenDesignationId
-									            AND EGDSGG.EmployeeCategoryId=e.EmployeeCategorySystemID
                                                 LEFT JOIN HKP.LocalLanguage LocLangLD ON LocLangLD.LegalDesignationId = E.LegalDesignationId AND LocLangLD.LanguageId = '" + languageId + @"'
                                                 LEFT JOIN HKP.LocalLanguage LocLangGD ON LocLangGD.DesignationId = E.GivenDesignationId AND LocLangGD.LanguageId = '" + languageId + @"'
 									      

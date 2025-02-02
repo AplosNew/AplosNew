@@ -200,10 +200,12 @@ namespace Library.Service.Employees
                 ,PE.ID PFEligibleEmpId
 				FROM PFEligibleEmployee PE
                 LEFT JOIN EmployeeInformation EI ON PE.EmpSystemID=EI.SystemId
-									LEFT JOIN HKP.Designation D ON EI.DesignationSystemID = D.Id
-									LEFT JOIN ORG.Department DP ON EI.DepartmentId = DP.Id
-									LEFT JOIN ORG.Section S ON EI.SectionId=S.Id
-									LEFT JOIN ORG.SubSection SS ON EI.SubSectionId = SS.Id
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+									LEFT JOIN HKP.Designation D ON pr.DesignationID = D.Id
+									LEFT JOIN ORG.Department DP ON pr.DepartmentId = DP.Id
+									LEFT JOIN ORG.Section S ON pr.SectionId=S.Id
+									LEFT JOIN ORG.SubSection SS ON pr.SubSectionId = SS.Id
 									LEFT JOIN PFPolicyMaster PM ON PE.PFMstID = PM.ID
 									LEFT JOIN PFPolicyDetails PD ON PM.ID=PD.PFPolicyMasterID
 									LEFT JOIN (
@@ -247,10 +249,12 @@ namespace Library.Service.Employees
                 ,PE.ID PFEligibleEmpId
 				FROM PFEligibleEmployee PE
                 LEFT JOIN EmployeeInformation EI ON PE.EmpSystemID=EI.SystemId
-									LEFT JOIN HKP.Designation D ON EI.DesignationSystemID = D.Id
-									LEFT JOIN ORG.Department DP ON EI.DepartmentId = DP.Id
-									LEFT JOIN ORG.Section S ON EI.SectionId=S.Id
-									LEFT JOIN ORG.SubSection SS ON EI.SubSectionId = SS.Id
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+									LEFT JOIN HKP.Designation D ON pr.DesignationID = D.Id
+									LEFT JOIN ORG.Department DP ON pr.DepartmentId = DP.Id
+									LEFT JOIN ORG.Section S ON pr.SectionId=S.Id
+									LEFT JOIN ORG.SubSection SS ON pr.SubSectionId = SS.Id
 									LEFT JOIN PFPolicyMaster PM ON PE.PFMstID = PM.ID
 									LEFT JOIN PFPolicyDetails PD ON PM.ID=PD.PFPolicyMasterID
 									LEFT JOIN (

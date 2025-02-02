@@ -386,7 +386,7 @@ namespace Library.Service.Payrolls.SalaryProcessActive
                                   S.SlrProcMstSystemID AS SystemID, ISNULL(S.IsApproved, 0) IsApproved, ISNULL(S.IsDisbursed, 0) IsDisbursed, E.SystemID AS EmpSystemID,
                                   E.EmployeeCode, E.EmployeeName, F.UserName PlantName, E.PlantID, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106),' ','-') DOJ,E.DOJ DOJs,
                                   REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS,E.DOS DOSs, E.EmployeeStatus, E.EmployeeGroupSystemID UserGroupSystemID,
-                                  E.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,
+                                  DM.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,
                                     --y.ToDate,
                                   REPLACE(CONVERT(VARCHAR(11), y.ToDate, 106),' ','-') ToDate,
                                   ProcessStatus = CASE WHEN Y.ToDate>'" + sFromDate + @"' THEN 'Overlap'
@@ -409,10 +409,11 @@ namespace Library.Service.Payrolls.SalaryProcessActive
 					                                 GROUP BY SC.SlrProcMstSystemID, SC.IsApproved, SC.IsDisbursed, SC.EmpInfoSystemID, SM.MonthNo, SM.YearNo
 												   ) S ON E.SystemID = S.EmpInfoSystemID
                                         LEFT OUTER JOIN org.Plant F ON E.PlantID = F.Id
-                                        LEFT OUTER JOIN hkp.Designation dgs ON dgs.Id = E.GivenDesignationId
-                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
 
                                         left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
+                                        LEFT OUTER JOIN hkp.Designation dgs ON dgs.Id = E.GivenDesignationId
+                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = DM.DesignationGroupID
+
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
 
                                             LEFT OUTER JOIN
@@ -580,7 +581,7 @@ and (zz.EmpInfoSystemID is not null or zzz.EmpInfoSystemID is not null)
                                   S.SlrProcMstSystemID AS SystemID, ISNULL(S.IsApproved, 0) IsApproved, ISNULL(S.IsDisbursed, 0) IsDisbursed, E.SystemID AS EmpSystemID,
                                   E.EmployeeCode, E.EmployeeName, F.UserName PlantName, E.PlantID, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106),' ','-') DOJ,E.DOJ DOJs,
                                   REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS,E.DOS DOSs, E.EmployeeStatus, E.EmployeeGroupSystemID UserGroupSystemID,
-                                  E.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,
+                                  DM.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,
                                     --y.ToDate,
                                   REPLACE(CONVERT(VARCHAR(11), y.ToDate, 106),' ','-') ToDate,
                                   ProcessStatus = CASE WHEN Y.ToDate>'" + sFromDate + @"' THEN 'Overlap'
@@ -609,9 +610,9 @@ and (zz.EmpInfoSystemID is not null or zzz.EmpInfoSystemID is not null)
                                          left join SalaryLock   sl on  sl.MonthNo=Month('" + dtFDPrevM + @"') and sl.YearNo=Year('" + dtFDPrevM + @"') and sl.EmpSystemId=e.SystemId and sl.IsLocked=1
                                         left join (select distinct EmpInfoSystemID from SalaryProcChild where PlantID='" + sPlantID + @"' and  SlrProcMstSystemID in (select systemid from SalaryProcMaster where MonthNo=Month('" + dtFDPrevM + @"') and YearNo=Year('" + dtFDPrevM + @"'))) k on k.EmpInfoSystemID=e.SystemId
 
-                                        LEFT OUTER JOIN hkp.Designation dgs ON dgs.Id = E.GivenDesignationId
-                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
                                         left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
+                                        LEFT OUTER JOIN hkp.Designation dgs ON dgs.Id = E.GivenDesignationId
+                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = DM.DesignationGroupID
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
 
                                             LEFT OUTER JOIN
@@ -768,7 +769,7 @@ and isnull(locka.EmpSystemId,'')=''
                                   S.SlrProcMstSystemID AS SystemID, ISNULL(S.IsApproved, 0) IsApproved, ISNULL(S.IsDisbursed, 0) IsDisbursed, E.SystemID AS EmpSystemID,
                                   E.EmployeeCode, E.EmployeeName, F.UserName PlantName, E.PlantID, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106),' ','-') DOJ,E.DOJ DOJs,
                                   REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS,E.DOS DOSs, E.EmployeeStatus, E.EmployeeGroupSystemID UserGroupSystemID,
-                                  E.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,
+                                  DM.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,
                                     --y.ToDate,
                                   REPLACE(CONVERT(VARCHAR(11), y.ToDate, 106),' ','-') ToDate,
                                   ProcessStatus = CASE WHEN Y.ToDate>'" + sFromDate + @"' THEN 'Overlap'
@@ -800,7 +801,7 @@ and isnull(locka.EmpSystemId,'')=''
 										LEFT OUTER JOIN hkp.Designation dgs ON dgs.Id = dm.DesignationId
 
                                         --LEFT OUTER JOIN hkp.Designation dgs ON dgs.Id = E.GivenDesignationId
-                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
+                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = DM.DesignationGroupID
                                         --left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 
                               
@@ -893,9 +894,11 @@ and isnull(locka.EmpSystemId,'')=''
 
                                     from ExceptionEmployee a
                                     inner join EmployeeInformation e on e.SystemId=a.EmpSystemID
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 									left join hkp.Designation d on d.id=e.GivenDesignationId
-		                            left join org.SubSection ss on ss.id=e.SubSectionId         
-									left join org.Section s on s.id=e.SectionId
+		                            left join org.SubSection ss on ss.id=PR.SubSectionId         
+									left join org.Section s on s.id=PR.SectionId
 									left join hkp.LegalDesignation dd on dd.id=e.LegalDesignationId
                                     left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 									left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
@@ -995,9 +998,11 @@ and isnull(locka.EmpSystemId,'')=''
                 strSQL = @"select  e.systemid
                                     from ExceptionEmployee a
                                     inner join EmployeeInformation e on e.SystemId=a.EmpSystemID
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 									left join hkp.Designation d on d.id=e.GivenDesignationId
-		                            left join org.SubSection ss on ss.id=e.SubSectionId         
-									left join org.Section s on s.id=e.SectionId
+		                            left join org.SubSection ss on ss.id=PR.SubSectionId         
+									left join org.Section s on s.id=PR.SectionId
 									left join hkp.LegalDesignation dd on dd.id=e.LegalDesignationId
                                     where e.PlantId='" + sPlantID + @"' 									
 									and a.[ExceptionCategory]='Salary Process'
@@ -1229,9 +1234,11 @@ and isnull(locka.EmpSystemId,'')=''
                                     ,format(sm.EffectiveDate,'dd-MMM-yyyy') EffectiveDate
 									,srm.SalaryRuleName
                                     from  EmployeeInformation e 
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 									left join hkp.Designation d on d.id=e.GivenDesignationId
-		                            left join org.SubSection ss on ss.id=e.SubSectionId         
-									left join org.Section s on s.id=e.SectionId
+		                            left join org.SubSection ss on ss.id=PR.SubSectionId         
+									left join org.Section s on s.id=PR.SectionId
 									left join hkp.LegalDesignation dd on dd.id=e.LegalDesignationId
                                     left join (
 									select m.EmpInfoSystemID,m.EffectiveDate,m.SalaryRuleMasterSystemID from 
@@ -1315,7 +1322,7 @@ and isnull(locka.EmpSystemId,'')=''
                                   S.SlrProcMstSystemID AS SystemID, ISNULL(S.IsApproved, 0) IsApproved, ISNULL(S.IsDisbursed, 0) IsDisbursed, E.SystemID AS EmpSystemID,
                                   E.EmployeeCode, E.EmployeeName, F.UserName PlantName, E.PlantID, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106),' ','-') DOJ,E.DOJ DOJs,
                                   REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS,E.DOS DOSs, E.EmployeeStatus, E.EmployeeGroupSystemID UserGroupSystemID,
-                                  E.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation, e.GivenDesignationId,
+                                  DM.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation, e.GivenDesignationId,
                                     --y.ToDate,
                                   REPLACE(CONVERT(VARCHAR(11), y.ToDate, 106),' ','-') ToDate,
                                   ProcessStatus = CASE WHEN Y.ToDate>'" + sFromDate + @"' THEN 'Overlap'
@@ -1338,9 +1345,9 @@ and isnull(locka.EmpSystemId,'')=''
 					                                 GROUP BY SC.SlrProcMstSystemID, SC.IsApproved, SC.IsDisbursed, SC.EmpInfoSystemID, SM.MonthNo, SM.YearNo
 												   ) S ON E.SystemID = S.EmpInfoSystemID
                                         LEFT OUTER JOIN org.Plant F ON E.PlantID = F.Id
-                                        LEFT OUTER JOIN hkp.Designation dgs ON dgs.Id = E.GivenDesignationId
-                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
  left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
+                                        LEFT OUTER JOIN hkp.Designation dgs ON dgs.Id = E.GivenDesignationId
+                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = DM.DesignationGroupID
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
 
                                             LEFT OUTER JOIN
@@ -1455,10 +1462,12 @@ and isnull(locka.EmpSystemId,'')=''
                                     ,e.EmployeeStatus		
 									,t.CG		LeaveStatus	,'OK' ProcessStatus
 																		
-                                    from EmployeeInformation e                                    
+                                    from EmployeeInformation e      
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 									left join hkp.Designation d on d.id=e.GivenDesignationId
-		                            left join org.SubSection ss on ss.id=e.SubSectionId         
-									left join org.Section s on s.id=e.SectionId
+		                            left join org.SubSection ss on ss.id=PR.SubSectionId         
+									left join org.Section s on s.id=PR.SectionId
 									left join hkp.LegalDesignation dd on dd.id=e.LegalDesignationId
 									
 									left join (
@@ -1522,7 +1531,7 @@ and isnull(locka.EmpSystemId,'')=''
 	                                            ,s.UserName Subsection
                                                 ,E.SystemId EmpSystemId ,e.GivenDesignationId
                                                 ,F.UserName PlantName
-                                                ,E.DesignationGroupID, DG.UserName AS DesignationGroup
+                                                ,DM.DesignationGroupID, DG.UserName AS DesignationGroup
                                                 , E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation
                                                 ,BankAccountStatus = CASE WHEN EBI.BankSystemID IS NOT NULL THEN 'Bank Payment' ELSE 'Cash Payment' END
                                                 ,'" + sToDate + @"' ToDate
@@ -1537,15 +1546,17 @@ and isnull(locka.EmpSystemId,'')=''
                                         LEFT OUTER JOIN SalaryRuleMaster SRM ON E.SalaryRuleMasterSystemID = SRM.SystemID
                                         LEFT OUTER JOIN EmployeeBankInfo EBI ON E.SystemID = EBI.EmpSystemID AND EBI.IsApproved = 1
                                             LEFT OUTER JOIN hkp.LegalDesignation dgs ON dgs.Id = E.LegalDesignationId
-                                            left join org.Section s on s.id=e.SectionId
-                                            left join org.SubSection ss on ss.id=e.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                                            left join org.Section s on s.id=PR.SectionId
+                                            left join org.SubSection ss on ss.id=PR.SubSectionId
                                             LEFT JOIN org.Plant F ON E.PlantID = F.Id
                                     LEFT OUTER JOIN hkp.Designation dd ON dd.Id = E.GivenDesignationId
 
                                         left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
 
-											  LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
+											  LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = DM.DesignationGroupID
                                             WHERE (
 		                                            e.SystemId in (select systemid from EmployeeInformation where  EmployeeStatus='Active' and EmployeeCurrentStatus in (" + bplib.clsWebLib.EMP_OTHER_STATUS + @") and EmployeeCurrentStatusEffectiveDate<'" + sToDate + @"')
 		                                            )
@@ -1613,7 +1624,7 @@ and isnull(locka.EmpSystemId,'')=''
                                   S.SlrProcMstSystemID AS SystemID, ISNULL(S.IsApproved, 0) IsApproved, ISNULL(S.IsDisbursed, 0) IsDisbursed, E.SystemID AS EmpSystemID,
                                   E.EmployeeCode, E.EmployeeName, F.UserName PlantName, E.PlantID, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106),' ','-') DOJ,E.DOJ DOJs,
                                   REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS,E.DOS DOSs, E.EmployeeStatus, E.EmployeeGroupSystemID UserGroupSystemID,
-                                  E.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,e.GivenDesignationId,
+                                  DM.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,e.GivenDesignationId,
                                     --y.ToDate,
                                   REPLACE(CONVERT(VARCHAR(11), y.ToDate, 106),' ','-') ToDate,
                                   ProcessStatus = CASE WHEN Y.ToDate>'" + sFromDate + @"' THEN 'Overlap'
@@ -1634,7 +1645,8 @@ and isnull(locka.EmpSystemId,'')=''
 												   ) S ON E.SystemID = S.EmpInfoSystemID
                                         LEFT OUTER JOIN org.Plant F ON E.PlantID = F.Id
                                         LEFT OUTER JOIN hkp.Designation dgs ON dgs.Id = E.GivenDesignationId
-                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
+                                        LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = DM.DesignationGroupID
 
                                             LEFT OUTER JOIN
                                             (
@@ -1715,7 +1727,7 @@ and isnull(locka.EmpSystemId,'')=''
                                   S.SlrProcMstSystemID AS SystemID, ISNULL(S.IsApproved, 0) IsApproved, ISNULL(S.IsDisbursed, 0) IsDisbursed, E.SystemID AS EmpSystemID,
                                   E.EmployeeCode, E.EmployeeName, F.UserName PlantName, E.PlantID, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106),' ','-') DOJ,E.DOJ DOJs,
                                   REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS,E.DOS DOSs, E.EmployeeStatus, E.EmployeeGroupSystemID UserGroupSystemID,
-                                  E.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,e.GivenDesignationId,
+                                  DM.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,e.GivenDesignationId,
                                     --y.ToDate,
                                   REPLACE(CONVERT(VARCHAR(11), y.ToDate, 106),' ','-') ToDate,
                                   ProcessStatus = CASE WHEN Y.ToDate>'" + sFromDate + @"' THEN 'Overlap'
@@ -1745,8 +1757,8 @@ and isnull(locka.EmpSystemId,'')=''
                                         left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMstSystemID in (select systemid from SalaryProcMaster where MonthNo=Month('" + dtFDPrevM + @"') and YearNo=Year('" + dtFDPrevM + @"'))) k on k.EmpInfoSystemID=e.SystemId
 
                                         LEFT OUTER JOIN hkp.Designation dgs ON dgs.Id = E.GivenDesignationId
-                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
                                         left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
+                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = DM.DesignationGroupID
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
 		                                left join (select EmpSystemId from SalaryLock where  MonthNo=Month('" + sFromDate + @"') and YearNo = Year('" + sFromDate + @"') and IsLocked=1)  lock
 										on lock.EmpSystemId=e.SystemId
@@ -1825,7 +1837,7 @@ and isnull(locka.EmpSystemId,'')=''
                                   S.SlrProcMstSystemID AS SystemID, ISNULL(S.IsApproved, 0) IsApproved, ISNULL(S.IsDisbursed, 0) IsDisbursed, E.SystemID AS EmpSystemID,
                                   E.EmployeeCode, E.EmployeeName, F.UserName PlantName, E.PlantID, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106),' ','-') DOJ,E.DOJ DOJs,
                                   REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS,E.DOS DOSs, E.EmployeeStatus, E.EmployeeGroupSystemID UserGroupSystemID,
-                                  E.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,
+                                  DM.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,
                                     --y.ToDate,
                                   '' ToDate,
                                  ''  ProcessStatus,
@@ -1847,8 +1859,8 @@ and isnull(locka.EmpSystemId,'')=''
 												   ) S ON E.SystemID = S.EmpInfoSystemID
                                         LEFT OUTER JOIN org.Plant F ON E.PlantID = F.Id
                                         LEFT OUTER JOIN hkp.Designation dgs ON dgs.Id = E.GivenDesignationId
-                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
                                         left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
+                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = DM.DesignationGroupID
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
                             ";
 
@@ -1891,7 +1903,7 @@ and isnull(locka.EmpSystemId,'')=''
                                   S.SlrProcMstSystemID AS SystemID, ISNULL(S.IsApproved, 0) IsApproved, ISNULL(S.IsDisbursed, 0) IsDisbursed, E.SystemID AS EmpSystemID,
                                   E.EmployeeCode, E.EmployeeName, F.UserName PlantName, E.PlantID, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106),' ','-') DOJ,E.DOJ DOJs,
                                   REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS,E.DOS DOSs, E.EmployeeStatus, E.EmployeeGroupSystemID UserGroupSystemID,
-                                  E.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,
+                                  DM.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,
                                     --y.ToDate,
                                   REPLACE(CONVERT(VARCHAR(11), y.ToDate, 106),' ','-') ToDate,
                                   ProcessStatus = CASE WHEN Y.ToDate>'" + sFromDate + @"' THEN 'Overlap'
@@ -1916,8 +1928,8 @@ and isnull(locka.EmpSystemId,'')=''
 												   ) S ON E.SystemID = S.EmpInfoSystemID
                                         LEFT OUTER JOIN org.Plant F ON E.PlantID = F.Id
                                         LEFT OUTER JOIN hkp.Designation dgs ON dgs.Id = E.GivenDesignationId
-                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
  left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
+                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = DM.DesignationGroupID
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
 
                                             LEFT OUTER JOIN
@@ -2058,10 +2070,12 @@ and isnull(locka.EmpSystemId,'')=''
 										when isnull(sl.EmpSystemId,'')='' and isnull(k.EmpInfoSystemID,'')<>'' then 'NO'
 										 else 'YES' end,EBI.IFSCCode,EBI.MICRCode
 																		
-                                    from EmployeeInformation e                                    
+                                    from EmployeeInformation e     
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 									left join hkp.Designation d on d.id=e.GivenDesignationId
-		                            left join org.SubSection ss on ss.id=e.SubSectionId         
-									left join org.Section s on s.id=e.SectionId
+		                            left join org.SubSection ss on ss.id=PR.SubSectionId         
+									left join org.Section s on s.id=PR.SectionId
 									left join hkp.LegalDesignation dd on dd.id=e.LegalDesignationId
             left join (select distinct EmpSystemId,MonthNo,YearNo from SalaryLock where IsLocked=1) sl on sl.EmpSystemId=e.SystemId and sl.MonthNo=Month('" + dtFDPrevM + "') and sl.YearNo=Year('" + dtFDPrevM + @"') 
 left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMstSystemID in (select systemid from SalaryProcMaster where MonthNo=Month('" + dtFDPrevM + @"') and YearNo=Year('" + dtFDPrevM + @"'))) k on k.EmpInfoSystemID=e.SystemId

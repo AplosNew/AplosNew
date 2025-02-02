@@ -12,6 +12,7 @@ namespace Library.Model.Configurations.Inventory
             Property(t => t.ToCurrencyRate).HasPrecision(18, 10);
             ToTable(nameof(PurchaseOrder), DbSchema.Transaction);
             Ignore(r => r.ModelState);
+            Ignore(r => r.Amount);
         }
     }
 }

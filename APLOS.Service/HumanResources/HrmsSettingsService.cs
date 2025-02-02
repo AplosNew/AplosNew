@@ -80,7 +80,7 @@ namespace Library.Service.HumanResources
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                 LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                                 LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                                LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                                 Left join HKP.LegalDesignation ld on ld.Id=EI.LegalDesignationId
                                 Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                                 Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
@@ -116,7 +116,7 @@ namespace Library.Service.HumanResources
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                 LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                                 LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                                LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                                 Left join HKP.LegalDesignation ld on ld.Id=EI.LegalDesignationId
                                 Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                                 Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
@@ -153,7 +153,7 @@ namespace Library.Service.HumanResources
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                 LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                                 LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                                LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                                 Left join HKP.LegalDesignation ld on ld.Id=EI.LegalDesignationId
                                 Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                                 Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
@@ -190,7 +190,7 @@ namespace Library.Service.HumanResources
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                 LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                                 LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                                LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                                 Left join HKP.LegalDesignation ld on ld.Id=EI.LegalDesignationId
                                 Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                                 Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
@@ -228,7 +228,7 @@ namespace Library.Service.HumanResources
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                 LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                                 LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                                LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                                 Left join HKP.LegalDesignation ld on ld.Id=EI.LegalDesignationId
                                 Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                                 Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
@@ -238,8 +238,8 @@ namespace Library.Service.HumanResources
                                 LEFT join [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
                                 left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
                                 left join HKP.EmployeeCategory EC ON EC.ID=DM.EmployeeCategoryId
-                                LEFT JOIN ORG.Section AS Se ON Se.Id = EI.SectionID
-                                LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID
+                                LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
+                                LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
                                 LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
 								LEFT JOIN HKP.DesignationGroup DeG ON DeG.Id=DM.DesignationGroupId
                                 Where AP.WorkDate ='" + lockDate + "' and  AP.outtime IS  NULL and  AP.DayStatus in (select DayType from DayType where category in ('Present','Late')) and AP.DayStatus not in ('RST')   and EI.PlantID='" + identity.PlantId + "' order by AP.WorkDate,EI.EmployeeCode";
@@ -278,7 +278,7 @@ namespace Library.Service.HumanResources
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                 LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                                 LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                                LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                                 Left join HKP.LegalDesignation ld on ld.Id=EI.LegalDesignationId
                                 Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                                 Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
@@ -290,8 +290,8 @@ namespace Library.Service.HumanResources
                                 LEFT join [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
                                 left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
                                 left join HKP.EmployeeCategory EC ON EC.ID=DM.EmployeeCategoryId
-                                LEFT JOIN ORG.Section AS Se ON Se.Id = EI.SectionID
-                                LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID
+                                LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
+                                LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
                                 LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
                                 WHERE AP.OutTime is not null and DayStatus='A' and WorkDate='" + lockDate + "' and AP.PlantID='" + identity.PlantId + "'";
 
@@ -324,7 +324,7 @@ namespace Library.Service.HumanResources
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                 LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                                 LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                                LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                                 Left join HKP.LegalDesignation ld on ld.Id=EI.LegalDesignationId
                                 Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                                 Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
@@ -371,7 +371,7 @@ namespace Library.Service.HumanResources
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id = E.BudgetCode
                             LEFT JOIN ORG.Entity AS ENT ON ENT.Id = MB.EntityId
                             LEFT JOIN ORG.Position AS POS ON POS.Id = MB.PositionId
-                            LEFT JOIN ORG.Line Line ON Line.Id = E.LineId
+                            LEFT JOIN ORG.Line Line ON Line.Id = MB.LineId
                             WHERE E.PlantID = '" + identity.PlantId + @"'
                             and E.SystemId NOT IN (
 							SELECT DISTINCT EmpSystemID
@@ -436,7 +436,7 @@ namespace Library.Service.HumanResources
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id = E.BudgetCode
                             LEFT JOIN ORG.Entity AS ENT ON ENT.Id = MB.EntityId
                             LEFT JOIN ORG.Position AS POS ON POS.Id = MB.PositionId
-                            LEFT JOIN ORG.Line Line ON Line.Id = E.LineId
+                            LEFT JOIN ORG.Line Line ON Line.Id = MB.LineId
                             WHERE E.GroupID = '" + identity.CompanyGroupId + @"'
 
                               --  AND (
@@ -494,12 +494,12 @@ namespace Library.Service.HumanResources
                             LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
                             Left join HKP.LegalDesignation ld on ld.Id=E.LegalDesignationId
                             LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-                            LEFT JOIN ORG.Line Line ON Line.Id = E.LineId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id = E.BudgetCode
                             LEFT JOIN ORG.Entity AS ENT ON ENT.Id = MB.EntityId
                             LEFT JOIN ORG.Position AS POS ON POS.Id = MB.PositionId
                             LEFT JOIN [ORG].[Plant] ON Plant.Id = ENT.PlantId
-                            LEFT JOIN [ORG].[Division] ON Division.Id = ENT.DivisionId
+                            LEFT JOIN ORG.Line Line ON Line.Id = MB.LineId
+                            LEFT JOIN [ORG].[Division] ON Division.Id = POS.DivisionId
                             LEFT JOIN [ORG].[Unit] ON Unit.Id = ENT.UnitId
                             LEFT JOIN [ORG].[Department] ON Department.Id = POS.DepartmentId
                             LEFT JOIN [ORG].[Section] ON Section.Id = POS.SectionId
@@ -585,10 +585,10 @@ namespace Library.Service.HumanResources
                             LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
                             Left join HKP.LegalDesignation ld on ld.Id=E.LegalDesignationId
                             LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-                            LEFT JOIN ORG.Line Line ON Line.Id = E.LineId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id = E.BudgetCode
                             LEFT JOIN ORG.Entity AS ENT ON ENT.Id = MB.EntityId
                             LEFT JOIN ORG.Position AS POS ON POS.Id = MB.PositionId
+                            LEFT JOIN ORG.Line Line ON Line.Id = MB.LineId
                             LEFT JOIN [ORG].[Plant] ON Plant.Id = ENT.PlantId
                             LEFT JOIN [ORG].[Division] ON Division.Id = ENT.DivisionId
                             LEFT JOIN [ORG].[Unit] ON Unit.Id = ENT.UnitId
@@ -647,7 +647,7 @@ namespace Library.Service.HumanResources
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                 LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                                 LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                                LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                                 LEFT JOIN HKP.LegalDesignation ld on ld.Id=EI.LegalDesignationId
                                 LEFT JOIN MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                                 LEFT JOIN hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
@@ -684,7 +684,7 @@ namespace Library.Service.HumanResources
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                 LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                                 LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                                LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                                 LEFT JOIN HKP.LegalDesignation ld on ld.Id=EI.LegalDesignationId
                                 LEFT JOIN MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                                 LEFT JOIN hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
@@ -750,7 +750,7 @@ namespace Library.Service.HumanResources
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                             LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                            LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                            LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                             LEFT JOIN HKP.LegalDesignation ld on ld.Id=EI.LegalDesignationId
                             LEFT JOIN MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                             LEFT JOIN hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
@@ -796,7 +796,7 @@ namespace Library.Service.HumanResources
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                             LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                            LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                            LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                             LEFT JOIN HKP.LegalDesignation ld on ld.Id=EI.LegalDesignationId
                             LEFT JOIN MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                             LEFT JOIN hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
@@ -3297,7 +3297,7 @@ namespace Library.Service.HumanResources
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                 LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                                 LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                                LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                                 LEFT JOIN HKP.LegalDesignation ld on ld.Id=EI.LegalDesignationId
                                 LEFT JOIN MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                                 LEFT JOIN hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
@@ -3335,7 +3335,7 @@ namespace Library.Service.HumanResources
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                 LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                                 LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                                LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                                 LEFT JOIN HKP.LegalDesignation ld on ld.Id=EI.LegalDesignationId
                                 LEFT JOIN MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                                 LEFT JOIN hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId

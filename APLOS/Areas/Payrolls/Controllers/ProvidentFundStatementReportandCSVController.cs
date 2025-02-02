@@ -1295,22 +1295,24 @@ namespace Aplos.Areas.Payrolls.Controllers
                             FROM
                                     (
 										 SELECT E.SystemID, E.EmployeeCode, E.EmployeeName,E.DOB, E.DOJ,E.DOS, E.EmployeeStatus,ed.DocNumber,DATEDIFF(YY,E.DOB,'" + date + @"') As Age,
-											DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,GVDE.UserName GivenDesignationName,
-											'' UserGroupSystemID, E.PlantID, F.UserName PlantName, E.UnitID,
-											FU.UserName UnitName, E.DivisionID, DV.UserName DivisionName, E.DepartmentID, DP.UserName DepartmentName,
-											E.SectionID, S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
+											 DE.UserName DesignationName,GVDE.UserName GivenDesignationName,
+											'' UserGroupSystemID, E.PlantID, F.UserName PlantName, 
+											FU.UserName UnitName,DV.UserName DivisionName, DP.UserName DepartmentName,
+											S.UserName SectionName, SS.UserName SubSectionName,
 											EC.UserName EmpCategoryName--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo
                                             ,egdsgg.GivenDesignationGroup
                                      FROM EmployeeInformation E
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
 												LEFT JOIN org.Plant F ON E.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.Designation GVDE ON E.GivenDesignationId = GVDE.Id
-												LEFT JOIN org.Unit FU ON E.UnitID = FU.Id
-												LEFT JOIN org.Division DV ON E.DivisionID = DV.Id
-												LEFT JOIN org.Department DP ON E.DepartmentID = DP.Id
-												LEFT JOIN org.Section S ON E.SectionID = S.Id
-												LEFT JOIN org.SubSection SS ON E.SubSectionID = SS.Id
+												LEFT JOIN org.Unit FU ON EN.UnitID = FU.Id
+												LEFT JOIN org.Division DV ON PR.DivisionID = DV.Id
+												LEFT JOIN org.Department DP ON PR.DepartmentID = DP.Id
+												LEFT JOIN org.Section S ON PR.SectionID = S.Id
+												LEFT JOIN org.SubSection SS ON PR.SubSectionID = SS.Id
 												LEFT JOIN
                                                 (
                                                 SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT

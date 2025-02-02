@@ -29,6 +29,14 @@ using Library.Service.Core;
 using Library.ViewModel.Accounts;
 using Library.Model.Advances;
 using Library.Service.Systems;
+using System.IO;
+using Syncfusion.DocIO.DLS;
+using Syncfusion.DocIO;
+using System.Text.RegularExpressions;
+using Syncfusion.DocToPDFConverter;
+using Syncfusion.Pdf;
+using System.Drawing;
+using System.Collections.Specialized;
 
 namespace Library.Accounting.FixedAssets
 {
@@ -1229,7 +1237,7 @@ namespace Library.Accounting.FixedAssets
                 left join  TRN.AssetRegister AR on AR.Id=rdd.AssetRegisterId
                 left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
 				left join ORG.Department D on D.Id=ei.DepartmentId
-				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
+				left join HKP.Designation DG ON DG.Id=EI.GivenDesignationID
 				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
 	            LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
@@ -1272,7 +1280,7 @@ namespace Library.Accounting.FixedAssets
                 left join TRN.FixedAssetRegister FR on FR.Id=rdd.FixedAssetRegisterId
                 left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
 				left join ORG.Department D on D.Id=ei.DepartmentId
-				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
+				left join HKP.Designation DG ON DG.Id=EI.GivenDesignationID
 				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
 	            LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
@@ -1322,7 +1330,7 @@ namespace Library.Accounting.FixedAssets
                 left join TRN.FixedAssetRegister FR on FR.Id=rdd.FixedAssetRegisterId
                 left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
 				left join ORG.Department D on D.Id=ei.DepartmentId
-				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
+				left join HKP.Designation DG ON DG.Id=EI.GivenDesignationID
 				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
 	            LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
@@ -1355,7 +1363,7 @@ namespace Library.Accounting.FixedAssets
                 left join  TRN.AssetRegister AR on AR.Id=rdd.AssetRegisterId
                 left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
 				left join ORG.Department D on D.Id=ei.DepartmentId
-				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
+				left join HKP.Designation DG ON DG.Id=EI.GivenDesignationID
 				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
 	            LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
@@ -1396,7 +1404,7 @@ namespace Library.Accounting.FixedAssets
                 left join TRN.FixedAssetRegister FR on FR.Id=rdd.FixedAssetRegisterId
                 left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
 				left join ORG.Department D on D.Id=ei.DepartmentId
-				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
+				left join HKP.Designation DG ON DG.Id=EI.GivenDesignationID
 				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
 				JOIN TRN.Voucher V ON V.Id=frd.DisposedVoucherId
@@ -1425,7 +1433,7 @@ namespace Library.Accounting.FixedAssets
                 left join  TRN.AssetRegister AR on AR.Id=rdd.AssetRegisterId
                 left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
 				left join ORG.Department D on D.Id=ei.DepartmentId
-				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
+				left join HKP.Designation DG ON DG.Id=EI.GivenDesignationID
 				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
 	            LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
@@ -3062,7 +3070,1126 @@ namespace Library.Accounting.FixedAssets
             }
         }
         #endregion
+        public void FixedAssetTaxInvoiceService(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId)
+        {
+            var fileName = "";
+            var strPath = "";
+            var File = "";
 
+            ReportUtility ru = new ReportUtility();
+            fileName = "DisposeTaxInvoice" + plantId + ".docx";
+
+            strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
+            File = strPath;
+            if (!System.IO.File.Exists(strPath))
+            {
+                throw new CustomException("File <" + fileName + "> Not Found.");
+            }
+
+            WordDocument document = new WordDocument(File, FormatType.Docx);
+
+            try
+            {
+                WSection section = document.Sections[0];
+
+                DataTable dsOrderMaster;
+
+                dsOrderMaster = GetloadAssetDisposeTaxInvoiceDetail(salesId);
+                Dictionary<string, string> columns = new Dictionary<string, string>();
+
+                foreach (DataColumn item in dsOrderMaster.Columns)
+                    columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
+
+                var MaterialTotal = makeLocalTaxInvoiceService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
+               // var SalesTotal = makeOrderServiceTable(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {{ServiceItems}}
+               // var dsInventoryReceiveAdditionalTax = loadLocalTaxInvoiceAdditionalTax(salesId);
+
+
+                var InventoryReceiveAdditionalTax = 0.00;
+                //if (dsInventoryReceiveAdditionalTax.Rows.Count > 0)
+
+                //{
+                //    InventoryReceiveAdditionalTax = makeLocalTaxInvoiceTaxTable(document, dsInventoryReceiveAdditionalTax, salesId);//Service Details 
+                //    //document.Replace("{ServiceDetails}", "Service Details", true, true);
+
+                //    //{TotalInWords}
+                //}
+                document.Replace("{GrandTotal}", (MaterialTotal  + InventoryReceiveAdditionalTax).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["BaseCurrencyName"].ToString(), true, true);
+                //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2"), true, true);
+                document.Replace("{TotalInWords}", ru.InWord((MaterialTotal   + InventoryReceiveAdditionalTax), dsOrderMaster.Rows[0]["BaseCurrencyId"].ToString()), true, true);
+
+
+                Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
+
+                TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
+
+                //creating secondary array to prevent memory leak and accidental over-writing (Tarek Talukder-26-May-2019)
+                List<string> strReplace = new List<string>();
+                for (int i = 0; i < allresult.Length; i++)
+                    strReplace.Add(allresult[i].SelectedText.ToString().ToUpper());
+
+                for (int i = 0; i < strReplace.Count; i++)
+                {
+                    string text = strReplace[i].ToUpper();
+                    ReplaceInfo.Add(text, 0);
+                    if (columns.ContainsKey(text.ToUpper()))
+                    {
+                        //ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Tables[0].Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                        document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                    }
+                    if (text == "{PRINTEDBY}")
+                    {
+                        document.Replace(text, Name, false, false);
+                    }
+                    if (text == "{DT}")
+                    {
+                        document.Replace(text, DateTime.Now.ToString("dd-MMM-yyyy h:mm tt"), false, false);
+                    }
+                }
+
+                document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
+
+                var sourceDoc = document.Clone();
+                document.Replace("{FileCopyName}", "Original Copy", false, false);
+                document.ImportContent(sourceDoc, ImportOptions.KeepSourceFormatting);
+                document.Replace("{FileCopyName}", "Duplicate Copy", false, false);
+                document.ImportContent(sourceDoc, ImportOptions.KeepSourceFormatting);
+                document.Replace("{FileCopyName}", "Triplicate for recipient", false, false);
+
+
+                //removing any unused place holder  
+                foreach (var item in ReplaceInfo.Keys)
+                {
+                    if (ReplaceInfo[item.ToString()] == 0)
+                        document.Replace(item.ToString(), "N/A", false, false);
+                }
+
+                /////////////////////
+                ///
+
+                DocToPDFConverter converter = new DocToPDFConverter();
+
+                //Converts Word document into PDF document
+                PdfDocument pdfDocument = converter.ConvertToPDF(document);
+                pdfDocument.PageSettings.Width = 1200;
+                pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
+                //Releases all resources used by DocToPDFConverter
+                converter.Dispose();
+
+                //Closes the instance of document objects
+
+                //Saves the PDF file 
+                string Prefix = "LocalTaxInvoice" + plantId;
+
+                pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
+                //Closes the instance of document objects
+                pdfDocument.Close(true);
+                document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+                document.Close();
+
+
+            }
+            catch (Exception ex)
+            {
+                //throw ex;
+            }
+
+            document.Close();
+        }
+
+        public DataTable GetloadAssetDisposeTaxInvoiceDetail(string disposeId)
+        {
+            string strSQL;
+            try
+            {
+
+
+                strSQL = @"SELECT IR.Id CustomerNo, IRD.Id SalesMaterialId
+                                 , ARC.CompanyGroupId
+                                ,ARC.CompanyId,CRNC.Code
+								,p.UserName Customer
+                                , P.UserName Buyer
+                                 , ir.CurrencyId
+								,cmp.BaseCurrencyId
+								,P.TINNO CustomerGSTNo
+                                , p.VATResistrationNo as CustomerPANNo
+								,Addres.Address1 VendorAddress
+                                 , Plant.GSTIN
+								,Plant.VATResistrationNo as PlantPANNo
+                                ,DPARTYPL.GSTIN ShipGSTIN
+                                , INVPARTYPL.GSTIN BillGSTIN
+                                 , IR.Id DocRefNo
+	                            ,IR.Id InvoiceNo
+                                ,REPLACE(Convert(VARCHAR(11), IR.DocDate, 106), ' ', '-') AS DocDate
+                                , REPLACE(Convert(VARCHAR(11), IR.DocDate, 106), ' ', '-') AS InvoiceDate
+                                   , IR.PartyPlantId
+		                        ,INVPARTYPL.UserName InvoiceParty
+                                , INVPARTYPL.UserName InvoiceParty2
+                                 , IR.InvoicingByAddress as ConsigneeAddress
+		                        ,IR.DeliveryByAddress
+		                        ,DPARTYPL.UserName DeliveryParty
+                                , IR.DeliveryPartyPlantId
+		                       
+	                            ,CRNC.Code AS CurrencyName
+	                            ,IR.ToCurrencyRate
+		                        ,BASECRNC.Code AS BaseCurrencyName
+                              , FAI.UserName MaterialMaster
+                              
+                               , 1 POTransactionQty
+	                          ,ROUND(IRD.BaseNagotiationValue, 4) TransactionRate
+	                          ,ROUND((IRD.BaseNagotiationValue ), 2) AS TrnAmount
+                              , IRD.BaseNagotiationValue 
+	                          , BaseTaxAmount=  (
+                                    SELECT SUM(Amount)
+
+                                    FROM [TRN].[FixedAssetRegisterDisposedTax]
+                                    WHERE FixedAssetRegisterDisposedDetailId = IRD.Id
+		                            )
+	                          ,TaxAmount = (
+                                    SELECT SUM(Amount)
+
+                                    FROM [TRN].[FixedAssetRegisterDisposedTax]
+                                    WHERE FixedAssetRegisterDisposedDetailId = IRD.Id
+		                            )
+	                          ,0 ServiceTaxAmount  
+							  ,'' PONumber
+                        , IR.AddedBy CreatedBy
+                        FROM TRN.FixedAssetRegisterDisposed IR
+                         LEFT JOIN SCS.Currency CRNC ON CRNC.Id = IR.CurrencyId
+                         LEFT JOIN trn.FixedAssetRegisterDisposedDetail AS IRD ON IRD.FixedAssetRegisterDisposedId = IR.Id
+						 LEFT JOIN HKP.PartyPlant INVPARTYPL ON INVPARTYPL.Id = IR.PartyPlantId
+                         LEFT JOIN HKP.PartyPlant DPARTYPL ON DPARTYPL.Id = IR.DeliveryPartyPlantId
+                         LEFT JOIN HKP.Party P ON P.Id = IR.PartyId
+                         LEFT JOIN[MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
+						 Left JOIN TRN.AssetRegister AR ON AR.Id=IRD.AssetRegisterId
+						 Left JOIN (select distinct PlantId,AssetRegisterId,CompanyGroupId,CompanyId from TRN.AssetRegisterChild) ARC ON ARC.AssetRegisterId=AR.Id
+                         LEFT JOIN ORG.Plant Plant ON Plant.Id = ARC.PlantId
+                         LEFT JOIN ORG.Company Cmp ON Cmp.Id = Plant.CompanyId
+						 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = Plant.CompanyGroupId
+						 LEFT JOIN SCS.Currency BASECRNC ON BASECRNC.Id = Cmp.BaseCurrencyId
+						 LEFT JOIN MST.FixedAssetItem FAI ON FAI.ID=AR.FixedAssetItemId
+                         WHERE IR.Id ='" + disposeId + "'";
+
+                return _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
+
+        public double makeLocalTaxInvoiceService(string companyGroupId, string companyId, string plantId, string disposeId, WordDocument document, DataTable dsOrderMaster)
+        {
+            string replaceString = "{materialItems}";
+
+            DataTable sales, materialTax;
+            //Sales== Master Query
+            sales = GetloadAssetDisposeTaxInvoiceDetail(disposeId);
+            materialTax = loadOrderMasterTax(disposeId);
+
+            int LasColumnIndex = 9;
+            Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
+            DataView dv = new DataView(materialTax.DefaultView.ToTable(true, "TaxCode"));
+
+
+            for (int i = 0; i < dv.Count; i++)
+            {
+                LasColumnIndex++;
+                dicTaxes.Add(dv[i]["TaxCode"].ToString(), LasColumnIndex);
+                LasColumnIndex++;
+            }
+
+
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex + 1);
+
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            FontBold.Bold = true;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
+            range.ApplyCharacterFormat(FontBold);
+            int colMaterialGroup = COL; COL++;
+            wTable.Rows[ROW].Cells[colMaterialGroup].Width = 110;
+
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
+            range.ApplyCharacterFormat(FontBold);
+            int colArticle = COL; COL++;
+            wTable.Rows[ROW].Cells[colArticle].Width = 110;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("BuyerRef#");
+            range.ApplyCharacterFormat(FontBold);
+            int colBuyerRef = COL; COL++;
+            wTable.Rows[ROW].Cells[colBuyerRef].Width = 80;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("PONumber");
+            range.ApplyCharacterFormat(FontBold);
+            int colPONumber = COL; COL++;
+            wTable.Rows[ROW].Cells[colPONumber].Width = 50;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU");
+            range.ApplyCharacterFormat(FontBold);
+            int colChar1 = COL; COL++;
+            wTable.Rows[ROW].Cells[colChar1].Width = 50;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN");
+            range.ApplyCharacterFormat(FontBold);
+            int colHSN = COL; COL++;
+            wTable.Rows[ROW].Cells[colHSN].Width = 45;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
+            range.ApplyCharacterFormat(FontBold);
+            int colQty = COL; COL++;
+            wTable.Rows[ROW].Cells[colQty].Width = 50;
+
+
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UoM");
+            range.ApplyCharacterFormat(FontBold);
+            int colUoM = COL++;
+            wTable.Rows[ROW].Cells[colUoM].Width = 30;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
+            range.ApplyCharacterFormat(FontBold);
+            int colRate = COL;
+            wTable.Rows[ROW].Cells[colRate].Width = 50;
+
+            int colTotalTaxableAmount = COL;
+            if (dv.Count > 0)
+            {
+                COL++;
+                colTotalTaxableAmount = COL;
+                range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Taxable Amount " + "(" + " " + sales.Rows[0]["BaseCurrencyName"].ToString() + " " + ")" + " ");
+                wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 100;
+                range.ApplyCharacterFormat(FontBold);
+                //COL++;
+                for (int i = 0; i < dv.Count; i++)
+                {
+                    try
+                    {
+                        //two columns required for tax
+                        COL++;
+                        range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText(dv[i]["TaxCode"].ToString());
+                        range.ApplyCharacterFormat(FontBold);
+
+                        COL++;
+                        range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+                        range.ApplyCharacterFormat(FontBold);
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+
+                }
+            }
+            else
+            {
+                COL++;
+                colTotalTaxableAmount = COL;
+                range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total Amount");
+                range.ApplyCharacterFormat(FontBold);
+            }
+
+
+            if (dv.Count > 0)
+            {
+                wTable.Rows.Add(TemplateRow);
+                ROW++;
+                WTableRow TROW = wTable.LastRow;
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                for (int i = 0; i < dv.Count; i++)
+                {
+                    try
+                    {
+                        range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()]].AddParagraph().AppendText("Rate(%)");
+                        range.ApplyCharacterFormat(FontBold);
+                        range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()] + 1].AddParagraph().AppendText("Amount");
+                        range.ApplyCharacterFormat(FontBold);
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+
+                }
+            }
+
+
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsOrderMaster.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colMaterialGroup].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialMaster"].ToString());
+                //TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
+                //TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
+                //TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString());
+                //TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["BooksCurrencyBaseRate"].ToString()).ToString("#,##0.0000"));
+                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
+
+
+                //totalValue += clsStdLib.dbl(sales.Rows[i]["TrnAmount"].ToString());
+
+                if (dv.Count > 0)
+                {
+                    DataView dvtax = new DataView(materialTax.DefaultView.ToTable());
+
+                    for (int T = 0; T < dv.Count; T++)
+                    {
+                        //dvtax.RowFilter = "TaxCode='" + dv[T]["TaxCode"].ToString() + "'";
+                        dvtax.RowFilter = "TaxCode='" + dv[T]["TaxCode"].ToString() + "' And FixedAssetRegisterDisposedDetailId = '" + dsOrderMaster.Rows[i]["SalesMaterialId"].ToString() + "' ";
+
+                        if (dvtax.Count > 0)
+                        {
+                            TROW.Cells[dicTaxes[dv[T]["TaxCode"].ToString()]].AddParagraph().AppendText(Convert.ToDouble(dvtax[0]["Percentage"].ToString()).ToString("#,##0.00"));
+                            TROW.Cells[dicTaxes[dv[T]["TaxCode"].ToString()] + 1].AddParagraph().AppendText(Convert.ToDouble(dvtax[0]["BooksCurrencyTransactionAmount"].ToString()).ToString("#,##0.00"));
+                        }
+                    }
+                }
+            }
+
+            ROW++;
+            #region Total
+            int TotalRow = ROW;
+            wTable.AddRow();
+            WTableRow _TROW = wTable.LastRow;
+            _TROW.Cells[0].AddParagraph().AppendText("Total").ApplyCharacterFormat(FontBold);
+
+            range.ApplyCharacterFormat(FontBold);
+
+            for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
+            {
+                if (C == colArticle || C == colBuyerRef || C == colPONumber || C == colHSN || C == colUoM || C == colRate || C == colChar1 || dicTaxes.ContainsValue(C))
+                    continue;
+
+                double value = 0;
+                for (int i = startRow; i < TotalRow; i++)
+                {
+
+                    foreach (WParagraph item in wTable.Rows[i].Cells[C].Paragraphs)
+                    {
+                        value += clsStdLib.dbl(item.Text);
+                    }
+                }
+                _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
+            }
+            #endregion Total
+
+            ROW++;
+            #region Sub Total
+            //int SubTotalRow = ROW;
+            //int SubTotalColumn = 0;//_TROW.Cells.Count - 5;
+            //wTable.AddRow();
+            //_TROW = wTable.LastRow;
+
+            //_TROW.Cells[SubTotalColumn].AddParagraph().AppendText("Sub Total");
+
+            double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(TrnAmount)", "").ToString())
+                    //- clsStdLib.dbl(dsOrderItems.Tables[0].Compute("SUM(Discount)", "").ToString())
+                    + clsStdLib.dbl(materialTax.Compute("SUM(BooksCurrencyTransactionAmount)", "").ToString());
+
+            //_TROW.Cells[SubTotalColumn + 1].AddParagraph().AppendText(total.ToString("F2"));
+
+            #endregion Total
+
+
+            ROW++;
+            #region Total Payable
+
+            #endregion Total Payable
+
+
+            ROW++;
+
+
+            #region paragrpath formats
+            //Adds a new paragraph style named "MyStyle"
+            IWParagraphStyle myStyle = document.AddParagraphStyle("MyStyle");
+            //Sets the formatting of the style
+            myStyle.CharacterFormat.FontSize = 8f;
+            myStyle.CharacterFormat.TextColor = Color.Black;
+            myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            for (int R = 0; R < wTable.Rows.Count; R++)
+            {
+                WTableRow TROW = wTable.Rows[R];
+                TROW.Cells[0].Width = 30;
+                if (dv.Count < 3)
+                    TROW.Cells[0].Width = 30 + ((3 - dv.Count) * 40);//for each tax group missing, adjust width with 0 cell
+
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.ApplyStyle("MyStyle");
+                    }
+                }
+            }
+
+
+            #endregion paragrpath formats
+
+
+            #region merging section
+
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            for (int i = 0; i < dv.Count; i++)
+                wTable.ApplyHorizontalMerge(ROW, dicTaxes[dv[i]["TaxCode"].ToString()], dicTaxes[dv[i]["TaxCode"].ToString()] + 1);
+
+            //primary cells merging (veritcal)
+            ROW++;
+            for (int i = 0; i <= colTotalTaxableAmount; i++)
+                wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
+
+
+            IWParagraphStyle style = document.AddParagraphStyle("SubTotalStyle");
+            style.CharacterFormat.Bold = true;
+            style.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Left;
+            //Adds new paragraph to the section
+
+
+            //for (int CELL = 0; CELL < wTable.Rows[SubTotalRow].Cells.Count; CELL++)
+            //    foreach (WParagraph PARA in wTable.Rows[SubTotalRow].Cells[CELL].Paragraphs)
+            //        PARA.ApplyStyle("SubTotalStyle");
+
+            //wTable.ApplyHorizontalMerge(SubTotalRow, 1, wTable.LastCell.GetCellIndex());
+            #endregion merging section
+
+
+
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            return total;
+        }
+        public DataTable loadOrderMasterTax(string SalesId)
+
+        {
+            string strSQL;
+            try
+            {
+                strSQL = @"select  PO.FixedAssetRegisterDisposedid,PO.Id FixedAssetRegisterDisposedDetailId,
+                                    IRT.Id AS SalesTax,tg.Code AS TaxCode,
+                                    s.tocurrencyRate,
+                                    IRT.Percentage,
+                                    (IRT.Amount) as TaxAmount
+                                   	,ISNULL(IRT.Amount,0) BooksCurrencyTransactionAmount
+									,ISNULL(IRT.Amount,0) BooksCurrencyTaxAmount
+									,1 BooksCurrencyBaseRate
+
+							    from trn.FixedAssetRegisterDisposedDetail PO
+                               Inner join [TRN].[FixedAssetRegisterDisposedTax] IRT ON IRT.FixedAssetRegisterDisposedid = PO.FixedAssetRegisterDisposedid 
+                               LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=IRT.TaxCategoryId
+							   left outer join trn.FixedAssetRegisterDisposed as s on s.id=po.FixedAssetRegisterDisposedid
+                                 WHERE PO.FixedAssetRegisterDisposedid='" + SalesId + @"' 
+								  ";
+
+                return _sqlRepository.GetDataTable(strSQL);
+
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
+
+        class clsStdLib
+        {
+            public static string passWord = "prodDisplay";
+            public clsStdLib()
+            {
+
+            }
+            public enum mType
+            {
+                Error,
+                Success,
+                Information
+            }
+            public static bool passwordGet = true;
+            public static string[] sMonth = new string[] { "<Unselect>", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+
+            public static string DataRankNames(int dayNo)
+            {
+
+                if (dayNo <= 0)
+                    return "";
+
+                //if (dayNo.ToString().Length > 1)
+                //{
+                //    string Right = dayNo.ToString().Substring(dayNo.ToString().Length - 2, 2);
+                //    if (clsStdLib.dbl(Right) >= 10 && clsStdLib.dbl(Right) <= 20)
+                //        return dayNo + "th";
+                //}
+
+                string RightString = dayNo.ToString().Substring(dayNo.ToString().Length - 1, 1);
+                switch (RightString)
+                {
+                    case "1":
+                        return dayNo + "st";
+                    case "2":
+                        return dayNo + "nd";
+                    case "3":
+                        return dayNo + "rd";
+                    default:
+                        return dayNo + "th";
+
+                }
+
+            }
+
+            #region date related
+            public static readonly string dateFormat = "dd-MMM-yyyy";
+            public static readonly string sqliteDateFormat = "yyyy-MM-dd";
+            public static readonly string AppToDBdateFormat = "yyyy-MM-dd hh:mm:ss";
+            public static bool IsDateOK(string strdate)
+            {
+                try
+                {
+                    if (strdate.Length != 11)
+                    {
+                        return false;
+                    }
+                    if (strdate.Substring(2, 1) != "-" && strdate.Substring(6, 1) != "-")
+                    {
+                        return false;
+                    }
+                    System.DateTime myDt = System.Convert.ToDateTime(strdate);
+                    return true;
+                }
+                catch (System.Exception ex)
+                {
+                    return false;
+                }
+                finally
+                {
+                    //
+                }
+            }// end function
+            private static bool DateOkCheck(string strdate)
+            {
+                try
+                {
+                    System.DateTime myDt = System.Convert.ToDateTime(strdate);
+                    return true;
+                }
+                catch (System.Exception ex)
+                {
+                    return false;
+                }
+                finally
+                {
+                    //
+                }
+            }// end function
+            public static object chk_NullDateData(object dateValue)
+            {
+                if (DateOkCheck("" + dateValue.ToString()) == false)
+                {
+                    dateValue = "";
+                }
+
+                if (("" + dateValue.ToString()) == "")
+                {
+                    System.DateTime dt = new System.DateTime(1901, 1, 1);
+                    dateValue = (object)dt;
+                }
+                return (object)dateValue;
+            }
+            public static System.DateTime AppDateConvert(object dateValue, string input_date_format, string output_date_format)
+            {
+                string strDate = null;
+                dateValue = chk_NullDateData(dateValue);
+                strDate = dateValue.ToString();
+                if (strDate != "")
+                {
+                    if (input_date_format.Trim() != "")
+                    {
+                        if (output_date_format.Trim() != "")
+                        {
+                            System.Globalization.DateTimeFormatInfo InputFormat = new System.Globalization.DateTimeFormatInfo();
+                            InputFormat.ShortDatePattern = input_date_format;
+                            System.DateTime myDt = System.Convert.ToDateTime(strDate, InputFormat);
+                            strDate = myDt.ToString(output_date_format);
+                        }
+                    }
+                }
+                return System.Convert.ToDateTime(strDate);
+            }// End of function
+            public static Object DateData_AppToDB(object dateValue, string DB_Level_date_format)
+            {
+                if (string.IsNullOrEmpty((string)dateValue))
+                    return DBNull.Value;
+
+                string strDate = null;
+                strDate = dateValue.ToString();
+                if (DB_Level_date_format != "")
+                {
+                    // Collecting the user terminal set format 
+                    System.Globalization.DateTimeFormatInfo USER_TERMINAL_DATE_FORMAT = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat;
+                    strDate = AppDateConvert(strDate, USER_TERMINAL_DATE_FORMAT.ShortDatePattern.ToString(), DB_Level_date_format).ToString();
+                }
+
+                string m = System.Convert.ToDateTime(strDate).ToString(AppToDBdateFormat);
+                return System.Convert.ToDateTime(strDate).ToString(AppToDBdateFormat);
+
+
+            }// End of function
+            public static System.DateTime DateData_DBToApp(object dateValue)
+            {
+                string strDate = null;
+                strDate = dateValue.ToString();
+
+                System.Globalization.DateTimeFormatInfo myDBDateFormat = new System.Globalization.CultureInfo("en-US", false).DateTimeFormat;
+                strDate = DateData_DBToApp(dateValue, myDBDateFormat.ShortDatePattern.ToString()).ToString();
+                return System.Convert.ToDateTime(strDate);
+            }// End function
+            public static System.DateTime DateData_DBToApp(object dateValue, string DB_Level_date_format)
+            {
+                string strDate = null;
+                strDate = dateValue.ToString();
+                if (DB_Level_date_format != "")
+                {
+                    // Collecting the user terminal set format 
+                    System.Globalization.DateTimeFormatInfo USER_TERMINAL_DATE_FORMAT = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat;
+                    strDate = AppDateConvert(strDate, DB_Level_date_format, USER_TERMINAL_DATE_FORMAT.ShortDatePattern.ToString()).ToString();
+                }
+                return System.Convert.ToDateTime(strDate);
+            }// End of function
+            public static String makeBaseBlank(object dateValue)
+            {
+                System.DateTime dt;
+                dt = System.Convert.ToDateTime(dateValue.ToString());
+                if (dt.Year == 1901)
+                {
+                    return "";
+                }
+                else
+                {
+                    return dateValue.ToString();
+                }
+            }// End of function
+            ///<summary>
+            ///return day difference in integer. 
+            ///    Example 1: firstDate[Less Than]lastDate returns positive value
+            ///    Example 2: firstDate>lastDate returns negative value
+            ///    Example 3: firstDate=lastDate returns 0 [zero]**/
+            /// </summary>
+            public static int dateDiff(string firstDate, string lastDate)
+            {
+
+                int difference = 0;
+                try
+                {
+                    firstDate = Convert.ToDateTime(firstDate).ToString("dd-MMM-yyyy");
+                    lastDate = Convert.ToDateTime(lastDate).ToString("dd-MMM-yyyy");
+
+                    if (IsDateOK(firstDate) == false)
+                    {
+                        Exception ex = new Exception("Invalid [First Date]");
+                        throw (ex);
+                    }
+                    if (IsDateOK(lastDate) == false)
+                    {
+                        Exception ex = new Exception("Invalid [Last Date]");
+                        throw (ex);
+                    }
+                    DateTime dateFirstDate = Convert.ToDateTime(firstDate);
+                    DateTime dateLastDate = Convert.ToDateTime(lastDate);
+                    TimeSpan TimeSpan = dateLastDate.Subtract(dateFirstDate);
+
+
+                    difference = TimeSpan.Days;
+                }
+                catch (Exception ex)
+                {
+                    throw (ex);
+                }
+
+                return difference;
+            }
+
+
+
+            public static string getSqliteDate(string standardDate)
+            {
+                return (Convert.ToDateTime(standardDate).ToString(sqliteDateFormat));
+            }
+            public static string getStandardDateFromSqliteDate(string SqliteDate)
+            {
+                if (SqliteDate.Length != 10)
+                    return "";
+                if (SqliteDate.Split('-').Length != 3)
+                    return "";
+                //many things to validate 
+                //but i have less time :)
+                string month = ValidLength(sMonth[Convert.ToInt32(SqliteDate.Split('-')[1])], 3).ToString();
+
+
+                return SqliteDate.Split('-')[2] + "-" + month + "-" + SqliteDate.Split('-')[0];
+            }
+            #endregion date related
+
+            #region numeric
+            public static bool IsNumeric(string strNumber)
+            {
+                Double d;
+                System.Globalization.NumberFormatInfo n = new System.Globalization.NumberFormatInfo();
+                if (strNumber.Length == 0)
+                {
+                    return false;
+                }
+                return Double.TryParse(strNumber, System.Globalization.NumberStyles.Float, n, out d);
+            } // End Function
+            public static string GetNumericData(string strNumber)
+            {
+                double d;
+                strNumber = strNumber.Replace(",", "");
+                System.Globalization.NumberFormatInfo n = new System.Globalization.NumberFormatInfo();
+                if (strNumber.Trim() == "")
+                { return "0"; }
+                else if (System.Double.TryParse(strNumber, System.Globalization.NumberStyles.Float, n, out d) == true)
+                {
+                    return strNumber;
+                }
+                else
+                {
+                    return "0";
+                }
+            }// end function
+            public static string GetNumericDataInDecimalFormat(string strNumber, int precision)
+            {
+                if (precision < 1)
+                    return strNumber;
+
+                string s_precision = new String('0', precision);
+
+                double d;
+                System.Globalization.NumberFormatInfo n = new System.Globalization.NumberFormatInfo();
+                if (strNumber.Trim() == "")
+                { return "0." + s_precision; }
+                else if (System.Double.TryParse(strNumber, System.Globalization.NumberStyles.Float, n, out d) == true)
+                {
+                    return string.Format("{0:0." + s_precision + "}", d);
+                }
+                else
+                {
+                    return "0." + s_precision;
+                }
+            }// end function
+            public static double dbl(string d)
+            {
+                return Convert.ToDouble(GetNumericData(d));
+
+            }
+            public static int Percentage(int total, double percentage)
+            {
+                return (int)(total * (percentage / 100));
+
+            }
+            //validation
+            public static void numericValidation(string value, bool isMandatory, bool isInteger, bool negativeAllowed, string fieldName)
+            {
+
+                try
+                {
+
+
+
+                    if (isMandatory == true)
+                    {
+                        if (value.Trim() == "")
+                        {
+                            Exception ex = new Exception("please insert [" + fieldName + "]");
+                            throw (ex);
+                        }
+                        if (Convert.ToDouble(GetNumericData(value.Trim())) == 0)
+                        {
+                            Exception ex = new Exception("please insert [" + fieldName + "]");
+                            throw (ex);
+                        }
+
+                        if (value.Trim() != "")
+                        {
+                            if (IsNumeric(value.Trim()) == false)
+                            {
+                                Exception ex = new Exception("Invalid numeric value [" + value + "] for the field [" + fieldName + "]");
+                                throw (ex);
+                            }
+                        }
+                    }
+
+                    if (value.Trim() != "")
+                    {
+                        if (IsNumeric(value.Trim()) == false)
+                        {
+                            Exception ex = new Exception("Invalid numeric value [" + value + "] for the field [" + fieldName + "]");
+                            throw (ex);
+                        }
+                        if (isInteger == true)
+                        {
+
+                            if (isInt(value.Trim()) == false)
+                            {
+                                Exception ex = new Exception("Number must be integer for the field [" + fieldName + "]");
+                                throw (ex);
+                            }
+
+                        }
+                        if (negativeAllowed == false)
+                        {
+                            if (Convert.ToDouble(GetNumericData(value.Trim())) < 0)
+                            {
+                                Exception ex = new Exception("Negative values are not allowed for the field [" + fieldName + "]");
+                                throw (ex);
+                            }
+                        }
+                    }
+
+
+
+                }
+                catch (Exception ex)
+                {
+                    throw (ex);
+                }
+                finally
+                {
+
+                }
+
+
+            }
+
+            ///<summary>
+            ///check whether a value is integer or not returns true if integer, 
+            ///false if floating or string containing alpahnumeric
+            ///</summary>
+            public static bool isInt(string num)
+            {
+
+                bool isInt;
+                int number;
+                try
+                {
+                    isInt = System.Int32.TryParse(num, out number);
+                }
+                catch (Exception ex)
+                {
+                    throw (ex);
+                }
+                finally
+                {
+
+                }
+                return isInt;
+            }
+
+
+            #endregion numeric
+
+            #region string
+
+            public static readonly string excelNegativePOsitiveSign = @"+#,##0.00;-#,##0.00;* ??;@";
+            public static readonly string NegativePOsitiveSign = @"+#,##0.00;-#,##0.00;0";
+            public static readonly string NumberFormatString = "#,##0.000;(#,##0.000);* ??;@";
+            public static readonly string NumberFormatStringFourDecimal = "#,##0.0000;(#,##0.0000);* ??;@";
+            public static readonly string NumberFormatStringFiveDecimal = "#,##0.00000;(#,##0.00000);* ??;@";
+            public static readonly string NumberFormatStringTwoDecimal = "#,##0.00;(#,##0.00);* ??;@";
+            public static readonly string NumberFormatStringTwoDecimalWithZero = "#,##0.00;(#,##0.00)";
+            public static readonly string NumberFormatStringInteger = "#,##0;(#,##0);* ??;@";
+            public static readonly string NumberFormatStringIntegerWithZero = "#,##0;(#,##0)";
+            public static readonly string NumberFormatStringText = "@"; //format cell data as text
+
+
+            public static object ValidLength(string str)
+            {
+
+                string removechar = "";
+                if (str.Trim() == "")
+                {
+                    return (object)Convert.DBNull;
+                }
+                removechar = str.Trim();
+                removechar = removechar.Replace("'", " ");
+
+                return (object)removechar.Trim();
+
+            }
+            public static object ValidLength(string str, int length)
+            {
+
+                string removechar = "";
+                if (str.Trim() == "")
+                {
+                    return (object)Convert.DBNull;
+                }
+                removechar = str.Trim();
+                removechar = removechar.Replace("'", " ");
+
+
+                int strLen = removechar.Length;
+                if (strLen > length)
+                    removechar = removechar.Substring(0, length);
+
+                return (object)removechar.Trim();
+
+            }
+            public static string FileNameLegalChar(string fileName)
+            {
+                string illegalChar = @"~`!@#$%^&*=/\|>,<";
+                foreach (char c in illegalChar)
+                {
+                    fileName = fileName.Replace(c.ToString(), " ");
+                }
+
+                return fileName;
+            }
+            private StringCollection getTableColumns(ref DataSet dsLocal)
+            {
+                StringCollection strcol = new StringCollection();
+                for (int COL = 0; COL < dsLocal.Tables[0].Columns.Count; COL++)
+                {
+                    strcol.Add(dsLocal.Tables[0].Columns[COL].ColumnName.ToUpper());
+                }
+
+                return strcol;
+
+            }
+            public static string emptyString(string str)
+            {
+                //this function returns an empty string(not a null) from null or empty or '&nbsp;' from the page
+                if (str == "&nbsp;")
+                    str = "";
+                if (string.IsNullOrEmpty(str) == true)
+                    str = "";
+
+
+                return str;
+            }//this function returns an empty string(not a null) from null or empty '&nbsp;' from the page
+            #endregion string
+
+
+            #region others
+            public void copyDataset(DataSet source, ref DataSet destination)
+            {
+                StringCollection strColDestinationColumns = getTableColumns(ref destination);//upper case
+                DataRow drLocal = null;
+                for (int ROW = 0; ROW < source.Tables[0].Rows.Count; ROW++)
+                {
+                    drLocal = destination.Tables[0].NewRow();
+                    for (int COL = 0; COL < source.Tables[0].Columns.Count; COL++)
+                    {
+                        if (strColDestinationColumns.Contains(source.Tables[0].Columns[COL].ToString().ToUpper()))
+                        {
+                            drLocal[source.Tables[0].Columns[COL].ToString()] = ValidLength(source.Tables[0].Rows[ROW][source.Tables[0].Columns[COL].ToString()].ToString());
+                        }
+                    }
+                    destination.Tables[0].Rows.Add(drLocal);
+                }
+
+
+            }
+            public static string GetxlsCol(int intCol)
+            {
+                //returns excel columns based on column number. tested 1 to 256 column numbers
+                try
+                {
+                    if (intCol < 1 || intCol > 256)
+                    {
+                        System.Exception ex = new Exception("Invalid Column Value");
+                        throw (ex);
+                    }
+                    intCol = intCol - 1;
+                    int intFirstLetter = ((intCol) / 512) + 64;
+                    int intSecondLetter = ((intCol % 512) / 26) + 64;
+                    int intThirdLetter = (intCol % 26) + 65;
+                    char FirstLetter;
+                    char SecondLetter;
+                    if (intFirstLetter > 64)
+                        FirstLetter = (char)intFirstLetter;
+                    else
+                        FirstLetter = ' ';
+
+                    if (intSecondLetter > 64)
+                        SecondLetter = (char)intSecondLetter;
+                    else
+                        SecondLetter = ' ';
+
+                    char ThirdLetter = (char)intThirdLetter;
+                    return string.Concat(FirstLetter, SecondLetter, ThirdLetter).Trim();
+                }
+                catch (Exception ex)
+                {
+                    throw (ex);
+                }
+                finally
+                {
+
+                }
+            }//returns excel columns based on column number. tested 1 to 256 column numbers
+            #endregion others
+
+            public static object RetValidLen(string Data)
+            {
+                if (string.IsNullOrEmpty(Data))
+                    return DBNull.Value;
+
+                return Data;
+            }
+            public static double sum(string columnName, DataTable dtLocal, string criteria)
+            {
+                double total = 0;
+                DataRow[] dr = dtLocal.Select(criteria);
+                foreach (DataRow d in dr)
+                {
+                    total += dbl(d[columnName].ToString());
+                }
+
+
+                return total;
+            }
+        }
     }
 }
 

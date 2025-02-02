@@ -134,7 +134,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName Department,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant
                             FROM EmployeeInformation EMP
                             INNER JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 

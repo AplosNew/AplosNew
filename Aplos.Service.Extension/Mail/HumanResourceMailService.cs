@@ -682,10 +682,10 @@ namespace Library.Service.Extension.Mail
                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
                         LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                         LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
-                        LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                        LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                         LEFT JOIN HKP.LegalDesignation LGD on LGD.Id=EI.LegalDesignationId							  
-                        LEFT JOIN ORG.Section AS Se ON Se.Id= EI.SectionID 
-                        LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID 
+                        LEFT JOIN ORG.Section AS Se ON Se.Id= PR.SectionID 
+                        LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID 
                         LEFT JOIN  [MST].[PayrollGroupMaster] PGM ON PGM.EmployeeId=EI.SystemId
                         LEFT JOIN  [HKP].[PayrollGroup] PG ON PG.Id=PGM.PayrollGroupId
                         LEFT JOIN (
@@ -1878,9 +1878,11 @@ namespace Library.Service.Extension.Mail
 											LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
 											LEFT OUTER JOIN EmployeeInformation 
 											E ON e.GroupID = CG.Id and c.Id=E.CompanyId
-								   INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								   INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId
@@ -1913,9 +1915,11 @@ namespace Library.Service.Extension.Mail
                                 " + wc + @"
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								   INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								   INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
@@ -1952,9 +1956,11 @@ namespace Library.Service.Extension.Mail
                                 " + wc + @"
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
@@ -1989,9 +1995,11 @@ namespace Library.Service.Extension.Mail
                                 " + wc + @"
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
@@ -2025,9 +2033,11 @@ namespace Library.Service.Extension.Mail
                                 " + wc + @"
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id =PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
@@ -2064,10 +2074,12 @@ namespace Library.Service.Extension.Mail
                                 " + wc + @"
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
 
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
@@ -2407,11 +2419,12 @@ namespace Library.Service.Extension.Mail
 											E ON e.GroupID = CG.Id and c.Id=E.CompanyId
 								   INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
                                    Left join MST.ManpowerBudget MB ON mb.Id = E.BudgetCode
+LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 								   left join ORG.Line Line on Line.Id = Mb.LineId
                                  left join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
-                                 --left join [ORG].[SubSection] ss on ss.Id=e.SubSectionId 
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+                                 
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId
@@ -2450,17 +2463,17 @@ namespace Library.Service.Extension.Mail
                                 " + wc + @"
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								   INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								   INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId		
-                                    Left join MST.ManpowerBudget MB ON mb.Id = E.BudgetCode
+									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId	
 								   left join ORG.Line Line on Line.Id = Mb.LineId
                                   left join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
-                                  -- left join [ORG].[SubSection] ss on ss.Id=e.SubSectionId 
 									WHERE
 									   PlantId = '" + plantId + @"'  
 									GROUP BY C.UserName,cg.Id,c.Id,c.UserName,cg.UserName
@@ -2499,17 +2512,17 @@ namespace Library.Service.Extension.Mail
                                 " + wc + @"
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId				
-	                            Left join MST.ManpowerBudget MB ON mb.Id = E.BudgetCode
+									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId	
 								   left join ORG.Line Line on Line.Id = Mb.LineId
                                         left join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
-                             -- left join [ORG].[SubSection] ss on ss.Id=e.SubSectionId 
 									WHERE
 									   PlantId = '" + plantId + @"'   
 									GROUP BY C.UserName,cg.Id,c.Id,c.UserName,cg.UserName,EmpC.Username,EmpC.Id
@@ -2545,17 +2558,17 @@ namespace Library.Service.Extension.Mail
                                 " + wc + @"
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId		
-	                            Left join MST.ManpowerBudget MB ON mb.Id = E.BudgetCode
+									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId	
 								   left join ORG.Line Line on Line.Id = Mb.LineId
                                    left join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
-                                  -- left join [ORG].[SubSection] ss on ss.Id=e.SubSectionId 
 									WHERE
 									    PlantId = '" + plantId + @"'  
 									GROUP BY C.UserName,cg.Id,c.Id,c.UserName,cg.UserName,EmpC.Username,EmpC.Id
@@ -2593,17 +2606,17 @@ isnull(Line.UserName,'') Line ,isnull(Line.Id,'') LineId,isnull(e.GenderID,'')Ge
                                 " + wc + @"
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId				
-Left join MST.ManpowerBudget MB ON mb.Id = E.BudgetCode
+									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId	
 left join ORG.Line Line on Line.Id = Mb.LineId
  left join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
- -- left join [ORG].[SubSection] ss on ss.Id=e.SubSectionId 
 
 									WHERE
 									    PlantId = '" + plantId + @"'   
@@ -2644,19 +2657,18 @@ isnull(Line.UserName,'') Line ,isnull(Line.Id,'') LineId,isnull(e.GenderID,'')Ge
                                 " + wc + @"
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
 
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
 									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId	
-
-Left join MST.ManpowerBudget MB ON mb.Id = E.BudgetCode
   left join ORG.Line Line on Line.Id = Mb.LineId
  left join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
- ---left join [ORG].[SubSection] ss on ss.Id=e.SubSectionId  
 
                                 inner join AttdnProcessData apd on apd.EmpSystemID=e.SystemId								
 									   inner join (select * from [dbo].[LeaveTransaction]
@@ -2701,14 +2713,15 @@ AND OnRoleEmployee.LineId = LeaveEmployee.LineId AND OnRoleEmployee.GenderID = L
 								)--**                               
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 							LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
 									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId	
-								Left join MST.ManpowerBudget MB ON mb.Id = E.BudgetCode
 								  left join ORG.Line Line on Line.Id = Mb.LineId
 								 left join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
 								 inner join AttdnProcessData apd on apd.EmpSystemID=e.SystemId								

@@ -805,10 +805,10 @@ namespace Aplos.Areas.Employees.Controllers
                             ,E.CardNumber,Fingerprint = CASE WHEN FP.Id IS NULL THEN 'NO' WHEN (FP.Id IS NOT NULL) THEN 'YES' ELSE 'NO' END,E.NationalID,FORMAT(E.DOB,'dd-MMM-yyyy') DOB
                             ,FORMAT(E.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(E.DOS,'dd-MMM-yyyy') DOS,ProbationPeriod = CASE WHEN e.DOCIsDay = 1 THEN e.DOCDay ELSE e.DOCMonth * 30 END
                             ,FORMAT(E.DOC,'dd-MMM-yyyy') DOC,e.IsConfirmed,E.EmployeeStatus,E.EmployeeCurrentStatus
-                            ,PD.PaidHours, EB.BankAccNo, B.UserName BankName, E.PaymentMode,J.JobLocation,C.UserName Company,edept.UserName Department,egdsg.UserName StandardDesignation
+                            ,PD.PaidHours, EB.BankAccNo, B.UserName BankName, E.PaymentMode,J.JobLocation,C.UserName Company,egdsg.UserName StandardDesignation
                             ,ld.UserName LegalDesignation,DG.UserName StandardDesignationGroup,EC.UserName EmployeeCategory,mpb.Code BudgetCode,DesignationOT = CASE WHEN DC.IsOTEntitled = 0 THEN 'NO' WHEN DC.IsOTEntitled = 1 THEN 'YES' END
                             ,ELC.UserName EmployeeLocation, BL.UserName BudgetLine, SD.ShiftDefinationDescription BudgetShift,GD.Grade,ISNULL(PG.UserName, 'No Group') PayrollGroup,ag.UserName AttendanceGroup
-                            ,en.Code EntityCode, en.UserName Entity, div.UserName eDivision, sdiv.UserName eSubdivision,u.UserName eUnit, p.UserName ePlant,ps.Code PositionCode, ps.UserName Position, pdept.UserName pDepartment, pdiv.UserName pDivision, psdiv.UserName pSubdivision, pss.UserName pSubsection, 
+                            ,en.Code EntityCode, en.UserName Entity, div.UserName eDivision, sdiv.UserName eSubdivision,u.UserName eUnit, p.UserName ePlant,ps.Code PositionCode, ps.UserName Position, pdept.UserName Department, pdept.UserName pDepartment, pdiv.UserName pDivision, psdiv.UserName pSubdivision, pss.UserName pSubsection, 
                             xps.UserName pSection, dsg.UserName pDesignation,DirectManpowerCost = CASE WHEN ps.DirectManpowerCost = 1 THEN 'YES' ELSE 'NO' END,Direct = CASE WHEN ps.IsDirect = 1 THEN 'YES' ELSE 'NO' END
                             ,srm.SalaryRuleName, abpm.AttenBnsPolicyName,PLC.Operation,OV.Code OperationVariationCode,OM.Code OperationMasterCode 
                                 ,MultipleOperationVariation=STUFF((select ', '+P.Code 
@@ -842,7 +842,7 @@ namespace Aplos.Areas.Employees.Controllers
 							LEFT JOIN MST.OperationVariation OV ON OV.Id = e.OperationVariationId
 							LEFT JOIN [MST].[OperationMaster] OM ON OM.Id = E.OperationMasterId
                             LEFT JOIN HKP.BloodGroup BG ON BG.Id = E.BloodGroupID
-                            LEFT OUTER JOIN ORG.Department edept ON edept.id = e.DepartmentId
+                            
                             LEFT JOIN EmployeeBankInfo EB ON EB.EmpSystemID = E.SystemId
 							AND EB.RowID=(Select top(1) RowID from EmployeeBankInfo Where EmpSystemID=EB.EmpSystemID AND  IsApproved=1 Order BY DateAdded DESC)
                             LEFT JOIN HKP.Bank B ON B.Id = EB.BankSystemID

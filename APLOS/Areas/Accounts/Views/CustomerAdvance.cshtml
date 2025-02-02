@@ -270,7 +270,7 @@
                             <input type="text" n-decimals="2" ng-disabled="x.BankCurrencyId==voucher.CurrencyId" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BankAmount" autocomplete="off" ng-model="x.BankAmount" ng-keyup="calbankCurrecyAmount(x)">
                         </td>
                         <td>
-                            <input type="text" n-decimals="2"  title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BaseDrAmount" autocomplete="off" ng-model="x.BaseDrAmount" ng-keyup="calBaseAmount()">
+                            <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BaseDrAmount" autocomplete="off" ng-model="x.BaseDrAmount" ng-keyup="calBaseAmount()">
                         </td>
                         <td class="text-right">
                             <button ng-click="removeBankRow($index,x)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove">
@@ -481,6 +481,7 @@
                     <th>@Library.Model.Parties.PartyType.Customer.ToString()</th>
                     <th>Ordering @Library.Model.Parties.PartyType.Customer.ToString()</th>
                     <th>Posting Date</th>
+                    <th>Entity</th>
                     <th>Doc Ref</th>
                     <th>Currency</th>
                     <th>Amount</th>
@@ -497,6 +498,7 @@
                     <td>{{x.PartyCode}} - {{x.PartyName}}</td>
                     <td>{{x.PartyPlantName}}</td>
                     <td>{{x.PostingDate | dateFiltering}}</td>
+                    <td>{{x.EntityName}}</td>
                     <td>{{x.DocRefNo}}</td>
                     <td>{{x.CurrencyCode}}</td>
                     <td class="text-right">{{x.Amount | number:2}}</td>
@@ -506,7 +508,7 @@
                     <td>{{x.IsPark?'Parked': x.IsPosted?'Post':'Pending'}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">
-                            <li ng-show="x.IsPoste || x.IsPark"><a ng-click="confirmPost(x.Id,x.AdvanceGroupNo);" href="" class="btn btn-action tooltip-here">Post</a></li>
+                            <li ng-show="x.IsPoste || x.IsPark"><a ng-click="confirmPost(x.Id,x.AdvanceGroupNo,x);" href="" class="btn btn-action tooltip-here">Post</a></li>
                             <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId,x.AdvanceGroupNo);" href="" class="btn btn-action tooltip-here">Delete</a></li>
                             <li><a class="btn btn-action" href="Accounts/Advance/ReportCustomerAdvance?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}&advanceGroupNo={{x.AdvanceGroupNo}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                             <li><a class="btn btn-action" href="Accounts/Advance/ReportCustomerAdvance?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}&advanceGroupNo={{x.AdvanceGroupNo}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
@@ -553,7 +555,8 @@
 @Html.Partial("~/Areas/Accounts/Views/_AdvanceJournalPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_MasterOrderPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/Loan/_LoanListPopUp.cshtml")
-<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId,advanceGroupNo)"></confirm-archive-generic>
+@Html.Partial("~/Areas/Accounts/Views/_PostPopUp.cshtml")
+@*<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId,advanceGroupNo)"></confirm-archive-generic>*@
 <confirm-archive-generic modalid="confirmUnPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="unPost(advanceId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(advanceId,voucherId,advanceGroupNo)"></confirm-archive-generic>
 

@@ -278,18 +278,18 @@ namespace Library.Service.HumanResources
             try
             {
                 string CmdText = @"SELECT Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,PR.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ
                                         FROM EmployeeInformation EMP
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                         LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
+                                        LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
                               Where EMP.PlantId='" + plantId + "' AND EMP.GenderID='Female' AND EMP.EmployeeStatus='Active' ORDER BY EmployeeCodePreFix ,EmployeeCodeNumeric ";
@@ -312,19 +312,19 @@ namespace Library.Service.HumanResources
                 string LastDayOfTheMonth = Convert.ToDateTime(FirstDayOfTheMonth).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
 
                 string CmdText = @"SELECT Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,PR.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy') DOC
                                         ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
-                                        FROM EmployeeInformation EMP
+                                         FROM EmployeeInformation EMP
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                         LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
+                                        LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
                               Where EMP.PlantId='" + plantId + @"' 
@@ -351,7 +351,7 @@ namespace Library.Service.HumanResources
                 string LastDayOfTheMonth = Convert.ToDateTime(FirstDayOfTheMonth).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
 
                 string CmdText = @"   SELECT Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,PR.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy') DOC
 										,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
                                         ,ew.MinimumOT 
@@ -361,12 +361,12 @@ namespace Library.Service.HumanResources
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                         LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
+                                        LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
                               Where EMP.PlantId='" + plantId + @"' AND EMP.EmployeeStatus='Active' 	and 
@@ -2097,8 +2097,8 @@ where dc.plantid= '" + plantId + @"'
 									--Increment Due list
 									--,SINDD.NextDueDate IncrementNextDueDate,SINDD.EffectiveDate IncrementEffectiveDate
                                     --emp ids
-                                     ,e.DepartmentId,e.DivisionId,e.LineId
-                                    ,e.PlantId,e.UnitId,e.SectionId,e.SubDivisionId,e.SubSectionId,e.DesignationGroupId
+                                     ,PR.DepartmentId,PR.DivisionId,PMB.LineId
+                                    ,e.PlantId,eN.UnitId,PR.SectionId,PR.SubDivisionId,PR.SubSectionId,DM.DesignationGroupId
                                     --emp info
                                     ,edept.UserName Department,eL.UserName Line,ediv.UserName Division,esdiv.UserName Subdivision
                                     ,eu.UserName Unit,ep.UserName Plant
@@ -2112,34 +2112,26 @@ where dc.plantid= '" + plantId + @"'
 									" + cList + @"
 
                                     FROM EmployeeInformation e
-                                    LEFT OUTER JOIN ORG.Department edept on edept.id=e.DepartmentId
-                                    LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId
-                                    LEFT OUTER JOIN ORG.Division ediv on ediv.id=e.DivisionId
-                                    LEFT OUTER JOIN ORG.SubDivision esdiv on esdiv.id=e.SubDivisionId
-                                    LEFT OUTER JOIN ORG.Section es on es.id=e.SectionId
+LEFT JOIN MST.ManpowerBudget mpb ON E.BudgetCode=mpb.Id
+                                    LEFT JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
+                                    LEFT JOIN MST.DesignationMaster DesM ON E.GivenDesignationId = DesM.DesignationId
+                                    LEFT JOIN HKP.EmployeeCategory EmpC ON EmpC.Id=DesM.EmployeeCategoryId
+                                    LEFT OUTER JOIN ORG.Department edept on edept.id=PO.DepartmentId
+                                    LEFT OUTER JOIN ORG.Line eL on eL.id=MPB.LineId
+                                    LEFT OUTER JOIN ORG.Division ediv on ediv.id=PO.DivisionId
+                                    LEFT OUTER JOIN ORG.SubDivision esdiv on esdiv.id=PO.SubDivisionId
+                                    LEFT OUTER JOIN ORG.Section es on es.id=PO.SectionId
                                     LEFT OUTER JOIN ORG.SubSection ess on ess.id=e.SubSectionId
                                     LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
-                                    LEFT OUTER JOIN ORG.Unit eu on eu.id=e.UnitId
+                                    LEFT OUTER JOIN ORG.Unit eu on eu.id=EN.UnitId
                                    -- left outer join [ORG].[PlantDesignationGroupSalaryRule] srs on srs.DesignationGroupId=e.DesignationGroupId
                                     --left outer join SalaryRuleMaster srm on srm.SystemId=srs.SalaryRuleMasterId
-                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
+                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=PR.DesignationID
+                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=DesM.DesignationGroupId
 									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=e.LegalDesignationId
-
-                                    LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
-									,dg.UserName GivenDesignationGroup--,srm.SalaryRuleName
-									FROM mst.DesignationMaster dm
-									LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
-		                           -- left outer join [ORG].[PlantDesignationGroupSalaryRule] srs on srs.DesignationGroupId=dm.DesignationGroupId
-                                   -- left outer join SalaryRuleMaster srm on srm.SystemId=srs.SalaryRuleMasterId
-									) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
-									AND egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
-                                    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
-								   LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-                                    LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
-									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
-                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
+                                                                       
                                     LEFT OUTER JOIN HKP.EmployeeLocation ELoc on mpb.EmployeeLocationId=ELoc.Id
 			                                       " + Join + @"
                                     LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
@@ -2357,15 +2349,17 @@ where dc.plantid= '" + plantId + @"'
                                     --============================ 
                                     
                                     FROM dbo.Employeeinformation EI
+                                    LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                                    LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                     left join [ORG].[Plant] p on p.Id=EI.PlantId
                                     LEFT JOIN HKP.LegalDesignation DSG ON ei.LegalDesignationId=DSG.Id
                                     LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                    LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId	
-                                    LEFT JOIN org.Section s ON s.id=EI.SectionId
-                                    LEFT JOIN org.SubSection ss ON ss.Id=ei.SubSectionId
-                                    left join org.Line ll on ll.id=ei.LineId
+                                    LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId	
+                                    LEFT JOIN org.Section s ON s.id=PR.SectionId
+                                    LEFT JOIN org.SubSection ss ON ss.Id=PR.SubSectionId
+                                    left join org.Line ll on ll.id=PMB.LineId
                                     LEFT JOIN HKP.LocalLanguage LD ON LD.LegalDesignationId=EI.LegalDesignationId 
-                                    LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = EI.SectionId 
+                                    LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = PR.SectionId 
                                     left join MaternityBenefitMaster mbm on mbm.EmpSystemId=ei.SystemId
                                     LEFT JOIN (select sum(WorkingDays)as workingDays,sum(TotalEarnedAmount+EncashAmount+OtherAmount) as TotalEarn ,MaternityBenefitMasterId From MaternityBenefitDetail group by MaternityBenefitMasterId) mbd on mbd.MaternityBenefitMasterId=mbm.Id
                                     left join LeaveTransaction t on t.SystemID=mbm.LeaveTransactionId

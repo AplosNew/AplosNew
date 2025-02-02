@@ -133,7 +133,10 @@ namespace OTSBD
                                             REPLACE(Convert(varchar(11), E.DOJ, 106),' ','-') AS [Date Of Join], 
                                             D.UserName AS Designation
 		                              FROM EmployeeInformation AS E 
-                                            "+obs.EntityTables()+@"
+LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id 
+                                            " + obs.EntityTables()+@"
 							                LEFT OUTER JOIN 
 														(
 														 SELECT DISTINCT EmpSystemID FROM dbo.LeaveAllocation WHERE YrCalSystemID = '" + strYrCal + @"' 

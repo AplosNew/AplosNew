@@ -378,12 +378,10 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                             left join EmployeeInformation EI on EI.SystemId=RAE.EmployeeSystemId
                                             LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-                                            --left join HKP.Designation DE on DE.Id=EI.DesignationSystemID
-											--left join MST.DesignationMaster DM on DM.DesignationId = DM.Id
-                                            left join ORG.Department D on D.Id=EI.DepartmentId
-                                            left join ORG.Section S on S.Id=EI.SectionId
-                                            left join ORG.SubSection SS on SS.Id=EI.SubSectionId
-                                            left join ORG.Line L on L.Id=EI.LineId 
+                                            left join ORG.Department D on D.Id=pr.DepartmentId
+                                            left join ORG.Section S on S.Id=pr.SectionId
+                                            left join ORG.SubSection SS on SS.Id=pr.SubSectionId
+                                            left join ORG.Line L on L.Id=pmb.LineId 
 											LEFT JOIN HKP.Designation DEG ON DEG.Id =  EI.GivenDesignationId
 											LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId = DEG.Id
 											left join HKP.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
@@ -411,7 +409,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                 string CmdText = @"SELECT isSelected=(CAST(0 as bit)), Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,
                                     Emp.DOS,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                     
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,SS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') DOS
                                         ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric, RG.UserName ResidenceGroup, PR.PaymentLink Skill, EC.UserName EmployeeCategory
                                         ,RM.Location, RM.ResidenceCategory, EMP.GenderID
@@ -419,12 +417,12 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=pr.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId
                                         LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
+                                        LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
                                         LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId 
@@ -468,8 +466,8 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
 							                    LEFT JOIN ORG.Position PR ON PR.Id=PMB.PositionId
 							                    LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 							                    LEFT JOIN HKP.Designation DEG ON EI.GivenDesignationId=DEG.Id
-							                    LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-							                    LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+							                    LEFT JOIN ORG.Section S ON S.Id=pr.SectionId
+							                    LEFT JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId
 							                    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
 							                    LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
 							                    left join RouteSchedule RS on RS.Id = ETA.TripId
@@ -563,12 +561,12 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                             left join EmployeeInformation EI on EI.SystemId=RAE.EmployeeSystemId
                                             LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-                                            --left join HKP.Designation DE on DE.Id=EI.DesignationSystemID
+                                            --left join HKP.Designation DE on DE.Id=EI.GivenDesignationID
 											--left join MST.DesignationMaster DM on DM.DesignationId = DM.Id
-                                            left join ORG.Department D on D.Id=EI.DepartmentId
-                                            left join ORG.Section S on S.Id=EI.SectionId
-                                            left join ORG.SubSection SS on SS.Id=EI.SubSectionId
-                                            left join ORG.Line L on L.Id=EI.LineId 
+                                            left join ORG.Department D on D.Id=pr.DepartmentId
+                                            left join ORG.Section S on S.Id=pr.SectionId
+                                            left join ORG.SubSection SS on SS.Id=pr.SubSectionId
+                                            left join ORG.Line L on L.Id=pmb.LineId 
 											LEFT JOIN HKP.Designation DEG ON DEG.Id =  EI.GivenDesignationId
 											LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId = DEG.Id
 											left join HKP.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
@@ -615,12 +613,12 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                             left join EmployeeInformation EI on EI.SystemId=RAE.EmployeeSystemId
                                             LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-                                            left join HKP.Designation DE on DE.Id=EI.DesignationSystemID
+                                            left join HKP.Designation DE on DE.Id=pr.DesignationID
 											
-                                            left join ORG.Department D on D.Id=EI.DepartmentId
-                                            left join ORG.Section S on S.Id=EI.SectionId
-                                            left join ORG.SubSection SS on SS.Id=EI.SubSectionId
-                                            left join ORG.Line L on L.Id=EI.LineId 
+                                            left join ORG.Department D on D.Id=pr.DepartmentId
+                                            left join ORG.Section S on S.Id=pr.SectionId
+                                            left join ORG.SubSection SS on SS.Id=pr.SubSectionId
+                                            left join ORG.Line L on L.Id=pmb.LineId 
 											LEFT JOIN HKP.Designation DEG ON EI.GivenDesignationId=DEG.Id
 											left join MST.DesignationMaster DM on DM.DesignationId = DEG.Id
 											LEFT JOIN HKP.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
@@ -1091,15 +1089,15 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
  , EmployeeCategory
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
+							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                            left join org.Entity E on E.Id =MPB.EntityId
+							left join ORG.Position P on P.Id=MPB.PositionID
                             left join HKP.Designation DE on DE.Id=ei.GivenDesignationId
                             left join dbo.ResidenceMaster RM on RM.Id = rae.ResidenceId
                             left join dbo.ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
-                            left join org.Section S on S.Id = ei.SectionId
-                            left join org.SubSection SS on SS.Id = ei.SubSectionId
-                            left join org.Department D on D.Id = ei.DepartmentId
-							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-                            left join org.Entity E on E.Id =MPB.EntityId
-							left join ORG.Position P on P.Id=ei.PositionID
+                            left join org.Section S on S.Id = p.SectionId
+                            left join org.SubSection SS on SS.Id = p.SubSectionId
+                            left join org.Department D on D.Id = p.DepartmentId
 							left join HKP.Process PR on PR.Id = P.ProcessId
 
 							LEFT JOIN (
@@ -1135,15 +1133,15 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
  , EmployeeCategory
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
+							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                            left join org.Entity E on E.Id =MPB.EntityId
+							left join ORG.Position P on P.Id=MPB.PositionID
                             left join HKP.Designation DE on DE.Id=ei.GivenDesignationId
                             left join dbo.ResidenceMaster RM on RM.Id = rae.ResidenceId
                             left join dbo.ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
-                            left join org.Section S on S.Id = ei.SectionId
-                            left join org.SubSection SS on SS.Id = ei.SubSectionId
-                            left join org.Department D on D.Id = ei.DepartmentId
-							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-                            left join org.Entity E on E.Id =MPB.EntityId
-							left join ORG.Position P on P.Id=ei.PositionID
+                            left join org.Section S on S.Id = p.SectionId
+                            left join org.SubSection SS on SS.Id = p.SubSectionId
+                            left join org.Department D on D.Id = p.DepartmentId
 							left join HKP.Process PR on PR.Id = P.ProcessId
 
 							LEFT JOIN (
@@ -1181,15 +1179,15 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
  , EmployeeCategory
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
+							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                            left join org.Entity E on E.Id =MPB.EntityId
+							left join ORG.Position P on P.Id=MPB.PositionID
                             left join HKP.Designation DE on DE.Id=ei.GivenDesignationId
                             left join dbo.ResidenceMaster RM on RM.Id = rae.ResidenceId
                             left join dbo.ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
-                            left join org.Section S on S.Id = ei.SectionId
-                            left join org.SubSection SS on SS.Id = ei.SubSectionId
-                            left join org.Department D on D.Id = ei.DepartmentId
-							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-                            left join org.Entity E on E.Id =MPB.EntityId
-							left join ORG.Position P on P.Id=ei.PositionID
+                            left join org.Section S on S.Id = p.SectionId
+                            left join org.SubSection SS on SS.Id = p.SubSectionId
+                            left join org.Department D on D.Id = p.DepartmentId
 							left join HKP.Process PR on PR.Id = P.ProcessId
 
 							LEFT JOIN (
@@ -1232,7 +1230,7 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
                 var sql = @"SELECT isSelected=(CAST(0 as bit)), Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,
                                     EMP.EmpPicPath,EMP.BudgetCode,E.UserName Entity,D.UserName Designation,
                                     
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,SS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') DOS
                                         ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric, RG.UserName ResidenceGroup, PR.PaymentLink Skill, EC.UserName EmployeeCategory
                                         ,RM.Location, PR.Activity, RM.ResidenceCategory, RM.ResidentType, P.UserName Process
@@ -1240,12 +1238,12 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=pr.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId
                                         LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
+                                        LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
                                         LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId 
@@ -1294,16 +1292,16 @@ left join ORG.Entity E ON E.Id=TE.EntityId
 left join TRN.TeamDefinitionEmployee TDE ON TDE.TeamDefinitionId=TD.Id
 left join hkp.EmployeeActivityCategory EAC ON EAC.Id=TDE.EmployeeActiviyCategory
 left join EmployeeInformation EI ON EI.SystemId=TDE.EmployeeId  
-left join ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
-left join HKP.Designation DEG ON DEG.Id=EI.DesignationSystemID
-left join ORG.Section S ON S.Id=EI.SectionId
-left join ORG.SubSection SS ON SS.Id=EI.SubSectionId
+left join [MST].[ManpowerBudget]  MB ON MB.Id=EI.BudgetCode
+left join ORG.Position P on P.Id = MB.PositionId
+left join ORG.Department AS DEP ON DEP.Id=p.DepartmentId
+left join HKP.Designation DEG ON DEG.Id=p.DesignationID
+left join ORG.Section S ON S.Id=p.SectionId
+left join ORG.SubSection SS ON SS.Id=p.SubSectionId
 left join TRN.TeamDefinitionCategory TDC ON TDC.TeamDefinitionId=TD.Id
 left join hkp.TeamCategory TC ON TC.Id=TDC.TeamCategoryId
 left join HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
-left join [MST].[ManpowerBudget]  MB ON MB.Id=EI.BudgetCode
 left join ShiftDefination SD ON SD.SystemID=MB.ShiftDefinationId
-left join ORG.Position P on P.Id = MB.PositionId
 left join MST.DesignationMaster DM on DM.DesignationId = P.DesignationId
 left join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
 left join AttdnProcessData APD ON APD.EmpSystemID=TDE.EmployeeId
@@ -1334,16 +1332,16 @@ left join ORG.Entity E ON E.Id=TE.EntityId
 left join TRN.TeamDefinitionEmployee TDE ON TDE.TeamDefinitionId=TD.Id
 left join hkp.EmployeeActivityCategory EAC ON EAC.Id=TDE.EmployeeActiviyCategory
 left join EmployeeInformation EI ON EI.SystemId=TDE.EmployeeId  
-left join ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
-left join HKP.Designation DEG ON DEG.Id=EI.DesignationSystemID
-left join ORG.Section S ON S.Id=EI.SectionId
-left join ORG.SubSection SS ON SS.Id=EI.SubSectionId
+left join [MST].[ManpowerBudget]  MB ON MB.Id=EI.BudgetCode
+left join ORG.Position P on P.Id = MB.PositionId
+left join ORG.Department AS DEP ON DEP.Id=p.DepartmentId
+left join HKP.Designation DEG ON DEG.Id=p.DesignationID
+left join ORG.Section S ON S.Id=p.SectionId
+left join ORG.SubSection SS ON SS.Id=p.SubSectionId
 left join TRN.TeamDefinitionCategory TDC ON TDC.TeamDefinitionId=TD.Id
 left join hkp.TeamCategory TC ON TC.Id=TDC.TeamCategoryId
 left join HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
-left join [MST].[ManpowerBudget]  MB ON MB.Id=EI.BudgetCode
 left join ShiftDefination SD ON SD.SystemID=MB.ShiftDefinationId
-left join ORG.Position P on P.Id = MB.PositionId
 left join MST.DesignationMaster DM on DM.DesignationId = P.DesignationId
 left join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
 left join AttdnProcessData APD ON APD.EmpSystemID=TDE.EmployeeId
@@ -1372,16 +1370,16 @@ left join ORG.Entity E ON E.Id=TE.EntityId
 left join TRN.TeamDefinitionEmployee TDE ON TDE.TeamDefinitionId=TD.Id
 left join hkp.EmployeeActivityCategory EAC ON EAC.Id=TDE.EmployeeActiviyCategory
 left join EmployeeInformation EI ON EI.SystemId=TDE.EmployeeId  
-left join ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
-left join HKP.Designation DEG ON DEG.Id=EI.DesignationSystemID
-left join ORG.Section S ON S.Id=EI.SectionId
-left join ORG.SubSection SS ON SS.Id=EI.SubSectionId
+left join [MST].[ManpowerBudget]  MB ON MB.Id=EI.BudgetCode
+left join ORG.Position P on P.Id = MB.PositionId
+left join ORG.Department AS DEP ON DEP.Id=p.DepartmentId
+left join HKP.Designation DEG ON DEG.Id=p.DesignationID
+left join ORG.Section S ON S.Id=p.SectionId
+left join ORG.SubSection SS ON SS.Id=p.SubSectionId
 left join TRN.TeamDefinitionCategory TDC ON TDC.TeamDefinitionId=TD.Id
 left join hkp.TeamCategory TC ON TC.Id=TDC.TeamCategoryId
 left join HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
-left join [MST].[ManpowerBudget]  MB ON MB.Id=EI.BudgetCode
 left join ShiftDefination SD ON SD.SystemID=MB.ShiftDefinationId
-left join ORG.Position P on P.Id = MB.PositionId
 left join MST.DesignationMaster DM on DM.DesignationId = P.DesignationId
 left join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
 left join AttdnProcessData APD ON APD.EmpSystemID=TDE.EmployeeId
@@ -1598,15 +1596,15 @@ format(SICU.Date,'dd-MMM-yyyy') between '" + FromDate + "' and '" + ToDate + "' 
                              , EmployeeCategory
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
+							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                            left join org.Entity E on E.Id =MPB.EntityId
+							left join ORG.Position P on P.Id=MPB.PositionID
                             left join HKP.Designation DE on DE.Id=ei.GivenDesignationId
                             left join dbo.ResidenceMaster RM on RM.Id = rae.ResidenceId
                             left join dbo.ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
-                            left join org.Section S on S.Id = ei.SectionId
-                            left join org.SubSection SS on SS.Id = ei.SubSectionId
-                            left join org.Department D on D.Id = ei.DepartmentId
-							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-                            left join org.Entity E on E.Id =MPB.EntityId
-							left join ORG.Position P on P.Id=ei.PositionID
+                            left join org.Section S on S.Id = p.SectionId
+                            left join org.SubSection SS on SS.Id = p.SubSectionId
+                            left join org.Department D on D.Id = p.DepartmentId
 							left join HKP.Process PR on PR.Id = P.ProcessId
 
 							LEFT JOIN (
@@ -1640,15 +1638,15 @@ format(SICU.Date,'dd-MMM-yyyy') between '" + FromDate + "' and '" + ToDate + "' 
                             P.PaymentLink Skill,isnull(PR.UserName,'') Process, RG.UserName ResidenceGroup,EmployeeCategory
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
+							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                            left join org.Entity E on E.Id =MPB.EntityId
+							left join ORG.Position P on P.Id=mpb.PositionID
                             left join HKP.Designation DE on DE.Id=ei.GivenDesignationId
                             left join dbo.ResidenceMaster RM on RM.Id = rae.ResidenceId
                             left join dbo.ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
-                            left join org.Section S on S.Id = ei.SectionId
-                            left join org.SubSection SS on SS.Id = ei.SubSectionId
-                            left join org.Department D on D.Id = ei.DepartmentId
-							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-                            left join org.Entity E on E.Id =MPB.EntityId
-							left join ORG.Position P on P.Id=ei.PositionID
+                            left join org.Section S on S.Id = p.SectionId
+                            left join org.SubSection SS on SS.Id = p.SubSectionId
+                            left join org.Department D on D.Id = p.DepartmentId
 							left join HKP.Process PR on PR.Id = P.ProcessId
 
 							LEFT JOIN (
@@ -1684,15 +1682,15 @@ format(SICU.Date,'dd-MMM-yyyy') between '" + FromDate + "' and '" + ToDate + "' 
                              P.PaymentLink Skill,isnull(PR.UserName,'') Process, RG.UserName ResidenceGroup, EmployeeCategory
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
+							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                            left join org.Entity E on E.Id =MPB.EntityId
+							left join ORG.Position P on P.Id=mpb.PositionID
                             left join HKP.Designation DE on DE.Id=ei.GivenDesignationId
                             left join dbo.ResidenceMaster RM on RM.Id = rae.ResidenceId
                             left join dbo.ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
-                            left join org.Section S on S.Id = ei.SectionId
-                            left join org.SubSection SS on SS.Id = ei.SubSectionId
-                            left join org.Department D on D.Id = ei.DepartmentId
-							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-                            left join org.Entity E on E.Id =MPB.EntityId
-							left join ORG.Position P on P.Id=ei.PositionID
+                            left join org.Section S on S.Id = p.SectionId
+                            left join org.SubSection SS on SS.Id = p.SubSectionId
+                            left join org.Department D on D.Id = p.DepartmentId
 							left join HKP.Process PR on PR.Id = P.ProcessId
 
 							LEFT JOIN (
@@ -1729,30 +1727,11 @@ format(SICU.Date,'dd-MMM-yyyy') between '" + FromDate + "' and '" + ToDate + "' 
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                /*var sql = @"select ei.EmployeeCode,  ei.EmployeeName, EC.UserName EmployeeCategory,  
-D.UserName Department, RM.ResidentType,
-S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName Entity, P.Activity, ei.EmployeeStatus,
-ei.EmployeeCurrentStatus, FORMAT(ei.DOJ, 'dd-MMM-yyyy') DOJ, FORMAT(ei.DOS, 'dd-MMM-yyyy') DOS,  P.PaymentLink Skill,
-PR.UserName Process, RG.UserName ResidenceGroup from EmployeeInformation ei
-left join HKP.Designation DE on DE.Id=ei.GivenDesignationId
-left join ResidenceGroup rg on rg.Id = ei.ResidenceGroupId
-left join ResidenceAllocatedEmployees RAM on RAM.EmployeeSystemId = ei.SystemId
-left join ResidenceMaster RM on RM.Id = RAM.ResidenceId
-left join org.Section S on S.Id = ei.SectionId
-left join org.SubSection SS on SS.Id = ei.SubSectionId
-left join org.Department D on D.Id = ei.DepartmentId
-left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-left join org.Entity E on E.Id =MPB.EntityId
-left join ORG.Position P on P.Id=ei.PositionID
-left join HKP.Process PR on PR.Id = P.ProcessId
-left join MST.DesignationMaster DM on DM.DesignationId = DE.Id
-LEFT JOIN HKP.EmployeeCategory ec ON ec.Id = DM.EmployeeCategoryId
-where ei.ResidenceGroupId = 'RG221' and RAM.EmployeeSystemId is null and ei.EmployeeStatus = 'Active'
-";*/
+               
                 var sql = @"SELECT isSelected=(CAST(0 as bit)), Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,
                                     Emp.DOS,EMP.EmpPicPath,EMP.BudgetCode,E.UserName Entity,D.UserName Designation,
                                     
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,SS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') DOS
                                         ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric, RG.UserName ResidenceGroup, PR.PaymentLink Skill, EC.UserName EmployeeCategory
                                         ,RM.Location, RM.ResidentType, PR.Activity, RM.ResidenceCategory, P.UserName Process
@@ -1760,12 +1739,12 @@ where ei.ResidenceGroupId = 'RG221' and RAM.EmployeeSystemId is null and ei.Empl
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=pr.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId
                                         LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
+                                        LEFT JOIN ORG.Line L ON L.Id=pmb.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
                                         LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId 
@@ -1804,15 +1783,15 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
+							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                            left join org.Entity E on E.Id =MPB.EntityId
+							left join ORG.Position P on P.Id=MPB.PositionID
                             left join HKP.Designation DE on DE.Id=ei.GivenDesignationId
                             left join dbo.ResidenceMaster RM on RM.Id = rae.ResidenceId
                             left join dbo.ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
-                            left join org.Section S on S.Id = ei.SectionId
-                            left join org.SubSection SS on SS.Id = ei.SubSectionId
-                            left join org.Department D on D.Id = ei.DepartmentId
-							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-                            left join org.Entity E on E.Id =MPB.EntityId
-							left join ORG.Position P on P.Id=ei.PositionID
+                            left join org.Section S on S.Id = p.SectionId
+                            left join org.SubSection SS on SS.Id = p.SubSectionId
+                            left join org.Department D on D.Id = p.DepartmentId
 							left join HKP.Process PR on PR.Id = P.ProcessId
 
 							LEFT JOIN (

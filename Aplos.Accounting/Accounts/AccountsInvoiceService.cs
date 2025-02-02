@@ -533,6 +533,11 @@ namespace Library.Accounting.Accounts
                                         ,IsAssetDistribution=CASE WHEN ISNULL((select COUNT(AD.Id) from TRN.MachineMasterAssetSeviceDistribution AD
 										        INNER JOIN TRN.VoucherDetail VD ON VD.Id=AD.VoucherDetailId
 										        WHERE VD.VoucherId=I.VoucherId),0)>0 THEN 1 ELSE 0 END
+                                        ,E.UserName EntityName,V.EntityId,I.PaymentTermId,I.BaseNoOfDays
+										,REPLACE(CONVERT(CHAR(11), I.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate
+										,REPLACE(CONVERT(CHAR(11), I.ActualDueDate, 106),' ','-') AS ActualDueDate
+										,REPLACE(CONVERT(CHAR(11), I.RevisedDueDate, 106),' ','-') AS RevisedDueDate
+                                        ,REPLACE(CONVERT(CHAR(11), I.ActualDueDate, 106),' ','-') AS MatureDate
                                         FROM TRN.[Invoice] AS I
                                         JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
                                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId
@@ -543,6 +548,7 @@ namespace Library.Accounting.Accounts
                                         LEFT JOIN TRN.Voucher AV ON AV.Id=ADT.VoucherId
                                         LEFT JOIN DBO.EmployeeInformation EIA ON EIA.SystemId=V.ApprovedById
                                         LEFT JOIN TRN.OtherInvoice OI ON OI.InvoiceId=I.Id
+                                        LEFT JOIN [ORG].[Entity] AS E ON E.Id=V.EntityId
                                         WHERE I.Archive=0 AND V.Archive=0 AND I.OpeningBalanceId IS NULL AND I.SourceType='" + sourceType + @"' 
                                         AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' 
                                         UNION ALL
@@ -554,7 +560,11 @@ namespace Library.Accounting.Accounts
                                         ,case when AV.ApprovedBystatus is null then 'To Be Checked' else  AV.ApprovedBystatus end CheckStatus
                                         ,AV.VoucherNo TDSVoucherNo,ADT.VoucherId TDSVoucherId,[Status]= case when I.IsPark=1 then 'Parked' else 'Posted' end
                                         ,NULL OtherInvoiceId,NULL OtherIsPark,NULL OtherInvoiceVoucherId,0 IsExpenseDistribution,V.ApprovedByStatus,EIA.EmployeeName ApprovedBy,V.ApprovedById,V.ApprovedDate,V.Narration
-                                        ,0 IsAssetDistribution
+                                        ,0 IsAssetDistribution,E.UserName EntityName,V.EntityId,I.PaymentTermId,I.BaseNoOfDays
+										,REPLACE(CONVERT(CHAR(11), I.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate
+										,REPLACE(CONVERT(CHAR(11), I.ActualDueDate, 106),' ','-') AS ActualDueDate
+										,REPLACE(CONVERT(CHAR(11), I.RevisedDueDate, 106),' ','-') AS RevisedDueDate
+                                        ,REPLACE(CONVERT(CHAR(11), I.ActualDueDate, 106),' ','-') AS MatureDate
                                         FROM TRN.[EmployeePayable] AS I
                                        LEFT JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
                                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId
@@ -564,6 +574,7 @@ namespace Library.Accounting.Accounts
                                         LEFT JOIN TRN.AdditionalTax ADT ON ADT.EmployeePayableId=I.Id
                                         LEFT JOIN TRN.Voucher AV ON AV.Id=ADT.VoucherId
                                         LEFT JOIN DBO.EmployeeInformation EIA ON EIA.SystemId=V.ApprovedById
+                                        LEFT JOIN [ORG].[Entity] AS E ON E.Id=V.EntityId
                                         WHERE I.Archive=0 AND V.Archive=0 AND I.OpeningBalanceId IS NULL AND I.SourceType='" + sourceType + @"' 
                                         AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"'  ";
                 return _sqlRepository.GetGridData(parameters);
@@ -845,12 +856,12 @@ namespace Library.Accounting.Accounts
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                         LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
+                                        LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
                                         WHERE EP.Archive=0 AND EP.IsPark=0 AND EP.IsWrittenOff=0 AND EPD.IsWrittenOff=0 AND EPD.IsBlock=0 AND EP.SourceType IN ('EmployeePayable','SalaryPayable','VendorInvoice','InventoryPayable')

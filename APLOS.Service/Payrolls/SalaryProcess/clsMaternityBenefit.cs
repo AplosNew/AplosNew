@@ -627,12 +627,14 @@ namespace Library.Service.Payrolls.SalaryProcess
 		                                ,AfterPercentageAmount=((isnull(x.TotalEarn,0)/isnull(x.TotalDays,0))*t.LeaveDays)*mp.AfterPercentage/100
 
                                         FROM dbo.Employeeinformation EI
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                                         LEFT JOIN HKP.LegalDesignation DSG ON ei.LegalDesignationId=DSG.Id
                                         LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                        LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId							
-                                        LEFT JOIN org.Section s ON s.id=EI.SectionId
-                                        LEFT JOIN org.SubSection ss ON ss.Id=ei.SubSectionId
-		                                left join org.Line ll on ll.id=ei.LineId
+                                        LEFT JOIN ORG.Department DP on DP.Id=pr.DepartmentId							
+                                        LEFT JOIN org.Section s ON s.id=pr.SectionId
+                                        LEFT JOIN org.SubSection ss ON ss.Id=pr.SubSectionId
+		                                left join org.Line ll on ll.id=mb.LineId
 		                                left join (select * FROM LeaveTransaction where SystemID ='" + leavePK + @"') t on t.EmpSystemID=ei.SystemId
 		                                left join mst.MaternityLeavePolicy mp on mp.id=t.MaternityLeavePolicyId		                                
 		                                where ei.SystemId =@emp";

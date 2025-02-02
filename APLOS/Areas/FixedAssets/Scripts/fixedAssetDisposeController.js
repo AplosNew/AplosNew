@@ -721,5 +721,7 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
     }
 
 
+    
+
 
 }

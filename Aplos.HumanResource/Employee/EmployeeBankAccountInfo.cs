@@ -438,7 +438,7 @@ namespace Library.HumanResource.Employee
 
                 strSQL = @"Select EBI.*, B.UserName AS Bank,bb.UserName BankBranch, 
                             ei.EmployeeName, ei.EmpPicPath,
-                            ei.DesignationSystemID,LDEG.UserName LegalDesignation,
+                            EI.GivenDesignationID,LDEG.UserName LegalDesignation,
                             FORMAT(ei.DOJ,'dd-MMM-yyyy')DOJ, ei.PaymentMode
                             From  [dbo].[EmployeeBankInfo] EBI
                             LEFT OUTER JOIN HKP.Bank B ON B.Id=EBI.BankSystemID

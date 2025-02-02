@@ -385,6 +385,7 @@
                     <th>@Library.Model.Parties.PartyType.Customer.ToString()</th>
                     <th>Ordering @Library.Model.Parties.PartyType.Customer.ToString()</th>
                     <th>Posting Date</th>
+                    <th>Entity</th>
                     <th>Currency</th>
                     <th>Amount</th>
                     <th>Inter Amount</th>
@@ -400,6 +401,7 @@
                     <td>{{x.PartyCode}} - {{x.PartyName}}</td>
                     <td>{{x.PartyPlantName}}</td>
                     <td>{{x.PostingDate | dateFiltering}}</td>
+                    <td>{{x.EntityName}}</td>
                     <td>{{x.CurrencyCode}}</td>
                     <td class="text-right">{{x.Amount | number:2}}</td>
                     <td class="text-right">{{x.Amount-x.NetAmount | number:2}}</td>
@@ -408,7 +410,7 @@
                     <td>{{x.IsPark?'Park': x.IsPosted?'Post':'Pending'}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">
-                            <li ng-show="x.IsPoste || x.IsPark"><a ng-click="confirmPost(x.Id);" href="" class="btn btn-action tooltip-here">Post</a></li>
+                            <li ng-show="x.IsPoste || x.IsPark"><a ng-click="confirmPost(x.Id,x);" href="" class="btn btn-action tooltip-here">Post</a></li>
                             <li ng-hide="x.IsWrittenOff || !x.IsPosted"><a href="{{bootPoint}}customer-suspense-write-off/{{x.Id}}" class="btn btn-action tooltip-here">Set-off</a></li>
                             <li ng-hide="x.IsWrittenOff || !x.IsPosted"><a ng-click="confirmUnPost(x.Id);" href="" class="btn btn-action tooltip-here">UnPost</a></li>
                             <li><a ng-click="report(x.VoucherId)" class="btn btn-action" href=""><i class="glyphicon glyphicon-cloud-download"></i></a></li>
@@ -425,5 +427,7 @@
 @Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
 @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_AdvanceJournalPopUp.cshtml")
-<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId)"></confirm-archive-generic>
+@Html.Partial("~/Areas/Accounts/Views/_PostPopUp.cshtml")
+
+@*<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId)"></confirm-archive-generic>*@
 <confirm-archive-generic modalid="confirmUnPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="unPost(advanceId)"></confirm-archive-generic>

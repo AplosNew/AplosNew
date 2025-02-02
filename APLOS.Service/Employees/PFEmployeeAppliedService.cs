@@ -187,10 +187,12 @@ namespace Library.Service.Employees
             {
                 parameters.CmdText = @"SELECT EI.EmployeeId,EI.EmployeeCode,EI.EmployeeName,D.UserName EmpDesignation,DP.UserName EMPDepartment,S.UserName EMPSection,SS.UserName EMPSubSection,PE.* FROM PFEligibleEmployee PE
                                     LEFT JOIN EmployeeInformation EI ON PE.EmpSystemID=EI.SystemId
-									LEFT JOIN HKP.Designation D ON EI.DesignationSystemID = D.Id
-									LEFT JOIN ORG.Department DP ON EI.DepartmentId = DP.Id
-									LEFT JOIN ORG.Section S ON EI.SectionId=S.Id
-									LEFT JOIN ORG.SubSection SS ON EI.SubSectionId = SS.Id
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+									LEFT JOIN HKP.Designation D ON pr.DesignationID = D.Id
+									LEFT JOIN ORG.Department DP ON pr.DepartmentId = DP.Id
+									LEFT JOIN ORG.Section S ON pr.SectionId=S.Id
+									LEFT JOIN ORG.SubSection SS ON pr.SubSectionId = SS.Id
                                     WHERE EI.PlantId='" + plantId + "' AND PE.IsMandatory =1 AND PE.IsActive=1 AND PE.IsApproved =1";
                 return _sqlRepository.GetGridData(parameters);
             }
@@ -239,10 +241,12 @@ namespace Library.Service.Employees
 				,PE.*
 				 FROM PFEligibleEmployee PE
                 LEFT JOIN EmployeeInformation EI ON PE.EmpSystemID=EI.SystemId
-													LEFT JOIN HKP.Designation D ON EI.DesignationSystemID = D.Id
-									LEFT JOIN ORG.Department DP ON EI.DepartmentId = DP.Id
-									LEFT JOIN ORG.Section S ON EI.SectionId=S.Id
-									LEFT JOIN ORG.SubSection SS ON EI.SubSectionId = SS.Id
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+													LEFT JOIN HKP.Designation D ON pr.DesignationID = D.Id
+									LEFT JOIN ORG.Department DP ON pr.DepartmentId = DP.Id
+									LEFT JOIN ORG.Section S ON pr.SectionId=S.Id
+									LEFT JOIN ORG.SubSection SS ON pr.SubSectionId = SS.Id
                 LEFT JOIN PFPolicyMaster PM ON PE.PFMstID = PM.ID
                 LEFT JOIN PFPolicyDetails PD ON PM.ID=PD.PFPolicyMasterID) A
 				WHERE A.PlantId='" + plantId + "' AND	A.IsMandatory=0";

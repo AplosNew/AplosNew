@@ -141,13 +141,13 @@ namespace Library.Service.Employees
                                       LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                                       LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                       LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                      LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-                                      LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                                      LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                      LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                       LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                       LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                       LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
                                       LEFT JOIN ORG.Company C ON C.Id=EI.CompanyId
-                                      LEFT JOIN ORG.Line L ON L.Id=EI.LineId
+                                      LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
                                       LEFT JOIN HKP.Designation DEG ON EI.GivenDesignationId=DEG.Id
                                       LEFT JOIN HKP.LegalDesignation LDEG ON EI.LegalDesignationId=LDEG.Id
 									  WHERE SSU.ActionStatus='" + actionStatus + "' ORDER BY EI.EmployeeStatus";
@@ -191,9 +191,9 @@ namespace Library.Service.Employees
 							    	,PR.UserName PositionName
 							    	,E.TelePhnNo
 							    	,E.EmailId
-                                    ,E.DepartmentId
-                                    ,E.DivisionId
-									,E.SectionId
+                                    ,PR.DepartmentId
+                                    ,PR.DivisionId
+									,PR.SectionId
 							    	,E.EmpType
 							    	,E.GivenDesignationId
 									,E.EmployeeCategorySystemID EmployeeCategoryId
@@ -214,15 +214,15 @@ namespace Library.Service.Employees
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
 							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
 							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
                                 LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
                                 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
-								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+								LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                 LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
                                 WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest' Order by EmployeeCodeNumeric";
                 return _sqlRepository.GetDataCollection(CmdText);

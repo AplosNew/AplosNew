@@ -1190,6 +1190,17 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(new { Message = AplosMessage.Insert });
         }
 
+        [Authorize, HttpGet]
+        public ActionResult FixedDisposeTaxInvoice(string disposeId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
+
+            _fixedAssetDisposeService.FixedAssetTaxInvoiceService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, disposeId);
+
+            return View();
+        }
+
 
         //Fixed Assets Dispose Post Report
 

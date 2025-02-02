@@ -218,7 +218,7 @@ namespace Library.Service.HumanResources
                 }
                 else
                 {
-                    wc = "AND  EMP.SectionId='" + sectionId + @"' ";
+                    wc = "AND  PR.SectionId='" + sectionId + @"' ";
                 }
                 if (subSectionId == "null" || subSectionId == "undefined")
                 {
@@ -226,7 +226,7 @@ namespace Library.Service.HumanResources
                 }
                 else
                 {
-                    wc += "AND  EMP.SubSectionId='" + subSectionId + @"' ";
+                    wc += "AND  PR.SubSectionId='" + subSectionId + @"' ";
                 }
                 if (departmentId == "null" || departmentId == "undefined")
                 {
@@ -234,7 +234,7 @@ namespace Library.Service.HumanResources
                 }
                 else
                 {
-                    wc += "AND  EMP.DepartmentId='" + departmentId + @"' ";
+                    wc += "AND  PR.DepartmentId='" + departmentId + @"' ";
                 }
                 var ot = "";
                 if (isOTEntitle)
@@ -249,15 +249,15 @@ namespace Library.Service.HumanResources
 									 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
 									 LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 									 LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
-									 LEFT JOIN ORG.Department DEPT ON EMP.DepartmentId=DEPT.Id
+									 LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
 									 LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                      LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EMP.GivenDesignationId
                                      LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
                                      LEFT JOIN EmployeeOTEntitle OT ON OT.EmpSystemID=EMP.SystemId
-                                     LEFT JOIN [ORG].Section AS Se ON Se.ID = EMP.SectionID
-                                     LEFT JOIN [ORG].SubSection AS SuS ON SuS.ID = EMP.SubSectionID
+                                     LEFT JOIN [ORG].Section AS Se ON Se.ID = PR.SectionID
+                                     LEFT JOIN [ORG].SubSection AS SuS ON SuS.ID = PR.SubSectionID
                                      LEFT JOIN [ORG].Plant AS P ON P.Id = EMP.PlantId
-									 WHERE (emp.DOJ <= '"+AttendanceRestDate +@"') and (DOS IS NULL OR EMP.DOS>='"+AttendanceRestDate+@"') and 
+									 WHERE (emp.DOJ <= '" + AttendanceRestDate +@"') and (DOS IS NULL OR EMP.DOS>='"+AttendanceRestDate+@"') and 
                         EMP.PlantId='" + plantId + @"' AND EMP.GroupID='" + companyGroupId + @"' AND EMP.CompanyId='" + companyId + @"' " + wc + " " + ot + ") A";
                 return _sqlRepository.GetGridData(parameters);
             }
@@ -279,7 +279,7 @@ namespace Library.Service.HumanResources
                 }
                 else
                 {
-                    wc = "AND  EMP.SectionId='" + sectionId + @"' ";
+                    wc = "AND  PR.SectionId='" + sectionId + @"' ";
                 }
                 if (subSectionId == "null" || subSectionId == "undefined")
                 {
@@ -287,7 +287,7 @@ namespace Library.Service.HumanResources
                 }
                 else
                 {
-                    wc += "AND  EMP.SubSectionId='" + subSectionId + @"' ";
+                    wc += "AND  PR.SubSectionId='" + subSectionId + @"' ";
                 }
                 if (departmentId == "null" || departmentId == "undefined")
                 {
@@ -295,7 +295,7 @@ namespace Library.Service.HumanResources
                 }
                 else
                 {
-                    wc += "AND  EMP.DepartmentId='" + departmentId + @"' ";
+                    wc += "AND  PR.DepartmentId='" + departmentId + @"' ";
                 }
                 var ot = "";
                 if (isOTEntitle)
@@ -311,13 +311,13 @@ namespace Library.Service.HumanResources
 									 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
 									 LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 									 LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
-									 LEFT JOIN ORG.Department DEPT ON EMP.DepartmentId=DEPT.Id
+									 LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
 									 LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                      LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EMP.GivenDesignationId
                                      LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
                                      LEFT JOIN EmployeeOTEntitle OT ON OT.EmpSystemID=EMP.SystemId
-                                     LEFT JOIN [ORG].Section AS Se ON Se.ID = EMP.SectionID
-                                     LEFT JOIN [ORG].SubSection AS SuS ON SuS.ID = EMP.SubSectionID
+                                     LEFT JOIN [ORG].Section AS Se ON Se.ID = PR.SectionID
+                                     LEFT JOIN [ORG].SubSection AS SuS ON SuS.ID = PR.SubSectionID
                                      LEFT JOIN [ORG].Plant AS P ON P.Id = EMP.PlantId
 									 WHERE EMP.PlantId='" + plantId + @"' AND  EMP.Employeestatus='Active' AND EMP.SystemId NOT IN (Select EmpSystemId from ExceptionEmployee) AND EMP.GroupID='" + companyGroupId + @"' AND EMP.CompanyId='" + companyId + @"' " + wc + " " + ot + ") A ";
                 return _sqlRepository.GetGridData(parameters);
@@ -383,8 +383,8 @@ namespace Library.Service.HumanResources
 							LEFT JOIN ORG.Department DEPT ON EMP.DepartmentId=DEPT.Id
                             Left JOIN MST.DesignationMaster DM ON DM.DesignationId=EMP.GivenDesignationId
                             LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
-                            LEFT JOIN [ORG].Section AS Se ON Se.ID = EMP.SectionID
-                            LEFT JOIN [ORG].SubSection AS SuS ON SuS.ID = EMP.SubSectionID
+                            LEFT JOIN [ORG].Section AS Se ON Se.ID = PR.SectionID
+                            LEFT JOIN [ORG].SubSection AS SuS ON SuS.ID = PR.SubSectionID
                             LEFT JOIN [ORG].Plant AS P ON P.Id = EMP.PlantId
                             LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId Where AttendanceRestId='" + restId + @"' AND RD.PlantId='" + plantId + "' ORDER BY EmployeeCode";
                 return _sqlRepository.GetDataCollection(sql, null);

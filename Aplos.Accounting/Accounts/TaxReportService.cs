@@ -5923,6 +5923,11 @@ SELECT
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
                 xlsCol++;
 
+                int iEntityName = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Entity";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
                 int iPostingDate = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Posting Date";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
@@ -6072,6 +6077,7 @@ SELECT
 
                             sheet1[perStartRow, iSourceType, xlsRow - 1, iSourceType].BorderAround(ExcelLineStyle.Hair);
                             sheet1[perStartRow, iVoucherNo, xlsRow - 1, iVoucherNo].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iEntityName, xlsRow - 1, iEntityName].BorderAround(ExcelLineStyle.Hair);
                             sheet1[perStartRow, iPostingDate, xlsRow - 1, iPostingDate].BorderAround(ExcelLineStyle.Hair);
                             sheet1[perStartRow, iDocRefNo, xlsRow - 1, iDocRefNo].BorderAround(ExcelLineStyle.Hair);
                             sheet1[perStartRow, iDocDate, xlsRow - 1, iDocDate].BorderAround(ExcelLineStyle.Hair);
@@ -6117,6 +6123,7 @@ SELECT
 
                         sheet1.Range[xlsRow, iSourceType].Text = dtGStReceivableF3.Rows[i]["SourceType"].ToString();
                         sheet1.Range[xlsRow, iVoucherNo].Text = dtGStReceivableF3.Rows[i]["VoucherNo"].ToString();
+                        sheet1.Range[xlsRow, iEntityName].Text = dtGStReceivableF3.Rows[i]["EntityName"].ToString();
                         sheet1.Range[xlsRow, iPostingDate].Text = clsStaticInfo.GetDateTaxFormate(dtGStReceivableF3.Rows[i]["PostingDate"].ToString());
                         sheet1.Range[xlsRow, iDocRefNo].Text = dtGStReceivableF3.Rows[i]["DocRefNo"].ToString();
                         sheet1.Range[xlsRow, iDocDate].Text = dtGStReceivableF3.Rows[i]["DocDate"].ToString();
@@ -6157,6 +6164,7 @@ SELECT
                 }
                 sheet1[perStartRow, iSourceType, xlsRow - 1, iSourceType].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iVoucherNo, xlsRow - 1, iVoucherNo].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iEntityName, xlsRow - 1, iEntityName].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iPostingDate, xlsRow - 1, iPostingDate].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iDocRefNo, xlsRow - 1, iDocRefNo].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iDocDate, xlsRow - 1, iDocDate].BorderAround(ExcelLineStyle.Hair);
@@ -10916,7 +10924,7 @@ UNION ALL
                 tempNoteType = "DebitNote" + "','" + "CreditNote" + "','" + "InventoryReturnPayable" + "','" + "VendorPayment";
             }
             string strSql = "";
-            strSql = @"SELECT  V.SourceType ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate
+            strSql = @"SELECT  V.SourceType ,V.VoucherNo,EN.UserName EntityName,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate
 							,P.UserName PartyName,PP.GSTIN,NULL GRNNo,pp.UserName PartyPlantName
                             ,TaxableAmount=case 
 							when v.SourceType='DebitNote' then (select sum(CrAmount) from trn.VoucherDetail where VoucherId=V.Id and CrAmount>0 and  InvoiceTaxDetailId is null)
@@ -10938,6 +10946,7 @@ UNION ALL
 							,ParkStatus = case when V.IsPark=1 then 'Parked' else 'Posted' end,ADT.WrittenOffAmount
                             FROM   TRN.AdjustmentNote ADT
 							LEFT JOIN TRN.Voucher V  ON ADT.VoucherId=V.Id
+                            LEFT JOIN ORG.Entity EN  ON ADT.EntityId=EN.Id
                             LEFT JOIN HKP.Party P ON P.Id=ADT.PartyId
 							LEFT JOIN hkp.PartyPlant PP on PP.Id=ADT.PartyPlantId
 							LEFT JOIN(select IT.VoucherId,TCD.ValueOfFixed [Percentage],TAXC.[Type],TAXC.ValueOfFixed,TC.TaxCategoryType

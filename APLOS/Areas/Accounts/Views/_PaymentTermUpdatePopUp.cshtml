@@ -1,0 +1,97 @@
+﻿<style>
+    .modellgModify1 {
+        width: 1100px;
+    }
+</style>
+<div class="modal fade site-modal in" id="PaymentTermUpdatePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify1">
+        <div class="modal-content">
+            <div class="modal-header"> Are you sure to Update? <button type="button" class="close" ng-click="closePaymentTermUpdatePopUp();">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Voucher No</label>
+                                <div class="col-sm-9 show-message">
+                                    <input type="text" id="VoucherNo_PaymentTerm" name="VoucherNo_PaymentTerm" ng-model="voucher_PaymentTerm.VoucherNo" class="form-control" tabindex="5" autocomplete="off" readonly>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top:40px;">
+                                <label class="col-sm-3 control-label">Currency</label>
+                                <div class="col-sm-9 show-message">
+                                    <input type="text" id="CurrencyCode_PaymentTerm" name="CurrencyCode_PaymentTerm" ng-model="voucher_PaymentTerm.CurrencyCode" class="form-control" tabindex="5" autocomplete="off" readonly>
+                                </div>
+                            </div>
+                            <div id="div_Narration_PaymentTerm" class="form-group" style="margin-top:80px;">
+                                <label class="col-sm-3 control-label">Narration</label>
+                                <div class="col-sm-9 show-message">
+                                    <textarea rows="3" type="text" name="Narration_PaymentTerm" tabindex="13" class="form-control" ng-model="voucher_PaymentTerm.Narration" readonly></textarea>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Doc Ref</label>
+                                <div class="col-sm-9 show-message">
+                                    <input type="text" id="Doc Ref PaymentTerm" name="Doc Ref PaymentTerm" ng-model="voucher_PaymentTerm.DocRefNo" class="form-control" tabindex="5" autocomplete="off" readonly>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top:40px;">
+                                <label class="col-sm-3 control-label">Amount</label>
+                                <div class="col-sm-9 show-message">
+                                    <input type="text" n-decimals="2" id="Amount_PaymentTerm" name="Amount_PaymentTerm" ng-model="voucher_PaymentTerm.TransactionAmount" class="form-control" tabindex="5" autocomplete="off" readonly>
+                                </div>
+                            </div>
+                            <div id="div_entity_PaymentTerm" class="form-group" style="margin-top:80px;">
+                                <label class="col-sm-3 control-label">Entity<sup>*</sup></label>
+                                <div class="col-sm-9 show-message">
+                                    <div class="select-style">
+                                        <select id="entityId_PaymentTerm" class="form-control" name="entity_PaymentTerm" ng-model="voucher_PaymentTerm.EntityId" tabindex="6" ng-readonly>
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border">Payment Term</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Payment Term<sup>*</sup></label>
+                            <div class="col-sm-2 show-message">
+                                <div class="select-style">
+                                    <select tabindex="10" id="paymentTermId" class="form-control" name="Payment Term" ng-model="voucher_PaymentTerm.PaymentTermId" ng-change="changePaymentTerm_Update(voucher_PaymentTerm.PaymentTermId);">
+                                        <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <label class="col-sm-2 control-label">Due Date BaseOn<sup>*</sup></label>
+                            <div class="col-sm-2 show-message">
+                                <input type="text" name="BaseOnDueDate" ng-model="voucher_PaymentTerm.BaseOnDueDate" ng-change="getMatureDate(voucher_PaymentTerm.BaseOnDueDate,voucher_PaymentTerm.BaseNoOfDays)" datepicker class="form-control datepicker" tabindex="11">
+                            </div>
+                            <label class="col-sm-1 control-label">No Of Days</label>
+                            <div class="col-sm-1 show-message">
+                                <input id="baseNoOfday" type="number" name="No Of Days" ng-model="voucher_PaymentTerm.BaseNoOfDays" ng-change="getMatureDate_Update(voucher_PaymentTerm.BaseOnDueDate, voucher_PaymentTerm.BaseNoOfDays)" class="form-control" tabindex="12">
+                            </div>
+                            <label class="col-sm-1 control-label">Mature Date</label>
+                            <div class="col-sm-1 show-message">
+                                <input type="text" name="Mature Date" ng-model="voucher_PaymentTerm.MatureDate" class="form-control" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <br />
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closePaymentTermUpdatePopUp();" class="btn"> Close</button></li>
+                    <li><button ng-click="updatePaymentTerm();" class="btn"> Update</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

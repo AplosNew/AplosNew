@@ -1343,9 +1343,11 @@ function vendorPaymentController(bankService, accountService, cboService, common
                     dataType: "JSON"
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
+                        $scope.actionIsDisable = false;
                         ShowResult(response.data.Message, "failure");
                     }
                     else {
+                        $scope.actionIsDisable = false;
                         ShowResult(response.data.Message, "success");
                         $scope.getData();
                         $scope.Clear();

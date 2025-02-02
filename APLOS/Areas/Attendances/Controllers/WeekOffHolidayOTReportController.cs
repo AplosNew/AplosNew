@@ -158,8 +158,6 @@ namespace Aplos.Areas.Attendances.Controllers
 
                                     FROM EmployeeInformation e
                                   
-                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
 									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     
 

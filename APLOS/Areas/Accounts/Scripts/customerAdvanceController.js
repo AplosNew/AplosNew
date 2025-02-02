@@ -60,6 +60,10 @@ function customerAdvanceController(cboService, bankService, baseService, factory
             "value": "PostingDate"
         },
         {
+            "name": "Entity",
+            "value": "EntityName"
+        },
+        {
             "name": "Doc Date",
             "value": "DocDate"
         },
@@ -952,21 +956,47 @@ function customerAdvanceController(cboService, bankService, baseService, factory
         }
     };
 
-    $scope.advanceId = null;
-    $scope.confirmPost = function (advanceId,advanceGroupNo) {
-        $scope.advanceId = advanceId;
-        $scope.advanceGroupNo = advanceGroupNo;
-        $scope.message_confirmation = 'Are you sure to Post?';
-        angular.element(document.querySelector('#confirmPostPopUp')).modal('show');
+    $scope.voucher_Post = {
+        Id: null,
+        EntityId: null,
+        CurrencyId: null,
+        CurrencyCode: null,
+        VoucherNo: null,
+        PostingDate: null,
+        DocDate: null,
+        DocRefNo: null,
+        Narration: null,
+        Amount: null
     };
 
-    $scope.post = function (advanceId, advanceGroupNo) {
+    $scope.advanceId = null;
+    $scope.EntityId_Post = null;
+    $scope.voucherId = null;
+    $scope.confirmPost = function (advanceId, advanceGroupNo, data) {
+        $scope.advanceId = advanceId;
+        $scope.advanceGroupNo = advanceGroupNo;
+        $scope.EntityId_Post = data.EntityId;
+        $scope.voucherId = data.VoucherId;
+        $scope.voucher_Post = data;
+        angular.element(document.querySelector('#PostPopUp')).modal('show');
+        //$scope.message_confirmation = 'Are you sure to Post?';
+        //angular.element(document.querySelector('#confirmPostPopUp')).modal('show');
+    };
+    $scope.closePostPopUp = function () {
+        angular.element(document.querySelector("#PostPopUp")).modal("hide");
+    };
+    $scope.post = function () {
+        if ($scope.EntityId_Post == null || $scope.EntityId_Post == "" || $scope.EntityId_Post == undefined) {
+            ShowResult("Please select Entity First!!", "failure");
+        }
         $http({
             method: "POST",
             url: $scope.postUrl,
             data: {
-                "advanceId": advanceId,
-                "advanceGroupNo": advanceGroupNo
+                "advanceId": $scope.advanceId,
+                "advanceGroupNo": $scope.advanceGroupNo,
+                "entityId": $scope.EntityId_Post,
+                "voucherId": $scope.voucherId
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -974,6 +1004,7 @@ function customerAdvanceController(cboService, bankService, baseService, factory
                 ShowResult(response.data.Message, "failure");
             }
             else {
+                $scope.closePostPopUp();
                 ShowResult(response.data.Message, "success");
                 $scope.getData();
                 $scope.clear();

@@ -245,33 +245,20 @@ namespace Aplos.Areas.Attendances.Controllers
                                     ,e.EmployeeCodePreFix,e.EmployeeCodeNumeric
                                     ,E.PlantId
                                     FROM EmployeeInformation e
-                                    LEFT OUTER JOIN ORG.Department edept on edept.id=e.DepartmentId
-                                    LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId
-                                    LEFT OUTER JOIN ORG.Division ediv on ediv.id=e.DivisionId
-                                    LEFT OUTER JOIN ORG.SubDivision esdiv on esdiv.id=e.SubDivisionId
-                                    LEFT OUTER JOIN ORG.Section es on es.id=e.SectionId
-                                    LEFT OUTER JOIN ORG.SubSection ess on ess.id=e.SubSectionId
-                                    LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
-                                    LEFT OUTER JOIN ORG.Unit eu on eu.id=e.UnitId
-                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
+                                                                       
 									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=e.LegalDesignationId
-                                    LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
-									,dg.UserName GivenDesignationGroup--,srm.SalaryRuleName
-									FROM mst.DesignationMaster dm
-									LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
-									) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
-									AND egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
+                                   
                                     LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
 									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
                                     LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
                                     LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
-                                    LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
+                                    LEFT JOIN [ORG].[Division] ON Division.Id = PO.DivisionId
                                     LEFT JOIN [ORG].[Plant] ON Plant.Id = EN.PlantId
                                     LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
                                     LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
                                     LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId
+                                    LEFT JOIN ORG.Line EL ON MPB.LineID = EL.Id
                                     " + Apjoin + @"
                                     LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
                                     LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId			                                       
@@ -417,7 +404,7 @@ namespace Aplos.Areas.Attendances.Controllers
 			                         END
                                     , AR.IsManualDayStatus, AR.IsManualInTime, AR.IsManualOutTime,
 ar.CountedShortLeave ShortLeave,AR.IsOTEntitled,AR.IsOTComfirm,OT.WorkDate,dt.Category DayCategory
-,CAS.MaxOTPerDay,CAS.IsNoPunchOnHolidayForOTEntitle,CAS.IsNoPunchOnHolidayForOTNotEntitle,CAS.IsNoPunchOnWeekOffForOTEntitle,CAS.IsNoPunchOnWeekOffForOTNotEntitle
+,ISNULL(CAS.MaxOTPerDay,0)MaxOTPerDay,ISNULL(CAS.IsNoPunchOnHolidayForOTEntitle,0)IsNoPunchOnHolidayForOTEntitle,ISNULL(CAS.IsNoPunchOnHolidayForOTNotEntitle,0)IsNoPunchOnHolidayForOTNotEntitle,ISNULL(CAS.IsNoPunchOnWeekOffForOTEntitle,0)IsNoPunchOnWeekOffForOTEntitle,ISNULL(CAS.IsNoPunchOnWeekOffForOTNotEntitle,0)IsNoPunchOnWeekOffForOTNotEntitle
                                 FROM dbo.EmployeeInformation E
 
                                     LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
@@ -440,9 +427,9 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                 LEFT JOIN dbo.AttdnRawData ARIN ON AR.InTimeRowID = ARIN.RowID
                                 LEFT JOIN dbo.AttdnRawData AROUT ON AR.OutTimeRowID = AROUT.RowID
                                 LEFT JOIN dbo.LeaveType LT ON AR.LTSystemID = LT.Id
-                                LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                                LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                                LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
+                                LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                                LEFT JOIN ORG.Division Dv ON PO.DivisionID = Dv.Id
+                                LEFT JOIN ORG.Department Dp ON PO.DepartmentID = Dp.Id
 
                                   LEFT JOIN ORG.Section S ON PO.SectionID = S.Id
                                 LEFT JOIN ORG.SubSection SB ON PO.SubSectionID = SB.Id
@@ -713,10 +700,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                         LEFT JOIN ORG.Entity E ON PMB.EntityId = E.Id
                         LEFT JOIN HKP.Designation DSG ON PR.DesignationId = DSG.Id
                         LEFT JOIN HKP.Designation DeG ON DeG.Id = EI.GivenDesignationId
-                        LEFT JOIN ORG.Department DP ON DP.Id = EI.DepartmentId
+                        LEFT JOIN ORG.Department DP ON DP.Id = PR.DepartmentId
                         LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = EI.LegalDesignationId
-                        LEFT JOIN ORG.Section AS Se ON Se.Id = EI.SectionID
-                        LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID
+                        LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
+                        LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
                         WHERE EI.EmployeeStatus = 'Active'
                         	AND AP.IsOTEntitled = 1
                         	AND AP.IsManualOutTime = 1

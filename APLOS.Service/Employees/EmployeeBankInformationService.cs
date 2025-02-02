@@ -59,7 +59,9 @@ namespace Library.Service.Employees
 										,FORMAT(EB.DateAdded,'dd-MMM-yyyy')DateAdded
                                      FROM dbo.EmployeeBankInfo EB
                                      LEFT JOIN dbo.EmployeeInformation E ON EB.EmpSystemID = E.SystemId
-                                     LEFT JOIN ORG.Department DEPT ON DEPT.Id=E.DepartmentId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                                     LEFT JOIN ORG.Department DEPT ON DEPT.Id=PR.DepartmentId
                                      LEFT JOIN HKP.Designation DEG ON E.GivenDesignationId = DEG.Id
                                      LEFT JOIN HKP.Bank B ON B.Id = EB.BankSystemID
                                      LEFT JOIN HKP.BankBranch BB ON Bb.Id = EB.BankBranchId
@@ -93,8 +95,10 @@ namespace Library.Service.Employees
 										,FORMAT(EBB.DateAdded,'dd-MMM-yyyy')DateAdded
                                      FROM dbo.EmployeeBankInfoBackUp EBB
                                      LEFT JOIN dbo.EmployeeInformation E ON EBB.EmpSystemID = E.SystemId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                                      LEFT JOIN HKP.Designation DG ON DG.Id = E.GivenDesignationId
-                                     LEFT JOIN ORG.Department DEPT ON DEPT.Id=E.DepartmentId
+                                     LEFT JOIN ORG.Department DEPT ON DEPT.Id=PR.DepartmentId
                                      LEFT JOIN HKP.Bank B ON B.Id = EBB.BankSystemID
                                      LEFT JOIN HKP.BankBranch BB ON BB.Id = EBB.BankBranchId
                                      WHERE E.SystemId = '" + empSystemId + "'";

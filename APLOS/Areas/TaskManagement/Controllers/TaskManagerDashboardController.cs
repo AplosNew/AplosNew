@@ -74,7 +74,7 @@ TOCL.Total AS TaskToClose ,TOCL.ToDO AS TaskToCloseToDo,TOCL.Issue AS TaskToClos
 
 FROM (
 	SELECT distinct 
-                        eato.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,
+                        P.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,
                         isnull(tm.TaskCategoryId,'')TaskCategoryId,isnull(tm.TaskSubCategoryId,'')AS TaskSubCategoryId,
 
                         isnull(DTO.UserName,'') AS Department,isnull(EATO.EmployeeName,'') AS AssignToEmployeeName,isnull(EAB.EmployeeName,'') AS AssignByEmployeeName,
@@ -86,8 +86,9 @@ FROM (
 
                         LEFT OUTER JOIN EmployeeInformation AS EAB ON eab.SystemId=ab.ResponsiblePersonId
                         LEFT OUTER JOIN EmployeeInformation AS EATO ON EATO.SystemId=ATO.ResponsiblePersonId
-
-                        LEFT OUTER JOIN org.Department AS DTO ON dto.Id=eato.DepartmentId
+                        LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EATO.BudgetCode
+						LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+                        LEFT OUTER JOIN org.Department AS DTO ON dto.Id=P.DepartmentId
 
                         LEFT OUTER JOIN hkp.TaskCategory AS tc ON tm.TaskCategoryId=tc.Id
                         LEFT OUTER JOIN hkp.TaskSubCategory AS tsc ON tsc.Id=tm.TaskSubCategoryId
@@ -95,7 +96,7 @@ FROM (
                         ) AS K
 LEFT OUTER JOIN (SELECT 
                                 'TotalCreated' AS Particular,
-                                eato.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,
+                                P.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,
 								isnull(tm.TaskCategoryId,'')TaskCategoryId,isnull(tm.TaskSubCategoryId,'')AS TaskSubCategoryId,
                                 COUNT(*) AS Total, 
                                 SUM(CASE WHEN isnull(tm.TaskTypeGroup,'')='ToDo' THEN 1 ELSE 0 END) AS ToDO, 
@@ -106,15 +107,17 @@ LEFT OUTER JOIN (SELECT
 								LEFT OUTER JOIN TaskAudit AS AB ON ab.TaskManagerMasterId=tm.Id AND ab.AuthorizationType='CreatedBy'
 								LEFT OUTER JOIN TaskAudit AS ATO ON ATO.TaskManagerMasterId=tm.Id AND ATO.AuthorizationType='AssignTo'
 								LEFT OUTER JOIN EmployeeInformation AS EATO ON EATO.SystemId=ATO.ResponsiblePersonId
-								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=eato.DepartmentId
+                                LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EATO.BudgetCode
+						        LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=p.DepartmentId
                                 WHERE convert(date,tm.AddedDate) BETWEEN  '" + fromDate + @"' and '" + ToDate + @"'  " + TaskTypeGroupSql + @"
-                                         GROUP BY eato.DepartmentId,ATO.ResponsiblePersonId,AB.ResponsiblePersonId,
+                                         GROUP BY p.DepartmentId,ATO.ResponsiblePersonId,AB.ResponsiblePersonId,
 										tm.TaskCategoryId,tm.TaskSubCategoryId) TC
 										ON tc.DepartmentId=k.DepartmentId AND tc.AssignToId=k.AssignToId AND tc.AssignById=k.AssignById
 										AND tc.TaskCategoryId=k.TaskCategoryId and tc.TaskSubCategoryId=k.TaskSubCategoryId
 LEFT OUTER JOIN (SELECT 
                                 'TotalToClose' AS Particular,
-                                eato.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,
+                                p.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,
 								isnull(tm.TaskCategoryId,'')TaskCategoryId,isnull(tm.TaskSubCategoryId,'')AS TaskSubCategoryId,
                                 COUNT(*) AS Total, 
                                 SUM(CASE WHEN isnull(tm.TaskTypeGroup,'')='ToDo' THEN 1 ELSE 0 END) AS ToDO, 
@@ -125,9 +128,11 @@ LEFT OUTER JOIN (SELECT
 								LEFT OUTER JOIN TaskAudit AS AB ON ab.TaskManagerMasterId=tm.Id AND ab.AuthorizationType='CreatedBy'
 								LEFT OUTER JOIN TaskAudit AS ATO ON ATO.TaskManagerMasterId=tm.Id AND ATO.AuthorizationType='AssignTo'
 								LEFT OUTER JOIN EmployeeInformation AS EATO ON EATO.SystemId=ATO.ResponsiblePersonId
-								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=eato.DepartmentId
+                                LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EATO.BudgetCode
+						        LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=p.DepartmentId
                                 WHERE convert(date,tm.AddedDate) BETWEEN  '" + fromDate + @"' and '" + ToDate + @"' AND TM.CurrentStatus='ToClose' " + TaskTypeGroupSql + @"
-                                         GROUP BY eato.DepartmentId,ATO.ResponsiblePersonId,AB.ResponsiblePersonId,
+                                         GROUP BY p.DepartmentId,ATO.ResponsiblePersonId,AB.ResponsiblePersonId,
 										tm.TaskCategoryId,tm.TaskSubCategoryId) TOCL
 										ON TOCL.DepartmentId=k.DepartmentId AND TOCL.AssignToId=k.AssignToId AND TOCL.AssignById=k.AssignById
 										AND TOCL.TaskCategoryId=k.TaskCategoryId and TOCL.TaskSubCategoryId=k.TaskSubCategoryId
@@ -135,7 +140,7 @@ LEFT OUTER JOIN (SELECT
 										
 LEFT OUTER JOIN (SELECT 
                                 'OverdueRead' AS Particular,
-                                eato.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,
+                                p.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,
 								isnull(tm.TaskCategoryId,'')TaskCategoryId,isnull(tm.TaskSubCategoryId,'')AS TaskSubCategoryId,
                                 COUNT(*) AS Total, 
                                 SUM(CASE WHEN isnull(tm.TaskTypeGroup,'')='ToDo' THEN 1 ELSE 0 END) AS ToDO, 
@@ -146,9 +151,11 @@ LEFT OUTER JOIN (SELECT
 								LEFT OUTER JOIN TaskAudit AS AB ON ab.TaskManagerMasterId=tm.Id AND ab.AuthorizationType='CreatedBy'
 								LEFT OUTER JOIN TaskAudit AS ATO ON ATO.TaskManagerMasterId=tm.Id AND ATO.AuthorizationType='AssignTo'
 								LEFT OUTER JOIN EmployeeInformation AS EATO ON EATO.SystemId=ATO.ResponsiblePersonId
-								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=eato.DepartmentId
+                                LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EATO.BudgetCode
+						        LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=p.DepartmentId
                                    WHERE convert(date,ATO.DueDate) BETWEEN '" + fromDate + @"' AND '" + ToDate + @"' AND  convert(date,ATO.DueDate) <convert(date,'" + Convert.ToDateTime(Today).ToString("dd-MMM-yyyy") + @"') AND tm.CurrentStatus<>'Closed' AND isnull(ATO.isRead,0)=0  " + TaskTypeGroupSql + @"
-										GROUP BY eato.DepartmentId,ATO.ResponsiblePersonId,AB.ResponsiblePersonId,
+										GROUP BY p.DepartmentId,ATO.ResponsiblePersonId,AB.ResponsiblePersonId,
 										tm.TaskCategoryId,tm.TaskSubCategoryId) TROD
 										ON TROD.DepartmentId=k.DepartmentId AND TROD.AssignToId=k.AssignToId AND TROD.AssignById=k.AssignById
 										AND TROD.TaskCategoryId=k.TaskCategoryId and TROD.TaskSubCategoryId=k.TaskSubCategoryId
@@ -156,7 +163,7 @@ LEFT OUTER JOIN (SELECT
 										
 LEFT OUTER JOIN (SELECT 
                                 'OverdueUnRead' AS Particular,
-                                eato.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,
+                                p.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,
 								isnull(tm.TaskCategoryId,'')TaskCategoryId,isnull(tm.TaskSubCategoryId,'')AS TaskSubCategoryId,
                                 COUNT(*) AS Total, 
                                 SUM(CASE WHEN isnull(tm.TaskTypeGroup,'')='ToDo' THEN 1 ELSE 0 END) AS ToDO, 
@@ -167,16 +174,18 @@ LEFT OUTER JOIN (SELECT
 								LEFT OUTER JOIN TaskAudit AS AB ON ab.TaskManagerMasterId=tm.Id AND ab.AuthorizationType='CreatedBy'
 								LEFT OUTER JOIN TaskAudit AS ATO ON ATO.TaskManagerMasterId=tm.Id AND ATO.AuthorizationType='AssignTo'
 								LEFT OUTER JOIN EmployeeInformation AS EATO ON EATO.SystemId=ATO.ResponsiblePersonId
-								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=eato.DepartmentId
+                                LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EATO.BudgetCode
+						        LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=p.DepartmentId
                                    WHERE  convert(date,ATO.DueDate) BETWEEN '" + fromDate + @"' AND '" + ToDate + @"' AND   convert(date,ATO.DueDate) <'" + Convert.ToDateTime(ToDate).ToString("dd-MMM-yyyy") + @"' AND tm.CurrentStatus<>'Closed' AND isnull(ATO.isRead,0)=1  " + TaskTypeGroupSql + @"
-										GROUP BY eato.DepartmentId,ATO.ResponsiblePersonId,AB.ResponsiblePersonId,
+										GROUP BY p.DepartmentId,ATO.ResponsiblePersonId,AB.ResponsiblePersonId,
 										tm.TaskCategoryId,tm.TaskSubCategoryId) TROR
 										ON TROR.DepartmentId=k.DepartmentId AND TROR.AssignToId=k.AssignToId AND TROR.AssignById=k.AssignById
 										AND TROR.TaskCategoryId=k.TaskCategoryId and TROR.TaskSubCategoryId=k.TaskSubCategoryId
 										
 LEFT OUTER JOIN (SELECT 
                                 'TODAYTASK' AS Particular,
-                                eato.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,
+                                p.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,
 								isnull(tm.TaskCategoryId,'')TaskCategoryId,isnull(tm.TaskSubCategoryId,'')AS TaskSubCategoryId,
                                 COUNT(*) AS Total, 
                                 SUM(CASE WHEN isnull(tm.TaskTypeGroup,'')='ToDo' THEN 1 ELSE 0 END) AS ToDO, 
@@ -187,9 +196,11 @@ LEFT OUTER JOIN (SELECT
 								LEFT OUTER JOIN TaskAudit AS AB ON ab.TaskManagerMasterId=tm.Id AND ab.AuthorizationType='CreatedBy'
 								LEFT OUTER JOIN TaskAudit AS ATO ON ATO.TaskManagerMasterId=tm.Id AND ATO.AuthorizationType='AssignTo'
 								LEFT OUTER JOIN EmployeeInformation AS EATO ON EATO.SystemId=ATO.ResponsiblePersonId
-								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=eato.DepartmentId
+                                LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EATO.BudgetCode
+						        LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=p.DepartmentId
                                    WHERE convert(date,ATO.DueDate) BETWEEN  '" + Today + @"' and '" + Today + @"' AND tm.CurrentStatus<>'Closed'  " + TaskTypeGroupSql + @"
-										GROUP BY eato.DepartmentId,ATO.ResponsiblePersonId,AB.ResponsiblePersonId,
+										GROUP BY p.DepartmentId,ATO.ResponsiblePersonId,AB.ResponsiblePersonId,
 										tm.TaskCategoryId,tm.TaskSubCategoryId) TTSK
 										ON TTSK.DepartmentId=k.DepartmentId AND TTSK.AssignToId=k.AssignToId AND TTSK.AssignById=k.AssignById
 										AND TTSK.TaskCategoryId=k.TaskCategoryId and TTSK.TaskSubCategoryId=k.TaskSubCategoryId
@@ -205,68 +216,7 @@ UNION
 SELECT MIN(DueDate) FromDate,format(getdate(),'dd-MMM-yyyy') AS ToDate  from taskAudit Where ISNULL(isDone,0)<>1"), JsonRequestBehavior.AllowGet);
         }
 
-        //  [HttpPost, Authorize]
-        //  public ActionResult GetTaskStatistics(Dictionary<string, object> FilteredData,string taskType)
-        //  {
-        //      string taskTypeWC = "";
-        //      string taskTypeGroupBy = "";
-        //      string taskTypeColumn = "";
-        //      string taskTypeGroupByExtra = "";
-
-        //      if (string.IsNullOrEmpty(taskType))
-        //      {
-        //          taskTypeWC = "";
-        //          taskTypeGroupBy = "group by tm.currentstatus, AB.DueDate ";
-        //          taskTypeColumn = "";
-        //          //taskTypeColumn = "";
-        //      }
-        //      else
-        //      {
-        //          taskTypeColumn = "TaskType,";
-        //          taskTypeWC = "AND TaskType = '" + taskType + @"'";
-        //          taskTypeGroupBy = "GROUP BY tm.currentstatus, AB.DueDate ,tm.TaskType";
-        //          taskTypeGroupByExtra = " GROUP BY TaskType";
-        //      }
-        //      string sql = @"select "+taskTypeColumn+ @" sum(dd.NoOfTasks) NoOfTasks, sum(dd.TotalClosed) TotalClosed,Sum(dd.TotalPending) TotalPending, Sum(dd.ToStart) ToStart, Sum(dd.InProgress) InProgress, Sum(dd.ToClose) ToClose from
-        //          (
-        //      SELECT  " + taskTypeColumn + @" count(*) NoOfTasks,
-
-        //                 --sum(case when tm.currentstatus = 'Closed' and Convert(date,AB.DueDate)<Convert(date,getdate()) then 1 else 
-        //                 --case when tm.currentstatus='Closed' AND Convert(date,AB.DueDate)<Convert(date,AB.UpdatedDate) THEN 1 ELSE 0 END
-        //                 -- end) AS Panding,
-
-
-        //                  case when tm.currentstatus = 'Closed' and Convert(date,AB.DueDate) between MIN(Convert(date,AB.DueDate)) and Convert(date,getdate()) then count(tm.Id)  end TotalClosed,
-
-        //                  case when tm.currentstatus = 'ToStart' and Convert(date,AB.DueDate) between MIN(Convert(date,AB.DueDate)) and Convert(date,getdate()) then count(tm.Id)  end ToStart,
-        //                  case when tm.currentstatus = 'InProgress' and Convert(date,AB.DueDate) between MIN(Convert(date,AB.DueDate)) and Convert(date,getdate()) then count(tm.Id)  end InProgress,
-        //                  case when tm.currentstatus = 'ToClose' and Convert(date,AB.DueDate) between MIN(Convert(date,AB.DueDate)) and Convert(date,getdate()) then count(tm.Id)  end ToClose,
-
-        //                  case when tm.currentstatus <> 'Closed' and Convert(date,AB.DueDate) between MIN(Convert(date,AB.DueDate)) and Convert(date,getdate()) then count(tm.Id)  end TotalPending
-
-        //                  FROM TaskManagerMaster AS tm
-        //                  LEFT OUTER JOIN TaskAudit AS AB ON ab.TaskManagerMasterId=tm.Id AND ab.AuthorizationType='CreatedBy'
-        //                  LEFT OUTER JOIN TaskAudit AS ATO ON ATO.TaskManagerMasterId=tm.Id AND ATO.AuthorizationType='AssignTo'
-
-        //                  LEFT OUTER JOIN EmployeeInformation AS EAB ON eab.SystemId=ab.ResponsiblePersonId
-        //                  LEFT OUTER JOIN EmployeeInformation AS EATO ON EATO.SystemId=ATO.ResponsiblePersonId
-
-        //                  LEFT OUTER JOIN org.Department AS DTO ON dto.Id=eato.DepartmentId
-
-        //                  LEFT OUTER JOIN hkp.TaskCategory AS tc ON tm.TaskCategoryId=tc.Id
-        //                  LEFT OUTER JOIN hkp.TaskSubCategory AS tsc ON tsc.Id=tm.TaskSubCategoryId
-
-        //where isnull(DTO.Id,'') IN (" + FilteredData["DepartmentId"] + @") AND
-        //isnull(ATO.ResponsiblePersonId,'') IN (" + FilteredData["AssignToId"] + @") AND
-        //isnull(AB.ResponsiblePersonId,'') IN (" + FilteredData["AssignById"] + @") AND
-        //isnull(TC.Id,'') IN (" + FilteredData["TaskCategoryId"] + @") AND
-        //                  isnull(AB.DueDate,'') IN (" + FilteredData["DueDate"] + @") "+ taskTypeWC + @" AND
-        //isnull(TSC.Id,'') IN (" + FilteredData["TaskSubCategoryId"] + @") "+taskTypeGroupBy+@") dd "+taskTypeGroupByExtra+"";
-
-
-        //      return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-        //  }
-
+       
         [HttpPost, Authorize]
         public ActionResult GetTaskStatistics(string fromDate, string ToDate, string TaskTypeGroup)
         {
@@ -463,8 +413,9 @@ SELECT MIN(DueDate) FromDate,format(getdate(),'dd-MMM-yyyy') AS ToDate  from tas
 
                         LEFT OUTER JOIN EmployeeInformation AS EAB ON eab.SystemId=ab.ResponsiblePersonId
                         LEFT OUTER JOIN EmployeeInformation AS EATO ON EATO.SystemId=ATO.ResponsiblePersonId
-
-                        LEFT OUTER JOIN org.Department AS DTO ON dto.Id=eato.DepartmentId
+                        LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EATO.BudgetCode
+						LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+                        LEFT OUTER JOIN org.Department AS DTO ON dto.Id=p.DepartmentId
 
                         LEFT OUTER JOIN hkp.TaskCategory AS tc ON tm.TaskCategoryId=tc.Id
                         LEFT OUTER JOIN hkp.TaskSubCategory AS tsc ON tsc.Id=tm.TaskSubCategoryId
@@ -487,7 +438,7 @@ SELECT MIN(DueDate) FromDate,format(getdate(),'dd-MMM-yyyy') AS ToDate  from tas
         {
             string sql = @"
                         SELECT* FROM(SELECT distinct
-                        eato.DepartmentId, ATO.ResponsiblePersonId AS AssignToId, AB.ResponsiblePersonId AS AssignById,
+                        p.DepartmentId, ATO.ResponsiblePersonId AS AssignToId, AB.ResponsiblePersonId AS AssignById,
                         isnull(tm.TaskCategoryId,'')TaskCategoryId,isnull(tm.TaskSubCategoryId, '')AS TaskSubCategoryId,
 
                          isnull(DTO.UserName, '') AS Department, isnull(EATO.EmployeeName, '') AS AssignToEmployeeName, isnull(EAB.EmployeeName, '') AS AssignByEmployeeName,
@@ -499,8 +450,9 @@ SELECT MIN(DueDate) FromDate,format(getdate(),'dd-MMM-yyyy') AS ToDate  from tas
 
                         LEFT OUTER JOIN EmployeeInformation AS EAB ON eab.SystemId = ab.ResponsiblePersonId
                         LEFT OUTER JOIN EmployeeInformation AS EATO ON EATO.SystemId = ATO.ResponsiblePersonId
-
-                        LEFT OUTER JOIN org.Department AS DTO ON dto.Id = eato.DepartmentId
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EATO.BudgetCode
+						LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+                        LEFT OUTER JOIN org.Department AS DTO ON dto.Id = p.DepartmentId
 
                         LEFT OUTER JOIN hkp.TaskCategory AS tc ON tm.TaskCategoryId = tc.Id
                         LEFT OUTER JOIN hkp.TaskSubCategory AS tsc ON tsc.Id = tm.TaskSubCategoryId
@@ -526,41 +478,43 @@ FORMAT(ISNULL(ATO.RevisedCommitmentDate,ATO.CommitmentDate),'dd-MMM-yyyy') AS  C
 								LEFT OUTER JOIN TaskAudit AS AB ON ab.TaskManagerMasterId=tm.Id AND ab.AuthorizationType='CreatedBy'
 								LEFT OUTER JOIN TaskAudit AS ATO ON ATO.TaskManagerMasterId=tm.Id AND ATO.AuthorizationType='AssignTo'
 								LEFT OUTER JOIN EmployeeInformation AS EATO ON EATO.SystemId=ATO.ResponsiblePersonId
-								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=eato.DepartmentId";
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EATO.BudgetCode
+						LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=p.DepartmentId";
 
 
             if (typeflag == "TotalCreated")
             {
                 MainSql += @" WHERE convert(date,tm.AddedDate) BETWEEN  '" + fromDate + @"' and '" + ToDate + @"'
-										AND isnull(eato.DepartmentId,'')='" + Row["DepartmentId"].ToString() + @"' AND isnull(ATO.ResponsiblePersonId,'')='" + Row["AssignToId"].ToString() + @"' and isnull(AB.ResponsiblePersonId,'')='" + Row["AssignById"].ToString() + @"'
+										AND isnull(p.DepartmentId,'')='" + Row["DepartmentId"].ToString() + @"' AND isnull(ATO.ResponsiblePersonId,'')='" + Row["AssignToId"].ToString() + @"' and isnull(AB.ResponsiblePersonId,'')='" + Row["AssignById"].ToString() + @"'
 										and isnull(tm.TaskCategoryId,'')='" + Row["TaskCategoryId"].ToString() + @"' and isnull(tm.TaskSubCategoryId,'')='" + Row["TaskSubCategoryId"].ToString() + @"'
 										";
             }
             if (typeflag == "TaskToClose")
             {
                 MainSql += @" WHERE convert(date,tm.AddedDate) BETWEEN  '" + fromDate + @"' and '" + ToDate + @"' AND TM.CurrentStatus='ToClose'
-										AND isnull(eato.DepartmentId,'')='" + Row["DepartmentId"].ToString() + @"' AND isnull(ATO.ResponsiblePersonId,'')='" + Row["AssignToId"].ToString() + @"' and isnull(AB.ResponsiblePersonId,'')='" + Row["AssignById"].ToString() + @"'
+										AND isnull(p.DepartmentId,'')='" + Row["DepartmentId"].ToString() + @"' AND isnull(ATO.ResponsiblePersonId,'')='" + Row["AssignToId"].ToString() + @"' and isnull(AB.ResponsiblePersonId,'')='" + Row["AssignById"].ToString() + @"'
 										and isnull(tm.TaskCategoryId,'')='" + Row["TaskCategoryId"].ToString() + @"' and isnull(tm.TaskSubCategoryId,'')='" + Row["TaskSubCategoryId"].ToString() + @"'
 										";
             }
             if (typeflag == "TotalOverDueUnread")
             {
                 MainSql += @" WHERE convert(date,ATO.DueDate) BETWEEN  '" + fromDate + @"' and '" + ToDate + @"' AND convert(date,ATO.DueDate)<convert(date,'" + Today + @"') AND isnull(tm.CurrentStatus,'')<>'Closed' AND isnull(ATO.isRead,0)=0
-										AND isnull(eato.DepartmentId,'')='" + Row["DepartmentId"].ToString() + @"' AND isnull(ATO.ResponsiblePersonId,'')='" + Row["AssignToId"].ToString() + @"' and isnull(AB.ResponsiblePersonId,'')='" + Row["AssignById"].ToString() + @"'
+										AND isnull(p.DepartmentId,'')='" + Row["DepartmentId"].ToString() + @"' AND isnull(ATO.ResponsiblePersonId,'')='" + Row["AssignToId"].ToString() + @"' and isnull(AB.ResponsiblePersonId,'')='" + Row["AssignById"].ToString() + @"'
 										and isnull(tm.TaskCategoryId,'')='" + Row["TaskCategoryId"].ToString() + @"' and isnull(tm.TaskSubCategoryId,'')='" + Row["TaskSubCategoryId"].ToString() + @"'
 										";
             }
             if (typeflag == "TotalOverDueRead")
             {
                 MainSql += @" WHERE convert(date,ATO.DueDate) BETWEEN  '" + fromDate + @"' and '" + ToDate + @"' AND convert(date,ATO.DueDate)<convert(date,'" + Today + @"') AND tm.CurrentStatus<>'Closed' AND isnull(ATO.isRead,0)=1
-										AND isnull(eato.DepartmentId,'')='" + Row["DepartmentId"].ToString() + @"' AND isnull(ATO.ResponsiblePersonId,'')='" + Row["AssignToId"].ToString() + @"' and isnull(AB.ResponsiblePersonId,'')='" + Row["AssignById"].ToString() + @"'
+										AND isnull(p.DepartmentId,'')='" + Row["DepartmentId"].ToString() + @"' AND isnull(ATO.ResponsiblePersonId,'')='" + Row["AssignToId"].ToString() + @"' and isnull(AB.ResponsiblePersonId,'')='" + Row["AssignById"].ToString() + @"'
 										and isnull(tm.TaskCategoryId,'')='" + Row["TaskCategoryId"].ToString() + @"' and isnull(tm.TaskSubCategoryId,'')='" + Row["TaskSubCategoryId"].ToString() + @"'
 										";
             }
             if (typeflag == "TodayTask")
             {
                 MainSql += @" WHERE convert(date,ATO.DueDate) BETWEEN  '" + Today + @"' and '" + Today + @"' AND tm.CurrentStatus<>'Closed'
-										AND isnull(eato.DepartmentId,'')='" + Row["DepartmentId"].ToString() + @"' AND isnull(ATO.ResponsiblePersonId,'')='" + Row["AssignToId"].ToString() + @"' and isnull(AB.ResponsiblePersonId,'')='" + Row["AssignById"].ToString() + @"'
+										AND isnull(p.DepartmentId,'')='" + Row["DepartmentId"].ToString() + @"' AND isnull(ATO.ResponsiblePersonId,'')='" + Row["AssignToId"].ToString() + @"' and isnull(AB.ResponsiblePersonId,'')='" + Row["AssignById"].ToString() + @"'
 										and isnull(tm.TaskCategoryId,'')='" + Row["TaskCategoryId"].ToString() + @"' and isnull(tm.TaskSubCategoryId,'')='" + Row["TaskSubCategoryId"].ToString() + @"'
 										";
             }
@@ -591,7 +545,9 @@ FORMAT(ISNULL(ATO.RevisedCommitmentDate,ATO.CommitmentDate),'dd-MMM-yyyy') AS  C
 								LEFT OUTER JOIN (Select distinct TaskManagerMasterId,ResponsiblePersonId,RevisedCommitmentDate,CommitmentDate,DueDate,isRead from TaskAudit Where AuthorizationType='AssignTo') AS ATO ON ATO.TaskManagerMasterId=tm.Id 
 								LEFT OUTER JOIN EmployeeInformation AS EATO ON EATO.SystemId=ATO.ResponsiblePersonId
 								LEFT OUTER JOIN EmployeeInformation AS EABY ON EABY.SystemId=AB.ResponsiblePersonId
-								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=eato.DepartmentId
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EATO.BudgetCode
+						LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
+								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=p.DepartmentId
                                 LEFT OUTER JOIN hkp.TaskCategory AS tc ON tm.TaskCategoryId = tc.Id
                                 LEFT OUTER JOIN hkp.TaskSubCategory AS tsc ON tsc.Id = tm.TaskSubCategoryId
                                 LEFT OUTER JOIN IssueTransaction IT ON it.Id=tm.IssueTransactionId

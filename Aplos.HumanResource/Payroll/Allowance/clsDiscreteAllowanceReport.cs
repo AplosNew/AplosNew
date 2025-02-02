@@ -269,17 +269,20 @@ namespace Library.HumanResource.Payroll.Allowance
                                 ,SB.UserName SubSection,
                                 ec.UserName EmployeeCategory
                                 from EmployeeInformation e
+ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
                                 left join HKP.LegalDesignation l on l.Id = e.LegalDesignationId
-                                LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                                LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                                LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
-                                LEFT JOIN ORG.Section S ON E.SectionID = S.Id
-                                LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
+                                LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                                LEFT JOIN ORG.Division Dv ON PR.DivisionID = Dv.Id
+                                LEFT JOIN ORG.Department Dp ON PR.DepartmentID = Dp.Id
+                                LEFT JOIN ORG.Section S ON PR.SectionID = S.Id
+                                LEFT JOIN ORG.SubSection SB ON PR.SubSectionID = SB.Id
                                 left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=e.LegalDesignationId
                                 left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
                                 left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                                 where e.SystemId in ( select distinct EmpSystemID from AttdnProcessData a where
-                                a.WorkDate between '"+FromDate+@"' and '"+Todate+@"'
+                                a.WorkDate between '" + FromDate+@"' and '"+Todate+@"'
                                 and a.ShiftSystemID in  ("+ sft +@")
                                 and e.PlantId = '"+PlantId+@"'
                                 and e.SystemID in

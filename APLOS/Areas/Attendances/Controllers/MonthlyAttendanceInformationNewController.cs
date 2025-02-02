@@ -263,20 +263,7 @@ namespace Aplos.Areas.Attendances.Controllers
 									,ISNULL(e.PaymentMode,'') PaymentMode
 									,ISNULL(bb.UserName,'') BankName
 
-                                    FROM EmployeeInformation e
-                                  
-                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
-									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
-                                    
-
-                                    LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
-									,dg.UserName GivenDesignationGroup--,srm.SalaryRuleName
-									FROM mst.DesignationMaster dm
-									LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
-		                          
-									) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
-									AND egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
+                                    FROM EmployeeInformation e                                   
                                     LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
 									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
                                     LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
@@ -396,8 +383,7 @@ namespace Aplos.Areas.Attendances.Controllers
 									,ISNULL(bb.UserName,'') BankName
 
                                     FROM EmployeeInformation e
-                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
+                                   
 									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
                                     
 

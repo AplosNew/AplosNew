@@ -48,18 +48,18 @@ namespace Aplos.Areas.Productions.Controllers
         public ActionResult GetEmployee()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select distinct EI.SystemId,EI.EmployeeName, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+            string str = @"select distinct EI.SystemId,EI.EmployeeName, mb.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     ,EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection  from 
 TRN.QualityControlDetails QCD
 left join dbo.EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
-LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+							LEFT OUTER JOIN org.Position P ON P.Id=MB.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
 where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status='Close' and QCD.ResponsiblePersonId is not null";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -68,17 +68,17 @@ where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status=
         public ActionResult GetActionBy()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"SELECT EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+            string str = @"SELECT EI.SystemId as SystemId, mb.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
                             FROM dbo.EmployeeInformation AS EI
-                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+							LEFT OUTER JOIN org.Position P ON P.Id=MB.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
                             WHERE EI.EmployeeStatus='Active' and EI.EmployeeCode is not null";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
@@ -161,76 +161,7 @@ where QAT.ParameterId='" + ParameterId + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        //[HttpPost]
-        //public JsonResult createActionTaken(Dictionary<string, object> ActionTakenData, string Pid)
-        //{
-        //    try
-        //    {
-
-        //        ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-        //        conRack.OpenDataSetThroughAdapter("select * from [TRN].[QualityActionTakenUpdate] where ReasonId='" + ActionTakenData["ReasonId"] + "' and ParameterId='" + Pid + "'", out DataSet dsQualityActionTakenUpdateReasonValidation, false, "1");
-
-        //        DataSet dsQualityActionTakenUpdate;
-
-        //        conRack = new ConnectionManager.DAL.ConManager("1");
-        //        conRack.OpenDataSetThroughAdapter("select * from [TRN].[QualityActionTakenUpdate] where Id='" + ActionTakenData["Id"] + "'", out dsQualityActionTakenUpdate, false, "1");
-        //        string _Id = "";
-
-        //        #region data update
-        //        if (ActionTakenData["SNO"] == null)
-        //        {
-        //            throw new Exception("SNO is required");
-        //        }
-        //        else
-        //        {
-        //            if (ActionTakenData["ReasonId"] == null)
-        //            {
-        //                throw new Exception("Reason is required");
-        //            }
-        //            else
-        //            {
-        //                if (dsQualityActionTakenUpdate.Tables[0].Rows.Count == 0)
-        //                {
-        //                    if (dsQualityActionTakenUpdateReasonValidation.Tables[0].Rows.Count > 0)
-        //                    {
-        //                        throw new Exception("Reason Name Already Exist.");
-        //                    }
-        //                    else
-        //                    {
-        //                        bplib.clsGenID genid = new bplib.clsGenID();
-        //                        genid.GenID("QualityActionTakenUpdate", out _Id);
-        //                        _Id = "QAT" + _Id;
-        //                        ActionTakenData["Id"] = _Id;
-        //                        ActionTakenData["ParameterId"] = Pid;
-        //                        AddNewRow(dsQualityActionTakenUpdate.Tables[0], ActionTakenData);
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    _Id = ActionTakenData["Id"].ToString();
-        //                    ActionTakenData["ParameterId"] = Pid;
-        //                    EditRow(dsQualityActionTakenUpdate.Tables[0].Rows[0], ActionTakenData);
-        //                }
-        //            }
-        //        }
-        //        #endregion data update
-
-
-
-        //        clsStaticInfo _info = new clsStaticInfo();
-        //        _info.SaveDataSets(dsQualityActionTakenUpdate);
-
-        //        return Json(new { Error = false, Data = ActionTakenData, Message = AplosMessage.Insert });
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        return Json(new { Error = true, Message = ex.Message });
-
-        //    }
-        //}
-
+        
         [HttpPost]
         public ActionResult createActionTaken(List<Dictionary<string, object>> DataList, string PId, string Status, string ConfirmationRemarks)
         {

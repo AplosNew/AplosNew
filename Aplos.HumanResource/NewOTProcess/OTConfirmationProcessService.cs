@@ -93,13 +93,14 @@ namespace Library.HumanResource.NewOTProcess
                             from AttdnProcessData a left join employeeinformation e on a.EmpSystemID=e.SystemId
                             left join org.Plant p on p.Id=e.PlantId     
                             left join mst.ManpowerBudget mb on mb.id=e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 							left join org.Entity ent on ent.id=mb.EntityId                            
                             left join DayStatusHeader dh on dh.Id=a.DayStatusHeaderId
                             left join DayTypeWithValues dt on dt.HeaderId=dh.Id
-                            left join org.Section s on s.Id=e.SectionId
-                            left join ORG.SubSection ss on ss.Id=e.SubSectionId
+                            left join org.Section s on s.Id=PR.SectionId
+                            left join ORG.SubSection ss on ss.Id=PR.SubSectionId
                             left join hkp.LegalDesignation l on l.Id=e.LegalDesignationId
-                            left join org.Department d on d.Id=e.DepartmentId
+                            left join org.Department d on d.Id=PR.DepartmentId
                             left join PreallocatedOT pot on (pot.PlantID=e.PlantId and pot.WorkDate between '" + FromDate+@"'
                             and '"+ToDate+@"') and ISNULL(ExtendTheDayLimit,'')! =''
                             where  a.IsOTEntitled=1
@@ -627,13 +628,14 @@ namespace Library.HumanResource.NewOTProcess
                             from AttdnProcessData a left join employeeinformation e on a.EmpSystemID=e.SystemId
                             left join org.Plant p on p.Id=e.PlantId
                             left join mst.ManpowerBudget mb on mb.id=e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 							left join org.Entity ent on ent.id=mb.EntityId                            
                             left join DayStatusHeader dh on dh.Id=a.DayStatusHeaderId
                             left join DayTypeWithValues dt on dt.HeaderId=dh.Id
-                            left join org.Section s on s.Id=e.SectionId
-                            left join ORG.SubSection ss on ss.Id=e.SubSectionId
+                            left join org.Section s on s.Id=PR.SectionId
+                            left join ORG.SubSection ss on ss.Id=PR.SubSectionId
                             left join hkp.LegalDesignation l on l.Id=e.LegalDesignationId
-                            left join org.Department d on d.Id=e.DepartmentId
+                            left join org.Department d on d.Id=PR.DepartmentId
                             left join PreallocatedOT pot on (pot.PlantID=e.PlantId and pot.WorkDate between '" + FromDate + @"'
                             and '" + ToDate + @"') and ISNULL(ExtendTheDayLimit,'')! =''
                             where  a.IsOTEntitled=1
@@ -706,13 +708,14 @@ namespace Library.HumanResource.NewOTProcess
                             from AttdnProcessData a left join employeeinformation e on a.EmpSystemID=e.SystemId
                             left join org.Plant p on p.Id=e.PlantId
                             left join mst.ManpowerBudget mb on mb.id=e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 							left join org.Entity ent on ent.id=mb.EntityId
                             left join DayStatusHeader dh on dh.Id=a.DayStatusHeaderId
                             left join DayTypeWithValues dt on dt.HeaderId=dh.Id
-                            left join org.Section s on s.Id=e.SectionId
-                            left join ORG.SubSection ss on ss.Id=e.SubSectionId
+                            left join org.Section s on s.Id=PR.SectionId
+                            left join ORG.SubSection ss on ss.Id=PR.SubSectionId
                             left join hkp.LegalDesignation l on l.Id=e.LegalDesignationId
-                            left join org.Department d on d.Id=e.DepartmentId
+                            left join org.Department d on d.Id=PR.DepartmentId
                             left join PreallocatedOT pot on (pot.PlantID=e.PlantId and pot.WorkDate between '" + FromDate + @"'
                             and '" + ToDate + @"') and ISNULL(ExtendTheDayLimit,'')! =''
                             where  a.IsOTEntitled=1
@@ -780,10 +783,10 @@ namespace Library.HumanResource.NewOTProcess
                          LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                          LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
                          LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
-                         LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId	
+                         LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId	
                          LEFT JOIN MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
 						 LEFT JOIN HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
-                         LEFT JOIN ORG.Section S ON S.Id=EI.SectionId                         
+                         LEFT JOIN ORG.Section S ON S.Id=PR.SectionId                         
 						 LEFT JOIN dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate='" + workDate + @"'
                          LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=APD.ShiftSystemID
                          WHERE EI.PlantId='" + plantId+ @"' AND ISNULL(APD.OverStay,0)<>0 AND EI.ExcludeOT=0 AND EI.SystemId NOT IN (Select EmployeeId from dbo.ExceptionGoodWorkEmployee)
@@ -843,10 +846,10 @@ namespace Library.HumanResource.NewOTProcess
                          LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                          LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
                          LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
-                         LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId	
+                         LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId	
                          LEFT JOIN MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
 						 LEFT JOIN HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
-                         LEFT JOIN ORG.Section S ON S.Id=EI.SectionId                         
+                         LEFT JOIN ORG.Section S ON S.Id=PR.SectionId                         
 						 LEFT JOIN dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate='" + workDate + @"'
                          LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=APD.ShiftSystemID
                          WHERE EI.PlantId='" + plantId + @"' AND ISNULL(APD.OverStay,0)<>0 AND EI.ExcludeOT=0 AND EI.SystemId NOT IN (Select EmployeeId from dbo.ExceptionGoodWorkEmployee)

@@ -584,7 +584,7 @@ namespace Aplos.Areas.Products.Controllers
 				if (ReqStatus == "1")//Created List
 				{
 					sql = @"
-                        SELECT  GPM.[Id]
+                        SELECT top(500)   GPM.[Id]
                               ,GPM.[CompanyGroupId]
                               --,GPM.[CompanyId]
                               ,GPM.[PlantId]
@@ -653,12 +653,12 @@ namespace Aplos.Areas.Products.Controllers
                           LEFT JOIN Employeeinformation EI4 on EI4.SystemId= GPM.ReceiverSecurityEmployeeId
                           LEFT JOIN Employeeinformation EI5 on EI5.SystemId= GPM.CheckedBy
                           LEFT JOIN Employeeinformation EI6 on EI6.SystemId= GPM.ApprovedBy
-                          Where GPM.CheckedByStatus='ForChecked' AND GPM.GateRegisterType='"+ GateRegisterType + @"' Order By GPM.[Id] DESC";
+                          Where GPM.CheckedByStatus='ForChecked' AND GPM.GateRegisterType='" + GateRegisterType + @"'   Order By GPM.[GatePassEntryDate] DESC";
 				}
 				if (ReqStatus == "2")//Checked Hold/Reject
 				{
 					sql = @"
-                        SELECT  GPM.[Id]
+                         SELECT top(500)  GPM.[Id]
                               ,GPM.[CompanyGroupId]
                               --,GPM.[CompanyId]
                               ,GPM.[PlantId]
@@ -732,7 +732,7 @@ namespace Aplos.Areas.Products.Controllers
 				if (ReqStatus == "3")//Checked
 				{
 					sql = @"
-                        SELECT  GPM.[Id]
+                         SELECT top(500)  GPM.[Id]
                               ,GPM.[CompanyGroupId]
                               --,GPM.[CompanyId]
                               ,GPM.[PlantId]
@@ -2845,13 +2845,16 @@ namespace Aplos.Areas.Products.Controllers
 	                    ,Designation.UserName DesignationName
 	                    ,Designation.Id DesignationId
                     FROM Employeeinformation EI   
+left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                            left join org.Entity E on E.Id =MPB.EntityId
+							left join ORG.Position P on P.Id=MPB.PositionID
                     LEFT JOIN org.Plant Plant ON Plant.id=EI.PlantId
-                    LEFT JOIN org.Unit Unit ON Unit.id=EI.UnitId
-                    LEFT JOIN org.Division Division ON Division.id=EI.DivisionId
-                    LEFT JOIN org.Department Department ON Department.id=EI.DepartmentId
-                    LEFT JOIN Org.Section Section ON section.Id=EI.SectionId
-                    LEFT JOIN org.SubSection  SubSection ON SubSection.Id=Ei.SubSectionId
-                    LEFT JOIN org.Line line ON line.id=EI.LineId
+                    LEFT JOIN org.Unit Unit ON Unit.id=E.UnitId
+                    LEFT JOIN org.Division Division ON Division.id=P.DivisionId
+                    LEFT JOIN org.Department Department ON Department.id=P.DepartmentId
+                    LEFT JOIN Org.Section Section ON section.Id=p.SectionId
+                    LEFT JOIN org.SubSection  SubSection ON SubSection.Id=p.SubSectionId
+                    LEFT JOIN org.Line line ON line.id=MPB.LineId
                     Left JOIN hkp.LegalDesignation LegalDesignation ON LegalDesignation.Id=EI.LegalDesignationId
                     LEFT JOIN hkp.Designation Designation On Designation.Id=EI.GivenDesignationId
 						  where EI.SystemId='" + identity.EmployeeId + @"'";

@@ -51,12 +51,12 @@ namespace Aplos.Areas.Commercial.Controllers
 		#region Operation
 
 		[HttpGet, Authorize]
-		public ActionResult GetVendorAvailableInvoiceList(string FromDate,string ToDate,bool DateRange)
+		public ActionResult GetVendorAvailableInvoiceList(string FromDate,string ToDate,bool DateRange, string PartyId)
 		{
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var jsondata = Json(ep.VendorAvailableInvoiceList(identity.CompanyGroupId,identity.CompanyId, FromDate,ToDate,DateRange), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(ep.VendorAvailableInvoiceList(identity.CompanyGroupId,identity.CompanyId, FromDate,ToDate,DateRange, PartyId), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
             }

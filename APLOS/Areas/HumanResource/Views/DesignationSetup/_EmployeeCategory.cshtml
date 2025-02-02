@@ -180,13 +180,13 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-3 col-md-3">
                     <div class="select-style">
-                        <select ng-model="$root.parameters.searchBy">
+                        <select ng-model="searchBy">
                             <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
                         </select>
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getDataEC()">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getDataEC()">
                 </div>
                 <div class="col-xs-12 col-sm-2 col-md-2">
                     <button type="button" ng-click="getDataEC()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
@@ -196,28 +196,41 @@
     </div>
 </div>
 <div class="table-responsive modal-table aplos-grid-toggle">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Sequence</th>
-                <th>Code</th>
-                <th>Short Name</th>
-                <th>Standard Name</th>
-                <th>User Name</th>
-                <th>Active</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr dir-paginate="x in employeeCategories |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-click="GetEC($index);">
-                <td>{{x.Sequence}}</td>
-                <td>{{x.Code}}</td>
-                <td>{{x.ShortName}}</td>
-                <td>{{x.StandardName}}</td>
-                <td>{{x.UserName}}</td>
-                <td>{{x.Active?'Yes':'No'}}</td>
-            </tr>
-        </tbody>
-    </table>
+    @*<table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Sequence</th>
+                    <th>Code</th>
+                    <th>Short Name</th>
+                    <th>Standard Name</th>
+                    <th>User Name</th>
+                    <th>Active</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="x in employeeCategories |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-click="GetEC($index);">
+                    <td>{{x.Sequence}}</td>
+                    <td>{{x.Code}}</td>
+                    <td>{{x.ShortName}}</td>
+                    <td>{{x.StandardName}}</td>
+                    <td>{{x.UserName}}</td>
+                    <td>{{x.Active?'Yes':'No'}}</td>
+                </tr>
+            </tbody>
+        </table>*@
+    <div id="GridEC" ej-grid e-datasource="employeeCategories" e-recorddoubleclick="GetEC"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+            <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+            <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+        </div>
+    </div>
 </div>
 <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getDataEC(newPageNumber)"></dir-pagination-controls>
 <confirm-modal></confirm-modal>

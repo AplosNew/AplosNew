@@ -1,6 +1,7 @@
 ﻿using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.Model.Employees;
 using Library.Model.Setups;
 using Library.Service.Employees;
@@ -16,13 +17,16 @@ namespace Aplos.Areas.Employees.Controllers
 
         private readonly IEmployeeCategoryService _employeeCategoryService;
         private readonly ICompanyGroupEmployeeCategoryService _companyGroupEmployeeCategoryService;
+        private readonly ISqlRepository _sqlRepository;
 
         public EmployeeCategoryController(
             IEmployeeCategoryService employeeCategoryService,
             ICompanyGroupEmployeeCategoryService companyGroupEmployeeCategoryService
+            , ISqlRepository R
             )
         {
             _employeeCategoryService = employeeCategoryService;
+            _sqlRepository = R;
             _companyGroupEmployeeCategoryService = companyGroupEmployeeCategoryService;
         }
 
@@ -50,6 +54,19 @@ namespace Aplos.Areas.Employees.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_companyGroupEmployeeCategoryService.Query(parameters, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult GetECList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 1000 * from (SELECT * FROM HKP.EmployeeCategory) AS TEMP WHERE " + strkey + " order by sequence";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

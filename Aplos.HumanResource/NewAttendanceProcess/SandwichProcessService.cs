@@ -45,9 +45,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                 from attdnprocessdata a
                 left join EmployeeInformation e on e.SystemId=a.EmpSystemID
                 left join org.Plant p on p.Id=e.PlantId
-                left join org.Section s on s.Id=e.SectionId
-                LEFT JOIN ORG.Department DP ON DP.Id = E.DepartmentId
-                LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = E.SubSectionID
+                LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                left join org.Section s on s.Id=PR.SectionId
+                LEFT JOIN ORG.Department DP ON DP.Id = PR.DepartmentId
+                LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
                 left join hkp.LegalDesignation ld on ld.Id=e.LegalDesignationId
                 where a.PlantId='" + PlantId + "' and a.WorkDate between '" + date + @"' and '" + ToDate + @"' and
                 SandwichReprocess=1 order by EmpSystemID,Workdate,SandwichFlag asc";
@@ -79,9 +81,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                 from attdnprocessdata a
                 left join EmployeeInformation e on e.SystemId=a.EmpSystemID
                 left join org.Plant p on p.Id=e.PlantId
-                left join org.Section s on s.Id=e.SectionId
-                LEFT JOIN ORG.Department DP ON DP.Id = E.DepartmentId
-                LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = E.SubSectionID
+                LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                left join org.Section s on s.Id=PR.SectionId
+                LEFT JOIN ORG.Department DP ON DP.Id = PR.DepartmentId
+                LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
                 left join hkp.LegalDesignation ld on ld.Id=e.LegalDesignationId
                 where a.WorkDate between '" + date + @"' and '" + ToDate + @"' and
                 SandwichReprocess=1 order by EmpSystemID,Workdate,SandwichFlag asc";

@@ -11,9 +11,11 @@ using Library.Model.Enums;
 using Library.Service.Employees;
 using Library.Service.Enums;
 using Library.Service.Helpers;
+using Library.Service.HumanResources;
 using Library.Service.SalaryDisbursement;
 using Library.ViewModel.Vouchers;
 using OTSBD;
+using Syncfusion.DocIO.DLS;
 using Syncfusion.ExcelToPdfConverter;
 using Syncfusion.Pdf;
 using Syncfusion.XlsIO;
@@ -22,6 +24,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -35,10 +38,12 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         private readonly ISqlRepository _sqlRepository;
         private readonly ISalaryDisbursementService _salaryDisbursementService;
-        public FinalSettlementController(ISqlRepository sqlRepository, ISalaryDisbursementService salaryDisbursementService)
+        private readonly IAttendanceManagementService _AttendanceManagementService;
+        public FinalSettlementController(ISqlRepository sqlRepository, ISalaryDisbursementService salaryDisbursementService, IAttendanceManagementService AttendanceManagementService)
         {
             _sqlRepository = sqlRepository;
             _salaryDisbursementService = salaryDisbursementService;
+            _AttendanceManagementService = AttendanceManagementService;
         }
         #endregion
 
@@ -168,7 +173,7 @@ AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursemen
                          LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id 
                          LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
                          LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
-                         LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId	
+                         LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId	
                          WHERE EI.PlantId='" + identity.PlantId + @"'  ORDER BY  CONVERT(DATETIME,FS.FinalSettlementDate) DESC";
 
             var data = _sqlRepository.GetDataCollection(sql);
@@ -205,7 +210,7 @@ AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursemen
                          LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                          LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
                          LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
-                         LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId				
+                         LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId				
                               WHERE EI.SystemId IN (SELECT EmployeeId FROM TRN.Resignation WHERE ApprovalStatus='Approved' ) AND EI.SystemId NOT IN (SELECT EmpSystemId FROM EmployeeFinalSettlement ) AND
                                     EI.PlantId='" + identity.PlantId + @"' and isnull(DOSDate,'')<>'' ORDER BY  ei.DOS DESC";
 
@@ -260,8 +265,8 @@ LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
                          LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                          LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
                          LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
-                         LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
-                         LEFT JOIN HKP.DesignationGroup EDG ON  EDG.Id=EI.DesignationGroupId
+                         LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
+                         LEFT JOIN HKP.DesignationGroup EDG ON  EDG.Id=DM.DesignationGroupId
                               WHERE EI.SystemId IN (SELECT EmployeeId FROM TRN.Resignation WHERE ApprovalStatus='Approved' ) 
 							  AND EI.SystemId NOT IN (SELECT EmpSystemId FROM EmployeeFullAndFinalSettlement) AND
                                     EI.PlantId='" + identity.PlantId + @"' and isnull(DOSDate,'')<>'' 
@@ -1752,7 +1757,7 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
                                                  LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                                  LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
                                                  LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
-                                                 LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId				
+                                                 LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId				
                                                       WHERE EI.SystemId IN (SELECT EmpSystemId FROM [dbo].[EmployeeFinalSettlement] WHERE id='" + Id + @"') AND 
                                                             EI.PlantId='" + identity.PlantId + @"' ORDER BY CONVERT(INT, ei.EmployeeCode) ";
 
@@ -1832,8 +1837,10 @@ Where ISNULL(M.IsApproved,0)=0 AND M.ApproveById='" + identity.EmployeeId + "'";
             string sql = @"select E.*,EI.EmployeeCode,EI.EmployeeName,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy')DOS,LD.UserName LegalDesignation,D.UserName Department, EDG.UserName DesignationGroup,EC.UserName EmployeeCategory
 from EmployeeFullAndFinalSettlement  E
 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=E.EmpSystemId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 LEFT JOIN HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
-LEFT JOIN ORG.Department D ON D.Id=EI.DepartmentId
+LEFT JOIN ORG.Department D ON D.Id=PR.DepartmentId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN HKP.DesignationGroup EDG ON  EDG.Id=DM.DesignationGroupId
@@ -1848,8 +1855,10 @@ where FinalSettlementId='" + masterId + "'";
             string sql = @"select isSelected = Convert(bit, 'True'),E.*,EI.EmployeeCode,EI.EmployeeName,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy')DOS,LD.UserName LegalDesignation,D.UserName Department,ISNULL(EI.PaymentMode,'') PaymentMode
 from EmployeeFullAndFinalSettlement  E
 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=E.EmpSystemId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 LEFT JOIN HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
-LEFT JOIN ORG.Department D ON D.Id=EI.DepartmentId
+LEFT JOIN ORG.Department D ON D.Id=PR.DepartmentId
 where E.VoucherId IS NULL AND FinalSettlementId='" + masterId + "'";
             var data = _sqlRepository.GetDataCollection(sql);
 
@@ -2000,10 +2009,10 @@ WHERE E.EmployeeStatus='Active' AND A.ActionStatus='FullAndFinalApproveBy'";
 
 WHEN OL.UserName='AdvanceSalary' THEN CAST((
 			 cast((SELECT SUM(AD.Amount)-ISNULL((select SUM(Amount)WrittenOffAmount 
-from TRN.EmployeeSubsequentTransaction where SourceType in('EmployeeAdvanceWriteOff','SalaryPayable') AND  EmployeeId=AD.EmployeeId AND JournalType='Salary'),0) AS Balance
+from TRN.EmployeeSubsequentTransaction where SourceType in('EmployeeAdvanceWriteOff','SalaryPayable') AND  EmployeeId=AD.EmployeeId AND JournalType in('Salary','General')),0) AS Balance
 FROM TRN.EmployeeSubsequentTransaction AS AD
 LEFT JOIN TRN.Voucher V ON V.Id=AD.VoucherId
-WHERE    AD.EmployeeId<>''  AND AD.JournalType='Salary' AND V.IsPark=0
+WHERE    AD.EmployeeId<>''  AND AD.JournalType in('Salary','General') AND V.IsPark=0
 AND AD.SourceType in ('EmployeeAdvance', 'InterTransaction') AND AD.EmployeeId='" + empId + @"'
 GROUP BY AD.EmployeeId) AS decimal(18,0))) AS varchar(100))
 			
@@ -2094,7 +2103,7 @@ LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TRN].[Resignation] R ON R.EmployeeId=E.SystemId
 AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)
 LEFT JOIN(
-Select Balance=ISNULL((CONVERT(NUMERIC(10,0),CONVERT(NUMERIC(10,2),P.PayDays)/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+ISNULL(S.BroughtForward,0)-ISNULL(B.Availed,0)),0),C.NoticePeriod,E.SystemId
+Select Balance=ISNULL((CONVERT(NUMERIC(10,0),CONVERT(NUMERIC(10,2),ISNULL(P.PayDays,0))/CONVERT(NUMERIC(10,2),dp.EncashWorkingDaysQty))+ISNULL(S.BroughtForward,0)-ISNULL(B.Availed,0)),0),C.NoticePeriod,E.SystemId
 FROM EmployeeInformation E
  LEFT JOIN (SELECT SUM(ISNULL(TotalPresent,0) + ISNULL(TotalLate,0))PayDays, EmpSystemID
  FROM [dbo].[SalaryProceAttdnData] WHERE EmpSystemID='" + empId + @"' and YearNo='"+ year + @"' Group By EmpSystemID
@@ -3032,17 +3041,20 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
                 DataTable dtOrder = null;
 
                 string sql = @"SELECT EI.EmpSystemId,EM.EmployeeCode,EM.EmployeeName,FORMAT(EM.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EM.DOS,'dd-MMM-yyyy')DOS,FORMAT(R.ResignationDate,'dd-MMM-yyyy')ResignationDate,ESI.SandardName ItemName,EI.Value,EI.Remarks,ESI.EntryState 
-,EM.FatherName,DP.UserName Department,S.UserName Section,LD.UserName Designation,EI.AddedBy,AEM.EmployeeName ApproveBy,EM.PaymentMode,ApproveStatus=CASE WHEN  M.IsApproved=1 THEN 'Approved' ELSE 'Pending' END, M.IsApproved,EB.BankAccNo,B.UserName Bank,EB.IFSCCode
+,EM.FatherName,DP.UserName Department,S.UserName Section,LD.UserName Designation,EI.AddedBy,AEM.EmployeeName ApproveBy,EM.PaymentMode,ApproveStatus=CASE WHEN  M.IsApproved=1 THEN 'Approved' ELSE 'Pending' END, M.IsApproved,EB.BankAccNo,B.UserName Bank,EB.IFSCCode,C.UserName Company
 FROM dbo.EmployeeFullAndFinalSettlementItem  EI
 LEFT JOIN dbo.EmployeeSeperationItem ESI ON ESI.Id=EI.EmployeeSeperationItemId
 LEFT JOIN dbo.EmployeeInformation EM ON EM.SystemId=EI.EmpSystemId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EM.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 LEFT JOIN dbo.EmployeeBankInfo EB ON EB.EmpSystemID=EM.SystemId
 LEFT JOIN HKP.Bank B ON B.Id=EB.BankSystemID
-LEFT JOIN ORG.Department DP ON DP.Id=EM.DepartmentId
-LEFT JOIN ORG.Section S ON S.Id=EM.SectionId
+LEFT JOIN ORG.Department DP ON DP.Id=PR.DepartmentId
+LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
 LEFT JOIN HKP.LegalDesignation LD ON LD.Id=EM.LegalDesignationId
 LEFT JOIN EmployeeFullAndFinalSettlementMaster M ON M.Id=EI.FinalSettlementId
 LEFT JOIN dbo.EmployeeInformation AEM ON AEM.SystemId=M.ApproveById
+LEFT JOIN ORG.Company C ON C.Id=AEM.CompanyId
 LEFT JOIN [TRN].[Resignation] R ON R.EmployeeId=EM.SystemId
 AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)
 Where EI.EmpSystemId='" + empId + @"' AND ESI.IsReportItem=1
@@ -3163,7 +3175,11 @@ Order By ESI.Sequence";
                 edCRow++;
                 string inWord = reportUtility.InWord(NetPayable, null);
                 ROW = edCRow; COL = 1;
-                sheet.Range[ROW, COL, ROW, COL + 2].Text = "I have received a sum of Rs. " + NetPayable + ", Rupees. " + inWord + " towards full and final settlement of all my dues from Cedaar Textile Pvt Ltd. and have no other";
+                sheet.Range[ROW, COL, ROW, COL + 2].Text = "I have received a sum of Rs. " + NetPayable + ", Rupees. " + inWord + " towards full and final settlement of all my dues ";
+                sheet.Range[ROW, COL, ROW, COL + 2].Merge();
+                ROW++;
+
+                sheet.Range[ROW, COL, ROW, COL + 2].Text = "from " + dtOrder.Rows[0]["Company"].ToString() + " and have no other";
                 sheet.Range[ROW, COL, ROW, COL + 2].Merge();
                 ROW++;
 
@@ -3244,9 +3260,11 @@ Order By ESI.Sequence";
 from dbo.EmployeeFullAndFinalSettlementMaster M
 LEFT JOIN dbo.EmployeeFullAndFinalSettlement E ON E.FinalSettlementId=M.Id
 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=E.EmpSystemId
-LEFT JOIN ORG.Department DP ON DP.Id=EI.DepartmentId
-LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-LEFT JOIN ORG.SubSection SS ON S.Id=EI.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+LEFT JOIN ORG.Department DP ON DP.Id=PR.DepartmentId
+LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+LEFT JOIN ORG.SubSection SS ON S.Id=PR.SubSectionId
 LEFT JOIN HKP.LegalDesignation LD ON LD.ID=EI.LegalDesignationId
 LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=M.ApproveById
 LEFT JOIN trn.Voucher V ON V.Id=E.VoucherId
@@ -3389,6 +3407,26 @@ where M.AddedDate between '" + fromDate+@"' AND '"+toDate+"'";
                 throw ex;
             }
         }
+
+        [HttpGet]
+        public ActionResult EmployeeSattlementReport(string empSystemId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                _AttendanceManagementService.EmployeeSattlementReport(empSystemId,identity.PlantId);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            return View();
+        }
+
+       
+
         #endregion
 
     }

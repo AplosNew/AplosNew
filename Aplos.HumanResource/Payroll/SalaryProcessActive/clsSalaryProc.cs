@@ -2208,22 +2208,11 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                //       strSQL = @"SELECT DISTINCT E.SystemID EmpSystemID, E.EmployeeCode, E.EmployeeName, E.PlantID, P.UserName PlantName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106),' ','-') DOJ, 
-                //                         REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS, E.EmployeeStatus,
-                //                         E.DesignationGroupID, E.SalaryRuleMasterSystemID, E.GivenDesignationId,isnull(e.PaymentMode,'Cash') PaymentMode
-                // --BankAccountStatus = CASE WHEN EBI.BankSystemID IS NOT NULL THEN 'Bank Payment' ELSE 'Cash Payment' END
-                //                        ,BankAccountStatus=isnull(e.PaymentMode,'Bank')
-                // --,BankAccountStatus = CASE WHEN EBI.BankSystemID IS NOT NULL THEN 'Bank Payment' ELSE 'Cash Payment' END
-
-                //                  FROM EmployeeInformation E
-                //                           LEFT JOIN org.Plant P ON E.PlantID = P.ID
-                //LEFT OUTER JOIN EmployeeBankInfo EBI ON E.SystemID = EBI.EmpSystemID AND EBI.IsApproved = 1
-                //                  WHERE SystemID IN (" + sEmpInfo + @")";
+               
                 strSQL = @"SELECT DISTINCT E.SystemID EmpSystemID, E.EmployeeCode, E.EmployeeName, E.PlantID, P.UserName PlantName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106),' ','-') DOJ, 
                                   REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS,
 								  --DOS=case when isnull(x.EmpSystemID,'')<>'' then format(FromDate,'dd-MMM-yyyy') else format(dos,'dd-MMM-yyyy') end,
-								   E.EmployeeStatus,
-                                  E.DesignationGroupID, E.SalaryRuleMasterSystemID, E.GivenDesignationId,isnull(e.PaymentMode,'Cash') PaymentMode
+								   E.EmployeeStatus, E.SalaryRuleMasterSystemID, E.GivenDesignationId,isnull(e.PaymentMode,'Cash') PaymentMode
 								  --BankAccountStatus = CASE WHEN EBI.BankSystemID IS NOT NULL THEN 'Bank Payment' ELSE 'Cash Payment' END
                                  ,BankAccountStatus=isnull(e.PaymentMode,'Bank')
 								 ,x.EmpSystemID mlvempid,format(x.FromDate,'dd-MMM-yyyy') FromDate

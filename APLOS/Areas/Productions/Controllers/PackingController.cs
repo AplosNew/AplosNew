@@ -282,7 +282,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IWorkbook workbook = PackingListPDFReport(packingId);
-                var reportFileName = DateTime.Now.ToString("yyMMdd") + " PackingList";
+                var reportFileName = packingId + " PackingList";
 
                 switch (reportFormat)
                 {
@@ -318,7 +318,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IWorkbook workbook = PackingListPDFReport(packingId);
-                var reportFileName = DateTime.Now.ToString("yyMMdd") + " PackingList";
+                var reportFileName = packingId + " PackingList";
 
                 switch (reportFormat)
                 {
@@ -634,7 +634,7 @@ namespace Aplos.Areas.Productions.Controllers
                 //Closes the instance of document objects
 
                 //Saves the PDF file 
-                string Prefix = "PackingListReport" + plantId;
+                string Prefix = "PackingListReport-" + PackingId;
 
                 pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
                 //Closes the instance of document objects

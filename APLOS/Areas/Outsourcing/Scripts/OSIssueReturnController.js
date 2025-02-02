@@ -1085,11 +1085,40 @@ function OSIssueReturnController(  cboService, commonMessage, $scope, $rootScope
 		angular.element(document.querySelector('#MaterialArticlePopUp')).modal('hide');
 	};
 
+
+	// #endregion Material by material type
+	$scope.searchByMaterial = "MaterialMasterName"; $scope.search = "";
+	$scope.searchByMaterialList = [{ value: 'MaterialMasterName', name: "Material" }, { value: 'StandardName', name: "Article" }, { value: 'MaterialTypeName', name: "MaterialType" }
+		, { value: 'MaterialGroupMasterName', name: "MaterialGroup" }, { value: 'HSNCode', name: "HSNCode" }, { value: 'BusinessProcessName', name: "Business Process" }];
+
+	$scope.materialArticleList = [];
+	$scope.InputMaterialArticlelistData = {};
+	$scope.getNewMaterialMasterWithArticle = function (data) {
+		$http({
+			method: 'POST',
+			url: 'Materials/MaterialMasterArticle/GetMaterialMasterWithArticlePopUpData?type=' + $scope.materialType,
+			data: { column: $scope.searchByMaterial, value: $scope.search },
+			dataType: 'JSON',
+		}).then(function successCallback(response) {
+			$scope.materialArticleList = response.data;
+		});
+		$scope.InputMaterialArticlelistData = data;
+		angular.element(document.querySelector('#materialarticleNewPopUp')).modal('show');
+
+	};
+	$scope.getMaterialMasterWithArticleBySearch = function () {
+		$scope.getMaterialMasterWithArticle($scope.InputMaterialArticlelistData);
+	}
+	$scope.closeMaterialMasterWithArticle = function () {
+		angular.element(document.querySelector('#materialarticleNewPopUp')).modal('show');
+	}
+
 	$scope.setInputeMaterialArticleData = function (obj) {
 		var data = obj.data;
 		$scope.InputMaterialArticlelistData.ArticleId = data.Id;
 		$scope.InputMaterialArticlelistData.InputArticleCode = data.Code;
 		$scope.InputMaterialArticlelistData.Article = data.StandardName;
+		$scope.InputMaterialArticlelistData.MaterialType = data.MaterialTypeName;
 		$scope.InputMaterialArticlelistData.Material = data.MaterialMasterName;
 		$scope.InputMaterialArticlelistData.MaterialMasterId = data.MaterialMasterId;
 		var gridObj = $("#GridIssueTransformationChildTab").data("ejGrid");

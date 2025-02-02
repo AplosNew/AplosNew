@@ -3281,10 +3281,11 @@ ORDER BY T.TrnType DESC";
 					strkey = column + " like '%" + value + "%'";
 				var sql = @"select top 300 * from (SELECT  II.Id,II.DocRefNo,II.SalesReturnDate,S.ToCurrencyRate,V.CurrencyId,II.SalesReturnDate DocDate,II.VoucherId,V.VoucherNo,V.PostingDate,V.SourceType, P.UserName PartyName,
 								[Park/Post]=CASE WHEN V.IsPark=0 THEN 'Posted' ELSE 'Parked' END,
-                                IID.TransactionQty Qty,II.Narration,II.SalesId,II.AddedDate,ADN.Id AdditionalTaxId,ADN.VoucherId TDSTaxVoucherId
+                                IID.TransactionQty Qty,IID.TransactionAmount Amount,II.Narration,II.SalesId,II.AddedDate,ADN.Id AdditionalTaxId,ADN.VoucherId TDSTaxVoucherId
 								,VADN.VoucherNo TDSVoucherNo,IsTDSTaxPost=case when VADN.IsPark=0 then 'TDSPosted'  when VADN.IsPark=1 then 'TDSParked' ELSE '' END
+								,IsCreditNote=case when II.IsCreditNote=1 then 'True'  ELSE '' END
                                 FROM [TRN].[SalesReturn] AS II
-                                JOIN (SELECT SUM(TransactionQty) TransactionQty,SalesReturnId FROM TRN.SalesReturnDetail GROUP BY SalesReturnId) AS IID ON IID.SalesReturnId=II.Id
+                                JOIN (SELECT SUM(TransactionQty) TransactionQty,SUM(TransactionAmount+TaxAmount) TransactionAmount,SalesReturnId FROM TRN.SalesReturnDetail GROUP BY SalesReturnId) AS IID ON IID.SalesReturnId=II.Id
 								JOIN TRN.Sales S ON S.Id=II.SalesId
 								LEFT JOIN TRN.AdjustmentNote AN ON AN.SalesReturnId=II.Id
 								LEFT JOIN TRN.AdditionalTax ADN ON ADN.AdjustmentNoteId=AN.Id

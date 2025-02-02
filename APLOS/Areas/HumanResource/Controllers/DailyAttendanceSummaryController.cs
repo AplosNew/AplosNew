@@ -95,14 +95,16 @@ namespace Aplos.Areas.HumanResource.Controllers
 						    	FROM  ORG.CompanyGroup CG
 											LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
 											LEFT OUTER JOIN EmployeeInformation 
-											E ON e.GroupID = CG.Id and c.Id=E.CompanyId
-								   INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
+											E ON e.GroupID = CG.Id and c.Id=E.CompanyId                                   
+								   
                                    Left join MST.ManpowerBudget MB ON mb.Id = E.BudgetCode
+LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
 								   left join ORG.Line Line on Line.Id = Mb.LineId
                                  left join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
-                                 --left join [ORG].[SubSection] ss on ss.Id=e.SubSectionId 
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+                                 --left join [ORG].[SubSection] ss on ss.Id=PR.SubSectionId 
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId
@@ -141,17 +143,18 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 " + wc + @"
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								   INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+Left join MST.ManpowerBudget MB ON mb.Id = E.BudgetCode
+LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								   INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
 									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId		
-                                    Left join MST.ManpowerBudget MB ON mb.Id = E.BudgetCode
+                                    
 								   left join ORG.Line Line on Line.Id = Mb.LineId
                                   left join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
-                                  -- left join [ORG].[SubSection] ss on ss.Id=e.SubSectionId 
 									WHERE
 									   PlantId = '" + identity.PlantId + @"'  
 									GROUP BY C.UserName,cg.Id,c.Id,c.UserName,cg.UserName
@@ -190,17 +193,18 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 " + wc + @"
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+Left join MST.ManpowerBudget MB ON mb.Id = E.BudgetCode
+LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
 									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId				
-	                            Left join MST.ManpowerBudget MB ON mb.Id = E.BudgetCode
+	                            
 								   left join ORG.Line Line on Line.Id = Mb.LineId
                                         left join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
-                             -- left join [ORG].[SubSection] ss on ss.Id=e.SubSectionId 
 									WHERE
 									   PlantId = '" + identity.PlantId + @"'   
 									GROUP BY C.UserName,cg.Id,c.Id,c.UserName,cg.UserName,EmpC.Username,EmpC.Id
@@ -236,17 +240,17 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 " + wc + @"
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
 									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId		
-	                            Left join MST.ManpowerBudget MB ON mb.Id = E.BudgetCode
 								   left join ORG.Line Line on Line.Id = Mb.LineId
                                    left join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
-                                  -- left join [ORG].[SubSection] ss on ss.Id=e.SubSectionId 
 									WHERE
 									    PlantId = '" + identity.PlantId + @"'  
 									GROUP BY C.UserName,cg.Id,c.Id,c.UserName,cg.UserName,EmpC.Username,EmpC.Id
@@ -284,17 +288,17 @@ isnull(Line.UserName,'') Line ,isnull(Line.Id,'') LineId,isnull(e.GenderID,'')Ge
                                 " + wc + @"
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
 									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId				
-Left join MST.ManpowerBudget MB ON mb.Id = E.BudgetCode
 left join ORG.Line Line on Line.Id = Mb.LineId
  left join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
- -- left join [ORG].[SubSection] ss on ss.Id=e.SubSectionId 
 
 									WHERE
 									    PlantId = '" + identity.PlantId + @"'   
@@ -335,16 +339,17 @@ isnull(Line.UserName,'') Line ,isnull(Line.Id,'') LineId,isnull(e.GenderID,'')Ge
                                 " + wc + @"
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
 
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
 									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId	
 
-Left join MST.ManpowerBudget MB ON mb.Id = E.BudgetCode
   left join ORG.Line Line on Line.Id = Mb.LineId
  left join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
  ---left join [ORG].[SubSection] ss on ss.Id=e.SubSectionId  
@@ -392,14 +397,15 @@ AND OnRoleEmployee.LineId = LeaveEmployee.LineId AND OnRoleEmployee.GenderID = L
 								)--**                               
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 							LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
 									INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId	
-								Left join MST.ManpowerBudget MB ON mb.Id = E.BudgetCode
 								  left join ORG.Line Line on Line.Id = Mb.LineId
 								 left join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
 								 inner join AttdnProcessData apd on apd.EmpSystemID=e.SystemId								
@@ -471,9 +477,11 @@ AND OnRoleEmployee.LineId = LeaveEmployee.LineId AND OnRoleEmployee.GenderID = L
 											LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
 											LEFT OUTER JOIN EmployeeInformation 
 											E ON e.GroupID = CG.Id and c.Id=E.CompanyId
-								   INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								   INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 									--INNER JOIN [HKP].DesignationGroup DesGrp ON DesGrp.Id = DesM.DesignationGroupId
@@ -503,14 +511,16 @@ AND OnRoleEmployee.LineId = LeaveEmployee.LineId AND OnRoleEmployee.GenderID = L
 								WHERE SystemId IN (--**
 								SELECT DISTINCT EmpSystemID FROM AttdnProcessData  APD
 									LEFT JOIN DayType DT ON APD.DayStatus = DT.DayType
-									WHERE DT.Category = 'Present' AND  CONVERT(DATE,WorkDate) = CONVERT(DATE,'"+WorkDate+@"')
+									WHERE DT.Category = 'Present' AND  CONVERT(DATE,WorkDate) = CONVERT(DATE,'"+WorkDate+ @"')
 								)--**
                                 
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								   INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								   INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
@@ -518,7 +528,7 @@ AND OnRoleEmployee.LineId = LeaveEmployee.LineId AND OnRoleEmployee.GenderID = L
 									 inner join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
 
 									WHERE
-									   PlantId = '"+identity.PlantId+@"'  
+									   PlantId = '" + identity.PlantId+@"'  
 									GROUP BY C.UserName,cg.Id,c.Id,c.UserName,cg.UserName
 												,EmpC.Username,EmpC.Id
 												,Ld.UserName,Ld.Id,Sec.UserName,Sec.Id,SubSec.UserName ,SubSec.Id,Dept.UserName,Dept.Id 							
@@ -544,14 +554,16 @@ AND OnRoleEmployee.LineId = LeaveEmployee.LineId AND OnRoleEmployee.GenderID = L
 								WHERE SystemId IN (--**
 								SELECT DISTINCT EmpSystemID FROM AttdnProcessData  APD
 									LEFT JOIN DayType DT ON APD.DayStatus = DT.DayType
-									WHERE DT.Category = 'Absent' AND  CONVERT(DATE,WorkDate) = CONVERT(DATE,'"+WorkDate+@"')
+									WHERE DT.Category = 'Absent' AND  CONVERT(DATE,WorkDate) = CONVERT(DATE,'"+WorkDate+ @"')
 								)--**
                                 
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
@@ -559,7 +571,7 @@ AND OnRoleEmployee.LineId = LeaveEmployee.LineId AND OnRoleEmployee.GenderID = L
 									 inner join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
 
 									WHERE
-									   PlantId = '"+identity.PlantId+@"'   
+									   PlantId = '" + identity.PlantId+@"'   
 									GROUP BY C.UserName,cg.Id,c.Id,c.UserName,cg.UserName,EmpC.Username,EmpC.Id
 											,Ld.UserName,Ld.Id,Sec.UserName,SubSec.UserName ,SubSec.Id,Sec.Id,Dept.UserName,Dept.Id 
 									)
@@ -583,14 +595,16 @@ AND OnRoleEmployee.LineId = LeaveEmployee.LineId AND OnRoleEmployee.GenderID = L
 								WHERE SystemId IN (--**
 								SELECT DISTINCT EmpSystemID FROM AttdnProcessData  APD
 									LEFT JOIN DayType DT ON APD.DayStatus = DT.DayType
-									WHERE DT.Category = 'Late' AND  CONVERT(DATE,WorkDate) = CONVERT(DATE,'"+WorkDate+@"')
+									WHERE DT.Category = 'Late' AND  CONVERT(DATE,WorkDate) = CONVERT(DATE,'"+WorkDate+ @"')
 								)--**
                                 
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
@@ -598,7 +612,7 @@ AND OnRoleEmployee.LineId = LeaveEmployee.LineId AND OnRoleEmployee.GenderID = L
 									 inner join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
 
 									WHERE
-									    PlantId = '"+identity.PlantId+@"'  
+									    PlantId = '" + identity.PlantId+@"'  
 									GROUP BY C.UserName,cg.Id,c.Id,c.UserName,cg.UserName,EmpC.Username,EmpC.Id
 											,Ld.UserName,Ld.Id,Sec.UserName,SubSec.UserName ,SubSec.Id,Sec.Id,Dept.UserName,Dept.Id 
 									)
@@ -621,14 +635,16 @@ AND OnRoleEmployee.LineId = LeaveEmployee.LineId AND OnRoleEmployee.GenderID = L
 								WHERE SystemId IN (--**
 								SELECT DISTINCT EmpSystemID FROM AttdnProcessData  APD
 									LEFT JOIN DayType DT ON APD.DayStatus = DT.DayType
-									WHERE DT.Category IN('Holiday', 'Weekend') AND  CONVERT(DATE,WorkDate) = CONVERT(DATE,'"+WorkDate+@"')
+									WHERE DT.Category IN('Holiday', 'Weekend') AND  CONVERT(DATE,WorkDate) = CONVERT(DATE,'"+WorkDate+ @"')
 								)--**
                                 
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
@@ -636,7 +652,7 @@ AND OnRoleEmployee.LineId = LeaveEmployee.LineId AND OnRoleEmployee.GenderID = L
 									 inner join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
 
 									WHERE
-									    PlantId = '"+identity.PlantId+@"'   
+									    PlantId = '" + identity.PlantId+@"'   
 									GROUP BY C.UserName,cg.Id,c.Id,c.UserName,cg.UserName,EmpC.Username,EmpC.Id
 											,Ld.UserName,Ld.Id,Sec.UserName,Sec.Id,SubSec.UserName,SubSec.Id ,Dept.UserName,Dept.Id 	
 									)
@@ -666,10 +682,12 @@ AND OnRoleEmployee.LineId = LeaveEmployee.LineId AND OnRoleEmployee.GenderID = L
                                 
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
 
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
@@ -712,15 +730,17 @@ AND OnRoleEmployee.LineId = LeaveEmployee.LineId AND OnRoleEmployee.GenderID = L
 								WHERE SystemId IN (--**
 								SELECT DISTINCT EmpSystemID FROM AttdnProcessData  APD
 									LEFT JOIN DayType DT ON APD.DayStatus = DT.DayType
-									WHERE DT.Category = 'Leave' AND  CONVERT(DATE,WorkDate) = CONVERT(DATE,'" + WorkDate+@"')
+									WHERE DT.Category = 'Leave' AND  CONVERT(DATE,WorkDate) = CONVERT(DATE,'" + WorkDate+ @"')
 								)--**
                                 
 								)--*
 								E ON e.GroupID = CG.Id and c.Id = E.CompanyId
-								INNER JOIN  ORG.Department AS Dept ON Dept.Id = E.DepartmentId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+								INNER JOIN  ORG.Department AS Dept ON Dept.Id = PR.DepartmentId
 
-								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = E.SectionId
-								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = E.SubSectionId
+								   INNER JOIN  ORG.Section AS Sec ON SEC.Id = PR.SectionId
+								   INNER JOIN  ORG.SubSection AS SubSec ON SubSEC.Id = PR.SubSectionId
 									 	LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
 								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
@@ -728,7 +748,7 @@ AND OnRoleEmployee.LineId = LeaveEmployee.LineId AND OnRoleEmployee.GenderID = L
 									 inner join [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
 									  inner join AttdnProcessData apd on apd.EmpSystemID=e.SystemId								
 										  left join (select * from [dbo].[LeaveTransaction]
-										 where  ('"+WorkDate+@"' Between FromDate and ToDate ))LT on LT.EmpSystemID=e.SystemId and APD.LTSystemID=LT.LTSystemID 
+										 where  ('" + WorkDate+@"' Between FromDate and ToDate ))LT on LT.EmpSystemID=e.SystemId and APD.LTSystemID=LT.LTSystemID 
 										  left join [dbo].[LeaveType] lET on  lET.Id = APD.LTSystemId 
 
 									WHERE

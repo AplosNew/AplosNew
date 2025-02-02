@@ -648,6 +648,38 @@ namespace Library.OrderManagement.Costing
 
         }
 
+        public void DeleteProcessedRowItem(string costingBOQMasterId, string costingItemId)
+        {
+
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                DataSet dsExistingBOQ;
+                objCon.getDataSet("select * from TRN.POBOQMAP  WHERE BOQDetailId in (select Id from  BOQ where CostingItemId='"+ costingItemId + "' and CostingBOQMasterId='"+ costingBOQMasterId + @"')", out dsExistingBOQ);
+                if (dsExistingBOQ.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("UnProcess not allowed. PO already have created. !!!");
+                }
+                else
+                {
+                    objCon.ExecuteNonQueryWrapper(@"Delete from dbo.BOQ where CostingBOQMasterId='" + costingBOQMasterId + "' and CostingItemId='" + costingItemId + "'", true, "1");
+                    objCon.ExecuteNonQueryWrapper(@"delete from dbo.CostingBOQ where CostingBOQMasterId='" + costingBOQMasterId + "' and CostingItemId='" + costingItemId + "'", true, "1");
+                    objCon.ExecuteNonQueryWrapper(@"delete from dbo.CostingBOQItems where CostingBOQMasterId='" + costingBOQMasterId + "' and CostingItemId= '" + costingItemId + "'", true, "1");
+
+                }
+
+                objCon.CommitTransaction();
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

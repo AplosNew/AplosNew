@@ -5,7 +5,7 @@
             <label class="col-sm-4 control-label">Disposal Type<sup>*</sup></label>
             <div class="col-sm-6 show-message">
                 <div class="select-style">
-                    <select class="form-control"  ng-disabled="Action == 'Update'" ng-change="DisposeTpye();"  name="Status" submit-required="true" ng-model="voucher.Status" required
+                    <select class="form-control" ng-disabled="Action == 'Update'" ng-change="DisposeTpye();" name="Status" submit-required="true" ng-model="voucher.Status" required
                             ng-options="item.Value as item.Text for item in fixedAssetDisposeStatusList"></select>
                 </div>
             </div>
@@ -62,7 +62,7 @@
                             <button ng-click="showPartyPopUpNew();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
                             <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
                         </span>
-                       
+
                     </div>
                 </div>
             </div>
@@ -73,14 +73,14 @@
             <label class="col-sm-2 control-label">Currency<sup>*</sup></label>
             <div class="col-sm-2 show-message" style="padding-right:0px;">
                 <div class="select-style">
-                    <select id="currencyId" class="form-control" tabindex="5" name="Currency" ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();" >
+                    <select id="currencyId" class="form-control" tabindex="5" name="Currency" ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();">
                         <option value="">--Select--</option>
                         <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
                 </div>
             </div>
             <div class="col-sm-2 show-message" style="padding-left:0px;">
-                <input type="text" maxlength="50" id="Rate" name="Rate" ng-disabled="voucher.CurrencyId==companyCurrencyId" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5"  autocomplete="off">
+                <input type="text" maxlength="50" id="Rate" name="Rate" ng-disabled="voucher.CurrencyId==companyCurrencyId" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off">
             </div>
         </div>
 
@@ -114,7 +114,7 @@
             </div>
         </div>
 
-       
+
 
         <div class="col-xs-12 col-sm-5 col-md-5">
             <div class="form-group" show-errors>
@@ -160,7 +160,7 @@
                             <td>{{x.OldReference}}</td>
                             <td>{{x.UserGroup}}</td>
                             <td>{{x.Remarks}}</td>
-                            
+
                             <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="AssetAmount" ng-model="x.AssetAmount " n-decimals="2"></td>
                             <td><input type="text" class="form-control text-right" ng-disabled="true" id="DepreciationAmount" ng-model="x.DepreciationAmount " n-decimals="2"></td>
                             <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NetAmount" ng-model="x.NetAmount " n-decimals="2"></td>
@@ -187,7 +187,7 @@
                             <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'NetAmount'| number:2 }}</b></td>
                             <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'AdjustmentDepreciationAmount'| number:2 }}</b></td>
                             <td class="text-right" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><b>{{ (voucherDetailList ) | sumByKey:'NegotiationValue'| number:2 }}</b></td>
-                           
+
                         </tr>
                     </tfoot>
                 </table>
@@ -203,7 +203,95 @@
             <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <fieldset class="scheduler-border" >
+                <legend class="scheduler-border">Additional Tax</legend>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">If Percentage Applicable</label>
+                        <div class="col-sm-6">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="TaxOptionAddiTax" ng-model="voucher.TaxOptionAddiTax" value="Yes" ng-click="TaxOptionAdditax('Yes');"> @*ng-hide="HSNCode !=null"*@
+                                    <span class="cr"><i class="cr-icon"></i></span>Yes
+                                </label>
+                                <label>
+                                    <input type="radio" name="TaxOptionAddiTax" ng-model="voucher.TaxOptionAddiTax" value="No" ng-click="TaxOptionAdditax('No');">@*ng-hide="HSNCode !=null"*@
+                                    <span class="cr"><i class="cr-icon"></i></span>No
+                                </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-responsive table-striped">
+                        <thead>
+                            <tr>
+                                <th>Input Tax</th>
+                                <th>Percentage</th>
+                                <th>Amount</th>
+                                <th class="text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="td_TaxCode">
+                                    <div class="select-style show-message">
+                                        <select name="TaxCodeId" ng-model="advanceTax.TaxCodeId" ng-change="selectadditionalTax(advanceTax.TaxCodeId)" class="col-sm-3 form-control"
+                                                ng-options="item.Id as item.UserName for item in taxCodCboListWithhold">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <input type="text" n-decimals="4" class="form-control text-right" ng-disabled="voucher.TaxOptionAddiTax==='No'" ng-model="advanceTax.ValueOfFixed" ng-keyup="calculateTaxAmountForAdditionalTax(advanceTax.ValueOfFixed);">
+                                    </div>
+                                </td>
+                                <td id="td_TaxCodeAmount">
+                                    <div class="show-message">
+                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="advanceTax.TaxAmount" ng-keyup="copyTaxesAmount();checkRowValidationSdditionalTax(advanceTax.TaxAmount);" ng-disabled="salesVM.TaxOptionAddiTax==='Yes'">
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <a ng-click="additionalTax();" ng-disabled="voucher.Id==null" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                                </td>
+                            </tr>
+                            <tr ng-repeat="x in advanceTaxesList">
+                                <td>{{x.TaxName}}</td>
+                                <td>{{x.ValueOfFixed}}</td>
+                                <td class="text-right">{{x.TaxAmount | number:2 }}</td>
+                                <td class="text-right">
+                                    <button ng-click="removeTaxesRow(x.Id,$index)" data-toggle="modal" ng-disabled="x.AdvanceId || voucher.RowState==='Posted'" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot ng-show="advanceTaxesList.length">
+                            <tr>
+                                <td colspan="2"><b>Sub Total</b></td>
+                                <td class="text-right"><b>{{ advanceTaxesList | sumByKey : 'TaxAmount'| setDecimal:2| number:2  }}</b></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="common-btn">
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Total Amount (Total Amount+Service Amount+Additional Tax)</label>
+                        <div class="col-sm-2 show-message">
+                            <input type="text" n-decimals="2" name="Total Amount" ng-model="advanceTax.TotalSumAfterTCSVal" class="form-control" tabindex="4" readonly>
+                        </div>
+                    </div>
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="SaveAdditinalTax();" ng-disabled="voucher.Id==null || voucher.RowState==='Posted'" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Save</button></li>
 
+                    </ul>
+                </div>
+            </fieldset>
+        </div>
+    </div>
 
 </div>
 <div class="row text-right aplos-grid-toggle">
@@ -239,25 +327,23 @@
             <div e-column e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="60"></div>
             <div e-column e-field="NegotiationValue" e-headertext="Negotiation Amount" e-width="80" e-type="numeric" e-format="{0:0.00}" e-textalign="right"></div>
-            @*<div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="70"></div>*@
+            <div e-column e-headertext="Actions" e-template="#TaxInvoiceReport" e-width="70"></div>
         </div>
-        @*<script type="text/template" id="ShowActionButtonsBOM">
+        <script type="text/template" id="TaxInvoiceReport">
 
             <ul class="common-btn list-inline text-left">
-                <li>
-                    <div ej-tooltip e-showshadow="true" e-content="Detail" ng-click="$parent.onClickExcelPrints(this);" e-width="width">
+                @*<li>
+                    <div ej-tooltip e-showshadow="true" e-content="Detail" ng-click="$parent.LocalTaxInvoiceReport(this);" e-width="width">
                         <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-excel-o"></i></button>
                     </div>
-                </li>
-                <li>
-                    <div ej-tooltip e-showshadow="true" e-content="Pdf" ng-click="$parent.onClickPdfPrints(this);" e-width="width">
-                        <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-pdf-o"></i></button>
-                    </div>
-                </li>
 
+                </li>*@
+                <li>
+                    <a class="btn btn-action" ng-click="$parent.FixedDisposeTaxInvoice(this);" title="Tax Invoice" href="" target="_blank"><i class=""></i>TI</a>
+                </li>
             </ul>
 
-        </script>*@
+        </script>
     </div>
 </div>
 <style>

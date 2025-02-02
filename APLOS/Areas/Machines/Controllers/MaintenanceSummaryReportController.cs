@@ -222,7 +222,7 @@ APD.FileName
         public ActionResult LoadReponsiblePersonList(string Id)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select RPD.IsActive,RPD.Id,EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+            string str = @"select RPD.IsActive,RPD.Id,EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, MB.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection 
 									from TRN.MaintenancePersonBudgetCode PBC
@@ -230,11 +230,11 @@ left Join [MST].[ManpowerBudget] AS MB ON MB.Id=PBC.PersonBudgetCodeId
 left join dbo.EmployeeInformation AS EI ON EI.BudgetCode=PBC.PersonBudgetCodeId
 LEFT JOIN [TRN].[ResponsiblePlannedDetails] RPD ON RPD.ResponsiblePersonId=EI.SystemId and RPD.PlannedId='" + Id + @"'
 LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
-LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+LEFT OUTER JOIN org.Position P ON P.Id=mb.PositionID
 LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
+LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
+LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
 WHERE EI.EmployeeStatus='Active'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);

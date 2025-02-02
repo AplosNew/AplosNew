@@ -1858,17 +1858,19 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
 								   LGD.userName LegalDesignation
 								   ,U.UserName Unit, L.UserName Line,EI.EmployeeCodePreFix, EI.EmployeeCodeNumeric
                                    ,FirstTimeLock=CASE WHEN EI.FirstTimeLock=1 THEN 'Yes' ELSE 'No' END
-                              FROM dbo.Employeeinformation EI
+                               FROM dbo.Employeeinformation EI
 							  LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id
 							  LEFT JOIN MST.AddressMaster AM ON PL.AddressMasterId=AM.Id						
                               LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                              LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+							  LEFT JOIN ORG.Entity EN ON EN.Id=PMB.EntityId
 							  LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
-				              LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+				              LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
 							  LEFT JOIN HKP.LegalDesignation LGD on LGD.Id=EI.LegalDesignationId							  
-                              LEFT JOIN ORG.Section AS Se ON Se.Id= EI.SectionID 
-							  LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID 
-							  LEFT JOIN ORG.Unit AS U ON U.Id= EI.UnitId
-							  LEFT JOIN ORG.Line AS L ON L.Id= EI.LineId
+                              LEFT JOIN ORG.Section AS Se ON Se.Id= PR.SectionID 
+							  LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID 
+							  LEFT JOIN ORG.Unit AS U ON U.Id= EN.UnitId
+							  LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
                 WHERE EI.EmployeeStatus ='Active' AND EI.IsApproved =0 AND  EI.FirstTimeLock=1 AND EI.PlantId='" + plantId + "' AND  EI.GroupId='" + companyGroupId + "') AS TEMP WHERE " + strkey + " Order By ISNULL(EmployeeCodePreFix,''), EmployeeCodeNumeric";
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -1979,7 +1981,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
             try
             {
                 string CmdText = @"SELECT CAST (0 AS bit) Flag,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,SE.UserName Section,EMP.SectionId,SuS.UserName SubSection
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,SE.UserName Section,PR.SectionId,SuS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
                                         EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DeM.UserName DesignationGroup,
                                         EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric,EJ.JobLcSystemID,FORMAT(EJ.EffectiveDate,'dd-MMM-yyyy')EffectiveDate
@@ -2348,10 +2350,10 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                               LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 							  LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
 							  LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
-				              LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+				              LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
 							  LEFT JOIN HKP.LegalDesignation LGD on LGD.Id=EI.LegalDesignationId							  
-                              LEFT JOIN ORG.Section AS Se ON Se.Id= EI.SectionID 
-							  LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID 
+                              LEFT JOIN ORG.Section AS Se ON Se.Id= PR.SectionID 
+							  LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID 
                               LEFT JOIN  [MST].[PayrollGroupMaster] PGM ON PGM.EmployeeId=EI.SystemId
                               LEFT JOIN  [HKP].[PayrollGroup] PG ON PG.Id=PGM.PayrollGroupId
                               LEFT JOIN dbo.Employeeinformation AE ON AE.SystemId=EI.ApprovalAuthorityId
@@ -2378,10 +2380,10 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                                     LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
                                     LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                                     LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
-                                    LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                                    LEFT JOIN ORG.Department DP on DP.PR=EI.DepartmentId
                                     LEFT JOIN HKP.LegalDesignation LGD on LGD.Id=EI.LegalDesignationId							  
-                                    LEFT JOIN ORG.Section AS Se ON Se.Id= EI.SectionID 
-                                    LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID 
+                                    LEFT JOIN ORG.Section AS Se ON Se.Id= PR.SectionID 
+                                    LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID 
                                     LEFT JOIN  [MST].[PayrollGroupMaster] PGM ON PGM.EmployeeId=EI.SystemId
                                     LEFT JOIN  [HKP].[PayrollGroup] PG ON PG.Id=PGM.PayrollGroupId
                                     LEFT JOIN dbo.Employeeinformation AE ON AE.SystemId=EI.ApprovalAuthorityId
@@ -2424,18 +2426,17 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
 								  se.UserName Section, Sus.UserName SubSection,
 								  LGD.userName LegalDesignation,PMB.Code,PR.UserName PositionName,E.UserName EntityName,ISNULL(PG.UserName,'') PayrollGroup,EC.UserName EmployeeCategory
                               FROM dbo.Employeeinformation EI
-                             
-							  LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id
+                             LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id
 							  LEFT JOIN MST.AddressMaster AM ON PL.AddressMasterId=AM.Id						
                               LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                               LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                               LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 							  LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
 							  LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
-				              LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+				              LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
 							  LEFT JOIN HKP.LegalDesignation LGD on LGD.Id=EI.LegalDesignationId							  
-                              LEFT JOIN ORG.Section AS Se ON Se.Id= EI.SectionID 
-							  LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID 
+                              LEFT JOIN ORG.Section AS Se ON Se.Id= PR.SectionID 
+							  LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID 
                               LEFT JOIN  [MST].[PayrollGroupMaster] PGM ON PGM.EmployeeId=EI.SystemId
                               LEFT JOIN  [HKP].[PayrollGroup] PG ON PG.Id=PGM.PayrollGroupId
                               LEFT JOIN (
@@ -2461,10 +2462,10 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                                     LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
                                     LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                                     LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
-                                    LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
-                                    LEFT JOIN HKP.LegalDesignation LGD on LGD.Id=EI.LegalDesignationId							  
-                                    LEFT JOIN ORG.Section AS Se ON Se.Id= EI.SectionID 
-                                    LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID 
+                                    LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
+							  LEFT JOIN HKP.LegalDesignation LGD on LGD.Id=EI.LegalDesignationId							  
+                              LEFT JOIN ORG.Section AS Se ON Se.Id= PR.SectionID 
+							  LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID 
                                     LEFT JOIN  [MST].[PayrollGroupMaster] PGM ON PGM.EmployeeId=EI.SystemId
                                     LEFT JOIN  [HKP].[PayrollGroup] PG ON PG.Id=PGM.PayrollGroupId
                                     LEFT JOIN (
@@ -2605,10 +2606,12 @@ WHERE E.EmployeeStatus = 'Active' AND E.BudgetCode='" + budgetCode + @"' GROUP B
 	                        ,E.CardNumber,E.Salutation,E.FirstName,E.MiddleName,E.LastName,E.EmployeeName,E.NickName,E.EmpPicPath,FORMAT(E.DOB,'dd-MMM-yyyy') DOB ,E.GenderID,E.GivenDesignationId	,E.LegalDesignationId
 	                        ,E.EmailId,E.EmpType,D.UserName Division,DPT.UserName Department, S.UserName Section, SS.UserName SubSection,DG.UserName GivenDesignation,LDG.UserName Designation,E.IsAccessible,MB.PIN,FORMAT(E.TentativeExpiryDate,'dd-MMM-yyyy') TentativeExpiryDate
                         FROM EmployeeInformation E
-                        LEFT JOIN ORG.Division D ON D.Id = E.DivisionId
-                        LEFT JOIN ORG.Department DPT ON DPT.Id = E.DepartmentId
-                        LEFT JOIN ORG.Section S ON S.Id = E.SectionId
-                        LEFT JOIN ORG.SubSection SS ON SS.Id = E.SubSectionId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                        LEFT JOIN ORG.Division D ON D.Id = PR.DivisionId
+                        LEFT JOIN ORG.Department DPT ON DPT.Id = PR.DepartmentId
+                        LEFT JOIN ORG.Section S ON S.Id = PR.SectionId
+                        LEFT JOIN ORG.SubSection SS ON SS.Id = PR.SubSectionId
                         LEFT JOIN HKP.Designation DG ON DG.Id = E.GivenDesignationId
                         LEFT JOIN HKP.LegalDesignation LDG ON LDG.Id = E.LegalDesignationId
                         LEFT JOIN HKP.EmployeeMobileAppsAuthorization MB ON MB.EmployeeId = E.SystemId
@@ -2684,6 +2687,8 @@ Where EmpSystemID=EI.SystemId AND CD.UserName='Nomination Form (PF)')
 ,REF.Ref1Name RefName,REMP.EmployeeCode RefCode,LD.UserName LegalDesignation,EQ.ExamDegreeType Qualification,S.UserName Section
 ,RG.UserName ResidenceGroup,TG.UserName TransportGroup,RM.ResidenceNumber,RT.StandardName [Route]
 FROM dbo.EmployeeInformation EI
+LEFT JOIN MST.ManpowerBudget emb ON emb.Id = EI.BudgetCode
+LEFT JOIN ORG.Position EPR ON EMB.PositionId=EPR.Id
 LEFT JOIN HKP.CivilStatus CS ON CS.Id=EI.CivilStatusID
 LEFT JOIN SCS.Religion R ON R.Id=EI.ReligionId
 LEFT JOIN dbo.EmployeeNomineeInfo EN ON EN.EmpSystemId=EI.SystemId
@@ -2696,10 +2701,12 @@ LEFT JOIN [SCS].[QualificationLevel] L ON L.Id=Q.EductLevelSystemID
 Where Q.SystemID=EQ.SystemID AND Q.EmpSystemID=EI.SystemId Order By L.Sequence DESC)
 LEFT JOIN dbo.EmpReferenceInformation REF ON REF.EmpSystemId=EI.SystemId
 LEFT JOIN dbo.EmployeeInformation REMP ON REMP.SystemId=REF.RefEmpSystemID
-LEFT JOIN ORG.Department RDP ON RDP.Id=REMP.DepartmentId
-LEFT JOIN ORG.Department EDP ON EDP.Id=EI.DepartmentId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = REMP.BudgetCode
+LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+LEFT JOIN ORG.Department RDP ON RDP.Id=PR.DepartmentId
+LEFT JOIN ORG.Department EDP ON EDP.Id=EPR.DepartmentId
 LEFT JOIN HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
-LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
+LEFT JOIN ORG.Section S ON S.Id=EPR.SectionId
 LEFT JOIN dbo.ResidenceGroup RG ON RG.Id=EI.ResidenceGroupId
 LEFT  JOIN dbo.ResidenceAllocatedEmployees RA ON RA.EmployeeSystemId=EI.SystemId
 LEFT JOIN ResidenceMaster RM ON RM.Id=RA.ResidenceId

@@ -80,7 +80,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                              LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                              LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
                              LEFT JOIN  HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId---- 
-                             LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                             LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                              Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                              Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId 
                              LEFT JOIN mst.DesignationMasterLegalDesignation AS dmld ON dmld.LegalDesignationId=ei.LegalDesignationId---
@@ -90,8 +90,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                              LEFT JOIN [SCS].[LegalSalaryGrade] LSG ON LSGD.LegalSalaryGradeId = LSG.Id 
                              LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId = DM.Id AND dmc.PlantId=ei.PlantId                              
                              LEFT JOIN HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId  
-							 LEFT JOIN ORG.Section s on s.id=ei.SectionId
-                             LEFT JOIN ORG.SubSection sb on sb.id=ei.SubSectionId
+							 LEFT JOIN ORG.Section s on s.id=PR.SectionId
+                             LEFT JOIN ORG.SubSection sb on sb.id=PR.SubSectionId
                              LEFT JOIN SalaryDisbursementInAcc sd on sd.MonthNo=spm.MonthNo and sd.YearNo=spm.YearNo and sd.SalaryHeadId=spc.SalaryHeadID and sd.EmpSystemId=spc.EmpInfoSystemID
                              WHERE   sl.IsLocked=1 and sh.HeadCategory IN ('Other Bonus','RetainedBonus','Monthly Bonus Retain')  AND spc.DisbusmentAmount>0 and IsRetained=1
                             and (spm.YearNo<=year('" + DisbursementDate2 + @"') or (spm.YearNo<=year('" + DisbursementDate + @"') and spm.MonthNo<=month('" + DisbursementDate + @"')))
@@ -153,7 +153,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                              LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                              LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
                              LEFT JOIN  HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId---- 
-                             LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                             LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                              Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
                              Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId 
                              LEFT JOIN mst.DesignationMasterLegalDesignation AS dmld ON dmld.LegalDesignationId=ei.LegalDesignationId---
@@ -163,8 +163,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                              LEFT JOIN [SCS].[LegalSalaryGrade] LSG ON LSGD.LegalSalaryGradeId = LSG.Id 
                              LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId = DM.Id AND dmc.PlantId=ei.PlantId                              
                              LEFT JOIN HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId  
-							 LEFT JOIN ORG.Section s on s.id=ei.SectionId
-                             LEFT JOIN ORG.SubSection sb on sb.id=ei.SubSectionId                          
+							 LEFT JOIN ORG.Section s on s.id=PR.SectionId
+                             LEFT JOIN ORG.SubSection sb on sb.id=PR.SubSectionId                          
                              WHERE BRDD.PlantID='" + identity.PlantId + @"' and BRDD.BonusRetainedDisbursementMasterId='" + BonusRetainedDisbursementMasterId + @"' 
                              order by BRDD.EmpSystemId";
 

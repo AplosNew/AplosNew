@@ -38,11 +38,11 @@ namespace Aplos.HumanResource
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=pr.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
+                                        LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
                                         left join [dbo].[TransportGroup] TG on TG.Id=EMP.TransportGroupId
@@ -74,11 +74,11 @@ namespace Aplos.HumanResource
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 										LEFT JOIN ShiftDefination MSD on MSD.SystemID=PMB.ShiftDefinationId 
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
+                                        LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
                                         left join [dbo].[TransportGroup] TG on TG.Id=EMP.TransportGroupId
@@ -118,8 +118,8 @@ namespace Aplos.HumanResource
 							                    LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 												LEFT JOIN ShiftDefination MSD on MSD.SystemID=PMB.ShiftDefinationId 
 							                    LEFT JOIN HKP.Designation DEG ON EI.GivenDesignationId=DEG.Id
-							                    LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-							                    LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+							                    LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+							                    LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
 							                    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
 							                    LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
 							                    left join RouteSchedule RS on RS.Id = ETA.TripId
@@ -159,9 +159,11 @@ LEFT JOIN RouteSchedule RS on RS.Id = ETA.TripId
 LEFT JOIN MST.Route R on R.Id = RS.RouteId
 LEFT JOIN TransportDetail TD on TD.Id = RS.TransportId
 LEFT JOIN EmployeeInformation EI on EI.SystemId = ETA.EmployeeSystemId
-LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
-LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-LEFT JOIN ORG.Department DEPT ON EI.DepartmentId=DEPT.Id
+left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+							left join ORG.Position P on P.Id=MPB.PositionID
+LEFT JOIN ORG.Section S ON S.Id=P.SectionId
+LEFT JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
+LEFT JOIN ORG.Department DEPT ON P.DepartmentId=DEPT.Id
 Where ETA.AssignStatus=1 AND BV.WorkDate between '" + fromDate + "' AND '"+toDate+"'";
 
                 return _sqlRepository.GetDataCollection(sql, null);

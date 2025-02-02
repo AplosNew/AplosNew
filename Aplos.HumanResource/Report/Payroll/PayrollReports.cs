@@ -1322,7 +1322,7 @@ namespace Library.HumanResource.Report.Payroll
 								  , L.UserName Line, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
 								  S.UserName Section, SB.UserName SubSection, EC.UserName AS EmpCategory, Cm.UserName CompanyName
 								  ,  E.EmployeeCategorySystemID, E.UnitID, E.DivisionID, E.DepartmentID, E.DesignationSystemID,
-	                              E.SectionID, E.SubSectionID, E.LineID, E.DesignationGroupID, E.SubSecStrucSystemID, E.EmployeeStatus,
+	                               E.SubSecStrucSystemID, E.EmployeeStatus,
 	                              P.UserName PlantName, 
 	                              GC.UserName GroupName,
 	                              E.PlantID, BK.UserName BankNameShort, E.BankAccNo, 
@@ -4581,16 +4581,18 @@ namespace Library.HumanResource.Report.Payroll
                                     ,ISNULL(ec.UserName,'') EmployeeCategory
                                       FROM HourlyOT  HO 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=HO.EmpSystemId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
                                       LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
-                                      LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
-                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
+                                      LEFT JOIN [ORG].[Section] s on s.Id=p.SectionId
+                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=p.SubSectionId
                                         left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=ei.LegalDesignationId
                                         left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
                                         left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                                         left join hkp.LegalDesignation LG on LG.Id = ei.LegalDesignationId
-                                      LEFT JOIN [ORG].[Department] d on d.Id=ei.DepartmentId
-                                      LEFT JOIN [ORG].[Line] l on l.Id=ei.LineId
+                                      LEFT JOIN [ORG].[Department] d on d.Id=p.DepartmentId
+                                      LEFT JOIN [ORG].[Line] l on l.Id=mb.LineId
                                       LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=HO.PlantId   
                                       LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=ho.PlantId
                                       LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=ei.SystemId
@@ -4718,16 +4720,18 @@ namespace Library.HumanResource.Report.Payroll
                                     ,ISNULL(ec.UserName,'') EmployeeCategory
                                       FROM HourlyOT  HO 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=HO.EmpSystemId
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
                                       LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
-                                      LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
-                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
+                                      LEFT JOIN [ORG].[Section] s on s.Id=p.SectionId
+                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=p.SubSectionId
                                         left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=ei.LegalDesignationId
                                         left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
                                         left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                                         left join hkp.LegalDesignation LG on LG.Id = ei.LegalDesignationId
-                                      LEFT JOIN [ORG].[Department] d on d.Id=ei.DepartmentId
-                                      LEFT JOIN [ORG].[Line] l on l.Id=ei.LineId
+                                      LEFT JOIN [ORG].[Department] d on d.Id=p.DepartmentId
+                                      LEFT JOIN [ORG].[Line] l on l.Id=mb.LineId
                                       LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=HO.PlantId   
                                       LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=ho.PlantId
                                       LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=ei.SystemId
@@ -4849,20 +4853,22 @@ namespace Library.HumanResource.Report.Payroll
 										 SELECT  E.SystemID, E.EmployeeCode, E.EmployeeName,E.DOB, E.DOJ,E.DOS, E.EmployeeStatus,DATEDIFF(YY,E.DOB,'" + fromDate + @"') As Age
 											--DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,GVDE.UserName GivenDesignationName,
 											,'' UserGroupSystemID, E.PlantID, F.UserName PlantName, E.UnitID,
-											FU.UserName UnitName, E.DivisionID, DV.UserName DivisionName, E.DepartmentID, DP.UserName DepartmentName,
-											E.SectionID, S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
+											FU.UserName UnitName, DV.UserName DivisionName, DP.UserName DepartmentName,
+											S.UserName SectionName, SS.UserName SubSectionName,
 											EC.UserName EmpCategoryName, Bank.ShortName BankShortName, Bank.UserName BankName, EBI.BankAccNo
                                             ,E.PaymentMode,ISNULL(EC.UserName,'') EmployeeCategory, ISNULL(EC.WorkingDaysInAMonth,'') WorkingDaysInAMonth
                                      FROM EmployeeInformation E
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+left join org.Entity en on en.id=mb.EntityId   
+                            LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
 												LEFT JOIN org.Plant F ON E.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.LegalDesignation DE ON E.LegalDesignationId = DE.Id
 												LEFT JOIN hkp.Designation GVDE ON E.GivenDesignationId = GVDE.Id
-												LEFT JOIN org.Unit FU ON E.UnitID = FU.Id
-												LEFT JOIN org.Division DV ON E.DivisionID = DV.Id
-												LEFT JOIN org.Department DP ON E.DepartmentID = DP.Id
-												LEFT JOIN org.Section S ON E.SectionID = S.Id
-												LEFT JOIN org.SubSection SS ON E.SubSectionID = SS.Id
+												LEFT JOIN org.Unit FU ON EN.UnitID = FU.Id
+												LEFT JOIN org.Division DV ON p.DivisionID = DV.Id
+												LEFT JOIN org.Department DP ON p.DepartmentID = DP.Id
+												LEFT JOIN org.Section S ON p.SectionID = S.Id
+												LEFT JOIN org.SubSection SS ON p.SubSectionID = SS.Id
 												LEFT JOIN EmployeeBankInfo EBI ON EBI.EmpSystemID = E.SystemId
 												LEFT JOIN  HKP.Bank Bank ON EBI.BankSystemID = Bank.Id
 												LEFT JOIN mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=e.LegalDesignationId
@@ -5013,20 +5019,23 @@ namespace Library.HumanResource.Report.Payroll
 											EC.UserName EmpCategoryName,Ec.WorkingDaysInAMonth, Bank.ShortName BankShortName, Bank.UserName BankName, EBI.BankAccNo
                                             ,E.PaymentMode
                                      FROM EmployeeInformation E
+left join mst.ManpowerBudget mp on mp.id=e.BudgetCode
+											left join org.Entity en on en.id=mp.EntityId    
+											left join ORG.Position p on p.Id = mp.PositionId
 												LEFT JOIN org.Plant F ON E.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.LegalDesignation DE ON E.LegalDesignationId = DE.Id
 												LEFT JOIN hkp.Designation GVDE ON E.GivenDesignationId = GVDE.Id
-												LEFT JOIN org.Unit FU ON E.UnitID = FU.Id
-												LEFT JOIN org.Division DV ON E.DivisionID = DV.Id
-												LEFT JOIN org.Department DP ON E.DepartmentID = DP.Id
-												LEFT JOIN org.Section S ON E.SectionID = S.Id
-												LEFT JOIN org.SubSection SS ON E.SubSectionID = SS.Id
+												LEFT JOIN org.Unit FU ON EN.UnitID = FU.Id
+												LEFT JOIN org.Division DV ON p.DivisionID = DV.Id
+												LEFT JOIN org.Department DP ON P.DepartmentID = DP.Id
+												LEFT JOIN org.Section S ON p.SectionID = S.Id
+												LEFT JOIN org.SubSection SS ON P.SubSectionID = SS.Id
 												left join EmployeeBankInfo EBI ON EBI.EmpSystemID = E.SystemId
 												left join  HKP.Bank Bank ON EBI.BankSystemID = Bank.Id
 													left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=e.LegalDesignationId
 													left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
 													left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId											    
+												LEFT JOIN hkp.DesignationGroup DG ON DM.DesignationGroupId = DG.ID
                                     --WHERE E.PlantId='" + plantId + @"'
                                     WHERE ISNULL(E.VendorId,'') = ''
 									) EmpBasic
@@ -5205,19 +5214,22 @@ namespace Library.HumanResource.Report.Payroll
 											EC.UserName EmpCategoryName,Ec.WorkingDaysInAMonth, Bank.ShortName BankShortName, Bank.UserName BankName, EBI.BankAccNo
                                             ,E.PaymentMode
                                      FROM EmployeeInformation E
+left join mst.ManpowerBudget mp on mp.id=e.BudgetCode
+											left join org.Entity en on en.id=mp.EntityId    
+											left join ORG.Position p on p.Id = mp.PositionId
 												LEFT JOIN org.Plant F ON E.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.LegalDesignation DE ON E.LegalDesignationId = DE.Id
 												LEFT JOIN hkp.Designation GVDE ON E.GivenDesignationId = GVDE.Id
-												LEFT JOIN org.Unit FU ON E.UnitID = FU.Id
-												LEFT JOIN org.Division DV ON E.DivisionID = DV.Id
-												LEFT JOIN org.Department DP ON E.DepartmentID = DP.Id
-												LEFT JOIN org.Section S ON E.SectionID = S.Id
-												LEFT JOIN org.SubSection SS ON E.SubSectionID = SS.Id
+												LEFT JOIN org.Unit FU ON EN.UnitID = FU.Id
+												LEFT JOIN org.Division DV ON P.DivisionID = DV.Id
+												LEFT JOIN org.Department DP ON P.DepartmentID = DP.Id
+												LEFT JOIN org.Section S ON P.SectionID = S.Id
+												LEFT JOIN org.SubSection SS ON P.SubSectionID = SS.Id
 												left join EmployeeBankInfo EBI ON EBI.EmpSystemID = E.SystemId
 												left join  HKP.Bank Bank ON EBI.BankSystemID = Bank.Id
 													left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=e.LegalDesignationId
 													left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
+												LEFT JOIN hkp.DesignationGroup DG ON DM.DesignationGroupId = DG.ID
 													left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId											    
                                     --WHERE E.PlantId='" + plantId + @"'
                                     WHERE ISNULL(E.VendorId,'') = ''
@@ -5397,20 +5409,23 @@ namespace Library.HumanResource.Report.Payroll
 											EC.UserName EmpCategoryName,Ec.WorkingDaysInAMonth, Bank.ShortName BankShortName, Bank.UserName BankName, EBI.BankAccNo
                                             ,E.PaymentMode
                                      FROM EmployeeInformation E
+left join mst.ManpowerBudget mp on mp.id=e.BudgetCode
+											left join org.Entity en on en.id=mp.EntityId    
+											left join ORG.Position p on p.Id = mp.PositionId
 												LEFT JOIN org.Plant F ON E.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.LegalDesignation DE ON E.LegalDesignationId = DE.Id
 												LEFT JOIN hkp.Designation GVDE ON E.GivenDesignationId = GVDE.Id
-												LEFT JOIN org.Unit FU ON E.UnitID = FU.Id
-												LEFT JOIN org.Division DV ON E.DivisionID = DV.Id
-												LEFT JOIN org.Department DP ON E.DepartmentID = DP.Id
-												LEFT JOIN org.Section S ON E.SectionID = S.Id
-												LEFT JOIN org.SubSection SS ON E.SubSectionID = SS.Id
+												LEFT JOIN org.Unit FU ON EN.UnitID = FU.Id
+												LEFT JOIN org.Division DV ON P.DivisionID = DV.Id
+												LEFT JOIN org.Department DP ON P.DepartmentID = DP.Id
+												LEFT JOIN org.Section S ON p.SectionID = S.Id
+												LEFT JOIN org.SubSection SS ON P.SubSectionID = SS.Id
 												left join EmployeeBankInfo EBI ON EBI.EmpSystemID = E.SystemId
 												left join  HKP.Bank Bank ON EBI.BankSystemID = Bank.Id
 													left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=e.LegalDesignationId
 													left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
 													left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId											    
+												LEFT JOIN hkp.DesignationGroup DG ON DM.DesignationGroupId = DG.ID
                                     --WHERE E.PlantId='" + plantId + @"'
                                     WHERE ISNULL(E.VendorId,'') = ''
 									) EmpBasic
@@ -5584,20 +5599,23 @@ namespace Library.HumanResource.Report.Payroll
 											EC.UserName EmpCategoryName,Ec.WorkingDaysInAMonth, Bank.ShortName BankShortName, Bank.UserName BankName, EBI.BankAccNo
                                             ,E.PaymentMode
                                      FROM EmployeeInformation E
+left join mst.ManpowerBudget mp on mp.id=e.BudgetCode
+											left join org.Entity en on en.id=mp.EntityId    
+											left join ORG.Position p on p.Id = mp.PositionId
 												LEFT JOIN org.Plant F ON E.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.LegalDesignation DE ON E.LegalDesignationId = DE.Id
 												LEFT JOIN hkp.Designation GVDE ON E.GivenDesignationId = GVDE.Id
-												LEFT JOIN org.Unit FU ON E.UnitID = FU.Id
-												LEFT JOIN org.Division DV ON E.DivisionID = DV.Id
-												LEFT JOIN org.Department DP ON E.DepartmentID = DP.Id
-												LEFT JOIN org.Section S ON E.SectionID = S.Id
-												LEFT JOIN org.SubSection SS ON E.SubSectionID = SS.Id
+												LEFT JOIN org.Unit FU ON EN.UnitID = FU.Id
+												LEFT JOIN org.Division DV ON P.DivisionID = DV.Id
+												LEFT JOIN org.Department DP ON P.DepartmentID = DP.Id
+												LEFT JOIN org.Section S ON P.SectionID = S.Id
+												LEFT JOIN org.SubSection SS ON P.SubSectionID = SS.Id
 												left join EmployeeBankInfo EBI ON EBI.EmpSystemID = E.SystemId
 												left join  HKP.Bank Bank ON EBI.BankSystemID = Bank.Id
 													left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=e.LegalDesignationId
 													left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
 													left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId											    
+												LEFT JOIN hkp.DesignationGroup DG ON DM.DesignationGroupId = DG.ID
                                     --WHERE E.PlantId='" + plantId + @"'
                                     WHERE ISNULL(E.VendorId,'') = ''
 									) EmpBasic

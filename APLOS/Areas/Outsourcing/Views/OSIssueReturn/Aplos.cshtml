@@ -645,7 +645,8 @@
                                         <div e-column e-type="string" e-field="JobWorkActivity" e-headertext="Job Work Activity" e-width="50"></div>
                                         <div e-column e-type="string" e-field="MaterialType" e-headertext="Material Type" e-width="50"></div>
                                         @*<div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="50"></div>*@
-                                        <div e-column e-template="#InputMaterialTem"  e-headertext="Material" e-width="100"></div>
+                                        <div e-column e-template="#InputMaterialType" e-headertext="MaterialType" e-width="100"></div>
+                                        <div e-column e-template="#InputMaterialTem" e-headertext="Material" e-width="100"></div>
                                         <div e-column e-template="#InputArticle" e-headertext="Input Article" e-width="200" style="height: 200px;"></div>
                                         <div e-column e-type="string" e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="50"></div>
                                         <div e-column e-type="string" e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="50"></div>
@@ -660,8 +661,15 @@
                                 <script type="text/template" id="checkedPBSChildTabItem">
                                     <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isSelected" e-checked="data.isSelected" />
                                 </script>
+                                <script type="text/template" id="InputMaterialType">
+                                    <div class="col-sm-10">
+                                        <div class="input-group">
+                                            <input type="text" ng-model="data.MaterialType" name="Material Type" required class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                </script>
                                 <script type="text/template" id="InputMaterialTem">
-                                    <div class="col-sm-10" >
+                                    <div class="col-sm-10">
                                         <div class="input-group">
                                             <input type="text" ng-model="data.Material" name="Material Master" required class="form-control" readonly>
                                             <input type="hidden" ng-model="data.MaterialMasterId" />
@@ -675,8 +683,8 @@
                                             <input type="text" ng-model="data.Article" name="Article" required class="form-control" readonly>
                                             <input type="hidden" ng-model="data.ArticleId" />
                                             <span class="input-group-btn">
-                                                <button ng-click="$parent.getMaterialMasterWithArticle(data)" tabindex="48" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                <button ng-click="$parent.getMaterialMasterWithArticle(data)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                <button ng-click="$parent.getNewMaterialMasterWithArticle(data)" tabindex="48" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="$parent.getNewMaterialMasterWithArticle(data)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                             </span>
                                         </div>
                                     </div>

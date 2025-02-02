@@ -99,7 +99,7 @@ namespace Aplos.Areas.Employees.Controllers
 							  LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
 							  LEFT JOIN  HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId----
 							  
-				              LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+				              LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
 							  Left join MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
 							  Left Join hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
 							  

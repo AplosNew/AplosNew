@@ -1547,6 +1547,8 @@ namespace Aplos.Areas.HumanResource.Controllers
 			--ei.SystemId,ei.EmployeeCode,
 			," + Column + @"
 		FROM EmployeeInformation EI
+ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = eI.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 		-------------------------------------GROSS------------------------
 		LEFT OUTER JOIN (
 			SELECT spc.EmpInfoSystemID
@@ -1606,7 +1608,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 			) AS OT ON EI.SystemId = OT.EmpInfoSystemID
 		LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.EmployeeId = EI.SystemId
 
-left join ORG.Department DP ON DP.Id=EI.DepartmentId
+left join ORG.Department DP ON DP.Id=PR.DepartmentId
 		LEFT JOIN
 	--hkp.EmployeeCategory EC ON E.EmployeeCategorySystemID = EC.Id
 	(
@@ -1838,8 +1840,8 @@ left join ORG.Department DP ON DP.Id=EI.DepartmentId
                                 LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                 LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                LEFT JOIN ORG.Section S ON S.Id=pr.SectionId
+                                LEFT JOIN ORG.SubSection SS ON SS.Id=pr.SubSectionId
                                 LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                 LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                                 WHERE spm.SystemID='" + salaryPorcId + @"' and spc.DisbusmentAmount <> 0
@@ -6169,25 +6171,27 @@ left join ORG.Department DP ON DP.Id=EI.DepartmentId
                             FROM
                                     (
 									 SELECT E.SystemID, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus,E.PaymentMode,JL.SystemID JoblocationId, JL.JobLocation
-											,DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,E.EmployeeStatus empStatus
-											,'' UserGroupSystemID, E.PlantID, F.UserName PlantName, E.UnitID
-											,FU.UserName UnitName, E.DivisionID, DV.UserName DivisionName, E.DepartmentID, DP.UserName DepartmentName
-											,E.SectionID, S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, EC.Id EmployeeCategorySystemID
+											, DE.UserName DesignationName,E.EmployeeStatus empStatus
+											,'' UserGroupSystemID, E.PlantID, F.UserName PlantName, EN.UnitID
+											,FU.UserName UnitName, PR.DivisionID, DV.UserName DivisionName, PR.DepartmentID, DP.UserName DepartmentName
+											,PR.SectionID, S.UserName SectionName, PR.SubSectionID, SS.UserName SubSectionName, EC.Id EmployeeCategorySystemID
 											,EC.UserName EmpCategoryName--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo
                                             ,egdsgg.GivenDesignationGroup,e.SalaryRuleMasterSystemID,Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS
 											,ISNULL(LDS.UserName,'') LegalDesignation
                                      FROM EmployeeInformation E
+ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
 												LEFT JOIN ORG.Plant F ON E.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON E.LegalDesignationId = LDS.Id
 												LEFT JOIN JobLocation JL ON JL.SystemID = E.JobLocationID
 
-												LEFT JOIN org.Unit FU ON E.UnitID = FU.Id
-												LEFT JOIN org.Division DV ON E.DivisionID = DV.Id
-												LEFT JOIN org.Department DP ON E.DepartmentID = DP.Id
-												LEFT JOIN org.Section S ON E.SectionID = S.Id
-												LEFT JOIN org.SubSection SS ON E.SubSectionID = SS.Id
+												LEFT JOIN org.Unit FU ON EN.UnitID = FU.Id
+												LEFT JOIN org.Division DV ON PR.DivisionID = DV.Id
+												LEFT JOIN org.Department DP ON PR.DepartmentID = DP.Id
+												LEFT JOIN org.Section S ON PR.SectionID = S.Id
+												LEFT JOIN org.SubSection SS ON PR.SubSectionID = SS.Id
 												LEFT JOIN
                                                 --hkp.EmployeeCategory EC ON E.EmployeeCategorySystemID = EC.Id
                                                 (
@@ -6344,25 +6348,26 @@ left join ORG.Department DP ON DP.Id=EI.DepartmentId
 								  (CASE WHEN EmpSlr.EntryAmount >= 15000 THEN (CASE WHEN EmpSlr.DisbusmentAmount >15000 THEN  EmpSlr.DisbusmentAmount - 15000 ELSE 0 END) ELSE 0 END) END) AS Above15								
                             FROM
                                     (
-										 SELECT ISNULL(ED.IsActive,0) IsActive,ISNULL(ED.IsApproved,0) IsApproved,E.SystemID, E.EmployeeCode, E.EmployeeName,E.DOB, E.DOJ,E.DOS, E.EmployeeStatus,ed.DocNumber,DATEDIFF(YY,E.DOB,'30-Sep-2019') As Age,
-											DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,GVDE.UserName GivenDesignationName,
-											'' UserGroupSystemID, E.CompanyId, E.PlantID, F.UserName PlantName, E.UnitID,
-											FU.UserName UnitName, E.DivisionID, DV.UserName DivisionName, E.DepartmentID, DP.UserName DepartmentName,
-											E.SectionID, S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
+										 SELECT ISNULL(ED.IsActive,0) IsActive,ISNULL(ED.IsApproved,0) IsApproved,E.SystemID, E.EmployeeCode, E.EmployeeName,E.DOB, E.DOJ,E.DOS, E.EmployeeStatus,ed.DocNumber,DATEDIFF(YY,E.DOB,'30-Sep-2019') As Age,DE.UserName DesignationName,GVDE.UserName GivenDesignationName,
+											'' UserGroupSystemID, E.CompanyId, E.PlantID, F.UserName PlantName,
+											FU.UserName UnitName,DV.UserName DivisionName, DP.UserName DepartmentName,
+											S.UserName SectionName, SS.UserName SubSectionName,
 											EC.UserName EmpCategoryName--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo,JL.SystemID JoblocationId, JL.JobLocation
                                             ,egdsgg.GivenDesignationGroup
                                             FROM EmployeeInformation E
+LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = E.BudgetCode
+								LEFT OUTER JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
+                                LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
 												LEFT JOIN org.Plant F ON E.PlantID = F.Id
-												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.Designation GVDE ON E.GivenDesignationId = GVDE.Id
-												LEFT JOIN org.Unit FU ON E.UnitID = FU.Id
-												LEFT JOIN org.Division DV ON E.DivisionID = DV.Id
-												LEFT JOIN org.Department DP ON E.DepartmentID = DP.Id
+												LEFT JOIN org.Unit FU ON EN.UnitID = FU.Id
+												LEFT JOIN org.Division DV ON PO.DivisionID = DV.Id
+												LEFT JOIN org.Department DP ON PO.DepartmentID = DP.Id
 												LEFT JOIN JobLocation JL ON JL.SystemID = E.JobLocationID
 
-												LEFT JOIN org.Section S ON E.SectionID = S.Id
-												LEFT JOIN org.SubSection SS ON E.SubSectionID = SS.Id
+												LEFT JOIN org.Section S ON PO.SectionID = S.Id
+												LEFT JOIN org.SubSection SS ON PO.SubSectionID = SS.Id
 												LEFT JOIN
                                                 (
                                                 SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT

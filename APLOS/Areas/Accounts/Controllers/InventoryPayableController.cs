@@ -12,6 +12,8 @@ using Library.Service.Logs;
 using Library.Service.Enums;
 using System.Reflection;
 using System.Collections.Generic;
+using Aplos.Properties;
+using Library.ViewModel.Vouchers;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -253,6 +255,41 @@ namespace Aplos.Areas.Accounts.Controllers
                 default:
                     return View();
             }
+        }
+
+        [HttpPost]
+        public JsonResult UpdateGRNPaymentTerm(VoucherViewModel voucherVM)
+        {
+            var inDirect = new System.Text.StringBuilder();
+            var inDirectsql = "";
+
+            inDirectsql = @"DECLARE @InventoryReceiveId varchar(50)='" + voucherVM.Id + @"',@PaymentTermId varchar(50)='" + voucherVM.PaymentTermId + @"',@BaseNoOfDays int=" + voucherVM.BaseNoOfDays + @",@POId varchar(50)=''
+	                        select @POId=POId from [TRN].[InventoryReceiveDetail]  where InventoryReceiveId=@InventoryReceiveId
+	                        update [TRN].[InventoryReceive] set  PaymentTermId=@PaymentTermId ,BaseNoOfDays=@BaseNoOfDays,MatureDate=DATEADD(DAY,@BaseNoOfDays,BaseOnDueDate) where Id=@InventoryReceiveId
+	                        update TRN.Invoice set  PaymentTermId=@PaymentTermId,BaseNoOfDays=@BaseNoOfDays,ActualDueDate=DATEADD(DAY,@BaseNoOfDays,BaseOnDueDate),RevisedDueDate=DATEADD(DAY,@BaseNoOfDays,BaseOnDueDate) where InventoryReceiveId=@InventoryReceiveId
+	                        update [TRN].[PurchaseOrder] set  PaymentTermId=@PaymentTermId ,BaseNoOfDays=@BaseNoOfDays,MatureDate=DATEADD(DAY,@BaseNoOfDays,BaseOnDueDate) where Id=@POId 
+
+                            update [TRN].[Voucher] set EntityId='" + voucherVM.EntityId + @"' where Id='" + voucherVM.VoucherId + @"'
+                            update [TRN].[VoucherDetail]  set EntityId='" + voucherVM.EntityId + @"' where VoucherId='" + voucherVM.VoucherId + @"' 
+                            update [TRN].[Invoice]  set EntityId='" + voucherVM.EntityId + @"' where VoucherId='" + voucherVM.VoucherId + @"' ";
+            inDirect.Append(inDirectsql);
+            _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
+            return Json(new { Message = AplosMessage.Updated });
+        }
+
+        [HttpPost]
+        public JsonResult UpdateInvoicePaymentTerm(VoucherViewModel voucherVM)
+        {
+            var inDirect = new System.Text.StringBuilder();
+            var inDirectsql = "";
+
+            inDirectsql = @"DECLARE @PaymentTermId varchar(50)='" + voucherVM.PaymentTermId + @"',@BaseNoOfDays int=" + voucherVM.BaseNoOfDays + @"
+                            update [TRN].[Voucher] set EntityId='" + voucherVM.EntityId + @"' where Id='" + voucherVM.VoucherId + @"'
+                            update [TRN].[VoucherDetail]  set EntityId='" + voucherVM.EntityId + @"' where VoucherId='" + voucherVM.VoucherId + @"' 
+                            update [TRN].[Invoice]  set PaymentTermId=@PaymentTermId,BaseNoOfDays=@BaseNoOfDays,ActualDueDate=DATEADD(DAY,@BaseNoOfDays,BaseOnDueDate),RevisedDueDate=DATEADD(DAY,@BaseNoOfDays,BaseOnDueDate), EntityId='" + voucherVM.EntityId + @"' where VoucherId='" + voucherVM.VoucherId + @"' ";
+            inDirect.Append(inDirectsql);
+            _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
+            return Json(new { Message = AplosMessage.Updated });
         }
 
         #endregion

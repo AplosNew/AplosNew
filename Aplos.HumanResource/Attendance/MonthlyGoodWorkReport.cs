@@ -38,15 +38,15 @@ namespace Library.HumanResource.Attendance
             }
             if (parameters["DepartmentId"] != "'',''")
             {
-                filters = filters + "and isnull(e.DepartmentId,'') in (" + parameters["DepartmentId"] + ") ";
+                filters = filters + "and isnull(P.DepartmentId,'') in (" + parameters["DepartmentId"] + ") ";
             }
             if (parameters["SectionId"] != "'',''")
             {
-                filters = filters + "and isnull(e.SectionId,'') in (" + parameters["SectionId"] + ") ";
+                filters = filters + "and isnull(P.SectionId,'') in (" + parameters["SectionId"] + ") ";
             }
             if (parameters["SubSectionId"] != "'',''")
             {
-                filters = filters + "and isnull(e.SubSectionId,'') in (" + parameters["SubSectionId"] + ") ";
+                filters = filters + "and isnull(P.SubSectionId,'') in (" + parameters["SubSectionId"] + ") ";
             }
             if (parameters["PayrollGroupId"] != "'',''")
             {
@@ -63,65 +63,32 @@ namespace Library.HumanResource.Attendance
                                     (SELECT E.EmployeeCode, E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ,
                                             D.UserName Designation,ISNULL( LG.UserName, '') LegalDG, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
                                             S.UserName Section, SB.UserName SubSection, L.UserName Line
-                                            ,ot.WorkDate , ot.OThour as TotalOTHr ,DD.UserName GivenDesignation,hr.OTConsiderOn,E.EmployeeCodeNumeric,E.PlantId , P.UserName as Plant
+                                            ,ot.WorkDate , ot.OThour as TotalOTHr ,DD.UserName GivenDesignation,hr.OTConsiderOn,E.EmployeeCodeNumeric,E.PlantId , PL.UserName as Plant
                                     FROM dbo.EmployeeInformation E
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
+LEFT OUTER JOIN ORG.Entity EN ON mb.EntityId=EN.Id
                                                 LEFT JOIN dbo.OTfromApp ot on ot.EmpSystemId = E.SystemId
-                                                LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                                                LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                                                LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
-                                                LEFT JOIN ORG.Section S ON E.SectionID = S.Id
-                                                LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
-                                                LEFT JOIN ORG.Line L ON E.LineID = L.Id
+                                                LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                                                LEFT JOIN ORG.Division Dv ON P.DivisionID = Dv.Id
+                                                LEFT JOIN ORG.Department Dp ON P.DepartmentID = Dp.Id
+                                                LEFT JOIN ORG.Section S ON P.SectionID = S.Id
+                                                LEFT JOIN ORG.SubSection SB ON P.SubSectionID = SB.Id
+                                                LEFT JOIN ORG.Line L ON MB.LineID = L.Id
                                                 LEFT JOIN HKP.LegalDesignation D ON E.LegalDesignationId = D.Id
                                                 LEFT JOIN HKP.Designation DD ON E.GivenDesignationId = DD.Id
                                                 LEFT join PlantWiseHRMSSetting hr on hr.PlantID=e.PlantId
                                                 LEFT JOIN HKP.LegalDesignation LG ON LG.Id = E.LegalDesignationId
                                                 left join mst.PayrollGroupMaster pgm on pgm.EmployeeId = e.SystemId
 												left join hkp.PayrollGroup pg on pg.id = pgm.PayrollGroupId
-												left join org.Entity en on en.PlantId = e.PlantId
-                                                left join org.Plant P on P.Id = E.PlantId
+                                                left join org.Plant PL on PL.Id = E.PlantId
                                                 left join dbo.EmployeeAttendanceGroup eag on eag.EmployeeId = E.SystemId
                                                 left join dbo.AttendanceGroup ag on ag.Id = eag.AttendanceGroupId
                                     WHERE ot.WorkDate BETWEEN '" + frmDate + @"' AND '" + toDate + @"' AND ot.OThour > 0
 AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"' ) " + filters + @"
 ";
 
-                //if (sUnit != "ALL")
-                //{
-                //    strSql = strSql + @" AND E.UnitID = '" + sUnit + "'";
-                //}
-                //if (sDevi != "ALL")
-                //{
-                //    strSql = strSql + @" AND E.DivisionID = '" + sDevi + "'";
-                //}
-                //if (sDept != "ALL")
-                //{
-                //    strSql = strSql + @" AND E.DepartmentID = '" + sDept + "'";
-                //}
-                //if (sSect != "ALL")
-                //{
-                //    strSql = strSql + @" AND E.SectionID = '" + sSect + "'";
-                //}
-                //if (sSbSe != "ALL")
-                //{
-                //    strSql = strSql + @" AND E.SubSectionID = '" + sSbSe + "'";
-                //}
-                //if (sLine != "ALL")
-                //{
-                //    strSql = strSql + @" AND E.LineID = '" + sLine + "'";
-                //}
-                //if (sEmpC != "ALL")
-                //{
-                //    strSql = strSql + @" AND E.EmployeeCategorySystemID = '" + sEmpC + "'";
-                //}
-                //if (sDeGr != "ALL")
-                //{
-                //    strSql = strSql + @" AND E.DesignationGroupID = '" + sDeGr + "'";
-                //}
-                //if (sDesi != "ALL")
-                //{
-                //    strSql = strSql + @" AND E.DesignationSystemID = '" + sDesi + "'";
-                //}
+               
 
                 strSql = strSql + @") A
                         GROUP BY A.EmployeeCode, A.EmployeeName, A.DOJ, A.Designation,A.LegalDG, A.Unit, A.Division, A.Department,
@@ -157,15 +124,15 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"' ) " + filters + 
             }
             if (parameters["DepartmentId"] != "'',''")
             {
-                filters = filters + "and isnull(e.DepartmentId,'') in (" + parameters["DepartmentId"] + ") ";
+                filters = filters + "and isnull(P.DepartmentId,'') in (" + parameters["DepartmentId"] + ") ";
             }
             if (parameters["SectionId"] != "'',''")
             {
-                filters = filters + "and isnull(e.SectionId,'') in (" + parameters["SectionId"] + ") ";
+                filters = filters + "and isnull(P.SectionId,'') in (" + parameters["SectionId"] + ") ";
             }
             if (parameters["SubSectionId"] != "'',''")
             {
-                filters = filters + "and isnull(e.SubSectionId,'') in (" + parameters["SubSectionId"] + ") ";
+                filters = filters + "and isnull(P.SubSectionId,'') in (" + parameters["SubSectionId"] + ") ";
             }
             if (parameters["PayrollGroupId"] != "'',''")
             {
@@ -182,23 +149,25 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"' ) " + filters + 
                                     (SELECT E.EmployeeCode, E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ,
                                             D.UserName Designation,ISNULL( LG.UserName, '') LegalDG, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
                                             S.UserName Section, SB.UserName SubSection, L.UserName Line
-                                            ,ot.WorkDate , ot.ProcessedOT as TotalOTHr ,DD.UserName GivenDesignation,hr.OTConsiderOn,E.EmployeeCodeNumeric,E.PlantId , P.UserName as Plant, ECT.UserName as EmployeeCodeType
+                                            ,ot.WorkDate , ot.ProcessedOT as TotalOTHr ,DD.UserName GivenDesignation,hr.OTConsiderOn,E.EmployeeCodeNumeric,E.PlantId , PL.UserName as Plant, ECT.UserName as EmployeeCodeType
                                     FROM dbo.EmployeeInformation E
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
+LEFT OUTER JOIN ORG.Entity EN ON mb.EntityId=EN.Id
                                                 left join AttdnProcessData ot on ot.EmpSystemID=e.SystemId                                
-                                                LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                                                LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                                                LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
-                                                LEFT JOIN ORG.Section S ON E.SectionID = S.Id
-                                                LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
-                                                LEFT JOIN ORG.Line L ON E.LineID = L.Id
+                                                LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                                                LEFT JOIN ORG.Division Dv ON P.DivisionID = Dv.Id
+                                                LEFT JOIN ORG.Department Dp ON P.DepartmentID = Dp.Id
+                                                LEFT JOIN ORG.Section S ON P.SectionID = S.Id
+                                                LEFT JOIN ORG.SubSection SB ON P.SubSectionID = SB.Id
+                                                LEFT JOIN ORG.Line L ON MB.LineID = L.Id
                                                 LEFT JOIN HKP.LegalDesignation D ON E.LegalDesignationId = D.Id
                                                 LEFT JOIN HKP.Designation DD ON E.GivenDesignationId = DD.Id
                                                 LEFT join PlantWiseHRMSSetting hr on hr.PlantID=e.PlantId
                                                 LEFT JOIN HKP.LegalDesignation LG ON LG.Id = E.LegalDesignationId
                                                 left join mst.PayrollGroupMaster pgm on pgm.EmployeeId = e.SystemId
 												left join hkp.PayrollGroup pg on pg.id = pgm.PayrollGroupId
-												left join org.Entity en on en.PlantId = e.PlantId
-                                                left join org.Plant P on P.Id = E.PlantId
+                                                left join org.Plant PL on PL.Id = E.PlantId
                                                 left join dbo.EmployeeAttendanceGroup eag on eag.EmployeeId = E.SystemId
                                                 left join dbo.AttendanceGroup ag on ag.Id = eag.AttendanceGroupId
                                                 left join dbo.EmployeeCodeType ECT on ECT.Id = e.EmployeeCodeTypeId
@@ -245,16 +214,18 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"' ) " + filters + 
 						isnull(p.Id,'') as PlantId , isnull(ei.PlantId,'') as ppId , isnull (p.UserName,'') as PlantName
                         from
                         dbo.EmployeeInformation ei
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                         left join org.Plant p on p.Id = ei.PlantId
                         left join org.Entity e on e.PlantId = p.Id
-                        left join org.Department dept on dept.Id = ei.DepartmentId
-                        left join org.Section sec on sec.Id = ei.SectionId
-                        left join org.SubSection ssec on ssec.Id = ei.SubSectionId
+                        left join org.Department dept on dept.Id = pr.DepartmentId
+                        left join org.Section sec on sec.Id = pr.SectionId
+                        left join org.SubSection ssec on ssec.Id = pr.SubSectionId
                         left join mst.PayrollGroupMaster pgm on pgm.EmployeeId = ei.SystemId
                         left join hkp.PayrollGroup pg on pg.id = pgm.PayrollGroupId
                         left join dbo.EmployeeAttendanceGroup eag on eag.EmployeeId = ei.SystemId
                         left join dbo.AttendanceGroup ag on ag.Id = eag.AttendanceGroupId
-						where p.Id is not null and p.CompanyId = '"+CompanyId+@"'
+						where p.Id is not null and p.CompanyId = '" + CompanyId+@"'
                         group by e.Id , e.UserName ,
                         dept.Id , dept.UserName ,
                         sec.Id  , sec.UserName ,

@@ -215,17 +215,17 @@ namespace Aplos.Areas.Productions.Controllers
         public ActionResult GetEmployee()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"SELECT EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+            string str = @"SELECT EI.SystemId as SystemId, mb.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
                             FROM dbo.EmployeeInformation AS EI
-                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+							LEFT OUTER JOIN org.Position P ON P.Id=mb.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
                             WHERE EI.EmployeeStatus='Active'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
@@ -610,52 +610,7 @@ where PD.ProcessId='" + ProcessId + "'";
         [HttpPost]
         public JsonResult createSingleRow(Dictionary<string, object> DailyTargetData, string TargetDate, string EntityId, string ProcessId)
         {
-            //ConnectionManager.DAL.ConManager objCon;
-            //DataSet dsProdBooked;
-            //string TableName = "[TRN].[RunningMachineSetUpTarget]";
-            //string contId = string.Empty;
-            //string _Id, Id = string.Empty;
-            //try
-            //{
-            //    objCon = new ConnectionManager.DAL.ConManager("1");
-            //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-
-            //    if (DailyTargetData != null)
-            //    {
-            //        foreach (var item in DailyTargetData)
-            //        {
-            //            objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
-            //            DataView dv = new DataView(dsProdBooked.Tables[0]);
-
-            //            if (dv.Count == 0)
-            //            {
-            //                bplib.clsGenID genid = new bplib.clsGenID();
-            //                genid.GenID(TableName, out _Id);
-            //                item["Id"] = "PCD" + _Id;
-            //                item["PlantId"] = identity.PlantId;
-            //                Id = item["Id"].ToString();
-            //                AddNewRow(dsProdBooked.Tables[0], item);
-            //            }
-            //            else
-            //            {
-            //                DataRow drpb = dv[0].Row;
-            //                item["PlantId"] = identity.PlantId;
-            //                Id = item["Id"].ToString();
-            //                EditRow(drpb, item);
-            //            }
-            //            clsStaticInfo obj = new clsStaticInfo();
-            //            obj.SaveDataSets(dsProdBooked);
-            //        }
-            //    }
-            //    return Json(new { Id = Id, Message = AplosMessage.Insert });
-
-            //}
-            //catch (Exception ex)
-            //{
-            //    throw (ex);
-            //}
-
+            
             try
             {
 

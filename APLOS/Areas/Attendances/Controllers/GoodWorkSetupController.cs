@@ -559,9 +559,9 @@ Where E.BudgetCode IN (" + Id + @") AND A.GoodWorkSetupId='"+ setupId + "'";
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
 							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
 							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
@@ -569,7 +569,7 @@ Where E.BudgetCode IN (" + Id + @") AND A.GoodWorkSetupId='"+ setupId + "'";
                                 LEFT JOIN MST.DesignationMaster DM on DM.DesignationId=E.GivenDesignationId
 						        LEFT JOIN HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
                                 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
-								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+								LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                 LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
 								OUTER APPLY (Select * from dbo.ExceptionGoodWorkEmployee Where GoodWorkSetUpId='" + gwsId + @"' AND  EmployeeId=E.SystemId)BE 
                                 WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest' 
@@ -598,9 +598,9 @@ SELECT BE.Id,CAST (CASE WHEN BE.EmployeeId IS NULL THEN 1 ELSE 0 END AS bit) BEF
 								LEFT JOIN EmployeeInformation E ON E.SystemId=BE.EmployeeId
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
 							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
 							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
 							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
@@ -608,7 +608,7 @@ SELECT BE.Id,CAST (CASE WHEN BE.EmployeeId IS NULL THEN 1 ELSE 0 END AS bit) BEF
                                 LEFT JOIN MST.DesignationMaster DM on DM.DesignationId=E.GivenDesignationId
 						        LEFT JOIN HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
                                 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
-								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+								LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                 LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
 								 Where GoodWorkSetUpId='" + gwsId + @"'";
                 return Json(_sqlRepository.GetDataCollection(CmdText, null), JsonRequestBehavior.AllowGet);

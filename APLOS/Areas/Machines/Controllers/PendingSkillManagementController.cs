@@ -156,14 +156,14 @@ Format(MPD.ActualDate,'dd-MMM-yyyy') as ActualDate
  left join MST.ManpowerBudget MB ON MB.id=SM.ResponsiblePersoneBgtCodeId
  left join TRN.SkillManagementEntity SPE ON SPE.SMID=SM.Id
  left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id
- left join EmployeeInformation EI ON EI.EmployeeStatus='Active' and EI.PositionID=SPC.PositionCodeId 
- left Join Org.Entity E ON E.Id=SPE.EntityId
- left Join ORG.Position P ON P.Id=EI.PositionID
- left join org.Division DIV ON DIV.Id=EI.DivisionId
- left join Org.Department DEP ON DEP.Id=EI.DepartmentId
- left join Org.Section S ON S.Id=EI.SectionId
- left join Org.SubSection SS ON SS.Id=EI.SubSectionId
+ left join EmployeeInformation EI ON EI.EmployeeStatus='Active' and MB.PositionId=SPC.PositionCodeId 
  left join MST.ManpowerBudget EB ON EB.Id=EI.BudgetCode
+ left Join Org.Entity E ON E.Id=SPE.EntityId
+ left Join ORG.Position P ON P.Id=eb.PositionID
+ left join org.Division DIV ON DIV.Id=EI.DivisionId
+ left join Org.Department DEP ON DEP.Id=p.DepartmentId
+ left join Org.Section S ON S.Id=p.SectionId
+ left join Org.SubSection SS ON SS.Id=p.SubSectionId
  left join HKP.Designation DEG ON DEG.Id=EI.GivenDesignationId
  left Join TRN.EmployeePlannedDetails MPD ON MPD.PositionCodeId=SPC.Id and MPD.Id=(select top 1 Id from TRN.EmployeePlannedDetails MAPD where MAPD.PositionCodeId=SPC.Id and MAPD.EntityId=SPE.Id and MAPD.EmployeeId=EI.SystemId order by MAPD.ActualDate desc)
  where SM.IsActive=1 and

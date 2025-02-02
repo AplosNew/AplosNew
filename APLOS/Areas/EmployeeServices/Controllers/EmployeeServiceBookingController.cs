@@ -173,10 +173,10 @@ left join ORG.Entity UN on UN.Id = MBGT.EntityId
 left join ORG.Department DP on DP.ID = POS.DepartmentId
 left join ORG.Section SC on SC.Id = POS.SectionId
 left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
-LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=EMP.DesignationGroupId
 LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
 LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=DM.DesignationGroupId
  WHERE " + strkey + " and sd.GroupID='" + identity.CompanyGroupId + @"' and " + ddDates + @"
  order by Date desc";
             var jsondata = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -433,14 +433,14 @@ left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
                         EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName DepartmentName,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
+                            PR.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant
                             FROM EmployeeInformation EMP
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                             LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId

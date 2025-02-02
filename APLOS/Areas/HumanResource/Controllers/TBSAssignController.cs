@@ -77,11 +77,12 @@ namespace Aplos.Areas.HumanResource.Controllers
 		                                WHERE p.DayStatus NOT IN (select distinct DayType from DayType where Category in ('Holiday','Weekend')) 
 	                                ) AS D
                                 INNER JOIN EmployeeInformation AS E ON e.SystemId=d.EmpSystemID 
-                                LEFT OUTER JOIN org.Department AS DEP ON dep.Id=e.DepartmentId
-                                --LEFT OUTER JOIN hkp.Designation AS DE ON de.Id=e.DesignationSystemID
+LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
+                            LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                LEFT OUTER JOIN org.Department AS DEP ON dep.Id=PR.DepartmentId
                                 LEFT OUTER JOIN hkp.LegalDesignation AS DE ON de.Id=e.LegalDesignationId
-                                LEFT OUTER JOIN org.section sec ON sec.Id=e.SectionId
-                                LEFT OUTER JOIN org.SubSection AS ss ON ss.Id=e.SubSectionId
+                                LEFT OUTER JOIN org.section sec ON sec.Id=PR.SectionId
+                                LEFT OUTER JOIN org.SubSection AS ss ON ss.Id=PR.SubSectionId
 
                                 LEFT OUTER JOIN (select K.EmpSystemID,COUNT(*)AbsentDays,MIN(k.WorkDate) AS FirstAbsentDate
                                   from (SELECT *,RANK() OVER(PARTITION BY EmpSystemID,dayStatustemp ORDER BY EmpSystemID,seq) AS SQ FROM (
@@ -217,11 +218,13 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 DEP.UserName AS Department,de.UserName AS designation,
                                 sec.UserName AS Section,ss.UserName AS SubSection,case when isnull(ab.AbsentDays,0)=0 then 'Can be revoked' else '' end as Status, 
                                 FROM EmployeeInformation AS E 
-                                LEFT OUTER JOIN org.Department AS DEP ON dep.Id=e.DepartmentId
+LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
+                            LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                LEFT OUTER JOIN org.Department AS DEP ON dep.Id=PR.DepartmentId
                                 --LEFT OUTER JOIN hkp.Designation AS DE ON de.Id=e.DesignationSystemID
                                 LEFT OUTER JOIN hkp.LegalDesignation AS DE ON de.Id=e.LegalDesignationId
-                                LEFT OUTER JOIN org.section sec ON sec.Id=e.SectionId
-                                LEFT OUTER JOIN org.SubSection AS ss ON ss.Id=e.SubSectionId
+                                LEFT OUTER JOIN org.section sec ON sec.Id=PR.SectionId
+                                LEFT OUTER JOIN org.SubSection AS ss ON ss.Id=PR.SubSectionId
 
                                 LEFT OUTER JOIN (select K.EmpSystemID,COUNT(*)AbsentDays,MIN(k.WorkDate) AS FirstAbsentDate
                                   from (SELECT *,RANK() OVER(PARTITION BY EmpSystemID,dayStatustemp ORDER BY EmpSystemID,seq) AS SQ FROM (
@@ -246,11 +249,13 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 sec.UserName AS Section,ss.UserName AS SubSection,case when isnull(ab.AbsentDays,0)=0 then 'Can be revoked' else '' end as Status, 
                                isnull(ab.AbsentDays,0) AS AbsentDays,ab.FirstAbsentDate,ab.EntryDate,ab.CaseNo,ab.DisciplinaryActionCategory,ab.Description,ab.Sequence,Isnull(ab.IsFromDA,0) IsFromDA, '' Remarks
                                 FROM EmployeeInformation AS E 
-                                LEFT OUTER JOIN org.Department AS DEP ON dep.Id=e.DepartmentId
+LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
+                            LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                LEFT OUTER JOIN org.Department AS DEP ON dep.Id=PR.DepartmentId
                                 --LEFT OUTER JOIN hkp.Designation AS DE ON de.Id=e.DesignationSystemID
                                 LEFT OUTER JOIN hkp.LegalDesignation AS DE ON de.Id=e.LegalDesignationId
-                                LEFT OUTER JOIN org.section sec ON sec.Id=e.SectionId
-                                LEFT OUTER JOIN org.SubSection AS ss ON ss.Id=e.SubSectionId
+                                LEFT OUTER JOIN org.section sec ON sec.Id=PR.SectionId
+                                LEFT OUTER JOIN org.SubSection AS ss ON ss.Id=PR.SubSectionId
 
                                 LEFT OUTER JOIN (
 

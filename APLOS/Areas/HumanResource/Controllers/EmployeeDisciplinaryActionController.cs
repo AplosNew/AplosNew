@@ -167,12 +167,6 @@ namespace Aplos.Areas.HumanResource.Controllers
 		inner join  DisciplinaryActionSettingDetails ds2 on ds2.DisciplinaryActionCategoryId=dadm2.DisciplinaryActionCategoryId and ds2.Sequence=dadm2.Sequence		
 	    inner join  [dbo].[EmployeeDisciplinaryActionDetails] dadm  on 	 dadm.DisciplinaryActionSettingDetailsId=ds2.id and dadm.EmployeeDisciplinaryActionId=dadm2.EmployeeDisciplinaryActionId
 
-
-
-
-
-
-
         LEFT JOIN EmployeeInformation E on E.SystemId = EA.EmpSystemId
         LEFT JOIN MST.ManpowerBudget MB ON MB.Id = E.BudgetCode
         LEFT JOIN ORG.Entity EN ON EN.Id = MB.EntityId
@@ -182,7 +176,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         LEFT JOIN[ORG].[Department] DPT ON DPT.Id = PS.DepartmentId
         LEFT JOIN[ORG].[Section] SEC ON SEC.Id = PS.SectionId
         LEFT JOIN[ORG].[SubSection] SSEC ON SSEC.Id = PS.SubSectionId
-        LEFT JOIN[HKP].[Designation] DEG ON DEG.Id = E.DesignationSystemID
+        LEFT JOIN[HKP].[Designation] DEG ON DEG.Id = PS.DesignationID
         LEFT JOIN[HKP].[Designation] GDEG ON GDEG.Id = E.GivenDesignationId	
         where  ISNULL(ActionType,'') NOT IN ('TBS')  and e.PlantId='" + identity.PlantId + @"' and e.EmployeeStatus='Active' and dadm.NextLetterDueDate is not null
         order by convert(date,dadm.NextLetterDueDate) --desc";
@@ -246,12 +240,6 @@ namespace Aplos.Areas.HumanResource.Controllers
 		inner join  DisciplinaryActionSettingDetails ds2 on ds2.DisciplinaryActionCategoryId=dadm2.DisciplinaryActionCategoryId and ds2.Sequence=dadm2.Sequence		
 	    inner join  [dbo].[EmployeeDisciplinaryActionDetails] dadm  on 	 dadm.DisciplinaryActionSettingDetailsId=ds2.id and dadm.EmployeeDisciplinaryActionId=dadm2.EmployeeDisciplinaryActionId
 
-
-
-
-
-
-
         LEFT JOIN EmployeeInformation E on E.SystemId = EA.EmpSystemId
         LEFT JOIN MST.ManpowerBudget MB ON MB.Id = E.BudgetCode
         LEFT JOIN ORG.Entity EN ON EN.Id = MB.EntityId
@@ -261,7 +249,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         LEFT JOIN[ORG].[Department] DPT ON DPT.Id = PS.DepartmentId
         LEFT JOIN[ORG].[Section] SEC ON SEC.Id = PS.SectionId
         LEFT JOIN[ORG].[SubSection] SSEC ON SSEC.Id = PS.SubSectionId
-        LEFT JOIN[HKP].[Designation] DEG ON DEG.Id = E.DesignationSystemID
+        LEFT JOIN[HKP].[Designation] DEG ON DEG.Id = PS.DesignationID
         LEFT JOIN[HKP].[Designation] GDEG ON GDEG.Id = E.GivenDesignationId	
         where  ISNULL(ActionType,'') NOT IN ('TBS')  and e.PlantId='" + identity.PlantId + @"' and e.EmployeeStatus='Active' and dadm.NextLetterDueDate is null";
             var data = _sqlRepository.GetDataCollection(sql);
@@ -1184,7 +1172,7 @@ FORMAT(dateadd(day,Convert(int,
 
                                     LEFT JOIN[SCS].[PlantSetting] P ON P.PlantId = E.PlantId
                                     LEFT JOIN ORG.Department DP ON DP.Id = PS.DepartmentId
-                                    LEFT JOIN org.Section SE ON SE.Id = E.SectionId
+                                    LEFT JOIN org.Section SE ON SE.Id = PS.SectionId
 
                                     LEFT JOIN ORG.Plant PL ON PL.Id = E.PlantId
                                     left Join MST.PayrollGroupMaster PGM on PGM.EmployeeId = E.EmployeeId
@@ -1226,7 +1214,7 @@ FORMAT(dateadd(day,Convert(int,
                                     LEFT JOIN(SELECT LanguageId, Name FROM HKP.LocalLanguage WHERE LabelName = 'Male'and LanguageId = '" + languageId + @"') LMM ON LMM.LanguageId = PL.LanguageId
                                     LEFT JOIN(SELECT LanguageId, Name FROM HKP.LocalLanguage WHERE LabelName = 'Female'and LanguageId = '" + languageId + @"') LMF ON LMF.LanguageId = PL.LanguageId
 
-                                    LEFT JOIN(SELECT LanguageId, Name FROM HKP.LocalLanguage WHERE LabelName = (SELECT EmploymentType FROM dbo.EmployeeInformation where SystemId = '" + employeeId + @"')and LanguageId = 7) LET ON LET.LanguageId = PL.LanguageId
+                                    LEFT JOIN(SELECT LanguageId, Name FROM HKP.LocalLanguage WHERE LabelName = (SELECT EmploymentType FROM dbo.EmployeeInformation where SystemId = '" + employeeId + @"')and LanguageId = '" + languageId + @"') LET ON LET.LanguageId = PL.LanguageId
                                     LEFT JOIN(SELECT LanguageId, Name FROM HKP.LocalLanguage WHERE LabelName = 'Name' and LanguageId = '" + languageId + @"') N ON N.LanguageId = PL.LanguageId
                                     LEFT JOIN(SELECT LanguageId, Name FROM HKP.LocalLanguage wHERE LabelName = 'Designation'and LanguageId = '" + languageId + @"') DN ON DN.LanguageId = PL.LanguageId
                                     LEFT JOIN(SELECT LanguageId, Name FROM HKP.LocalLanguage wHERE LabelName = 'Department'and LanguageId = '" + languageId + @"') DPN ON DPN.LanguageId = PL.LanguageId
@@ -1253,7 +1241,7 @@ FORMAT(dateadd(day,Convert(int,
 
                                     LEFT JOIN(SELECT LanguageId, Name FROM HKP.LocalLanguage WHERE LabelName = 'Permanent' and LanguageId = '" + languageId + @"') PTl ON PTl.LanguageId = PL.LanguageId
 
-                                    LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = E.SectionId AND PL.LanguageId = SEC.LanguageId  AND PL.LanguageId = '" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = PS.SectionId AND PL.LanguageId = SEC.LanguageId  AND PL.LanguageId = '" + languageId + @"'
                                     LEFT JOIN HKP.LocalLanguage CAC ON CAC.DepartmentId = E.DepartmentId AND PL.LanguageId = CAC.LanguageId  AND PL.LanguageId = '" + languageId + @"'
                                     WHERE E.SystemID = '" + employeeId + @"') TAB1 LEFT JOIN SCS.Language AS LAN ON LAN.Id = TAB1.LanguageId) TAB2 LEFT JOIN MST.AddressMaster AS AM ON AM.Id = TAB2.AddressMasterId) TAB3
                                    ---LEFT JOIN(SELECT * FROM SCS.RptConfigTemplate WHERE Id = ''  and PlantId = '" + plantId + @"') AS RPTM ON TAB3.PlantId = RPTM.PlantId";

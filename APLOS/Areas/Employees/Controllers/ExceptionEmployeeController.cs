@@ -101,7 +101,7 @@ namespace Aplos.Areas.Employees.Controllers
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
                                 LEFT JOIN HKP.Designation DSG ON PR.DesignationId = DSG.Id
                                 LEFT JOIN HKP.Designation DG on DG.Id = EI.GivenDesignationId
-                                LEFT JOIN ORG.Department DP on DP.Id = EI.DepartmentId
+                                LEFT JOIN ORG.Department DP on DP.Id = PR.DepartmentId
                                 LEFT JOIN HKP.LegalDesignation ld on ld.Id = EI.LegalDesignationId
                                 LEFT JOIN MST.payrollgroupmaster PM on PM.EmployeeId = EI.SystemId
                                 LEFT JOIN hkp.payrollgroup PG on PG.Id = PM.PayRollGroupId

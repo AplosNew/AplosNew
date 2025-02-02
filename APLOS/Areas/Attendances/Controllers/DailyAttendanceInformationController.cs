@@ -755,35 +755,22 @@ namespace Aplos.Areas.Attendances.Controllers
 									,ISNULL(e.PaymentMode,'') PaymentMode
 									,ISNULL(bb.UserName,'') BankName
 
-                                    FROM EmployeeInformation e
-                                  
-                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
-									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
-                                    
-
-                                    LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
-									,dg.UserName GivenDesignationGroup--,srm.SalaryRuleName
-									FROM mst.DesignationMaster dm
-									LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
-		                          
-									) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
-									AND egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
-                                    LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+                                    FROM EmployeeInformation e                                
+									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId                  
+									LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
 									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
-                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
+                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id                                    
                                     LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
                                     LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
                                     LEFT JOIN [ORG].[Plant] ON Plant.Id = EN.PlantId
                                     LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
                                     LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
                                     LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId
-                                    LEFT JOIN [ORG].[Line] ON Line.Id = mpb.LineId
-
-                                    
+                                    LEFT JOIN [ORG].[Line] ON Line.Id = mpb.LineId                                    
 						LEFT JOIN [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
 			LEFT JOIN [MST].DesignationMasterLegalDesignation LDM ON LDM.LegalDesignationId=E.LegalDesignationId
 			LEFT JOIN [MST].DesignationMaster DesM ON DesM.Id = LDM.DesignationMasterId
+			LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=DesM.DesignationGroupId
             LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
                                     LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
                                     Left outer join MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId

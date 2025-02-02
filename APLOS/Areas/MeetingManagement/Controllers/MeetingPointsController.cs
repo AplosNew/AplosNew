@@ -229,11 +229,11 @@ namespace Aplos.Areas.MeetingManagement.Controllers
         {
             try
             {
-                parameters.CmdText = @"SELECT EI.SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                parameters.CmdText = @"SELECT EI.SystemId, MB.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [Designation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType
                             FROM dbo.EmployeeInformation AS EI
-                            LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.DesignationSystemID
+                            LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.GivenDesignationID
                             LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
@@ -654,13 +654,16 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                                                     ,EC.UserName EmployeeCategory,S.UserName Section,SS.UserName SubSection,L.UserName Line
                                                     from MeetingExpectedPerson MEP
                                                     left join EmployeeInformation EI on EI.SystemId=MEP.ExpectedPersonId
-                                                    left join HKP.Designation D on D.Id=EI.DesignationSystemID
-                                                    left join ORG.Department Dep on Dep.Id=EI.DepartmentId
-                                                    left join ORG.Division Div on Div.Id=EI.DivisionId
-                                                    left join HKP.EmployeeCategory EC on EC.Id=EI.EmployeeCategorySystemID
-                                                    left join ORG.Section S on S.Id=EI.SectionId
-                                                    left join ORG.SubSection SS on SS.Id=EI.SubSectionId
-                                                    left join ORG.Line L on L.Id=EI.LineId
+left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+							left join ORG.Position P on P.Id=MPB.PositionID
+                                                    left join HKP.Designation D on D.Id=P.DesignationID
+                                                    left join ORG.Department Dep on Dep.Id=p.DepartmentId
+                                                    left join ORG.Division Div on Div.Id=p.DivisionId
+                                                    LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
+                            LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+                                                    left join ORG.Section S on S.Id=p.SectionId
+                                                    left join ORG.SubSection SS on SS.Id=p.SubSectionId
+                                                    left join ORG.Line L on L.Id=MPB.LineId
                                                     WHERE MeetingItemHeaderId = '" + meetingItemHeaderId + @"'
                                                 ) AS TEMP WHERE " + strkey;
 

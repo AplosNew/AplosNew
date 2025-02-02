@@ -158,6 +158,22 @@ namespace Aplos.Areas.Costings.Controllers
 
         }
 
+        [HttpPost]
+        public ActionResult UnProcessedRowItem(string costingBOQMasterId,string costingItemId)
+        {
+            try
+            {
+                new Library.OrderManagement.Costing.CostingBOQ().DeleteProcessedRowItem(costingBOQMasterId, costingItemId);
+                return Json(new { Error = false, Message = "Data Unporcessed successfully" }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+        }
+
 
     }
 }

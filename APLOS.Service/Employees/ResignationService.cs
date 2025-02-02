@@ -1618,9 +1618,10 @@ namespace Library.Service.Employees
                                                 LEFT OUTER JOIN
                                                 [TRN].[Resignation] r ON r.EmployeeId=EMP.SystemId
                                                 LEFT OUTER JOIN
-                                                [HKP].[Designation] d ON d.id=EMP.DesignationSystemID
-                                                LEFT OUTER JOIN
-                                                HKP.[EmployeeCategory] c ON c.id=EMP.EmployeeCategorySystemID
+                                                [HKP].[Designation] d ON d.id=EMP.GivenDesignationId
+                                                
+                                                LEFT JOIN MST.DesignationMaster dm ON EMP.GivenDesignationId = dm.DesignationId
+                                                LEFT JOIN HKP.EmployeeCategory C ON C.Id=DM.EmployeeCategoryId
                                                 LEFT OUTER JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                                 LEFT OUTER JOIN ORG.Entity E ON PMB.EntityId=E.Id
 

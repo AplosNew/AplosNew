@@ -220,7 +220,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                                                                       LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=EI.BudgetCode
                                     									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
                                                                         LEFT OUTER JOIN ORG.Entity E ON mpb.EntityId=E.Id
-                                                                           LEFT JOIN [ORG].[Division] ON Division.Id = E.DivisionId
+                                                                           LEFT JOIN [ORG].[Division] ON Division.Id = PO.DivisionId
                                                                             LEFT JOIN [ORG].[Plant] ON Plant.Id = E.PlantId
                                                                             LEFT JOIN [ORG].[Unit] ON Unit.Id = E.UnitId
                                                                             LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
@@ -467,9 +467,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 LEFT JOIN dbo.AttdnRawData ARIN ON AR.InTimeRowID = ARIN.RowID
                                 LEFT JOIN dbo.AttdnRawData AROUT ON AR.OutTimeRowID = AROUT.RowID
                                 LEFT JOIN dbo.LeaveType LT ON AR.LTSystemID = LT.Id
-                                LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                                LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                                LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
+                                LEFT JOIN ORG.Unit U ON EN.UnitID = U.Id
+                                LEFT JOIN ORG.Division Dv ON PO.DivisionID = Dv.Id
+                                LEFT JOIN ORG.Department Dp ON PO.DepartmentID = Dp.Id
 
                                   LEFT JOIN ORG.Section S ON PO.SectionID = S.Id
                                 LEFT JOIN ORG.SubSection SB ON PO.SubSectionID = SB.Id

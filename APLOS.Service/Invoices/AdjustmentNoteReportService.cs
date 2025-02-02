@@ -304,9 +304,9 @@ namespace Library.Service.Advances
             ,AddedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.AddedBy END
             ,PostedBy=CASE WHEN UP.FullName<>'' THEN UP.FullName ELSE V.PostedBy END
             , UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
-            , P.UserName AS Party, PP.UserName AS VendorPlant,bj.PartyType
-            , BJ.CurrencyId, C.Code AS CurrencyCode
-	        ,FY.FiscalYearName,E.UserName EntityName
+            , P.UserName  + CASE WHEN P.TINNO IS NOT NULL THEN  ' ( '+ P.TINNO + ' )' ELSE '' END AS Party
+			, PP.UserName + CASE WHEN PP.GSTIN IS NOT NULL THEN  ' ( '+ PP.GSTIN + ' )' ELSE '' END AS VendorPlant
+			, PartyType=bj.PartyType, BJ.CurrencyId, C.Code AS CurrencyCode,FY.FiscalYearName,E.UserName EntityName
             FROM [TRN].[AdjustmentNote] AS BJ
             LEFT JOIN [TRN].[Voucher] AS V ON V.Id=BJ.VoucherId
             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId

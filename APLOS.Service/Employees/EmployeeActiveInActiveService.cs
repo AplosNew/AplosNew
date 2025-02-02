@@ -2730,17 +2730,20 @@ namespace Library.Service.Employees
                                     ,PCN.Name LPermanentCountry,PRCN.Name LPresentCountry,E.PresentAddress1
 			                		,PD.Name PermanentDistrict,PRD.Name PresentDistrict,PST.Name PermanentState, PRST.Name PresentState,PCT.Name PermanentCity, PRCT.Name PresentCity
                                     ,CASE WHEN DOCDay=0 THEN DOCMonth ELSE DOCDay/30 END AS confirm, PL.LanguageId, PL.Id as 'PlantId', CM.AddressMasterId,E.FirstName FROM EmployeeInformation E
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                                     LEFT JOIN ORG.Company CM ON CM.Id = E.CompanyId
                                     LEFT JOIN MST.AddressMaster AM ON AM.Id = CM.AddressMasterId
                                     LEFT JOIN HKP.BloodGroup BG ON BG.Id = E.BloodGroupID
                                     LEFT JOIN HKP.Designation D ON D.Id = E.GivenDesignationId
                                     LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId = e.GivenDesignationId
                                     LEFT JOIN HKP.EmployeeCategory EC ON EC.Id = DM.EmployeeCategoryId
-                                    LEFT JOIN ORG.Line L ON L.Id=E.LineId
-                                    LEFT JOIN ORG.Unit UN ON UN.Id=E.UnitId
+                                    LEFT JOIN ORG.Line L ON L.Id=MB.LineId
+LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
+                                    LEFT JOIN ORG.Unit UN ON UN.Id=EN.UnitId
 			                		LEFT JOIN [SCS].[PlantSetting] P ON P.PlantId=E.PlantId
-                                    LEFT JOIN ORG.Department DP ON DP.Id=E.DepartmentId
-                                    LEFT JOIN org.Section SE ON SE.Id=E.SectionId
+                                    LEFT JOIN ORG.Department DP ON DP.Id=PR.DepartmentId
+                                    LEFT JOIN org.Section SE ON SE.Id=PR.SectionId
 			                		LEFT JOIN ORG.Plant PL ON PL.Id=E.PlantId
 			                		LEFT JOIN HKP.LocalLanguage A ON A.CompanyId=E.CompanyId AND A.LanguageId='" + languageId + @"'
                                     LEFT JOIN HKP.LocalLanguage LL ON LL.CompanyId=E.CompanyId AND LL.LanguageId='" + languageId + @"'
@@ -2756,7 +2759,7 @@ namespace Library.Service.Employees
 			                		LEFT JOIN HKP.LocalLanguage PRST ON PRST.StateId=E.PresStateId AND PL.LanguageId='" + languageId + @"'
 			                		LEFT JOIN HKP.LocalLanguage PCT ON PCT.CityId=E.ParmCityID AND PL.LanguageId='" + languageId + @"'
 			                		LEFT JOIN HKP.LocalLanguage PRCT ON PRCT.CityId=E.PresCityID AND PL.LanguageId='" + languageId + @"'
-                                    LEFT JOIN HKP.LocalLanguage SEL ON SEL.SectionId=E.SectionId AND SEL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage SEL ON SEL.SectionId=PR.SectionId AND SEL.LanguageId='" + languageId + @"'
                                     LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Name' and LanguageId='" + languageId + @"' ) N ON N.LanguageId=PL.LanguageId
                                     LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage wHERE LabelName='Designation'and LanguageId='" + languageId + @"' ) DN ON DN.LanguageId=PL.LanguageId
                                     LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage wHERE LabelName='Department'and LanguageId='" + languageId + @"' ) DPN ON DPN.LanguageId=PL.LanguageId
@@ -2841,6 +2844,9 @@ namespace Library.Service.Employees
                                     ,PCN.Name LPermanentCountry,PRCN.Name LPresentCountry,E.PresentAddress1,E.PresentAddress2Local
 			                		,PD.Name PermanentDistrict,PRD.Name PresentDistrict,PST.Name PermanentState, PRST.Name PresentState,PCT.Name PermanentCity, PRCT.Name PresentCity
                                     ,CASE WHEN DOCDay=0 THEN DOCMonth ELSE DOCDay/30 END AS confirm, PL.LanguageId, PL.Id as 'PlantId', CM.AddressMasterId,E.FirstName,LDN.UserName LegalDesignation  FROM EmployeeInformation E
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
                                     LEFT JOIN ORG.Company CM ON CM.Id = E.CompanyId
                                     LEFT JOIN MST.AddressMaster AM ON AM.Id = CM.AddressMasterId
                                     LEFT JOIN HKP.BloodGroup BG ON BG.Id = E.BloodGroupID
@@ -2849,10 +2855,10 @@ namespace Library.Service.Employees
                                     LEFT JOIN  hkp.LegalDesignation LDN ON LDN.Id=E.LegalDesignationId
                                     LEFT JOIN HKP.EmployeeCategory EC ON EC.Id = DM.EmployeeCategoryId
                                     LEFT JOIN ORG.Line L ON L.Id=E.LineId
-                                    LEFT JOIN ORG.Unit UN ON UN.Id=E.UnitId
+                                    LEFT JOIN ORG.Unit UN ON UN.Id=EN.UnitId
 			                		LEFT JOIN [SCS].[PlantSetting] P ON P.PlantId=E.PlantId
-                                    LEFT JOIN ORG.Department DP ON DP.Id=E.DepartmentId
-                                    LEFT JOIN org.Section SE ON SE.Id=E.SectionId
+                                    LEFT JOIN ORG.Department DP ON DP.Id=PR.DepartmentId
+                                    LEFT JOIN org.Section SE ON SE.Id=PR.SectionId
 			                		LEFT JOIN ORG.Plant PL ON PL.Id=E.PlantId
 			                		--LEFT JOIN SCS.LegalSalaryGrade LSG on LSG.Id = E.
 									LEFT JOIN MST.ManpowerBudget bbb ON e.BudgetCode = bbb.Id
@@ -2968,6 +2974,9 @@ namespace Library.Service.Employees
                                     ,LocalIdentificationMark,IdentificationMark,cast((DATEDIFF(m, DOB, GETDATE())/12) as varchar) Age,FLOOR(Height) AS HightFt,CEILING((Height*12)%12) HightInc,E.PresentAddress1Local PresentAddress1Local1,E.ParmanentAddress1Local ParmanentAddress1Local1,efp.FileName EmployeeFingerPrint,ISNULL( SBL.Name,SB.username)  SubSection,LDN.UserName LegalDesignation 
                                     ,LMM.Name MaleLocal, LMF.Name FemaleLocal,E.GenderID                                    
                                     FROM EmployeeInformation E
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
                                     LEFT JOIN ORG.Company CM ON CM.Id = E.CompanyId
                                     LEFT JOIN MST.AddressMaster AM ON AM.Id = CM.AddressMasterId
                                     LEFT JOIN HKP.BloodGroup BG ON BG.Id = E.BloodGroupID
@@ -2976,12 +2985,12 @@ namespace Library.Service.Employees
                                     LEFT JOIN  hkp.LegalDesignation LDN ON LDN.Id=E.LegalDesignationId
                                     LEFT JOIN HKP.EmployeeCategory EC ON EC.Id = DM.EmployeeCategoryId
                                     LEFT JOIN ORG.Line L ON L.Id=E.LineId
-                                    LEFT JOIN ORG.Unit UN ON UN.Id=E.UnitId
+                                    LEFT JOIN ORG.Unit UN ON UN.Id=EN.UnitId
 			                		LEFT JOIN [SCS].[PlantSetting] P ON P.PlantId=E.PlantId
-                                    LEFT JOIN ORG.Department DP ON DP.Id=E.DepartmentId
-                                    LEFT JOIN org.Section SE ON SE.Id=E.SectionId
+                                    LEFT JOIN ORG.Department DP ON DP.Id=PR.DepartmentId
+                                    LEFT JOIN org.Section SE ON SE.Id=PR.SectionId
 			                		LEFT JOIN ORG.Plant PL ON PL.Id=E.PlantId
-                                    LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
+                                    LEFT JOIN ORG.SubSection SB ON PR.SubSectionID = SB.Id
 									LEFT JOIN EmployeeFingerPrint efp ON efp.EmpSystemID=E.SystemId AND efp.Id=(SELECT TOP 1 Id FROM EmployeeFingerPrint WHERE EmpSystemID=E.SystemId)
 			                		LEFT JOIN HKP.LocalLanguage A ON A.CompanyId=E.CompanyId AND A.LanguageId='" + languageId + @"'
                                     LEFT JOIN HKP.LocalLanguage SBL ON SBL.SubSectionId=E.SubSectionId AND SBL.LanguageId='" + languageId + @"'
@@ -4045,15 +4054,18 @@ namespace Library.Service.Employees
                              ,GD.Name GenderLabel,Noc.Name NumberOfChildLabel, RR.Name  RosterRelayLabel,PaL.Name  PayAbleLeavelabel,WT.Name WorkingTimelabel,BT.Name  BreakTimelabel,WLD.Name WeeklyLeaveDaysLabel,BG.UserName BloodGroup,(CONVERT(VARCHAR(5), SD.InTime, 108)+'-'+ CONVERT(VARCHAR(5), SD.outtime, 108) ) workingTime
 							 ,(CONVERT(VARCHAR(5), SD.BreakStratTime, 108)+'-'+ CONVERT(VARCHAR(5), SD.BreakEndTime, 108) ) BreakTime, cmt.Name Commentlabel,WD.WeekOff Weakdays,stc.Name StaffCateLabel
                               FROM EmployeeInformation E
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
                               LEFT JOIN ORG.Company CM ON CM.Id = E.CompanyId
                               LEFT JOIN MST.AddressMaster AM ON AM.Id = CM.AddressMasterId
                               LEFT JOIN HKP.BloodGroup BG ON BG.Id = E.BloodGroupID
                               LEFT JOIN HKP.Designation D ON D.Id = E.GivenDesignationId
                               LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId = e.GivenDesignationId
                               LEFT JOIN HKP.EmployeeCategory EC ON EC.Id = DM.EmployeeCategoryId
-                              LEFT JOIN ORG.Line L ON L.Id=E.LineId
+                              LEFT JOIN ORG.Line L ON L.Id=MB.LineId
 							  LEFT JOIN [SCS].[PlantSetting] P ON P.PlantId=E.PlantId
-                              LEFT JOIN ORG.Department DP ON DP.Id=E.DepartmentId
+                              LEFT JOIN ORG.Department DP ON DP.Id=PR.DepartmentId
 							  LEFT JOIN ORG.Plant PL ON PL.Id=E.PlantId
                             LEFT JOIN (SELECT FixSystemID,EmpSystemId,MAX(EffectiveDate) M FROM  EmployeeShiftAssign
 							  WHERE EffectiveDate<=GETDATE()
@@ -4079,7 +4091,7 @@ namespace Library.Service.Employees
                               LEFT JOIN HKP.LocalLanguage LL ON LL.CompanyId=E.CompanyId AND LL.LanguageId=PL.LanguageId
 							  LEFT JOIN HKP.LocalLanguage B ON B.DesignationId=E.GivenDesignationId AND PL.LanguageId=B.LanguageId
 							  LEFT JOIN HKP.LocalLanguage C ON C.DepartmentId =E.DepartmentId AND PL.LanguageId=C.LanguageId
-                              LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = E.SectionId AND PL.LanguageId = SEC.LanguageId
+                              LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = PR.SectionId AND PL.LanguageId = SEC.LanguageId
                               LEFT JOIN HKP.LocalLanguage div ON div.DivisionId = E.DivisionId AND PL.LanguageId = div.LanguageId
                                LEFT JOIN HKP.LocalLanguage EQ ON EQ.QualificationLevelId = EQI.EductLevelSystemID AND PL.LanguageId = EQ.LanguageId
                               LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Name') N ON N.LanguageId=PL.LanguageId
@@ -4404,19 +4416,19 @@ namespace Library.Service.Employees
             try
             {
                 parameters.CmdText = @"SELECT Emp.SystemID,EMP.EmployeeName,CONVERT (int, EMP.EmployeeCode) EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,PR.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant
                                         FROM EmployeeInformation EMP
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                         LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
-                                        WHERE emp.PlantID='" + plantId + @"'  and EMP.CompanyId='" + companyId + @"' and EMP.EmployeeStatus='Active' and EMP.SectionId='" + SectionId + "'";
+                                        WHERE emp.PlantID='" + plantId + @"'  and EMP.CompanyId='" + companyId + @"' and EMP.EmployeeStatus='Active' and PR.SectionId='" + SectionId + "'";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
@@ -4730,19 +4742,19 @@ namespace Library.Service.Employees
         public IEnumerable<object> GetSuperVisor(string companyid, string plantid)
         {
             var sql = @"SELECT Emp.SystemID,EMP.EmployeeName,CONVERT (int, EMP.EmployeeCode) EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,PR.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant,DV.UserName Division,EC.UserName EmployeeCategory,EMP.EmployeeStatus
                                         FROM EmployeeInformation EMP
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                         LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                                         LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
-                                        LEFT JOIN ORG.Division DV on DV.Id = EMP.DivisionId
+                                        LEFT JOIN ORG.Division DV on DV.Id = PR.DivisionId
                                         LEFT JOIN
 									   (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
 									                ,dg.UserName GivenDesignationGroup
@@ -5188,21 +5200,15 @@ namespace Library.Service.Employees
 
 
 
-                var Sql = @"--DECLARE @plantId VARCHAR(10)= '20188';
-                SELECT EI.SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
-                        , EI.EmployeeName, Format(EI.DOB,'dd-MMM-yyyy')DOB, EI.EmployeeStatus,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy')DOS,ld.UserName as LDname,DEG.UserName AS[DesignationName], MB.EntityId,PR.UserName PositionName
-                       , DEG.UserName GivenDesignation, DEPT.UserName Department,EI.EmpPicPath
+                var Sql = @"SELECT EI.SystemId, MB.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName,ei.EmpPicPath
+                        , EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [DesignationName], MB.EntityId,PR.UserName PositionName
+                        , DEG.UserName GivenDesignation,DEPT.UserName Department
                         FROM dbo.EmployeeInformation AS EI
-                        LEFT JOIN HKP.Designation AS DEG ON DEG.Id = EI.DesignationSystemID
-						left join [HKP].[LegalDesignation] as ld on  ld.Id=ei.LegalDesignationId
-                        --LEFT JOIN HKP.Designation AS DEG ON DEG.Id = EI.DesignationSystemID
-                        LEFT JOIN[MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-                       LEFT OUTER JOIN ORG.Position PR ON MB.PositionId= PR.Id
-
-                       LEFT OUTER JOIN ORG.Entity E ON MB.EntityId= E.Id
-
-                       LEFT OUTER JOIN ORG.Department DEPT ON PR.DepartmentId= DEPT.Id
-
+                        LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.GivenDesignationId
+                        LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+                        LEFT OUTER JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                        LEFT OUTER JOIN ORG.Entity E ON MB.EntityId=E.Id
+                        LEFT OUTER JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                        WHERE EI.CompanyId= '" + CompanyId + "'AND EI.PlantId= '" + plantId + "' AND EI.EmployeeStatus= 'Separated'  and EI.dos>=DATEADD(month,-6,GETDATE()) order by EI.dos desc ";
                 return _sqlRepository.GetDataCollection(Sql);
             }
@@ -5219,12 +5225,11 @@ namespace Library.Service.Employees
         {
             try
             {
-                var Sql = @"--DECLARE @plantId VARCHAR(10)='" + plantId + @"';
-                        SELECT EI.SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName,ei.EmpPicPath
+                var Sql = @"SELECT EI.SystemId, MB.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName,ei.EmpPicPath
                         , EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [DesignationName], MB.EntityId,PR.UserName PositionName
                         , DEG.UserName GivenDesignation,DEPT.UserName Department
                         FROM dbo.EmployeeInformation AS EI
-                        LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.DesignationSystemID
+                        LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.GivenDesignationId
                         LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
                         LEFT OUTER JOIN ORG.Position PR ON MB.PositionId=PR.Id
                         LEFT OUTER JOIN ORG.Entity E ON MB.EntityId=E.Id

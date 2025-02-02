@@ -190,12 +190,12 @@ namespace Library.HumanResource.Payroll.SalaryProcess
                                     LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
                                     LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
                                    
-                                    LEFT OUTER JOIN ORG.Division ediv on ediv.id=en.DivisionId
-                                    LEFT OUTER JOIN ORG.SubDivision esdiv on esdiv.id=en.SubDivisionId
+                                    LEFT OUTER JOIN ORG.Division ediv on ediv.id=PR.DivisionId
+                                    LEFT OUTER JOIN ORG.SubDivision esdiv on esdiv.id=PR.SubDivisionId
                                     LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
                                     LEFT OUTER JOIN ORG.Unit eu on eu.id=en.UnitId
 
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
+                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=DM.DesignationGroupId
                            			                                       
                                     Left outer join MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
 									Left outer join HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
