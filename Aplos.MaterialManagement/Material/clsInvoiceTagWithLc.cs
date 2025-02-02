@@ -19,7 +19,7 @@ namespace Library.MaterialManagement.Material
         {
             _sqlRepository = new SqlRepository();
         }
-        public IEnumerable<object> VendorAvailableInvoiceList(string companyGroupId, string companyId, string FromDate, string ToDate, bool DateRange)
+        public IEnumerable<object> VendorAvailableInvoiceList(string companyGroupId, string companyId, string FromDate, string ToDate, bool DateRange, string PartyId)
         {
             try
             {
@@ -101,6 +101,10 @@ namespace Library.MaterialManagement.Material
 											FOR XML path('')
 												,TYPE
 											).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									,IV.InventoryReceiveId GRNNo
+									,PONo=STUFF((select distinct ','+ XLC.Id from
+										trn.PurchaseOrder  XLC JOIN TRN.InventoryReceiveDetail XPDA  ON XPDA.POId=XLC.Id
+										where XPDA.InventoryReceiveId=IV.InventoryReceiveId   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 									,LCRef = STUFF((
 											SELECT DISTINCT ',' + XLC.LCRef
 											FROM dbo.PurchaseLC XLC
@@ -211,6 +215,7 @@ namespace Library.MaterialManagement.Material
 										)
 									AND IV.CompanyGroupId = '" + companyGroupId + @"'
 									AND IV.CompanyId = '" + companyId + @"'
+									AND IV.PartyId = '" + PartyId + @"'
 									" + DatewiseData + @"
 								--AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLCDetail)
 								AND ISNULL(IV.PurchaseLCId,'')=''
@@ -272,7 +277,14 @@ namespace Library.MaterialManagement.Material
 														, TYPE
 													).value('.', 'VARCHAR(MAX)'), 1, 1, ''), '&amp;', '&'), 'amp;', '')
 									,NULL AcceptanceNo
-									, NULL LCRef
+									,IV.InventoryReceiveId GRNNo
+									,PONo=STUFF((select distinct ','+ XLC.Id from
+										trn.PurchaseOrder  XLC JOIN TRN.InventoryReceiveDetail XPDA  ON XPDA.POId=XLC.Id
+										where XPDA.InventoryReceiveId=IV.InventoryReceiveId   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									,LCRef= STUFF((select distinct ','+ plc.LCRef from dbo.PurchaseLC plc 
+										left join trn.PurchaseOrder  XLC on XLC.PurchaseLCId=plc.Id
+										JOIN TRN.InventoryReceiveDetail XPDA  ON XPDA.POId=XLC.Id
+										where XPDA.InventoryReceiveId=IV.InventoryReceiveId   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 									,NULL ContractNo
 									, NULL Customer
 									,NULL MasterLCNo, NULL PurchaseLcId, NULL LoanNo,NULL LCDate,NULL OpeningBank,NULL OpeningBankMasterId
@@ -340,6 +352,7 @@ namespace Library.MaterialManagement.Material
 									AND IV.SourceType IN('" + SourceType.InventoryPayable + @"')
 									AND IV.CompanyGroupId = '" + companyGroupId + @"'
 									AND IV.CompanyId = '" + companyId + @"'
+									AND IV.PartyId = '" + PartyId + @"'
 									AND IR.PurchaseDocumentAcceptanceId IS NULL
 									" + DatewiseData + @"
 								--AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLCDetail)
