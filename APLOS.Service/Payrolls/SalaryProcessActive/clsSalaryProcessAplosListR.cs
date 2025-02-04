@@ -1,4 +1,5 @@
 ﻿//using clsAttendance;
+using ConnectionManager;
 using Library.Crosscutting.Security;
 using Library.Service.Extension.HumanResource.Payroll.SalaryProcess;
 using Library.Service.Extension.Payroll.Tax;
@@ -6050,8 +6051,12 @@ public class clsSalaryProcessAplosR
                         WHERE SDM.EffectiveDate<='" + EffectiveDate + @"' AND ISNULL(SDM.IsApproved,0)=0
                         AND SDM.EmpInfoSystemID IN (" + allEmpIds + @")";
 
-            objCon = new ConnectionManager.DAL.ConManager("1");
-            objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            //objCon = new ConnectionManager.DAL.ConManager("1");
+            //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+
+            ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+            con.getDataSet(strSql, out dsRef);
+
             string EmployeeIds = "";
             for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
             {

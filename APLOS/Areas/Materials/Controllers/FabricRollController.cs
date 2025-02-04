@@ -178,6 +178,14 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost, Authorize]
+        public ActionResult GetSOList()
+        {
+            JsonResult json = Json(clsFabric.GetSOList(), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpPost, Authorize]
         public ActionResult MaterialList(string inventoryReceiveId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

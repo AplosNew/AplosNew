@@ -437,9 +437,65 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
             }
         });
     }
+    $scope.SearchColumn = 'SONo';
+    $scope.SearchValue = null;
 
+    $scope.modelFilterByList = [
+        { 'name': 'SONo', 'value': 'SONo' },
+        { 'name': 'Customer', 'value': 'Customer' },
+        { 'name': 'BuyerReferenceNo', 'value': 'BuyerReferenceNo' },
+        { 'name': 'CustomerPO', 'value': 'CustomerPO' },
+        { 'name': 'OwnReferenceNo', 'value': 'OwnReferenceNo' },
+        { 'name': 'SONo', 'value': 'SONo' },
+        { 'name': 'DeliveryDate', 'value': 'DeliveryDate' }
+    ];
 
+    $scope.SalesOrderList = [];
+    $scope.getSalesOrderByProdOrderList = function () {
+        $http({
+            method: 'POST',
+            //data: {'column': $scope.SearchColumn, 'value': $scope.SearchValue
+            //},
+            url: 'Materials/FabricRoll/GetSOList'
+        }).then(function successCallback(response) {
+            $scope.SalesOrderList = response.data;
+            angular.element(document.querySelector('#SOPopUp')).modal('show');
+        });
+    }
 
+   
 
+    $scope.closePopup = function () {
+        angular.element(document.querySelector('#SOPopUp')).modal('hide');
+    }
+
+    // #region checkbox all
+
+    $scope.refreshTemplate = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+    };
+
+    function CheckBoxSelectAll(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridSOItems").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.SalesOrderList.length; i++) {
+                $scope.SalesOrderList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridSOItems").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
 
 }
