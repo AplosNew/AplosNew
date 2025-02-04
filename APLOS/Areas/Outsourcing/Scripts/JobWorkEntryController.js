@@ -53,7 +53,8 @@ function JobWorkEntryController(addressService, $window, cboService, commonMessa
         }).then(function successCallback(response) {
             $scope.uomList = response.data;
         });
-    };
+    };
+
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         try {

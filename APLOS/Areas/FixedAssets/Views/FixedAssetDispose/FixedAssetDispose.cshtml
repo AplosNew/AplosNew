@@ -5,7 +5,7 @@
             <label class="col-sm-4 control-label">Disposal Type<sup>*</sup></label>
             <div class="col-sm-6 show-message">
                 <div class="select-style">
-                    <select class="form-control"  ng-disabled="Action == 'Update'" ng-change="DisposeTpye();"  name="Status" submit-required="true" ng-model="voucher.Status" required
+                    <select class="form-control" ng-disabled="Action == 'Update'" ng-change="DisposeTpye();" name="Status" submit-required="true" ng-model="voucher.Status" required
                             ng-options="item.Value as item.Text for item in fixedAssetDisposeStatusList"></select>
                 </div>
             </div>
@@ -72,10 +72,10 @@
                         <input type="text" name="PartyName" ng-model="voucher.PartyName" class="form-control" readonly>
                         <span class="input-group-btn">
                             @*showPartyPopUp()*@
-                            <button ng-click="showPartyPopUpNew();" @*ng-disabled="voucher.IsSplit==true"*@  class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="showPartyPopUpNew();" @*ng-disabled="voucher.IsSplit==true"*@ class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
                             <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
                         </span>
-                       
+
                     </div>
                 </div>
             </div>
@@ -86,14 +86,14 @@
             <label class="col-sm-2 control-label">Currency<sup>*</sup></label>
             <div class="col-sm-2 show-message" style="padding-right:0px;">
                 <div class="select-style">
-                    <select id="currencyId" class="form-control" tabindex="5" name="Currency" ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();" >
+                    <select id="currencyId" class="form-control" tabindex="5" name="Currency" ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();">
                         <option value="">--Select--</option>
                         <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
                 </div>
             </div>
             <div class="col-sm-2 show-message" style="padding-left:0px;">
-                <input type="text" maxlength="50" id="Rate" name="Rate" ng-disabled="voucher.CurrencyId==companyCurrencyId" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5"  autocomplete="off">
+                <input type="text" maxlength="50" id="Rate" name="Rate" ng-disabled="voucher.CurrencyId==companyCurrencyId" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off">
             </div>
         </div>
 
@@ -127,7 +127,7 @@
             </div>
         </div>
 
-       
+
 
         <div class="col-xs-12 col-sm-5 col-md-5">
             <div class="form-group" show-errors>
@@ -225,7 +225,7 @@
             <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
-
+    
 
 </div>
 <div class="row text-right aplos-grid-toggle">

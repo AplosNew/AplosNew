@@ -1,6 +1,8 @@
 ﻿'use strict';
 InvoiceTaggedWithLCController.$inject = ['accountService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService', 'bankService', '$controller'];
 function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService, bankService, $controller) {
+    $scope.partyType = "Vendor";
+    $controller("partyBaseController", { $scope: $scope, $http: $http });
     $rootScope.title = "Invoice Tagged With LC";
     $scope.Action = 'Save';
     $scope.path = 'Commercial/InvoiceTaggedWithLC/';
@@ -18,6 +20,9 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     var firstDay = new Date(y, m, 1);
     $scope.AutoLoan = {
         Id: null,
+        PartyId: null,
+        PartyCode: null,
+        PartyName: null,
         FromDate: $filter('dateFiltering')(Date.now()),
         ToDate: $filter('dateFiltering')(Date.now()),
         DateRange: "false",
@@ -41,7 +46,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     $scope.getAutoLoanAvailableList = function () {
         $http({
             method: 'GET',
-            url: $scope.path + "GetVendorAvailableInvoiceList?FromDate=" + $scope.AutoLoanNew.FromDate + '&ToDate=' + $scope.AutoLoanNew.ToDate + '&DateRange=' + $scope.AutoLoanNew.DateRange,
+            url: $scope.path + "GetVendorAvailableInvoiceList?FromDate=" + $scope.AutoLoanNew.FromDate + '&ToDate=' + $scope.AutoLoanNew.ToDate + '&DateRange=' + $scope.AutoLoanNew.DateRange + '&PartyId=' + $scope.AutoLoanNew.PartyId,
         }).then(function successCallback(response) {
             $scope.AutoLoanAvailableDataList = response.data;
         });
@@ -78,6 +83,9 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     $scope.Clear = function () {
         $scope.AutoLoan = {
             Id: null,
+            PartyId: null,
+            PartyCode: null,
+            PartyName: null,
             FromDate: $filter('dateFiltering')(Date.now()),
             ToDate: $filter('dateFiltering')(Date.now()),
             DateRange: "false",
@@ -313,6 +321,14 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         $scope.VoucherNo = data.VoucherNo;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector('#confirmUntagPopUp')).modal('show');
+    };
+
+    $scope.closePartyPopUp = function (x) {
+        var party = x.data;
+        $scope.AutoLoanNew.PartyId = party.Id;
+        $scope.AutoLoanNew.PartyCode = party.Code;
+        $scope.AutoLoanNew.PartyName = party.UserName;
+        $scope.hidePartyPopUp();
     };
 
 }

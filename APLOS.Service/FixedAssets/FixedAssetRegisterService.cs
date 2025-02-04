@@ -4999,7 +4999,7 @@ GROUP BY FAR.FABudgetMasterId
                     _unitOfWork.Rollback();
             }
         }
-        public string InsertCapitalizeAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetailViewModel> assetRegisterList, IEnumerable<FixedAssetRegisterDisposedTaxViewModel> disposedTaxList)
+        public void InsertCapitalizeAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetailViewModel> assetRegisterList, IEnumerable<FixedAssetRegisterDisposedTaxViewModel> disposedTaxList)
         {
             var flag = false;
             try
@@ -5029,6 +5029,8 @@ GROUP BY FAR.FABudgetMasterId
                 };
                 AuditService.AddedLog(fixedAssetDispose);
                 _fixedAssetRegisterDisposedRepository.Insert(fixedAssetDispose);
+                fixedAssetDisposed.Id = fixedAssetDispose.Id;
+                
                 var rdBuilder = new System.Text.StringBuilder();
                 var builderSql = "";
                 foreach (var item in assetRegisterList)
@@ -5087,7 +5089,7 @@ GROUP BY FAR.FABudgetMasterId
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
-                return fixedAssetDisposed.Remarks;
+                //return fixedAssetDisposed;
             }
             catch (CustomException)
             {

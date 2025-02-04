@@ -241,8 +241,15 @@ namespace Library.OrderManagement.Sales
             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "SalesAdditionalTax", out sID);
             return sID;
         }
+		private string GetFixedAssetRegisterDisposedAddiTaxId()
+		{
+			string sID = string.Empty;
+			bplib.clsGenID objGenID = new bplib.clsGenID();
+			objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "FixedAssetRegisterDisposedAdditionalTax", out sID);
+			return sID;
+		}
 
-        public IEnumerable<object> GetSalesAdditionalInfoData(string salesId)
+		public IEnumerable<object> GetSalesAdditionalInfoData(string salesId)
         {
             try
             {
@@ -328,8 +335,47 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                 throw ex;
             }
         }
+		public void SaveFixedAssetRegisterDisposedAdditinalTax(string fixedAssetRegisterDisposedId, decimal BooksCurrencyBaseRate, OTSBD.IdentityParameter para, List<Dictionary<string, object>> UserSendData)
+		{
 
-        public IEnumerable<object> GetPackingSOData(string PackingId)
+			try
+			{
+				string sql = "select * from TRN.FixedAssetRegisterDisposedAdditionalTax where FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposedId + "'";
+				ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+				con.OpenDataSetThroughAdapter(sql, out DataSet dsDetail, false, "1");
+
+				for (int i = 0; i < UserSendData.Count; i++)
+				{
+					dsDetail.Tables[0].DefaultView.RowFilter = "TaxCodeId='" + UserSendData[i]["TaxCodeId"].ToString() + "'";
+					if (dsDetail.Tables[0].DefaultView.Count == 0)
+					{
+
+						DataRow dr = dsDetail.Tables[0].NewRow();
+						dr["Id"] = GetFixedAssetRegisterDisposedAddiTaxId();
+						dr["TaxCodeId"] = UserSendData[i]["TaxCodeId"];
+						dr["TaxCategoryId"] = UserSendData[i]["TaxCategoryId"];
+						dr["Percentage"] = UserSendData[i]["ValueOfFixed"];
+						dr["TaxAmount"] = UserSendData[i]["TaxAmount"];
+						dr["BooksCurrencyTaxAmount"] = Math.Round(Convert.ToDecimal(UserSendData[i]["TaxAmount"]) * BooksCurrencyBaseRate, 2);
+						dr["AddedBy"] = para.AddedBy;
+						dr["AddedDate"] = System.DateTime.Now.ToString();
+						dr["AddedFromIP"] = para.AddedFromIP;
+						dr["FixedAssetRegisterDisposedId"] = fixedAssetRegisterDisposedId.ToString();
+						dsDetail.Tables[0].Rows.Add(dr);
+					}
+
+				}
+
+
+				clsStaticInfo info = new clsStaticInfo();
+				info.SaveDataSets(dsDetail);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+		public IEnumerable<object> GetPackingSOData(string PackingId)
         {
             try
             {
