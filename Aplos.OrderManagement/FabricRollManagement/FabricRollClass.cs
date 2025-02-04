@@ -1510,7 +1510,7 @@ LEFT OUTER JOIN MaterialGridMaster mgm ON mgm.SystemID=mm.materialGridMasterSyst
                 if (string.IsNullOrEmpty(column) == false)
                     strkey = column + " like '%" + value + "%'";
 
-                string _sql = @"DECLARE @plantId VARCHAR(10)='"+ PlantId + @"';
+                string _sql = @"DECLARE @plantId VARCHAR(10)='" + PlantId + @"';
 SELECT * FROM (SELECT IR.Id,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
 			                        , CP.UserName AS PartyAccountGroupName
 			                        , IR.EmployeeId, EI.EmployeeCode, EI.EmployeeName
@@ -1661,7 +1661,7 @@ SELECT * FROM (SELECT IR.Id,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 1
                         WHERE BP.BusinessProcessName='FabricRollManagement'
 						) D ON D.InventoryReceiveId=IR.Id 
                         WHERE IR.PlantId=@plantId AND V.Archive=0 AND IR.[Status]='Posting' AND IR.IsPaymentHold=0 AND IR.PlantId=@plantId AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL
-                        and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN','GRNBYBOQ') AND IR.AddedDate between '"+fromDate+@"' AND '"+toDate+@"' And IR.Id Not IN(SELECT GRNId FROM [BPDT].[FabricRollManagementMaster] Where PlantId=@plantId AND ISNULL(IsConfirm,0)=1)) AS TEMP WHERE " + strkey;
+                        and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN','GRNBYBOQ') AND IR.AddedDate between '" + fromDate + @"' AND '" + toDate + @"' And IR.Id Not IN(SELECT GRNId FROM [BPDT].[FabricRollManagementMaster] Where PlantId=@plantId AND ISNULL(IsConfirm,0)=1)) AS TEMP WHERE " + strkey;
                 return _sqlRepository.GetDataCollection(_sql, null);
 
             }
@@ -1670,6 +1670,37 @@ SELECT * FROM (SELECT IR.Id,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 1
                 throw ex;
             }
         }
+
+        public IEnumerable<object> GetSOList()
+        {
+            try
+            {
+                string _sql = @"SELECT  Flag = CAST(0 AS BIT),P.UserName AS Customer,MOI.BuyerReferenceNo , isnull(PO.PONumber,'') AS CustomerPO,MOI.OwnReferenceNo, ART.StandardName AS ArticleName
+	                            , SO.Id AS SalesOrderId,SO.Id SONo, DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-'),SO.Reason
+								,SO.DeliveryGroup,isnull(MOI.ProductionGrouping,'') AS ProductionGroup,SO.MasterOrderItemId
+,ISNULL(fc.CharacteristicsValueId,'') FirstCharacteristicsValueId,ISNULL(cv1.UserName,'') AS FirstCharacteristicsValue
+                       FROM 
+                       [TRN].[SalesOrder] AS SO 
+                      
+                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
+					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
+                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
+					   LEFT JOIN trn.FirstCharacteristics AS fc ON fc.SalesOrderId=so.Id
+                       LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=fc.CharacteristicsValueId
+                      WHERE SO.OrderStatusId IN('Active','Running') ORDER BY MOI.ArticleID";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> MaterialList(string inventoryReceiveId)
         {
             try
@@ -1855,7 +1886,7 @@ C.ShadeGroup,C.CutableWidthGroup,C.ShrinkageWidthGroup,C.ShrinkageLengthGroup,C.
             }
         }
 
-        
+
         public IEnumerable<object> GetFabricRollMasterConfirmDataList(string PlantId)
         {
             try
@@ -2167,7 +2198,7 @@ Where F.GRNId='" + GRNId + "'"; ;
 
                 foreach (var item in grnDetailList)
                 {
-                   
+
                     string sql = @"Update BPDT.FabricRollManagementChild Set ShadeGroup='" + item["ShadeGroup"] + @"',CutableWidthGroup=" + item["CutableWidthGroup"] + @",ShrinkageWidthGroup=" + item["ShrinkageWidthGroup"] + @",ShrinkageLengthGroup=" + item["ShrinkageLengthGroup"] + @",MarkerGroup='" + item["MarkerGroup"] + @"',IsGrouped=1,Remarks ='" + item["Remarks"] + @"' Where ISNULL(IsGrouped,0)=0
 AND Shade = '" + item["Shade"] + "' AND CutableWidth = " + item["CutableWidth"] + " AND ShrinkageWidthWise = " + item["ShrinkageWidthWise"] + " AND ShrinkageLengthWise = " + item["ShrinkageLengthWise"] + @"
 AND FabricRollManagementMasterId IN(Select Id from [BPDT].[FabricRollManagementMaster] Where ISNULL(IsConfirm,0)=1)";

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ConnectionManager;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -417,9 +418,6 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
                                         left join org.SubSection ss on ss.id=PR.SubSectionId         
 									left join org.Section sc on sc.id=PR.SectionId
 									left join hkp.LegalDesignation dd on dd.id=e.LegalDesignationId
-
-                                         --LEFT OUTER JOIN EmployeeBankInfo EBI ON E.SystemID = EBI.EmpSystemID AND EBI.IsApproved = 1
-                                         left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
 
                                         --MLV
@@ -445,8 +443,11 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
 
                                WHERE E.systemid in (" + _emps + ")";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(strSql, out dsRef);
             }
             catch (Exception ex)
             {
@@ -915,7 +916,6 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
 												   ) S ON E.SystemID = S.EmpInfoSystemID
                                         LEFT OUTER JOIN org.Plant F ON E.PlantID = F.Id
                                         LEFT OUTER JOIN hkp.Designation dgs ON dgs.Id = E.GivenDesignationId
-LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=E.GivenDesignationID
                                         LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id =DM.DesignationGroupID
                             WHERE E.systemid in (" + _emps + ")";
 
