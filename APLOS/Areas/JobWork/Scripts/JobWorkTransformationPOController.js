@@ -2110,14 +2110,14 @@ function JobWorkTransformationPOController(cboService, commonMessage, $scope, $r
                 ShowResult('Please select Material Storage Location', 'failure', 'detailPopUp');
                 return false;
             }
-            if (baseService.isUndefinedOrNull($scope.detailModel.MaterialType)) {
-                ShowResult('Please select Input Material Category', 'failure', 'detailPopUp');
-                return false;
-            }
-            if (baseService.isUndefinedOrNull($scope.detailModel.FinalOutputCategory)) {
-                ShowResult('Please select OutPut Material Category', 'failure', 'detailPopUp');
-                return false;
-            }
+            //if (baseService.isUndefinedOrNull($scope.detailModel.MaterialType)) {
+            //    ShowResult('Please select Input Material Category', 'failure', 'detailPopUp');
+            //    return false;
+            //}
+            //if (baseService.isUndefinedOrNull($scope.detailModel.FinalOutputCategory)) {
+            //    ShowResult('Please select OutPut Material Category', 'failure', 'detailPopUp');
+            //    return false;
+            //}
             if (baseService.isUndefinedOrNull($scope.detailModel.MaterialSpecification)) {
                 ShowResult('Please select Material Specification', 'failure', 'detailPopUp');
                 return false;
@@ -2130,14 +2130,14 @@ function JobWorkTransformationPOController(cboService, commonMessage, $scope, $r
                 ShowResult('Please select Quantity', 'failure', 'detailPopUp');
                 return false;
             }
-            if (baseService.isUndefinedOrNull($scope.detailModel.OrderSpecific)) {
-                ShowResult('Please select Order Specific', 'failure', 'detailPopUp');
-                return false;
-            }
-            if (baseService.isUndefinedOrNull($scope.detailModel.RequiredCapacity)) {
-                ShowResult('Please select Required Capacity', 'failure', 'detailPopUp');
-                return false;
-            }
+            //if (baseService.isUndefinedOrNull($scope.detailModel.OrderSpecific)) {
+            //    ShowResult('Please select Order Specific', 'failure', 'detailPopUp');
+            //    return false;
+            //}
+            //if (baseService.isUndefinedOrNull($scope.detailModel.RequiredCapacity)) {
+            //    ShowResult('Please select Required Capacity', 'failure', 'detailPopUp');
+            //    return false;
+            //}
 
                 if ($scope.productNew.POType == "JWTransformationPO") {
                 if (baseService.isUndefinedOrNull($scope.detailModel.ByProductApplicable)) {
@@ -2158,27 +2158,23 @@ function JobWorkTransformationPOController(cboService, commonMessage, $scope, $r
                 ShowResult('Please select Rate Per Unit', 'failure', 'detailPopUp');
                 return false;
             }
-            if (baseService.isUndefinedOrNull($scope.detailModel.Rejection)) {
-                ShowResult('Please select Rejection', 'failure', 'detailPopUp');
-                return false;
-            }
-            if (baseService.isUndefinedOrNull($scope.detailModel.ValueLoss)) {
-                ShowResult('Please select ValueLoss', 'failure', 'detailPopUp');
-                return false;
-            }
-            if (baseService.isUndefinedOrNull($scope.detailModel.Tolerance)) {
-                ShowResult('enter the Tolerance', 'failure', 'detailPopUp');
-                return false;
-            }
+            //if (baseService.isUndefinedOrNull($scope.detailModel.Rejection)) {
+            //    ShowResult('Please select Rejection', 'failure', 'detailPopUp');
+            //    return false;
+            //}
+            //if (baseService.isUndefinedOrNull($scope.detailModel.ValueLoss)) {
+            //    ShowResult('Please select ValueLoss', 'failure', 'detailPopUp');
+            //    return false;
+            //}
+            //if (baseService.isUndefinedOrNull($scope.detailModel.Tolerance)) {
+            //    ShowResult('enter the Tolerance', 'failure', 'detailPopUp');
+            //    return false;
+            //}
             if (baseService.isUndefinedOrNull($scope.detailModel.ServiceId)) {
                 ShowResult('Please select Service', 'failure', 'detailPopUp');
                 return false;
             }
-            if (baseService.isUndefinedOrNull($scope.detailModel.ResponsiblePersonId)) {
-                ShowResult('Please select Responsible Person', 'failure', 'detailPopUp');
-                return false;
-            }
-
+           
             if (baseService.isUndefinedOrNull($scope.detailModel.EmployeeCode)) {
                 ShowResult('Please select Responsible Person', 'failure', 'detailPopUp');
                 return false;
