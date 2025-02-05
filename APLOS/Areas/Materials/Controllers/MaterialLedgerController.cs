@@ -978,6 +978,7 @@ namespace Aplos.Areas.Materials.Controllers
         #endregion
 
         #region service-acknowledgement-register
+        [Authorize, HttpPost]
         public JsonResult GetServiceAcknowledgementRegister(string fromDate, string toDate, string Type)
         {
             try

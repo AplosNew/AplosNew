@@ -1640,7 +1640,7 @@ namespace Aplos.Areas.JobWork.Controllers
                        LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
                        LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
                        LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-                       LEFT JOIN dbo.[Contract] AS CN ON CN.Id=MOI.ContractId
+                       LEFT JOIN dbo.[Contract] AS CN ON CN.Id=SO.ContractId
                        LEFT JOIN dbo.MasterLC AS MLC ON MLC.Id=CN.MasterLCId
 					   left join SCS.UnitOfMeasurement Uom on Uom.Id=MO.TotalQtyUOMId
 					   where owr.JWTransformationPODetailId='" + MaterialMasterId + @"' ";
