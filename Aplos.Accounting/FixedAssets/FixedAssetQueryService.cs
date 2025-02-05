@@ -781,9 +781,11 @@ namespace Library.Accounting.FixedAssets
 							,ActivityId = CPGL.ActivityId
 							,ActivityCode = A.Code
 							,ActivityName =A.UserName
-							,SUM(FRDD.NegotiationValue)+ISNULL((SELECT SUM(Amount) FROM [TRN].[FixedAssetRegisterDisposedTax] WHERE FixedAssetRegisterDisposedId=@receiveId),0) AS Dr
+							,SUM(FRDD.NegotiationValue)+ISNULL((SELECT SUM(Amount) FROM [TRN].[FixedAssetRegisterDisposedTax] WHERE FixedAssetRegisterDisposedId=@receiveId),0)
+                                + ISNULL((SELECT SUM(TaxAmount) FROM [TRN].[FixedAssetRegisterDisposedAdditionalTax] WHERE FixedAssetRegisterDisposedId=@receiveId),0) AS Dr
 							, NULL Cr
-							,SUM(FRDD.NegotiationValue)+ISNULL((SELECT SUM(Amount) FROM [TRN].[FixedAssetRegisterDisposedTax] WHERE FixedAssetRegisterDisposedId=@receiveId),0) AS Amount
+							,SUM(FRDD.NegotiationValue)+ISNULL((SELECT SUM(Amount) FROM [TRN].[FixedAssetRegisterDisposedTax] WHERE FixedAssetRegisterDisposedId=@receiveId),0) 
+                                + ISNULL((SELECT SUM(TaxAmount) FROM [TRN].[FixedAssetRegisterDisposedAdditionalTax] WHERE FixedAssetRegisterDisposedId=@receiveId),0) AS Amount
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.AssetRegister FR ON FR.Id=FRDD.AssetRegisterId
@@ -880,18 +882,12 @@ namespace Library.Accounting.FixedAssets
 						GROUP BY  ADP.GLGeneralInfoId, ADP.AccountCode, ADP.GLGeneralInfoName, ADP.BudgetMasterId, ADP.BudgetCode, ADP.BudgetName, ADP.ActivityId, ADP.ActivityCode, ADP.ActivityName
                         UNION All
 						SELECT  'TaxPayable' AS OtherName, 'Cr' AS TrnType
-							,GLGeneralInfoId =TCGL.LiabilityGLId        
-							,GLGeneralInfoCode =GL.AccountCode 
-							,GLGeneralInfoName =GL.UserName
-							,BudgetMasterId =TCGL.LiabilityBudgetMasterId
-							,BudgetCode = B.Code
-							,BudgetName =B.UserName 
-							,ActivityId = TCGL.LiabilityActivityId
-							,ActivityCode = A.Code
-							,ActivityName =A.UserName
-							, NULL Dr
-							, SUM(FRDD.Amount) Cr
-							, SUM(FRDD.Amount) AS Amount
+                        ,GLGeneralInfoId =TCGL.LiabilityGLId ,GLGeneralInfoCode =GL.AccountCode ,GLGeneralInfoName =GL.UserName
+                        ,BudgetMasterId =TCGL.LiabilityBudgetMasterId,BudgetCode = B.Code,BudgetName =B.UserName 
+						,ActivityId = TCGL.LiabilityActivityId,ActivityCode = A.Code,ActivityName =A.UserName
+						, NULL Dr
+						, SUM(FRDD.Amount) Cr
+						, SUM(FRDD.Amount) AS Amount
 						FROM  TRN.FixedAssetRegisterDisposedTax FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN [MST].[TaxCategoryGL] AS TCGL ON TCGL.TaxCategoryId=FRDD.TaxCategoryId AND TCGL.InputTaxOutPutTax='Output' AND ISNULL(TCGL.TaxType,'')='Excluded' 
@@ -902,6 +898,25 @@ namespace Library.Accounting.FixedAssets
 						LEFT JOIN [HKP].[Activity] AS A ON TCGL.LiabilityActivityId= A.Id
 						WHERE FRDD.FixedAssetRegisterDisposedId=@receiveId
 						GROUP BY  TCGL.LiabilityGLId, GL.AccountCode, GL.UserName, TCGL.LiabilityBudgetMasterId, B.Code, B.UserName, TCGL.LiabilityActivityId, A.Code, A.UserName
+                        UNION All
+						SELECT 'TCSPayable' AS OtherName, 'Cr' AS TrnType
+						, TGL.WithholdCreditableGLId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
+						, TGL.WithholdCreditableBudgetMasterId AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
+						, TGL.WithholdCreditableActivityId AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
+						,  NULL Dr, SUM(IRT.TaxAmount) AS Cr
+						, SUM(IRT.TaxAmount) AS Amount
+					    FROM [TRN].[FixedAssetRegisterDisposedAdditionalTax] AS IRT
+                        LEFT JOIN [TRN].[FixedAssetRegisterDisposed] AS IR ON IRT.FixedAssetRegisterDisposedId=IR.Id
+					    LEFT JOIN MST.TaxCode TCO ON TCO.Id=IRT.TaxCodeId  
+					    LEFT JOIN MST.TaxCodeGL TGL ON TGL.TaxCodeId=TCO.Id 
+					    LEFT JOIN [MST].[TaxCategory] AS TC ON IRT.TaxCategoryId=TC.Id
+					    LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON TGL.WithholdCreditableGLId=GL.Id
+					    LEFT JOIN [MST].[BudgetMaster] AS BM ON TGL.WithholdCreditableBudgetMasterId= BM.Id
+					    LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+					    LEFT JOIN [HKP].[Activity] AS A ON TGL.WithholdCreditableActivityId= A.Id
+					    WHERE IRT.FixedAssetRegisterDisposedId=@receiveId AND TCO.InputOrOutput='Output' 
+					    GROUP BY  IRT.TaxCategoryId,IRT.TaxCodeId, TGL.WithholdCreditableGLId, GL.AccountCode, GL.UserName, TGL.WithholdCreditableBudgetMasterId, B.Code
+					    , B.UserName, TGL.WithholdCreditableActivityId, A.Code, A.UserName
                         ) X 
                         WHERE X.Amount>0
 						ORDER BY 2 DESC";
