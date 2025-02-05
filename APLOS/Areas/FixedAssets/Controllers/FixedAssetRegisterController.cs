@@ -12,6 +12,7 @@ using Library.Model.FixedAsset;
 using Library.Model.FixedAssets;
 using Library.Model.Inventory;
 using Library.Model.Materials;
+using Library.OrderManagement.Sales;
 using Library.Service.Enums;
 using Library.Service.FixedAssets;
 using Library.Service.Helpers;
@@ -41,7 +42,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         private readonly ISqlRepository _sqlRepository;
         private readonly AccountVoucherReportService _accountVoucherReportService;
 
-
+        clsSales clsSales = new clsSales();
         public FixedAssetRegisterController(
              IFixedAssetRegisterService fixedAssetRegisterService
             , IInventoryPayableService inventoryPayableService
@@ -1971,8 +1972,42 @@ namespace Aplos.Areas.FixedAssets.Controllers
         public JsonResult CreateCapitalizeAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetailViewModel> assetRegisterList, IEnumerable<FixedAssetRegisterDisposedTaxViewModel> disposedTaxList)
         {
             _fixedAssetRegisterService.InsertCapitalizeAssetLost(fixedAssetDisposed,assetRegisterList, disposedTaxList);
-            return Json(new { Message = AplosMessage.Insert });
+            return Json(new { Data = fixedAssetDisposed, Message = AplosMessage.Insert + "Disposed No: " + fixedAssetDisposed.Id + "" });
         }
+        #region Additional Tax
+        [Authorize, HttpPost]//
+        public ActionResult SaveAdditinalTax(string fixedAssetRegisterDisposedId, decimal BooksCurrencyBaseRate, List<Dictionary<string, object>> UserSendData)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                OTSBD.IdentityParameter para = new OTSBD.IdentityParameter
+                {
+                    CompanyGroupId = identity.CompanyGroupId,
+                    CompanyId = identity.CompanyId,
+                    PlantId = identity.PlantId,
+                    AddedBy = identity.Name,
+                    AddedDate = DateTime.Now,
+                    AddedFromIP = identity.IPAddress,
+                    UpdatedBy = identity.Name,
+                    UpdatedDate = DateTime.Now,
+                    UpdatedFromIP = identity.IPAddress
+                };
+
+                clsSales.SaveFixedAssetRegisterDisposedAdditinalTax(fixedAssetRegisterDisposedId, BooksCurrencyBaseRate, para, UserSendData);
+                return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+
+        }
+       
+
+        #endregion
         [HttpPost, Authorize]
         public ActionResult GetCapitalizeAssetRegisterDisposePopUpList(string column, string value, string companyId)
         {
