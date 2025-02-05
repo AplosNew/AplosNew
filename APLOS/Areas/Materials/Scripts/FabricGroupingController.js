@@ -498,4 +498,63 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
 
     // #endregion checkbox all
 
+    $scope.selectedSalesOrderList = [];
+    function MakeData() {
+        try {
+            for (var i = 0; i < $scope.SalesOrderList.length; i++) {
+                var getRow = $filter("filter")($scope.selectedSalesOrderList, { "selectedSalesOrderList": $scope.SalesOrderList[i].SalesOrderId, "FirstCharacteristicsValueId": $scope.SalesOrderList[i].FirstCharacteristicsValueId });
+                if (getRow.length == 0) {
+                    if ($scope.SalesOrderList[i].Flag == true) {
+                        var ob = {};
+                        ob.MasterOrderId = $scope.SalesOrderList[i].MasterOrderId;
+                        ob.MasterOrderItemId = $scope.SalesOrderList[i].MasterOrderItemId;
+                        ob.PartyId = $scope.SalesOrderList[i].PartyId;
+
+                        if (checkExistCustomer($scope.selectedSalesOrderList, ob.PartyId)) {
+                            if (checkExistList($scope.selectedSalesOrderList, ob.MasterOrderId, ob.MasterOrderItemId) === false) {
+
+                                ob.Active = $scope.SalesOrderList[i].Active;
+                                ob.MaterialMaster = $scope.SalesOrderList[i].MaterialMaster;
+                                ob.Article = $scope.SalesOrderList[i].Article;
+                                ob.OrderType = $scope.SalesOrderList[i].OrderType;
+                                ob.CustomerName = $scope.SalesOrderList[i].CustomerName;
+                                ob.MasterOrderNo = $scope.SalesOrderList[i].MasterOrderId;
+                                ob.TotalQty = $scope.SalesOrderList[i].TotalQty;
+                                ob.ItemQty = $scope.SalesOrderList[i].ItemQty;
+                                ob.Currency = $scope.SalesOrderList[i].Currency;
+
+                                $scope.salesVM.PartyId = $scope.SalesOrderList[i].PartyId;
+                                $scope.salesVM.CurrencyId = $scope.SalesOrderList[i].CurrencyId;
+                                $scope.salesVM.BaseCurrencyId = $scope.SalesOrderList[i].BaseCurrencyId;
+                                $scope.salesVM.EntityId = $scope.SalesOrderList[i].EntityId;
+                                $scope.salesVM.ContractId = $scope.SalesOrderList[i].ContractId;
+                                $scope.salesVM.ContractNo = $scope.SalesOrderList[i].ContractNo;
+                                $scope.salesVM.PartyName = $scope.SalesOrderList[i].CustomerName;
+                                $scope.salesVM.PaymentTermId = $scope.SalesOrderList[i].PaymentTermId;
+                                $scope.salesVM.IsPaymentTermChangeable = $scope.SalesOrderList[i].IsPaymentTermChangeable;
+
+                                $scope.selectedSalesOrderList.push(ob);
+                                $scope.getPartyPlant();
+                                $scope.hasError = false;
+                            }
+                        }
+                        else {
+                            $scope.hasError = true;
+                            throw 'Select same Customer.';
+                        }
+                    }
+
+                }
+
+            }
+            $scope.changePaymentTerm($scope.salesVM.PaymentTermId);
+            $scope.GetCurrencyExchangeRateList();
+        } catch (e) {
+            ShowResult(e, 'failure', 'masterOrderPopUp');
+        }
+    }
+
+
+
+
 }

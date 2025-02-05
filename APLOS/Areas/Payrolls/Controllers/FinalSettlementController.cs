@@ -3408,7 +3408,7 @@ where M.AddedDate between '" + fromDate+@"' AND '"+toDate+"'";
             }
         }
 
-        [HttpGet]
+        [HttpGet,Authorize]
         public ActionResult EmployeeSattlementReport(string empSystemId)
         {
             try
