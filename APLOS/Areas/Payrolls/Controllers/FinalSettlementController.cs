@@ -2012,7 +2012,7 @@ WHEN OL.UserName='AdvanceSalary' THEN CAST((
 from TRN.EmployeeSubsequentTransaction where SourceType in('EmployeeAdvanceWriteOff','SalaryPayable') AND  EmployeeId=AD.EmployeeId AND JournalType in('Salary','General')),0) AS Balance
 FROM TRN.EmployeeSubsequentTransaction AS AD
 LEFT JOIN TRN.Voucher V ON V.Id=AD.VoucherId
-WHERE    AD.EmployeeId<>''  AND AD.JournalType in('Salary','General') AND V.IsPark=0
+WHERE    AD.EmployeeId<>''  AND AD.JournalType in('Salary') AND V.IsPark=0
 AND AD.SourceType in ('EmployeeAdvance', 'InterTransaction') AND AD.EmployeeId='" + empId + @"'
 GROUP BY AD.EmployeeId) AS decimal(18,0))) AS varchar(100))
 			
