@@ -3283,6 +3283,28 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     }
 
+    $scope.colorIndex = -1;
+    $scope.showColorPopup = function (index) {
+        $scope.colorIndex = index;
+
+        $("#ColorPoUp").ejDialog("setTitle", "Color");
+        var eDialog = $("#ColorPoUp").data("ejDialog");
+        eDialog.open();
+
+        var gridObj = $("#ColorPoUp").data("ejGrid");
+        gridObj.clearFiltering();
+
+    }
+    $scope.CloseColorPopup = function () {
+        var eDialog = $("#ColorPoUp").data("ejDialog");
+        eDialog.close();
+    }
+
+    $scope.SetColorData = function (args) {
+        $scope.skuList[$scope.colorIndex].CharacteristicsValueId = args.data.Value;
+        $scope.CloseColorPopup();
+    }
+
     $scope.addSkuMatrixColumn = function () {
         var t = 0;
 

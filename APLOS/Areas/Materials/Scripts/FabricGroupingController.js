@@ -468,10 +468,33 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
     }
 
 
-
+    $scope.selectedSalesOrderList = [];
     $scope.closePopup = function () {
-        MakeData();
-        angular.element(document.querySelector('#SOPopUp')).modal('hide');
+        try {
+            for (var i = 0; i < $scope.SalesOrderList.length; i++) {
+                var getRow = $filter("filter")($scope.selectedSalesOrderList, { "selectedSalesOrderList": $scope.SalesOrderList[i].SalesOrderId, "FirstCharacteristicsValueId": $scope.SalesOrderList[i].FirstCharacteristicsValueId });
+                if (getRow.length == 0) {
+                    if ($scope.SalesOrderList[i].Flag == true) {
+                        var ob = {};
+                        ob.SalesOrderId = $scope.SalesOrderList[i].SalesOrderId;
+                        ob.FirstCharacteristicsValueId = $scope.SalesOrderList[i].FirstCharacteristicsValueId;
+
+                        if (checkExistList($scope.selectedSalesOrderList, ob.SalesOrderId, ob.FirstCharacteristicsValueId) === false) {
+                            ob.Id = $scope.SalesOrderList[i].Id;
+                            ob.SalesOrderId = $scope.SalesOrderList[i].SalesOrderId;
+                            ob.FirstCharacteristicsValueId = $scope.SalesOrderList[i].FirstCharacteristicsValueId;
+                            ob.CustomerName = $scope.SalesOrderList[i].CustomerName;
+                            ob.InventoryReceiveDetailId = $scope.InventoryReceiveDetailId;
+                            $scope.selectedSalesOrderList.push(ob);
+                        }
+                    }
+                }
+            }
+            $scope.SaveGRNSOMap();
+            angular.element(document.querySelector('#SOPopUp')).modal('hide');
+        } catch (e) {
+            ShowResult(e, 'failure', 'SOPopUp');
+        }
     }
 
     // #region checkbox all
@@ -503,32 +526,8 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
 
     // #endregion checkbox all
 
-    $scope.selectedSalesOrderList = [];
-    function MakeData() {
-        try {
-            for (var i = 0; i < $scope.SalesOrderList.length; i++) {
-                var getRow = $filter("filter")($scope.selectedSalesOrderList, { "selectedSalesOrderList": $scope.SalesOrderList[i].SalesOrderId, "FirstCharacteristicsValueId": $scope.SalesOrderList[i].FirstCharacteristicsValueId });
-                if (getRow.length == 0) {
-                    if ($scope.SalesOrderList[i].Flag == true) {
-                        var ob = {};
-                        ob.SalesOrderId = $scope.SalesOrderList[i].SalesOrderId;
-                        ob.FirstCharacteristicsValueId = $scope.SalesOrderList[i].FirstCharacteristicsValueId;
-
-                        if (checkExistList($scope.selectedSalesOrderList, ob.SalesOrderId, ob.FirstCharacteristicsValueId) === false) {
-
-                            ob.SalesOrderId = $scope.SalesOrderList[i].SalesOrderId;
-                            ob.FirstCharacteristicsValueId = $scope.SalesOrderList[i].FirstCharacteristicsValueId;
-                            ob.CustomerName = $scope.SalesOrderList[i].CustomerName;
-                            obj.InventoryReceiveDetailId = $scope.InventoryReceiveDetailId;
-                            $scope.selectedSalesOrderList.push(ob);
-                        }
-                    }
-                }
-            }
-        } catch (e) {
-            ShowResult(e, 'failure', 'SOPopUp');
-        }
-    }
+ 
+  
 
     function checkExistList(list, SalesOrderId, FirstCharacteristicsValueId) {
         for (var i = 0; i < list.length; i++) {
@@ -539,6 +538,34 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
         return false;
     }
 
+
+    $scope.SaveGRNSOMap = function () {
+        try {
+
+            if (baseService.arrayLength($scope.selectedSalesOrderList) == 0) {
+                throw "Select Sales Order.";
+            }
+
+            $http({
+                method: 'POST',
+                url: 'Materials/FabricRoll/CreateGRNSOMap',
+                data: { 'datalist': $scope.selectedSalesOrderList, 'InventoryReceiveDetailId': $scope.InventoryReceiveDetailId},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 
 
 }
