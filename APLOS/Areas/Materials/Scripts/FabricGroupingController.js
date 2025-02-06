@@ -367,7 +367,7 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
     $scope.CheckSpecialCharecter = function (data) {
         try {
             var objt = data.data;
-          
+
             if (containsSpecialChars(objt.ShadeGroup)) {
                 objt.ShadeGroup = objt.ShadeGroup.substring(0, objt.ShadeGroup.length - 1);
                 throw "No special characters allowed for Shade Group.";
@@ -379,7 +379,7 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.MakeMarkerGroup = function (data) {
         var objt = data.data;
-       
+
         if (!baseService.isUndefinedOrNull(objt.CutableWidthGroup)) {
             objt.MarkerGroup = objt.CutableWidthGroup;
         }
@@ -389,7 +389,7 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
         if (!baseService.isUndefinedOrNull(objt.ShrinkageLengthGroup)) {
             objt.MarkerGroup = objt.CutableWidthGroup + "/" + objt.ShrinkageWidthGroup + "/" + objt.ShrinkageLengthGroup;
         }
-        
+
         var gridObj = $("#GridGD").data("ejGrid");
         gridObj.refreshContent();
         gridObj.refreshTemplate();
@@ -450,8 +450,12 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
         { 'name': 'DeliveryDate', 'value': 'DeliveryDate' }
     ];
 
+    $scope.InventoryReceiveDetailId = null;
     $scope.SalesOrderList = [];
-    $scope.getSalesOrderByProdOrderList = function () {
+    $scope.getSalesOrderByProdOrderList = function (obj) {
+
+        $scope.InventoryReceiveDetailId = obj.data.GRNRowId;
+
         $http({
             method: 'POST',
             //data: {'column': $scope.SearchColumn, 'value': $scope.SearchValue
@@ -463,9 +467,10 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
         });
     }
 
-   
+
 
     $scope.closePopup = function () {
+        MakeData();
         angular.element(document.querySelector('#SOPopUp')).modal('hide');
     }
 
@@ -506,54 +511,33 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
                 if (getRow.length == 0) {
                     if ($scope.SalesOrderList[i].Flag == true) {
                         var ob = {};
-                        ob.MasterOrderId = $scope.SalesOrderList[i].MasterOrderId;
-                        ob.MasterOrderItemId = $scope.SalesOrderList[i].MasterOrderItemId;
-                        ob.PartyId = $scope.SalesOrderList[i].PartyId;
+                        ob.SalesOrderId = $scope.SalesOrderList[i].SalesOrderId;
+                        ob.FirstCharacteristicsValueId = $scope.SalesOrderList[i].FirstCharacteristicsValueId;
 
-                        if (checkExistCustomer($scope.selectedSalesOrderList, ob.PartyId)) {
-                            if (checkExistList($scope.selectedSalesOrderList, ob.MasterOrderId, ob.MasterOrderItemId) === false) {
+                        if (checkExistList($scope.selectedSalesOrderList, ob.SalesOrderId, ob.FirstCharacteristicsValueId) === false) {
 
-                                ob.Active = $scope.SalesOrderList[i].Active;
-                                ob.MaterialMaster = $scope.SalesOrderList[i].MaterialMaster;
-                                ob.Article = $scope.SalesOrderList[i].Article;
-                                ob.OrderType = $scope.SalesOrderList[i].OrderType;
-                                ob.CustomerName = $scope.SalesOrderList[i].CustomerName;
-                                ob.MasterOrderNo = $scope.SalesOrderList[i].MasterOrderId;
-                                ob.TotalQty = $scope.SalesOrderList[i].TotalQty;
-                                ob.ItemQty = $scope.SalesOrderList[i].ItemQty;
-                                ob.Currency = $scope.SalesOrderList[i].Currency;
-
-                                $scope.salesVM.PartyId = $scope.SalesOrderList[i].PartyId;
-                                $scope.salesVM.CurrencyId = $scope.SalesOrderList[i].CurrencyId;
-                                $scope.salesVM.BaseCurrencyId = $scope.SalesOrderList[i].BaseCurrencyId;
-                                $scope.salesVM.EntityId = $scope.SalesOrderList[i].EntityId;
-                                $scope.salesVM.ContractId = $scope.SalesOrderList[i].ContractId;
-                                $scope.salesVM.ContractNo = $scope.SalesOrderList[i].ContractNo;
-                                $scope.salesVM.PartyName = $scope.SalesOrderList[i].CustomerName;
-                                $scope.salesVM.PaymentTermId = $scope.SalesOrderList[i].PaymentTermId;
-                                $scope.salesVM.IsPaymentTermChangeable = $scope.SalesOrderList[i].IsPaymentTermChangeable;
-
-                                $scope.selectedSalesOrderList.push(ob);
-                                $scope.getPartyPlant();
-                                $scope.hasError = false;
-                            }
-                        }
-                        else {
-                            $scope.hasError = true;
-                            throw 'Select same Customer.';
+                            ob.SalesOrderId = $scope.SalesOrderList[i].SalesOrderId;
+                            ob.FirstCharacteristicsValueId = $scope.SalesOrderList[i].FirstCharacteristicsValueId;
+                            ob.CustomerName = $scope.SalesOrderList[i].CustomerName;
+                            obj.InventoryReceiveDetailId = $scope.InventoryReceiveDetailId;
+                            $scope.selectedSalesOrderList.push(ob);
                         }
                     }
-
                 }
-
             }
-            $scope.changePaymentTerm($scope.salesVM.PaymentTermId);
-            $scope.GetCurrencyExchangeRateList();
         } catch (e) {
-            ShowResult(e, 'failure', 'masterOrderPopUp');
+            ShowResult(e, 'failure', 'SOPopUp');
         }
     }
 
+    function checkExistList(list, SalesOrderId, FirstCharacteristicsValueId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].SalesOrderId === SalesOrderId && list[i].FirstCharacteristicsValueId === FirstCharacteristicsValueId) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
 
