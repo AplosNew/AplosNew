@@ -503,19 +503,6 @@ namespace Aplos.Areas.Materials.Controllers
             return jsondata;
         }
 
-        [Authorize, HttpPost]
-        //public ActionResult PurchaseRegisterItemWiseReport(string plantId, string fromDate, string toDate,string SLNo,string SheetName)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    plantId = identity.PlantId;
-        //    InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
-
-        //    string fileName = "";
-        //    fileName = obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, SLNo, "Purchase Register Item Wise " + fromDate + " To " + toDate + "");
-        //    return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
-
-
-        //}
 
         public ActionResult PurchaseRegisterItemWiseReport(List<Dictionary<string, object>> data, string reportFileName)
         {
@@ -611,24 +598,6 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(new { NewData, Message = AplosMessage.Success });
         }
 
-        //[HttpPost, Authorize]
-        //public ActionResult OtherPurchaseRegisterPartyWiseReport(string PlantId, string ToDate, string FromDate, string PartyId)
-        //{
-        //    try
-        //    {
-        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //        InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
-
-        //        string fileName = "";
-        //        fileName = obj.CreateOtherPurchaseRegisterPartyWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate, PartyId, "Purchase Report Register Party Wise" + FromDate + " To " + ToDate + "");
-        //        return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        throw ex;
-        //    }
-        //}
 
 
 
