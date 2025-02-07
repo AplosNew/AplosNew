@@ -178,6 +178,14 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost, Authorize]
+        public ActionResult GetSOList()
+        {
+            JsonResult json = Json(clsFabric.GetSOList(), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpPost, Authorize]
         public ActionResult MaterialList(string inventoryReceiveId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1575,10 +1583,17 @@ Group By M.GRNId,C.CutableWidthGroup,C.ShrinkageWidthGroup,C.ShrinkageLengthGrou
         }
 
 
-        [HttpPost]
+        [HttpPost,Authorize]
         public JsonResult CreateFabricGrouping(List<Dictionary<string, object>> grnDetailList)
         {
             clsFabric.SaveFabricGrouping(grnDetailList);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateGRNSOMap(List<Dictionary<string, object>> datalist, string InventoryReceiveDetailId)
+        {
+            clsFabric.SaveGRNSOMap(datalist, InventoryReceiveDetailId);
             return Json(new { Message = AplosMessage.Insert });
         }
 

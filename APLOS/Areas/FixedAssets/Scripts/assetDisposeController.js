@@ -172,6 +172,7 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
 
     $scope.Clear = function () {
         $scope.Action = "Save";
+        $scope.voucher.Id = null;
         $scope.voucher.Active = true;
         $scope.voucher.Amount = 0;
         $scope.voucher.DocRefNo = null;
@@ -189,6 +190,8 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
         $scope.voucher.DocDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucherDetailList = [];
+        $scope.advanceTaxesList = [];
+        $scope.advanceTax = {};
     };
 
     $scope.showEmployeeListPopUp = function () {
@@ -287,9 +290,10 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
                     else {
                         ShowResult(response.data.Message, "success");
                         $scope.getData();
-                        $scope.voucher.DocDate = $filter('dateFiltering')(new Date($scope.voucher.DocDate), 'dd-MM-yyyy');
-                        $scope.getTaxCodeByTaxYearWithhold($scope.voucher.DocDate);
-                        $scope.Clear();
+                        var TaxDocDate = $filter('dateFiltering')(new Date($scope.voucher.DocDate), 'dd-MM-yyyy');
+                        $scope.voucher = response.data.Data;
+                        $scope.getTaxCodeByTaxYearWithhold(TaxDocDate);
+                        //$scope.Clear();
                     }
                 }, function errorCallback(response) {
                     ShowResult(response.status.Message, "failure");
@@ -721,8 +725,8 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
         })[0].TaxCategoryId;
         if ($scope.advanceTax.Type == 'FixedPercentage' && !baseService.isUndefinedOrNull($scope.advanceTax.ValueOfFixed)) {//* $scope.advanceTax.ValueOfFixed / 100
 
-            $scope.advanceTax.TaxAmount = parseFloat(((parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceTax"))) * $scope.advanceTax.ValueOfFixed) / 100).toFixed(2);
-            //$scope.advanceTax.TaxAmount = parseFloat(((parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceCharge"))) * $scope.advanceTax.ValueOfFixed) / 100).toFixed(2);
+            $scope.advanceTax.TaxAmount = parseFloat(((parseFloat($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "NegotiationValue")) + parseFloat($filter("sumByKey")($filter("filter")($scope.receiveTaxList), "Amount"))) * $scope.advanceTax.ValueOfFixed) / 100).toFixed(2);
+            
         } else {
             $scope.advanceTax.TaxAmount = $scope.advanceTax.ValueOfFixed;
         }
@@ -735,7 +739,7 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
                 $scope.voucher.ToCurrencyRate = $scope.voucher.CompanyCurrencyRate;
             }
 
-            if ($scope.voucher.IsPark == 0) {
+            if ($scope.voucher.DisposedVoucherId != null) {
                 throw "Posted data cann't save";
             }
             if (baseService.arrayLength($scope.advanceTaxesList) == 0) {
@@ -743,10 +747,10 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
             }
             $http({
                 method: 'POST',
-                url: 'SalesManagements/Sales/SaveAdditinalTax',
+                url: 'FixedAssets/FixedAssetRegister/SaveAdditinalTax',
                 data:
                 {
-                    'salesId': $scope.voucher.Id,
+                    'fixedAssetRegisterDisposedId': $scope.voucher.Id,
                     'BooksCurrencyBaseRate': $scope.voucher.ToCurrencyRate,
                     'UserSendData': $scope.advanceTaxesList
                 },
@@ -758,6 +762,7 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.TotalSumAfterTCS();
+                    $scope.Clear();
 
                 }
             }, function errorCallBack(response) {
@@ -779,7 +784,7 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
         }).then(function successCallback(response) {
             $scope.advanceTaxesList = response.data;
 
-            $scope.advanceTax.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
+            $scope.advanceTax.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "NegotiationValue")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.receiveTaxList), "Amount"))).toFixed(2);
 
         });
 
@@ -815,19 +820,19 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
     };
 
     $scope.calculateTaxAmountForAdditionalTax = function (data) {
-        $scope.TaxAmountVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceTax"))).toFixed(2);
+        $scope.TaxAmountVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "NegotiationValue")) + parseFloat($filter("sumByKey")($filter("filter")($scope.receiveTaxList), "Amount"))).toFixed(2);
 
         $scope.advanceTax.TaxAmount = (($scope.TaxAmountVal * data) / 100).toFixed(2);
 
     };
     $scope.checkRowValidationSdditionalTax = function (data) {
 
-        $scope.TaxAmountVal1 = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceTax"))).toFixed(2);
+        $scope.TaxAmountVal1 = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "NegotiationValue")) + parseFloat($filter("sumByKey")($filter("filter")($scope.receiveTaxList), "Amount"))).toFixed(2);
         $scope.advanceTax.ValueOfFixed = ((data / $scope.TaxAmountVal1) * 100).toFixed(4);
     }
     //$scope.TotalSumAfterTCSVal = "";
     $scope.TotalSumAfterTCS = function () {
-        $scope.advanceTax.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "TaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesMaterialList), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
+        $scope.advanceTax.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "NegotiationValue")) + parseFloat($filter("sumByKey")($filter("filter")($scope.receiveTaxList), "Amount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
     }
 
     //#endregion

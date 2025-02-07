@@ -3101,19 +3101,19 @@ namespace Library.Accounting.FixedAssets
                     columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
 
                 var MaterialTotal = makeLocalTaxInvoiceService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
-               // var SalesTotal = makeOrderServiceTable(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {{ServiceItems}}
-               // var dsInventoryReceiveAdditionalTax = loadLocalTaxInvoiceAdditionalTax(salesId);
+                                                                                                                                        // var SalesTotal = makeOrderServiceTable(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {{ServiceItems}}
+                var dsInventoryReceiveAdditionalTax = loadLocalTaxInvoiceAdditionalTax(salesId);
 
 
                 var InventoryReceiveAdditionalTax = 0.00;
-                //if (dsInventoryReceiveAdditionalTax.Rows.Count > 0)
+                if (dsInventoryReceiveAdditionalTax.Rows.Count > 0)
 
-                //{
-                //    InventoryReceiveAdditionalTax = makeLocalTaxInvoiceTaxTable(document, dsInventoryReceiveAdditionalTax, salesId);//Service Details 
-                //    //document.Replace("{ServiceDetails}", "Service Details", true, true);
+                {
+                    InventoryReceiveAdditionalTax = makeLocalTaxInvoiceTaxTable(document, dsInventoryReceiveAdditionalTax, salesId);//Service Details 
+                    //document.Replace("{ServiceDetails}", "Service Details", true, true);
 
-                //    //{TotalInWords}
-                //}
+                    //{TotalInWords}
+                }
                 document.Replace("{GrandTotal}", (MaterialTotal  + InventoryReceiveAdditionalTax).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["BaseCurrencyName"].ToString(), true, true);
                 //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2"), true, true);
                 document.Replace("{TotalInWords}", ru.InWord((MaterialTotal   + InventoryReceiveAdditionalTax), dsOrderMaster.Rows[0]["BaseCurrencyId"].ToString()), true, true);
@@ -3196,7 +3196,179 @@ namespace Library.Accounting.FixedAssets
 
             document.Close();
         }
+        public double makeLocalTaxInvoiceTaxTable(WordDocument document, DataTable dsOrderMaster, string salesId)
+        {
+            string replaceString = "{TaxCollectedAtSource}";
 
+            ReportUtility ru = new ReportUtility();
+
+            DataTable dsTax;
+            //clsDataContext data = new clsDataContext();
+
+            IWParagraphStyle rightAlign = document.AddParagraphStyle("rightAlign1");
+            //Sets the formatting of the style
+            rightAlign.CharacterFormat.FontSize = 8f;
+            rightAlign.CharacterFormat.TextColor = Color.Black;
+            rightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+
+            dsTax = loadLocalTaxInvoiceAdditionalTax(salesId);
+
+
+            int LasColumnIndex = 1;
+            Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
+            DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
+
+            //LasColumnIndex++;
+            //dicTaxes.Add("totaltax", LasColumnIndex);
+            if (dv.Count > 0)
+            {
+                for (int i = 0; i < dv.Count; i++)
+                {
+                    LasColumnIndex++;
+                    dicTaxes.Add(dv[i]["TaxCode"].ToString(), LasColumnIndex);
+                    //LasColumnIndex++;
+                }
+            }
+
+            WTable wTable = new WTable(document);
+            wTable.TableFormat.Borders.LineWidth = 1;
+            wTable.TableFormat.Borders.BorderType = BorderStyle.Single;
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex + 1);
+
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Taxname");
+            range.ApplyCharacterFormat(FontBold);
+            int colTaxname = COL; COL++;
+
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Percentage");
+            range.ApplyCharacterFormat(FontBold);
+            int colPercentage = COL;
+
+            int colTotalTaxableAmount = COL;
+            if (dv.Count > 0)
+            {
+                COL++;
+                colTotalTaxableAmount = COL;
+                range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Tax Amount");
+                range.ApplyCharacterFormat(FontBold);
+
+            }
+            else
+            {
+                COL++;
+                colTotalTaxableAmount = COL;
+                range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total Amount");
+            }
+
+            wTable.Rows.Add(TemplateRow);
+            ROW++;
+
+
+            #endregion column headers
+            double totalValue = 0;
+            int startRow = ROW + 1;
+            for (int i = 0; i < dsOrderMaster.Rows.Count; i++)
+            {
+                //ROW++;
+                //wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+
+                IParagraphItem p = TROW.Cells[colTaxname].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Taxname"].ToString());
+                TROW.Cells[colPercentage].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["Percentage"].ToString()).ToString("#,##0.0000"));
+
+                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["BooksCurrencyTaxAmount"].ToString()).ToString("#,##0.00"));
+            }
+
+            #region Sub Total
+
+
+            double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(BooksCurrencyTaxAmount)", "").ToString());
+
+            #endregion Total
+
+
+            //ROW++;
+
+            #region Total Payable
+            #endregion Total Payable
+
+            //ROW++;
+
+            #region paragrpath formats
+            //Adds a new paragraph style named "MyStyle"
+            IWParagraphStyle myStyle3 = document.AddParagraphStyle("MyStyle3");
+            //Sets the formatting of the style
+            myStyle3.CharacterFormat.FontSize = 8f;
+            myStyle3.CharacterFormat.TextColor = Color.Black;
+            myStyle3.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            for (int R = 0; R < wTable.Rows.Count; R++)
+            {
+                WTableRow TROW = wTable.Rows[R];
+                TROW.Cells[0].Width = 35;
+                if (dv.Count < 3)
+                    TROW.Cells[0].Width = +((3 - dv.Count) * 40);//for each tax group missing, adjust width with 0 cell
+
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.ApplyStyle("MyStyle3");
+                    }
+                }
+            }
+
+
+            #endregion paragrpath formats
+
+
+            #region merging section
+
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            #endregion merging section
+
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            int k = document.Replace(replaceString, textBodyPart, false, false);
+            return total;
+        }
+        public DataTable loadLocalTaxInvoiceAdditionalTax(string salesId)
+        {
+            string strSQL;
+
+            try
+            {
+                strSQL = @"select TxC.UserName Taxname,SA.Id,SA.TaxCodeId as TaxCode,SA.BooksCurrencyTaxAmount,SA.Percentage
+						from TRN.FixedAssetRegisterDisposedAdditionalTax SA
+						left join TRN.FixedAssetRegisterDisposed as S on S.Id=SA.FixedAssetRegisterDisposedId
+						left join MST.TaxCode as TxC on TxC.id = SA.TaxCodeId
+                        where S.Id='" + salesId + "'";
+
+                return _sqlRepository.GetDataTable(strSQL);
+
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
         public DataTable GetloadAssetDisposeTaxInvoiceDetail(string disposeId)
         {
             string strSQL;

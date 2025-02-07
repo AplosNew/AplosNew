@@ -367,7 +367,7 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
     $scope.CheckSpecialCharecter = function (data) {
         try {
             var objt = data.data;
-          
+
             if (containsSpecialChars(objt.ShadeGroup)) {
                 objt.ShadeGroup = objt.ShadeGroup.substring(0, objt.ShadeGroup.length - 1);
                 throw "No special characters allowed for Shade Group.";
@@ -379,7 +379,7 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.MakeMarkerGroup = function (data) {
         var objt = data.data;
-       
+
         if (!baseService.isUndefinedOrNull(objt.CutableWidthGroup)) {
             objt.MarkerGroup = objt.CutableWidthGroup;
         }
@@ -389,7 +389,7 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
         if (!baseService.isUndefinedOrNull(objt.ShrinkageLengthGroup)) {
             objt.MarkerGroup = objt.CutableWidthGroup + "/" + objt.ShrinkageWidthGroup + "/" + objt.ShrinkageLengthGroup;
         }
-        
+
         var gridObj = $("#GridGD").data("ejGrid");
         gridObj.refreshContent();
         gridObj.refreshTemplate();
@@ -437,9 +437,135 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
             }
         });
     }
+    $scope.SearchColumn = 'SONo';
+    $scope.SearchValue = null;
+
+    $scope.modelFilterByList = [
+        { 'name': 'SONo', 'value': 'SONo' },
+        { 'name': 'Customer', 'value': 'Customer' },
+        { 'name': 'BuyerReferenceNo', 'value': 'BuyerReferenceNo' },
+        { 'name': 'CustomerPO', 'value': 'CustomerPO' },
+        { 'name': 'OwnReferenceNo', 'value': 'OwnReferenceNo' },
+        { 'name': 'SONo', 'value': 'SONo' },
+        { 'name': 'DeliveryDate', 'value': 'DeliveryDate' }
+    ];
+
+    $scope.InventoryReceiveDetailId = null;
+    $scope.SalesOrderList = [];
+    $scope.getSalesOrderByProdOrderList = function (obj) {
+
+        $scope.InventoryReceiveDetailId = obj.data.GRNRowId;
+
+        $http({
+            method: 'POST',
+            //data: {'column': $scope.SearchColumn, 'value': $scope.SearchValue
+            //},
+            url: 'Materials/FabricRoll/GetSOList'
+        }).then(function successCallback(response) {
+            $scope.SalesOrderList = response.data;
+            angular.element(document.querySelector('#SOPopUp')).modal('show');
+        });
+    }
 
 
+    $scope.selectedSalesOrderList = [];
+    $scope.closePopup = function () {
+        try {
+            for (var i = 0; i < $scope.SalesOrderList.length; i++) {
+                var getRow = $filter("filter")($scope.selectedSalesOrderList, { "selectedSalesOrderList": $scope.SalesOrderList[i].SalesOrderId, "FirstCharacteristicsValueId": $scope.SalesOrderList[i].FirstCharacteristicsValueId });
+                if (getRow.length == 0) {
+                    if ($scope.SalesOrderList[i].Flag == true) {
+                        var ob = {};
+                        ob.SalesOrderId = $scope.SalesOrderList[i].SalesOrderId;
+                        ob.FirstCharacteristicsValueId = $scope.SalesOrderList[i].FirstCharacteristicsValueId;
 
+                        if (checkExistList($scope.selectedSalesOrderList, ob.SalesOrderId, ob.FirstCharacteristicsValueId) === false) {
+                            ob.Id = $scope.SalesOrderList[i].Id;
+                            ob.SalesOrderId = $scope.SalesOrderList[i].SalesOrderId;
+                            ob.FirstCharacteristicsValueId = $scope.SalesOrderList[i].FirstCharacteristicsValueId;
+                            ob.CustomerName = $scope.SalesOrderList[i].CustomerName;
+                            ob.InventoryReceiveDetailId = $scope.InventoryReceiveDetailId;
+                            $scope.selectedSalesOrderList.push(ob);
+                        }
+                    }
+                }
+            }
+            $scope.SaveGRNSOMap();
+            angular.element(document.querySelector('#SOPopUp')).modal('hide');
+        } catch (e) {
+            ShowResult(e, 'failure', 'SOPopUp');
+        }
+    }
+
+    // #region checkbox all
+
+    $scope.refreshTemplate = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+    };
+
+    function CheckBoxSelectAll(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridSOItems").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.SalesOrderList.length; i++) {
+                $scope.SalesOrderList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridSOItems").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
+
+ 
+  
+
+    function checkExistList(list, SalesOrderId, FirstCharacteristicsValueId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].SalesOrderId === SalesOrderId && list[i].FirstCharacteristicsValueId === FirstCharacteristicsValueId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    $scope.SaveGRNSOMap = function () {
+        try {
+
+            if (baseService.arrayLength($scope.selectedSalesOrderList) == 0) {
+                throw "Select Sales Order.";
+            }
+
+            $http({
+                method: 'POST',
+                url: 'Materials/FabricRoll/CreateGRNSOMap',
+                data: { 'datalist': $scope.selectedSalesOrderList, 'InventoryReceiveDetailId': $scope.InventoryReceiveDetailId},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 
 
 }

@@ -426,7 +426,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         }
     };
 
-    $scope.MaternityLeaveReport = function (obj) {
+    $scope.PrintDataReport = function (obj) {
         try {
           
             var datum = obj.data;

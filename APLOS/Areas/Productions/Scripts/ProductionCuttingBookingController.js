@@ -108,7 +108,7 @@ function ProductionCuttingBookingController(cboService, commonMessage, $scope, $
             ShowResult(ex, 'Info');
         }
     };
-    $scope.GetCutPlanCbo();
+    //$scope.GetCutPlanCbo();
 
     $scope.cutMasterPlanList = [];
     $scope.GetCutMasterPlanList = function () {
