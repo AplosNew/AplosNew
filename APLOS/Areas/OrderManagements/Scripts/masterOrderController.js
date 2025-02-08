@@ -3288,11 +3288,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         var eDialog = $("#ColorPoUp").data("ejDialog");
         eDialog.open();
 
-        var gridObj = $("#ColorPoUp").data("ejGrid");
+        var gridObj = $("#GridColor").data("ejGrid");
         gridObj.clearFiltering();
 
     }
     $scope.CloseColorPopup = function () {
+
         var eDialog = $("#ColorPoUp").data("ejDialog");
         eDialog.close();
     }
