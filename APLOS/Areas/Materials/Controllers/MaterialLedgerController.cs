@@ -503,7 +503,7 @@ namespace Aplos.Areas.Materials.Controllers
             return jsondata;
         }
 
-
+        [Authorize, HttpPost]
         public ActionResult PurchaseRegisterItemWiseReport(List<Dictionary<string, object>> data, string reportFileName)
         {
             try
