@@ -1675,13 +1675,13 @@ SELECT * FROM (SELECT IR.Id,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 1
         {
             try
             {
-                string _sql = @"SELECT  Flag = CAST(0 AS BIT),P.UserName AS Customer,MOI.BuyerReferenceNo , isnull(PO.PONumber,'') AS CustomerPO,MOI.OwnReferenceNo, ART.StandardName AS ArticleName
+                string _sql = @"SELECT  Flag = CAST(CASE WHEN ISNULL(G.Id,'')='' THEN 0 ELSE 1 END AS BIT),G.Id,P.UserName AS Customer,MOI.BuyerReferenceNo , isnull(PO.PONumber,'') AS CustomerPO,MOI.OwnReferenceNo, ART.StandardName AS ArticleName
 	                            , SO.Id AS SalesOrderId,SO.Id SONo, DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-'),SO.Reason
 								,SO.DeliveryGroup,isnull(MOI.ProductionGrouping,'') AS ProductionGroup,SO.MasterOrderItemId
 ,ISNULL(fc.CharacteristicsValueId,'') FirstCharacteristicsValueId,ISNULL(cv1.UserName,'') AS FirstCharacteristicsValue
                        FROM 
                        [TRN].[SalesOrder] AS SO 
-                      
+                      OUTER APPLY(SELECT * FROM DBO.GRNSOMap WHERE SalesOrderId=SO.Id) G
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
                        JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
                        LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
@@ -2207,6 +2207,47 @@ AND FabricRollManagementMasterId IN(Select Id from [BPDT].[FabricRollManagementM
                 }
                 con.CommitTransaction();
 
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public void SaveGRNSOMap(List<Dictionary<string, object>> data, string InventoryReceiveDetailId)
+        {
+            try
+            {
+                if (data != null)
+                {
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.GRNSOMap Where InventoryReceiveDetailId='"+ InventoryReceiveDetailId + "'", out dsMaster, false, "1");
+
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "' AND SalesOrderId='"+item["SalesOrderId"] +"'";
+
+                        if (dv.Count == 0)
+                        {
+
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
 
 
 
