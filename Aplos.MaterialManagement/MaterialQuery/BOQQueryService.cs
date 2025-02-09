@@ -129,7 +129,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
             {
                 var sql = "";
                     sql = @"select * from(
-                        SELECT IRD.InventoryReceiveId, IRD.POId, IRD.PODetailsId, IRD.Id AS InventoryReceiveDetailId,grnmap.BOQDetailId
+                        SELECT distinct IRD.InventoryReceiveId, IRD.POId, IRD.PODetailsId, IRD.Id AS InventoryReceiveDetailId,grnmap.BOQDetailId
                         , IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName
 	                     , IsPosting=CASE WHEN IR.[Status] IS NULL THEN 0 else 1 END
 						, IsApproved=CASE WHEN IR.IsApproved= 0 THEN 0 else 1 END
