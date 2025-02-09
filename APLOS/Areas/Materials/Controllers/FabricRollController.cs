@@ -178,9 +178,9 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetSOList()
+        public ActionResult GetSOList(string InventoryReceiveDetailId)
         {
-            JsonResult json = Json(clsFabric.GetSOList(), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(clsFabric.GetSOList(InventoryReceiveDetailId), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }

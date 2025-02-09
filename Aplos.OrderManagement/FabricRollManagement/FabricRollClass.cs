@@ -1671,17 +1671,17 @@ SELECT * FROM (SELECT IR.Id,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 1
             }
         }
 
-        public IEnumerable<object> GetSOList()
+        public IEnumerable<object> GetSOList(string InventoryReceiveDetailId)
         {
             try
             {
-                string _sql = @"SELECT  Flag = CAST(CASE WHEN ISNULL(G.Id,'')='' THEN 0 ELSE 1 END AS BIT),G.Id,P.UserName AS Customer,MOI.BuyerReferenceNo , isnull(PO.PONumber,'') AS CustomerPO,MOI.OwnReferenceNo, ART.StandardName AS ArticleName
+                string _sql = @"SELECT Flag = CAST(CASE WHEN ISNULL(G.Id,'')='' THEN 0 ELSE 1 END AS BIT),G.Id,
+P.UserName AS Customer,MOI.BuyerReferenceNo , isnull(PO.PONumber,'') AS CustomerPO,MOI.OwnReferenceNo, ART.StandardName AS ArticleName
 	                            , SO.Id AS SalesOrderId,SO.Id SONo, DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-'),SO.Reason
 								,SO.DeliveryGroup,isnull(MOI.ProductionGrouping,'') AS ProductionGroup,SO.MasterOrderItemId
 ,ISNULL(fc.CharacteristicsValueId,'') FirstCharacteristicsValueId,ISNULL(cv1.UserName,'') AS FirstCharacteristicsValue
                        FROM 
                        [TRN].[SalesOrder] AS SO 
-                      OUTER APPLY(SELECT * FROM DBO.GRNSOMap WHERE SalesOrderId=SO.Id) G
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
                        JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
                        LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
@@ -1692,6 +1692,7 @@ SELECT * FROM (SELECT IR.Id,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 1
                        LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
 					   LEFT JOIN trn.FirstCharacteristics AS fc ON fc.SalesOrderId=so.Id
                        LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=fc.CharacteristicsValueId
+                      OUTER APPLY(SELECT * FROM dbo.GRNSOMap WHERE SalesOrderId=SO.Id and cv1.Id=FirstCharacteristicsValueId And InventoryReceiveDetailId='"+ InventoryReceiveDetailId + @"') G
                       WHERE SO.OrderStatusId IN('Active','Running') ORDER BY MOI.ArticleID";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
@@ -2230,11 +2231,10 @@ AND FabricRollManagementMasterId IN(Select Id from [BPDT].[FabricRollManagementM
                     foreach (var item in data)
                     {
                         DataView dv = new DataView(dsMaster.Tables[0]);
-                        dv.RowFilter = "Id='" + item["Id"] + "' AND SalesOrderId='"+item["SalesOrderId"] +"'";
+                        dv.RowFilter = "Id=" + item["Id"] + " AND SalesOrderId='"+item["SalesOrderId"] + "' AND FirstCharacteristicsValueId='" + item["FirstCharacteristicsValueId"] + "'";
 
                         if (dv.Count == 0)
                         {
-
                             AddNewRow(dsMaster.Tables[0], item);
                         }
                         else

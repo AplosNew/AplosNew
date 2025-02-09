@@ -460,7 +460,7 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
             method: 'POST',
             //data: {'column': $scope.SearchColumn, 'value': $scope.SearchValue
             //},
-            url: 'Materials/FabricRoll/GetSOList'
+            url: 'Materials/FabricRoll/GetSOList?InventoryReceiveDetailId=' + $scope.InventoryReceiveDetailId
         }).then(function successCallback(response) {
             $scope.SalesOrderList = response.data;
             angular.element(document.querySelector('#SOPopUp')).modal('show');
@@ -480,10 +480,10 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
                         ob.FirstCharacteristicsValueId = $scope.SalesOrderList[i].FirstCharacteristicsValueId;
 
                         if (checkExistList($scope.selectedSalesOrderList, ob.SalesOrderId, ob.FirstCharacteristicsValueId) === false) {
-                            ob.Id = $scope.SalesOrderList[i].Id;
+                            ob.Id = $scope.SalesOrderList[i].Id == null ? Math.floor(Math.random() * 9) - 10 : $scope.SalesOrderList[i].Id;
                             ob.SalesOrderId = $scope.SalesOrderList[i].SalesOrderId;
                             ob.FirstCharacteristicsValueId = $scope.SalesOrderList[i].FirstCharacteristicsValueId;
-                            ob.CustomerName = $scope.SalesOrderList[i].CustomerName;
+                            ob.Remarks = $scope.SalesOrderList[i].Remarks;
                             ob.InventoryReceiveDetailId = $scope.InventoryReceiveDetailId;
                             $scope.selectedSalesOrderList.push(ob);
                         }
@@ -526,8 +526,8 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
 
     // #endregion checkbox all
 
- 
-  
+
+
 
     function checkExistList(list, SalesOrderId, FirstCharacteristicsValueId) {
         for (var i = 0; i < list.length; i++) {
@@ -549,7 +549,7 @@ function FabricGroupingController(cboService, commonMessage, $scope, $rootScope,
             $http({
                 method: 'POST',
                 url: 'Materials/FabricRoll/CreateGRNSOMap',
-                data: { 'datalist': $scope.selectedSalesOrderList, 'InventoryReceiveDetailId': $scope.InventoryReceiveDetailId},
+                data: { 'datalist': $scope.selectedSalesOrderList, 'InventoryReceiveDetailId': $scope.InventoryReceiveDetailId },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
