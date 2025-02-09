@@ -654,8 +654,9 @@ function purchaseReturnPostController(accountService, cboService, commonMessage,
                 var has = false;
                 for (var a = 0; a < baseService.arrayLength(newList); a++) {
                     if (row.OtherName === newList[a].OtherName && row.TrnType === newList[a].TrnType && row.GLGeneralInfoId === newList[a].GLGeneralInfoId && row.BudgetMasterId === newList[a].BudgetMasterId && row.ActivityId === newList[a].ActivityId) {
-                        newList[a].Cr += row.Cr;
-                        newList[a].Amount += row.Cr;
+                        var cr = parseFloat(newList[a].Cr.toFixed(4)) + parseFloat(row.Cr.toFixed(4));
+                        newList[a].Cr = parseFloat(cr.toFixed(4));
+                        newList[a].Amount = parseFloat(cr.toFixed(4));
                         has = true;
                         break;
                     }
