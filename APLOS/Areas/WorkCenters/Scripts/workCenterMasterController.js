@@ -92,7 +92,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
         }).then(function successCallback(response) {
             $scope.bulletinMasters = response.data;
 
-            $("#BulletinPoUp").ejDialog("setTitle", "Color");
+            $("#BulletinPoUp").ejDialog("setTitle", "Operation Bulletin");
             var eDialog = $("#BulletinPoUp").data("ejDialog");
             eDialog.open();
 

@@ -743,6 +743,7 @@ WHERE WSP.WorkCenterMasterId='" + workCenterMasterId + "' ORDER BY SP.Sequence";
                     from_db.AccountInCharge = from_ui.AccountInCharge;
                     from_db.GroupingData = from_ui.GroupingData;
                     from_db.Active = from_ui.Active;
+                    from_db.OperationBulletinId = from_ui.OperationBulletinId;
 
                     #endregion Add
                 }
@@ -786,6 +787,7 @@ WHERE WSP.WorkCenterMasterId='" + workCenterMasterId + "' ORDER BY SP.Sequence";
                     from_db.AccountHolder = from_ui.AccountHolder;
                     from_db.AccountInCharge = from_ui.AccountInCharge;
                     from_db.GroupingData = from_ui.GroupingData;
+                    from_db.OperationBulletinId = from_ui.OperationBulletinId;
                     from_db.Active = from_ui.Active;
                     #endregion Edit
                 }
