@@ -96,8 +96,8 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
         $scope.voucher.CurrencyId = data.trnCurrencyId;
         $scope.voucher.PartyName = data.CustomerName;
         $scope.voucher.PartyId = data.PartyId;
-        $scope.voucher.CompanyCurrencyRate = data.CompanyCurrencyRate;
-        $scope.voucher.ToCurrencyRate = data.CompanyCurrencyRate;
+        $scope.voucher.CompanyCurrencyRate = data.ToCurrencyRate;
+        $scope.voucher.ToCurrencyRate = data.ToCurrencyRate;
         $scope.voucher.BaseNagotiationValue = data.BaseNagotiationValue;
         $scope.voucher.DocDate = data.DocDate;
         $scope.voucher.VoucherNo = data.VoucherNo;
@@ -128,6 +128,7 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
         }
 
         $scope.getFARDisposeDetail(data.Id);
+        $scope.getFARDisposeAdditionalTax(data.Id);
         $scope.Action = "Update";
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -139,10 +140,21 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
     $scope.getFARDisposeDetail = function (fixedAssetRegisterDisposeId) {
         $http({
             method: 'GET',
-            url: $scope.path + "GetFixedAssetRegisterDisposeEditList?fixedAssetRegisterDisposeId=" + fixedAssetRegisterDisposeId,
-            // , url: 'FixedAssets/FixedAssetRegister/GetFixedAssetRegisterPopUpList'
+            url: $scope.path + "GetCapitalizedAssetRegisterDisposeEditList?fixedAssetRegisterDisposeId=" + fixedAssetRegisterDisposeId,
         }).then(function successCallback(response) {
             $scope.voucherDetailList = response.data;
+            var TaxDocDate = $filter('dateFiltering')(new Date($scope.voucher.DocDate), 'dd-MM-yyyy');
+            $scope.getTaxCodeByTaxYearWithhold(TaxDocDate);
+        });
+    }
+    $scope.advanceTaxesList = [];
+    $scope.getFARDisposeAdditionalTax = function (fixedAssetRegisterDisposeId) {
+        $scope.advanceTaxesList = [];
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetCapitalizedAssetRegisterDisposeAdditionalTaxList?fixedAssetRegisterDisposeId=" + fixedAssetRegisterDisposeId,
+        }).then(function successCallback(response) {
+            $scope.advanceTaxesList = response.data;
         });
     }
 

@@ -340,8 +340,18 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
 
 			try
 			{
-				string sql = "select * from TRN.FixedAssetRegisterDisposedAdditionalTax where FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposedId + "'";
+				string sqlTax = "select * from TRN.FixedAssetRegisterDisposedAdditionalTax where FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposedId + "'";
 				ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+				con.OpenDataSetThroughAdapter(sqlTax, out DataSet dsDetailTax, false, "1");
+				if (dsDetailTax.Tables[0].DefaultView.Count > 0)
+				{
+					var inDirect = new System.Text.StringBuilder();
+					var inDirectsql = "";
+					inDirectsql = @"DELETE FROM [TRN].[FixedAssetRegisterDisposedAdditionalTax]  where FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposedId + @"' ";
+					inDirect.Append(inDirectsql);
+					_sqlRepository.ExecuteSqlCommand(inDirect.ToString());
+				}
+				string sql = "select * from TRN.FixedAssetRegisterDisposedAdditionalTax where FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposedId + "'";
 				con.OpenDataSetThroughAdapter(sql, out DataSet dsDetail, false, "1");
 
 				for (int i = 0; i < UserSendData.Count; i++)
