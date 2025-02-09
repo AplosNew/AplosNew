@@ -342,6 +342,15 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label class="col-sm-4 control-label">Operation Bulletin</label>
+                                <div class="col-sm-7 ">
+                                    <input type="text" name="Operation Bulletin" ng-model="mastermodal.OperationBulletin" class="form-control" readonly>
+                                </div>
+                                <div class="col-sm-1">
+                                    <button ng-click="getBulletinData();" class="btn single-small-btn pull-right" tabindex="24"><i class="glyphicon glyphicon-search"></i></button>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="col-sm-4 control-label">Active</label>
                                 <div class="col-sm-8">
                                     <div class="checkbox-site">
@@ -456,6 +465,7 @@
                         <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Product Priority</a></li>
                         <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">Shift</a></li>
                         <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" data-toggle="tab">SubProcess</a></li>
+                        <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" data-toggle="tab">Skill</a></li>
                     </ul>
                 </div>
                 <div class="tab-content">
@@ -614,7 +624,7 @@
                                         <td>{{x.InTime}}</td>
                                         <td>{{x.OutTime}}</td>
                                         <td><input type="text" n-decimals="4" ng-model="x.ProductionHours" class="form-control"></td>
-                                        
+
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 <li>
@@ -673,6 +683,9 @@
                             </dir-pagination-controls>
 
                         </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
+
                     </div>
                 </div>
                 <div class="common-btn">
@@ -1129,6 +1142,32 @@
         </div>
     </div>
 </div>
+
+<div class="row">
+    <div class="form-group">
+        <ej-dialog id="BulletinPoUp" title="Operation Bulletin" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#masteraddeditpopup"
+                   e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn">
+            <div class="row">
+                <div style="color:black;" id="Gridbulletin" ej-grid e-datasource="bulletinMasters" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-allowResizing="true" e-recorddoubleclick="SetOperationBulletinData" e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Bulletin ID" e-headertext-color="black" e-textalign="left" e-width="40"></div>
+                        <div e-column e-field="BulletinName" e-headertext="Bulletin Name" e-width="80"></div>
+                        <div e-column e-field="AlternativeName" e-headertext="Alternative Name" e-width="80"></div>
+                        <div e-column e-field="ProductMaster" e-headertext="Product Master" e-width="50"></div>
+                        <div e-column e-field="SizeGroup" e-headertext="Size Group" e-width="20"></div>
+                        <div e-column e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
+                        <div e-column e-field="BuyerItemRefNo" e-headertext="Buyer Style RefNo" e-width="50"></div>
+                        <div e-column e-field="OwnStyleRefNo" e-headertext="Own Style RefNo" e-width="50"></div>
+                        <div e-column e-field="Process" e-headertext="Process" e-width="80"></div>
+                    </div>
+                    
+                </div>
+            </div>
+        </ej-dialog>
+    </div>
+</div>
+
 <!-- #endregion -->
 <confirm-archive-generic data-modalid="confirmmasterdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeMasterYes()"></confirm-archive-generic>
 <confirm-archive-generic data-modalid="confirmRowRemove" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>

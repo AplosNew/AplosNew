@@ -77,9 +77,41 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
         AccountInCharge: null,
         AccountInChargeName: null,
         GroupingData: null,
-        Active: true
+        Active: true,
+        OperationBulletinId: null,
+        OperationBulletin: null
     };
     // #region DDL
+
+    $scope.bulletinMasters = [];
+    $scope.getBulletinData = function () {
+        $scope.bulletinMasters = [];
+        $http({
+            method: 'GET',
+            url: 'IE/bulletintemplate/getlist'
+        }).then(function successCallback(response) {
+            $scope.bulletinMasters = response.data;
+
+            $("#BulletinPoUp").ejDialog("setTitle", "Color");
+            var eDialog = $("#BulletinPoUp").data("ejDialog");
+            eDialog.open();
+
+            var gridObj = $("#Gridbulletin").data("ejGrid");
+            gridObj.clearFiltering();
+        });
+    }
+
+    $scope.CloseOperationBulletinPopup = function () {
+
+        var eDialog = $("#BulletinPoUp").data("ejDialog");
+        eDialog.close();
+    }
+
+    $scope.SetOperationBulletinData = function (args) {
+        $scope.mastermodal.OperationBulletinId = args.data.Id;
+        $scope.mastermodal.OperationBulletin = args.data.BulletinName;
+        $scope.CloseOperationBulletinPopup();
+    }
 
     $scope.uomList = [];
     $scope.getuoMCbo = function (id) {
