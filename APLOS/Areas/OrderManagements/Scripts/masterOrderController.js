@@ -2988,9 +2988,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         $scope.char2ValueAssignmentLevel = $scope.characteristicsList[1].ValueAssignmentLevel;
 
                         angular.element(document.querySelector('#firstPopup')).modal('hide');
-                        angular.element(document.querySelector('#thirdPopup')).modal('hide');
-
-                        angular.element(document.querySelector('#firstPopup')).modal('hide');
                         angular.element(document.querySelector('#secondPopup')).modal('hide');
                         angular.element(document.querySelector('#thirdPopup')).modal('hide');
                         angular.element(document.querySelector('#fourthPopup')).modal('show');
@@ -3228,11 +3225,11 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             });
 
 
-        angular.element(document.querySelector('#generatePopup')).modal('hide');
-        if (baseService.arrayLength($scope.characteristicsList) === 3)
-            angular.element(document.querySelector('#thirdPopup')).modal('show');
-        else
-            angular.element(document.querySelector('#secondPopup')).modal('show');
+        //angular.element(document.querySelector('#generatePopup')).modal('hide');
+        //if (baseService.arrayLength($scope.characteristicsList) === 3)
+        //    angular.element(document.querySelector('#thirdPopup')).modal('show');
+        //else
+        //    angular.element(document.querySelector('#secondPopup')).modal('show');
     };
 
     function getSkuMatrix(rowDataList, columnDataList) {
@@ -3281,6 +3278,29 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 $scope.sumTwoMatQuantity();
             });
 
+    }
+
+    $scope.colorIndex = -1;
+    $scope.showColorPopup = function (index) {
+        $scope.colorIndex = index;
+
+        $("#ColorPoUp").ejDialog("setTitle", "Color");
+        var eDialog = $("#ColorPoUp").data("ejDialog");
+        eDialog.open();
+
+        var gridObj = $("#GridColor").data("ejGrid");
+        gridObj.clearFiltering();
+
+    }
+    $scope.CloseColorPopup = function () {
+
+        var eDialog = $("#ColorPoUp").data("ejDialog");
+        eDialog.close();
+    }
+
+    $scope.SetColorData = function (args) {
+        $scope.skuList[$scope.colorIndex].CharacteristicsValueId = args.data.Value;
+        $scope.CloseColorPopup();
     }
 
     $scope.addSkuMatrixColumn = function () {

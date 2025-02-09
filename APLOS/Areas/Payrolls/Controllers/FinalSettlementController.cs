@@ -2037,7 +2037,8 @@ WHEN OL.UserName='UnPaidSalary' THEN CAST((
 LEFT JOIN SalaryProcMaster AS spm ON spm.SystemID = spc.SlrProcMstSystemID 
 LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID = spc.SalaryHeadID
 LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
-WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL  AND sh.SalaryHead='Net Pay' AND PastDisbursed IS NULL
+LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId AND V.IsPark=0
+WHERE  spc.EmpInfoSystemID= '" + empId + @"' AND PayableVoucherId<>'' and sl.islocked=1 AND sl.DisbursementVoucherId IS NULL  AND sh.SalaryHead='Net Pay' AND PastDisbursed IS NULL
 			 ) AS varchar(100))
 
 			 WHEN OL.UserName='Bonus' THEN CAST((
@@ -2046,7 +2047,7 @@ select BonusAmount=  cast(SUM(spc.DisbusmentAmount)AS decimal(18,0)) from Salary
 left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
 JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
 Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
-LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
+LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId  AND V.IsPark=0
 left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 AND VD.AccountsGroupId=SL.AccountsGroupId 
 Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
 AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL AND ISNULL(sl.PastBonusDisbursed,0) = 0 AND BonusDisbursementAdviceId<>'' 
@@ -3179,12 +3180,10 @@ Order By ESI.Sequence";
                 sheet.Range[ROW, COL, ROW, COL + 2].Merge();
                 ROW++;
 
-                sheet.Range[ROW, COL, ROW, COL + 2].Text = "from " + dtOrder.Rows[0]["Company"].ToString() + " and have no other";
+                sheet.Range[ROW, COL, ROW, COL + 2].Text = "from " + dtOrder.Rows[0]["Company"].ToString() + " and have no other claim, whatsoever, against the company.";
                 sheet.Range[ROW, COL, ROW, COL + 2].Merge();
                 ROW++;
-
-                sheet.Range[ROW, COL, ROW, COL + 2].Text = "claim, whatsoever, against the company.";
-                sheet.Range[ROW, COL, ROW, COL + 2].Merge();
+               
                 ROW++;
                 ROW++;
                 ROW++;

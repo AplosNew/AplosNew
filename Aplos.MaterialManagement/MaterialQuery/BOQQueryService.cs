@@ -129,7 +129,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
             {
                 var sql = "";
                     sql = @"select * from(
-                        SELECT IRD.InventoryReceiveId, IRD.POId, IRD.PODetailsId, IRD.Id AS InventoryReceiveDetailId,grnmap.BOQDetailId
+                        SELECT distinct IRD.InventoryReceiveId, IRD.POId, IRD.PODetailsId, IRD.Id AS InventoryReceiveDetailId,grnmap.BOQDetailId
                         , IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName
 	                     , IsPosting=CASE WHEN IR.[Status] IS NULL THEN 0 else 1 END
 						, IsApproved=CASE WHEN IR.IsApproved= 0 THEN 0 else 1 END
@@ -219,8 +219,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 		                                         from    trn.PurchaseOrder XSO 	 
 												 JOIN [TRN].[PurchaseOrderDetail] AS XIRD ON XSO.Id=XIRD.InventoryReceiveId
 									                where XIRD.InventoryMaterialId=X.MaterialMasterId AND XIRD.ArticleId=X.ArticleId AND XSO.IsClosed=0	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-								 
-FROM (SELECT  distinct IM.MaterialMasterId ,MT.UserName MaterialType,MMG.UserName MaterialGroup,MM.Code MaterialCode,MM.UserName MaterialMasterName
+                    FROM (SELECT  distinct IM.MaterialMasterId ,MT.UserName MaterialType,MMG.UserName MaterialGroup,MM.Code MaterialCode,MM.UserName MaterialMasterName
 						,IM.ArticleId ,MMA.StandardName ArticleName,0 IsSelect
                     FROM TRN.GRNPORequisitionAllocation grnmap
 					JOIN [TRN].[InventoryReceiveDetail] AS IRD  on grnmap.InventoryReceiveDetailId=ird.Id

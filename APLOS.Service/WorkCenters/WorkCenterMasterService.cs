@@ -149,7 +149,7 @@ namespace Library.Service.WorkCenters
 								, m.ResponsiblePersonId, RES.EmployeeName AS ResponsiblePersonName
 								, m.MentorId, MNT.EmployeeName AS MentorName, m.BuyerId
                                 , m.AccountHolder, AH.EmployeeName AS AccountHolderName
-                                , m.AccountInCharge, AC.EmployeeName AS AccountInChargeName,M.GroupingData,M.Active
+                                , m.AccountInCharge, AC.EmployeeName AS AccountInChargeName,M.GroupingData,M.Active,M.OperationBulletinId,BT.BulletinName OperationBulletin
                             FROM [SCS].[WorkCenterMaster] m
                             LEFT JOIN [HKP].[WorkCenterCategory] c ON c.Id = m.WorkCenterCategoryId
                             LEFT JOIN [HKP].[WorkCenterSubCategory] sc ON sc.Id = m.WorkCenterSubCategoryId
@@ -160,6 +160,7 @@ namespace Library.Service.WorkCenters
                             LEFT JOIN EmployeeInformation MNT ON m.MentorId= MNT.SystemId
                             LEFT JOIN EmployeeInformation AH ON m.AccountHolder= AH.SystemId
                             LEFT JOIN EmployeeInformation AC ON m.AccountInCharge= AC.SystemId
+                            LEFT JOIN  [MST].[BulletinTemplate] BT ON m.OperationBulletinId= BT.Id
                                 WHERE m.CompanyId = '" + companyId + "' and m.Id='" + masterid + @"'
                                 Order by m.Code";
                 return _sqlRepository.GetDataCollection(sql, null);
@@ -742,6 +743,7 @@ WHERE WSP.WorkCenterMasterId='" + workCenterMasterId + "' ORDER BY SP.Sequence";
                     from_db.AccountInCharge = from_ui.AccountInCharge;
                     from_db.GroupingData = from_ui.GroupingData;
                     from_db.Active = from_ui.Active;
+                    from_db.OperationBulletinId = from_ui.OperationBulletinId;
 
                     #endregion Add
                 }
@@ -785,6 +787,7 @@ WHERE WSP.WorkCenterMasterId='" + workCenterMasterId + "' ORDER BY SP.Sequence";
                     from_db.AccountHolder = from_ui.AccountHolder;
                     from_db.AccountInCharge = from_ui.AccountInCharge;
                     from_db.GroupingData = from_ui.GroupingData;
+                    from_db.OperationBulletinId = from_ui.OperationBulletinId;
                     from_db.Active = from_ui.Active;
                     #endregion Edit
                 }

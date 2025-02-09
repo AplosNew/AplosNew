@@ -146,11 +146,11 @@
                                 <label class="col-sm-4 control-label">Buyer Division<sup>*</sup></label>
                                 <div class="col-sm-8">
                                     @*
-                <div class="select-style">
-                                                        <select name="Buyer Division" class="form-control" ng-model="fileNew.BuyerDivisionId" ng-options="item.Value as item.Text for item in divisionList" tabindex="13">
-                                                            <option value=""></option>
-                                                        </select>
-                                                    </div>*@
+                                        <div class="select-style">
+                                                                                <select name="Buyer Division" class="form-control" ng-model="fileNew.BuyerDivisionId" ng-options="item.Value as item.Text for item in divisionList" tabindex="13">
+                                                                                    <option value=""></option>
+                                                                                </select>
+                                                                            </div>*@
                                     <div class="select-style">
                                         <select class="form-control" name="Division" id="Division" ng-model="fileNew.BuyerDivisionId" tabindex="8">
                                             @*<option value="ALL">ALL</option>*@
@@ -287,10 +287,10 @@
                                         </span>
                                     </div>
                                     @*<div class="select-style">
-                    <select tabindex="10" id="RemarksControlId" ng-disabled="fileNew.IsPaymentTermChangeable==false" class="form-control" name="Remarks Control" ng-model="fileNew.RemarksControlId">
-                        <option ng-repeat="option in RemarksControlList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>*@
+                                            <select tabindex="10" id="RemarksControlId" ng-disabled="fileNew.IsPaymentTermChangeable==false" class="form-control" name="Remarks Control" ng-model="fileNew.RemarksControlId">
+                                                <option ng-repeat="option in RemarksControlList" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
+                                        </div>*@
                                 </div>
                             </div>
                             <div class="form-group" ng-show="isBuyerApplicable">
@@ -499,13 +499,13 @@
                                             </div>
                                         </td>
                                         @*<td>
-            <div class="input-group">
-                <input type="text" name="Customer" ng-model="x.MaterialMasterName" class="form-control" readonly style="width: 200px;">
-                <span class="input-group-btn">
-                    <button ng-click="getMaterial($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                </span>
-            </div>
-        </td>*@
+                                                <div class="input-group">
+                                                    <input type="text" name="Customer" ng-model="x.MaterialMasterName" class="form-control" readonly style="width: 200px;">
+                                                    <span class="input-group-btn">
+                                                        <button ng-click="getMaterial($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                    </span>
+                                                </div>
+                                            </td>*@
                                         <td>
 
                                             <div class="input-group">
@@ -822,26 +822,26 @@
     </div>
     <div class="aplos-grid-toggle">
         @*<div class="row text-right">
-            <div class="col-xs-12 col-sm-12 col-sm-12">
-                <div class="search-form">
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-3 col-md-3">
-                            <div class="select-style">
-                                <select ng-model="$root.parameters.searchBy">
-                                    <option ng-repeat="option in searchMasterFilterList" value="{{option.Value}}">{{option.Text}}</option>
-                                </select>
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="$root.parameters.searchBy">
+                                        <option ng-repeat="option in searchMasterFilterList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-7 col-md-7">
-                            <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="loadMasterData()">
-                        </div>
-                        <div class="col-xs-12 col-sm-2 col-md-2">
-                            <button type="button" ng-click="loadMasterData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="loadMasterData()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="loadMasterData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>*@
+            </div>*@
         <div class="row text-right">
             <div class="col-xs-12 col-sm-12 col-sm-12">
                 <div class="search-form">
@@ -908,80 +908,80 @@
             </script>
         </div>
         @*<div class="table-responsive modal-table">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Creation Date</th>
-                        <th>Master Order No</th>
-                        <th>Plant</th>
-                        <th>Order Year</th>
-                        <th>Buyer Ord#</th>
-                        <th>Own Ord#</th>
-                        <th>Total Quantity</th>
-                        <th>Order Type</th>
-                        <th>Order Status</th>
-                        <th>Customer</th>
-                        <th>Buyer</th>
-                        <th>Line Item No</th>
-                        <th>Order Category</th>
-                        <th>Responsible Person</th>
-                        <th>Bill To</th>
-                        <th>Ship To</th>
-                        <th>Buyer Ref. No-Item</th>
-                        <th>Own Item#</th>
-                        <th>ContractNo</th>
-                        <th>Master LCNo</th>
-                        <th>Created By</th>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Creation Date</th>
+                            <th>Master Order No</th>
+                            <th>Plant</th>
+                            <th>Order Year</th>
+                            <th>Buyer Ord#</th>
+                            <th>Own Ord#</th>
+                            <th>Total Quantity</th>
+                            <th>Order Type</th>
+                            <th>Order Status</th>
+                            <th>Customer</th>
+                            <th>Buyer</th>
+                            <th>Line Item No</th>
+                            <th>Order Category</th>
+                            <th>Responsible Person</th>
+                            <th>Bill To</th>
+                            <th>Ship To</th>
+                            <th>Buyer Ref. No-Item</th>
+                            <th>Own Item#</th>
+                            <th>ContractNo</th>
+                            <th>Master LCNo</th>
+                            <th>Created By</th>
 
-                        <th>Print</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr dir-paginate="x in files |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get($index);"
-                        pagination-id="metaData.name + 'files'">
-                        <td>{{x.AddedDate | dateFiltering}}</td>
-                        <td>{{x.MasterOrderNo}}</td>
-                        <td>{{x.UserName}}</td>
-                        <td>{{x.OrderYear}}</td>
-                        <td>{{x.BuyerReferenceNo}}</td>
-                        <td>{{x.OwnReferenceNo}}</td>
-                        <td>{{x.TotalQty}}</td>
-                        <td>{{x.OrderType}}</td>
-                        <td>{{x.OrderStatusId}}</td>
-                        <td>{{x.CustomerName}}</td>
-                        <td>{{x.Buyer}}</td>
-                        <td>{{x.NoOfLineItem}}</td>
-                        <td>{{x.OrderCategory}}</td>
-                        <td>{{x.ResponsiblePersonName}}</td>
-                        <td>{{x.InvoicingPartyPlant}}</td>
-                        <td>{{x.DeliveryPartyPlant}}</td>
+                            <th>Print</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr dir-paginate="x in files |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get($index);"
+                            pagination-id="metaData.name + 'files'">
+                            <td>{{x.AddedDate | dateFiltering}}</td>
+                            <td>{{x.MasterOrderNo}}</td>
+                            <td>{{x.UserName}}</td>
+                            <td>{{x.OrderYear}}</td>
+                            <td>{{x.BuyerReferenceNo}}</td>
+                            <td>{{x.OwnReferenceNo}}</td>
+                            <td>{{x.TotalQty}}</td>
+                            <td>{{x.OrderType}}</td>
+                            <td>{{x.OrderStatusId}}</td>
+                            <td>{{x.CustomerName}}</td>
+                            <td>{{x.Buyer}}</td>
+                            <td>{{x.NoOfLineItem}}</td>
+                            <td>{{x.OrderCategory}}</td>
+                            <td>{{x.ResponsiblePersonName}}</td>
+                            <td>{{x.InvoicingPartyPlant}}</td>
+                            <td>{{x.DeliveryPartyPlant}}</td>
 
-                        <td>{{x.BuyerReferenceNoItem}}</td>
-                        <td>{{x.OwnItem}}</td>
-                        <td>{{x.ContractNo}}</td>
-                        <td>{{x.MasterLCNo}}</td>
-                        <td>{{x.AddedBy}}</td>
+                            <td>{{x.BuyerReferenceNoItem}}</td>
+                            <td>{{x.OwnItem}}</td>
+                            <td>{{x.ContractNo}}</td>
+                            <td>{{x.MasterLCNo}}</td>
+                            <td>{{x.AddedBy}}</td>
 
 
-                        <td>
-                            <div class="common-btn">
-                                <ul class="list-inline text-right">
-                                    <li>
-                                        <a class="btn btn-action" href="OrderManagements/MasterOrder/GetMasterOrderReport?masterOrderId={{x.Id}}" target="_blank"><i class="glyphicon glyphicon-print"></i></a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <dir-pagination-controls max-size="10"
-                                 pagination-id="metaData.name + 'files'"
-                                 direction-links="true"
-                                 boundary-links="true"
-                                 on-page-change="loadMasterData(newPageNumber)">
-        </dir-pagination-controls>*@
+                            <td>
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li>
+                                            <a class="btn btn-action" href="OrderManagements/MasterOrder/GetMasterOrderReport?masterOrderId={{x.Id}}" target="_blank"><i class="glyphicon glyphicon-print"></i></a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <dir-pagination-controls max-size="10"
+                                     pagination-id="metaData.name + 'files'"
+                                     direction-links="true"
+                                     boundary-links="true"
+                                     on-page-change="loadMasterData(newPageNumber)">
+            </dir-pagination-controls>*@
     </div>
 </div>
 <ej-dialog id="dialogExchangeCurrency" title="Exchange Rate" e-enablemodal="true" e-position-y="0" e-target="#AplosCurrencyContainer" e-showoninit="false" e-close="onDialogClose" e-minwidth="400px" e-open="enableBtn">
@@ -1464,7 +1464,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Bill Discounting Days</label>
                             <div class="col-sm-8">
-                                <input type="text" only-numbers name="BillDiscountingDays" ng-disabled="IsBillDiscountingDays==false"  ng-model="soModel.BillDiscountingDays" class="form-control" tabindex="106">
+                                <input type="text" only-numbers name="BillDiscountingDays" ng-disabled="IsBillDiscountingDays==false" ng-model="soModel.BillDiscountingDays" class="form-control" tabindex="106">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
@@ -1509,10 +1509,10 @@
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
                                     @*<select name="Shipment From Stock" class="form-control" ng-model="soModel.ShipmentFromStock" tabindex="102">
-                        <option value="">--Select--</option>
-                        <option value="1">Yes</option>
-                        <option value="0">No</option>
-                    </select>*@
+                                            <option value="">--Select--</option>
+                                            <option value="1">Yes</option>
+                                            <option value="0">No</option>
+                                        </select>*@
                                     <div class="select-style">
                                         <select name="Shipment From Stock" class="form-control" ng-model="soModel.ShipmentFromStock" ng-options="item.Value as item.Text for item in ShipmentFromStocklist" required tabindex="102">
                                             <option value="">--Select--</option>
@@ -1844,6 +1844,7 @@
                                             </select>
                                         </div>*@
                                     <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="char1ValueList" e-value="x.CharacteristicsValueId" e-fields-value="Value" e-fields-text="Text" e-change="verifySkuMatrix" e-width="100%" />
+
                                 </td>
                                 <td ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
                                     <input type="text" name="ValueFreeText" ng-model="x.ValueFreeText" maxlength="15" class="form-control" ng-keyup="verifyFirstSkuList()" />
@@ -2040,7 +2041,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="modal-body">
+                <div class="modal-body" id="clrpop">
                     <div class="form-elements form-horizontal table-responsive modal-table">
                         <button ng-click="AddSOSKU('1');" title="Add New {{rowName}}" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i>{{rowName}}</button>
                         <button ng-click="AddSOSKU('2');" title="Add New {{columnName}}" align="left" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i>{{columnName}}</button>
@@ -2093,6 +2094,9 @@
                                         <div ng-class="{'has-error':x.isDuplicate == true, '':x.isDuplicate != true}">
                                             <input type="text" ng-model="x.ValueFreeText" class="form-control" ng-keyup="verifySkuMatrix();" maxlength="15" />
                                         </div>
+                                        <span class="input-group-btn">
+                                            <button ng-click="showColorPopup($index);" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                        </span>
                                     </td>
                                     <td ng-repeat="y in x.childList">
                                         <input type="text" n-decimals="2" ng-model="y.Qty" ng-keyup="sumQty(x, $parent.$index );" class="form-control text-right" />
@@ -2443,7 +2447,7 @@
                                 <textarea class="form-control" name="DestinationDescription" ng-model="soSplitModel.DestinationDescription" rows="1" maxlength="250" tabindex="119"></textarea>
                             </div>
                         </div>
-                       
+
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -2762,8 +2766,8 @@
                                     <div class="col-sm-8">
                                         <input type="text" name="Party" ng-model="articleAlias.PartyName" class="form-control" readonly>
                                         @*<span class="input-group-btn">
-                                            <button ng-click="showPartyPopUpNew();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                        </span>*@
+                                                <button ng-click="showPartyPopUpNew();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                            </span>*@
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -2976,7 +2980,7 @@
                     </div>
                 </div>
             </div>
-            
+
         </div>
     </div>
 </div>
@@ -4481,7 +4485,7 @@
                         </div>
                     </div>
                     <script type="text/template" id="ShowUserRemarks">
-                     <input type="text" name="UserRemarks" maxlength="250" ng-model="data.UserRemarks" class="form-control">
+                        <input type="text" name="UserRemarks" maxlength="250" ng-model="data.UserRemarks" class="form-control">
                     </script>
                 </div>
             </div>
@@ -4589,7 +4593,7 @@
                                 </thead>
                                 <tbody>
                                     <tr ng-repeat="x in SOAdditionalInfoList">
-                                       
+
                                         <td>{{x.UserName}}</td>
                                         <td>
                                             <div class="col-sm-10" style="padding:0px; width:100%;" ng-hide="x.datepic == 'datepicker'">
@@ -4616,6 +4620,23 @@
         </div>
     </div>
 </div>
+
+
+
+
+<ej-dialog id="ColorPoUp" title="Color" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#clrpop" e-close="onDialogClose" e-minwidth="240" e-minheight="200" e-open="enableBtn">
+    <div style="color:black;" id="GridColor" ej-grid e-datasource="char1ValueList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+         e-allowResizing="true" e-recorddoubleclick="SetColorData" e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+        <div e-columns>
+            <div e-column e-field="Text" e-headertext="Color" e-width="80"></div>
+        </div>
+    </div>
+    <div class="common-btn" style="padding-right: 15px;">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="CloseColorPopup();" class="btn">Close</button></li>
+        </ul>
+    </div>
+</ej-dialog>
 
 <confirm-archive-generic modalid="confirmChildSOPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteChildSO();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmChildPackingTypePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeletePackingType();"></confirm-archive-generic>

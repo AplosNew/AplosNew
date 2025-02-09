@@ -872,12 +872,13 @@ namespace Aplos.Areas.Commercial.Controllers
                 var sql = @"SELECT [check]=CAST (0 AS bit),
                                     PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
                                     InvPP.StandardName ,ISNULL(PO.OrderSpecific,'')OrderSpecifi,PO.ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
-                                    ,CONVERT(NUMERIC(10,2),POD.TransactionAmount+ISNULL(POC.Amount,0)) TransactionAmount,ISNULL(PLC.LCAmount,0) LCAmount,
-									BalanceAmount=CONVERT(NUMERIC(10,2),POD.TransactionAmount+ISNULL(POC.Amount,0))-ISNULL(PLC.LCAmount,0),ISNULL(C.ContractNo,'')ContractNo,Flag='MaterialPO',CC.UserName CustomerName,PT.UserName PaymentTerm
+                                    ,CONVERT(NUMERIC(10,2),POD.TransactionAmount+ISNULL(POC.Amount,0)+ISNULL(POT.TaxAmount,0)) TransactionAmount,ISNULL(PLC.LCAmount,0) LCAmount,
+									BalanceAmount=CONVERT(NUMERIC(10,2),POD.TransactionAmount+ISNULL(POC.Amount,0)+ISNULL(POT.TaxAmount,0))-ISNULL(PLC.LCAmount,0),ISNULL(C.ContractNo,'')ContractNo,Flag='MaterialPO',CC.UserName CustomerName,PT.UserName PaymentTerm
                                     ,IsFirst=case when GRN.GRNId>0 then 1 else 0 end,PO.DocRefNo,PO.PaymentTermId
                                     FROM TRN.PurchaseOrder PO
                                     INNER JOIN (SELECT SUM(TransactionAmount) TransactionAmount, InventoryReceiveId 
 							        FROM [TRN].[PurchaseOrderDetail] GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.Id
+									LEFT JOIN (SELECT InventoryReceiveId,SUM(TaxAmount) TaxAmount FROM TRN.PurchaseOrderTax GROUP BY InventoryReceiveId) POT ON POT.InventoryReceiveId=PO.ID
                                     LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
                                     LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
                                     LEFT JOIN [dbo].[Contract] C ON C.Id=PO.ContractId
