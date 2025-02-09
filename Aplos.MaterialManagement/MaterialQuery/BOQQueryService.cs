@@ -219,8 +219,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 		                                         from    trn.PurchaseOrder XSO 	 
 												 JOIN [TRN].[PurchaseOrderDetail] AS XIRD ON XSO.Id=XIRD.InventoryReceiveId
 									                where XIRD.InventoryMaterialId=X.MaterialMasterId AND XIRD.ArticleId=X.ArticleId AND XSO.IsClosed=0	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-								 
-FROM (SELECT  distinct IM.MaterialMasterId ,MT.UserName MaterialType,MMG.UserName MaterialGroup,MM.Code MaterialCode,MM.UserName MaterialMasterName
+                    FROM (SELECT  distinct IM.MaterialMasterId ,MT.UserName MaterialType,MMG.UserName MaterialGroup,MM.Code MaterialCode,MM.UserName MaterialMasterName
 						,IM.ArticleId ,MMA.StandardName ArticleName,0 IsSelect
                     FROM TRN.GRNPORequisitionAllocation grnmap
 					JOIN [TRN].[InventoryReceiveDetail] AS IRD  on grnmap.InventoryReceiveDetailId=ird.Id
