@@ -1011,6 +1011,24 @@ namespace Aplos.Areas.FixedAssets.Controllers
                 companyId = identity.CompanyId;
             return Json(_fixedAssetQueryService.GetFixedAssetRegisterDisposeEditList(fixedAssetRegisterDisposeId, companyId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
         }
+        [HttpGet, Authorize]
+        public ActionResult GetCapitalizedAssetRegisterDisposeEditList(string fixedAssetRegisterDisposeId, string companyId)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (companyId == null)
+                companyId = identity.CompanyId;
+            return Json(_fixedAssetQueryService.GetCapitalizedAssetRegisterDisposeEditList(fixedAssetRegisterDisposeId, companyId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetCapitalizedAssetRegisterDisposeAdditionalTaxList(string fixedAssetRegisterDisposeId, string companyId)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (companyId == null)
+                companyId = identity.CompanyId;
+            return Json(_fixedAssetQueryService.GetCapitalizedAssetRegisterDisposeAdditionalTaxList(fixedAssetRegisterDisposeId, companyId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
+        }
 
         [Authorize, HttpGet]
         public JsonResult GetFixedAssetAccDepGL(GridParameter parameters, string companyId)

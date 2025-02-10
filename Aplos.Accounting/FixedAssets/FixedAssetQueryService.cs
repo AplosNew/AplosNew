@@ -428,6 +428,34 @@ namespace Library.Accounting.FixedAssets
             return _sqlRepository.GetDataCollection(sql);
         }
 
+        public List<Dictionary<string, object>> GetCapitalizedAssetRegisterDisposeEditList(string fixedAssetRegisterDisposeId, string companyId)
+        {
+            var sql = @"select top 300 * from (SELECT FADD.Id,ARC.AssetRegisterId FixedAssetRegisterId,ARC.AssetRegisterId,SUM(ARC.Amount) AssetAmount
+                            ,(SUM(ISNULL(ARC.DepreciationAmount,0))+ SUM(ISNULL(ARC.AdjustmentDepreciationAmount,0))) DepreciationAmount
+                            ,(SUM(ARC.Amount)-(SUM(ISNULL(ARC.DepreciationAmount,0))+ SUM(ISNULL(ARC.AdjustmentDepreciationAmount,0)))) NetAmount
+                            ,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem,AR.AssetSlNo, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks
+							,sum(isnull(FADD.NegotiationValue,0))NegotiationValue,sum(isnull(FADD.BaseNagotiationValue,0))BaseNagotiationValue
+							,(SELECT SUM(ISNULL(Amount,0)) FROM [TRN].[FixedAssetRegisterDisposedTax] WHERE FixedAssetRegisterDisposedId=FADD.FixedAssetRegisterDisposedId)TaxAmount
+                            FROM TRN.AssetRegisterChild ARC
+							LEFT JOIN TRN.AssetRegister AR ON AR.Id=ARC.AssetRegisterId
+							LEFT JOIN [TRN].[FixedAssetRegisterDisposedDetail] FADD ON FADD.AssetRegisterId=ARC.AssetRegisterId
+                            LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+                            LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
+                            WHERE ARC.CompanyId= '" + companyId + @"' AND FADD.FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposeId + @"'
+                            GROUP BY FADD.Id,ARC.AssetRegisterId,FAM.UserName ,FAI.UserName ,AR.AssetSlNo,AR.Status,FADD.FixedAssetRegisterDisposedId
+						    , AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks
+                            ) AS TEMP ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        public List<Dictionary<string, object>> GetCapitalizedAssetRegisterDisposeAdditionalTaxList(string fixedAssetRegisterDisposeId, string companyId)
+        {
+            var sql = @"select top 300 * from (SELECT TC.UserName TaxName,FADAT.Percentage ValueOfFixed,FADAT.BooksCurrencyTaxAmount CompanyCurrencyAmount,FADAT.* 
+                        FROM [TRN].[FixedAssetRegisterDisposedAdditionalTax] FADAT
+                        INNER JOIN [MST].[TaxCode] AS TC ON TC.Id = FADAT.TaxCodeId
+                        WHERE FADAT.FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposeId + @"'
+                        ) AS TEMP ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
 
         public List<Dictionary<string, object>> GetFixedAssetLostByDisposeIdList(string id)
         {
