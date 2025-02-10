@@ -229,7 +229,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 					LEFT JOIN Mst.MaterialGroupMaster MMG ON MMG.Id=MM.MaterialGroupMasterId
 					LEFT JOIN HKP.MaterialType MT ON MT.Id=MMG.MaterialTypeId
                     LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
-                LEFT JOIN dbo.BOQ boq on boq.Id=grnmap.BOQDetailId
+                    LEFT JOIN dbo.BOQ boq on boq.Id=grnmap.BOQDetailId
 					LEFT JOIN [dbo].[CostingBOQItems] cboqI on cboqI.CostingBOQMasterId=boq.CostingBOQMasterId
 					LEFT JOIN [TRN].[SalesOrder] SO ON SO.Id=cboqI.SalesOrderId
 					LEFT JOIN (
