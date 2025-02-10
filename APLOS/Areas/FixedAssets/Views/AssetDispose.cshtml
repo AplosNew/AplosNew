@@ -68,27 +68,29 @@
             </div>
 
         </div>
-
-        <div class="form-group" show-errors>
-            <label class="col-sm-2 control-label">Currency<sup>*</sup></label>
-            <div class="col-sm-2 show-message" style="padding-right:0px;">
-                <div class="select-style">
-                    <select id="currencyId" class="form-control" tabindex="5" name="Currency" ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();">
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
+        <div class="col-xs-12 col-sm-3 col-md-3">
+            <div class="form-group" show-errors>
+                <label class="col-sm-2 control-label">Currency<sup>*</sup></label>
+                <div class="col-sm-2 show-message" style="padding-right:0px;">
+                    <div class="select-style">
+                        <select id="currencyId" class="form-control" tabindex="5" name="Currency" ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-2 show-message" style="padding-left:0px;">
+                    <input type="text" maxlength="50" id="Rate" name="Rate" ng-disabled="voucher.CurrencyId==companyCurrencyId" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off">
                 </div>
             </div>
-            <div class="col-sm-2 show-message" style="padding-left:0px;">
-                <input type="text" maxlength="50" id="Rate" name="Rate" ng-disabled="voucher.CurrencyId==companyCurrencyId" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off">
-            </div>
-        </div>
-
-        <div class="col-xs-12 col-sm-3 col-md-3">
-
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
-
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Lorry No</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" class="form-control" name="LorryNo" ng-model="voucher.LorryNo">
+                </div>
+            </div>
         </div>
     </fieldset>
     <div class="clearfix"></div>
