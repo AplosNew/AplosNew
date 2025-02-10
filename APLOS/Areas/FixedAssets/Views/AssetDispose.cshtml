@@ -285,7 +285,7 @@
                         </div>
                     </div>
                     <ul class="list-inline text-right">
-                        <li><button ng-click="SaveAdditinalTax();" ng-disabled="voucher.Id==null || voucher.RowState==='Posted'" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Save</button></li>
+                        <li><button ng-click="SaveAdditinalTax();" ng-disabled="voucher.Id==null || voucher.RowState==='Posted' || voucher.VoucherNo!=''" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Save</button></li>
 
                     </ul>
                 </div>
@@ -327,20 +327,23 @@
             <div e-column e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="60"></div>
             <div e-column e-field="NegotiationValue" e-headertext="Negotiation Amount" e-width="80" e-type="numeric" e-format="{0:0.00}" e-textalign="right"></div>
-            <div e-column e-headertext="Actions" e-template="#TaxInvoiceReport" e-width="70"></div>
+            <div e-column e-headertext="Actions" e-template="#TaxInvoiceReport" e-width="90"></div>
         </div>
         <script type="text/template" id="TaxInvoiceReport">
 
             <ul class="common-btn list-inline text-left">
                 @*<li>
-                    <div ej-tooltip e-showshadow="true" e-content="Detail" ng-click="$parent.LocalTaxInvoiceReport(this);" e-width="width">
-                        <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-excel-o"></i></button>
-                    </div>
+            <div ej-tooltip e-showshadow="true" e-content="Detail" ng-click="$parent.LocalTaxInvoiceReport(this);" e-width="width">
+                <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-excel-o"></i></button>
+            </div>
 
-                </li>*@
+        </li>*@
                 <li>
                     <a class="btn btn-action" ng-click="$parent.FixedDisposeTaxInvoice(this);" title="Tax Invoice" href="" target="_blank"><i class=""></i>TI</a>
                 </li>
+                @*<li>
+                    <a class="btn btn-action" ng-click="$parent.FixedAssetRegisterDisposedDelete(this);" title="Delete" href="" ng-disabled="this.VoucherNo==''"><i class=""></i>Delete</a>
+                </li>*@
             </ul>
 
         </script>
