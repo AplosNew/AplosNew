@@ -70,8 +70,8 @@
         </div>
         <div class="col-xs-12 col-sm-3 col-md-3">
             <div class="form-group" show-errors>
-                <label class="col-sm-2 control-label">Currency<sup>*</sup></label>
-                <div class="col-sm-2 show-message" style="padding-right:0px;">
+                <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
+                <div class="col-sm-4 show-message" style="padding-right:0px;">
                     <div class="select-style">
                         <select id="currencyId" class="form-control" tabindex="5" name="Currency" ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();">
                             <option value="">--Select--</option>
@@ -79,7 +79,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-sm-2 show-message" style="padding-left:0px;">
+                <div class="col-sm-4 show-message" style="padding-left:0px;">
                     <input type="text" maxlength="50" id="Rate" name="Rate" ng-disabled="voucher.CurrencyId==companyCurrencyId" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off">
                 </div>
             </div>
@@ -88,7 +88,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label">Lorry No</label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" class="form-control" name="LorryNo" ng-model="voucher.LorryNo">
+                    <input type="text" class="form-control" name="LorryNo" ng-model="voucher.LorryNo" max="100">
                 </div>
             </div>
         </div>
@@ -328,6 +328,7 @@
             <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="120"></div>
             <div e-column e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="60"></div>
+            <div e-column e-field="LorryNo" e-headertext="Lorry No" e-width="60"></div>
             <div e-column e-field="NegotiationValue" e-headertext="Negotiation Amount" e-width="80" e-type="numeric" e-format="{0:0.00}" e-textalign="right"></div>
             <div e-column e-headertext="Actions" e-template="#TaxInvoiceReport" e-width="90"></div>
         </div>

@@ -5015,7 +5015,7 @@ GROUP BY FAR.FABudgetMasterId
                 {
                     Status = fixedAssetDisposed.Status,
                     Remarks = fixedAssetDisposed.Remarks,
-                    //LorryNo = fixedAssetDisposed.LorryNo,
+                    LorryNo = fixedAssetDisposed.LorryNo,
                     EmployeeId = fixedAssetDisposed.EmployeeId,
                     PartyId = fixedAssetDisposed.PartyId,
                     PartyPlantId = fixedAssetDisposed.PartyPlantId,

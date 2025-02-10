@@ -93,6 +93,7 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
         $scope.voucher.Status = data.Status;
         $scope.voucher.Id = data.Id;
         $scope.voucher.Remarks = data.Remarks;
+        $scope.voucher.LorryNo = data.LorryNo;
         $scope.voucher.TrnCurrency = data.TrnCurrency;
         $scope.voucher.CurrencyId = data.trnCurrencyId;
         $scope.voucher.PartyName = data.CustomerName;
@@ -192,6 +193,7 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
         $scope.voucher.Narration = null;
         $scope.voucher.Status = null;
         $scope.voucher.Remarks = null;
+        $scope.voucher.LorryNo = null;
         $scope.voucher.PartyId = null;
         $scope.voucher.PartyPlantId = null;
         $scope.voucher.DeliveryPartyPlantId = null;
