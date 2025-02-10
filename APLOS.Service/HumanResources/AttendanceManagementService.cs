@@ -30667,7 +30667,8 @@ namespace Library.Service.HumanResources
             try
             {
 
-                string sql = @"select E.EmployeeCode,E.EmployeeName,E.FatherName,Designation=D.UserName,S.UserName Section,FORMAT(M.FinalSettlementDate,'dd-MMM-yyy') FinalSettlementDate, 0 LvEncashmentRateAmount,0 LvEncashmentAmount,0 GratuityAmount,SalRate=G.Gross/((DATEDIFF(day,SPAD.FromDate,SPAD.ToDate)+1)-SPAD.TotalWeekOff),G.Gross GrossAmount,B.Basic BasicAmount,format(apd.WorkDate,'dd-MMM-yyyy') LastPayDate,SPAD.TotalPayDay
+                string sql = @"select distinct E.EmployeeCode,E.EmployeeName,E.FatherName,Designation=D.UserName,S.UserName Section,FORMAT(M.FinalSettlementDate,'dd-MMM-yyy') FinalSettlementDate, 0 LvEncashmentRateAmount,0 LvEncashmentAmount,0 GratuityAmount,SalRate=CONVERT(NUMERIC(10,2),G.Gross/((DATEDIFF(day,SPAD.FromDate,SPAD.ToDate)+1)-SPAD.TotalWeekOff))
+,G.Gross GrossAmount,B.Basic BasicAmount,format(apd.WorkDate,'dd-MMM-yyyy') LastPayDate,SPAD.TotalPayDay
 ,SY.UserName AS SeparationType,0 SeparationTypeDay,LvEncashmentDayNo=(Select [Value] from dbo.EmployeeFullAndFinalSettlementItem Where UserName='EarnLeave' AND empsystemId='" + empSystemId + @"')
 ,0 SeparationTypeRate,0 SeparationTypeAmount,LeaveEncash =(Select [Value] from dbo.EmployeeFullAndFinalSettlementItem Where UserName='LeaveEncashment' AND empsystemId='" + empSystemId + @"')
 ,LastMonthNetPayAmount =(Select [Value] from dbo.EmployeeFullAndFinalSettlementItem Where UserName IN('SalaryPayble','UnPaidSalary') AND empsystemId='" + empSystemId + @"')
