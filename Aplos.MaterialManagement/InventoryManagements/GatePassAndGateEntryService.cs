@@ -3295,10 +3295,10 @@ namespace Library.MaterialManagement.InventoryManagements
             int colChar2 = COL; COL++;
             wTable.Rows[ROW].Cells[colChar2].Width = 60;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU3");
-            range.ApplyCharacterFormat(FontBold);
-            int colChar3 = COL; COL++;
-            wTable.Rows[ROW].Cells[colChar3].Width = 60;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU3");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colChar3 = COL; COL++;
+            //wTable.Rows[ROW].Cells[colChar3].Width = 60;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Returnable Date");
             range.ApplyCharacterFormat(FontBold);
@@ -3325,25 +3325,13 @@ namespace Library.MaterialManagement.InventoryManagements
             int colTotalAmount = COL; COL++;
             wTable.Rows[ROW].Cells[colQty].Width = 60;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Remarks");
-            range.ApplyCharacterFormat(FontBold);
-            int colRemarks = COL; COL++;
-            wTable.Rows[ROW].Cells[colRemarks].Width = 100;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Remarks");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colRemarks = COL; COL++;
+            //wTable.Rows[ROW].Cells[colRemarks].Width = 120;
 
             #endregion column headers
-            var NormalOverBudgetNew = "";
-            var normalBudgetType = "";
-            var overBudgetType = "";
-            var newBudgetType = "";
-            var MaterialDetail = "";
-            var RequiredDate = "";
-            var Remarks = "";
-            var Reason = "";
-            var OwnStock = "";
-            var OtherStock = " ";
 
-
-            double totalValue = 0;
             int startRow = ROW;
             int sl = 0;
             for (int i = 0; i < dsMaterialItems.Rows.Count; i++)
@@ -3369,7 +3357,7 @@ namespace Library.MaterialManagement.InventoryManagements
                 TROW.Cells[colArticle].AddParagraph().AppendText(dsMaterialItems.Rows[i]["ArticleName"].ToString());
                 TROW.Cells[colChar1].AddParagraph().AppendText(dsMaterialItems.Rows[i]["FirstCharacteristicsValue"].ToString());
                 TROW.Cells[colChar2].AddParagraph().AppendText(dsMaterialItems.Rows[i]["SecondCharacteristicsValue"].ToString());
-                TROW.Cells[colChar3].AddParagraph().AppendText(dsMaterialItems.Rows[i]["ThirdCharacteristicsValue"].ToString());
+                //TROW.Cells[colChar3].AddParagraph().AppendText(dsMaterialItems.Rows[i]["ThirdCharacteristicsValue"].ToString());
              
                 TROW.Cells[colReturnableDate].AddParagraph().AppendText(dsMaterialItems.Rows[i]["ReturnableDate"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsMaterialItems.Rows[i]["TransactionQty"].ToString()).ToString("F2"));
@@ -3377,7 +3365,7 @@ namespace Library.MaterialManagement.InventoryManagements
                 TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsMaterialItems.Rows[i]["Rate"].ToString()).ToString("F2"));
                 TROW.Cells[colTotalAmount].AddParagraph().AppendText(clsStdLib.dbl(dsMaterialItems.Rows[i]["TotalAmount"].ToString()).ToString("F2"));
                 
-                TROW.Cells[colRemarks].AddParagraph().AppendText(dsMaterialItems.Rows[i]["Remarks"].ToString());
+                //TROW.Cells[colRemarks].AddParagraph().AppendText(dsMaterialItems.Rows[i]["Remarks"].ToString());
               
             }
 
@@ -3390,7 +3378,7 @@ namespace Library.MaterialManagement.InventoryManagements
             for (int C = 0; C <= wTable.LastCell.GetCellIndex(); C++)
             {
                 value = 0;
-                if (C == colRo || C == colMaterial || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || /*C == colMaterialDetail || C == colIsReturnable ||*/ C == colReturnableDate ||  C == colUoM || C == colRemarks || C == colRate)
+                if (C == colRo || C == colMaterial || C == colArticle || C == colChar1 || C == colChar2  || /*C == colMaterialDetail || C == colIsReturnable ||*/ C == colReturnableDate ||  C == colUoM  || C == colRate)
                     continue;
 
 
