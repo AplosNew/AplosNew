@@ -3423,7 +3423,7 @@ namespace Library.Accounting.FixedAssets
 		                            )
 	                          ,0 ServiceTaxAmount  
 							  ,'' PONumber
-                        , IR.AddedBy CreatedBy
+                        , IR.AddedBy CreatedBy, IR.Remarks ItemDescription, IR.LorryNo TransportVehicleNo
                         FROM TRN.FixedAssetRegisterDisposed IR
                          LEFT JOIN SCS.Currency CRNC ON CRNC.Id = IR.CurrencyId
                          LEFT JOIN trn.FixedAssetRegisterDisposedDetail AS IRD ON IRD.FixedAssetRegisterDisposedId = IR.Id
