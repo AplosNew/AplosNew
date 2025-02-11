@@ -1227,7 +1227,7 @@ namespace Library.Accounting.FixedAssets
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
             var sql = @"select top 100 * from (select frd.Id,frd.Id DisposeNo,cast(substring(frd.Id,3,8) as int)SlNo,frd.EmployeeId,ei.EmployeeName,D.UserName Department
-									,frd.Status,frd.Remarks,DG.UserName Designation,c.Code TrnCurrency,frd.IsPark,  c.Id trnCurrencyId,frd.ToCurrencyRate
+									,frd.Status,frd.Remarks,frd.LorryNo,DG.UserName Designation,c.Code TrnCurrency,frd.IsPark,  c.Id trnCurrencyId,frd.ToCurrencyRate
 									,format( frd.DocDate,'dd-MMM-yyyy')DocDate ,P.UserName CustomerName,frd.PartyId,frd.PartyPlantId 
 									 ,frd.DeliveryPartyPlantId,frd.InvoicingByAddress,frd.DeliveryByAddress,c.Code TrnPurchaseCurrency,isnull(v.VoucherNo,'')VoucherNo
 									,isnull( rdd.NegotiationValue,0)NegotiationValue
@@ -3423,7 +3423,7 @@ namespace Library.Accounting.FixedAssets
 		                            )
 	                          ,0 ServiceTaxAmount  
 							  ,'' PONumber
-                        , IR.AddedBy CreatedBy
+                        , IR.AddedBy CreatedBy, IR.Remarks ItemDescription, IR.LorryNo TransportVehicleNo
                         FROM TRN.FixedAssetRegisterDisposed IR
                          LEFT JOIN SCS.Currency CRNC ON CRNC.Id = IR.CurrencyId
                          LEFT JOIN trn.FixedAssetRegisterDisposedDetail AS IRD ON IRD.FixedAssetRegisterDisposedId = IR.Id
