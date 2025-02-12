@@ -344,9 +344,9 @@
                 <li>
                     <a class="btn btn-action" ng-click="$parent.FixedDisposeTaxInvoice(this);" title="Tax Invoice" href="" target="_blank"><i class=""></i>TI</a>
                 </li>
-                @*<li>
-                    <a class="btn btn-action" ng-click="$parent.FixedAssetRegisterDisposedDelete(this);" title="Delete" href="" ng-disabled="this.VoucherNo==''"><i class=""></i>Delete</a>
-                </li>*@
+                <li>
+                    <a class="btn btn-action" ng-click="$parent.confirmDelete(this);" title="Delete" href="" ><i class=""></i>Delete</a>
+                </li>
             </ul>
 
         </script>
@@ -539,4 +539,5 @@
 @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
 @Html.Partial("~/Areas/FixedAssets/Views/FixedAssetDispose/_BillToShipToPopUp.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(fixedAssetRegisterDisposedId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(voucherId)"></confirm-archive-generic>

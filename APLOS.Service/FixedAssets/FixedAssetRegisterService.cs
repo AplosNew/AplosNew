@@ -5108,7 +5108,42 @@ GROUP BY FAR.FABudgetMasterId
                     _unitOfWork.Rollback();
             }
         }
+        public void DeleteCapitalizeAssetRegisterDisposed(string fixedAssetRegisterDisposedId)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
 
+                var inDirect = new System.Text.StringBuilder();
+                var inDirectsql = "";
+
+                inDirectsql = @"DELETE FROM [TRN].[FixedAssetRegisterDisposedTax] WHERE FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposedId + @"'
+                            DELETE FROM [TRN].[FixedAssetRegisterDisposedAdditionalTax] WHERE FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposedId + @"'
+                            DELETE FROM [TRN].[FixedAssetRegisterDisposedDetail] WHERE FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposedId + @"'
+                            DELETE FROM [TRN].[FixedAssetRegisterDisposed] WHERE Id='" + fixedAssetRegisterDisposedId + @"' ";
+                inDirect.Append(inDirectsql);
+                _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
         public string EditFixedAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister)
         {
             var flag = false;
