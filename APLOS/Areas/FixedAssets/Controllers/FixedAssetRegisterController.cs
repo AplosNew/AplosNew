@@ -1992,6 +1992,12 @@ namespace Aplos.Areas.FixedAssets.Controllers
             _fixedAssetRegisterService.InsertCapitalizeAssetLost(fixedAssetDisposed,assetRegisterList, disposedTaxList);
             return Json(new { Data = fixedAssetDisposed, Message = AplosMessage.Insert + "Disposed No: " + fixedAssetDisposed.Id + "" });
         }
+        [HttpPost]
+        public JsonResult DeleteCapitalizeAssetRegisterDisposed(string fixedAssetRegisterDisposedId)
+        {
+            _fixedAssetRegisterService.DeleteCapitalizeAssetRegisterDisposed(fixedAssetRegisterDisposedId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
         #region Additional Tax
         [Authorize, HttpPost]//
         public ActionResult SaveAdditinalTax(string fixedAssetRegisterDisposedId, decimal BooksCurrencyBaseRate, List<Dictionary<string, object>> UserSendData)
