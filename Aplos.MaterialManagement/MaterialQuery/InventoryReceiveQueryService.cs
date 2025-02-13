@@ -3716,7 +3716,7 @@ namespace Aplos.MaterialManagement
 						)X GROUP BY x.InventoryReceiveId, x.TaxCategoryName,x.Code
 			) TAxInfo6 ON TAxInfo6.InventoryReceiveId=IR.Id  
 					where  IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
-                    AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
+                    AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN','GRNBYBOQ')
 
 					group by IR.PartyId,IR.GRNDate,IR.Id,IR.GateEntryNo,p.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount,IRD.ChargesTaxTranAmount
 					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType,PAG.UserName
@@ -3810,7 +3810,7 @@ namespace Aplos.MaterialManagement
 						WHERE B.Code='TCS'   group by A.InventoryReceiveId, B.UserName ,B.Code  
 			) TAxInfo6 ON TAxInfo6.InventoryReceiveId=IR.Id
 					where  IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN   '" + FromDate + @"' AND '" + ToDate + @"' 
-                    AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')  and ird.IsOtherVendor=1  
+                    AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN','GRNBYBOQ')  and ird.IsOtherVendor=1  
 
 					group by IR.PartyId,IR.GRNDate,IR.Id,IR.GateEntryNo,p.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount,IRD.ChargesTaxTranAmount
 					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType,PAG.UserName
