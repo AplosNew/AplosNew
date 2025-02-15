@@ -68,27 +68,29 @@
             </div>
 
         </div>
-
-        <div class="form-group" show-errors>
-            <label class="col-sm-2 control-label">Currency<sup>*</sup></label>
-            <div class="col-sm-2 show-message" style="padding-right:0px;">
-                <div class="select-style">
-                    <select id="currencyId" class="form-control" tabindex="5" name="Currency" ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();">
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
+        <div class="col-xs-12 col-sm-3 col-md-3">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
+                <div class="col-sm-4 show-message" style="padding-right:0px;">
+                    <div class="select-style">
+                        <select id="currencyId" class="form-control" tabindex="5" name="Currency" ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-4 show-message" style="padding-left:0px;">
+                    <input type="text" maxlength="50" id="Rate" name="Rate" ng-disabled="voucher.CurrencyId==companyCurrencyId" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off">
                 </div>
             </div>
-            <div class="col-sm-2 show-message" style="padding-left:0px;">
-                <input type="text" maxlength="50" id="Rate" name="Rate" ng-disabled="voucher.CurrencyId==companyCurrencyId" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off">
-            </div>
-        </div>
-
-        <div class="col-xs-12 col-sm-3 col-md-3">
-
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
-
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Lorry No</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" class="form-control" name="LorryNo" ng-model="voucher.LorryNo" max="100">
+                </div>
+            </div>
         </div>
     </fieldset>
     <div class="clearfix"></div>
@@ -285,7 +287,7 @@
                         </div>
                     </div>
                     <ul class="list-inline text-right">
-                        <li><button ng-click="SaveAdditinalTax();" ng-disabled="voucher.Id==null || voucher.RowState==='Posted' || voucher.VoucherNo!=''" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Save</button></li>
+                        <li><button ng-click="SaveAdditinalTax();" ng-disabled="voucher.Id==null || voucher.VoucherNo!=null" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Save</button></li>
 
                     </ul>
                 </div>
@@ -326,6 +328,7 @@
             <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="120"></div>
             <div e-column e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="60"></div>
+            <div e-column e-field="LorryNo" e-headertext="Lorry No" e-width="60"></div>
             <div e-column e-field="NegotiationValue" e-headertext="Negotiation Amount" e-width="80" e-type="numeric" e-format="{0:0.00}" e-textalign="right"></div>
             <div e-column e-headertext="Actions" e-template="#TaxInvoiceReport" e-width="90"></div>
         </div>
@@ -341,9 +344,9 @@
                 <li>
                     <a class="btn btn-action" ng-click="$parent.FixedDisposeTaxInvoice(this);" title="Tax Invoice" href="" target="_blank"><i class=""></i>TI</a>
                 </li>
-                @*<li>
-                    <a class="btn btn-action" ng-click="$parent.FixedAssetRegisterDisposedDelete(this);" title="Delete" href="" ng-disabled="this.VoucherNo==''"><i class=""></i>Delete</a>
-                </li>*@
+                <li>
+                    <a class="btn btn-action" ng-click="$parent.confirmDelete(this);" title="Delete" href="" ><i class=""></i>Delete</a>
+                </li>
             </ul>
 
         </script>
@@ -536,4 +539,5 @@
 @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
 @Html.Partial("~/Areas/FixedAssets/Views/FixedAssetDispose/_BillToShipToPopUp.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(fixedAssetRegisterDisposedId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(voucherId)"></confirm-archive-generic>

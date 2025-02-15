@@ -121,6 +121,7 @@ namespace Library.Service.FixedAssets
         string EditFixedAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister);
 
         void InsertCapitalizeAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetailViewModel> assetRegisterList, IEnumerable<FixedAssetRegisterDisposedTaxViewModel> disposedTaxList);
+        void DeleteCapitalizeAssetRegisterDisposed(string fixedAssetRegisterDisposedId);
         IEnumerable<object> GetCapitalizeAssetRegisterApproveByCbo();
     }
 }

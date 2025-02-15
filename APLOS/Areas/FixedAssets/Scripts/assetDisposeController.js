@@ -45,6 +45,7 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
         Amount: 0,
         Narration: null,
         Remarks: null,
+        LorryNo: null,
         IsPark: false,
         AddedBy: null,
         AddedDate: null,
@@ -92,6 +93,7 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
         $scope.voucher.Status = data.Status;
         $scope.voucher.Id = data.Id;
         $scope.voucher.Remarks = data.Remarks;
+        $scope.voucher.LorryNo = data.LorryNo;
         $scope.voucher.TrnCurrency = data.TrnCurrency;
         $scope.voucher.CurrencyId = data.trnCurrencyId;
         $scope.voucher.PartyName = data.CustomerName;
@@ -191,6 +193,7 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
         $scope.voucher.Narration = null;
         $scope.voucher.Status = null;
         $scope.voucher.Remarks = null;
+        $scope.voucher.LorryNo = null;
         $scope.voucher.PartyId = null;
         $scope.voucher.PartyPlantId = null;
         $scope.voucher.DeliveryPartyPlantId = null;
@@ -848,4 +851,40 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
     }
 
     //#endregion
+    $scope.deleteUrl = $scope.path + "/DeleteCapitalizeAssetRegisterDisposed";
+    $scope.delete = function (fixedAssetRegisterDisposedId) {
+        $http({
+            method: "POST",
+            url: $scope.deleteUrl,
+            data: {
+                "fixedAssetRegisterDisposedId": fixedAssetRegisterDisposedId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                $scope.fixedAssetRegisterDisposedId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.fixedAssetRegisterDisposedId = null;
+    $scope.confirmDelete = function (data) {
+        if (data.data.VoucherNo != null) {
+            ShowResult("Posted data cann't delete!" + " VoucherNo: " + data.data.VoucherNo + " delete first!");
+            return false;
+            //throw "Posted data cann't Delete";
+        }
+        $scope.fixedAssetRegisterDisposedId = data.data.Id;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+    };
 }
