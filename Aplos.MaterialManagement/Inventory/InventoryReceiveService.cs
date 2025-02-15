@@ -5527,7 +5527,7 @@ namespace Library.MaterialManagement.Inventory
                 strSQL = @"SELECT ISNULL(IR.Id,0) grnNumber
 							,PO1.PODate
 							,GTE.ModeofTransport
-							,HSNC.Code HSNCode
+							,HSNCode=case when HSNCA.Code <>'' then HSNCA.Code else HSNC.code end
                             ,IR.CompanyGroupId
                             ,IR.CompanyId
                             ,Plant.GSTIN
@@ -5678,6 +5678,7 @@ namespace Library.MaterialManagement.Inventory
 							LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
                             LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
                             LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IOM.ArticleId
+                            LEFT JOIN [HKP].[HSNCode] AS HSNCA ON HSNCA.ID=MMA.HSNCodeId
                             LEFT JOIN HKP.Characteristics AS FC ON IOM.FirstCharacteristicsId = FC.Id
                             LEFT JOIN HKP.Characteristics AS SC ON IOM.SecondCharacteristicsId = SC.Id
                             LEFT JOIN HKP.Characteristics AS TC ON IOM.ThirdCharacteristicsId = TC.Id
