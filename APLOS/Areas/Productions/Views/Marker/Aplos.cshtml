@@ -6,18 +6,18 @@
         <div class="row" >
             <div class="col-xs-12 col-sm-6 col-md-6">
                 @*<div class="form-group">
-                    <label class="col-sm-4 control-label" title="Material">Finish Goods<sup>*</sup></label>
-                    <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
-                        <input type="text" ng-model="ModelNew.FGMaterialMaster" class="form-control" readonly>
-                        <span class="input-group-btn">
-                            <button ng-click="getMaterial()" ng-disabled="SKUDisable" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                        </span>
-                    </div>
-                </div>*@
+            <label class="col-sm-4 control-label" title="Material">Finish Goods<sup>*</sup></label>
+            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                <input type="text" ng-model="ModelNew.FGMaterialMaster" class="form-control" readonly>
+                <span class="input-group-btn">
+                    <button ng-click="getMaterial()" ng-disabled="SKUDisable" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                </span>
+            </div>
+        </div>*@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence"  e-width="100%" required />
+                        <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100%" required />
                     </div>
                 </div>
                 <div class="form-group" show-errors>
@@ -32,15 +32,61 @@
                         <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
                     </div>
                 </div>
+                @*<div class="form-group">
+            <label class="col-sm-4 control-label">Shrinkage Group</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select name="UOM" class="form-control" ng-model="ModelNew.ShrinkageGroupId" tabindex="13">
+                        <option value=""></option>
+                        <option ng-repeat="item in ShrinkageGroupList" value="{{item.Id}} ">{{ item.ShrinkageGroupName }}</option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
                 <div class="form-group">
-                    <label class="col-sm-4 control-label">Shrinkage Group</label>
+                    <label class="col-sm-4 control-label">Width</label>
                     <div class="col-sm-8">
+                        <input type="text" name="Length" ng-model="ModelNew.Width" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Cut Plan<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select name="UOM" class="form-control" ng-model="ModelNew.ShrinkageGroupId" tabindex="13">
+                            <select class="form-control" ng-model="ModelNew.CutPlanId" name="Cut Plan" ng-change="GetCutPlanCbo();" ng-options="item.Id as item.UserName for item in CutPlantList" required>
                                 <option value=""></option>
-                                <option ng-repeat="item in ShrinkageGroupList" value="{{item.Id}} ">{{ item.ShrinkageGroupName }}</option>
                             </select>
                         </div>
+                    </div>
+                </div>
+
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Marker Group<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="ModelNew.MarkerGroup" name="Cut Plan Ratio" ng-options="item.MarkerGroup as item.MarkerGroup for item in MarkerGroupList" required>
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Gross Length</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Length" ng-model="ModelNew.GrossLength" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Gross Weight</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Length" ng-model="ModelNew.GrossWeight" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">GrossConsuption/Pcs</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Length" ng-model="ModelNew.GrossConsuptionperPcs" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
                     </div>
                 </div>
                 <div class="form-group">
@@ -49,57 +95,58 @@
                         <textarea class="form-control" rows="3" ng-model="ModelNew.Description" tabindex="7" maxlength="250"></textarea>
                     </div>
                 </div>
-                @*<div class="form-group">
-                    <label class="col-sm-4 control-label">Attachment</label>
-                    <div class="col-sm-6 inputBtnSection">
-                        <div class="col-sm-4">
-                            <input type="text" id="uploadFile4" ng-model="ModelNew.Attachment" name="uploadFile4" class="disableInputField form-control" disabled="disabled" />
-                        </div>
 
-                        <div class="col-sm-8" style="padding-left:0px;">
-                            <label class="fileUpload col-sm-12 ">
-                                <input id="uploadBtn4" type="file" name="file[]" class="upload" />
-                                <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Attach</i></span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="col-sm-2" style="padding-left:0px;">
-                        <a href="POPResources/MarkerDocuments/{{CustomeFileName}}">
-                            <span style="height:20px;width:20px;color:blue;">
-                                {{ModelNew.Attachment}}
-                            </span>
-                        </a>
-                    </div>
-                </div>*@
                 @*<div class="form-group">
-                    <label class="col-sm-4 control-label">SKU</label>
-                    <div class="col-sm-4">
-                        <div class="select-style">
-                            <select name="UOM" id="SKU" class="form-control" ng-disabled="SKUDisable" ng-model="ModelNew.CharacteristicsId" ng-options="item.Value as item.Text for item in characteristicsList" tabindex="13" ng-change="GetFGCharacteristicsValueCbo();ClearList();">
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-sm-4 ">
-                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Actions" class="btn">
-                            <i class="glyphicon glyphicon-list" ng-click="AddLineItem();"></i>
-                        </button>
-                    </div>
+            <label class="col-sm-4 control-label">Attachment</label>
+            <div class="col-sm-6 inputBtnSection">
+                <div class="col-sm-4">
+                    <input type="text" id="uploadFile4" ng-model="ModelNew.Attachment" name="uploadFile4" class="disableInputField form-control" disabled="disabled" />
                 </div>
-                <div class="form-group">
-                    <label class="col-sm-12 control-label">Total Ratio: {{TotalRatio}}</label>
-                </div>*@
+
+                <div class="col-sm-8" style="padding-left:0px;">
+                    <label class="fileUpload col-sm-12 ">
+                        <input id="uploadBtn4" type="file" name="file[]" class="upload" />
+                        <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Attach</i></span>
+                    </label>
+                </div>
+            </div>
+            <div class="col-sm-2" style="padding-left:0px;">
+                <a href="POPResources/MarkerDocuments/{{CustomeFileName}}">
+                    <span style="height:20px;width:20px;color:blue;">
+                        {{ModelNew.Attachment}}
+                    </span>
+                </a>
+            </div>
+        </div>*@
+                @*<div class="form-group">
+            <label class="col-sm-4 control-label">SKU</label>
+            <div class="col-sm-4">
+                <div class="select-style">
+                    <select name="UOM" id="SKU" class="form-control" ng-disabled="SKUDisable" ng-model="ModelNew.CharacteristicsId" ng-options="item.Value as item.Text for item in characteristicsList" tabindex="13" ng-change="GetFGCharacteristicsValueCbo();ClearList();">
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-4 ">
+                <button style="color: #f3f3ec;background-color: #1c1f32;" title="Actions" class="btn">
+                    <i class="glyphicon glyphicon-list" ng-click="AddLineItem();"></i>
+                </button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-12 control-label">Total Ratio: {{TotalRatio}}</label>
+        </div>*@
             </div>
             <div class="col-xs-12 col-sm-6 col-md-6">
                 @*<div class="form-group">
-                    <label class="col-sm-4 control-label" title="Article">Finish Goods Article<sup>*</sup></label>
-                    <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
-                        <input type="text" ng-model="ModelNew.FGArticle" class="form-control" readonly>
-                        <span class="input-group-btn">
-                            <button ng-click="getArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                            <button ng-click="clearArticle();" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                        </span>
-                    </div>
-                </div>*@
+            <label class="col-sm-4 control-label" title="Article">Finish Goods Article<sup>*</sup></label>
+            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                <input type="text" ng-model="ModelNew.FGArticle" class="form-control" readonly>
+                <span class="input-group-btn">
+                    <button ng-click="getArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                    <button ng-click="clearArticle();" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                </span>
+            </div>
+        </div>*@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Code<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
@@ -112,42 +159,12 @@
                         <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
                     </div>
                 </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Length</label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Length" ng-model="ModelNew.Length" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Fabric Width</label>
-                    <div class="col-sm-8">
-                        <div class="select-style">
-                            <select name="UOM" class="form-control" ng-model="ModelNew.FabricWidthId" tabindex="13">
-                                <option value=""></option>
-                                <option ng-repeat="item in FabricWidthList" value="{{item.Id}} ">{{ item.FabricWidthName }}</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Shade</label>
-                    <div class="col-sm-8">
-                        <div class="select-style">
-                            <select name="UOM" class="form-control" ng-model="ModelNew.ShadeId" tabindex="13">
-                                <option value=""></option>
-                                <option ng-repeat="item in ShadeList" value="{{item.Id}} ">{{ item.ShadeName }}</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Remarks</label>
-                    <div class="col-sm-8">
-                        <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
-                    </div>
-                </div>
+                @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Length</label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Length" ng-model="ModelNew.Length" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
+            </div>
+        </div>*@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Active</label>
                     <div class="col-sm-8">
@@ -159,6 +176,63 @@
                         </div>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Cutable Width</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Length" ng-model="ModelNew.CutableWidth" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Cut Plan Ratio<sup>*</sup></label>
+                    <div class="col-sm-3 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="ModelNew.CutPlanRatioId" name="Cut Plan Ratio"  ng-options="item.Id as item.Ratio for item in CutPlantRatioList" required>
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                    <label class="col-sm-3 control-label">NoOfPcs</label>
+                    <div class="col-sm-2">
+                        <input type="text" name="NoOfPcs" ng-model="ModelNew.NoOfPcs" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">GSM</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Length" ng-model="ModelNew.GSM" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Net Length</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Length" ng-model="ModelNew.NetLength" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Net Weight</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Length" ng-model="ModelNew.NetWeights" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">NetConsuption/Pcs</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Length" ng-model="ModelNew.NetConsuptionperPcs" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Remarks</label>
+                    <div class="col-sm-8">
+                        <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                    </div>
+                </div>
+
+
+
+
             </div>
             <div class="col-md-12">
                 <div class="common-btn">
@@ -169,27 +243,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-md-12">
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Code</th>
-                                <th>{{HeaderName}}</th>
-                                <th>Ratio</th>
-
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="x in FGCharacteristicsValueList">
-                                <td>{{x.Code}}</td>
-                                <td>{{x.Text}}</td>
-                                <td><input type="text" n-decimals="2" class="form-control" ng-model="x.Ratio"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            
         </div>
 
 

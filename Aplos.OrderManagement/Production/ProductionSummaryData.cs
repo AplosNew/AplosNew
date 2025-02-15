@@ -8017,11 +8017,37 @@ AND (select PlanStatus from MST.MasterPlan where id=(select MasterPlanId from [M
             }
         }
 
-        public IEnumerable<object> GetCutPlantCbo()
+        public IEnumerable<object> GetCutPlanCbo()
         {
             try
             {
                 string sql = @"Select * from MST.AllotedHeader Order By UserName";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetCutPlanRatioCbo(string masterId)
+        {
+            try
+            {
+                string sql = @"Select * from MST.AllotedChild Where AllotedHeaderId='"+masterId+"'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetMarkerGroupCbo()
+        {
+            try
+            {
+                string sql = @"select Distinct MarkerGroup  from BPDT.FabricRollManagementChild Where ISNULL(MarkerGroup,'') <>''";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
