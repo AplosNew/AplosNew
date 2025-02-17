@@ -130,6 +130,7 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
         }
 
         $scope.getFARDisposeDetail(data.Id);
+        $scope.getFARDisposeTax(data.Id);
         $scope.getFARDisposeAdditionalTax(data.Id);
         $scope.Action = "Update";
         if (!$rootScope.isCollapsed) {
@@ -147,6 +148,16 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
             $scope.voucherDetailList = response.data;
             var TaxDocDate = $filter('dateFiltering')(new Date($scope.voucher.DocDate), 'dd-MM-yyyy');
             $scope.getTaxCodeByTaxYearWithhold(TaxDocDate);
+        });
+    }
+    
+    $scope.getFARDisposeTax = function (fixedAssetRegisterDisposeId) {
+        $scope.receiveTaxList = [];
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetCapitalizedAssetRegisterDisposeTaxList?fixedAssetRegisterDisposeId=" + fixedAssetRegisterDisposeId,
+        }).then(function successCallback(response) {
+            $scope.receiveTaxList = response.data;
         });
     }
     $scope.advanceTaxesList = [];
@@ -605,7 +616,10 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
 
         $scope.totalTaxAmount = 0;
         for (var j = 0; j < $scope.receiveTaxList.length; j++) {
-            $scope.totalTaxAmount = $scope.totalTaxAmount + $scope.receiveTaxList[j].Amount;
+            if ($scope.receiveTaxList[j].AssetRegisterId === data.AssetRegisterId) {
+                $scope.totalTaxAmount = $scope.totalTaxAmount + $scope.receiveTaxList[j].Amount;
+            }
+           
         }
         $scope.voucherDetailList[$scope.currentMaterialRow].TaxAmount = parseFloat($scope.totalTaxAmount);
         angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
@@ -614,7 +628,9 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
         try {
             $scope.totalTaxAmount = 0;
             for (var j = 0; j < $scope.receiveTaxList.length; j++) {
-                $scope.totalTaxAmount = $scope.totalTaxAmount + $scope.receiveTaxList[j].Amount;
+                if ($scope.receiveTaxList[j].AssetRegisterId === $scope.AssetRegisterId) {
+                    $scope.totalTaxAmount = $scope.totalTaxAmount + $scope.receiveTaxList[j].Amount;
+                }
             }
             $scope.voucherDetailList[$scope.currentMaterialRow].TaxAmount = parseFloat($scope.totalTaxAmount);
             angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
@@ -626,7 +642,9 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
     $scope.closeReceiveTaxPopUpwindow = function () {
         $scope.totalTaxAmount = 0;
         for (var j = 0; j < $scope.receiveTaxList.length; j++) {
-            $scope.totalTaxAmount = $scope.totalTaxAmount + $scope.receiveTaxList[j].Amount;
+            if ($scope.receiveTaxList[j].AssetRegisterId === $scope.AssetRegisterId) {
+                $scope.totalTaxAmount = $scope.totalTaxAmount + $scope.receiveTaxList[j].Amount;
+            }
         }
         $scope.voucherDetailList[$scope.currentMaterialRow].TaxAmount = parseFloat($scope.totalTaxAmount);
         angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
@@ -650,7 +668,6 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
         }
     };
     $scope.calculateTaxAmount = function (data) {
-
         data.Amount = parseFloat($scope.taxAbleAmnt * data.Percentage / 100).toFixed(2);
     };
     $scope.checkRowValidation = function (x) {
@@ -665,7 +682,7 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
     $scope.onchangeFunction1 = function (id) {
         $scope.TaxCategoryId = id;
 
-        var getRow = $filter("filter")($scope.receiveTaxList, { "TaxCategoryId": id });
+        var getRow = $filter("filter")($scope.receiveTaxList, { "TaxCategoryId": id, "AssetRegisterId": $scope.AssetRegisterId });
         if (getRow.length === 2) {
             ShowResult("You can't add Same Tax two times", 'failure', 'receiveTaxPopUp');
         }

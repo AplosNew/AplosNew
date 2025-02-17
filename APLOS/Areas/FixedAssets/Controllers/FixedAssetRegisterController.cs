@@ -1021,6 +1021,15 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(_fixedAssetQueryService.GetCapitalizedAssetRegisterDisposeEditList(fixedAssetRegisterDisposeId, companyId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
         }
         [HttpGet, Authorize]
+        public ActionResult GetCapitalizedAssetRegisterDisposeTaxList(string fixedAssetRegisterDisposeId, string companyId)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (companyId == null)
+                companyId = identity.CompanyId;
+            return Json(_fixedAssetQueryService.GetCapitalizedAssetRegisterDisposeTaxList(fixedAssetRegisterDisposeId, companyId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
+        }
+        [HttpGet, Authorize]
         public ActionResult GetCapitalizedAssetRegisterDisposeAdditionalTaxList(string fixedAssetRegisterDisposeId, string companyId)
         {
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);

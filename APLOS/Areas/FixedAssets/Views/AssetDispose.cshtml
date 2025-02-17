@@ -485,7 +485,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="x in receiveTaxList">
+                            <tr ng-repeat="x in receiveTaxList |filter:{AssetRegisterId:AssetRegisterId}">
                                 <td ng-hide="true">
                                     <div class="show-message">
                                         <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Id" readonly>
@@ -513,7 +513,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="3" class="text-right"><strong>{{receiveTaxList | sumByKey : 'Amount'| setDecimal:2| number:2 }}</strong></td>
+                                <td colspan="3" class="text-right"><strong>{{receiveTaxList | filter:{AssetRegisterId:AssetRegisterId} | sumByKey : 'Amount'| setDecimal:2| number:2 }}</strong></td>
                                 <td></td>
                             </tr>
                         </tbody>
