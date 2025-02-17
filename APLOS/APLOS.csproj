@@ -5040,6 +5040,7 @@
     <Content Include="Areas\MIS\Views\AccountStatusBI.cshtml" />
     <Content Include="Areas\MIS\Views\ManpowerStatusBI.cshtml" />
     <Content Include="Areas\Accounts\Views\_PaymentTermUpdatePopUp.cshtml" />
+    <Content Include="Areas\Parties\Views\Party\_VendorPopUpNew_Invoice.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

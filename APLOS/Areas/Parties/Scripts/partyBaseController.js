@@ -155,6 +155,21 @@ function partyBaseController($scope, $http, $filter, baseService) {
         angular.element(document.querySelector('#partyPopUp')).modal('show');
     };
 
+    $scope.showPartyPopUpNew_Invoice = function () {
+        if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor' || $scope.partyType === 'Director') {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew_Invoice?partyType=' + $scope.partyType;
+        }
+        $http({
+            method: 'POST',
+            url: $scope.partyUrl,
+            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.partyList = response.data;
+        });
+        angular.element(document.querySelector('#partyPopUp_Invoice')).modal('show');
+    };
+
     $scope.GetPartyPopUp = function () {
         if ($scope.OrderSpecific === 'Yes') {
             if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
@@ -291,6 +306,9 @@ function partyBaseController($scope, $http, $filter, baseService) {
     $scope.closePartyPopUpNew_Loan = function () {
         angular.element(document.querySelector('#partyPopUp_Loan')).modal('hide');
     };
+    $scope.closePartyPopUpNew_Invoice = function () {
+        angular.element(document.querySelector('#partyPopUp_Invoice')).modal('hide');
+    };
     $scope.showNotePartyPopUpNew = function () {
         if ($scope.OrderSpecific === 'Yes') {
             if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
@@ -388,6 +406,11 @@ function partyBaseController($scope, $http, $filter, baseService) {
 
     $scope.hidePartyPopUp = function () {
         angular.element(document.querySelector('#partyPopUp')).modal('hide');
+        $scope.partyIndex = -1;
+        $scope.partySelected = null;
+    };
+    $scope.hidePartyPopUp_Invoice = function () {
+        angular.element(document.querySelector('#partyPopUp_Invoice')).modal('hide');
         $scope.partyIndex = -1;
         $scope.partySelected = null;
     };
