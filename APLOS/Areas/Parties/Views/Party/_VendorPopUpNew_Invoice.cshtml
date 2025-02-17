@@ -1,0 +1,106 @@
+﻿<div class="modal fade site-modal in" id="partyPopUp_Invoice" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> {{partyType}} List <button type="button" class="close" ng-click="closePartyPopUpNew_Invoice();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByParty">
+                                            <option ng-repeat="option in searchByPartyList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchParty" ng-enter="showPartyPopUpNew_Invoice()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="showPartyPopUpNew_Invoice()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        @*style="color:black;overflow:scroll"*@
+                        <div style="color:black;" id="partyPopUpGrid_Invoice" ej-grid e-datasource="partyList" e-recorddoubleclick="closePartyPopUp_Invoice"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="50" e-filter="false"></div>
+                                <div e-column e-field="UserName" e-headertext="Party" e-width="130"></div>
+                                <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="130"></div>
+                                @*<div  e-column e-field="ReconciliationGLName" e-headertext="GL" e-width="60"></div>
+                                    <div e-column e-field="ReconciliationBudgetName" e-headertext="Budget" e-width="60"></div>
+                                    <div e-column e-field="ReconciliationActivityName" e-headertext="Activity" e-width="60"></div>*@
+                                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-field="CountryName" e-headertext="Country" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="StateName" e-headertext="State" e-width="80" textAlign='Right'></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closePartyPopUpNew_Invoice();" class="btn"> Close</button></li>
+                </ul>
+                <i>**Showing top 500 {{partyType}} order by Code</i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="partyPlantPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Detail</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Country</label>
+                        <div class="col-sm-8">
+                            <input type="text" readonly name="PartyCountry" ng-model="partyPlant.PartyCountry" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">City</label>
+                        <div class="col-sm-8">
+                            <input type="text" readonly name="PartyCity" ng-model="partyPlant.PartyCity" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Address</label>
+                        <div class="col-sm-8">
+                            <textarea maxlength="300" readonly class="form-control" rows="3" ng-model="partyPlant.PartyAddress"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">State</label>
+                        <div class="col-sm-8">
+                            <input type="text" readonly name="PartyState" ng-model="partyPlant.PartyState" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">GSTIN</label>
+                        <div class="col-sm-8">
+                            <input type="text" readonly name="PartyGSTIN" ng-model="partyPlant.PartyGSTIN" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button type="button" class="btn btn-default" data-dismiss="modal">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

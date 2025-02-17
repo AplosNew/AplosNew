@@ -323,12 +323,12 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         angular.element(document.querySelector('#confirmUntagPopUp')).modal('show');
     };
 
-    $scope.closePartyPopUp = function (x) {
+    $scope.closePartyPopUp_Invoice = function (x) {
         var party = x.data;
         $scope.AutoLoanNew.PartyId = party.Id;
         $scope.AutoLoanNew.PartyCode = party.Code;
         $scope.AutoLoanNew.PartyName = party.UserName;
-        $scope.hidePartyPopUp();
+        $scope.hidePartyPopUp_Invoice();
     };
 
 }

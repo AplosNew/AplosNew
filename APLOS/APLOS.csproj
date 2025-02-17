@@ -5042,6 +5042,7 @@
     <Content Include="Areas\MIS\Views\AccountStatusBI.cshtml" />
     <Content Include="Areas\MIS\Views\ManpowerStatusBI.cshtml" />
     <Content Include="Areas\Accounts\Views\_PaymentTermUpdatePopUp.cshtml" />
+    <Content Include="Areas\Parties\Views\Party\_VendorPopUpNew_Invoice.cshtml" />
     <Content Include="Areas\Productions\Views\Marker\Check.cshtml" />
     <Content Include="Areas\Productions\Views\Marker\Approve.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
