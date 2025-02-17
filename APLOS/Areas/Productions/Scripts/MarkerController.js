@@ -11,6 +11,44 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
 
+    $scope.MarkerGroupList = [];
+    $scope.GetMarkerGroupCbo = function () {
+        try {
+            $http.get('Productions/Productionsummary/GetMarkerGroupCbo')
+                .then(function (response) {
+                    $scope.MarkerGroupList = response.data;
+                });
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+    $scope.GetMarkerGroupCbo();
+
+    $scope.CutPlantList = [];
+    $scope.GetCutPlanCbo = function () {
+        try {
+            $http.get('Productions/Productionsummary/GetCutPlanCbo')
+                .then(function (response) {
+                    $scope.CutPlantList = response.data;
+                });
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+    $scope.GetCutPlanCbo();
+
+    $scope.CutPlantRatioList = [];
+    $scope.GetCutPlanCbo = function () {
+        try {
+            $http.get('Productions/Productionsummary/GetCutPlanRatioCbo?masterId=' + $scope.ModelNew.CutPlanId)
+                .then(function (response) {
+                    $scope.CutPlantRatioList = response.data;
+                });
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+  
     //#region Finishing Goods & Articale
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 
@@ -263,17 +301,19 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         });
     };
 
+
+
     //#region File 
 
-    $("#uploadBtn4").change(function () {
-        $scope.filedata = this.files[0];
-    });
+    //$("#uploadBtn4").change(function () {
+    //    $scope.filedata = this.files[0];
+    //});
 
-    document.getElementById("uploadBtn4").onchange = function () {
-        var filename = document.getElementById("uploadFile4").value = this.value;
-        var res = filename.replace(/C:\\fakepath\\/i, '');
-        document.getElementById("uploadFile4").value = res;
-    };
+    //document.getElementById("uploadBtn4").onchange = function () {
+    //    var filename = document.getElementById("uploadFile4").value = this.value;
+    //    var res = filename.replace(/C:\\fakepath\\/i, '');
+    //    document.getElementById("uploadFile4").value = res;
+    //};
 
 
     //#endregion
