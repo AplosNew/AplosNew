@@ -40,6 +40,16 @@ namespace Aplos.Areas.Productions.Controllers
             return View();
         }
 
+        public ActionResult Check()
+        {
+            return View();
+        }
+
+        public ActionResult Approve()
+        {
+            return View();
+        }
+
         [AllowAnonymous]
         public JsonResult GetCbo()
         {

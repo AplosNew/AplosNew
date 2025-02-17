@@ -232,7 +232,7 @@ namespace Library.Service.Enums
         SalesChalanApproveBy,
         [Description("Multiple Vendor Payment")]
         MultipleVendorPayment,
-        
+
         [Description("Journal ApproveBy")]
         JournalApproveBy,
         [Description("Full And Final ApproveBy")]
@@ -244,6 +244,10 @@ namespace Library.Service.Enums
         [Description("Sales Order CheckedBy")]
         SalesOrderCheckedBy,
         [Description("Sales Order ApproveBy")]
-        SalesOrderApproveBy
+        SalesOrderApproveBy,
+        [Description("Marker CheckedBy")]
+        MarkerCheckedBy,
+        [Description("Marker ApproveBy")]
+        MarkerApproveBy
     }
 }

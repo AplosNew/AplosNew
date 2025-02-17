@@ -1305,6 +1305,8 @@ upanelApp.controller("orderStatusBIController", orderStatusBIController)
 upanelApp.controller("accountStatusBIController", accountStatusBIController)
 upanelApp.controller("atAGlanceBIController", atAGlanceBIController)
 upanelApp.controller("FabricGroupingController", FabricGroupingController)
+upanelApp.controller("MarkerCheckController", MarkerCheckController)
+upanelApp.controller("MarkerApproveController", MarkerApproveController)
 
 
 
