@@ -2004,6 +2004,8 @@
     <Content Include="Areas\Payrolls\Scripts\SalaryAdviceController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanEditController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
+    <Content Include="Areas\Productions\Scripts\MarkerCheckController.js" />
+    <Content Include="Areas\Productions\Scripts\MarkerApproveController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionCuttingBookingController.js" />
     <Content Include="Areas\Productions\Scripts\SalesPurchaseTransactionTypeController.js" />
     <Content Include="Areas\Productions\Scripts\MasterPlanDetailsController.js" />
@@ -5040,6 +5042,8 @@
     <Content Include="Areas\MIS\Views\AccountStatusBI.cshtml" />
     <Content Include="Areas\MIS\Views\ManpowerStatusBI.cshtml" />
     <Content Include="Areas\Accounts\Views\_PaymentTermUpdatePopUp.cshtml" />
+    <Content Include="Areas\Productions\Views\Marker\Check.cshtml" />
+    <Content Include="Areas\Productions\Views\Marker\Approve.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
