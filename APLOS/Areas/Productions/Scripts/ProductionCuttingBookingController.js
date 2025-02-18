@@ -100,7 +100,7 @@ function ProductionCuttingBookingController(cboService, commonMessage, $scope, $
     $scope.CutPlantList = [];
     $scope.GetCutPlanCbo = function () {
         try {
-            $http.get('Productions/Productionsummary/GetCutPlantCbo')
+            $http.get('Productions/Productionsummary/GetCutPlanCbo')
                 .then(function (response) {
                     $scope.CutPlantList = response.data;
                 });

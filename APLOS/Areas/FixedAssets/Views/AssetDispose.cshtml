@@ -189,6 +189,7 @@
                             <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'NetAmount'| number:2 }}</b></td>
                             <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'AdjustmentDepreciationAmount'| number:2 }}</b></td>
                             <td class="text-right" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><b>{{ (voucherDetailList ) | sumByKey:'NegotiationValue'| number:2 }}</b></td>
+                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'TaxAmount'| number:2 }}</b></td>
 
                         </tr>
                     </tfoot>
@@ -322,12 +323,12 @@
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="DisposeNo" e-headertext="Dispose No" e-width="70" e-filter="false"></div>
-            <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="70" e-filter="false"></div>
+            <div e-column e-field="DisposeNo" e-headertext="Dispose No" e-width="60" e-filter="false"></div>
+            <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="60" e-filter="false"></div>
             <div e-column e-field="Status" e-headertext="Type" e-width="70"></div>
-            <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="120"></div>
-            <div e-column e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
-            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="60"></div>
+            <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="100"></div>
+            <div e-column e-field="CustomerName" e-headertext="Customer" e-width="100"></div>
+            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="120"></div>
             <div e-column e-field="LorryNo" e-headertext="Lorry No" e-width="60"></div>
             <div e-column e-field="NegotiationValue" e-headertext="Negotiation Amount" e-width="80" e-type="numeric" e-format="{0:0.00}" e-textalign="right"></div>
             <div e-column e-headertext="Actions" e-template="#TaxInvoiceReport" e-width="90"></div>
@@ -485,7 +486,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="x in receiveTaxList">
+                            <tr ng-repeat="x in receiveTaxList |filter:{AssetRegisterId:AssetRegisterId}">
                                 <td ng-hide="true">
                                     <div class="show-message">
                                         <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Id" readonly>
@@ -513,7 +514,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="3" class="text-right"><strong>{{receiveTaxList | sumByKey : 'Amount'| setDecimal:2| number:2 }}</strong></td>
+                                <td colspan="3" class="text-right"><strong>{{receiveTaxList | filter:{AssetRegisterId:AssetRegisterId} | sumByKey : 'Amount'| setDecimal:2| number:2 }}</strong></td>
                                 <td></td>
                             </tr>
                         </tbody>

@@ -35,7 +35,7 @@
                     <div class="input-group">
                         <input type="text" name="@Library.Model.Parties.PartyType.Vendor.ToString()" ng-model="AutoLoanNew.PartyName" class="form-control" readonly required>
                         <span class="input-group-btn">
-                            <button ng-click="showPartyPopUpNew();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="showPartyPopUpNew_Invoice();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                         </span>
                     </div>
                 </div>
@@ -330,6 +330,6 @@
         </div>
     </div>
 </div>
-@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew_Invoice.cshtml")
 <confirm-archive-generic modalid="confirmUntagPopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="UntagInvoiceWithLC()"></confirm-archive-generic>
 

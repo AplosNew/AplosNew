@@ -435,16 +435,26 @@ namespace Library.Accounting.FixedAssets
                             ,(SUM(ARC.Amount)-(SUM(ISNULL(ARC.DepreciationAmount,0))+ SUM(ISNULL(ARC.AdjustmentDepreciationAmount,0)))) NetAmount
                             ,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem,AR.AssetSlNo, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks
 							,sum(isnull(FADD.NegotiationValue,0))NegotiationValue,sum(isnull(FADD.BaseNagotiationValue,0))BaseNagotiationValue
-							,(SELECT SUM(ISNULL(Amount,0)) FROM [TRN].[FixedAssetRegisterDisposedTax] WHERE FixedAssetRegisterDisposedId=FADD.FixedAssetRegisterDisposedId)TaxAmount
-                            FROM TRN.AssetRegisterChild ARC
-							LEFT JOIN TRN.AssetRegister AR ON AR.Id=ARC.AssetRegisterId
-							LEFT JOIN [TRN].[FixedAssetRegisterDisposedDetail] FADD ON FADD.AssetRegisterId=ARC.AssetRegisterId
+							,(SELECT SUM(ISNULL(Amount,0)) FROM [TRN].[FixedAssetRegisterDisposedTax] WHERE FixedAssetRegisterDisposedDetailId=FADD.Id)TaxAmount
+                            FROM  [TRN].[FixedAssetRegisterDisposedDetail] FADD 
+							LEFT JOIN TRN.AssetRegister AR ON AR.Id=FADD.AssetRegisterId
+							LEFT JOIN (SELECT sum(isnull( DepreciationAmount,0))DepreciationAmount,sum(isnull(AdjustmentDepreciationAmount,0))AdjustmentDepreciationAmount
+									,sum(isnull(Amount,0))Amount ,AssetRegisterId ,CompanyId
+									FROM TRN.AssetRegisterChild GROUP BY AssetRegisterId,CompanyId) ARC ON FADD.AssetRegisterId=ARC.AssetRegisterId
                             LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
                             LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
                             WHERE ARC.CompanyId= '" + companyId + @"' AND FADD.FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposeId + @"'
                             GROUP BY FADD.Id,ARC.AssetRegisterId,FAM.UserName ,FAI.UserName ,AR.AssetSlNo,AR.Status,FADD.FixedAssetRegisterDisposedId
 						    , AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks
                             ) AS TEMP ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        public List<Dictionary<string, object>> GetCapitalizedAssetRegisterDisposeTaxList(string fixedAssetRegisterDisposeId, string companyId)
+        {
+            var sql = @"select top 300 * from (SELECT * 
+                        FROM [TRN].[FixedAssetRegisterDisposedTax] 
+                        WHERE FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposeId + @"'
+                        ) AS TEMP ";
             return _sqlRepository.GetDataCollection(sql);
         }
         public List<Dictionary<string, object>> GetCapitalizedAssetRegisterDisposeAdditionalTaxList(string fixedAssetRegisterDisposeId, string companyId)

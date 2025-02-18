@@ -30505,7 +30505,7 @@ namespace Library.Service.HumanResources
                 foreach (TextSelection item in allresult)
                 {
                     string foundText = item.SelectedText;
-                    if (foundText == "LvEncashmentRateAmount")
+                    if (foundText == "LvEncashmentDayNo")
                     {
 
                     }
@@ -30555,7 +30555,7 @@ namespace Library.Service.HumanResources
                             }
                             else if (colName == "SalRate")
                             {
-                                replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
+                                replaced[foundText] = document.Replace(foundText,cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
 
                             }
                             else if (colName == "OTRate")
@@ -30667,7 +30667,9 @@ namespace Library.Service.HumanResources
             try
             {
 
-                string sql = @"select distinct E.EmployeeCode,E.EmployeeName,E.FatherName,Designation=D.UserName,S.UserName Section,FORMAT(M.FinalSettlementDate,'dd-MMM-yyy') FinalSettlementDate, 0 LvEncashmentRateAmount,0 LvEncashmentAmount,0 GratuityAmount,SalRate=CONVERT(NUMERIC(10,2),G.Gross/((DATEDIFF(day,SPAD.FromDate,SPAD.ToDate)+1)-SPAD.TotalWeekOff))
+                string sql = @"select distinct E.EmployeeCode,E.EmployeeName,E.FatherName,Designation=D.UserName,S.UserName Section,FORMAT(M.FinalSettlementDate,'dd-MMM-yyy') FinalSettlementDate, 0 LvEncashmentRateAmount,0 LvEncashmentAmount,0 GratuityAmount
+--,SalRate=CONVERT(NUMERIC(10,2),G.Gross/((DATEDIFF(day,SPAD.FromDate,SPAD.ToDate)+1)-SPAD.TotalWeekOff))
+,SalRate=(G.Gross/((DATEDIFF(day,SPAD.FromDate,SPAD.ToDate)+1)-SPAD.TotalWeekOff))
 ,G.Gross GrossAmount,B.Basic BasicAmount,format(apd.WorkDate,'dd-MMM-yyyy') LastPayDate,SPAD.TotalPayDay
 ,SY.UserName AS SeparationType,0 SeparationTypeDay,LvEncashmentDayNo=(Select [Value] from dbo.EmployeeFullAndFinalSettlementItem Where UserName='EarnLeave' AND empsystemId='" + empSystemId + @"')
 ,0 SeparationTypeRate,0 SeparationTypeAmount,LeaveEncash =(Select [Value] from dbo.EmployeeFullAndFinalSettlementItem Where UserName='LeaveEncashment' AND empsystemId='" + empSystemId + @"')
@@ -30675,7 +30677,7 @@ namespace Library.Service.HumanResources
 ,TotalDeduction=(Select [Value] from dbo.EmployeeFullAndFinalSettlementItem Where UserName IN('ShortNoticePeriodDeduction') AND empsystemId='" + empSystemId + @"')
 ,Payable=(Select [Value] from dbo.EmployeeFullAndFinalSettlementItem Where UserName IN('NetPayable') AND empsystemId='" + empSystemId + @"')
 ,NetPayAmount=(Select [Value] from dbo.EmployeeFullAndFinalSettlementItem Where UserName IN('NetPayable') AND empsystemId='" + empSystemId + @"')
-,DOJ=FORMAT(E.DOJ,'dd-MMM-yyyy'),DOS=FORMAT(E.DOS,'dd-MMM-yyyy')
+,DOJ=FORMAT(E.DOJ,'dd-MMM-yyyy'),DOS=FORMAT(E.DOS,'dd-MMM-yyyy'),FORMAT(e.DOS,'MMMM-yyyy') DOSMonth
 from dbo.EmployeeFullAndFinalSettlement efs
 left join dbo.EmployeeFullAndFinalSettlementMaster M ON M.Id=efs.FinalSettlementId
 LEFT JOIN TRN.Resignation R ON R.EmployeeId=efs.EmpSystemId

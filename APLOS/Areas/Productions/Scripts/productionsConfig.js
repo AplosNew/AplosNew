@@ -414,5 +414,13 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/ProductionSummary/CuttingBooking',
             controller: 'ProductionCuttingBookingController'
         })
+        .when('/marker-check', {
+            templateUrl: 'Productions/Marker/check',
+            controller: 'MarkerCheckController'
+        })
+        .when('/marker-approve', {
+            templateUrl: 'Productions/Marker/Approve',
+            controller: 'MarkerApproveController'
+        })
         ;
 }

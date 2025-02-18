@@ -99,9 +99,20 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetCutPlantCbo()
+        public ActionResult GetCutPlanCbo()
         {
-            return Json(_productionSummaryData.GetCutPlantCbo(), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetCutPlanCbo(), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetCutPlanRatioCbo(string masterId)
+        {
+            return Json(_productionSummaryData.GetCutPlanRatioCbo(masterId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public ActionResult GetMarkerGroupCbo()
+        {
+            return Json(_productionSummaryData.GetMarkerGroupCbo(), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]

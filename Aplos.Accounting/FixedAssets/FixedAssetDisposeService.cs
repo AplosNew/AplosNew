@@ -3624,6 +3624,7 @@ namespace Library.Accounting.FixedAssets
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
                 TROW.Cells[colMaterialGroup].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialMaster"].ToString());
+                //TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
                 //TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
                 //TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
                 //TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString());
@@ -3774,7 +3775,7 @@ namespace Library.Accounting.FixedAssets
             string strSQL;
             try
             {
-                strSQL = @"select  PO.FixedAssetRegisterDisposedid,PO.Id FixedAssetRegisterDisposedDetailId,
+                strSQL = @"select  IRT.FixedAssetRegisterDisposedId,IRT.FixedAssetRegisterDisposedDetailId,
                                     IRT.Id AS SalesTax,tg.Code AS TaxCode,
                                     s.tocurrencyRate,
                                     IRT.Percentage,
@@ -3782,12 +3783,10 @@ namespace Library.Accounting.FixedAssets
                                    	,ISNULL(IRT.Amount,0) BooksCurrencyTransactionAmount
 									,ISNULL(IRT.Amount,0) BooksCurrencyTaxAmount
 									,1 BooksCurrencyBaseRate
-
-							    from trn.FixedAssetRegisterDisposedDetail PO
-                               Inner join [TRN].[FixedAssetRegisterDisposedTax] IRT ON IRT.FixedAssetRegisterDisposedid = PO.FixedAssetRegisterDisposedid 
+							    from [TRN].[FixedAssetRegisterDisposedTax] IRT
                                LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=IRT.TaxCategoryId
-							   left outer join trn.FixedAssetRegisterDisposed as s on s.id=po.FixedAssetRegisterDisposedid
-                                 WHERE PO.FixedAssetRegisterDisposedid='" + SalesId + @"' 
+							   left outer join trn.FixedAssetRegisterDisposed as s on s.id=IRT.FixedAssetRegisterDisposedId
+                                 WHERE IRT.FixedAssetRegisterDisposedId='" + SalesId + @"' 
 								  ";
 
                 return _sqlRepository.GetDataTable(strSQL);

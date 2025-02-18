@@ -207,7 +207,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         if ($scope.FinalSettlementModel.IsApproved == false) {
             $scope.DG = obj.data;
             $scope.EmpSysId = $scope.DG.EmpSystemId;
-            if (!baseService.isUndefinedOrNull($scope.DG.Id))
+            if (!baseService.isUndefinedOrNull($scope.DG.EmpSystemId))
                 $scope.message_confirmation = 'Are you sure want to delete permanently [ ' + $scope.DG.EmployeeCode + ' ]';
             angular.element(document.querySelector('#confirmPopUp')).modal('show');
         }
@@ -236,11 +236,9 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         }
         else {
             for (var i = 0; i < $scope.SelectedEmployeeList.length; i++) {
-                if ($scope.SelectedEmployeeList[i].EmpSystemId == obj.data.EmpSystemId) {
-                    if (baseService.isUndefinedOrNull(obj.data.Id)) {
+                if ($scope.SelectedEmployeeList[i].EmpSystemId == $scope.DG.EmpSystemId) {
                         $scope.SelectedEmployeeList.splice(i, 1);
                         break;
-                    }
                 }
             }
         }
