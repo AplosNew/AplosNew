@@ -5523,14 +5523,10 @@ namespace Library.MaterialManagement.Inventory
             string strSQL;
             try
             {
-
                 strSQL = @"SELECT ISNULL(IR.Id,0) grnNumber
-							,PO1.PODate
-							,GTE.ModeofTransport
+							,PO1.PODate ,GTE.ModeofTransport
 							,HSNCode=case when HSNCA.Code <>'' then HSNCA.Code else HSNC.code end
-                            ,IR.CompanyGroupId
-                            ,IR.CompanyId
-                            ,Plant.GSTIN
+                            ,IR.CompanyGroupId ,IR.CompanyId ,Plant.GSTIN
                             ,BuyerReferenceNo=STUFF(
 									(select distinct ','+Format(xpo.PODate,'dd-MMM-yyyy') from
 									trn.PurchaseOrder xpo
@@ -5538,78 +5534,34 @@ namespace Library.MaterialManagement.Inventory
 									 left join TRN.SalesOrder  SO on so.ContractId=CNO.Id
 									  LEFT JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
 									where xpo. Id=PO.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-									
-                            ,ir.PODepended
-                            ,PO1.POId PONumber
-						    ,PO1.ContractNO ContractNO 
-							,PLC.LCRef LCNumber
-							,PLC.BenificiaryBank BeneficiaryBank
-							,PLC.BenificiaryBank OpeningBank
-							--,B.UserName BeneficiaryBank
-							--,B.UserName OpeningBank
-							,PDA.AcceptanceNo AcceptanceNo
-							,REPLACE(Convert(VARCHAR(11), PLC.LCDate, 106), ' ', '-') AS LCODate
+                            ,ir.PODepended ,PO1.POId PONumber ,PO1.ContractNO ContractNO 
+							,PLC.LCRef LCNumber ,PLC.BenificiaryBank BeneficiaryBank ,PLC.BenificiaryBank OpeningBank
+							,PDA.AcceptanceNo AcceptanceNo ,REPLACE(Convert(VARCHAR(11), PLC.LCDate, 106), ' ', '-') AS LCODate
 							,REPLACE(Convert(VARCHAR(11), PDA.AcceptanceDate, 106), ' ', '-') AS AcceptanceDate
                             ,REPLACE(Convert(VARCHAR(11), IR.GRNDate, 106), ' ', '-') AS GRNDate
 							 ,GRNType=CASE WHEN IR.GRNType='GRN' then 'GRN Without PO' ELSE 'GRN With PO' END
                             ,REPLACE(Convert(VARCHAR(11), IR.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate
                             ,REPLACE(Convert(VARCHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
-                            ,IR.InvoicingPartyPlantId
-                            ,INVPARTYPL.UserName InvoicingPartyName
-                            ,isnull(INVPARTYPL.AddressMasterId,0) InvoicePartyAddressMasterId
-                            ,INVPARTYPL.GSTIN InvoicingPartyGSTIN
-                            ,ISNULL(IR.InvoicingByAddress,'') InvoicingByAddress
-                            ,IR.DeliveryByAddress
-                            ,DPARTYPL.UserName DeliveryParty
-                            ,IR.DeliveryPartyPlantId
-                            ,IOM.MaterialMasterId
-                            ,IR.DocRefNo
+                            ,IR.InvoicingPartyPlantId ,INVPARTYPL.UserName InvoicingPartyName
+                            ,isnull(INVPARTYPL.AddressMasterId,0) InvoicePartyAddressMasterId ,INVPARTYPL.GSTIN InvoicingPartyGSTIN
+                            ,ISNULL(IR.InvoicingByAddress,'') InvoicingByAddress  ,IR.DeliveryByAddress
+                            ,DPARTYPL.UserName DeliveryParty ,IR.DeliveryPartyPlantId ,IOM.MaterialMasterId ,IR.DocRefNo
                             ,REPLACE(Convert(VARCHAR(11), IR.DocDate, 106), ' ', '-') AS DocDate
                             ,IR.GateEntryNo,REPLACE(Convert(VARCHAR(11), IR.EntryDate, 106), ' ', '-') AS GateEntryDate
                             ,CheckedBy=CASE WHEN IR.CheckedByStatus='Checked' Then eI.EmployeeName else '' END
                             ,AuthorizedBy=CASE When IR.AuthorizedByStatus='Approved'then eI1.EmployeeName else '' END
-                             ,AddedBy=CASE 
-									When IR.CheckedByStatus='ForChecked' Then eI3.EmployeeName
-									When IR.CheckedByStatus='Hold' Then eI3.EmployeeName
-									When IR.CheckedByStatus='Reject' Then eI3.EmployeeName
-									When IR.CheckedByStatus='Checked' Then eI3.EmployeeName
-									When IR.CheckedByStatus IS NULL then IR.AddedBy 
-									
-									else ''
-							END
-                            ,IR.AddedDate
-                            ,IR.UpdatedBy
-                            ,IR.UpdatedDate
-                            ,IR.IsApproved
-                            ,IR.PartyType
-                            ,EMPIN.EmployeeName
-                            ,Party.UserName VendorName
-                            ,Party.AddressMasterId VendorAddressMasterId
-                            ,Party.TINNO VendorGSTIN
+                             ,AddedBy=CASE  When IR.CheckedByStatus='ForChecked' Then eI3.EmployeeName When IR.CheckedByStatus='Hold' Then eI3.EmployeeName
+									When IR.CheckedByStatus='Reject' Then eI3.EmployeeName When IR.CheckedByStatus='Checked' Then eI3.EmployeeName
+									When IR.CheckedByStatus IS NULL then IR.AddedBy  else '' END
+                            ,IR.AddedDate ,IR.UpdatedBy ,IR.UpdatedDate ,IR.IsApproved  ,IR.PartyType ,EMPIN.EmployeeName
+                            ,Party.UserName VendorName  ,Party.AddressMasterId VendorAddressMasterId ,Party.TINNO VendorGSTIN
                             ,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
-                            ,IR.IsNonCreditable
-                            ,IR.CurrencyId
-                            ,CRNC.Code AS CurrencyName
-                           ,CONVERT(NUMERIC(10,4),IR.ToCurrencyRate) ToCurrencyRate 
-                            ,BASECRNC.Code AS BaseCurrencyName
-                            ,PayTerm.UserName PaymentTerm
-                            ,MM.UserName MaterialMaster
-                            ,MM.MaterialGroupMasterId
-                            ,MGM.UserName MaterialGroupMaster
-                            ,IOM.ArticleId
-                            ,MMA.StandardName Article
-                            ,FC.Id FirstCharId
-                            ,FC.UserName FirstChar
-                            ,IOM.FirstCharacteristicsValueId
-                            ,FCV.UserName AS FirstCharacteristicsValue
-                            ,IOM.SecondCharacteristicsValueId
-                            ,SCV.UserName AS SecondCharacteristicsValue
-                            ,IOM.ThirdCharacteristicsValueId
-                            ,TCV.UserName AS ThirdCharacteristicsValue
-                            ,SC.Id SecondCharId
-                            ,SC.UserName SecondChar
-                            ,TC.Id ThirdCharId
-                            ,TC.UserName ThirdChar
+                            ,IR.IsNonCreditable ,IR.CurrencyId ,CRNC.Code AS CurrencyName ,CONVERT(NUMERIC(10,4),IR.ToCurrencyRate) ToCurrencyRate 
+                            ,BASECRNC.Code AS BaseCurrencyName ,PayTerm.UserName PaymentTerm ,MM.UserName MaterialMaster ,MM.MaterialGroupMasterId
+                            ,MGM.UserName MaterialGroupMaster ,IOM.ArticleId  ,MMA.StandardName Article ,FC.Id FirstCharId  ,FC.UserName FirstChar
+                            ,IOM.FirstCharacteristicsValueId ,FCV.UserName AS FirstCharacteristicsValue  ,IOM.SecondCharacteristicsValueId
+                            ,SCV.UserName AS SecondCharacteristicsValue ,IOM.ThirdCharacteristicsValueId ,TCV.UserName AS ThirdCharacteristicsValue
+                            ,SC.Id SecondCharId  ,SC.UserName SecondChar ,TC.Id ThirdCharId ,TC.UserName ThirdChar
                             ,ROUND(IRD.TransactionQty, 2) POTransactionQty
                             ,ROUND(IRD.MaterialTranRate, 2) TransactionRate
                             --,ROUND((IRD.TransactionQty * IRD.MaterialTranRate), 2) AS TrnAmount

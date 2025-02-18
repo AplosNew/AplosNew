@@ -809,7 +809,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 				}
 
-				sql = @"SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo	,PAG.UserName PartyAccountGroup,C.Code BookCurrency
+				sql = @"SELECT * FROM (SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo	,PAG.UserName PartyAccountGroup,C.Code BookCurrency
 									,InvoiceValueBC=Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0))+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)+round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2)
 									,BasicValueBC=Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0)) 
 									,TotalTaxServiceAndChargesBC=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)+round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2)
@@ -1106,7 +1106,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 										AND IV.SourceType in ('DebitNote','CustomerReceipt')
 										AND ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0
                                         AND IV.PlantId='" + identity.PlantId + "' AND  convert(Date,IV.PostingDate)  " + temp + @"
-										";
+										) X ORDER BY X.InvoiceId";
 				
 				return _sqlRepository.GetDataTable(sql);
 
