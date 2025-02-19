@@ -539,6 +539,7 @@ namespace Library.Accounting.FixedAssets
                 , ISNULL(ADP.AssetAmount,0) AssetAmount,ISNULL(ADP.DepreciationAmount,0)DepreciationAmount,ISNULL(ADP.NetAmount,0)NetAmount
 				,ISNULL(AR.AdjustmentDepreciationAmount,0)AdjustmentDepreciationAmount, ISNULL(FRDD.NegotiationValue,0) NegotiationValue
                 ,frd.CurrencyId trnCurrencyId,frd.ToCurrencyRate
+                ,(SELECT SUM(ISNULL(Amount,0)) FROM [TRN].[FixedAssetRegisterDisposedTax] WHERE FixedAssetRegisterDisposedDetailId=FRDD.Id)TaxAmount
                 from TRN.FixedAssetRegisterDisposedDetail FRDD 
 				join TRN.FixedAssetRegisterDisposed frd  ON FRDD.FixedAssetRegisterDisposedId=frd.Id
                 left join TRN.AssetRegister AR on AR.Id=FRDD.AssetRegisterId
