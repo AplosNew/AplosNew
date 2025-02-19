@@ -539,6 +539,7 @@ namespace Library.Accounting.FixedAssets
                 , ISNULL(ADP.AssetAmount,0) AssetAmount,ISNULL(ADP.DepreciationAmount,0)DepreciationAmount,ISNULL(ADP.NetAmount,0)NetAmount
 				,ISNULL(AR.AdjustmentDepreciationAmount,0)AdjustmentDepreciationAmount, ISNULL(FRDD.NegotiationValue,0) NegotiationValue
                 ,frd.CurrencyId trnCurrencyId,frd.ToCurrencyRate
+                ,(SELECT SUM(ISNULL(Amount,0)) FROM [TRN].[FixedAssetRegisterDisposedTax] WHERE FixedAssetRegisterDisposedDetailId=FRDD.Id)TaxAmount
                 from TRN.FixedAssetRegisterDisposedDetail FRDD 
 				join TRN.FixedAssetRegisterDisposed frd  ON FRDD.FixedAssetRegisterDisposedId=frd.Id
                 left join TRN.AssetRegister AR on AR.Id=FRDD.AssetRegisterId
@@ -3461,7 +3462,9 @@ FROM(SELECT ARC.CapitalizationMasterId,ARC.CapitalizationChildId,FADR.Depreciati
 							LEFT JOIN MST.CompanyFixedAssetDepreciationRule CFADR  ON  CFADR.FixedAssetMasterId = FAI.FixedAssetMasterId 
 							LEFT JOIN [MST].[FixedAssetDepreciationRule] FADR  ON  FADR.Id = CFADR.DepreciationRuleId 
 		                WHERE ARC.CompanyGroupId=@companyGroupId AND ARC.CompanyId=@companyId  AND ARC.PlantId=@plantId  AND ARC.VoucherDetailId is not null AND CM.Type='New'
-						AND ARC.AssetRegisterId NOT IN (SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail])
+						AND ARC.AssetRegisterId NOT IN (SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail] fadd 
+join trn.FixedAssetRegisterDisposed fad on fad.Id=fadd.FixedAssetRegisterDisposedId
+where fad.DisposedVoucherId<>'')
 					    AND convert(Date,CM.CapitalizationDate) <  @fromDate ) T
 				        
 
@@ -3492,7 +3495,9 @@ FROM(SELECT ARC.CapitalizationMasterId,ARC.CapitalizationChildId,FADR.Depreciati
 							LEFT JOIN MST.CompanyFixedAssetDepreciationRule CFADR  ON  CFADR.FixedAssetMasterId = FAI.FixedAssetMasterId 
 							LEFT JOIN [MST].[FixedAssetDepreciationRule] FADR  ON  FADR.Id = CFADR.DepreciationRuleId 
 		                WHERE ARC.CompanyGroupId=@companyGroupId AND ARC.CompanyId=@companyId  AND ARC.PlantId=@plantId  AND ARC.VoucherDetailId is not null AND CM.Type='New'
-						AND ARC.AssetRegisterId NOT IN (SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail])
+						AND ARC.AssetRegisterId NOT IN (SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail] fadd 
+join trn.FixedAssetRegisterDisposed fad on fad.Id=fadd.FixedAssetRegisterDisposedId
+where fad.DisposedVoucherId<>'')
 					    AND convert(Date,CM.CapitalizationDate) BETWEEN  @fromDate AND @toDate) T
 				        ORDER BY FixedAssetMaster,FixedAssetItem  ";
             return _sqlRepository.GetDataCollection(sql);

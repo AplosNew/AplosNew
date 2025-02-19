@@ -189,6 +189,7 @@
                             <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'NetAmount'| number:2 }}</b></td>
                             <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'AdjustmentDepreciationAmount'| number:2 }}</b></td>
                             <td class="text-right" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><b>{{ (voucherDetailList ) | sumByKey:'NegotiationValue'| number:2 }}</b></td>
+                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'TaxAmount'| number:2 }}</b></td>
 
                         </tr>
                     </tfoot>
