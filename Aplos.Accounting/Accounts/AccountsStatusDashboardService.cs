@@ -22880,9 +22880,12 @@ group by Id) O60 ON O60.Id=IV.Id
 						                        left join TRN.VoucherDetail  VD on VD.InvoiceWriteOffDetailId=IWOD.Id
 						                        left join TRN.VoucherDetailCurrency VDC on VDC.VoucherDetailId=VD.Id
 												left join trn.AdvanceWriteOff awo on awo.VoucherId=v.Id
-												left join (SELECT awd.AdvanceId,awd.AdvanceWriteOffId,bmawo.AccountTitle FROM TRN.AdvanceWriteOffDetail awd 
+												left join (SELECT awd.AdvanceId,awd.AdvanceWriteOffId
+												,AccountTitle=case when bmawo.AccountTitle<>'' then bmawo.AccountTitle else cm.UserName end
+												FROM TRN.AdvanceWriteOffDetail awd 
 														join trn.Advance a on a.Id=awd.AdvanceId
-														left join mst.BankMaster bmawo ON bmawo.Id=a.BankMasterId) awd on awd.AdvanceWriteOffId=awo.Id
+														left join mst.BankMaster bmawo ON bmawo.Id=a.BankMasterId 
+														left join mst.cashmaster cm on cm.Id=a.CashMasterId) awd on awd.AdvanceWriteOffId=awo.Id
 						                        left JOIN TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
 						                        left join TRN.Invoice I on I.Id=IWOD.InvoiceId
 						                        left join TRN.Voucher VI on VI.Id=I.VoucherId

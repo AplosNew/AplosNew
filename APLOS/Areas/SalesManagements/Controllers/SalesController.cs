@@ -1654,7 +1654,9 @@ namespace Aplos.Areas.SalesManagements.Controllers
         [HttpGet, Authorize]
         public JsonResult GetItemSOSKUList(string masterOrderId)
         {
-            return Json(clsSales.GetItemSOSKUList(masterOrderId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(clsSales.GetItemSOSKUList(masterOrderId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
 
         [HttpGet, Authorize]
