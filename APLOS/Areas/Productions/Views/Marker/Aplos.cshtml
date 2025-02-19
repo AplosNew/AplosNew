@@ -1,19 +1,11 @@
 ﻿<togglable name="{{FormTitle}}"></togglable>
-<div class="form-horizontal" ng-form name="ModelNewForm" >
+<div class="form-horizontal" ng-form name="ModelNewForm">
     <div class="form-elements" id="Marker">
         <input type="hidden" ng-model="ModelNew.Id">
 
-        <div class="row" >
+        <div class="row">
             <div class="col-xs-12 col-sm-6 col-md-6">
-                @*<div class="form-group">
-            <label class="col-sm-4 control-label" title="Material">Finish Goods<sup>*</sup></label>
-            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
-                <input type="text" ng-model="ModelNew.FGMaterialMaster" class="form-control" readonly>
-                <span class="input-group-btn">
-                    <button ng-click="getMaterial()" ng-disabled="SKUDisable" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                </span>
-            </div>
-        </div>*@
+
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
@@ -32,17 +24,7 @@
                         <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
                     </div>
                 </div>
-                @*<div class="form-group">
-            <label class="col-sm-4 control-label">Shrinkage Group</label>
-            <div class="col-sm-8">
-                <div class="select-style">
-                    <select name="UOM" class="form-control" ng-model="ModelNew.ShrinkageGroupId" tabindex="13">
-                        <option value=""></option>
-                        <option ng-repeat="item in ShrinkageGroupList" value="{{item.Id}} ">{{ item.ShrinkageGroupName }}</option>
-                    </select>
-                </div>
-            </div>
-        </div>*@
+
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Width</label>
                     <div class="col-sm-8">
@@ -74,7 +56,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Gross Length</label>
                     <div class="col-sm-8">
-                        <input type="text" name="Length" ng-model="ModelNew.GrossLength"  ng-change="GetGrossWeight();" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
+                        <input type="text" name="Length" ng-model="ModelNew.GrossLength" ng-change="GetGrossWeight();" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
                     </div>
                 </div>
                 <div class="form-group">
@@ -98,7 +80,7 @@
 
             </div>
             <div class="col-xs-12 col-sm-6 col-md-6">
-            
+
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Code<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
@@ -111,18 +93,18 @@
                         <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
                     </div>
                 </div>
-                
                 <div class="form-group">
-                    <label class="col-sm-4 control-label">Active</label>
+                    <label class="col-sm-4 control-label">Check By</label>
                     <div class="col-sm-8">
-                        <div class="checkbox-site">
-                            <label>
-                                <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
+                        <div class="select-style">
+                            <select name="Check By" class="form-control" ng-model="ModelNew.CheckById" tabindex="13">
+                                <option value=""></option>
+                                <option ng-repeat="item in CheckByList" value="{{item.Value}} ">{{item.Text}}</option>
+                            </select>
                         </div>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Cutable Width</label>
                     <div class="col-sm-8">
@@ -139,7 +121,7 @@
                         </div>
                     </div>
                     <label class="col-sm-2 control-label">No Of Pcs</label>
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         <input type="text" name="NoOfPcs" ng-model="ModelNew.NoOfPcs" class="form-control" disabled maxlength="15" n-decimals="4" required tabindex="3">
                     </div>
                 </div>
@@ -149,11 +131,11 @@
                         <input type="text" name="Length" ng-model="ModelNew.GSM" ng-change="GetGrossWeight();GetNetWeight();" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Net Length</label>
                     <div class="col-sm-8">
-                        <input type="text" name="Length" ng-model="ModelNew.NetLength"ng-change="GetNetWeight();"  class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
+                        <input type="text" name="Length" ng-model="ModelNew.NetLength" ng-change="GetNetWeight();" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
                     </div>
                 </div>
                 <div class="form-group">
@@ -176,7 +158,17 @@
                         <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
                     </div>
                 </div>
-
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Active</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
 
 
 
@@ -190,7 +182,7 @@
                     </ul>
                 </div>
             </div>
-            
+
         </div>
 
 
@@ -203,7 +195,7 @@
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-           
+
             <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
             <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
             <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>

@@ -50,6 +50,26 @@ namespace Aplos.Areas.Productions.Controllers
             return View();
         }
 
+
+        [Authorize, HttpGet]
+        public JsonResult GetCheckByCbo()
+        {
+            var sql = @"select distinct E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text,A.ActionStatus  
+                          from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where E.EmployeeStatus='Active' AND A.ActionStatus= 'MarkerCheckedBy'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetApprovedByCbo()
+        {
+            var sql = @"select distinct E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text,A.ActionStatus  
+                          from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where E.EmployeeStatus='Active' AND A.ActionStatus='MarkerApproveBy'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
         [AllowAnonymous]
         public JsonResult GetCbo()
         {
