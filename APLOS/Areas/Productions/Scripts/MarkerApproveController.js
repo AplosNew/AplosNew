@@ -1,7 +1,7 @@
 ﻿'use strict';
 MarkerApproveController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', 'cboService', '$controller', '$window'];
 function MarkerApproveController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService, $controller, $window) {
-    $rootScope.title = 'Marker';
+    $rootScope.title = 'Marker Approve';
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Productions/Marker/';
@@ -10,6 +10,8 @@ function MarkerApproveController(commonMessage, $scope, $rootScope, baseService,
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
+
+   
 
     $scope.MarkerGroupList = [];
     $scope.GetMarkerGroupCbo = function () {

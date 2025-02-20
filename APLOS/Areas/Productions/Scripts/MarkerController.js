@@ -11,6 +11,20 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
 
+    $scope.CheckByList = [];
+    $scope.GetCheckByCboList = function () {
+        $http({
+            method: 'GET',
+            url: 'Productions/Marker/GetCheckByCbo'
+        }).then(function successCallback(response) {
+            $scope.CheckByList = response.data;
+            if (baseService.arrayLength($scope.CheckByList) == 1) {
+                $scope.ModelNew.CheckById = $scope.CheckByList[0].Value;
+            }
+        });
+    }
+    $scope.GetCheckByCboList();
+
     $scope.MarkerGroupList = [];
     $scope.GetMarkerGroupCbo = function () {
         try {
@@ -66,6 +80,10 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     $scope.GetNetWeight = function () {
         $scope.ModelNew.NetWeight = ($scope.ModelNew.CutableWidth * $scope.ModelNew.NetLength * $scope.ModelNew.GSM) / TBA;
     }
+
+
+
+
 
     //#region Finishing Goods & Articale
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
@@ -336,7 +354,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
 
     //#endregion
 
-    $scope.Save = function () {
+    $scope.XSave = function () {
         try {
 
             if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
