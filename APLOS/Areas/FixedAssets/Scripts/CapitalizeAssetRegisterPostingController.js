@@ -7,7 +7,7 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
     $scope.path = "fixedassets/fixedassetregister/";
 
     $scope.searchBy = "VoucherNo"; $scope.search = "";
-    $scope.searchByList = [{ value: 'VoucherNo', name: "Voucher No" }, { value: 'PostingDate', name: "Posting Date" }, { value: 'FixedAssetMasterId', name: "Asset Master Id" }, { value: 'FixedAssetItemId', name: "Asset Item Id" }, { value: 'FixedAssetMaster', name: "Asset Master" }, { value: 'FixedAssetItem', name: "Asset Item" }, { value: 'FixedAssetCategory', name: "Asset Category" }, { value: 'FixedAssetSubCategory', name: "Asset Sub Category" }];
+    $scope.searchByList = [{ value: 'VoucherNo', name: "Voucher No" }, { value: 'CapitalizationMasterId', name: "Capitalization Master Id" }, { value: 'PostingDate', name: "Posting Date" }, { value: 'FixedAssetMasterId', name: "Asset Master Id" }, { value: 'FixedAssetItemId', name: "Asset Item Id" }, { value: 'FixedAssetMaster', name: "Asset Master" }, { value: 'FixedAssetItem', name: "Asset Item" }, { value: 'FixedAssetCategory', name: "Asset Category" }, { value: 'FixedAssetSubCategory', name: "Asset Sub Category" }];
 
     $scope.voucherList = [];
     $scope.getData = function () {
