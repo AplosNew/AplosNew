@@ -1467,8 +1467,8 @@ SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserNam
 			try
 			{
 				var str = @"declare @fromdate varchar(20)= '"+ FromDate + @"'
-declare @todate varchar(20)= '"+ ToDate + @"'
-declare @plantId varchar(10)= '"+ PlantId + @"'--Sangrur
+				declare @todate varchar(20)= '"+ ToDate + @"'
+				declare @plantId varchar(10)= '"+ PlantId + @"'--Sangrur
 
 					SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo	,PAG.UserName PartyAccountGroup,C.Code BookCurrency
 									,InvoiceValueBC=ISNULL(SMD.BooksCurrencyTransactionAmount,0)+round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)+ round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2) + round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2) +round(isnull(TAxInfo6.BooksTaxAmount,0),2)+round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)+round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2)
