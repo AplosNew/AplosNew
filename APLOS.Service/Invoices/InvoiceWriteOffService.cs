@@ -847,7 +847,7 @@ namespace Library.Service.Invoices
                         GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                         BudgetMasterId = voucherDetailVM.BudgetMasterId,
                         PartyId = invoiceWriteOff.PartyId,
-                        PartyPlantId = voucherDetailVM.PartyPlantId,
+                        PartyPlantId = invoiceWriteOff.PartyPlantId,
                         ActivityId = voucherDetailVM.ActivityId,
                         CurrencyId = voucherDetailVM.CurrencyId,
                         InvoiceWriteOffId = invoiceWriteOff.Id,
@@ -876,7 +876,7 @@ namespace Library.Service.Invoices
                         DocRefNo = voucherDetailVM.DocRefNo,
                         Narration = voucherDetailVM.Narration,
                         PartyId = invoiceWriteOff.PartyId,
-                        PartyPlantId = voucherDetailVM.PartyPlantId,
+                        PartyPlantId = invoiceWriteOff.PartyPlantId,
                         PartyType = invoiceWriteOff.PartyType,
                         InvoiceWriteOffDetailId = invoiceWriteOffDetail.Id
                     };
@@ -3876,7 +3876,7 @@ namespace Library.Service.Invoices
                         GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                         BudgetMasterId = voucherDetailVM.BudgetMasterId,
                         PartyId = invoiceWriteOff.PartyId,
-                        PartyPlantId = voucherDetailVM.PartyPlantId,
+                        PartyPlantId = invoiceWriteOff.PartyPlantId,
                         ActivityId = voucherDetailVM.ActivityId,
                         CurrencyId = voucherDetailVM.CurrencyId,
                         InvoiceWriteOffId = invoiceWriteOff.Id,
@@ -3906,7 +3906,7 @@ namespace Library.Service.Invoices
                         DocRefNo = voucherDetailVM.DocRefNo,
                         Narration = voucherDetailVM.Narration,
                         PartyId = invoiceWriteOff.PartyId,
-                        PartyPlantId = voucherDetailVM.PartyPlantId,
+                        PartyPlantId = invoiceWriteOff.PartyPlantId,
                         PartyType = invoiceWriteOff.PartyType,
                         InvoiceWriteOffDetailId = invoiceWriteOffDetail.Id
                     };

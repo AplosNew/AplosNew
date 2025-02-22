@@ -3020,8 +3020,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
 									,FAC.UserName FixedAssetCategory
 									,FASC.UserName FixedAssetSubCategory
 									,CM.Qty,CM.Type,V.VoucherNo,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate
-									,(SELECT SUM(ISNULL(DrAmount,0))DrAmount FROM TRN.VoucherDetail 
-									WHERE VoucherId=V.Id AND ISNULL(DrAmount,0)>0 GROUP BY VoucherId) Amount
+									,CM.TotalAmount Amount
 				FROM TRN.Voucher V 
 				INNER JOIN [TRN].[CapitalizationMaster] CM ON CM.VoucherId=V.Id
 				LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
