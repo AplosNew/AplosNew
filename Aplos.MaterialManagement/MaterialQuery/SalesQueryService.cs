@@ -1103,7 +1103,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									) AS CC ON CC.VoucherDetailId=VD.Id
 									
                                         WHERE IV.Archive=0   AND IV.PartyType='Customer' 
-										AND IV.SourceType in ('DebitNote','CustomerReceipt')
+										AND IV.SourceType in ('CustomerReceipt')--'DebitNote',
 										AND ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0
                                         AND IV.PlantId='" + identity.PlantId + "' AND  convert(Date,IV.PostingDate)  " + temp + @"
 										) X ORDER BY X.InvoiceId";
@@ -1375,7 +1375,8 @@ SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserNam
 								GROUP BY P.Id, p.Code, PPI.UserName,PPD.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO,CN.UserName,C.Code,EI.EmployeeName
 								,II.Id  ,II.SalesDate,II.DocRefNo ,II.DocDate,CU.Code,II.ToCurrencyRate ,PT.PaymentMode,PT.UserName ,II.MatureDate
 								,V.VoucherNo,V.Id ,V.PostingDate,V.PostedDate,V.IsPark,II.AddedBy ,II.AddedDate ,E.UserName ,SCr.BooksCurrencyTransactionAmount,SCr.BooksCurrencyTaxAmount
-								
+										 
+
 								UNION ALL
 								SELECT    P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo,PAG.UserName PartyAccountGroup,C.Code BookCurrency
 								,InvoiceValueBC=ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0)
@@ -1433,7 +1434,7 @@ SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserNam
 									) AS CC ON CC.VoucherDetailId=VD.Id
 									
                                         WHERE IV.Archive=0   AND IV.PartyType='Customer' 
-										AND IV.SourceType in ('DebitNote','CustomerReceipt')
+										AND IV.SourceType in ('CustomerReceipt')--'DebitNote',
 										AND ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0
                                         AND IV.PlantId=@plantId AND  convert(Date,IV.PostingDate) between @fromdate AND @todate
 										--AND iv.PartyId='2023363'
@@ -1790,7 +1791,7 @@ declare @plantId varchar(10)= '"+ PlantId + @"'--Sangrur
 									) AS CC ON CC.VoucherDetailId=VD.Id
 									
                                         WHERE IV.Archive=0   AND IV.PartyType='Customer' 
-										AND IV.SourceType in ('DebitNote','CustomerReceipt')
+										AND IV.SourceType in ('CustomerReceipt')--'DebitNote',
 										AND ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0
                                         AND IV.PlantId='" + PlantId + @"'
 										AND convert(Date,IV.PostingDate)  BETWEEN   '" + FromDate + "' AND '" + ToDate + @"'
