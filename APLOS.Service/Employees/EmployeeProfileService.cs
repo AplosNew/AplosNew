@@ -8926,9 +8926,10 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
                                     ,DV.UserName AS Division,SC.UserName AS Section,SS.UserName SubSection
                                     ,FORMAT(E.DOJ,'dd-MMM-yyyy') DOJ,EC.UserName EmployeeCategory
                                     ,E.EmployeeStatus,M.EmployeeWorkTypeId,WT.UserName AS EmployeeWorkType
-                                    ,M.Sequence,FORMAT(M.IssueDate,'dd-MMM-yyyy') IssueDate,FORMAT(M.ExpiryDate,'dd-MMM-yyyy') ExpiryDate
+                                    ,M.Sequence,FORMAT(M.IssueDate,'dd-MMM-yyyy') IssueDate,FORMAT(M.ExpiryDate,'dd-MMM-yyyy') ExpiryDate,L.UserName Line
                                 FROM EmployeeInformation E
                                 LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
+                                left outer join ORG.line as L on L.Id=PMB.LineId 
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
                                 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=PR.DesignationId
                                 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId

@@ -2,10 +2,13 @@
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.Model.WorkCenters;
+using Library.Security.Core;
 using Library.Service.WorkCenters;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
@@ -17,15 +20,16 @@ namespace Aplos.Areas.WorkCenters.Controllers
         #region Constructor
 
         private readonly IWorkCenterMasterService _workcentermasterservice;
-
-        public WorkCenterMasterController(IWorkCenterMasterService workcentermasterservice)
+        private readonly ISqlRepository _sqlRepository;
+        public WorkCenterMasterController(IWorkCenterMasterService workcentermasterservice, ISqlRepository R)
         {
             _workcentermasterservice = workcentermasterservice;
+            _sqlRepository = R;
         }
 
         #endregion Constructor
 
-        
+
         public ActionResult Aplos()
         {
             return View();
@@ -33,7 +37,7 @@ namespace Aplos.Areas.WorkCenters.Controllers
 
         #region -- Operations
 
-        [HttpGet,Authorize]
+        [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
         {
             return Json(_workcentermasterservice.GetAutoSequence(), JsonRequestBehavior.AllowGet);
@@ -265,6 +269,142 @@ namespace Aplos.Areas.WorkCenters.Controllers
         {
             return Json(_workcentermasterservice.GetSearchLine(parameters, entityId), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public JsonResult CreateWCSkill(Dictionary<string, object> data, string WorkCenterMasterId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[WorkCenterSkill] where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "' AND WorkCenterMasterId='" + WorkCenterMasterId + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Code already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from [HKP].[WorkCenterSkill] where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "' AND WorkCenterMasterId='" + WorkCenterMasterId + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+
+                con.OpenDataSetThroughAdapter("select * from [HKP].[WorkCenterSkill] where Id='" + data["Id"] + "' AND WorkCenterMasterId='" + WorkCenterMasterId + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("WorkCenterSkill", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Sequence = GetWCSSequence(WorkCenterMasterId), Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetWCSAutoSequence(string WorkCenterMasterId)
+        {
+            return Json(GetWCSSequence(WorkCenterMasterId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetWCSkill(string WorkCenterMasterId)
+        {
+            string sql = @"select w.*,A.StandardName MachineName from [HKP].[WorkCenterSkill] W
+LEFT JOIN MST.MaterialMasterArticle A on A.Id=w.ArticleId Where w.WorkCenterMasterId='" + WorkCenterMasterId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [Authorize, HttpGet]
+        public ActionResult GetMachine(GridParameter parameters)
+        {
+
+            parameters.CmdText = @"SELECT ART.Id, ART.Code, ART.ShortName, ART.StandardName, MM.SkillId, SK.UserName AS SkillName, ART.MachineAllowance
+FROM[MST].[MaterialMasterArticle] AS ART
+LEFT JOIN[MST].[MaterialMaster] AS MM ON MM.Id = ART.MaterialMasterId
+LEFT JOIN[HKP].Skill AS Sk ON MM.SkillId = Sk.Id
+LEFT JOIN[MST].[MaterialMasterBusinessProcess] AS MMBP ON MMBP.MaterialMasterId = MM.Id
+LEFT JOIN[SCS].[BusinessProcess] AS BP ON MMBP.BusinessProcessId = BP.Id
+WHERE BP.BusinessProcessName = 'MachineDefinition' AND ART.Active = 1";
+            return Json(_sqlRepository.GetGridData(parameters), JsonRequestBehavior.AllowGet);
+        }
+
+      
+
+        private double GetWCSSequence(string WorkCenterMasterId)
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM [HKP].[WorkCenterSkill] Where WorkCenterMasterId='" + WorkCenterMasterId + "'");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+
 
         #endregion -- Operations
     }
