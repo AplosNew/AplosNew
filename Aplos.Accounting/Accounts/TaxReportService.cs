@@ -13808,7 +13808,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 
                         (
                         SELECT 
-						'VendorInvoice' SourceType,EN.UserName EntityName
+						'Expenses' SourceType,EN.UserName EntityName
                             ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate
 							,P.Id PartyId,P.UserName PartyName,PP.GSTIN
 							,NULL GRNNo,pp.UserName PartyPlantName,P.PartyNature,IV.PartyType,NULL Material,NULL Article,PC.UserName PartyCategory,PSC.UserName PartySubCategory
