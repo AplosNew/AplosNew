@@ -25,6 +25,12 @@ function MarkerCheckController(commonMessage, $scope, $rootScope, baseService, $
     }
     $scope.GetApprovedByCboList();
 
+    $scope.CheckByStatusList = [
+        { 'Value': "Checked", 'Text': "Checked"},
+        { 'Value': "Pending", 'Text': "Pending"},
+        { 'Value': "Reject", 'Text': "Reject"}
+    ];
+
     $scope.MarkerGroupList = [];
     $scope.GetMarkerGroupCbo = function () {
         try {

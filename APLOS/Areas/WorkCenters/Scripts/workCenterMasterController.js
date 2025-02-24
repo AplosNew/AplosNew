@@ -766,7 +766,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
         }
     }
 
-    $scope.ClosePopup=function () {
+    $scope.ClosePopup = function () {
         angular.element(document.querySelector('#masteraddeditpopup')).modal('hide');
     }
 
@@ -1047,6 +1047,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
                 $scope.productPriorityList = response.data.priority;
             });
         $scope.GetWorkCenterWiseShiftList();
+        $scope.GetWCSSequence();
         angular.element(document.querySelector('#detailPopUp')).modal('show');
     }
     // #endregion
@@ -1495,6 +1496,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
         }).then(function successCallback(response) {
             $scope.SubProcessList = response.data;
         });
+        $scope.GetWCSList();
     };
 
     $scope.cIndex = -1;
@@ -1621,4 +1623,165 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
+
+
+    $scope.ModelTemp = {
+        Id: null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Description: null,
+        Remarks: null,
+        Active: true,
+        MachineAppicable: false,
+        MachineName:null,
+        ArticleId: null,
+        SkillLevel:null
+    };
+    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.GetWCSSequence = function () {
+        cboService.getSequence('WorkCenters/WorkCenterMaster/GetWCSAutoSequence?WorkCenterMasterId=' + $scope.masterId, function (data) {
+            $scope.ModelNew.Sequence = data;
+        });
+    };
+
+    $scope.WCSList = [];
+    $scope.GetWCSList = function () {
+        $http({
+            method: 'GET',
+            url: 'WorkCenters/WorkCenterMaster/GetWCSkill?WorkCenterMasterId=' + $scope.masterId
+        }).then(function successCallback(response) {
+            $scope.WCSList = response.data;
+           
+        });
+    }
+
+    $scope.SkillList = [];
+    $scope.GetCboSkillCbo = function () {
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterUI/GetCboSkill'
+        }).then(function successCallback(response) {
+            $scope.SkillList = response.data;
+        });
+    }
+    $scope.GetCboSkillCbo();
+
+    $scope.SkillGroupingList = [];
+    $scope.GetCboSkillGroupingCbo = function () {
+        $http({
+            method: 'GET',
+            url: 'IE/SkillGrouping/GetSkillgrouping'
+        }).then(function successCallback(response) {
+            $scope.SkillGroupingList = response.data;
+        });
+    }
+    $scope.GetCboSkillGroupingCbo();
+
+    $scope.ActivityList = [];
+    $scope.GetActivityCbo = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/Activity/GetCbo'
+        }).then(function successCallback(response) {
+            $scope.ActivityList = response.data;
+        });
+    }
+    $scope.GetActivityCbo();
+
+    $scope.GetWSC = function (args) {
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+    };
+
+    $scope.articleList = [];
+    $scope.articleParameters = {
+        limit: 10
+        , offset: 0
+        , order: 'asc'
+        , sort: 'StandardName'
+        , searchBy: "StandardName"
+        , pageSize: 10
+        , total_count: 0
+        , search: null
+        , serverPagination: true
+    };
+    $scope.articlePopUp = function () {
+        try {
+           
+            $scope.articleDataList = [];
+            $scope.articleUrl = 'WorkCenters/WorkCenterMaster/GetMachine';
+            baseService.setCurrentPage('dataList');
+            $scope.getarticleData = function (pageno) {
+                baseService.paginationBase($scope.articleUrl, pageno, $scope.articleParameters)
+                    .then(function (result) {
+                        $scope.articleDataList = result.Rows;
+                        $scope.articleParameters.total_count = result.Total;
+                        if (baseService.arrayLength($scope.articleList) === 0) {
+                            baseService.getDDLSearchColumn(result.Rows, $scope.articleList);
+                        }
+                    }, function () {
+                        ShowResult(commonMessage.NetworkError, 'failure', 'articleId');
+                    }).finally(function () {
+                    });
+            };
+            angular.element(document.querySelector('#articleId')).modal('show');
+            $scope.getarticleData();
+        } catch (e) {
+            ShowResult(e, '', 'materialId');
+        }
+
+    };
+
+    $scope.selectArticle = function (data) {
+        $scope.ModelNew.ArticleId = data.Id;
+        $scope.ModelNew.MachineName = data.StandardName;
+        $scope.closeArticle();
+    };
+    $scope.closeArticle = function () {
+        angular.element(document.querySelector('#articleId')).modal('hide');
+    };
+
+
+
+    $scope.SaveWCS = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.ModelNewForm.$valid) {
+            $scope.ModelNew.WorkCenterMasterId= $scope.masterId;
+            $http({
+                method: 'POST',
+                url: 'WorkCenters/WorkCenterMaster/CreateWCSkill',
+                data: { 'data': $scope.ModelNew, 'WorkCenterMasterId': $scope.ModelNew.WorkCenterMasterId},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearwcsFields(response.data.Sequence);
+                    $scope.GetWCSList();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.Clearwcs = function () {
+        ClearwcsFields($scope.GetWCSSequence());
+        return true;
+    };
+
+    function ClearwcsFields(seq) {
+        $scope.Action = 'Save';
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.ModelNew.Sequence = seq;
+    }
+
 };
