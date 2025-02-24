@@ -1438,7 +1438,7 @@ namespace Library.Accounting.FixedAssets
                 LEFT JOIN TRN.Voucher V ON V.Id =frd.DisposedVoucherId
 				WHERE V.SourceType='FixedAssetDisposeJournal'
                 group by frd.Id,frd.Status,frd.Remarks,frd.EmployeeId,ei.EmployeeName,D.UserName,DG.UserName ,c.Code,frd.IsPark,c.Id,frd.DocDate
-				,P.UserName ,frd.PartyId,frd.PartyPlantId ,frd.DeliveryPartyPlantId,frd.InvoicingByAddress,frd.DeliveryByAddress,c.Code,V.VoucherNo,V.PostingDate,V.Id) AS TEMP WHERE " + strkey + " order by SlNo desc ";
+				,P.UserName ,frd.PartyId,frd.PartyPlantId ,frd.DeliveryPartyPlantId,frd.InvoicingByAddress,frd.DeliveryByAddress,c.Code,V.VoucherNo,V.PostingDate,V.Id) AS TEMP WHERE " + strkey + " order by PostingDate desc ";
             return _sqlRepository.GetDataCollection(sql);
         }
 

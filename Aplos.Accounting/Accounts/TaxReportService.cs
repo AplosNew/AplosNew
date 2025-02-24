@@ -13753,7 +13753,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "GST Detail Report", identity.PlantId);
+                reportUtility.PlantHeader(ref sheet, endCol, "GST Receivable Detail Report From " + FromDate + " To " + ToDate, identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -13808,7 +13808,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 
                         (
                         SELECT 
-						'Expenses' SourceType,EN.UserName EntityName
+						'VendorInvoice' SourceType,EN.UserName EntityName
                             ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate
 							,P.Id PartyId,P.UserName PartyName,PP.GSTIN
 							,NULL GRNNo,pp.UserName PartyPlantName,P.PartyNature,IV.PartyType,NULL Material,NULL Article,PC.UserName PartyCategory,PSC.UserName PartySubCategory
