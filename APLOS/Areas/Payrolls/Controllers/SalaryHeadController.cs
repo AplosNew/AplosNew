@@ -69,6 +69,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                                  ,Sequence
                                  ,PartOfNetPay
                                 ,IsGrossComponent
+                                ,IsCTCComponent
+                                ,IsBasicComponent
                                 ,IsRetained
                                 ,TransactionType,IsApplicableInFinalSettlement
                              FROM [dbo].[SalaryHead] WHERE GroupID = '" + identity .CompanyGroupId+ @"'  ORDER BY [Sequence]";
@@ -150,6 +152,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                     dr["Sequence"] = data.Sequence;
                     dr["PartOfNetPay"] = data.PartOfNetPay;
                     dr["IsGrossComponent"] = data.IsGrossComponent;
+                    dr["IsCTCComponent"] = data.IsCTCComponent;
+                    dr["IsBasicComponent"] = data.IsBasicComponent;
                     dr["IsRetained"] = data.IsRetained;
                     dr["TransactionType"] = data.TransactionType;
                     dr["IsApplicableInFinalSettlement"] = data.IsApplicableInFinalSettlement;
@@ -172,6 +176,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                     dr["Sequence"] = data.Sequence;
                     dr["PartOfNetPay"] = data.PartOfNetPay;
                     dr["IsGrossComponent"] = data.IsGrossComponent;
+                    dr["IsCTCComponent"] = data.IsCTCComponent;
+                    dr["IsBasicComponent"] = data.IsBasicComponent;
                     dr["IsRetained"] = data.IsRetained;
                     dr["TransactionType"] = data.TransactionType;
                     dr["IsApplicableInFinalSettlement"] = data.IsApplicableInFinalSettlement;
@@ -247,6 +253,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         public string UpdatedBy { get; set; }
         public DateTime DateUpdated { get; set; }
         public bool IsCTCComponent { get; set; }
+        public bool IsBasicComponent { get; set; }
         public bool IsGrossComponent { get; set; }
         public bool IsApplicableInFinalSettlement { get; set; }
         public bool IsRetained { get; set; }

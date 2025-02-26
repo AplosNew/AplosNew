@@ -86,6 +86,176 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return Json(_sqlRepository.GetDataCollection("select Id,UserName ShrinkageGroupName From ShrinkageGroup"), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public JsonResult Create(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from dbo.MarkerMaster where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Code already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from dbo.MarkerMaster where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+
+                con.OpenDataSetThroughAdapter("select * from dbo.MarkerMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    data["Id"] = _Id;
+                    data["CheckByStatus"] = "To Be Check";
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost]
+        public JsonResult Checked(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                
+                con.OpenDataSetThroughAdapter("select * from dbo.MarkerMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                 
+                    _Id = data["Id"].ToString();
+                    data["CheckByDate"] = DateTime.Now;
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost]
+        public JsonResult Approved(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from dbo.MarkerMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+
+                    _Id = data["Id"].ToString();
+                    data["ApproveByDate"] = DateTime.Now;
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+
+
         [Authorize, HttpGet]
         public JsonResult GetShade()
         {
@@ -114,9 +284,39 @@ namespace Aplos.Areas.Productions.Controllers
                                 left join MST.MaterialMaster mm on mm.Id= m.FGMaterialMasterId
                                 left join MST.MaterialMasterArticle mma on mma.Id= m.FGArticleId
                                 left join HKP.Characteristics c on c.Id= m.CharacteristicsId
+                                Where CheckByStatus IN('To Be Check','Pending','Reject')
                                 order by m.Sequence ";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize, HttpPost]
+        public ActionResult GetCheckByList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select m.*,mm.UserName FGMaterialMaster, mma.StandardName FGArticle ,c.UserName HeaderName
+                                From MarkerMaster m
+                                left join MST.MaterialMaster mm on mm.Id= m.FGMaterialMasterId
+                                left join MST.MaterialMasterArticle mma on mma.Id= m.FGArticleId
+                                left join HKP.Characteristics c on c.Id= m.CharacteristicsId
+                                Where m.CheckByStatus='To Be Check' AND CheckById='"+identity.EmployeeId+@"'
+                                order by m.Sequence ";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetApproveByList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select m.*,mm.UserName FGMaterialMaster, mma.StandardName FGArticle ,c.UserName HeaderName
+                                From MarkerMaster m
+                                left join MST.MaterialMaster mm on mm.Id= m.FGMaterialMasterId
+                                left join MST.MaterialMasterArticle mma on mma.Id= m.FGArticleId
+                                left join HKP.Characteristics c on c.Id= m.CharacteristicsId
+                                Where CheckByStatus='Checked' AND ApproveById='" + identity.EmployeeId + @"'
+                                order by m.Sequence ";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpPost]
         public ActionResult GetDetailsList(string masterid)
         {
@@ -161,7 +361,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
         [HttpPost]
-        public JsonResult Create(/*Dictionary<string, object> data, List<Dictionary<string, object>> details, */FormCollection form, HttpPostedFileBase[] file)
+        public JsonResult XCreate(/*Dictionary<string, object> data, List<Dictionary<string, object>> details, */FormCollection form, HttpPostedFileBase[] file)
         {
             try
             {

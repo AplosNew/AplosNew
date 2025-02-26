@@ -117,10 +117,10 @@
                         <div class="clearfix" style="padding-bottom:10px;"></div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Entity Wise Line</label>
+                                <label class="col-sm-4 control-label">Entity Wise Line<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="manPowerbudgetmasterNew.LineId" name="Line">
+                                        <select class="form-control" ng-model="manPowerbudgetmasterNew.LineId" required name="Line">
                                             <option value="">--Select--</option>
                                             <option ng-repeat="option in lineList" value="{{option.Value}}">{{option.Text}}</option>
                                         </select>

@@ -24,7 +24,17 @@
                         <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" disabled required tabindex="5" maxlength="50">
                     </div>
                 </div>
-
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Check Status</label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select name="Check Status" class="form-control" disabled ng-model="ModelNew.CheckByStatus" tabindex="13">
+                                <option value=""></option>
+                                <option ng-repeat="item in CheckByStatusList" value="{{item.Value}} ">{{item.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Width</label>
                     <div class="col-sm-8">
@@ -200,6 +210,8 @@
             <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
             <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
             <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+            <div e-column e-field="CheckByStatus" e-headertext="Check Status" e-width="5"></div>
+
         </div>
 
     </div>

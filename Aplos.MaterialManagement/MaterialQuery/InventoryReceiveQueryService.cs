@@ -5893,7 +5893,12 @@ namespace Aplos.MaterialManagement
 						   ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.CompanyCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalMaterialBaseAmount
 						   ,SUM(ROUND(ISNULL(IR.WrittenOffAmount*IR.CompanyCurrencyRate,0),4)) as Payment
 						   ,( ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.CompanyCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0)+Isnull(IRD.ChargesTaxTranAmount,0),2))-(SUM(ROUND(ISNULL(IR.WrittenOffAmount*IR.CompanyCurrencyRate,0),4))) as Balance
-						   ,VoucherNo= V.VoucherNo
+						  ,round(SUM(isnull(TAxInfo.TaxAmount,0)),2) CGST					
+						,round(isnull(TAxInfo1.TaxAmount,0),2) SGST
+						,round(isnull(TAxInfo2.TaxAmount,0),2) IGST
+						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS
+						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS
+                        ,VoucherNo= V.VoucherNo
 						   ,PostingDate=  REPLACE(CONVERT(CHAR(11), IR.PostingDate, 106),' ','-')  
 						   ,IR.DocRefNo,CU.Code CurrencyName,IR.PartyType
 						   ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
@@ -5915,12 +5920,48 @@ namespace Aplos.MaterialManagement
 					LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
 					LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
 					left join trn.Voucher V on V.Id=IR.VoucherId
+LEFT JOIN (SELECT  A.InvoiceId, B.UserName TaxCategoryName,B.Code   
+						,SUM(A.TaxAmount) TaxAmount 
+						FROM  [TRN].[InvoiceTax] A
+						 JOIN  [MST].[TaxCategory] B ON B.Id=A.TaxCategoryId 
+						WHERE B.Code='CGST'    
+						group by A.InvoiceId, B.UserName ,B.Code 
+						) TAxInfo	ON TAxInfo.InvoiceId=IR.Id
+			LEFT JOIN (SELECT  A.InvoiceId, B.UserName TaxCategoryName,B.Code   
+						,SUM(A.TaxAmount) TaxAmount 
+						FROM  [TRN].[InvoiceTax] A
+						 JOIN  [MST].[TaxCategory] B ON B.Id=A.TaxCategoryId 
+						WHERE B.Code='SGST' 
+						group by A.InvoiceId, B.UserName ,B.Code 
+						) TAxInfo1	ON TAxInfo1.InvoiceId=IR.Id 
+			LEFT JOIN (SELECT  A.InvoiceId, B.UserName TaxCategoryName,B.Code   
+						,SUM(A.TaxAmount) TaxAmount 
+						FROM  [TRN].[InvoiceTax] A
+						 JOIN  [MST].[TaxCategory] B ON B.Id=A.TaxCategoryId 
+						WHERE B.Code='IGST' 
+						group by A.InvoiceId, B.UserName ,B.Code 
+						) TAxInfo2	ON TAxInfo2.InvoiceId=IR.Id 
+			LEFT JOIN (SELECT  A.InvoiceId, B.UserName TaxCategoryName,B.Code   
+						,SUM(A.TaxAmount) TaxAmount 
+						FROM  [TRN].[InvoiceTax] A
+						 JOIN  [MST].[TaxCategory] B ON B.Id=A.TaxCategoryId 
+						WHERE B.Code='TDS' 
+						group by A.InvoiceId, B.UserName ,B.Code 
+						) TAxInfo3	ON TAxInfo3.InvoiceId=IR.Id 
+			
+			LEFT JOIN (SELECT  A.InvoiceId, B.UserName TaxCategoryName,B.Code   
+						,SUM(A.TaxAmount) TaxAmount 
+						FROM  [TRN].[InvoiceTax] A
+						 JOIN  [MST].[TaxCategory] B ON B.Id=A.TaxCategoryId 
+						WHERE B.Code='TCS'     
+						group by A.InvoiceId, B.UserName ,B.Code 
+						) TAxInfo6	ON TAxInfo6.InvoiceId=IR.Id 
 					where  IR.PlantId='" + PlantId + @"' AND convert(Date,IR.PostingDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
                     AND IR.SourceType IN('VendorInvoice')
 
 					group by IR.PostingDate,IR.AddedDate,IR.Id,p.UserName,PP.UserName,PPD.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount,IRD.ChargesTaxTranAmount
 					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,IR.DocRefNo,CU.Code,IR.PartyType,PAG.UserName
-					,PC.UserName,PSC.UserName,PG.UserName,IR.CompanyCurrencyRate,EI.EmployeeName";
+					,PC.UserName,PSC.UserName,PG.UserName,IR.CompanyCurrencyRate,EI.EmployeeName,TAxInfo1.TaxAmount,TAxInfo2.TaxAmount,TAxInfo3.TaxAmount,TAxInfo6.TaxAmount";
 
                 if (isreport)
                 {
@@ -6730,9 +6771,24 @@ namespace Aplos.MaterialManagement
                 int colGSTINNo = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Base Amount";
+                sheet[ROW, COL].Text = "Taxable Amount";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int colMaterialTranAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "IGST";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colIGST = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "CGST";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colCGST = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SGST";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colSGST = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Total Tax Amount";
@@ -6807,6 +6863,9 @@ namespace Aplos.MaterialManagement
                     sheet[ROW, colPartyName].Text = data.Rows[i]["PartyName"].ToString();
                     sheet[ROW, colGSTINNo].Text = data.Rows[i]["GSTINNo"].ToString();
                     sheet[ROW, colMaterialTranAmount].Number = clsStaticInfo.dbl(data.Rows[i]["MaterialTranAmount"].ToString());
+                    sheet[ROW, colIGST].Number = clsStaticInfo.dbl(data.Rows[i]["IGST"].ToString());
+                    sheet[ROW, colCGST].Number = clsStaticInfo.dbl(data.Rows[i]["CGST"].ToString());
+                    sheet[ROW, colSGST].Number = clsStaticInfo.dbl(data.Rows[i]["SGST"].ToString());
                     sheet[ROW, colTotalTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalTaxAmount"].ToString());
                     sheet[ROW, colTotalMaterialBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalMaterialBaseAmount"].ToString());
                     sheet[ROW, colPayment].Number = clsStaticInfo.dbl(data.Rows[i]["Payment"].ToString());

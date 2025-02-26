@@ -13375,6 +13375,84 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
             }
 
         }*/
+
+
+        public void GetLineNo(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Distinct Id Value , UserName Name from [ORG].[Line]";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetNewBudget(out List<NewBudgetCodeChange> DataList, string SystemId, string ShiftId, string LineId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<NewBudgetCodeChange>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select APD.EmpsystemId , Ei.EmployeeName  , PS.UserName Position , MB.Code BudgetCode,
+                        (select Code from mst.ManpowerBudget where ShiftDefinationId = '" + ShiftId + "' and LineId = '" + LineId + @"' and PositionId = PS.Id) NewBudget from AttdnProcessData APD
+                         left join mst.ManpowerBudget MB on MB.Id = APD.BudgetId
+                         left join Employeeinformation Ei on Ei.SystemId = APD.EmpSystemId
+                         left join ORG.Position PS on PS.id = MB.PositionId
+                         where APD.Workdate = convert(date, GETDATE()) and EmpSystemID = '" + SystemId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new NewBudgetCodeChange
+                    {
+                        EmpsystemId = dsRef.Tables[0].Rows[i]["EmpsystemId"].ToString(),
+                        EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
+                        Position = dsRef.Tables[0].Rows[i]["Position"].ToString(),
+                        BudgetCode = dsRef.Tables[0].Rows[i]["BudgetCode"].ToString(),
+                        NewBudget = dsRef.Tables[0].Rows[i]["NewBudget"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         #endregion Auburn
     }
 
@@ -15128,5 +15206,15 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
         public string AddedDate { get; set; }
         public string UpdatedBy { get; set; }
         public string UpdatedDate { get; set; }
+    }
+
+    public class NewBudgetCodeChange
+    {
+        public string EmpsystemId { get; set; }
+        public string EmployeeName { get; set; }
+        public string Position { get; set; }
+        public string BudgetCode { get; set; }
+        public string NewBudget { get; set; }
+        
     }
 }

@@ -11,7 +11,11 @@ function MarkerApproveController(commonMessage, $scope, $rootScope, baseService,
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
 
-   
+    $scope.ApproveByStatusList = [
+        { 'Value': "Approved", 'Text': "Approved" },
+        { 'Value': "Pending", 'Text': "Pending" },
+        { 'Value': "Reject", 'Text': "Reject" }
+    ];
 
     $scope.MarkerGroupList = [];
     $scope.GetMarkerGroupCbo = function () {

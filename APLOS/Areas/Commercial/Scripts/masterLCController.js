@@ -51,7 +51,8 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.partyType = "Customer";
         $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
 
-        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + $window.companyId + '&PlantId=' + $window.plantId;
+        //$scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + $window.companyId + '&PlantId=' + $window.plantId;
+        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=Customer'
 
         $http({
             method: 'POST',
