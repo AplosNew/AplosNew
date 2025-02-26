@@ -100,7 +100,7 @@ function GSTReceivableReportController(addressService, cboService, $scope, $root
     };
 
     $scope.getReportDetail = function () {
-        $scope.fileName = "UtilityTransactionReport.xlsx";
+        $scope.fileName = "GSTReceivableDetailReport.xlsx";
 
         if (baseService.isUndefinedOrNull($scope.report.FromDate)) {
             manualValidation("div_FromDate", true, "From Date is required.");

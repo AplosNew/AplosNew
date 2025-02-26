@@ -936,7 +936,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 											left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
 											group by ISS.SalesId
 											)ServiceData on ServiceData.SalesId=SA.Id
-									WHERE SA.PlantId='" + identity.PlantId+ @"' AND convert(Date,SA.InvoiceDate) " + temp + @"
+									WHERE SA.PlantId='" + identity.PlantId+ @"' AND convert(Date,SA.InvoiceDate) " + temp + @" AND SA.CancelStatus IS NULL
 									Group By P.Id,iv.setOff, p.Code	 ,PPI.UserName,PPD.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,SA.PartyType,PAG.UserName ,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO,CN.UserName ,C.Code,EI.EmployeeName
 								,SA.Id ,SA.InvoiceNo ,SA.InvoiceDate,SA.DocRefNo,SA.SourceType,CU.Code ,SA.ToCurrencyRate ,PT.PaymentMode,PT.UserName ,SA.MatureDate,SA.MatureDate
 ,V.VoucherNo,V.Id ,V.PostingDate,V.PostedDate,V.IsPark,SA.AddedBy ,SA.AddedDate ,ET.UserName,ServiceData.BooksCurrencyTransactionAmount,ServiceData.BooksCurrencyTaxAmount
@@ -1099,14 +1099,71 @@ namespace Aplos.MaterialManagement.MaterialQuery
 										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
 										FROM [TRN].[VoucherDetailCurrency] AS VDC
 										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='C20201'
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+identity.CompanyId+@"'
 									) AS CC ON CC.VoucherDetailId=VD.Id
 									
                                         WHERE IV.Archive=0   AND IV.PartyType='Customer' 
 										AND IV.SourceType in ('DebitNote','CustomerReceipt')
 										AND ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0
                                         AND IV.PlantId='" + identity.PlantId + "' AND  convert(Date,IV.PostingDate)  " + temp + @"
-										) X ORDER BY X.InvoiceId";
+									
+									UNION ALL
+									SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo	,PAG.UserName PartyAccountGroup,C.Code BookCurrency
+									,InvoiceValueBC=0
+									,BasicValueBC=0
+									,TotalTaxServiceAndChargesBC=0
+									,TotalTaxBC=0
+									,ServiceChargesBC=0
+									,ServiceChargeTaxBC=0
+									,CGSTBC=0	
+									,SGSTBC=0
+									,IGSTBC=0
+									,TCSBC=0
+									,0 SetOffAmount
+									,Balance=0
+									,SA.Id InvoiceId,SA.InvoiceNo ,REPLACE(CONVERT(CHAR(11), SA.InvoiceDate, 106),' ','-') InvoiceDate,SA.DocRefNo,SA.SourceType SalesType,REPLACE(CONVERT(CHAR(11), SA.InvoiceDate, 106),' ','-') DocDate
+									, ProductionOrder=STUFF((select distinct ','+CPO.PONumber
+		                                         from trn.SalesMaterial SMX									 
+												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
+												  LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = XSO.CustomerPOId
+									                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									, MasterOrder=STUFF((select distinct ','+MO.MasterOrderNo
+		                                         from trn.SalesMaterial SMX									 
+												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
+												  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
+												  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
+									                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									,SalesOrder=STUFF((select distinct ','+XSO.Id 
+		                                         from trn.SalesMaterial SMX									 
+												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId                                     
+									                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									,CU.Code InvoiceCurrency,SA.ToCurrencyRate InvoiceCurrencyRate,PT.PaymentMode,PT.UserName PaymentTerm,'' PaymentDays,SA.MatureDate,DATEDIFF(DAY, GETDATE(),SA.MatureDate) DueDays
+									,V.VoucherNo,V.Id VoucherId,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') PostingDate,V.PostedDate,V.IsPark,'' OrderType,SA.AddedBy PreparedBy,SA.AddedDate EntryDate,ET.UserName Entity
+
+									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,SA.PartyType
+									,CN.UserName Country,EI.EmployeeName ResponsiblePerson
+								 	FROM TRN.Sales AS SA
+									LEFT JOIN TRN.SalesMaterial SMD  ON SA.Id=SMD.SalesId
+									LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
+									LEFT JOIN TRN.Voucher V  on V.Id=SA.VoucherId
+									LEFT JOIN [HKP].[Party] AS P ON P.Id=SA.PartyId
+									LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'  AND CP.PlantId=SA.PlantId
+									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
+									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+									LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
+									LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=SA.InvoicingPartyPlantId
+									LEFT JOIN [HKP].[PartyPlant] AS PPD ON PPD.Id=SA.DeliveryPartyPlantId
+									LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
+									LEFT JOIN [SCS].[Country] AS CN ON CN.Id=AM.CountryId
+									LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
+									LEFT JOIN [ORG].[Company] AS CO ON CO.Id=SA.CompanyId
+									LEFT JOIN [SCS].[Currency] AS C ON C.Id=CO.BaseCurrencyId
+									LEFT JOIN [ORG].[Entity] AS ET ON ET.Id=SA.EntityId
+									LEFT JOIN [MST].PaymentTerm AS PT ON PT.Id=SA.PaymentTermId
+									LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=P.ResponsiblePersonId
+									WHERE SA.PlantId='" + identity.PlantId + @"' AND convert(Date,SA.InvoiceDate) " + temp + @" AND SA.CancelStatus<>''
+										) X ORDER BY X.EntryDate,X.InvoiceId";
 				
 				return _sqlRepository.GetDataTable(sql);
 
@@ -1375,7 +1432,8 @@ SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserNam
 								GROUP BY P.Id, p.Code, PPI.UserName,PPD.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO,CN.UserName,C.Code,EI.EmployeeName
 								,II.Id  ,II.SalesDate,II.DocRefNo ,II.DocDate,CU.Code,II.ToCurrencyRate ,PT.PaymentMode,PT.UserName ,II.MatureDate
 								,V.VoucherNo,V.Id ,V.PostingDate,V.PostedDate,V.IsPark,II.AddedBy ,II.AddedDate ,E.UserName ,SCr.BooksCurrencyTransactionAmount,SCr.BooksCurrencyTaxAmount
-								
+										 
+
 								UNION ALL
 								SELECT    P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo,PAG.UserName PartyAccountGroup,C.Code BookCurrency
 								,InvoiceValueBC=ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0)
@@ -1466,8 +1524,8 @@ SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserNam
 			try
 			{
 				var str = @"declare @fromdate varchar(20)= '"+ FromDate + @"'
-declare @todate varchar(20)= '"+ ToDate + @"'
-declare @plantId varchar(10)= '"+ PlantId + @"'--Sangrur
+				declare @todate varchar(20)= '"+ ToDate + @"'
+				declare @plantId varchar(10)= '"+ PlantId + @"'--Sangrur
 
 					SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo	,PAG.UserName PartyAccountGroup,C.Code BookCurrency
 									,InvoiceValueBC=ISNULL(SMD.BooksCurrencyTransactionAmount,0)+round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)+ round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2) + round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2) +round(isnull(TAxInfo6.BooksTaxAmount,0),2)+round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)+round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2)

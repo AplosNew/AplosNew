@@ -191,7 +191,7 @@
                                     </span>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">No of Work Station<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
@@ -685,7 +685,154 @@
                         </div>
                     </div>
                     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
+                        <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+                            <input type="hidden" ng-model="ModelNew.Id">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100%" required />
+                                    </div>
+                                </div>
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Short Name" ng-model="ModelNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
+                                    </div>
+                                </div>
 
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Activity</label>
+                                    <div class="col-sm-8">
+                                        <div class="select-style">
+                                            <select id="Skill" ng-model="ModelNew.ActivityId" class="form-control" name="Skill" ng-options="item.Value as item.Text for item in ActivityList" tabindex="5">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Skill</label>
+                                    <div class="col-sm-8">
+                                        <div class="select-style">
+                                            <select id="Skill" ng-model="ModelNew.SkillId" class="form-control" name="Skill" ng-options="item.Value as item.Text for item in SkillList" tabindex="5">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Skill Level<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Skill Level" ng-model="ModelNew.SkillLevel" class="form-control" required tabindex="5" maxlength="50">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Description</label>
+                                    <div class="col-sm-8">
+                                        <textarea class="form-control" rows="3" ng-model="ModelNew.Description" tabindex="7" maxlength="250"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
+                                    </div>
+                                </div>
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
+                                    </div>
+                                </div>
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Plan No<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="PlanNo" ng-model="ModelNew.PlanNo" class="form-control" required tabindex="4" maxlength="50">
+                                    </div>
+                                </div>
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Requirment No<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="RequirmentNo" ng-model="ModelNew.RequirmentNo" class="form-control" required tabindex="4" maxlength="50">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Skill Group</label>
+                                    <div class="col-sm-8">
+                                        <div class="select-style">
+                                            <select id="SkillGroup" ng-model="ModelNew.SkillGroupId" class="form-control" name="Skill Group" ng-options="item.Id as item.UserName for item in SkillGroupingList" tabindex="5">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Machine Appicable<sup>*</sup></label>
+                                    <div class="col-sm-2">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="ModelNew.MachineAppicable" tabindex="8">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 show-message">
+                                        <div class="input-group">
+                                            <input type="text" name="Machine" ng-model="ModelNew.MachineName" class="form-control" required disabled>
+                                            <span class="input-group-btn">
+                                                <button ng-click="articlePopUp();" ng-disabled="ModelNew.MachineAppicable==false" class="btn single-small-btn" tabindex="21"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Remarks</label>
+                                    <div class="col-sm-8">
+                                        <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Active</label>
+                                    <div class="col-sm-8">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="SaveWCS();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                    @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                                    <li> <button ng-click="Clearwcs();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                </ul>
+                            </div>
+                            <div id="GridEdit" ej-grid e-datasource="WCSList" e-recorddoubleclick="GetWSC"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                <div e-columns>
+                                    <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+                                    <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+                                    <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                                    <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                                    <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                                    <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                                    <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="common-btn">
@@ -1161,15 +1308,31 @@
                         <div e-column e-field="OwnStyleRefNo" e-headertext="Own Style RefNo" e-width="50"></div>
                         <div e-column e-field="Process" e-headertext="Process" e-width="80"></div>
                     </div>
-                    
+
                 </div>
             </div>
         </ej-dialog>
     </div>
 </div>
 
+<!-- #region Article -->
+<modal-table modalid="articleId"
+             data-title="Article"
+             data-search-parameters="articleParameters"
+             data-exclued-column-list="excluedList"
+             data-field-list="articleList"
+             data-data-list="articleDataList"
+             data-search-function="getarticleData"
+             data-single-click=""
+             data-double-click="selectArticle(data)"
+             data-left-button="false"
+             data-right-button="true"
+             data-ng-click-left-button=""
+             data-ng-click-cancel="closeArticle()">
+</modal-table>
+<!-- #endregion -->
 <!-- #endregion -->
 <confirm-archive-generic data-modalid="confirmmasterdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeMasterYes()"></confirm-archive-generic>
 <confirm-archive-generic data-modalid="confirmRowRemove" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>
-<confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation"message={{message_confirmation}} data-ng-click-right-button="DeleteShift()"></confirm-archive-generic>
-<confirm-archive-generic data-modalid="confirmgenericSPPopUp" title="Confirmation"message={{message_confirmation}} data-ng-click-right-button="DeleteSP()"></confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteShift()"></confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmgenericSPPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteSP()"></confirm-archive-generic>
