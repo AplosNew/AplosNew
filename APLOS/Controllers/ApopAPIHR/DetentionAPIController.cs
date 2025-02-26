@@ -1726,6 +1726,20 @@ namespace Aplos.Controllers.ApopAPIHR
 
             }
         }
+
+        public List<Default2> GetLineNo()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetLineNo(out List<Default2> activelists);
+            return activelists;
+        }
+
+        public List<NewBudgetCodeChange> GetNewBudget(string SystemId, string ShiftId , string LineId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetNewBudget(out List<NewBudgetCodeChange> activelists, SystemId, ShiftId, LineId);
+            return activelists;
+        }
         #endregion Auburn
     }
 }
