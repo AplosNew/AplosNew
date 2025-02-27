@@ -18544,7 +18544,8 @@ public class clsSalaryStructureAplosNew
                 #region Employee Basic Information
 
                 DataSet dsTotalSalary = null;
-                objINC.GetTotalSalary(para.EmployeeId, para.SalaryId, out dsTotalSalary);
+                //objINC.GetTotalSalary(para.EmployeeId, para.SalaryId, out dsTotalSalary);
+                objINC.GetSalaryInfo(para.EmployeeId, para.SalaryId, out dsTotalSalary);
                 if (dsTotalSalary.Tables[0].Rows.Count == 0)
                 {
                     throw new Exception("Total salary not found");
@@ -18563,9 +18564,21 @@ public class clsSalaryStructureAplosNew
                     drEmpBasic["SalaryRuleMasterSystemID"] = bplib.clsWebLib.RetValidLen(para.SalaryRuleId);
 
                     drEmpBasic["TotalSalary"] = 0;
-                    dsTotalSalary.Tables[0].DefaultView.RowFilter = "HeadCategory='GROSS'";
+                    //dsTotalSalary.Tables[0].DefaultView.RowFilter = "HeadCategory='GROSS'";
+                    //if (dsTotalSalary.Tables[0].DefaultView.Count > 0)
+                    //    drEmpBasic["TotalSalary"] = bplib.clsWebLib.GetNumData(dsTotalSalary.Tables[0].DefaultView[0]["DefineAmount"].ToString());
+
+                    dsTotalSalary.Tables[0].DefaultView.RowFilter = "Type='CTC' AND CTCAmount<>0";
                     if (dsTotalSalary.Tables[0].DefaultView.Count > 0)
-                        drEmpBasic["TotalSalary"] = bplib.clsWebLib.GetNumData(dsTotalSalary.Tables[0].DefaultView[0]["DefineAmount"].ToString());
+                        drEmpBasic["CTC"] = bplib.clsWebLib.GetNumData(dsTotalSalary.Tables[0].DefaultView[0]["CTCAmount"].ToString());
+
+                    dsTotalSalary.Tables[0].DefaultView.RowFilter = "Type='Gross' AND GrossAmount<>0";
+                    if (dsTotalSalary.Tables[0].DefaultView.Count > 0)
+                        drEmpBasic["Gross"] = bplib.clsWebLib.GetNumData(dsTotalSalary.Tables[0].DefaultView[0]["GrossAmount"].ToString());
+
+                    dsTotalSalary.Tables[0].DefaultView.RowFilter = "Type='Basic' AND BasicAmount<>0";
+                    if (dsTotalSalary.Tables[0].DefaultView.Count > 0)
+                        drEmpBasic["Basic"] = bplib.clsWebLib.GetNumData(dsTotalSalary.Tables[0].DefaultView[0]["BasicAmount"].ToString());
 
                     drEmpBasic.EndEdit();
                 }

@@ -3289,6 +3289,48 @@ FixedValue, SequenceNo,
                 objCon = null;
             }
         }//End Function 
+
+        public void GetSalaryInfo(string strEmpSysID, string sSysID, out System.Data.DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = "";
+
+            try
+            {
+                strSql = @"select SUM(ISNULL(A.CTCAmount,0)) CTCAmount,SUM(ISNULL(A.BasicAmount,0))BasicAmount,SUM(ISNULL(A.GrossAmount,0)) GrossAmount,A.Type from (
+SELECT SUM(ISNULL(c.DefineAmount,0)) CTCAmount,0 BasicAmount,0 GrossAmount,'CTC' Type  FROM 
+                                    SalaryInfoDefineMaster m
+                                    LEFT OUTER JOIN SalaryInfoDefine c on m.SystemID=c.SalaryID
+                                    LEFT OUTER JOIN SalaryHead h on h.SalaryHeadID=c.SalaryHeadID
+                                    WHERE m.EmpInfoSystemID='" + strEmpSysID + @"' AND m.SystemId='" + sSysID + @"' AND h.IsCTCComponent=1
+Union ALL
+SELECT 0 CTCAmount, SUM(ISNULL(c.DefineAmount,0)) BasicAmount,0 GrossAmount,'Basic' Type  FROM 
+                                    SalaryInfoDefineMaster m
+                                    LEFT OUTER JOIN SalaryInfoDefine c on m.SystemID=c.SalaryID
+                                    LEFT OUTER JOIN SalaryHead h on h.SalaryHeadID=c.SalaryHeadID
+                                    WHERE m.EmpInfoSystemID='" + strEmpSysID + @"' AND m.SystemId='" + sSysID + @"' AND h.IsBasicComponent=1
+Union ALL
+									SELECT 0 CTCAmount, 0 BasicAmount,SUM(ISNULL(c.DefineAmount,0)) GrossAmount,'Gross' Type  FROM 
+                                    SalaryInfoDefineMaster m
+                                    LEFT OUTER JOIN SalaryInfoDefine c on m.SystemID=c.SalaryID
+                                    LEFT OUTER JOIN SalaryHead h on h.SalaryHeadID=c.SalaryHeadID
+                                    WHERE m.EmpInfoSystemID='" + strEmpSysID + @"' AND m.SystemId='" + sSysID + @"' AND h.IsGrossComponent=1)A
+									Group bY A.Type ";
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function 
+
         public void GetSalaryInfoDefineMaster(string sEmpSysID, string sSysID, out System.Data.DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
