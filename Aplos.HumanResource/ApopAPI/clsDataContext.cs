@@ -13416,12 +13416,23 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
             clsConnectionManager objCon = null;
             string strSQL = "";
             DataList = new List<NewBudgetCodeChange>();
-
+            string strnew = "";
+            if(LineId == "null")
+            {
+                strnew = "";
+            }
+            else
+            {
+                strnew = "and LineId = '" + LineId + @"'";
+            }
             System.Data.DataSet dsRef;
             try
             {
                 strSQL = @"select APD.EmpsystemId , Ei.EmployeeName  , PS.UserName Position , MB.Code BudgetCode,
-                        (select Code from mst.ManpowerBudget where ShiftDefinationId = '" + ShiftId + "' and LineId = '" + LineId + @"' and PositionId = PS.Id) NewBudget from AttdnProcessData APD
+                        (select Code from mst.ManpowerBudget where ShiftDefinationId = '" + ShiftId + "' " + strnew + @" and PositionId = PS.Id) NewBudget
+                        (select Id from mst.ManpowerBudget where ShiftDefinationId = '" + ShiftId + "' " + strnew + @" and PositionId = PS.Id) NewBudgetId
+                         ,APD.BudgetId ExistingBudgetId 
+                         from AttdnProcessData APD
                          left join mst.ManpowerBudget MB on MB.Id = APD.BudgetId
                          left join Employeeinformation Ei on Ei.SystemId = APD.EmpSystemId
                          left join ORG.Position PS on PS.id = MB.PositionId
@@ -13439,6 +13450,8 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                         Position = dsRef.Tables[0].Rows[i]["Position"].ToString(),
                         BudgetCode = dsRef.Tables[0].Rows[i]["BudgetCode"].ToString(),
                         NewBudget = dsRef.Tables[0].Rows[i]["NewBudget"].ToString(),
+                        NewBudgetId = dsRef.Tables[0].Rows[i]["NewBudgetId"].ToString(),
+                        ExistingBudgetId = dsRef.Tables[0].Rows[i]["ExistingBudgetId"].ToString(),
 
                     });
                 }
@@ -15215,6 +15228,8 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
         public string Position { get; set; }
         public string BudgetCode { get; set; }
         public string NewBudget { get; set; }
+        public string NewBudgetId { get; set; }
+        public string ExistingBudgetId { get; set; }
         
     }
 }
