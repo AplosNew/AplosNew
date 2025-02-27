@@ -25,6 +25,7 @@ namespace Library.Service.Invoices
         string InsertCreditNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, IEnumerable<InvoiceTaxViewModel> tdsTaxList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList);
 
         string InsertDebitNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, IEnumerable<InvoiceTaxViewModel> tdsTaxList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList);
+        string InsertDebitNote_InvoiceSetOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, IEnumerable<InvoiceTaxViewModel> tdsTaxList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList);
         GridModel GetDebitNoteList(GridParameter parameters, string companyGroupId, string companyId, string plantId, string partyId, string partyType);
         GridModel GetCreditNoteList(GridParameter parameters, string companyGroupId, string companyId, string plantId, string partyId, string partyType);
         void DeleteAdjustmentNote(string adjustmentNoteId, string voucherId);
