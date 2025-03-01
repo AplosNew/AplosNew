@@ -73,6 +73,7 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
        // NoteType: "VendorDebitNote",
         SettlementType: "Others",
         FinancingTypeId: null,
+        IsInvoiceSetOff: false,
         CompanyCurrencyRate: 1
     };
 
@@ -597,6 +598,15 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
                 return true;
             }
         }
+        else if ($scope.voucher.IsInvoiceSetOff === true) {
+            $scope.TotalDebitNoteAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.invoiceSalesAvailableList), "TotalAmount"));
+            $scope.TotalInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.voucherInvoiceDetailList), "Amount"));
+                if ($scope.TotalInvoiceAmount != $scope.TotalDebitNoteAmount){
+                    ShowResult("Dr and Cr amount is not equal.!", "failure");
+                    return true;
+                }
+            } 
+        
         else {
             for (var j = 0; j < $scope.invoiceSalesAvailableList.length; j++) {
                 if ($scope.invoiceSalesAvailableList[j].IsOrderSpecific === true && $scope.invoiceDetailChargesList.length === 0) {
@@ -623,7 +633,8 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
                         "voucherDetailVMList": $scope.invoiceSalesAvailableList,
                         "invoiceTaxVMList": $scope.invoiceTaxDetailList,
                         "tdsTaxList": $scope.TDSList,
-                        "invoiceDetailChargesList": $scope.invoiceDetailChargesList
+                        "invoiceDetailChargesList": $scope.invoiceDetailChargesList,
+                        "voucherDetailInvoiceList": $scope.voucherInvoiceDetailList
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -762,6 +773,7 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
         $scope.voucher.SettlementType = "Others";
         $scope.TDSList = [];
         $scope.invoiceSalesAvailableList = [];
+        $scope.voucherInvoiceDetailList = [];
         $scope.voucherDetail.InvoiceTaxViewModel = [];
         $scope.invoiceTaxDetailList = [];
         $scope.salesDetailList = [];
@@ -2066,4 +2078,145 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
     $scope.ExpenseDistributionReport = function (reportFormat, voucherId) {
         $window.open('Accounts/Invoice/ReportVendorInvoiceExpenseDistribution?reportFormat=' + reportFormat + '&voucherId=' + voucherId, '_blank');
     }
+
+    //*********************** Customer Invoice PopUp Start *************************************
+    $scope.customerInvoiceSearchList = [
+        {
+            "Text": "VoucherNo",
+            "Value": "VoucherNo"
+        },
+        {
+            "Text": "RefNo",
+            "Value": "DocRefNo"
+        },
+        {
+            "Text": "PINo",
+            "Value": "SalesOrderNo"
+        },
+        {
+            "Text": "Location",
+            "Value": "PartyPlantName"
+        },
+        {
+            "Text": "PostingDate",
+            "Value": "PostingDate"
+        },
+        {
+            "Text": "DocDate",
+            "Value": "DocDate"
+        },
+        {
+            "Text": "Currency",
+            "Value": "CurrencyCode"
+        }
+    ];
+    $scope.customerreceivableList = [];
+    $scope.customerInvoiceSearch = [];
+    $scope.customerInvoiceSelectedIndex = -1;
+    $scope.customerInvoiceParameters = {
+        limit: 10,
+        offset: 0,
+        order: "ASC",
+        sort: "VoucherNo",
+        searchBy: "VoucherNo",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    $scope.showVendorInvoicePopUp = function (partyId) {
+        $scope.customerreceivableList = [];
+        $scope.customerInvoiceSearch = [];
+        if (baseService.isUndefinedOrNull(partyId)) {
+            $scope.customerreceivableList = [];
+            ShowResult("Please select Vendor.", "failure");
+            return;
+        }
+        else {
+            $scope.compareCurrencyId = $scope.voucher.CurrencyId;
+            $scope.customerInvoiceParameters.partyId = partyId;
+            $scope.customerreceivableGLData = function (pageno) {
+                baseService.paginationBase("accounts/Invoice/GetVendorAvailableInvoiceList", pageno, $scope.customerInvoiceParameters)
+                    .then(function (response) {
+                        $scope.customerreceivableList = response.Rows;
+                        $scope.customerInvoiceParameters.total_count = response.Total;
+                        if (baseService.arrayLength($scope.customerInvoiceSearchList) === 0) {
+                            baseService.getDDLSearchColumn($scope.customerreceivableList, $scope.customerInvoiceSearchList);
+                        }
+                    }, function () {
+                        ShowResult(commonMessage.NetworkError, "failure");
+                    }).finally(function () {
+                    });
+            };
+            angular.element(document.querySelector("#customerInvoicePopUp")).modal("show");
+            $scope.customerreceivableGLData();
+        }
+
+    };
+    $scope.voucherInvoiceDetailList = [];
+    $scope.closePopUpselected = function () {
+        angular.forEach($scope.customerreceivableList, function (data, i) {
+            if (data.Active === true) {
+                data.TrnType = "Cr";
+                data.PartyPlantName = data.PartyPlantName;
+                var getRow = $filter("filter")($scope.voucherInvoiceDetailList, { "TrnType": "Cr", "DocRefNo": data.DocRefNo });
+                if (getRow.length === 0) {
+                    data.Receivable = data.Receivable;
+                    data.WriteOff = data.Received;
+                    data.Advilable = data.Balance;
+                    data.Amount = data.Balance;
+                    data.CompanyCurrencyRate = data.CompanyCurrencyRate;
+                    $scope.voucherInvoiceDetailList.push(data);
+                    $scope.exchangeGainLossAmountInvoice(data);
+                    $scope.voucher.InvoiceVoucherNo = data.VoucherNo;
+                    angular.element(document.querySelector("#customerInvoicePopUp")).modal("hide");
+                }
+                else {
+                    ShowResult(data.DocRefNo + " already  Exist", "failure", "customerInvoicePopUp");
+                }
+            }
+        });
+    };
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector("#customerInvoicePopUp")).modal("hide");
+    };
+
+    $scope.exchangeGainLossAmountInvoice = function (data) {
+        var balance = parseFloat(data.Advilable), dramount = parseFloat(data.Amount);
+        if (dramount > balance) {
+            data.Amount = data.Balance;
+            ShowResult("Payment Amount should not exceed Balance Amount.", "failure");
+        }
+        else {
+            CloseShowResult();
+        }
+        //$scope.TotalCreditNoteAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.invoiceSalesAvailableList), "TotalAmount"));
+        //$scope.TotalInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.voucherInvoiceDetailList), "Amount"));
+        //if ($scope.TotalInvoiceAmount > $scope.TotalCreditNoteAmount) {
+        //    data.Amount = 0;
+        //    ShowResult("Invoice Amount should not exceed Debit Note Amount.", "failure");
+        //}
+        //else {
+        //    CloseShowResult();
+        //}
+        if (data.CompanyCurrencyRate < $scope.voucher.CompanyCurrencyRate) {
+            data.ExchangeAmount = Math.abs(data.Amount * (data.CompanyCurrencyRate - $scope.voucher.CompanyCurrencyRate)).toFixed(2);
+            data.ExchangeType = "ExchangeLoss";
+        }
+        else if (data.CompanyCurrencyRate > $scope.voucher.CompanyCurrencyRate) {
+            data.ExchangeAmount = Math.abs(data.Amount * ($scope.voucher.CompanyCurrencyRate - data.CompanyCurrencyRate)).toFixed(2);
+            data.ExchangeType = "ExchangeGain";
+        }
+        else {
+            data.ExchangeAmount = 0;
+            data.ExchangeType = null;
+        }
+    };
+    
+    $scope.removeInvoiceRow = function (index, data) {
+        $scope.voucherInvoiceDetailList.splice(index, 1);
+    };
+    //*********************** Customer Invoice PopUp End ***************************************
 }
