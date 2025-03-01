@@ -598,6 +598,15 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
                 return true;
             }
         }
+        else if ($scope.voucher.IsInvoiceSetOff === true) {
+            $scope.TotalDebitNoteAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.invoiceSalesAvailableList), "TotalAmount"));
+            $scope.TotalInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.voucherInvoiceDetailList), "Amount"));
+                if ($scope.TotalInvoiceAmount != $scope.TotalDebitNoteAmount){
+                    ShowResult("Dr and Cr amount is not equal.!", "failure");
+                    return true;
+                }
+            } 
+        
         else {
             for (var j = 0; j < $scope.invoiceSalesAvailableList.length; j++) {
                 if ($scope.invoiceSalesAvailableList[j].IsOrderSpecific === true && $scope.invoiceDetailChargesList.length === 0) {
@@ -624,7 +633,8 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
                         "voucherDetailVMList": $scope.invoiceSalesAvailableList,
                         "invoiceTaxVMList": $scope.invoiceTaxDetailList,
                         "tdsTaxList": $scope.TDSList,
-                        "invoiceDetailChargesList": $scope.invoiceDetailChargesList
+                        "invoiceDetailChargesList": $scope.invoiceDetailChargesList,
+                        "voucherDetailInvoiceList": $scope.voucherInvoiceDetailList
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -763,6 +773,7 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
         $scope.voucher.SettlementType = "Others";
         $scope.TDSList = [];
         $scope.invoiceSalesAvailableList = [];
+        $scope.voucherInvoiceDetailList = [];
         $scope.voucherDetail.InvoiceTaxViewModel = [];
         $scope.invoiceTaxDetailList = [];
         $scope.salesDetailList = [];

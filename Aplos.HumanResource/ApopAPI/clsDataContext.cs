@@ -13430,7 +13430,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
             {
                 strSQL = @"select APD.EmpsystemId , Ei.EmployeeName  , PS.UserName Position , MB.Code BudgetCode,
                         (select Code from mst.ManpowerBudget where ShiftDefinationId = '" + ShiftId + "' " + strnew + @" and PositionId = PS.Id) NewBudget
-                        (select Id from mst.ManpowerBudget where ShiftDefinationId = '" + ShiftId + "' " + strnew + @" and PositionId = PS.Id) NewBudgetId
+                        ,(select Id from mst.ManpowerBudget where ShiftDefinationId = '" + ShiftId + "' " + strnew + @" and PositionId = PS.Id) NewBudgetId
                          ,APD.BudgetId ExistingBudgetId 
                          from AttdnProcessData APD
                          left join mst.ManpowerBudget MB on MB.Id = APD.BudgetId

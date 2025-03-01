@@ -269,7 +269,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     ConnectionManager.DAL.ConManager objCon1;
                     DataSet dsMaster1 = null;
                     string setOffsql = @"SELECT VoucherNo from trn.InvoiceWriteOffDetail iwd JOIN trn.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId LEFT JOIN trn.Voucher v on v.Id = iw.VoucherId
-                                            WHERE iwd.AdjustmentNoteId in (select Id from trn.AdjustmentNote where VoucherId = '" + voucherId + "')";
+                                            WHERE iwd.AdjustmentNoteId in (select Id from trn.AdjustmentNote where VoucherId = '" + voucherId + "' and isnull(IsInvoiceSetOff,0)=0)";
                     objCon1 = new ConnectionManager.DAL.ConManager("1");
                     objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
 
@@ -279,8 +279,10 @@ namespace Aplos.Areas.Accounts.Controllers
                     }
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     var bankJournalSql = @"UPDATE [TRN].AdjustmentNote SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
+                    var ivoiceWriteoffSql = @"UPDATE [TRN].InvoiceWriteoff SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
                     rdBuilder.Append(bankJournalSql);
+                    rdBuilder.Append(ivoiceWriteoffSql);
                 }
                 if (sourceType == SourceType.DebitNoteSetOff.ToString() || sourceType == SourceType.CreditNoteSetOff.ToString())
                 {

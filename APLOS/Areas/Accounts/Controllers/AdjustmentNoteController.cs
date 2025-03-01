@@ -125,7 +125,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult InsertDebitNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, IEnumerable<InvoiceTaxViewModel> tdsTaxList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList)
+        public JsonResult InsertDebitNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, IEnumerable<InvoiceTaxViewModel> tdsTaxList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList, IEnumerable<VoucherDetailViewModel> voucherDetailInvoiceList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -133,9 +133,9 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.PlantId = identity.PlantId;
             voucherVM.IsPark = true;
             voucherVM.SourceType = SourceType.DebitNote.ToString();
-            if (voucherVM.IsLoanSetOff == true)
+            if (voucherVM.IsInvoiceSetOff == true)
             {
-                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _adjustmentNoteService.InsertDebitNote_InvoiceSetOff(voucherVM, voucherDetailVMList, invoiceTaxVMList, tdsTaxList, invoiceDetailChargesList)) });
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _adjustmentNoteService.InsertDebitNote_InvoiceSetOff(voucherVM, voucherDetailVMList, invoiceTaxVMList, tdsTaxList, invoiceDetailChargesList, voucherDetailInvoiceList)) });
             }
             else
             {
