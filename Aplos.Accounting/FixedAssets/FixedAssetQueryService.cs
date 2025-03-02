@@ -2868,10 +2868,10 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                     var i = 0;
                     foreach (var item in assetRegisterList)
                     {
-                        objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[AssetRegisterChild] where  AssetRegisterId='" + item["AssetRegisterId"].ToString() + "'", out _assetRegisterAdditionData, false, "1");
+                        objCon.OpenDataSetThroughAdapter("SELECT CAST(MAX(Id) AS bigint)+1 Id FROM [TRN].[AssetRegisterChild] where  AssetRegisterId='" + item["AssetRegisterId"].ToString() + "'", out _assetRegisterAdditionData, false, "1");
                         var _assetAdditiondata = new
                         {
-                            Id = _accountsCommonService.MakePK(item["AssetRegisterId"].ToString(), _assetRegisterAdditionData.Tables[0].Rows.Count + 1, 2),
+                            Id = _assetRegisterAdditionData.Tables[0].Rows[0]["Id"].ToString(),
                             FixedAssetItemId = item["FixedAssetItemId"].ToString(),
                             AssetRegisterId = item["AssetRegisterId"].ToString(),
                             CapitalizationMasterId = masterId,
