@@ -301,14 +301,33 @@ left join TRN.ProductionOrderDetail POD ON POD.ProductionOrderId=PO.Id
 left join TRN.SalesOrder SO ON SO.Id=POD.SalesOrderId
 left join [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
 left join [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
-LEFT JOIN [MST].[MasterPlanSODetails] CPD on CPD.SalesOrderId=SO.Id and CPD.MasterPlanId='244'
-where CPD.MasterPlanId = '"+ MasterPlanId + @"'
+LEFT JOIN [MST].[MasterPlanSODetails] CPD on CPD.SalesOrderId=SO.Id and CPD.MasterPlanId='" + MasterPlanId + @"'
+where CPD.MasterPlanId = '" + MasterPlanId + @"'
 and PO.ProductionStatusId in (select Id from HKP.ProductionStatus where MasterPlanApplicable=1)
 and SO.OrderStatusId in (select Id from HKP.OrderStatus OS where OS. MasterPlanApplicable=1)
 and SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + @"' and Status=1) ";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public ActionResult GetFabricGRNRowList(string soId)
+        {
+            string sql = @"SELECT  MP.InventoryReceiveDetailId,MP.FirstCharacteristicsValueId,IRD.InventoryReceiveId,IRD.TransactionQty,UOM.UserName UOM,BUoM.UserName BaseUoM,IR.Id GRNNo,IR.GRNDate
+,P.UserName PartyName,MM.UserName MaterialMasterName,MMA.StandardName ArticleName,CV.UserName SKUValue
+FROM dbo.GRNSOMap MP
+LEFT JOIN  [TRN].[InventoryReceiveDetail] IRD ON MP.InventoryReceiveDetailId=IRD.Id
+LEFT JOIN TRN.InventoryReceive IR ON IRD.InventoryReceiveId=IR.Id
+LEFT JOIN HKP.Party P ON IR.PartyId=P.Id
+LEFT JOIN TRN.InventoryMaterial IM ON IRD.InventoryMaterialId=IM.Id
+LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+LEFT JOIN SCS.UnitOfMeasurement UOM ON IRD.TransactionUoMId=UOM.Id
+LEFT JOIN SCS.UnitOfMeasurement BUoM ON IRD.BaseUOMId=BUoM.Id
+LEFT JOIN MST.MaterialMaster MM ON IM.MaterialMasterId=MM.Id
+LEFT JOIN MST.MaterialMasterArticle MMA ON IM.ArticleId=MMA.Id
+LEFT JOIN [HKP].[CharacteristicsValue] CV ON MP.FirstCharacteristicsValueId=CV.Id
+Where MP.SalesOrderId  "+soId+"";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
 
         [Authorize, HttpPost]
         public ActionResult GetCheckByList()
