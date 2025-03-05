@@ -70,7 +70,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             ShowResult(e, 'failure');
         }
     }
-
+    $scope.sqlInStatement = "";
     $scope.selectedSOList = [];
     $scope.CloseSOPopUp = function () {
         for (var i = 0; i < $scope.SOList.length; i++) {
@@ -91,7 +91,47 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             }
         }
         angular.element(document.querySelector('#SOPoPUp')).modal('hide');
+
+        
     }
+
+    $scope.FabricGRNRowList = [];
+    $scope.GetFabricGRNRowList = function () {
+        $scope.FabricGRNRowList = [];
+        if ($scope.selectedSOList.length > 0) {
+            var uniquePackingId = removeDuplicates($scope.selectedSOList, 'SalesOrderId');
+            var wcSOId = "";
+            if (uniquePackingId.length > 0) {
+                wcSOId = "IN(";
+                wcSOId += Array.prototype.map.call(uniquePackingId, function (item) { return "'" + item.SalesOrderId + "'"; }).join(",") + ")";
+            }
+            $scope.sqlInStatement = wcSOId;
+        }
+        $http({
+            method: 'GET',
+            url: "Productions/Marker/GetFabricGRNRowList?soId=" + $scope.sqlInStatement
+        }).then(function (response) {
+            $scope.FabricGRNRowList = response.data;
+        });
+        angular.element(document.querySelector('#FabricGRNRowPoPUp')).modal('show');
+    }
+
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
+    }
+
+    $scope.CloseFabricGRNRowopUp = function () {
+        angular.element(document.querySelector('#FabricGRNRowPoPUp')).modal('hide');
+
+    }
+
+    $scope.SetFabricGRNRow= function (args) {
+        $scope.ModelNew.FabricGRNRowId = args.data.Id;
+        $scope.CloseFabricGRNRowopUp();
+    }
+
 
     function checkExists(list, id) {
         for (var i = 0; i < list.length; i++) {

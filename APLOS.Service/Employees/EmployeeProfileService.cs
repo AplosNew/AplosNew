@@ -5165,7 +5165,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
 
                                     LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Male'and LanguageId='" + languageId + @"' ) LMM ON LMM.LanguageId=PL.LanguageId
                                     LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Female'and LanguageId='" + languageId + @"' ) LMF ON LMF.LanguageId=PL.LanguageId
-									LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName=(SELECT EmploymentType FROM dbo.EmployeeInformation where SystemId='" + employeeId + @"')and LanguageId=7 ) LET ON LET.LanguageId=PL.LanguageId
+									LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName=(SELECT EmploymentType FROM dbo.EmployeeInformation where SystemId='" + employeeId + @"')and LanguageId='" + languageId + @"') LET ON LET.LanguageId=PL.LanguageId
                                     LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Name' and LanguageId='" + languageId + @"' ) N ON N.LanguageId=PL.LanguageId
                                     LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage wHERE LabelName='Designation'and LanguageId='" + languageId + @"' ) DN ON DN.LanguageId=PL.LanguageId
                                     LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage wHERE LabelName='Department'and LanguageId='" + languageId + @"' ) DPN ON DPN.LanguageId=PL.LanguageId
@@ -5181,7 +5181,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
                                     LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='MobileNo'and LanguageId='" + languageId + @"' ) LMB ON LMB.LanguageId=PL.LanguageId
 									LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Probationer'and LanguageId='" + languageId + @"') LPRL ON LPRL.LanguageId = PL.LanguageId
 									LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Permanent' and LanguageId='" + languageId + @"') PTl ON PTl.LanguageId=PL.LanguageId
-									LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = PR.SectionId AND PL.LanguageId = SEC.LanguageId  AND PL.LanguageId='" + languageId + @"'
+									LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = PS.SectionId AND PL.LanguageId = SEC.LanguageId  AND PL.LanguageId='" + languageId + @"'
                                     LEFT JOIN HKP.LocalLanguage CAC ON CAC.DepartmentId =PS.DepartmentId AND PL.LanguageId=CAC.LanguageId  AND PL.LanguageId='" + languageId + @"'
                                     WHERE E.SystemID ='" + employeeId + @"') TAB1 LEFT JOIN SCS.Language AS LAN ON LAN.Id=TAB1.LanguageId) TAB2 LEFT JOIN MST.AddressMaster AS AM ON AM.Id=TAB2.AddressMasterId) TAB3 
 									LEFT JOIN  (SELECT * FROM SCS.RptConfigTemplate WHERE Id='" + tempId + @"'  and PlantId='" + plantId + @"') AS RPTM ON TAB3.PlantId=RPTM.PlantId";

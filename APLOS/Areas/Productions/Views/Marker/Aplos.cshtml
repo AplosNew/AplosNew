@@ -89,7 +89,7 @@
                         <li><button style="margin-left: 5px;" ng-click="GetSOPopUp();" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Add SO</button></li>
                     </ul>
                 </div>
-                <div id="GridSSO" ej-grid e-datasource="selectedSOList" 
+                <div id="GridSSO" ej-grid e-datasource="selectedSOList"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true">
                     <div e-columns>
@@ -101,7 +101,12 @@
                         <div e-column e-field="SOPlanQty" e-headertext="SOPlanQty" e-width="100"></div>
                         <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
                     </div>
-                   
+
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button style="margin-left: 5px;" ng-click="GetFabricGRNRowList();" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Add Fabric GRNRow</button></li>
+                    </ul>
                 </div>
             </div>
 
@@ -395,7 +400,7 @@
     </div>
 </div>
 
-<ej-dialog id="General"
+@*<ej-dialog id="General"
            title="Examption"
            e-enablemodal="true"
            e-position-y="0"
@@ -425,7 +430,7 @@
             <li> <button ng-click="SelectList();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Select</button></li>
         </ul>
     </div>
-</ej-dialog>
+</ej-dialog>*@
 
 
 <div class="modal fade site-modal in" id="MasterPlanPoPUp" role="dialog" data-backdrop="static">
@@ -491,6 +496,41 @@
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="CloseSOPopUp()" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="FabricGRNRowPoPUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="CloseFabricGRNRowopUp()">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> Fabric GRN Row</h4>
+            </div>
+            <div class="modal-body">
+                <div id="GridGRR" ej-grid e-datasource="FabricGRNRowList" @*e-templaterefresh="refreshTemplateSO"*@
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true">
+                    <div e-columns>
+                        @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>*@
+                        <div e-column e-field="InventoryReceiveDetailId" e-headertext="GRNRowId" e-width="80"></div>
+                        <div e-column e-field="GRNNo" e-headertext="GRNNo" e-width="80"></div>
+                        <div e-column e-field="GRNDate" e-headertext="GRNDate" e-width="80"></div>
+                        <div e-column e-field="PartyName" e-headertext="Party Name" e-width="100"></div>
+                        <div e-column e-field="MaterialMasterName" e-headertext="Material Master" e-width="100"></div>
+                        <div e-column e-field="ArticleName" e-headertext="Article" e-width="100"></div>
+                        <div e-column e-field="SKUValue" e-headertext="SKU" e-width="80"></div>
+                        <div e-column e-field="TransactionQty" e-headertext="Qty" e-width="80"></div>
+                        <div e-column e-field="UOM" e-headertext="UOM" e-width="50"></div>
+                    </div>
+                   
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseFabricGRNRowopUp()" class="btn">Close</button></li>
                     </ul>
                 </div>
             </div>
