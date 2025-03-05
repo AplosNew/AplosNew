@@ -62,6 +62,12 @@
                 </div>
             </div>
         </div>
+        @*<div class="form-group">
+            <label class="col-sm-4 control-label">Is Invoice SetOff<sup></sup></label>
+            <div class="col-sm-8">
+                <input type="checkbox" ng-model="voucher.IsInvoiceSetOff">
+            </div>
+        </div>*@
         @*<div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Credit Type<sup>*</sup></label>
                 <div class="col-sm-8 radio">
@@ -307,6 +313,73 @@
             </tfoot>
         </table>
     </div>
+    <div class="clearfix"></div>
+    <div class="col-xs-12 col-sm-12 col-md-12" ng-show="voucher.NoteType=='@Library.Model.Invoices.NoteType.CustomerCreditNote.ToString()' && voucher.IsInvoiceSetOff==true">
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <button class="btn single-btn" ng-click="showCustomerInvoicePopUp(voucher.PartyId);" tabindex="10"><i class="glyphicon glyphicon-plus"></i> Select Invoice</button>
+        </div>
+        <div class="clearfix"></div>
+        <fieldset class="scheduler-border" ng-show="voucherInvoiceDetailList.length">
+            <legend class="scheduler-border">Invoice</legend>
+            <div class="table-responsive modal-table">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Voucher No</th>
+                            <th>DocDate</th>
+                            <th>Doc Ref No</th>
+                            <th>Currency</th>
+                            <th>Rate</th>
+                            <th class="text-right">Receivable</th>
+                            <th class="text-right">Additional</th>
+                            <th class="text-right">Receipt</th>
+                            <th class="text-right">Balance</th>
+                            <th class="text-right">Amount</th>
+                            <th>Exchange Type</th>
+                            <th>Exchange Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in voucherInvoiceDetailList">
+                            <td>{{x.VoucherNo}}</td>
+                            <td>{{x.DocDate |dateFiltering}}</td>
+                            <td>{{x.DocRefNo}}</td>
+                            <td>{{x.CurrencyCode}}</td>
+                            <td>{{x.CompanyCurrencyRate}}</td>
+                            <td class="text-right">{{x.Receivable | number:3}}</td>
+                            <td class="text-right">{{x.AdditionalAmount | number:3}}</td>
+                            <td class="text-right">{{x.Received | number:3}}</td>
+                            <td class="text-right">{{x.Balance | number:3}}</td>
+                            <td>
+                                <input ng-keyup="exchangeGainLossAmountInvoice(x)" type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" autocomplete="off" ng-model="x.Amount">
+                            </td>
+                            <td>
+                                <input readonly type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeType" ng-model="x.ExchangeType">
+                            </td>
+                            <td>
+                                <input readonly type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeAmount" ng-model="x.ExchangeAmount">
+                            </td>
+                            <td class="text-right">
+                                <button ng-click="removeInvoiceRow($index,x)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                    <i class="glyphicon glyphicon-remove"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="9" class="text-right">Total</td>
+                            <td class="text-right"><b>{{ (voucherInvoiceDetailList) | sumByKey:'Amount'| number:2 }}</b></td>
+                            <td></td>
+                            <td class="text-right"><b>{{ (voucherInvoiceDetailList) | sumByKey:'ExchangeAmount'| number:2 }}</b></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </fieldset>
+    </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
@@ -380,7 +453,7 @@
     </table>
     <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
 </div>
-@Html.Partial("~/Areas/Accounts/Views/_CustomerInvoiceSingleSelectPopUp.cshtml")
+@*@Html.Partial("~/Areas/Accounts/Views/_CustomerInvoiceSingleSelectPopUp.cshtml")*@
 @*@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")*@
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
@@ -391,6 +464,7 @@
 @Html.Partial("~/Areas/Accounts/Views/_MasterOrderPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_ContractPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_PostPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_CustomerInvoicePopUp.cshtml")
 
 <toaster-container toaster-options="{'close-button':true, 'animation-class': 'toast-top-center'}"></toaster-container>
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(adjustmentNoteId,voucherId)"></confirm-archive-generic>

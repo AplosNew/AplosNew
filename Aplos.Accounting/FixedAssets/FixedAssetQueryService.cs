@@ -436,6 +436,7 @@ namespace Library.Accounting.FixedAssets
                             ,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem,AR.AssetSlNo, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks
 							,sum(isnull(FADD.NegotiationValue,0))NegotiationValue,sum(isnull(FADD.BaseNagotiationValue,0))BaseNagotiationValue
 							,(SELECT SUM(ISNULL(Amount,0)) FROM [TRN].[FixedAssetRegisterDisposedTax] WHERE FixedAssetRegisterDisposedDetailId=FADD.Id)TaxAmount
+                            ,SUM(ISNULL(AR.AdjustmentDepreciationAmount,0)) AdjustmentDepreciationAmount
                             FROM  [TRN].[FixedAssetRegisterDisposedDetail] FADD 
 							LEFT JOIN TRN.AssetRegister AR ON AR.Id=FADD.AssetRegisterId
 							LEFT JOIN (SELECT sum(isnull( DepreciationAmount,0))DepreciationAmount,sum(isnull(AdjustmentDepreciationAmount,0))AdjustmentDepreciationAmount
@@ -2868,10 +2869,10 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                     var i = 0;
                     foreach (var item in assetRegisterList)
                     {
-                        objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[AssetRegisterChild] where  AssetRegisterId='" + item["AssetRegisterId"].ToString() + "'", out _assetRegisterAdditionData, false, "1");
+                        objCon.OpenDataSetThroughAdapter("SELECT CAST(MAX(Id) AS bigint)+1 Id FROM [TRN].[AssetRegisterChild] where  AssetRegisterId='" + item["AssetRegisterId"].ToString() + "'", out _assetRegisterAdditionData, false, "1");
                         var _assetAdditiondata = new
                         {
-                            Id = _accountsCommonService.MakePK(item["AssetRegisterId"].ToString(), _assetRegisterAdditionData.Tables[0].Rows.Count + 1, 2),
+                            Id = _assetRegisterAdditionData.Tables[0].Rows[0]["Id"].ToString(),
                             FixedAssetItemId = item["FixedAssetItemId"].ToString(),
                             AssetRegisterId = item["AssetRegisterId"].ToString(),
                             CapitalizationMasterId = masterId,

@@ -107,6 +107,15 @@ where EPT.ProcessId='" + ProcessId + "'";
         }
 
         [Authorize, HttpGet]
+        public ActionResult GetMasterPlanList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @" SELECT * ,(select E.EmployeeName from EmployeeInformation E where E.SystemId=CP.UserId) as UserName,(select EI.EmployeeName from EmployeeInformation EI where EI.SystemId=CP.ResponsiblePersonId) as ResponsiblePerson,
+                            (select UserName from hkp.Process where id=Cp.ProcessId) as Process,(select UserName from org.entity where id=Cp.EntityId) as Entity FROM [MST].[MasterPlan] CP";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public ActionResult LoadMasterPlanEditData(string MasterPlanId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

@@ -99,9 +99,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetCutPlanCbo()
+        public ActionResult GetCutPlanCbo(string masterPlanId)
         {
-            return Json(_productionSummaryData.GetCutPlanCbo(), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetCutPlanCbo(masterPlanId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]

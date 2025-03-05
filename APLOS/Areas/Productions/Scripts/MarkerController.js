@@ -38,10 +38,155 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     };
     $scope.GetMarkerGroupCbo();
 
+    $scope.MasterPlanList = [];
+    $scope.GetMasterPlanPopUp = function () {
+        $http({
+            method: 'Get',
+            url: 'Productions/MasterPlan/GetMasterPlanList'
+        }).then(function successCallback(response) {
+            $scope.MasterPlanList = response.data;
+            var gridObj = $("#GridMasterPlan").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#MasterPlanPoPUp')).modal('show');
+        }
+        )
+    }
+
+    $scope.SOList = [];
+    $scope.GetSOPopUp = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.MasterPlanId)) {
+                throw "Select Master Plan";
+            }
+            $http({
+                method: 'Get',
+                url: 'Productions/Marker/GetSOList?masterPlanId=' + $scope.ModelNew.MasterPlanId
+            }).then(function successCallback(response) {
+                $scope.SOList = response.data;
+                var gridObj = $("#GridSO").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+                angular.element(document.querySelector('#SOPoPUp')).modal('show');
+            }
+            )
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    $scope.sqlInStatement = "";
+    $scope.selectedSOList = [];
+    $scope.CloseSOPopUp = function () {
+        for (var i = 0; i < $scope.SOList.length; i++) {
+            if ($scope.SOList[i].Flag == true) {
+                if (checkExists($scope.selectedSOList, $scope.SOList[i].SONo) === false) {
+                    var ob = {};
+                    ob.Id = null;
+                    ob.SalesOrderId = $scope.SOList[i].SONo;
+                    ob.DeliveryDate = $scope.SOList[i].DeliveryDate;
+                    ob.OwnReferenceNo = $scope.SOList[i].OwnReferenceNo;
+                    ob.BuyerReferenceNo = $scope.SOList[i].BuyerReferenceNo;
+                    ob.Qty = $scope.SOList[i].Qty;
+                    ob.SOPlanQty = $scope.SOList[i].SOPlanQty;
+                    ob.Remarks = $scope.SOList[i].Remarks;
+
+                    $scope.selectedSOList.push(ob);
+                }
+            }
+        }
+        angular.element(document.querySelector('#SOPoPUp')).modal('hide');
+
+        
+    }
+
+    $scope.FabricGRNRowList = [];
+    $scope.GetFabricGRNRowList = function () {
+        $scope.FabricGRNRowList = [];
+        if ($scope.selectedSOList.length > 0) {
+            var uniquePackingId = removeDuplicates($scope.selectedSOList, 'SalesOrderId');
+            var wcSOId = "";
+            if (uniquePackingId.length > 0) {
+                wcSOId = "IN(";
+                wcSOId += Array.prototype.map.call(uniquePackingId, function (item) { return "'" + item.SalesOrderId + "'"; }).join(",") + ")";
+            }
+            $scope.sqlInStatement = wcSOId;
+        }
+        $http({
+            method: 'GET',
+            url: "Productions/Marker/GetFabricGRNRowList?soId=" + $scope.sqlInStatement
+        }).then(function (response) {
+            $scope.FabricGRNRowList = response.data;
+        });
+        angular.element(document.querySelector('#FabricGRNRowPoPUp')).modal('show');
+    }
+
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
+    }
+
+    $scope.CloseFabricGRNRowopUp = function () {
+        angular.element(document.querySelector('#FabricGRNRowPoPUp')).modal('hide');
+
+    }
+
+    $scope.SetFabricGRNRow= function (args) {
+        $scope.ModelNew.FabricGRNRowId = args.data.Id;
+        $scope.CloseFabricGRNRowopUp();
+    }
+
+
+    function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].OperationVariationId === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // #region checkbox all
+
+    $scope.refreshTemplateSO = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllSO });
+    };
+
+    function CheckBoxSelectAllSO(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridSO").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.SOList.length; i++) {
+                $scope.SOList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridSO").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
+
+    $scope.SetMasterPlan = function (args) {
+        $scope.ModelNew.MasterPlanId = args.data.Id;
+        $scope.ModelNew.MasterPlan = args.data.PlanName;
+        $scope.GetCutPlanCbo();
+        $scope.CloseMasterPlanPopUp();
+    }
+
+    $scope.CloseMasterPlanPopUp = function () {
+        angular.element(document.querySelector('#MasterPlanPoPUp')).modal('hide');
+    }
+
     $scope.CutPlantList = [];
     $scope.GetCutPlanCbo = function () {
         try {
-            $http.get('Productions/Productionsummary/GetCutPlanCbo')
+            $http.get('Productions/Productionsummary/GetCutPlanCbo?masterPlanId=' + $scope.ModelNew.MasterPlanId)
                 .then(function (response) {
                     $scope.CutPlantList = response.data;
                 });
@@ -49,7 +194,6 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             ShowResult(ex, 'Info');
         }
     };
-    $scope.GetCutPlanCbo();
 
     $scope.CutPlantRatioList = [];
     $scope.GetCutPlanRatioCbo = function () {

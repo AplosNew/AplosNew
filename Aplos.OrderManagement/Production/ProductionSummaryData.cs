@@ -8017,11 +8017,11 @@ AND (select PlanStatus from MST.MasterPlan where id=(select MasterPlanId from [M
             }
         }
 
-        public IEnumerable<object> GetCutPlanCbo()
+        public IEnumerable<object> GetCutPlanCbo(string masterPlanId)
         {
             try
             {
-                string sql = @"Select * from MST.AllotedHeader Order By UserName";
+                string sql = @"Select * from MST.AllotedHeader  Where MasterPlanId='"+ masterPlanId + "' Order By UserName";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
