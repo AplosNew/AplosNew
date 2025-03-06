@@ -60,12 +60,12 @@
 									<td>{{$index+1}}</td>
 									<td>{{x.OffDayDate | dateFiltering}}</td>
 									<td>{{x.DayName}}</td>
-									<td>
-										{{x.UserName}}
-										<sup ng-show="x.Blink" ng-class="x.Blink?'blink':''" style="font-size: 15px;color:red;">
-											<i class="glyphicon glyphicon-star"></i>
-										</sup>
-									</td>
+                                    <td>
+                                        {{x.HolidayName}}
+                                        <sup ng-show="x.Blink" ng-class="x.Blink?'blink':''" style="font-size: 15px;color:red;">
+                                            <i class="glyphicon glyphicon-star"></i>
+                                        </sup>
+                                    </td>
 								</tr>
 							</tbody>
 						</table>
