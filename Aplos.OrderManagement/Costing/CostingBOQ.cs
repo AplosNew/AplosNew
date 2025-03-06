@@ -193,7 +193,6 @@ namespace Library.OrderManagement.Costing
                                     LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=boq.ArticleId
                                     LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=boq.UoMId
                                     LEFT JOIN scs.Currency AS c ON c.Id=boq.CurrencyId
-
                                     LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=boq.FGFirstCharacteristicsValueId
                                     LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.FGSecondCharacteristicsValueId
                                     WHERE BOQ.CostingBOQMasterId='" + CostingBOQMasterId + @"' 

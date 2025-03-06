@@ -436,6 +436,7 @@ namespace Library.Accounting.FixedAssets
                             ,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem,AR.AssetSlNo, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks
 							,sum(isnull(FADD.NegotiationValue,0))NegotiationValue,sum(isnull(FADD.BaseNagotiationValue,0))BaseNagotiationValue
 							,(SELECT SUM(ISNULL(Amount,0)) FROM [TRN].[FixedAssetRegisterDisposedTax] WHERE FixedAssetRegisterDisposedDetailId=FADD.Id)TaxAmount
+                            ,SUM(ISNULL(AR.AdjustmentDepreciationAmount,0)) AdjustmentDepreciationAmount
                             FROM  [TRN].[FixedAssetRegisterDisposedDetail] FADD 
 							LEFT JOIN TRN.AssetRegister AR ON AR.Id=FADD.AssetRegisterId
 							LEFT JOIN (SELECT sum(isnull( DepreciationAmount,0))DepreciationAmount,sum(isnull(AdjustmentDepreciationAmount,0))AdjustmentDepreciationAmount
