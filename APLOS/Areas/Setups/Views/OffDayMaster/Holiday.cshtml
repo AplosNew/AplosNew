@@ -184,6 +184,7 @@
                 <th>From Date</th>
                 <th>To Date</th>
                 <th>Holiday Category</th>
+                <th>Holiday Name</th>
                 <th>Days</th>
             </tr>
         </thead>
@@ -193,6 +194,7 @@
                 <td>{{x.FromDate | dateFiltering}}</td>
                 <td>{{x.ToDate | dateFiltering}}</td>
                 <td>{{x.HolidayCategoryName}}</td>
+                <td>{{x.HolidayName}}</td>
                 <td>{{x.TotalDay}}</td>
             </tr>
             <tr ng-show="holidayCalendarLists.length>0">

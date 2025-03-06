@@ -151,6 +151,7 @@ function HolidayCalendarController(commonMessage, $scope, $rootScope, baseServic
         CompanyId:null,
         YearlyCalendarId: null,
         HolidayCategoryId: null,
+        HolidayName: null,
         CldDescription: null,
         FromDate: null,
         ToDate: null,
