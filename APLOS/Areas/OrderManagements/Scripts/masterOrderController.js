@@ -2000,6 +2000,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 , PackingTypeId: null
                 , ContractId: null
                 , ContractNo: null
+                , LineItemReference: null
                 , CheckByDate: null, CheckByStatus: 'To Be Check', ApproveBy: null, ApproveByDate: null, ApprovedStatus: null, DeliveryGroup: null
             };
             getSalesOrderList();
@@ -2532,6 +2533,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         , PackingTypeId: null
         , ContractId: null
         , ContractNo: null
+        , LineItemReference: null
         , CheckByDate: null, CheckByStatus: 'To Be Check', ApproveBy: null, ApproveByDate: null, ApprovedStatus: null, DeliveryGroup: null, BillDiscountingDays: 0
     };
 
@@ -2588,6 +2590,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.soSplitModel.ApprovedStatus = data.ApprovedStatus;
         $scope.soSplitModel.DeliveryGroup = data.DeliveryGroup;
         $scope.soSplitModel.BillDiscountingDays = data.BillDiscountingDays;
+        $scope.soSplitModel.LineItemReference = data.LineItemReference;
         angular.element(document.querySelector('#soSplitPoUp')).modal('show');
     }
 
