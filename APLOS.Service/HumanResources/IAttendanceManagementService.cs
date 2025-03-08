@@ -53,6 +53,7 @@ namespace Library.Service.HumanResources
         IWorkbook GetHourlyLeave(string Name , string CompanyGroupId, string PlantId, string CompanyId, string PlantName, string FromDate,string ToDate);
 
         IEnumerable<object> GetEmpInfo(string companyGroupId, string plantId, string fromDate, string toDate,string criteria);
+        IEnumerable<object> GetLeaveEmpInfo(string companyGroupId, string plantId, string fromDate, string toDate, string criteria);
         IEnumerable<object> GetMaternityEmpInfo(string companyGroupId, string plantId,string criteria);
 
         IEnumerable<object> GetFinalSattlementInformation(string companyGroupId, string plantId, string criteria);

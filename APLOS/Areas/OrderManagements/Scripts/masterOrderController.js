@@ -239,10 +239,25 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.WeekNo();
 
     $scope.companyList = [];
-    cboService.getCboCompanyByCompanyGroup(null, function (response) {
-        $scope.companyList = response;
-    });
+    //cboService.getCboCompanyByCompanyGroup(null, function (response) {
+    //    $scope.companyList = response;
+    //});
 
+    $scope.GetCompanyCboList = function () {
+        try {
+           
+            $http({
+                method: 'Get',
+                url: 'OrderManagements/masterorder/GetCompanyCboList'
+            }).then(function successCallback(response) {
+                $scope.companyList = response.data;
+            }
+            )
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    $scope.GetCompanyCboList();
     $scope.plantList = [];
     $scope.getPlantCbo = function () {
         cboService.getCboPlantByCompany($scope.fileNew.CompanyId, function (response) {
@@ -1689,6 +1704,17 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             if (containsSpecialChars($scope.itemList[index].ProductionGrouping)) {
                 $scope.itemList[index].ProductionGrouping = $scope.itemList[index].ProductionGrouping.substring(0, $scope.itemList[index].ProductionGrouping.length - 1);
                 throw "No special characters allowed for Production Group.";
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.CheckSpecialLineItemReferenceCharecter = function () {
+        try {
+            if (containsSpecialChars($scope.soModel.LineItemReference)) {
+                $scope.soModel.LineItemReference = $scope.soModel.LineItemReference.substring(0, $scope.soModel.LineItemReference.length - 1);
+                throw "No special characters allowed for Line Item Reference.";
             }
         } catch (e) {
             ShowResult(e, 'failure');
@@ -5094,12 +5120,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     }
 
-    $scope.fundUtilizationList = [];
-    cboService.getEnumCbo("enum/GetFundUtilizationEnumCbo", function (result) {
-        $scope.fundUtilizationList = result;
+    //$scope.fundUtilizationList = [];
+    //cboService.getEnumCbo("enum/GetFundUtilizationEnumCbo", function (result) {
+    //    $scope.fundUtilizationList = result;
 
-        $scope.getFundUtilizationData();
-    });
+    //    $scope.getFundUtilizationData();
+    //});
 
     $scope.ModelList = [];
     $scope.getFundUtilizationData = function () {

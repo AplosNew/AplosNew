@@ -30804,7 +30804,109 @@ Where efs.EmpSystemId='" + empSystemId + @"'";
                                     LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
                                     --LEFT OUTER JOIN SalaryProcChild SPC ON SPC.EmpInfoSystemID = E.SystemId
                                   WHERE DOJ<='" + toDate + @"' AND (DOS is null OR DOS>= '" + fromDate + "') and e.plantId='" + plantId + @"' and e.GroupID='" + companyGroupId + @"' " + wcManual + @"
-                                     --and e.SystemId not in(1800165,1800124,1800146,1800138,1800112,1800088)
+                                     AND E.EmployeeStatus='"+criteria+@"'
+) DD ORDER BY ISNULL(EmployeeCodePreFix,''),EmployeeCodeNumeric";
+
+                return _sqlRepository.GetDataCollection(cmdText);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<object> GetLeaveEmpInfo(string companyGroupId, string plantId, string fromDate, string toDate, string criteria)
+        {
+            try
+            {
+                string wcManual = "";
+                string Apjoin = "";
+                
+                var cListOId = string.Empty; var cList = string.Empty; ; var cListId = string.Empty; var Join = string.Empty;
+                var param = string.Empty;
+                if (!string.IsNullOrEmpty(companyGroupId) && !string.IsNullOrEmpty(plantId))
+                    param = "E.GroupID='" + companyGroupId + "' AND E.PlantId='" + plantId + "'";
+                else if (!string.IsNullOrEmpty(companyGroupId) && string.IsNullOrEmpty(plantId))
+                    param = "E.GroupID='" + companyGroupId + "'";
+
+                var OrgStrList = OrgStructureList(companyGroupId);
+                foreach (var item in OrgStrList)
+                {
+                    if (item.RType == "Entity")
+                    {
+                        cList += "," + item.ColumnName + ".UserName " + item.ColumnName + " ";
+
+                        if (item.ColumnName == "EmployeeGroup")
+                        {
+                            Join += "LEFT JOIN [HKP].[" + item.ColumnName + "] ON " + item.ColumnName + ".Id = EN." + item.ColumnName + "Id\n";
+                        }
+                        else
+                        {
+                            Join += "LEFT JOIN [ORG].[" + item.ColumnName + "] ON " + item.ColumnName + ".Id = EN." + item.ColumnName + "Id\n";
+                        }
+                    }
+                    else
+                    {
+                        cList += "," + item.ColumnName + ".UserName " + item.ColumnName + " ";
+                        Join += "LEFT JOIN [ORG].[" + item.ColumnName + "] ON " + item.ColumnName + ".Id = PO." + item.ColumnName + "Id\n";
+                    }
+                }
+                var cmdText = @"SELECT * FROM(SELECT DISTINCT [CheckBoxSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'false'),
+                                     isnull(e.SystemId,'') EmpSystemId
+									,ISNULL(e.EmployeeId,'')  EmployeeId                                     
+                                    ,ISNULL(e.EmployeeCode,'') EmployeeCode
+                                    ,ISNULL(e.EmployeeName,'') EmployeeName								
+                                    ,ISNULL(mpb.EntityId,'') EntityId
+									,ISNULL(mpb.PositionId,'') PositionId                                     
+                                    ,isnull(ld.UserName,'') Designation                                       
+									,ISNULL(Department.UserName,'') Department 
+									,ISNULL(Division.UserName,'') Division 
+									,ISNULL(EmpC.UserName,'') EmployeeCategory
+									,ISNULL(Plant.UserName,'') Plant 
+									,ISNULL(Section.UserName,'') Section 
+									,ISNULL(SubSection.UserName,'') SubSection 
+									,ISNULL(Unit.UserName,'') Unit 
+                                    ,ISNULL(eL.UserName,'') Line
+                                    ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOJ, 106), ' ', '-'),'') DOJ
+                                    ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOS, 106), ' ', '-'),'') DOS
+                                    ,e.EmployeeStatus 
+                                    ,e.EmployeeCodePreFix,e.EmployeeCodeNumeric
+                                    ,jl.JobLocation
+                                    ,E.PlantId
+                                    FROM EmployeeInformation e
+                                    
+									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
+                                    LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=e.LegalDesignationId
+
+                                    LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
+									,dg.UserName GivenDesignationGroup--,srm.SalaryRuleName
+									FROM mst.DesignationMaster dm
+									LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
+		                           -- left outer join [ORG].[PlantDesignationGroupSalaryRule] srs on srs.DesignationGroupId=dm.DesignationGroupId
+                                   -- left outer join SalaryRuleMaster srm on srm.SystemId=srs.SalaryRuleMasterId
+									) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
+									AND egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
+                                    LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
+                                    LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+                                    LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
+                                    LEFT JOIN [ORG].[Plant] ON Plant.Id = EN.PlantId
+                                    LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                                    LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
+                                    LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId
+                                    LEFT JOIN [ORG].[Line]  EL ON El.Id = MPB.LineId
+                                    " + Apjoin + @"
+
+                                    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
+                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=PO.DesignationID
+                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=DesM.DesignationGroupId
+                                    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+			                         left join JobLocation jl on jl.SystemID=e.JobLocationID              
+                                    LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
+                                    --LEFT OUTER JOIN SalaryProcChild SPC ON SPC.EmpInfoSystemID = E.SystemId
+                                  WHERE DOJ<='" + toDate + @"' AND (DOS is null OR DOS>= '" + fromDate + "') and e.plantId='" + plantId + @"' and e.GroupID='" + companyGroupId + @"' " + wcManual + @"
+                                     AND E.EmployeeStatus='" + criteria + @"'
 ) DD ORDER BY ISNULL(EmployeeCodePreFix,''),EmployeeCodeNumeric";
 
                 return _sqlRepository.GetDataCollection(cmdText);
