@@ -1989,7 +1989,8 @@ namespace Library.Service.Invoices
                 };
                 if (null != taxDetailVMList && taxDetailVMList.Count() > 0)
                 {
-                    invoiceDetail.Amount = voucherVM.Amount + totalcreditableDrAmountAddTax - totalwithholdCrAmountAddTax + totalExpensesDrAmountAddTax;
+                    //invoiceDetail.Amount = voucherVM.Amount + totalcreditableDrAmountAddTax - totalwithholdCrAmountAddTax + totalExpensesDrAmountAddTax;
+                    invoiceDetail.Amount = voucherVM.Amount - totalwithholdCrAmountAddTax + totalExpensesDrAmountAddTax;
                     invoiceDetail.NetAmount -= taxDetailVMList.Sum(r => r.TaxAmount);
 
                 }
@@ -2924,7 +2925,8 @@ namespace Library.Service.Invoices
                     };
                     if (null != taxDetailVMList && taxDetailVMList.Count() > 0)
                     {
-                        invoiceDetail.Amount = voucherVM.Amount + totalcreditableDrAmountAddTax - totalwithholdCrAmountAddTax + totalExpensesDrAmountAddTax;
+                        //invoiceDetail.Amount = voucherVM.Amount + totalcreditableDrAmountAddTax - totalwithholdCrAmountAddTax + totalExpensesDrAmountAddTax;
+                        invoiceDetail.Amount = voucherVM.Amount - totalwithholdCrAmountAddTax + totalExpensesDrAmountAddTax;
                         invoiceDetail.NetAmount -= taxDetailVMList.Sum(r => r.TaxAmount);
 
                     }

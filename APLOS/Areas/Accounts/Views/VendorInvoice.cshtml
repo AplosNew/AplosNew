@@ -334,7 +334,7 @@
             <tfoot>
                 <tr>
                     <td></td>
-                    <td colspan="3" class="text-right">Total</td>
+                    <td colspan="4" class="text-right">Total</td>
                     <td class="text-right"><b>{{ (voucherDetailList | filter:{TrnType:'Dr'}) | sumByKey:'Amount'| number:3 }}</b></td>
                     <td class="text-right"><b>{{ (voucherDetailList | filter:{TrnType:'Dr'}) | sumByKey:'TotalTax'| number:3 }}</b></td>
                     <td class="text-right"><b>{{ (voucherDetailList | filter:{TrnType:'Dr'}) | sumByKey:'TotalAmount'| number:3 }}</b></td>
@@ -624,13 +624,12 @@
                         <li ng-show="x.IsPark"><a ng-click="ShowJournalPopUp(x.Id,x.BeneficiaryType,x.AdditionalTaxId,x);" ng-disabled="x.ApprovedByStatus=='ToBeApproved'" href="" class="btn btn-action tooltip-here">Post</a></li>
                         <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId,x.BeneficiaryType,x.TDSVoucherId,x.TDSVoucherNo);" href="" class="btn btn-action tooltip-here">Delete</a></li>
                         <li ng-show="x.IsTDSTaxPost=='TDSParked'"><a ng-disabled="x.IsPark" ng-click="onClickadditionalTaxPop(x);" href="" class="btn btn-action tooltip-here">Post TDS</a></li>
-                        <li><a ng-click="confirmPaymentTermUpdate(x);" href="" class="btn btn-action tooltip-here">Update</a></li>
                         <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Pdf',x.VoucherId,x.BeneficiaryType)"><i class="fa fa-file-pdf-o"></i></a></li>
                         <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Excel',x.VoucherId,x.BeneficiaryType)"><i class="fa fa-file-excel-o"></i></a></li>
                         <li ng-show="x.IsTDSTaxPost=='TDSPosted'"><a ng-click="TDSVouchereReport('Pdf',x.TDSVoucherId);" href="" class="btn btn-action tooltip-here">TDS Report</a></li>
                         <li ng-show="x.IsExpenseDistribution"><a ng-click="ExpenseDistributionReport('Excel',x.VoucherId);" class="btn btn-action" title="Expense Distribution Report"><i class="fa fa-file-excel-o"></i></a></li>
                         <li ng-show="x.IsAssetDistribution"><a ng-click="AssetDistributionReport('Excel',x.VoucherId);" class="btn btn-action" title="Asset Distribution Report"><i class="fa fa-file-excel-o"></i></a></li>
-
+                        <li><a ng-click="confirmPaymentTermUpdate(x);" href="" class="btn btn-action tooltip-here">Update</a></li>
                     </ul>
                 </td>
             </tr>
