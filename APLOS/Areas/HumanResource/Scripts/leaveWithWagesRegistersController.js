@@ -25,53 +25,57 @@ function leaveWithWagesRegistersController(commonMessage, $scope, $rootScope, ba
 
     $scope.EmployeeList = [];
     $scope.GetEmployeeInformation = function () {
-        var DropDownActivityListObj = $("#ddlYearList").data("ejDropDownList");
-        $scope.year = DropDownActivityListObj.getSelectedValue();
-        var firstDay = new Date($scope.year , 1, 1);
-        var lastDay = new Date($scope.year, 12, 31);
-        lastDay = lastDay.setDate(lastDay.getDate() - 1);
-        $scope.LeaveWagesRegisters = {
-            FromDate: $filter('dateFiltering')(firstDay),
-            ToDate: $filter('dateFiltering')(lastDay),
-            EmployeeId: null,
-            ReportFormat: 'Excel',
-            chkAdditionInfo: false
-        };
-        if (baseService.isUndefinedOrNull($scope.year)) {
-            manualValidation('div_FromDate', true, "Year is required.");
-        }
-        else {
-            $scope.EmployeeList = [];
-            var parameters = { 'fromDate': $scope.LeaveWagesRegisters.FromDate, 'toDate': $scope.LeaveWagesRegisters.ToDate, 'criteria': $scope.criteria };
-            $http({
-                method: "POST",
-                dataType: 'JSON',
-                url: 'HumanResource/LeaveWithWeagesRegisters/GetEmployeeInformation',
-                data: parameters
-            }).then(function successCallback(response) {
-                if (response.data.length > 0) {
-                    $scope.EmployeeList = response.data;
+        try {
+            var DropDownActivityListObj = $("#ddlYearList").data("ejDropDownList");
+            $scope.year = DropDownActivityListObj.getSelectedValue();
+            var firstDay = new Date($scope.year, 1, 1);
+            var lastDay = new Date($scope.year, 12, 31);
+            lastDay = lastDay.setDate(lastDay.getDate() - 1);
+            $scope.LeaveWagesRegisters = {
+                FromDate: $filter('dateFiltering')(firstDay),
+                ToDate: $filter('dateFiltering')(lastDay),
+                EmployeeId: null,
+                ReportFormat: 'Excel',
+                chkAdditionInfo: false
+            };
+            if (baseService.isUndefinedOrNull($scope.year)) {
+                throw "Year is required.";
+            }
+            else {
+                $scope.EmployeeList = [];
+                var parameters = { 'fromDate': $scope.LeaveWagesRegisters.FromDate, 'toDate': $scope.LeaveWagesRegisters.ToDate, 'criteria': $scope.criteria };
+                $http({
+                    method: "POST",
+                    dataType: 'JSON',
+                    url: 'HumanResource/LeaveWithWeagesRegisters/GetEmployeeInformation',
+                    data: parameters
+                }).then(function successCallback(response) {
+                    if (response.data.length > 0) {
+                        $scope.EmployeeList = response.data;
 
-                    $('#empInfoGrid').ejGrid({
-                        dataSource: response.data,
-                        allowPaging: true,
-                        allowFiltering: true,
-                        pageSettings: { pageSize: "10" },
-                        allowKeyboardNavigation: true,
-                        columns: $scope.EmployeeList,
-                        filterSettings: { filterType: "excel" },
-                        allowScrolling: true,
-                        //scrollSettings: { width: 1200, height: 400 }
-                        minWidth: 1000,
-                        height: 300,
-                        isResponsive: true,
-                        actionComplete: $scope.actionCompleteSelected
-                    });
-                    $scope.dataGrid = "#empInfoGrid";
-                }
+                        $('#empInfoGrid').ejGrid({
+                            dataSource: response.data,
+                            allowPaging: true,
+                            allowFiltering: true,
+                            pageSettings: { pageSize: "10" },
+                            allowKeyboardNavigation: true,
+                            columns: $scope.EmployeeList,
+                            filterSettings: { filterType: "excel" },
+                            allowScrolling: true,
+                            //scrollSettings: { width: 1200, height: 400 }
+                            minWidth: 1000,
+                            height: 300,
+                            isResponsive: true,
+                            actionComplete: $scope.actionCompleteSelected
+                        });
+                        $scope.dataGrid = "#empInfoGrid";
+                    }
 
-                //angular.element(document.querySelector('#empInfo')).modal('show');
-            });
+                    //angular.element(document.querySelector('#empInfo')).modal('show');
+                });
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
 
     };
