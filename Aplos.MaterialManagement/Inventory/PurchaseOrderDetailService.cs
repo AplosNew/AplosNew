@@ -2782,7 +2782,7 @@ namespace Library.MaterialManagement.Inventory
                         {
                             double conversiongroupListData = conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(TransactionQtyGroupSum));
                             itemDetail.BaseQty = Convert.ToDecimal(conversiongroupListData);
-                            itemDetail.BaseUoMFactor = TransactionQtyGroupSum;
+                            itemDetail.BaseUoMFactor = 1;
                             itemDetail.BaseAmount = itemDetail.TransactionAmount;
 
                         }
