@@ -2378,6 +2378,17 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(MasterOrder.GetApproveByCboList(), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetCompanyCboList(string companyGroupId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (string.IsNullOrEmpty(companyGroupId))
+            {
+                companyGroupId = identity.CompanyGroupId;
+            }
+            return Json(MasterOrder.GetCompanyCboList(companyGroupId), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         public JsonResult CheckSalesOrder(SalesOrderMaster salesOrderMaster)
         {

@@ -2606,8 +2606,8 @@ WHERE E.EmployeeStatus = 'Active' AND E.BudgetCode='" + budgetCode + @"' GROUP B
 	                        ,E.CardNumber,E.Salutation,E.FirstName,E.MiddleName,E.LastName,E.EmployeeName,E.NickName,E.EmpPicPath,FORMAT(E.DOB,'dd-MMM-yyyy') DOB ,E.GenderID,E.GivenDesignationId	,E.LegalDesignationId
 	                        ,E.EmailId,E.EmpType,D.UserName Division,DPT.UserName Department, S.UserName Section, SS.UserName SubSection,DG.UserName GivenDesignation,LDG.UserName Designation,E.IsAccessible,MB.PIN,FORMAT(E.TentativeExpiryDate,'dd-MMM-yyyy') TentativeExpiryDate
                         FROM EmployeeInformation E
-LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
-                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+LEFT JOIN MST.ManpowerBudget emb ON emb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON eMB.PositionId=PR.Id
                         LEFT JOIN ORG.Division D ON D.Id = PR.DivisionId
                         LEFT JOIN ORG.Department DPT ON DPT.Id = PR.DepartmentId
                         LEFT JOIN ORG.Section S ON S.Id = PR.SectionId

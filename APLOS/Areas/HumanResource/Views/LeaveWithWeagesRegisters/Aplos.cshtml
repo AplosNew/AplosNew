@@ -10,12 +10,16 @@
                 </div>
             </div>
             <div class="col-md-4">
-                @*<div class="form-group" show-errors id="div_ToDate">
-                        <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
-                        <div class="col-sm-7 show-message">
-                            <input type="text" name="To Date" ng-model="LeaveWagesRegisters.ToDate" datepicker class="form-control">
-                        </div>
-                    </div>*@
+                <div class="col-sm-6 radio">
+                    <input type="radio" name="baselinedate" ng-model="criteria" value="Active">
+                    <span></span><span>Active Employee</span><br />
+
+                </div>
+                <div class="col-sm-6 radio">
+                    <input type="radio" name="baselinedate" ng-model="criteria" value="Separated" ng-checked="Separated">
+                    <span></span><span>InActive Employee</span><br />
+
+                </div>
             </div>
             <div class="col-md-4">
                 <div class="common-btn">
@@ -63,7 +67,7 @@
                     <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
-                    <div e-column e-field="EmployeeStatus" e-headertext="Employee Status" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="EmployeeStatus" e-type="string" e-headertext="Employee Status" e-allowediting="false" e-width="100"></div>
                     <div e-column e-headertext="Actions" e-width="40" e-template="#reportButton"></div>
                 </div>
             </div>

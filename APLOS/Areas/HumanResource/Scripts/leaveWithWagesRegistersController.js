@@ -16,7 +16,7 @@ function leaveWithWagesRegistersController(commonMessage, $scope, $rootScope, ba
     };
     $scope.year = new Date().getFullYear().toString();
     $scope.month = new Date().getMonth().toString();
-
+    $scope.criteria = 'Active';
 
     $scope.yearList = [];
     cboService.getCboLeaveYear(function (result) {
@@ -42,7 +42,7 @@ function leaveWithWagesRegistersController(commonMessage, $scope, $rootScope, ba
         }
         else {
             $scope.EmployeeList = [];
-            var parameters = { 'fromDate': $scope.LeaveWagesRegisters.FromDate, 'toDate': $scope.LeaveWagesRegisters.ToDate };
+            var parameters = { 'fromDate': $scope.LeaveWagesRegisters.FromDate, 'toDate': $scope.LeaveWagesRegisters.ToDate, 'criteria': $scope.criteria };
             $http({
                 method: "POST",
                 dataType: 'JSON',
@@ -51,14 +51,6 @@ function leaveWithWagesRegistersController(commonMessage, $scope, $rootScope, ba
             }).then(function successCallback(response) {
                 if (response.data.length > 0) {
                     $scope.EmployeeList = response.data;
-
-                    //if (baseService.arrayLength($scope.searchbyDetaillist) === 0) {
-                    //    baseService.getDDLSearchColumn(response.data, $scope.searchbyonRoleEmpList);
-                    //}
-                    //var fieldList = [];
-                    //for (var i = 0; i < $scope.searchbyonRoleEmpList.length; i++) {
-                    //    fieldList.push({ field: $scope.searchbyonRoleEmpList[i].Value, visible: true, width: "180px" });
-                    //}
 
                     $('#empInfoGrid').ejGrid({
                         dataSource: response.data,
