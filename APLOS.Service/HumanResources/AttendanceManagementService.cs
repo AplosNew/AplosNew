@@ -30905,8 +30905,7 @@ Where efs.EmpSystemId='" + empSystemId + @"'";
 			                         left join JobLocation jl on jl.SystemID=e.JobLocationID              
                                     LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
                                     --LEFT OUTER JOIN SalaryProcChild SPC ON SPC.EmpInfoSystemID = E.SystemId
-                                  WHERE DOJ<='" + toDate + @"' AND (DOS is null OR DOS>= '" + fromDate + "') and e.plantId='" + plantId + @"' and e.GroupID='" + companyGroupId + @"' " + wcManual + @"
-                                     AND E.EmployeeStatus='" + criteria + @"'
+                                  WHERE  e.plantId='" + plantId + @"' AND E.EmployeeStatus='" + criteria + @"'
 ) DD ORDER BY ISNULL(EmployeeCodePreFix,''),EmployeeCodeNumeric";
 
                 return _sqlRepository.GetDataCollection(cmdText);
