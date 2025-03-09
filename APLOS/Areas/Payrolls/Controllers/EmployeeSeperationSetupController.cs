@@ -337,7 +337,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             try
             {
-                var sql = @"select Flag=CAST(0 AS bit),* from HKP.DesignationGroup Where Active=1 Order By UserName";
+                var sql = @"SELECT Flag=CAST(0 AS bit),* FROM HKP.DesignationGroup WHERE Active=1 AND Id NOT IN(SELECT DesignationGroupId FROM [dbo].[EmpSeperationDesignationGroup]) Order By UserName";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
