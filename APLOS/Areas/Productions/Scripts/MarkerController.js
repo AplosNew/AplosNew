@@ -11,6 +11,10 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
 
+    $scope.WidthUomList = [{ Value: 'Yard', Text: 'Yard' }, { Value: 'Meter', Text: 'Meter' }];
+    $scope.lengthUomList = [{ Value: 'Inch', Text: 'Inch' }, { Value: 'CM', Text: 'CM' }, { Value: 'Yard', Text: 'Yard' }];
+
+
     $scope.CheckByList = [];
     $scope.GetCheckByCboList = function () {
         $http({
@@ -70,6 +74,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             ShowResult(e, 'failure');
         }
     }
+
     $scope.sqlInStatement = "";
     $scope.selectedSOList = [];
     $scope.CloseSOPopUp = function () {
