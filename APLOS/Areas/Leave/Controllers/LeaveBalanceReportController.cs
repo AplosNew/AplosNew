@@ -90,26 +90,41 @@ namespace Aplos.Areas.Leave.Controllers
 
         #region Report
 
-        [HttpGet, Authorize]
-        public ActionResult GetReport(ReportFormat reportFormat, string Year)
+        [HttpPost, Authorize]
+        public ActionResult GetReport(List<Dictionary<string, object>> data, string reportFileName, string Year)
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                clsLeaveBalance ep = new clsLeaveBalance();
-                var reportFileName = "Leave Register Report";
-                var workbook = ep.XlsLeaveBalanceRpt(identity.PlantId, identity.CompanyId, Year);
-                switch (reportFormat)
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
                 {
-                    case ReportFormat.Pdf:
-                        return RenderReportAsPdf(workbook, reportFileName);
+                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
 
-                    case ReportFormat.Excel:
-                        return RenderReportAsExcel(workbook, reportFileName);
-
-                    default:
-                        return RenderReportAsExcel(workbook, reportFileName);
+                    dt.Columns.Add(item);
                 }
+
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+
+                        dr[item] = data[i][item];
+                    }
+
+                    dt.Rows.Add(dr);
+                }
+                //string filename = GridToExcelReportUpd(dt, "", reportFileName);
+                clsLeaveBalance ep = new clsLeaveBalance();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string fileName = "";
+                fileName= ep.XlsLeaveBalanceRpt(dt, "", reportFileName, identity.PlantId, identity.CompanyId, Year);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -117,6 +132,34 @@ namespace Aplos.Areas.Leave.Controllers
             }
 
         }
+
+        //[HttpGet, Authorize]
+        //public ActionResult GetReport(ReportFormat reportFormat, string Year)
+        //{
+        //    try
+        //    {
+        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //        clsLeaveBalance ep = new clsLeaveBalance();
+        //        var reportFileName = "Leave Register Report";
+        //        var workbook = ep.XlsLeaveBalanceRpt(identity.PlantId, identity.CompanyId, Year);
+        //        switch (reportFormat)
+        //        {
+        //            case ReportFormat.Pdf:
+        //                return RenderReportAsPdf(workbook, reportFileName);
+
+        //            case ReportFormat.Excel:
+        //                return RenderReportAsExcel(workbook, reportFileName);
+
+        //            default:
+        //                return RenderReportAsExcel(workbook, reportFileName);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+
+        //}
 
         #endregion
 

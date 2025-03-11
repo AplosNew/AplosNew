@@ -1,6 +1,6 @@
 ﻿'use strict';
-LeaveBalanceReportController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService'];
-function LeaveBalanceReportController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
+LeaveBalanceReportController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService','$window'];
+function LeaveBalanceReportController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $window) {
     $rootScope.title = 'Leave Register';
     $scope.Action = 'Save';
     $scope.path = 'Leave/LeaveBalanceReport/';
@@ -24,7 +24,44 @@ function LeaveBalanceReportController(commonMessage, $scope, $rootScope, baseSer
 
     //#region Get Function
     $scope.YearId = null;
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
     $scope.Report = function () {
+        try {
+            var dataList = [];
+            var g = $("#Grid").data("ejGrid");
+            dataList = g.getFilteredRecords();
+
+            if (dataList.length == 0) {
+                dataList = $scope.EmpData;
+            }
+
+            if (dataList.length == 0) {
+                throw "First click on  Load Data button.";
+            }
+
+            $scope.fileName = "LeaveRegisterReport.xlsx";
+
+            $http({
+                method: 'POST',
+                url: "Leave/LeaveBalanceReport/GetReport",
+                data: { 'reportFileName': $scope.fileName, 'data': dataList, 'Year' : $scope.YearId},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope._Report = function () {
         var reportFormat = "Excel";
         try {
             if ($scope.YearId == "" || $scope.YearId == null) {

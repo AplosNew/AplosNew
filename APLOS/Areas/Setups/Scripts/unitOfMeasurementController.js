@@ -34,6 +34,8 @@ function UnitOfMeasurementController(commonMessage, $scope, $rootScope, baseServ
         Description: null,
         Remarks: null,
         IsComercialUnit: true,
+        IsLengthUnit: false,
+        IsWidthUnit: false,
         Active: true,
         Archive: false
     };
