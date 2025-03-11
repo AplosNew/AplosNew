@@ -533,6 +533,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("DependantTaskController", DependantTaskController)
     .controller("SalesPurchaseTransactionTypeController", SalesPurchaseTransactionTypeController)
     .controller("CasteController", CasteController)
+    .controller("voucherTypeAdditionalInfoController", voucherTypeAdditionalInfoController)
 
     
 

@@ -3,8 +3,15 @@ using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
+using Library.Data.Sql;
 using Library.Model.Vouchers;
+using Library.Service.Enums;
+using Library.Service.Logs;
 using Library.Service.Vouchers;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -13,16 +20,23 @@ namespace Aplos.Areas.Accounts.Controllers
     public class VoucherTypeController : BaseController
     {
         private readonly IVoucherTypeService _voucherTypeService;
-
-        public VoucherTypeController(IVoucherTypeService voucherTypeService)
+        private readonly ISqlRepository _sqlRepository;
+        public VoucherTypeController(IVoucherTypeService voucherTypeService, ISqlRepository sqlRepository)
         {
             _voucherTypeService = voucherTypeService;
+            _sqlRepository = sqlRepository;
         }
 
         [HttpGet]
         public ActionResult VoucherType()
         {
             return View("~/Areas/Accounts/Views/VoucherType.cshtml");
+        }
+
+        [HttpGet]
+        public ActionResult VoucherTypeAdditionalInfo()
+        {
+            return View("~/Areas/Accounts/Views/VoucherTypeAdditionalInfo.cshtml");
         }
 
         [HttpGet]
@@ -97,6 +111,39 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             else
                 throw new CustomException(Resources.IdNotFound);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetVoucherTypeAdditionalinfo()
+        {
+            return Json(GetVoucherTypeAdditionalinfoData(), JsonRequestBehavior.AllowGet);
+        }
+
+        public List<Dictionary<string, object>> GetVoucherTypeAdditionalinfoData()
+        {
+            try
+            {
+                var sql = @"SELECT * FROM [SCS].VoucherType";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        [HttpPost]
+        public JsonResult UpdateVoucherTypeAdditionalInfo(string voucherTypeAdditionalinfoList)
+        {
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore, MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            List<VoucherType> gLCompanyInfoList = JsonConvert.DeserializeObject<List<VoucherType>>(voucherTypeAdditionalinfoList, settings);
+            _voucherTypeService.UpdateVoucherTypeAdditionalInfo(gLCompanyInfoList);
+            return Json(new { GLGeneralInfo = gLCompanyInfoList, Message = AplosMessage.Success });
         }
     }
 }

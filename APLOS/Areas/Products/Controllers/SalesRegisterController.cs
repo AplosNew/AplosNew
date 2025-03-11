@@ -199,6 +199,33 @@ namespace Aplos.Areas.Products.Controllers
 
         }
 
+
+        [Authorize, HttpPost]
+        public ActionResult GetAssetSalesRegister(string FromDate, string ToDate, string Type)
+        {
+
+            DateTime fDate = DateTime.Parse(FromDate);
+            DateTime tDate = DateTime.Parse(ToDate);
+            if (FromDate == null || FromDate == "")
+            {
+                throw new CustomException("Select From Date");
+            }
+            else if (ToDate == null || ToDate == "")
+            {
+                throw new CustomException("Select To Date");
+            }
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            SalesQueryService obj = new SalesQueryService(_sqlRepository);
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson
+                (obj.GetAssetSalesRegisterSql(FromDate, ToDate, Type));
+            var jsondata = Json(new { NewData, Message = AplosMessage.Success });
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+
+        }
+
         #endregion Pages
         #region material-ledger Reports
 
@@ -383,6 +410,7 @@ namespace Aplos.Areas.Products.Controllers
                 throw ex;
             }
         }
+
 
        
 
