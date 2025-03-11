@@ -963,7 +963,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 }
                 else
                 {
-                    SalayHead = " and d.SalaryHeadID in (" + SalaryHeadId + ") ";
+                    SalayHead = " and d.SalaryHeadID in ('"+ SalaryHeadId + "') ";
                 }
                 strSql = @"SELECT EI.SystemId,EI.EmployeeCode,EI.EmployeeName, sh.SalaryHead,sh.HeadType,c.Name Currency, d.EntryAmount
                                 ,dep.username Department, LG.UserName Designation,L.UserName Line,SS.UserName SubSection,s.UserName Section

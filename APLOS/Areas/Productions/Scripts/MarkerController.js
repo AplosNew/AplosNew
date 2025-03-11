@@ -75,9 +75,13 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         }
     }
 
+    $scope.CloseSOPopUp = function () {
+        angular.element(document.querySelector('#SOPoPUp')).modal('hide');
+    }
+
     $scope.sqlInStatement = "";
     $scope.selectedSOList = [];
-    $scope.CloseSOPopUp = function () {
+    $scope.ApplySOSelection = function () {
         for (var i = 0; i < $scope.SOList.length; i++) {
             if ($scope.SOList[i].Flag == true) {
                 if (checkExists($scope.selectedSOList, $scope.SOList[i].SONo) === false) {
@@ -96,9 +100,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
                 }
             }
         }
-        angular.element(document.querySelector('#SOPoPUp')).modal('hide');
-
-        
+        $scope.CloseSOPopUp();
     }
 
     $scope.FabricGRNRowList = [];
@@ -128,14 +130,33 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         });
     }
 
-    $scope.CloseFabricGRNRowopUp = function () {
+    $scope.CloseFabricGRNRowPopUp = function () {
         angular.element(document.querySelector('#FabricGRNRowPoPUp')).modal('hide');
 
     }
 
-    $scope.SetFabricGRNRow= function (args) {
-        $scope.ModelNew.FabricGRNRowId = args.data.Id;
-        $scope.CloseFabricGRNRowopUp();
+    $scope.SelectedFabricGRNRowList = [];
+    $scope.SelectFabricGRNRow= function () {
+        for (var i = 0; i < $scope.FabricGRNRowList.length; i++) {
+            if ($scope.FabricGRNRowList[i].Flag == true) {
+                if (checkExistsGRN($scope.SelectedFabricGRNRowList, $scope.FabricGRNRowList[i].InventoryReceiveDetailId) === false) {
+                    var ob = {};
+                    ob.Id = $scope.FabricGRNRowList[i].Id;
+                    ob.InventoryReceiveDetailId = $scope.FabricGRNRowList[i].InventoryReceiveDetailId;
+                    ob.GRNNo = $scope.FabricGRNRowList[i].GRNNo;
+                    ob.GRNDate = $scope.FabricGRNRowList[i].GRNDate;
+                    ob.MaterialMasterName = $scope.FabricGRNRowList[i].MaterialMasterName;
+                    ob.ArticleName = $scope.FabricGRNRowList[i].ArticleName;
+                    ob.SKUValue = $scope.FabricGRNRowList[i].SKUValue;
+                    ob.UOM = $scope.FabricGRNRowList[i].UOM;
+                    ob.FirstCharacteristicsValueId = $scope.FabricGRNRowList[i].FirstCharacteristicsValueId;
+                    ob.TransactionQty = $scope.FabricGRNRowList[i].TransactionQty;
+
+                    $scope.SelectedFabricGRNRowList.push(ob);
+                }
+            }
+        }
+        $scope.CloseFabricGRNRowPopUp();
     }
 
 
