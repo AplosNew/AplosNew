@@ -69,6 +69,10 @@ namespace Aplos.Areas.Accounts.Controllers
                     {
                         throw new CustomException(item.ActivityName+" Budget Or Activity is not Active");
                     }
+                    if (item.OtherName == "Material" && item.EntityId == null)
+                    {
+                        throw new CustomException("Entity NULL not allow for Activity "+ item.ActivityName);
+                    }
                     if (item.IsAsset)
                     {
                         if (item.GLGeneralInfoId == null)
