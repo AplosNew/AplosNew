@@ -1095,5 +1095,9 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/Invoice/InvoiceReviseMatureDate",
             controller: "invoiceReviseMaturedateController"
         })
+        .when("/voucherType-addinfo", {
+            templateUrl: "Accounts/VoucherType/VoucherTypeAdditionalinfo",
+            controller: "voucherTypeAdditionalInfoController"
+        })
         ;
 } 
