@@ -1114,6 +1114,16 @@ namespace Aplos.Areas.SalesManagements.Controllers
                     SettlementType = voucherVM.SettlementType,
                     SalesReturnId = voucherVM.SalesReturnId
                 };
+                if (isCreditNote == false)
+                {
+                    adjustmentNote.WrittenOffAmount = adjustmentNote.Amount;
+                    adjustmentNote.IsWrittenOff = true;
+                }
+                else
+                {
+                    adjustmentNote.WrittenOffAmount = 0;
+                    adjustmentNote.IsWrittenOff = false;
+                }
                 if (adjustmentNote.SourceType == SourceType.CreditNote.ToString())
                 {
                     if (adjustmentNote.NoteType == NoteType.CustomerCreditNote.ToString())
@@ -1176,11 +1186,19 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                             BudgetMasterId = voucherDetailVM.BudgetMasterId,
                             ActivityId = voucherDetailVM.ActivityId,
-                            Amount = adjustmentNote.Amount,
-                            WrittenOffAmount = 0,
-                            IsWrittenOff = false
+                            Amount = adjustmentNote.Amount
                         };
-                        _accountsCommonService.InsertAdjustmentNoteDetail(adjustmentNote, adjustmentNoteDetail, 1, ref _ajNDetailData);
+                        if (isCreditNote == false)
+                        {
+                            adjustmentNoteDetail.WrittenOffAmount = adjustmentNote.Amount;
+                            adjustmentNoteDetail.IsWrittenOff = true;
+                        }
+                        else
+                        {
+                            adjustmentNoteDetail.WrittenOffAmount = 0;
+                            adjustmentNoteDetail.IsWrittenOff = false;
+                        }
+                            _accountsCommonService.InsertAdjustmentNoteDetail(adjustmentNote, adjustmentNoteDetail, 1, ref _ajNDetailData);
 
                     if(isCreditNote==false)
                        {
@@ -1231,6 +1249,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             InvoiceWriteOffId = invoiceWriteOff.Id,
                             InvoiceId = voucherDetailVM.InvoiceId,
                             InvoiceDetailId = voucherDetailVM.InvoiceDetailId,
+                            AdjustmentNoteId = adjustmentNoteDetail.AdjustmentNoteId,
+                            AdjustmentNoteDetailId = adjustmentNoteDetail.Id,
                             CompanyId = voucherVM.CompanyId,
                             PlantId = voucherVM.PlantId,
                             PartyId = voucherVM.PartyId,

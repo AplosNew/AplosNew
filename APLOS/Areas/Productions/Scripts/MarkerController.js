@@ -11,6 +11,10 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
 
+    $scope.WidthUomList = [{ Value: 'Yard', Text: 'Yard' }, { Value: 'Meter', Text: 'Meter' }];
+    $scope.lengthUomList = [{ Value: 'Inch', Text: 'Inch' }, { Value: 'CM', Text: 'CM' }, { Value: 'Yard', Text: 'Yard' }];
+
+
     $scope.CheckByList = [];
     $scope.GetCheckByCboList = function () {
         $http({
@@ -70,6 +74,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             ShowResult(e, 'failure');
         }
     }
+
     $scope.sqlInStatement = "";
     $scope.selectedSOList = [];
     $scope.CloseSOPopUp = function () {
@@ -78,6 +83,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
                 if (checkExists($scope.selectedSOList, $scope.SOList[i].SONo) === false) {
                     var ob = {};
                     ob.Id = null;
+                    ob.SONo = $scope.SOList[i].SONo;
                     ob.SalesOrderId = $scope.SOList[i].SONo;
                     ob.DeliveryDate = $scope.SOList[i].DeliveryDate;
                     ob.OwnReferenceNo = $scope.SOList[i].OwnReferenceNo;
@@ -135,7 +141,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
 
     function checkExists(list, id) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].OperationVariationId === id) {
+            if (list[i].SalesOrderId === id) {
                 return true;
             }
         }
@@ -170,10 +176,42 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         gridObj.refreshContent();
     };
 
-    // #endregion checkbox all
+    $scope.refreshTemplateGRN = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllGRN });
+    };
 
+    function CheckBoxSelectAllGRN(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridGRR").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.FabricGRNRowList.length; i++) {
+                $scope.FabricGRNRowList[i].FlagG = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridGRR").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+
+    // #endregion checkbox all
+    $scope.MasterPlanId = null;
     $scope.SetMasterPlan = function (args) {
+       
         $scope.ModelNew.MasterPlanId = args.data.Id;
+        if ($scope.MasterPlanId != $scope.ModelNew.MasterPlanId ) {
+            $scope.selectedSOList = [];
+        }
+        $scope.MasterPlanId = $scope.ModelNew.MasterPlanId;
         $scope.ModelNew.MasterPlan = args.data.PlanName;
         $scope.GetCutPlanCbo();
         $scope.CloseMasterPlanPopUp();

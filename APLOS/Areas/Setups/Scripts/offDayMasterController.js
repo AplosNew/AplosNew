@@ -29,7 +29,6 @@ function OffDayMasterController(commonMessage, $scope, $rootScope, baseService, 
             .then(function (result) {
                 $scope.OffDayMasterMainLists = result.Rows;
                 $scope.OffDayMasterMainListParameters.total_count = result.Total;
-                console.log($scope.OffDayMasterMainLists);
             }, function () {
                 ShowResult(commonMessage.NetworkError, 'failure');
             }).finally(function () {

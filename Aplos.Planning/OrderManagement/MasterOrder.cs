@@ -2099,6 +2099,12 @@ Where SO.CheckByStatus = 'Checked' AND ApprovedStatus='To Be Approve' AND SO.App
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
+        public IEnumerable<object> GetCompanyCboList(string companyGroupId)
+        {
+            var sql = @"select Id Value,UserName Text from ORG.Company Where CompanyGroupId='"+ companyGroupId + "' AND Active=1";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
         public IEnumerable<object> GetLineItemAdditionalInfoData(string lineItemId)
         {
             try

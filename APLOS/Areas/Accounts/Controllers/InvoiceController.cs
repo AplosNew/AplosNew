@@ -330,13 +330,18 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
             voucherVM.IsPark = true;
+            var TaxAmount = 0.0M;
+            if (taxDetailVMList !=null)
+            {
+                TaxAmount = taxDetailVMList.Sum(r => r.TaxAmount);
+            }
             if (voucherVM.CompanyCurrencyRate == 0)
                 throw new CustomException("Rate can not Empty!");
             if (voucherVM.PaymentSource == PaymentSource.GL.ToString())
             {
-                if (voucherVM.IsExcludingTax == false && voucherVM.Amount != voucherDetailVMList.Sum(r => r.TotalAmount))
+                if (voucherVM.IsExcludingTax == false && voucherVM.Amount != voucherDetailVMList.Sum(r => r.TotalAmount) + TaxAmount)
                     throw new CustomException("Total Amount and Invoice Amount not match!");
-                else if (voucherVM.IsExcludingTax == true && voucherVM.Amount != voucherDetailVMList.Sum(r => r.Amount))
+                else if (voucherVM.IsExcludingTax == true && voucherVM.Amount != voucherDetailVMList.Sum(r => r.Amount) + TaxAmount)
                     throw new CustomException("Net Amount and Invoice Amount not match!");
             }
             if (voucherVM.PaymentSource == PaymentSource.Loan.ToString())

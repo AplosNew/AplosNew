@@ -766,6 +766,7 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
             $scope.voucher.DocDate = $scope.voucher.PostingDate;
         }
         $scope.voucher.Active = true;
+        $scope.voucher.IsInvoiceSetOff = false;
         $scope.voucher.Amount = null;
         $scope.voucher.CompanyCurrencyRate = null;
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");

@@ -733,12 +733,14 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
             $scope.voucher.DocDate = $scope.voucher.PostingDate;
         }
         $scope.voucher.Active = true;
+        $scope.voucher.IsInvoiceSetOff = false;
         $scope.voucher.Amount = null;
         $scope.voucher.CompanyCurrencyRate = 1;
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucher.NoteType = "CustomerCreditNote";
         $scope.voucher.SettlementType = "Others";
         $scope.invoiceSalesAvailableList = [];
+        $scope.voucherInvoiceDetailList = [];
         $scope.TDSList = [];
         $scope.voucherDetail.InvoiceTaxViewModel = [];
         $scope.invoiceTaxDetailList = [];
@@ -2113,36 +2115,8 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
         }
 
     };
-    $scope.showVendorInvoicePopUp = function (partyId) {
-        $scope.customerreceivableList = [];
-        $scope.customerInvoiceSearch = [];
-        if (baseService.isUndefinedOrNull(partyId)) {
-            $scope.customerreceivableList = [];
-            ShowResult("Please select Vendor.", "failure");
-            return;
-        }
-        else {
-            $scope.compareCurrencyId = $scope.voucher.CurrencyId;
-            $scope.customerInvoiceParameters.partyId = partyId;
-            $scope.customerreceivableGLData = function (pageno) {
-                baseService.paginationBase("accounts/AdjustmentNote/GetVendorAvailableInvoiceListForCreditNotes", pageno, $scope.customerInvoiceParameters)
-                    .then(function (response) {
-                        $scope.customerreceivableList = response.Rows;
-                        $scope.customerInvoiceParameters.total_count = response.Total;
-                        if (baseService.arrayLength($scope.customerInvoiceSearchList) === 0) {
-                            baseService.getDDLSearchColumn($scope.customerreceivableList, $scope.customerInvoiceSearchList);
-                        }
-                    }, function () {
-                        ShowResult(commonMessage.NetworkError, "failure");
-                    }).finally(function () {
-                    });
-            };
-            angular.element(document.querySelector("#customerInvoicePopUp")).modal("show");
-            $scope.customerreceivableGLData();
-        }
 
-    };
-
+    $scope.voucherInvoiceDetailList = [];
     $scope.closePopUpselected = function () {
         angular.forEach($scope.customerreceivableList, function (data, i) {
             if (data.Active === true) {
@@ -2202,6 +2176,11 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
             data.ExchangeType = null;
         }
     };
+
+    $scope.removeInvoiceRow = function (index, data) {
+        $scope.voucherInvoiceDetailList.splice(index, 1);
+    };
+
     //*********************** Customer Invoice PopUp End ***************************************
 
 }

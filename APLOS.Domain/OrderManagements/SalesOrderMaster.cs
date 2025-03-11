@@ -53,6 +53,7 @@ namespace Library.Model.OrderManagements
         public DateTime? ApproveByDate { get; set; }
         public string ApprovedStatus { get; set; }
         public string DeliveryGroup { get; set; }
+        public string LineItemReference { get; set; }
 
         #endregion Scalar Properties
 
