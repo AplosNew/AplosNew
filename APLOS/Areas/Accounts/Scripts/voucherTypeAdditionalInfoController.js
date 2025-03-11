@@ -1,7 +1,7 @@
 ﻿'use strict';
 voucherTypeAdditionalInfoController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', 'toaster', '$compile'];
 function voucherTypeAdditionalInfoController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, toaster, $compile) {
-    $rootScope.title = 'GL Item';
+    $rootScope.title = 'VoucherType';
     $scope.Action = 'Update';
     $scope.glItems = [];
 
@@ -53,7 +53,6 @@ function voucherTypeAdditionalInfoController(cboService, commonMessage, $scope, 
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        baseService.paginationAdd();
                         $scope.GetVoucherTypeAdditionalinfo();
                     }
                 });

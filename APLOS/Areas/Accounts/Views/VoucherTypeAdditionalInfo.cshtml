@@ -1,4 +1,4 @@
-﻿<h4>Company GL Info</h4>
+﻿<h4>VoucherType Additional Info</h4>
 <div class="form-elements" ng-form name="glinfoNewForm1">
     <div class="clearfix"></div>
     <div class="form-elements">
@@ -20,10 +20,10 @@
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-7 col-md-7">
-                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="GetVoucherTypeAdditionalinfo()">
                     </div>
                     <div class="col-xs-12 col-sm-2 col-md-2">
-                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                        <button type="button" ng-click="GetVoucherTypeAdditionalinfo()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                     </div>
                 </div>
             </div>
@@ -34,7 +34,6 @@
         <table class="table table-striped ">
             <thead>
                 <tr>
-                    <th>Apply</th>
                     <th>Code</th>
                     <th>Standard Name</th>
                     <th>User Name</th>
@@ -45,14 +44,6 @@
             </thead>
             <tbody>
                 <tr ng-repeat="x in voucherTypeAdditionalinfoList ">
-                    <td>
-                        <div class="checkbox-site">
-                            <label>
-                                <input type="checkbox" id="active" ng-model="x.Active" ng-checked="x.Active">
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
-                        </div>
-                    </td>
                     <td>{{x.Code}}</td>
                     <td>{{x.StandardName}}</td>
                     <td>{{x.UserName}}</td>
