@@ -8941,8 +8941,8 @@ AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.Sa
     ,ISNULL(HSNC.Code,MHSN.Code) HSNCode
     ,Plant.GSTIN
     ,Plant.VATResistrationNo AS PlantPANNo
-    ,DPARTYPL.GSTIN ShipGSTIN
-    ,INVPARTYPL.GSTIN BillGSTIN
+    ,DPARTYPL.GSTIN BillGSTIN
+    ,INVPARTYPL.GSTIN ShipGSTIN
     ,IR.DocRefNo
     ,IR.InvoiceNo
     ,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS DocDate
@@ -8954,7 +8954,7 @@ AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.Sa
     ,INVPARTYPL.UserName InvoiceParty2
     ,IR.InvoicingByAddress AS ConsigneeAddress
     ,case when IR.InvoicingPartyPlantId = IR.DeliveryPartyPlantId then IR.DeliveryByAddress else  CONCAT (DPARTYPL.UserName , ' ' , IR.DeliveryByAddress) end DeliveryByAddress
-    ,DPARTYPL.UserName DeliveryParty
+    ,DPARTYPL.UserName DeliveryParty,IR.InvoicingByAddress ShippingAddress
  
     ,PSI.PreCarriageBy
     ,PSI.PlaceOfReceiptByPreCarriage
