@@ -760,24 +760,25 @@ WHERE s.Id " + Ids + "";
             try
             {
                 var sql = @"SELECT CAST(0 AS BIT) Active,sm.Id SalesMaterialId,'B2B'SupplyTypeCode,'No'ReverseCharge,''eCommGSTIN,''IgstOnIntra,'Tax Invoice' DocumentType,S.Id DocumentNumber,FORMAT(s.InvoiceDate,'dd/MM/yyyy')DocumentDate
-,p.TINNO BuyerGSTIN,P.UserName BuyerLegalName,P.UserName BuyerTradeName,ST.UserName BuyerPOS,s.DeliveryByAddress BuyerAddr1
-,am.Address2 BuyerAddr2,ST.UserName BuyerLocation,P.PINCode BuyerPinCode,ST.UserName BuyerState, am.Phone BuyerPhoneNumber,am.Email BuyerEmailId
+,p.TINNO BuyerGSTIN,P.UserName BuyerLegalName,P.UserName BuyerTradeName,ST.UserName BuyerPOS,s.DeliveryByAddress ShippingAddr1
+,am.Address2 BuyerAddr2,BD.UserName BuyerLocation,P.PINCode BuyerPinCode,ST.UserName BuyerState, am.Phone BuyerPhoneNumber,am.Email BuyerEmailId
 ,'' DispatchName,'' DispatchAddr1,''DispatchAddr2,''DispatchLocation,''DispatchPinCode,''DispatchState,PPD.GSTIN ShippingGSTIN, PPD.UserName ShippingLegalName, PPD.UserName ShippingTradeName
-,S.InvoicingByAddress ShippingAddr1,''ShippingAddr2,STD.UserName ShippingLocation,''ShippingPinCode,STD.UserName ShippingState,''SlNo,mma.StandardName ProductDescription,''IsService,ISNULL(ha.Code,h.Code) HSNcode   
+,S.InvoicingByAddress BuyerAddr1,''ShippingAddr2,SBD.UserName ShippingLocation,''ShippingPinCode,STD.UserName ShippingState,''SlNo,mma.StandardName ProductDescription,''IsService,ISNULL(ha.Code,h.Code) HSNcode   
 ,''Barcode, sm.TransactionQty Quantity,''FreeQuantity,uom.Code Unit,CONVERT(numeric(10,4),sm.TransactionRate*s.ToCurrencyRate) UnitPrice,CONVERT(numeric(10,2),sm.TransactionQty*CONVERT(numeric(10,4),sm.TransactionRate*s.ToCurrencyRate)) GrossAmount,'' Discount,''PreTaxValue
 ,CONVERT(numeric(10,2),sm.TransactionQty*CONVERT(numeric(10,4),sm.TransactionRate*s.ToCurrencyRate))Taxablevalue,CONVERT(numeric(10,2),ISNULL(TAxInfo1.Percentage,0)+ISNULL(TAxInfo2.Percentage,0)+ISNULL(TAxInfo3.Percentage,0)) GSTRate,CONVERT(numeric(10,2),TAxInfo1.Amount*s.ToCurrencyRate) IgstAmt,CONVERT(numeric(10,2),TAxInfo2.Amount*s.ToCurrencyRate) SgstAmt,CONVERT(numeric(10,2),TAxInfo3.Amount*s.ToCurrencyRate) CgstAmt,'' CessRate,''CessAmtAdval
 ,''CessNonAdvalAmt,''StateCessRate,''StateCessAdvalAmt,''StateCessNonAdvalAmt,CONVERT(numeric(10,2),TAxInfo4.TaxAmount) OtherCharges,CONVERT(numeric(10,2),(sm.NetAmount*s.ToCurrencyRate)+ISNULL(TAxInfo4.TaxAmount,0)) ItemTotal,''BatchName,''BatchExpiryDt,''WarrantyDt
 ,CONVERT(numeric(10,2),sm.NetAmount*s.ToCurrencyRate)TotalInvoicevalue,''ShippingBillNo,''ShippingBillDt,''[Port],''Refundclaim,''ForeignCurrency,''CountryCode,''ExportDutyAmount,''TransID,''TransName 
 ,''TransMode,''Distance,''TransDocNo,''TransDocDate,''VehicleNo,''VehicleType,''ErrorListst
 
-
   FROM TRN.Sales S
   LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=S.InvoicingPartyPlantId
 LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
 LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
+LEFT JOIN [SCS].District BD ON BD.Id=AM.DistrictId
 LEFT JOIN [HKP].[PartyPlant] AS PPD ON PPD.Id=S.DeliveryPartyPlantId
 LEFT JOIN [MST].[AddressMaster] AS AMD ON AMD.Id=PPD.AddressMasterId
 LEFT JOIN [SCS].[State] AS STD ON STD.Id=AMD.StateId
+LEFT JOIN [SCS].District SBD ON SBD.Id=AMD.DistrictId
 LEFT JOIN TRN.SalesMaterial AS sm ON sm.SalesId=s.Id 
 LEFT JOIN MST.MaterialMaster AS mm ON sm.MaterialMasterId=mm.Id
 LEFT JOIN MST.MaterialMasterArticle AS mma ON sm.ArticleId=mma.Id
