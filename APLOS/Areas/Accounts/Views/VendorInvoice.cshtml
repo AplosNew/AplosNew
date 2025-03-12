@@ -766,61 +766,60 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header"> Journal</div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Vendor<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input id="InvoiceNo" type="text" name="InvoiceNo" ng-disabled="true" ng-model="voucherdb.PartyName" class="form-control">
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-6 control-label">Posting Date<sup>*</sup></label>
-                    <div class="col-sm-6 show-message">
-                        <input id="postingDate" type="text" datepicker name="Posting Date" ng-model="voucherdb.PostingDate" ng-disabled="true" class="form-control" tabindex="1">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-6 control-label">Doc Date<sup>*</sup></label>
-                    <div class="col-sm-6 show-message">
-                        <input type="text" name="DocDate" datepicker ng-model="voucherdb.DocDate" ng-disabled="true" class="form-control" tabindex="3">
-                    </div>
-                </div>
-
-
-            </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-6 control-label">Doc Ref<sup>*</sup></label>
-                    <div class="col-sm-6 show-message">
-                        <input type="text" maxlength="50" name="Doc Ref" ng-model="voucherdb.DocRefNo" class="form-control" tabindex="4" ng-disabled="true">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-6 control-label">Currency<sup>*</sup></label>
-                    <div class="col-sm-6 show-message" style="padding-right:0px;">
-                        <input type="text" name="DocDate" ng-model="voucherdb.CurrencyCode" ng-disabled="true" class="form-control" tabindex="3">
-                    </div>
-                </div>
-            </div>
             <div class="modal-body">
-                <div class="form-horizontal col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group" style="margin-top: 10px;">
-                        <label class="col-sm-2 control-label">Narration<sup>*</sup></label>
-                        <div class="col-sm-10 show-message">
-                            <textarea rows="1" type="text" name="Narration" tabindex="8" class="form-control" ng-model="voucherdb.Narration" maxlength="500" required capitalize></textarea>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Vendor<sup>*</sup></label>
+                        <div class="col-sm-8 show-message" style="padding-right: 0px;">
+                            <input id="InvoiceNo" type="text" name="InvoiceNo" ng-disabled="true" ng-model="voucherdb.PartyName" class="form-control">
                         </div>
                     </div>
-                    <div id="div_entity_Post" class="form-group" style="margin-top: 10px; margin-bottom: 20px;">
-                        <label class="col-sm-2 control-label">Entity<sup>*</sup></label>
-                        <div class="col-sm-10 show-message">
+                    <div id="div_entity_Post" class="form-group" style="margin-top: 40px;">
+                        <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                        <div class="col-sm-8 show-message" style="padding-right: 0px;">
                             <div class="select-style">
                                 <select id="entityId_Post" class="form-control" name="entity_Post" ng-model="voucherdb.EntityId" tabindex="8" required>
                                     <option value="">--Select--</option>
                                     <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
                                 </select>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div id="div_PostingDate_Edit" class="form-group">
+                        <label class="col-sm-6 control-label">Posting Date<sup>*</sup></label>
+                        <div class="col-sm-6 show-message">
+                            <input required datepicker="checkPostingDate_Edit();checkDocDate_Edit();" id="postingDate_db" type="text" name="Posting Date" ng-model="voucherdb.PostingDate" class="form-control" tabindex="1">
+                        </div>
+                    </div>
+                    <div id="div_DocDate_Edit" class="form-group" style="margin-top: 40px;">
+                        <label class="col-sm-6 control-label">Doc Date<sup>*</sup></label>
+                        <div class="col-sm-6 show-message">
+                            <input type="text" name="DocDate" ng-model="voucherdb.DocDate" datepicker="checkDocDate_Edit();" required class="form-control" tabindex="3">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-5 control-label">Doc Ref<sup>*</sup></label>
+                        <div class="col-sm-7 show-message" style="padding-right:0px;">
+                            <input type="text" maxlength="50" name="Doc Ref" ng-model="voucherdb.DocRefNo" class="form-control" ng-keyup="CheckSpecialCharecter_Edit();" tabindex="4" required capitalize autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 40px;">
+                        <label class="col-sm-5 control-label">Currency<sup>*</sup></label>
+                        <div class="col-sm-7 show-message" style="padding-right: 0px;">
+                            <input type="text" name="DocDate" ng-model="voucherdb.CurrencyCode" ng-disabled="true" class="form-control" tabindex="3">
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="form-horizontal col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label class="col-sm-2 control-label">Narration<sup>*</sup></label>
+                        <div class="col-sm-10 show-message">
+                            <textarea rows="1" type="text" name="Narration" tabindex="8" class="form-control" ng-model="voucherdb.Narration" maxlength="500" required capitalize></textarea>
                         </div>
                     </div>
                 </div>
@@ -867,7 +866,7 @@
                     </ul>
                 </div>
             </div>
-        </div>
+            </div>
     </div>
 </div>
 

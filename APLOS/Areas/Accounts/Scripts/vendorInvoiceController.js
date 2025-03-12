@@ -322,6 +322,39 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         return manualValidation("div_PostingDate", $scope.invalidPostingDate, msg);
         $scope.getFiscalInvoiceTotalAmountByParty($scope.voucher.PartyId, $scope.voucher.PostingDate);
     };
+    $scope.checkDocDate_Edit = function () {
+        var msg = "";
+        if (new Date($scope.voucherdb.DocDate) > new Date()) {
+            $scope.invalidDocDate = true;
+            msg = "Doc date must be below or equal to current Date!";
+        }
+        else if (new Date($scope.voucherdb.PostingDate) < new Date($scope.voucherdb.DocDate)) {
+            msg = "Doc date must be below or equal to Posting Date!";
+            $scope.invalidDocDate = true;
+        }
+        else if (baseService.isUndefinedOrNull($scope.voucherdb.DocDate)) {
+            msg = "Doc Date is required.";
+            $scope.invalidDocDate = true;
+        }
+        else $scope.invalidDocDate = false;
+        return manualValidation("div_DocDate_Edit", $scope.invalidDocDate, msg);
+    };
+    
+    $scope.checkPostingDate_Edit = function () {
+        var msg = "";
+        if (new Date($scope.voucherdb.PostingDate) > new Date()) {
+            msg = "Posting date must be below or equal to current Date!";
+            $scope.invalidPostingDate = true;
+        }
+        else if (baseService.isUndefinedOrNull($scope.voucherdb.PostingDate)) {
+            msg = "Posting Date is required.";
+            $scope.invalidPostingDate = true;
+        }
+        else {
+            $scope.invalidPostingDate = false;
+        }
+        return manualValidation("div_PostingDate_Edit", $scope.invalidPostingDate, msg);
+    };
     $scope.beneficiaryTypeList = [];
 
     $scope.getBeneficiaryType = function () {
@@ -2746,6 +2779,16 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
             ShowResult(e, 'failure');
         }
     }
+    $scope.CheckSpecialCharecter_Edit = function () {
+        try {
+            if (containsSpecialChars($scope.voucherdb.DocRefNo)) {
+                $scope.voucherdb.DocRefNo = $scope.voucherdb.DocRefNo.substring(0, $scope.voucherdb.DocRefNo.length - 1);
+                throw "No special characters allowed for Doc Ref No.";
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
     $scope.postVoucher = function () {
         if ($scope.voucherdb.EntityId == null || $scope.voucherdb.EntityId == "" || $scope.voucherdb.EntityId == undefined) {
@@ -2756,6 +2799,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
             url: $scope.postUrl,
             data: {
                 "voucher": $scope.voucherdb,
+                "voucherVM": $scope.voucherdb,
                 "invoiceId": $scope.voucherdb.Id,
                 "voucherDetailList": $scope.newJVList,
                 "type": $scope.Type
@@ -2802,6 +2846,8 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         else {
             $scope.voucherdb = {};
             $scope.voucherdb = data;
+            $scope.voucherdb.PostingDate = $filter("dateFiltering")(data.PostingDate);
+            $scope.voucherdb.DocDate = $filter("dateFiltering")(data.DocDate);
             $scope.tdsId = AdditionalTaxId;
             $scope.Type = BeneficiaryType;
             getJournalList(data.VoucherId);

@@ -27,7 +27,7 @@ namespace Library.Service.Employees
         EmployeePayable InsertEmployeePayable(VoucherViewModel voucherVM);
 
         void Post(string employeePayableId);
-        void PostVoucher(Voucher voucher, string employeePayableId, string type, IEnumerable<VoucherDetailViewModel> voucherDetailList);
+        void PostVoucher(Voucher voucher, VoucherViewModel voucherVM, string employeePayableId, string type, IEnumerable<VoucherDetailViewModel> voucherDetailList);
 
         PKGenerator GetMaxNumber();
 
