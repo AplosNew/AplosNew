@@ -147,6 +147,13 @@
                     <input type="text" name="Remarks" tabindex="5" class="form-control" ng-model="JobWorkItem.Remarks" />
                 </div>
             </div>
+
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group">
+                    <label class="control-label">Begs</label>
+                    <input type="number" name="Begs" tabindex="5" class="form-control" ng-model="JobWorkItem.Begs" />
+                </div>
+            </div>
         </div>
         <div class="common-btn" style="padding-top: 20px;">
             <ul class="list-inline text-right">
@@ -184,6 +191,7 @@
                         <div e-column e-field="TaxValue" e-headertext="TaxValue" e-width="150"></div>
                         <div e-column e-field="TotalValue" e-headertext="TotalValue" e-width="150"></div>
                         <div e-column e-field="Remarks" e-headertext="Remarks" e-width="200"></div>
+                        <div e-column e-field="Begs" e-headertext="Begs" e-width="200"></div>
                         <div e-column e-template="#GridActions" e-width="75" textAlign='center'></div>
                     </div>
                 </div>

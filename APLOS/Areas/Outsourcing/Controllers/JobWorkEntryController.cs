@@ -119,6 +119,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
                     dr["TotalValue"] = saveData["TotalValue"];
                     dr["GateEntryNo"] = saveData["GateEntryNo"];
                     dr["Remarks"] = saveData["Remarks"];
+                    dr["Begs"] = saveData["Begs"];
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = System.DateTime.Now.ToString();
                     dr["AddedFromIP"] = identity.IPAddress;
@@ -148,6 +149,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
                     dr["TotalValue"] = saveData["TotalValue"];
                     dr["GateEntryNo"] = saveData["GateEntryNo"];
                     dr["Remarks"] = saveData["Remarks"];
+                    dr["Begs"] = saveData["Begs"];
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = System.DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
