@@ -11,9 +11,41 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
 
-    $scope.WidthUomList = [{ Value: 'Yard', Text: 'Yard' }, { Value: 'Meter', Text: 'Meter' }];
-    $scope.lengthUomList = [{ Value: 'Inch', Text: 'Inch' }, { Value: 'CM', Text: 'CM' }, { Value: 'Yard', Text: 'Yard' }];
+   
+    $scope.WidthUomList = [];
+    $scope.GetWidthUnit = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetWidthUnit",
+        }).then(function successCallback(response) {
+            $scope.WidthUomList = response.data;
+            for (var i = 0; i < $scope.WidthUomList.length; i++) {
+                if ($scope.WidthUomList[i].UserName == "Yard") {
+                    $scope.ModelNew.WidthUomId = $scope.WidthUomList[i].Id;
+                    break;
+                }
+            }
+        });
+    }
+    $scope.GetWidthUnit();
 
+    $scope.lengthUomList = [];
+    $scope.GetLengthUnit = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetLengthUnit",
+        }).then(function successCallback(response) {
+            $scope.lengthUomList = response.data;
+            for (var i = 0; i < $scope.lengthUomList.length; i++) {
+                if ($scope.lengthUomList[i].UserName =="Inch") {
+                    $scope.ModelNew.GrossLengthUomId = $scope.lengthUomList[i].Id;
+                    $scope.ModelNew.LengthUomId = $scope.lengthUomList[i].Id;
+                    break;
+                }
+            }
+        });
+    }
+    $scope.GetLengthUnit();
 
     $scope.CheckByList = [];
     $scope.GetCheckByCboList = function () {
@@ -75,9 +107,13 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         }
     }
 
+    $scope.CloseSOPopUp = function () {
+        angular.element(document.querySelector('#SOPoPUp')).modal('hide');
+    }
+
     $scope.sqlInStatement = "";
     $scope.selectedSOList = [];
-    $scope.CloseSOPopUp = function () {
+    $scope.ApplySOSelection = function () {
         for (var i = 0; i < $scope.SOList.length; i++) {
             if ($scope.SOList[i].Flag == true) {
                 if (checkExists($scope.selectedSOList, $scope.SOList[i].SONo) === false) {
@@ -96,9 +132,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
                 }
             }
         }
-        angular.element(document.querySelector('#SOPoPUp')).modal('hide');
-
-        
+        $scope.CloseSOPopUp();
     }
 
     $scope.FabricGRNRowList = [];
@@ -128,14 +162,33 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         });
     }
 
-    $scope.CloseFabricGRNRowopUp = function () {
+    $scope.CloseFabricGRNRowPopUp = function () {
         angular.element(document.querySelector('#FabricGRNRowPoPUp')).modal('hide');
 
     }
 
-    $scope.SetFabricGRNRow= function (args) {
-        $scope.ModelNew.FabricGRNRowId = args.data.Id;
-        $scope.CloseFabricGRNRowopUp();
+    $scope.SelectedFabricGRNRowList = [];
+    $scope.SelectFabricGRNRow= function () {
+        for (var i = 0; i < $scope.FabricGRNRowList.length; i++) {
+            if ($scope.FabricGRNRowList[i].Flag == true) {
+                if (checkExistsGRN($scope.SelectedFabricGRNRowList, $scope.FabricGRNRowList[i].InventoryReceiveDetailId) === false) {
+                    var ob = {};
+                    ob.Id = $scope.FabricGRNRowList[i].Id;
+                    ob.InventoryReceiveDetailId = $scope.FabricGRNRowList[i].InventoryReceiveDetailId;
+                    ob.GRNNo = $scope.FabricGRNRowList[i].GRNNo;
+                    ob.GRNDate = $scope.FabricGRNRowList[i].GRNDate;
+                    ob.MaterialMasterName = $scope.FabricGRNRowList[i].MaterialMasterName;
+                    ob.ArticleName = $scope.FabricGRNRowList[i].ArticleName;
+                    ob.SKUValue = $scope.FabricGRNRowList[i].SKUValue;
+                    ob.UOM = $scope.FabricGRNRowList[i].UOM;
+                    ob.FirstCharacteristicsValueId = $scope.FabricGRNRowList[i].FirstCharacteristicsValueId;
+                    ob.TransactionQty = $scope.FabricGRNRowList[i].TransactionQty;
+
+                    $scope.SelectedFabricGRNRowList.push(ob);
+                }
+            }
+        }
+        $scope.CloseFabricGRNRowPopUp();
     }
 
 
@@ -682,27 +735,8 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     }
     $scope.getFabricWidth();
 
-    $scope.ShrinkageGroupList = [];
-    $scope.getShrinkageGroup = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + "GetShrinkageGroup",
-        }).then(function successCallback(response) {
-            $scope.ShrinkageGroupList = response.data;
-        });
-    }
-    $scope.getShrinkageGroup();
+   
 
-    $scope.ShadeList = [];
-    $scope.getShade = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + "GetShade",
-        }).then(function successCallback(response) {
-            $scope.ShadeList = response.data;
-        });
-    }
-    $scope.getShade();
     $scope.ShowDiv = false;
     $scope.AddLineItem = function () {
         try {

@@ -261,6 +261,16 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return Json(_sqlRepository.GetDataCollection("select Id,UserName ShadeName From Shade"), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpGet]
+        public JsonResult GetWidthUnit()
+        {
+            return Json(_sqlRepository.GetDataCollection("select Id,UserName from SCS.UnitOfMeasurement Where IsWidthUnit=1"), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetLengthUnit()
+        {
+            return Json(_sqlRepository.GetDataCollection("select Id,UserName from SCS.UnitOfMeasurement Where IsLengthUnit=1"), JsonRequestBehavior.AllowGet);
+        }
         [Authorize, HttpPost]
         public ActionResult Get(string Id)
         {
@@ -312,7 +322,7 @@ and SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanI
         [Authorize, HttpGet]
         public ActionResult GetFabricGRNRowList(string soId)
         {
-            string sql = @"SELECT  MP.InventoryReceiveDetailId,MP.FirstCharacteristicsValueId,IRD.InventoryReceiveId,IRD.TransactionQty,UOM.UserName UOM,BUoM.UserName BaseUoM,IR.Id GRNNo,IR.GRNDate
+            string sql = @"SELECT CAST(0 as bit) FlagG, MP.InventoryReceiveDetailId,MP.FirstCharacteristicsValueId,IRD.InventoryReceiveId,IRD.TransactionQty,UOM.UserName UOM,BUoM.UserName BaseUoM,IR.Id GRNNo,IR.GRNDate
 ,P.UserName PartyName,MM.UserName MaterialMasterName,MMA.StandardName ArticleName,CV.UserName SKUValue
 FROM dbo.GRNSOMap MP
 LEFT JOIN  [TRN].[InventoryReceiveDetail] IRD ON MP.InventoryReceiveDetailId=IRD.Id
@@ -325,7 +335,7 @@ LEFT JOIN SCS.UnitOfMeasurement BUoM ON IRD.BaseUOMId=BUoM.Id
 LEFT JOIN MST.MaterialMaster MM ON IM.MaterialMasterId=MM.Id
 LEFT JOIN MST.MaterialMasterArticle MMA ON IM.ArticleId=MMA.Id
 LEFT JOIN [HKP].[CharacteristicsValue] CV ON MP.FirstCharacteristicsValueId=CV.Id
-Where MP.SalesOrderId  "+soId+"";
+Where MP.SalesOrderId  " + soId+"";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

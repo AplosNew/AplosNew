@@ -613,6 +613,18 @@ namespace Library.Planning.OrderManagement
                 drSalesOrder["Id"] = NewId;
                 drSalesOrder["ParentId"] = salesOrderMaster.ParentId;
                 drSalesOrder["Qty"] = salesOrderMaster.Qty;
+                drSalesOrder["OrderStatusId"] = salesOrderMaster.OrderStatusId;
+                drSalesOrder["OrderCategoryId"] = salesOrderMaster.OrderCategoryId;
+                drSalesOrder["DeliveryDate"] = salesOrderMaster.DeliveryDate;
+                drSalesOrder["ShipmentModeId"] = salesOrderMaster.ShipmentModeId;
+                drSalesOrder["DestinationId"] = salesOrderMaster.DestinationId;
+                drSalesOrder["PackingTypeId"] = salesOrderMaster.PackingTypeId;
+                drSalesOrder["LineItemReference"] = salesOrderMaster.LineItemReference;
+                drSalesOrder["MainRawMaterialInhouseDate"] = salesOrderMaster.MainRawMaterialInhouseDate;
+                drSalesOrder["OtherRawMaterialInhouseDate"] = salesOrderMaster.OtherRawMaterialInhouseDate;
+                drSalesOrder["LSD"] = salesOrderMaster.LSD;
+                drSalesOrder["ShipmentFromStock"] = salesOrderMaster.ShipmentFromStock;
+                drSalesOrder["ProductionType"] = salesOrderMaster.ProductionType;
                 dsToSalesOrder.Tables[0].Rows.Add(drSalesOrder);
 
                 for (int i = 0; i < dtFromFirstCharacteristics.Rows.Count; i++)

@@ -1,0 +1,61 @@
+﻿<h4>VoucherType Additional Info</h4>
+<div class="form-elements" ng-form name="glinfoNewForm1">
+    <div class="clearfix"></div>
+    <div class="form-elements">
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li><button ng-click="Update();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12 form-horizontal">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="$root.parameters.searchBy">
+                                <option ng-repeat="option in searchByVoucherTypeList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="GetVoucherTypeAdditionalinfo()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="GetVoucherTypeAdditionalinfo()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive modal-table">
+        <table class="table table-striped ">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Standard Name</th>
+                    <th>User Name</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>User Group</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in voucherTypeAdditionalinfoList ">
+                    <td>{{x.Code}}</td>
+                    <td>{{x.StandardName}}</td>
+                    <td>{{x.UserName}}</td>
+                    <td>{{x.Description}}</td>
+                    <td>
+                        <input type="text" class="form-control" id="Category" ng-model="x.Category" maxlength="50">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" id="GroupName" ng-model="x.GroupName" maxlength="50">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

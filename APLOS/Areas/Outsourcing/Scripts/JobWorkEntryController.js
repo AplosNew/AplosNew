@@ -21,6 +21,7 @@ function JobWorkEntryController(addressService, $window, cboService, commonMessa
         Party: null,
         TotalValue: null,
         Remarks: null,
+        Begs: null,
     };
     $scope.JobWorkItem = Object.assign({}, $scope.JobWorkItemModelTemp);
 
@@ -144,6 +145,7 @@ function JobWorkEntryController(addressService, $window, cboService, commonMessa
                 $scope.JobWorkItem.TaxValue = response.data[0].TaxValue;
                 $scope.JobWorkItem.TotalValue = response.data[0].TotalValue;
                 $scope.JobWorkItem.Remarks = response.data[0].Remarks;
+                $scope.JobWorkItem.Begs = response.data[0].Begs;
 
                 
 
