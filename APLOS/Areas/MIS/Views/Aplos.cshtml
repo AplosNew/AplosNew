@@ -1,7 +1,12 @@
-﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> At A Glance</h3>
+﻿
+<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> At A Glance
+    <button ng-click="viewCredential()" class="btn single-small-btn"><i class="glyphicon glyphicon-list"></i>Credentials</button>
+
+</h3>
 
 <div ng-form id="brand" name="brandForm" class="form-elements form-horizontal">
-    <div class="col-xs-12 row"  ng-show="comInfo.CompanyName=='Auburn Design Pvt. Ltd.'">
+    <div class="col-xs-12 row" ng-show="comInfo.CompanyName=='Auburn Design Pvt. Ltd.'">
         <iframe title="salesBI" width="1240" height="561" src="https://app.powerbi.com/reportEmbed?reportId=2f159d53-ea66-4e8b-ab22-cbb31afa48a3&autoAuth=true&ctid=504c6c58-7e71-4be5-b5c3-dfe79f84ba5b" frameborder="0" allowFullScreen="true"></iframe>
     </div>
     <div class="col-xs-12 row" ng-show="comInfo.CompanyName=='Cedaar Textile Limited'">
@@ -15,3 +20,4 @@
 </div>
 
 <confirm-modal></confirm-modal>
+@Html.Partial("~/Areas/MIS/Views/_CredentialPopUp.cshtml")

@@ -1,4 +1,7 @@
-﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> At A Glance</h3>
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Account Status
+    <button ng-click="viewCredential()" class="btn single-small-btn"><i class="glyphicon glyphicon-list"></i>Credentials</button>
+</h3>
 
 <div ng-form id="brand" name="brandForm" class="form-elements form-horizontal">
     <div class="col-xs-12 row">
@@ -13,3 +16,4 @@
 </div>
 
 <confirm-modal></confirm-modal>
+@Html.Partial("~/Areas/MIS/Views/_CredentialPopUp.cshtml")

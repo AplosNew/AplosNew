@@ -9,8 +9,24 @@ function orderStatusBIController(commonMessage, $scope, $rootScope, cboService, 
         $scope.comInfo.CompanyId = $scope.companyList[0].CompanyId;
         $scope.comInfo.CompanyName = $scope.companyList[0].CompanyName;
     });
-    //$scope.srcLink = '<iframe title="Order Status" width="1140" height="541" src="https://app.powerbi.com/reportEmbed?reportId=a0f61718-d361-4bb8-a301-57d406e686a5&autoAuth=true&ctid=504c6c58-7e71-4be5-b5c3-dfe79f84ba5b" frameborder="0" allowFullScreen="true"></iframe>';
-    //periodHtml += "<tr><td></td><td></td><td style='text-align:right;font-weight: bold'>" + totalPayment.toFixed(2) + "</td><td style='text-align:right;font-weight: bold'>" + totalProfit.toFixed(2) + "</td><td style='text-align:right;font-weight: bold'>" + totalPrincipal.toFixed(2) + "</td><td></tr></table></div>";
-    //$("#loanDetails").append(periodHtml);
 
+    $scope.viewCredential = function () {
+        angular.element(document.querySelector('#biCredentialPopUp')).modal('show');
+    }
+
+    $scope.closeViewCredential = function () {
+        angular.element(document.querySelector('#biCredentialPopUp')).modal('hide');
+    }
+
+    $scope.copyUserId = function () {
+        var copyUserText = "it@apopinternational.com";
+        navigator.clipboard.writeText(copyUserText);
+        $scope.closeViewCredential();
+    }
+
+    $scope.copyPassword = function () {
+        var copyPassText = "aPOP@123";
+        navigator.clipboard.writeText(copyPassText);
+        $scope.closeViewCredential();
+    }
 }
