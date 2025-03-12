@@ -2135,7 +2135,7 @@ function masterOrderCheckByController(accountService, $window, cboService, commo
                     ShowResult(response.data.Message, 'success', 'soPoUp');
                     getSalesOrderList();
                     $scope.getMasterItemList();
-                    angular.element(document.querySelector('#soPoUp')).modal('hide');
+                    //angular.element(document.querySelector('#soPoUp')).modal('hide');
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure', 'soPoUp');
