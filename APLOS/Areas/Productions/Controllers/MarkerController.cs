@@ -261,6 +261,16 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return Json(_sqlRepository.GetDataCollection("select Id,UserName ShadeName From Shade"), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpGet]
+        public JsonResult GetWidthUnit()
+        {
+            return Json(_sqlRepository.GetDataCollection("select Id,UserName from SCS.UnitOfMeasurement Where IsWidthUnit=1"), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetLengthUnit()
+        {
+            return Json(_sqlRepository.GetDataCollection("select Id,UserName from SCS.UnitOfMeasurement Where IsLengthUnit=1"), JsonRequestBehavior.AllowGet);
+        }
         [Authorize, HttpPost]
         public ActionResult Get(string Id)
         {

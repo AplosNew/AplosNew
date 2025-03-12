@@ -146,8 +146,8 @@
                         </div>
                         <div class="col-sm-2">
                             <div class="select-style">
-                                <select class="form-control" ng-model="ModelNew.WidthUom" name="Width Uom" ng-options="item.Value as item.Text for item in WidthUomList" required>
-                                    <option value="Yard">Yard</option>
+                                <select class="form-control" ng-model="ModelNew.WidthUomId" name="Width Uom" ng-options="item.Id as item.UserName for item in WidthUomList" required>
+                                    <option value="">--Select--</option>
                                 </select>
                             </div>
                         </div>
@@ -159,8 +159,8 @@
                         </div>
                         <div class="col-sm-2">
                             <div class="select-style">
-                                <select class="form-control" ng-model="ModelNew.GrossLengthUom" name="Length Uom" ng-options="item.Value as item.Text for item in lengthUomList" required>
-                                    <option value="Inch">Inch</option>
+                                <select class="form-control" ng-model="ModelNew.GrossLengthUomId" name="Length Uom" ng-options="item.Id as item.UserName for item in lengthUomList" required>
+                                    <option value="">--Select--</option>
                                 </select>
                             </div>
                         </div>
@@ -222,8 +222,8 @@
                         </div>
                         <div class="col-sm-2">
                             <div class="select-style">
-                                <select class="form-control" ng-model="ModelNew.LengthUom" name="Length Uom" ng-options="item.Value as item.Text for item in lengthUomList" required>
-                                    <option value="Inch">Inch</option>
+                                <select class="form-control" ng-model="ModelNew.LengthUomId" name="Length Uom" ng-options="item.Id as item.UserName for item in lengthUomList" required>
+                                    <option value="">--Select--</option>
                                 </select>
                             </div>
                         </div>
