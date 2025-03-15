@@ -438,12 +438,12 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public ActionResult PostVoucher(Voucher voucher,string invoiceId, string type,IEnumerable<VoucherDetailViewModel> voucherDetailList)
+        public ActionResult PostVoucher(Voucher voucher, VoucherViewModel voucherVM, string invoiceId, string type,IEnumerable<VoucherDetailViewModel> voucherDetailList)
         {
             if (type == NewBeneficiaryType.Vendor.ToString())
-                _invoiceService.PostVoucher(voucher,invoiceId, type, voucherDetailList);
+                _invoiceService.PostVoucher(voucher, voucherVM, invoiceId, type, voucherDetailList);
             if (type == NewBeneficiaryType.Employee.ToString())
-                _employeePayableService.PostVoucher(voucher, invoiceId, type, voucherDetailList);
+                _employeePayableService.PostVoucher(voucher, voucherVM, invoiceId, type, voucherDetailList);
             return Json(new { Message = AplosMessage.Posted });
         }
 

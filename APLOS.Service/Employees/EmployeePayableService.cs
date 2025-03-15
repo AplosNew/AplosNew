@@ -533,13 +533,16 @@ namespace Library.Service.Employees
             return glTemp;
         }
 
-        public void PostVoucher(Voucher voucher, string employeePayableId, string type, IEnumerable<VoucherDetailViewModel> voucherDetailList)
+        public void PostVoucher(Voucher voucher, VoucherViewModel voucherVM, string employeePayableId, string type, IEnumerable<VoucherDetailViewModel> voucherDetailList)
         {
             var flag = false;
             try
             {
                 _unitOfWork.BeginTransaction();
                 flag = true;
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
 
                 var employeePayable =_employeePayableRepository.Find(employeePayableId);
                 CheckIsPosted(employeePayable);
@@ -564,6 +567,14 @@ namespace Library.Service.Employees
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
+                var inDirect = new System.Text.StringBuilder();
+                var inDirectsql = "";
+
+                inDirectsql = @"update [TRN].[Voucher] set PostingDate='" + voucherVM.PostingDate + @"',DocDate='" + voucherVM.DocDate + @"',FiscalYearId='" + voucherVM.FiscalYearId + @"',FiscalYearPeriodId='" + voucherVM.FiscalYearPeriodId + @"' ,TaxYearId='" + voucherVM.TaxYearId + @"' ,TaxYearPeriodId='" + voucherVM.TaxYearPeriodId + @"' ,DocRefNo='" + voucherVM.DocRefNo + @"',Narration='" + voucherVM.Narration + @"',EntityId='" + voucherVM.EntityId + @"' where Id='" + employeePayable.VoucherId + @"'
+                            update [TRN].[VoucherDetail]  set FiscalYearId='" + voucherVM.FiscalYearId + @"',FiscalYearPeriodId='" + voucherVM.FiscalYearPeriodId + @"',DocDate='" + voucherVM.DocDate + @"' ,DocRefNo='" + voucherVM.DocRefNo + @"',Narration='" + voucherVM.Narration + @"' ,EntityId='" + voucher.EntityId + @"' where VoucherId='" + employeePayable.VoucherId + @"' 
+                            update [TRN].[EmployeePayable]  set PostingDate='" + voucherVM.PostingDate + @"',DocDate='" + voucherVM.DocDate + @"',FiscalYearId='" + voucherVM.FiscalYearId + @"',FiscalYearPeriodId='" + voucherVM.FiscalYearPeriodId + @"' ,TaxYearId='" + voucherVM.TaxYearId + @"' ,TaxYearPeriodId='" + voucherVM.TaxYearPeriodId + @"' ,DocRefNo='" + voucherVM.DocRefNo + @"',Narration='" + voucherVM.Narration + @"',EntityId='" + voucher.EntityId + @"' where VoucherId='" + employeePayable.VoucherId + @"' ";
+                inDirect.Append(inDirectsql);
+                _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
             }
             catch (CustomException)
             {

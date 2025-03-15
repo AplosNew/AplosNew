@@ -538,6 +538,7 @@ namespace Library.Accounting.Accounts
 										,REPLACE(CONVERT(CHAR(11), I.ActualDueDate, 106),' ','-') AS ActualDueDate
 										,REPLACE(CONVERT(CHAR(11), I.RevisedDueDate, 106),' ','-') AS RevisedDueDate
                                         ,REPLACE(CONVERT(CHAR(11), I.ActualDueDate, 106),' ','-') AS MatureDate
+                                        ,I.CompanyGroupId, I.CompanyId,I.PlantId
                                         FROM TRN.[Invoice] AS I
                                         JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
                                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId
@@ -565,6 +566,7 @@ namespace Library.Accounting.Accounts
 										,REPLACE(CONVERT(CHAR(11), I.ActualDueDate, 106),' ','-') AS ActualDueDate
 										,REPLACE(CONVERT(CHAR(11), I.RevisedDueDate, 106),' ','-') AS RevisedDueDate
                                         ,REPLACE(CONVERT(CHAR(11), I.ActualDueDate, 106),' ','-') AS MatureDate
+                                        ,I.CompanyGroupId, I.CompanyId,I.PlantId
                                         FROM TRN.[EmployeePayable] AS I
                                        LEFT JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
                                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId

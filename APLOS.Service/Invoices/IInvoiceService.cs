@@ -51,7 +51,7 @@ namespace Library.Service.Invoices
         IQueryFluent<InvoiceDetail> GetInvoiceDetailList(Expression<Func<InvoiceDetail, bool>> query);
 
         void Post(string invoiceId);
-        void PostVoucher(Voucher voucher, string invoiceId, string type, IEnumerable<VoucherDetailViewModel> voucherDetailList);
+        void PostVoucher(Voucher voucher, VoucherViewModel voucherVM, string invoiceId, string type, IEnumerable<VoucherDetailViewModel> voucherDetailList);
 
         InvoiceDetail FindInvoiceDetail(string invoiceDetailId);
         void DeleteInvoice(string invoiceId, string voucherId, string deletedRemarks);
