@@ -282,7 +282,7 @@ from trn.ProductionOrderType2Detail AS pod JOIN  trn.SalesOrder SO ON pod.SalesO
                        LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
                        LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
                        LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
-                       join hkp.OrderCategory AS oc on OC.Id=SO.OrderCategoryId and OC.UserName IN ('Confirmed','To Confirm')
+                       join hkp.OrderCategory AS oc on OC.Id=SO.OrderCategoryId and OC.UserName IN ('Confirmed','To Confirm') AND SO.CostingBOQMasterId IS NULL
 			where MO.PartyId='" + CustomerId + @"' AND (mo.OrderStatusId<>'Closed' AND so.OrderStatusId NOT IN ('Closed','Cancelled'))";
 
         }

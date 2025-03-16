@@ -317,6 +317,14 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     }
 
     $scope.GetGrossWeight = function () {
+        $scope.wuom = $("#WidthUomId option:selected").text();
+        if ($scope.wuom == "Yard") {
+            $scope.ModelNew.GSM = $scope.ModelNew.Width * 0.914;
+        } else if ($scope.wuom == "Inch") {
+            $scope.ModelNew.GSM = $scope.ModelNew.Width * 0.0254;
+        } else {
+            $scope.ModelNew.GSM = $scope.ModelNew.Width/100;
+        }
         $scope.ModelNew.GrossWeight = ($scope.ModelNew.Width * $scope.ModelNew.GrossLength * $scope.ModelNew.GSM) / 1000;
     }
 
