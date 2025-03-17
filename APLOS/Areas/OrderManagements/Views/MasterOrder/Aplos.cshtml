@@ -701,7 +701,7 @@
                                 <li><button ng-click="PrintLinear();" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i> Master Order (Linear)</button></li>
                             </ul>
                             <ul class="list-inline text-right">
-                                <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                <li><button ng-click="Save();" ng-disabled="btndisable" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
                                 @*<li><button ng-click="Save();" ng-disabled="btndisable" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>*@
                                 <li><button ng-click="removeMaster();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                                 <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
@@ -1576,6 +1576,7 @@
                                     <th>Difference</th>
                                     <th>Description</th>
                                     <th>PO Number</th>
+                                    <th>Line Item Reference</th>
                                     <th>Production OrderNo</th>
                                     <th>ContractNo</th>
                                     <th>LSD</th>
@@ -1613,6 +1614,7 @@
                                     <td>{{x.UpCharge}}</td>
                                     <td>{{x.Description}}</td>
                                     <td>{{x.PONumber}}</td>
+                                    <td>{{x.LineItemReference}}</td>
                                     <td>{{x.ProductionOrderId?x.ProductionOrderId:'N/A'}}</td>
                                     <td>{{x.ContractNo?x.ContractNo:'N/A'}}</td>
                                     <td>{{x.LSD}}</td>
@@ -1665,7 +1667,7 @@
                                         <span> {{salesOrderList | sumByKey : 'SKUQty'}}</span>
 
                                     </td>
-                                    <td colspan="2"></td>
+                                    <td colspan="3"></td>
                                 </tr>
                             </tfoot>
                         </table>

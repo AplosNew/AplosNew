@@ -38,7 +38,6 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             $scope.lengthUomList = response.data;
             for (var i = 0; i < $scope.lengthUomList.length; i++) {
                 if ($scope.lengthUomList[i].UserName == "Yard") {
-                    $scope.ModelNew.GrossLengthUomId = $scope.lengthUomList[i].Id;
                     $scope.ModelNew.LengthUomId = $scope.lengthUomList[i].Id;
                     break;
                 }
@@ -311,6 +310,10 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         for (var i = 0; i < $scope.CutPlantRatioList.length; i++) {
             if ($scope.CutPlantRatioList[i].Id == $scope.ModelNew.CutPlanRatioId) {
                 $scope.ModelNew.NoOfPcs = $scope.CutPlantRatioList[i].AllotedQty;
+                if (!baseService.isUndefinedOrNull($scope.ModelNew.GSM)) {
+                    $scope.ModelNew.NetConsumptionperPcs = $scope.ModelNew.NetWeight / $scope.ModelNew.NoOfPcs;
+                    $scope.ModelNew.GrossConsumptionperPcs = $scope.ModelNew.GrossWeight / $scope.ModelNew.NoOfPcs;
+                }
                 break;
             }
         }
@@ -318,18 +321,60 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
 
     $scope.GetGrossWeight = function () {
         $scope.wuom = $("#WidthUomId option:selected").text();
-        if ($scope.wuom == "Yard") {
-            $scope.ModelNew.GSM = $scope.ModelNew.Width * 0.914;
-        } else if ($scope.wuom == "Inch") {
-            $scope.ModelNew.GSM = $scope.ModelNew.Width * 0.0254;
+        $scope.luom = $("#LengthUomId option:selected").text();
+       
+        if ($scope.wuom == "Yard" && $scope.luom == "Yard") {
+            $scope.ModelNew.GSM = ($scope.ModelNew.Width * 0.914) * ($scope.ModelNew.GrossLength * 0.914);
+            $scope.ModelNew.GrossWeight = parseFloat((($scope.ModelNew.Width * 0.914) * ($scope.ModelNew.GrossLength * 0.914) * $scope.ModelNew.GSM) / 1000).toFixed(2);
+
+        } else if ($scope.wuom == "Inch" && $scope.luom == "Yard") {
+            $scope.ModelNew.GSM = ($scope.ModelNew.Width * 0.0254) * ($scope.ModelNew.GrossLength * 0.914);
+            $scope.ModelNew.GrossWeight = parseFloat((($scope.ModelNew.Width * 0.0254) * ($scope.ModelNew.GrossLength * 0.914) * $scope.ModelNew.GSM) / 1000).toFixed(2);
+
         } else {
-            $scope.ModelNew.GSM = $scope.ModelNew.Width/100;
+            
+            if ($scope.luom == "Yard") {
+                $scope.ModelNew.GSM = ($scope.ModelNew.Width / 100) * ($scope.ModelNew.GrossLength * 0.914);
+                $scope.ModelNew.GrossWeight = parseFloat((($scope.ModelNew.Width / 100) * ($scope.ModelNew.GrossLength * 0.914) * $scope.ModelNew.GSM) / 1000).toFixed(2);
+
+            }
+            else {
+                $scope.ModelNew.GSM = ($scope.ModelNew.Width / 100) * $scope.ModelNew.GrossLength;
+                $scope.ModelNew.GrossWeight = parseFloat((($scope.ModelNew.Width / 100) * $scope.ModelNew.GrossLength * $scope.ModelNew.GSM) / 1000).toFixed(2);
+            }
         }
-        $scope.ModelNew.GrossWeight = ($scope.ModelNew.Width * $scope.ModelNew.GrossLength * $scope.ModelNew.GSM) / 1000;
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.NoOfPcs)) {
+            $scope.ModelNew.GrossConsumptionperPcs = $scope.ModelNew.GrossWeight / $scope.ModelNew.NoOfPcs;
+        }
     }
 
     $scope.GetNetWeight = function () {
-        $scope.ModelNew.NetWeight = ($scope.ModelNew.CutableWidth * $scope.ModelNew.NetLength * $scope.ModelNew.GSM) / 1000;
+        $scope.wuom = $("#WidthUomId option:selected").text();
+        $scope.luom = $("#LengthUomId option:selected").text();
+
+        if ($scope.wuom == "Yard" && $scope.luom == "Yard") {
+            $scope.ModelNew.GSM = ($scope.ModelNew.CutableWidth * 0.914) * ($scope.ModelNew.NetLength * 0.914);
+            $scope.ModelNew.NetWeight = parseFloat((($scope.ModelNew.CutableWidth * 0.914) * ($scope.ModelNew.NetLength * 0.914) * $scope.ModelNew.GSM) / 1000).toFixed(2);
+
+        } else if ($scope.wuom == "Inch" && $scope.luom == "Yard") {
+            $scope.ModelNew.GSM = ($scope.ModelNew.CutableWidth * 0.0254) * ($scope.ModelNew.NetLength * 0.914);
+            $scope.ModelNew.NetWeight = parseFloat((($scope.ModelNew.CutableWidth * 0.0254) * ($scope.ModelNew.NetLength * 0.914) * $scope.ModelNew.GSM) / 1000).toFixed(2);
+
+        } else {
+
+            if ($scope.luom == "Yard") {
+                $scope.ModelNew.GSM = ($scope.ModelNew.CutableWidth / 100) * ($scope.ModelNew.NetLength * 0.914);
+                $scope.ModelNew.NetWeight = parseFloat((($scope.ModelNew.CutableWidth / 100) * ($scope.ModelNew.NetLength * 0.914) * $scope.ModelNew.GSM) / 1000).toFixed(2);
+
+            }
+            else {
+                $scope.ModelNew.GSM = ($scope.ModelNew.CutableWidth / 100) * $scope.ModelNew.NetLength;
+                $scope.ModelNew.NetWeight = parseFloat((($scope.ModelNew.CutableWidth / 100) * $scope.ModelNew.NetLength * $scope.ModelNew.GSM) / 1000).toFixed(2);
+            }
+        }
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.NoOfPcs)) {
+            $scope.ModelNew.NetConsumptionperPcs = $scope.ModelNew.NetWeight / $scope.ModelNew.NoOfPcs;
+        }
     }
 
     $scope.Save = function () {

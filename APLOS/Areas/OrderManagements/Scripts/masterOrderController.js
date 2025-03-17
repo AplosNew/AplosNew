@@ -633,8 +633,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     , dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
                         $scope.btndisable = false;
+                        ShowResult(response.data.Message, 'failure');
                     }
                     else {
                         ShowResult(response.data.Message, 'success');

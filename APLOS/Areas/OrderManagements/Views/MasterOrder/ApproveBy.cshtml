@@ -1070,6 +1070,7 @@
                                     <th>Difference</th>
                                     <th>Description</th>
                                     <th>PO Number</th>
+                                    <th>Line Item Reference</th>
                                     <th>Production OrderNo</th>
                                     <th>ContractNo</th>
                                     <th>LSD</th>
@@ -1097,7 +1098,7 @@
                                     <td>
                                         <input ej-dropdownlist e-datasource="ApproveStatusList" e-value="x.ApprovedStatus" e-fields-text="Text" e-fields-value="Value" e-width="100" />
                                     </td>
-                                    
+
                                     <td>{{x.Id}}</td>
                                     <td>{{x.DeliveryDate}}</td>
                                     <td>{{x.Destination}}</td>
@@ -1122,6 +1123,7 @@
                                     <td>{{x.UpCharge}}</td>
                                     <td>{{x.Description}}</td>
                                     <td>{{x.PONumber}}</td>
+                                    <td>{{x.LineItemReference}}</td>
                                     <td>{{x.ProductionOrderId?x.ProductionOrderId:'N/A'}}</td>
                                     <td>{{x.ContractNo?x.ContractNo:'N/A'}}</td>
                                     <td>{{x.LSD}}</td>
