@@ -2431,11 +2431,17 @@ WHERE MOI.MasterOrderId='" + id + "'";
                
                 if (!string.IsNullOrEmpty(salesOrderMaster.Id))
                 {
-                    AuditService.UpdatedLog(salesOrderMaster);
-                    salesOrderMaster.ApprovedStatus = "To Be Approve";
-                    salesOrderMaster.CheckByDate = DateTime.Now;
+                    var sodata = _salesOrderRepository.Find(salesOrderMaster.Id);
+                    AuditService.UpdatedLog(sodata);
+                    sodata.CheckByStatus = salesOrderMaster.CheckByStatus;
+                    sodata.ApproveBy = salesOrderMaster.ApproveBy;
+                    if (sodata.CheckByStatus=="Checked")
+                    {
+                        sodata.ApprovedStatus = "To Be Approve";
+                    }
+                    sodata.CheckByDate = DateTime.Now;
 
-                    _salesOrderRepository.Update(salesOrderMaster);
+                    _salesOrderRepository.Update(sodata);
                 }
              
                 _unitOfWork.SaveChanges();
@@ -2479,11 +2485,13 @@ Where S.MasterOrderItemId='"+ moItemId + "'"
                 }
                 if (!string.IsNullOrEmpty(salesOrderMaster.Id))
                 {
-                    AuditService.UpdatedLog(salesOrderMaster);
-                    salesOrderMaster.ApproveByDate = DateTime.Now;
-                    salesOrderMaster.OrderStatusId = masterOrderStatus;
+                    var sodata = _salesOrderRepository.Find(salesOrderMaster.Id);
 
-                    _salesOrderRepository.Update(salesOrderMaster);
+                    AuditService.UpdatedLog(salesOrderMaster);
+                    sodata.ApproveByDate = DateTime.Now;
+                    sodata.OrderStatusId = masterOrderStatus;
+                    sodata.ApprovedStatus = salesOrderMaster.ApprovedStatus;
+                    _salesOrderRepository.Update(sodata);
                 }
 
                 _unitOfWork.SaveChanges();
