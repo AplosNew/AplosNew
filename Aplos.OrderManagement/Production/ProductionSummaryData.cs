@@ -6325,7 +6325,7 @@ Order by PV.ProductionSummaryId,PB.Sequence";
 			                            left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 			                            left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
 			                            where M.Id=XMOI.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-                             S.Id SalesOrderIds,
+                             SO.Id SalesOrderIds,SO.LineItemReference,
                             --SalesOrderIds=STUFF((select distinct ','+XSO.Id from 
 			                        --trn.SalesOrder XSO 
 			                        --JOIN trn.MasterOrderItem AS Xpod ON Xpod.Id=Xso.MasterOrderItemId
@@ -6408,7 +6408,6 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                             left outer join ProductionPlanningType1 AS ppt on ppt.ProductionOrderID=pp.ProductionOrderId AND ppt.WorkCenterMasterId=PP.WorkCenterMasterId AND  ppt.ProcessId=PP.ProcessId AND ppt.EntityId=pp.EntityId and ppt.ProductionDate=PP.ProductionDate
                             left outer join TRN.ProductionOrder PO ON PO.Id=PP.ProductionOrderID
                             left join TRN.ProductionOrderDetail PD on PD.ProductionOrderId=PO.Id
-							left join TRN.SalesOrder S on S.Id=pp.SalesOrderId
 							left join TRN.MasterOrderItem M on M.Id=pp.MasterOrderItemId
 							LEFT OUTER JOIN hkp.Process AS p ON p.Id=pp.ProcessId
 							LEFT OUTER JOIN hkp.Process AS Tp ON Tp.Id=pp.ToProcessId
@@ -6594,9 +6593,6 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                             ) A )T2 ON T1.ProcessIndex=T2.ProcessIndex AND  T1.POId=T2.POId
 
                             )X
-                            --where x.poid=23468
-                            
-
 		                    Where X.EntityId in(" + parameters["EntityId"] + @")
 			                     and X.POId in(" + parameters["ProductionOrderNo"] + @")
 			                     and X.POStatusId in(" + parameters["ProductionStatusId"] + @")
