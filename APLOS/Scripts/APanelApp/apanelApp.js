@@ -676,7 +676,13 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
             frame.appendTo('#iframe_div_for_report');
         };
 
-
+        $rootScope.InsertMenuAccessLog = function (href,menuName) {
+            $http({
+                method: 'Get',
+                url: 'home/PostMenuAccessLog?href=' + href + '&menuItemName=' + menuName + '&panel=' + 'Admin',
+            }).then(function successCallback(response) {
+            });
+        }
         $rootScope.MenuList = [
             { Href: "legal-salary-report", Description: "Legal Salary" },
             { Href: "compliance-Document-report", Description: "Compliance Document" },

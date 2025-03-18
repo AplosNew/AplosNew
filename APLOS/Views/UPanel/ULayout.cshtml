@@ -170,36 +170,34 @@
                                         <li ng-if="menuGroup.MenuSubGroups.length > 0" ng-repeat="menuSubGroup in menuGroup.MenuSubGroups">
                                             <a>{{menuSubGroup.MenuSubGroupName}}</a>
                                             <ul>
-                                                <li style="padding-left:30px;" ng-repeat="menuItem in menuSubGroup.MenuItems" data-placement="top" title="{{menuItem.TooltipName}}" tooltip>
+                                                <li style="padding-left:30px;" ng-repeat="menuSubG in menuSubGroup.MenuItems" data-placement="top" title="{{menuSubG.TooltipName}}" tooltip>
 
-                                                    <a style="height:32px;position:relative;" href="{{bootPoint}}{{menuItem.Href}}">
+                                                    <a style="height:32px;position:relative;" href="{{bootPoint}}{{menuSubG.Href}}" ng-click="InsertMenuAccessLog(menuSubG)">
                                                         <span style="position: absolute; left: 4px; top: 9px; padding: 0px; height: 10px; width: 10px;">
-                                                            <span ng-bind-html="menuItem.Image"></span>
+                                                            <span ng-bind-html="menuSubG.Image"></span>
 
                                                         </span>
-                                                        {{menuItem.MenuItemName}}
+                                                        {{menuSubG.MenuItemName}}
                                                     </a>
                                                 </li>
                                             </ul>
                                         </li>
-                                        <li ng-repeat="menuItem in menuGroup.MenuItems" style="padding-left:20px;" data-placement="top" title="{{menuItem.TooltipName}}" tooltip>
-                                            <a style="height:32px; position:relative;" href="{{bootPoint}}{{menuItem.Href}}">
+                                        <li ng-repeat="menugrp in menuGroup.MenuItems" style="padding-left:20px;" data-placement="top" title="{{menugrp.TooltipName}}" tooltip>
+                                            <a style="height:32px; position:relative;" href="{{bootPoint}}{{menugrp.Href}}" ng-click="InsertMenuAccessLog(menugrp)">
                                                 <span style="position: absolute; left: 4px; top: 9px; padding: 0px; height: 10px; width: 10px;">
-                                                    <span ng-bind-html="menuItem.Image"></span>
-
+                                                    <span ng-bind-html="menugrp.Image"></span>
                                                 </span>
-                                                {{menuItem.MenuItemName}}
+                                                {{menugrp.MenuItemName}}
                                             </a>
                                         </li>
                                     </ul>
                                 </li>
                                 <li ng-repeat="menuItem in menuFrame.MenuItems" style="padding-left:9px;" data-placement="top" title="{{menuItem.TooltipName}}" tooltip>
-                                    <a style="height:32px; position:relative;" href="{{bootPoint}}{{menuItem.Href}}">
+                                    <a style="height:32px; position:relative;" href="{{bootPoint}}{{menuItem.Href}}" ng-click="InsertMenuAccessLog(menuItem)">
                                         <span style="position: absolute; left: 4px; top: 10px; padding: 0px; height: 10px; width: 10px;">
                                             <span ng-bind-html="menuItem.Image"></span>
-
                                         </span>
-                                        {{menuItem.MenuItemName}}
+                                        {{menuItem.MenuItemName}} 
                                     </a>
                                 </li>
                             </ul>
