@@ -1696,7 +1696,7 @@ upanelApp.run(["$rootScope", "$cookies", "$window", "$location", "$filter", "bas
         $rootScope.InsertMenuAccessLog = function (data) {
             $http({
                 method: 'Get',
-                url: 'home/PostMenuAccessLog?href=' + data.Href + '&menuItemName=' + data.MenuItemName + '&panel=' + 'Application',
+                url: 'menus/MenuMaster/PostMenuAccessLog?href=' + data.Href + '&menuItemName=' + data.MenuItemName + '&panel=' + 'Application',
             }).then(function successCallback(response) {
             });
         }

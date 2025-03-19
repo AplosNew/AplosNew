@@ -679,7 +679,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
         $rootScope.InsertMenuAccessLog = function (href,menuName) {
             $http({
                 method: 'Get',
-                url: 'home/PostMenuAccessLog?href=' + href + '&menuItemName=' + menuName + '&panel=' + 'Admin',
+                url: 'menus/MenuMaster/PostMenuAccessLog?href=' + href + '&menuItemName=' + menuName + '&panel=' + 'Admin',
             }).then(function successCallback(response) {
             });
         }
