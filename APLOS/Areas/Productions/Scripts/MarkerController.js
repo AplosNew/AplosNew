@@ -126,7 +126,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
                     ob.Qty = $scope.SOList[i].Qty;
                     ob.SOPlanQty = $scope.SOList[i].SOPlanQty;
                     ob.Remarks = $scope.SOList[i].Remarks;
-
+                    ob.MarkerId = baseService.isUndefinedOrNull($scope.ModelNew.Id)== null ? null: $scope.ModelNew.Id;
                     $scope.selectedSOList.push(ob);
                 }
             }
@@ -136,23 +136,31 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
 
     $scope.FabricGRNRowList = [];
     $scope.GetFabricGRNRowList = function () {
-        $scope.FabricGRNRowList = [];
-        if ($scope.selectedSOList.length > 0) {
-            var uniquePackingId = removeDuplicates($scope.selectedSOList, 'SalesOrderId');
-            var wcSOId = "";
-            if (uniquePackingId.length > 0) {
-                wcSOId = "IN(";
-                wcSOId += Array.prototype.map.call(uniquePackingId, function (item) { return "'" + item.SalesOrderId + "'"; }).join(",") + ")";
+        try {
+            $scope.FabricGRNRowList = [];
+            if ($scope.selectedSOList.length > 0) {
+                var uniquePackingId = removeDuplicates($scope.selectedSOList, 'SalesOrderId');
+                var wcSOId = "";
+                if (uniquePackingId.length > 0) {
+                    wcSOId = "IN(";
+                    wcSOId += Array.prototype.map.call(uniquePackingId, function (item) { return "'" + item.SalesOrderId + "'"; }).join(",") + ")";
+                }
+                $scope.sqlInStatement = wcSOId;
             }
-            $scope.sqlInStatement = wcSOId;
+            if (!baseService.isUndefinedOrNull($scope.sqlInStatement)) {
+                $http({
+                    method: 'GET',
+                    url: "Productions/Marker/GetFabricGRNRowList?soId=" + $scope.sqlInStatement
+                }).then(function (response) {
+                    $scope.FabricGRNRowList = response.data;
+                });
+                angular.element(document.querySelector('#FabricGRNRowPoPUp')).modal('show');
+            } else {
+                throw "Select Sales Order.";
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
-        $http({
-            method: 'GET',
-            url: "Productions/Marker/GetFabricGRNRowList?soId=" + $scope.sqlInStatement
-        }).then(function (response) {
-            $scope.FabricGRNRowList = response.data;
-        });
-        angular.element(document.querySelector('#FabricGRNRowPoPUp')).modal('show');
     }
 
     function removeDuplicates(myArr, prop) {
@@ -182,7 +190,8 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
                     ob.UOM = $scope.FabricGRNRowList[i].UOM;
                     ob.FirstCharacteristicsValueId = $scope.FabricGRNRowList[i].FirstCharacteristicsValueId;
                     ob.TransactionQty = $scope.FabricGRNRowList[i].TransactionQty;
-
+                    ob.MarkerId = baseService.isUndefinedOrNull($scope.ModelNew.Id) == null ? null : $scope.ModelNew.Id;
+                    ob.SalesOrderId = $scope.FabricGRNRowList[i].SalesOrderId;
                     $scope.SelectedFabricGRNRowList.push(ob);
                 }
             }
@@ -311,8 +320,8 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             if ($scope.CutPlantRatioList[i].Id == $scope.ModelNew.CutPlanRatioId) {
                 $scope.ModelNew.NoOfPcs = $scope.CutPlantRatioList[i].AllotedQty;
                 if (!baseService.isUndefinedOrNull($scope.ModelNew.GSM)) {
-                    $scope.ModelNew.NetConsumptionperPcs = $scope.ModelNew.NetWeight / $scope.ModelNew.NoOfPcs;
-                    $scope.ModelNew.GrossConsumptionperPcs = $scope.ModelNew.GrossWeight / $scope.ModelNew.NoOfPcs;
+                    $scope.ModelNew.NetConsumptionperPcs = parseFloat($scope.ModelNew.NetWeight / $scope.ModelNew.NoOfPcs).toFixed(2);
+                    $scope.ModelNew.GrossConsumptionperPcs = parseFloat($scope.ModelNew.GrossWeight / $scope.ModelNew.NoOfPcs).toFixed(2);
                 }
                 break;
             }
@@ -322,7 +331,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     $scope.GetGrossWeight = function () {
         $scope.wuom = $("#WidthUomId option:selected").text();
         $scope.luom = $("#LengthUomId option:selected").text();
-       
+
         if ($scope.wuom == "Yard" && $scope.luom == "Yard") {
             $scope.ModelNew.GSM = ($scope.ModelNew.Width * 0.914) * ($scope.ModelNew.GrossLength * 0.914);
             $scope.ModelNew.GrossWeight = parseFloat((($scope.ModelNew.Width * 0.914) * ($scope.ModelNew.GrossLength * 0.914) * $scope.ModelNew.GSM) / 1000).toFixed(2);
@@ -332,7 +341,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             $scope.ModelNew.GrossWeight = parseFloat((($scope.ModelNew.Width * 0.0254) * ($scope.ModelNew.GrossLength * 0.914) * $scope.ModelNew.GSM) / 1000).toFixed(2);
 
         } else {
-            
+
             if ($scope.luom == "Yard") {
                 $scope.ModelNew.GSM = ($scope.ModelNew.Width / 100) * ($scope.ModelNew.GrossLength * 0.914);
                 $scope.ModelNew.GrossWeight = parseFloat((($scope.ModelNew.Width / 100) * ($scope.ModelNew.GrossLength * 0.914) * $scope.ModelNew.GSM) / 1000).toFixed(2);
@@ -344,7 +353,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             }
         }
         if (!baseService.isUndefinedOrNull($scope.ModelNew.NoOfPcs)) {
-            $scope.ModelNew.GrossConsumptionperPcs = $scope.ModelNew.GrossWeight / $scope.ModelNew.NoOfPcs;
+            $scope.ModelNew.GrossConsumptionperPcs = parseFloat($scope.ModelNew.GrossWeight / $scope.ModelNew.NoOfPcs).toFixed(2);
         }
     }
 
@@ -373,7 +382,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             }
         }
         if (!baseService.isUndefinedOrNull($scope.ModelNew.NoOfPcs)) {
-            $scope.ModelNew.NetConsumptionperPcs = $scope.ModelNew.NetWeight / $scope.ModelNew.NoOfPcs;
+            $scope.ModelNew.NetConsumptionperPcs = parseFloat($scope.ModelNew.NetWeight / $scope.ModelNew.NoOfPcs).toFixed(2);
         }
     }
 
@@ -383,7 +392,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew },
+                data: { 'data': $scope.ModelNew, 'SOList': $scope.selectedSOList, 'FabricGRNRowList': $scope.SelectedFabricGRNRowList},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

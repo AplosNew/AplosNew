@@ -88,11 +88,11 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data)
+        public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> SOList, List<Dictionary<string, object>> FabricGRNRowList)
         {
             try
             {
-                DataSet dsMaster;
+                DataSet dsMaster, dsSO, dsGRN;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from dbo.MarkerMaster where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
@@ -104,6 +104,9 @@ namespace Aplos.Areas.Productions.Controllers
 
 
                 con.OpenDataSetThroughAdapter("select * from dbo.MarkerMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                con.OpenDataSetThroughAdapter("select * from [dbo].[GRNSOMap] where MarkerId='" + data["Id"] + "'", out dsGRN, false, "1"); 
+                con.OpenDataSetThroughAdapter("select * from dbo.MarkerSalesOrder where MarkerId='" + data["Id"] + "'", out dsSO, false, "1");
 
                 string _Id = "";
 
@@ -124,8 +127,60 @@ namespace Aplos.Areas.Productions.Controllers
                 }
                 #endregion data update
 
+                #region SOList 
+                if (SOList != null)
+                {
+                    foreach (var item in SOList)
+                    {
+                        DataView dv = new DataView(dsSO.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        item["MarkerId"] = _Id;
+                        if (dv.Count == 0)
+                        {
+                            item["MarkerId"] = _Id;
+                            AddNewRow(dsSO.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+
+                #region FabricGRNRowList 
+                if (FabricGRNRowList != null)
+                {
+                    foreach (var item in FabricGRNRowList)
+                    {
+                        DataView dv = new DataView(dsGRN.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        item["MarkerId"] = _Id;
+                        if (dv.Count == 0)
+                        {
+
+                            item["MarkerId"] = _Id;
+
+                            AddNewRow(dsGRN.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            item["MarkerId"] = _Id;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                _info.SaveDataSets(dsMaster, dsGRN, dsSO);
 
                 return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
 
@@ -289,11 +344,7 @@ namespace Aplos.Areas.Productions.Controllers
         public ActionResult GetList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select m.*,mm.UserName FGMaterialMaster, mma.StandardName FGArticle ,c.UserName HeaderName
-                                From MarkerMaster m
-                                left join MST.MaterialMaster mm on mm.Id= m.FGMaterialMasterId
-                                left join MST.MaterialMasterArticle mma on mma.Id= m.FGArticleId
-                                left join HKP.Characteristics c on c.Id= m.CharacteristicsId
+            string sql = @"select m.* From MarkerMaster m
                                 Where CheckByStatus IN('To Be Check','Pending','Reject')
                                 order by m.Sequence ";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -322,8 +373,8 @@ and SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanI
         [Authorize, HttpGet]
         public ActionResult GetFabricGRNRowList(string soId)
         {
-            string sql = @"SELECT CAST(0 as bit) FlagG, MP.InventoryReceiveDetailId,MP.FirstCharacteristicsValueId,IRD.InventoryReceiveId,IRD.TransactionQty,UOM.UserName UOM,BUoM.UserName BaseUoM,IR.Id GRNNo,IR.GRNDate
-,P.UserName PartyName,MM.UserName MaterialMasterName,MMA.StandardName ArticleName,CV.UserName SKUValue
+            string sql = @"SELECT CAST(0 as bit) FlagG, MP.Id,MP.InventoryReceiveDetailId,MP.FirstCharacteristicsValueId,IRD.InventoryReceiveId,IRD.TransactionQty,UOM.UserName UOM,BUoM.UserName BaseUoM,IR.Id GRNNo,IR.GRNDate
+,P.UserName PartyName,MM.UserName MaterialMasterName,MMA.StandardName ArticleName,CV.UserName SKUValue,MP.SalesOrderId
 FROM dbo.GRNSOMap MP
 LEFT JOIN  [TRN].[InventoryReceiveDetail] IRD ON MP.InventoryReceiveDetailId=IRD.Id
 LEFT JOIN TRN.InventoryReceive IR ON IRD.InventoryReceiveId=IR.Id
