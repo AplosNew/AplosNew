@@ -1,8 +1,12 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
+using Library.Crosscutting.Security;
+using Library.General.MenuAccessLog;
 using Library.Model.Menus;
 using Library.Service.Menus;
+using System.Collections.Generic;
+using System.Threading;
 using System.Web.Mvc;
 
 namespace Aplos.Areas.Menus.Controllers
@@ -82,5 +86,39 @@ namespace Aplos.Areas.Menus.Controllers
             _menuMasterService.Delete(id);
             return Json(new { Message = AplosMessage.Deleted });
         }
+
+        [HttpGet, Authorize]
+        public ActionResult PostMenuAccessLog(string href, string menuItemName, string panel)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            MenuAccessService menuAccessService = new MenuAccessService();
+            Dictionary<string, object> MyDict = new Dictionary<string, object>();
+            MyDict["Href"] = href;
+            MyDict["MenuName"] = menuItemName;
+            MyDict["CompanyGroupId"] = identity.CompanyGroupId;
+            MyDict["UserId"] = identity.UserId;
+            MyDict["AccessCount"] = 1;
+            if (string.IsNullOrEmpty(identity.EmployeeId))
+            {
+                MyDict["EmployeeId"] = null;
+            }
+            else
+            {
+                MyDict["EmployeeId"] = identity.EmployeeId;
+            }
+            if (string.IsNullOrEmpty(identity.PlantId))
+            {
+                MyDict["PlantId"] = null;
+            }
+            else
+            {
+                MyDict["PlantId"] = identity.PlantId;
+            }
+            MyDict["Panel"] = panel;
+            MyDict["LastAccessDate"] = null;
+            menuAccessService.InsertMenuAccessLog(MyDict);
+            return Json(true, JsonRequestBehavior.AllowGet);
+        }
+
     }
 }
