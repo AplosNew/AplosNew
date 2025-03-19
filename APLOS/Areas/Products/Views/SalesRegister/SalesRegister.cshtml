@@ -177,21 +177,21 @@
                         <div class="form-group" show-errors id="div_AssetFromDate">
                             <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
                             <div class="col-sm-9 show-message">
-                                <input type="text" name="Form Date" ng-model="report.AssetFromDate" datepicker tabindex="2" class="form-control">
+                                <input type="text" name="AssetForm Date" ng-model="report.AssetFromDate" datepicker tabindex="2" class="form-control">
                             </div>
                         </div>
 
                         <div class="form-group" show-errors id="div_AssetToDate">
                             <label class="col-sm-3 control-label">TO Date<sup>*</sup></label>
                             <div class="col-sm-9  show-message">
-                                <input type="text" name="To Date" ng-model="report.AssetToDate" datepicker tabindex="3" class="form-control">
+                                <input type="text" name="AssetTo Date" ng-model="report.AssetToDate" datepicker tabindex="3" class="form-control">
                             </div>
                         </div>
                         <div class="form-group" show-errors id="div_AssetToDate">
                             <label class="col-sm-3 control-label">Report Type<sup>*</sup></label>
                             <div class="col-sm-9 show-message">
                                 <div class="select-style">
-                                    <select name="ReportType" ng-model="report.AssetReportType" class="col-sm-3 form-control">
+                                    <select name="AssetReportType" ng-model="report.AssetReportType" class="col-sm-3 form-control">
                                         <option value="PartyWise">Party Wise</option>
                                         <option value="SaleWise">Sales Wise</option>
                                         <option value="ItemWise">Item Wise</option>
@@ -213,16 +213,14 @@
         </div>
 
         <div class="clearfix"></div>
-        <fieldset class="scheduler-border" ng-show="report.ReportType=='PartyWise'">
+        <fieldset class="scheduler-border" ng-show="SalesRegisterPartyList.length">
             <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Party Wise</span></legend>
-            <div id="PR">
                 <div class="content-container-fluid" style="color:black;">
-
                     <div style="color:black;" id="GridPartyPrint" ej-grid e-datasource="SalesRegisterPartyList"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                          e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
                          e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
-                        <div e-stackedheaderrows>
+                        @*<div e-stackedheaderrows>
                             <div e-stackedheaderrow>
                                 <div e-stackedheadercolumns>
 
@@ -230,11 +228,8 @@
                                     <div e-stackedheadercolumn e-headertext="Posted (Cr.)" e-column="CGLCode,CGL,CBudgetrefNo,CBUdget,CActivityId,CActivityCode,CActivity" textAlign='Center'></div>
                                 </div>
                             </div>
-                        </div>
+                        </div>*@
                         <div e-columns>
-
-                            @*<div e-column e-field="[S.N]" e-headertext="SI" e-width="50" e-filter="false"></div>*@
-                            @*<div e-column e-field="DocDate" e-headertext="Doc Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>*@
                             <div e-column e-field="PartyId" e-headertext="Party Id" e-width="100" textAlign='Left'></div>
                             <div e-column e-field="PartyName" e-headertext="Party Name" e-width="120" textAlign='Left'></div>
                             <div e-column e-field="BillTo" e-headertext="Bill To" e-width="150" textAlign='Left'></div>
@@ -257,14 +252,12 @@
                             <div e-column e-field="PartyCategory" e-headertext="Party Category" e-width="100" textAlign='Right'></div>
                             <div e-column e-field="PartySubCategory" e-headertext="Party SubCategory" e-width="100" textAlign='Right'></div>
                             <div e-column e-field="PartyType" e-headertext="Party Type" e-width="180"></div>
-
                             <div e-column e-field="Country" e-headertext="Country" e-width="180"></div>
                         </div>
 
                     </div>
 
                 </div>
-            </div>
         </fieldset>
         <fieldset class="scheduler-border" ng-show="report.ReportType=='SaleWise'">
             <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;"> Sales Wise</span></legend>
@@ -425,7 +418,7 @@
             </div>
         </fieldset>
         <div class="clearfix"></div>
-        <fieldset class="scheduler-border" ng-show="report.AssetReportType=='PartyWise'">
+        <!--<fieldset class="scheduler-border" ng-show="SalesAssetRegisterPartyList.length">
             <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Party Wise</span></legend>
             <div id="PR">
                 <div class="content-container-fluid" style="color:black;">
@@ -443,11 +436,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div e-columns>
+                        <div e-columns>-->
 
                             @*<div e-column e-field="[S.N]" e-headertext="SI" e-width="50" e-filter="false"></div>*@
                             @*<div e-column e-field="DocDate" e-headertext="Doc Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>*@
-                            <div e-column e-field="PartyId" e-headertext="Party Id" e-width="100" textAlign='Left'></div>
+                            <!--<div e-column e-field="PartyId" e-headertext="Party Id" e-width="100" textAlign='Left'></div>
                             <div e-column e-field="PartyName" e-headertext="Party Name" e-width="120" textAlign='Left'></div>
                             <div e-column e-field="BillTo" e-headertext="Bill To" e-width="150" textAlign='Left'></div>
                             <div e-column e-field="ShipTo" e-headertext="Ship To" e-width="150" textAlign='Left'></div>
@@ -477,13 +470,13 @@
 
                 </div>
             </div>
-        </fieldset>
-        <fieldset class="scheduler-border" ng-show="report.AssetReportType=='SaleWise'">
+        </fieldset>-->
+        <fieldset class="scheduler-border" ng-show="SalesAssetRegisterLists.length">
             <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Asset Sales Wise</span></legend>
                 <div class="content-container-fluid" style="color:black;">
                     <div style="color:black;" id="GridAssetSalesPrint" ej-grid e-datasource="SalesAssetRegisterLists"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
-                         e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
+                         e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected1"
                          e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
                         <div e-columns>
                             <div e-column e-field="PartyId" e-headertext="Sales Id" e-width="100" textAlign='Left'></div>
@@ -524,7 +517,7 @@
                     </div>
                 </div>
         </fieldset>
-        <fieldset class="scheduler-border" ng-show="report.AssetReportType=='ItemWise'">
+        <fieldset class="scheduler-border" ng-show="SalesAssetRegisterItemList.length">
             <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Item Wise</span></legend>
             <div id="PR">
                 <div class="content-container-fluid" style="color:black;">
@@ -621,8 +614,11 @@
         <div class="common-btn">
             <ul class="list-inline text-left">
                 <li>
-                    <div ej-tooltip e-showshadow="true" ng-disabled="report.AssetReportType==null" e-content="Export To Excel" ng-click="downloadAssetReport();" e-width="width">
+                    <div ej-tooltip e-showshadow="true" ng-show="report.ReportType" e-content="Export To Excel" ng-click="downloadReport();" e-width="width">
                         <button class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Download</button>
+                    </div>
+                    <div ej-tooltip e-showshadow="true" ng-show="report.AssetReportType" e-content="Export To Excel" ng-click="downloadAssetReport();" e-width="width">
+                        <button class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Asset Sales Download</button>
                     </div>
                 </li>
             </ul>
