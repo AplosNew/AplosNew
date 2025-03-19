@@ -101,6 +101,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MenuAccess\MenuAccessService.cs" />
     <Compile Include="AdministrationTasks\VehicleMovementLocationsService.cs" />
     <Compile Include="Conversions\CurrencyConversions.cs" />
     <Compile Include="Conversions\UOMConversion.cs" />
