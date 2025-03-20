@@ -9,6 +9,7 @@ using Library.Model.Enums;
 using Library.Model.Expenses;
 using Library.Service.Banks;
 using Library.Service.Expenses;
+using Library.Service.Extension.Accounts;
 using Library.Service.Vouchers;
 using Library.ViewModel.Vouchers;
 using System.Collections.Generic;
@@ -118,17 +119,27 @@ namespace Aplos.Areas.Banks.Controllers
         }
 
         [HttpPost]
-        public JsonResult PostCashJournal(string id, string entityId, string voucherId)
+        public JsonResult PostCashJournal(string id, VoucherViewModel voucherVM)
         {
             if (string.IsNullOrEmpty(id))
                 throw new CustomException(Resources.IdNotFound);
+
+            AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+            _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
             _cashJournalService.PostCashJournal(id);
+
             var inDirect = new System.Text.StringBuilder();
             var inDirectsql = "";
 
-            inDirectsql = @"update [TRN].[Voucher] set EntityId='" + entityId + @"' where Id='" + voucherId + @"'
-                            update [TRN].[VoucherDetail]  set EntityId='" + entityId + @"' where VoucherId='" + voucherId + @"' 
-                            update [TRN].[BankJournal]  set EntityId='" + entityId + @"' where VoucherId='" + voucherId + @"' ";
+            inDirectsql = @"update [TRN].[Voucher] set PostingDate='" + voucherVM.PostingDate + @"',DocDate='" + voucherVM.DocDate + @"',FiscalYearId='" + voucherVM.FiscalYearId + @"',FiscalYearPeriodId='" + voucherVM.FiscalYearPeriodId + @"' ,TaxYearId='" + voucherVM.TaxYearId + @"' ,TaxYearPeriodId='" + voucherVM.TaxYearPeriodId + @"' ,DocRefNo='" + voucherVM.DocRefNo + @"',Narration='" + voucherVM.Narration + @"',EntityId='" + voucherVM.EntityId + @"' where Id='" + voucherVM.VoucherId + @"'
+                            update [TRN].[VoucherDetail]  set FiscalYearId='" + voucherVM.FiscalYearId + @"',FiscalYearPeriodId='" + voucherVM.FiscalYearPeriodId + @"',DocDate='" + voucherVM.DocDate + @"' ,DocRefNo='" + voucherVM.DocRefNo + @"',Narration='" + voucherVM.Narration + @"' ,EntityId='" + voucherVM.EntityId + @"' where VoucherId='" + voucherVM.VoucherId + @"' 
+                            update [TRN].[BankJournal]  set PostingDate='" + voucherVM.PostingDate + @"',DocDate='" + voucherVM.DocDate + @"' ,DocRefNo='" + voucherVM.DocRefNo + @"',Narration='" + voucherVM.Narration + @"',EntityId='" + voucherVM.EntityId + @"' where VoucherId='" + voucherVM.VoucherId + @"' ";
+
             inDirect.Append(inDirectsql);
             _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
             return Json(new { Message = AplosMessage.Posted });

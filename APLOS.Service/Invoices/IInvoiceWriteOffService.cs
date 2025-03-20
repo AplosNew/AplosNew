@@ -42,7 +42,7 @@ namespace Library.Service.Invoices
         GridModel GetVendorPaymentParkedNonPostedList(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType);
         string InsertReceived(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList);
 
-        void Post(string invoiceWriteOffId);
+        void Post(string invoiceWriteOffId, VoucherViewModel voucherVM);
         void ApproveVendorPayment(InvoiceWriteOff invoiceWriteOff, OTSBD.IdentityParameter para);
         void PostInvoiceToAcceptance(string invoiceWriteOffId);
         string InsertCustomerInvoiceReceipt(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList

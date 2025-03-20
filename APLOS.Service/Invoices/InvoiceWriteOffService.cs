@@ -3106,6 +3106,7 @@ namespace Library.Service.Invoices
             parameters.CmdText = @"SELECT AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName, AW.PostingDate, AW.DocDate, AW.DocRefNo, C.Code AS CurrencyCode, SUM(IWD.Amount) AS Amount
                                     , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId,IWD.MultiplePaymentNo
                                     ,Status=case when AW.IsPark=1 then 'Parked' else 'Posted' end
+                                    ,V.Narration,V.EntityId,V.CompanyGroupId, V.CompanyId,V.PlantId
                                     FROM [TRN].[InvoiceWriteOff] AS AW
 									LEFT JOIN (SELECT WD.Id,WD.InvoiceWriteOffId,MPD.MultiplePaymentId MultiplePaymentNo,SUM(WD.Amount) Amount 
 											FROM [TRN].[InvoiceWriteOffDetail] WD 
@@ -3119,7 +3120,7 @@ namespace Library.Service.Invoices
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=AW.CurrencyId
                                     WHERE AW.Archive=0 AND V.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId + "' AND AW.[SourceType]='" + sourceType + @"'
                                     Group BY AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code , P.UserName, AW.PostingDate
-									, AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark, AW.BankJournalId, IWD.MultiplePaymentNo";
+									, AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark, AW.BankJournalId, IWD.MultiplePaymentNo,V.Narration,V.EntityId,V.CompanyGroupId, V.CompanyId,V.PlantId ";
             return _sqlRepository.GetGridData(parameters);
         }
 
@@ -3644,7 +3645,7 @@ namespace Library.Service.Invoices
             }
         }
 
-        public void Post(string invoiceWriteOffId)
+        public void Post(string invoiceWriteOffId, VoucherViewModel voucherVM)
         {
             var flag = false;
             try
@@ -3666,7 +3667,16 @@ namespace Library.Service.Invoices
                 {
                     throw new CustomException(dsMaster1.Tables[0].Rows[0]["SourceType"].ToString() + " VoucherNo " + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + " have to Post first!");
                 }
+
                 flag = true;
+                if(voucherVM != null)
+                {
+                    AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                    _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                    _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                }
+                
+
                 var financing = _invoiceWriteOffRepository.Find(invoiceWriteOffId);
                 CheckIsPosted(financing);
 
@@ -3687,6 +3697,18 @@ namespace Library.Service.Invoices
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
+                if (voucherVM != null)
+                {
+                    var inDirect = new System.Text.StringBuilder();
+                    var inDirectsql = "";
+
+                    inDirectsql = @"update [TRN].[Voucher] set PostingDate='" + voucherVM.PostingDate + @"',DocDate='" + voucherVM.DocDate + @"',FiscalYearId='" + voucherVM.FiscalYearId + @"',FiscalYearPeriodId='" + voucherVM.FiscalYearPeriodId + @"' ,TaxYearId='" + voucherVM.TaxYearId + @"' ,TaxYearPeriodId='" + voucherVM.TaxYearPeriodId + @"' ,DocRefNo='" + voucherVM.DocRefNo + @"',Narration='" + voucherVM.Narration + @"' where Id='" + financing.VoucherId + @"'
+                            update [TRN].[VoucherDetail]  set FiscalYearId='" + voucherVM.FiscalYearId + @"',FiscalYearPeriodId='" + voucherVM.FiscalYearPeriodId + @"',DocDate='" + voucherVM.DocDate + @"' ,DocRefNo='" + voucherVM.DocRefNo + @"',Narration='" + voucherVM.Narration + @"'  where VoucherId='" + financing.VoucherId + @"' 
+                            update [TRN].[InvoiceWriteoff] set PostingDate='" + voucherVM.PostingDate + @"',DocDate='" + voucherVM.DocDate + @"',FiscalYearId='" + voucherVM.FiscalYearId + @"',FiscalYearPeriodId='" + voucherVM.FiscalYearPeriodId + @"' ,TaxYearId='" + voucherVM.TaxYearId + @"' ,TaxYearPeriodId='" + voucherVM.TaxYearPeriodId + @"' ,DocRefNo='" + voucherVM.DocRefNo + @"',Narration='" + voucherVM.Narration + @"' where VoucherId='" + financing.VoucherId + @"' ";
+                    inDirect.Append(inDirectsql);
+                    _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
+                }
+                
             }
             catch (CustomException)
             {
