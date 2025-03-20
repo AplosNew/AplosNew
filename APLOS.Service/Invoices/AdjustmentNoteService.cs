@@ -125,7 +125,7 @@ namespace Library.Service.Invoices
 										INNER JOIN TRN.VoucherDetail VD ON VD.Id=ID.VoucherDetailId
 										WHERE VD.VoucherId=A.VoucherId),0)>0 THEN 1 ELSE 0 END
                                 ,CreatedFrom=case when (select count(Id) FROM [TRN].[SalesReturn] Where IsCreditNote=1AND VoucherId=A.VoucherId)>0 then 'SetOff'  ELSE 'General' END
-                                ,E.UserName EntityName,V.EntityId,V.Narration
+                                ,E.UserName EntityName,V.EntityId,V.Narration,A.CompanyGroupId,A.CompanyId,A.PlantId
                                 FROM [TRN].[AdjustmentNote] AS A
                                 LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
                                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=A.PartyPlantId
@@ -3128,7 +3128,7 @@ namespace Library.Service.Invoices
             return glTemp;
         }
 
-        public void Post(string adjustmentNoteId, string entityId, string voucherId)
+        public void Post(string adjustmentNoteId, VoucherViewModel voucherVM)
         {
             var flag = false;
             try
@@ -3137,6 +3137,12 @@ namespace Library.Service.Invoices
                 flag = true;
                 var financing = Find(adjustmentNoteId);
                 CheckIsPosted(financing);
+
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                if (voucherVM.EntityId == null)
+                    throw new CustomException($"Please select Entity First!!");
 
                 financing.IsPark = false;
                 AuditService.UpdatedLog(financing);
@@ -3149,11 +3155,11 @@ namespace Library.Service.Invoices
 
                 var inDirect = new System.Text.StringBuilder();
                 var inDirectsql = "";
-
-                inDirectsql = @"update [TRN].[Voucher] set EntityId='" + entityId + @"' where Id='" + voucherId + @"'
-                            update [TRN].[VoucherDetail]  set EntityId='" + entityId + @"' where VoucherId='" + voucherId + @"' 
-                            update [TRN].[AdjustmentNote]  set EntityId='" + entityId + @"' where VoucherId='" + voucherId + @"'
-                            update [TRN].[InvoiceWriteoff]  set IsPark=0 where VoucherId='" + voucherId + @"' ";
+                inDirectsql = @"update [TRN].[Voucher] set PostingDate='" + voucherVM.PostingDate + @"',DocDate='" + voucherVM.DocDate + @"',FiscalYearId='" + voucherVM.FiscalYearId + @"',FiscalYearPeriodId='" + voucherVM.FiscalYearPeriodId + @"' ,TaxYearId='" + voucherVM.TaxYearId + @"' ,TaxYearPeriodId='" + voucherVM.TaxYearPeriodId + @"' ,DocRefNo='" + voucherVM.DocRefNo + @"',Narration='" + voucherVM.Narration + @"',EntityId='" + voucherVM.EntityId + @"' where Id='" + voucherVM.VoucherId + @"'
+                            update [TRN].[VoucherDetail]  set FiscalYearId='" + voucherVM.FiscalYearId + @"',FiscalYearPeriodId='" + voucherVM.FiscalYearPeriodId + @"',DocDate='" + voucherVM.DocDate + @"' ,DocRefNo='" + voucherVM.DocRefNo + @"',Narration='" + voucherVM.Narration + @"' ,EntityId='" + voucherVM.EntityId + @"' where VoucherId='" + voucherVM.VoucherId + @"' 
+                            update [TRN].[AdjustmentNote]  set PostingDate='" + voucherVM.PostingDate + @"',DocDate='" + voucherVM.DocDate + @"',FiscalYearId='" + voucherVM.FiscalYearId + @"',FiscalYearPeriodId='" + voucherVM.FiscalYearPeriodId + @"' ,TaxYearId='" + voucherVM.TaxYearId + @"' ,TaxYearPeriodId='" + voucherVM.TaxYearPeriodId + @"' ,DocRefNo='" + voucherVM.DocRefNo + @"',Narration='" + voucherVM.Narration + @"',EntityId='" + voucherVM.EntityId + @"' where VoucherId='" + voucherVM.VoucherId + @"' 
+                            update [TRN].[InvoiceWriteoff]  set IsPark=0 ,PostingDate='" + voucherVM.PostingDate + @"',DocDate='" + voucherVM.DocDate + @"',FiscalYearId='" + voucherVM.FiscalYearId + @"',FiscalYearPeriodId='" + voucherVM.FiscalYearPeriodId + @"' ,TaxYearId='" + voucherVM.TaxYearId + @"' ,TaxYearPeriodId='" + voucherVM.TaxYearPeriodId + @"' ,DocRefNo='" + voucherVM.DocRefNo + @"',Narration='" + voucherVM.Narration + @"' where VoucherId='" + voucherVM.VoucherId + @"' ";
+                
                 inDirect.Append(inDirectsql);
                 _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
             }

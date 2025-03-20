@@ -87,9 +87,9 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult PostCreditNote(string adjustmentNoteId, string entityId, string voucherId)
+        public JsonResult PostCreditNote(string adjustmentNoteId, VoucherViewModel voucherVM)
         {
-            _adjustmentNoteService.Post(adjustmentNoteId, entityId, voucherId);
+            _adjustmentNoteService.Post(adjustmentNoteId, voucherVM);
             return Json(new { Message = AplosMessage.Posted });
         }
 
@@ -164,9 +164,9 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult PostDebitNote(string adjustmentNoteId, string entityId, string voucherId)
+        public JsonResult PostDebitNote(string adjustmentNoteId, VoucherViewModel voucherVM)
         {
-            _adjustmentNoteService.Post(adjustmentNoteId, entityId, voucherId);
+            _adjustmentNoteService.Post(adjustmentNoteId, voucherVM);
             return Json(new { Message = AplosMessage.Posted });
         }
 
@@ -255,7 +255,8 @@ namespace Aplos.Areas.Accounts.Controllers
         [HttpPost]
         public ActionResult PostDebitNoteSetOff(string invoiceWriteOffId)
         {
-            _invoiceWriteOffService.Post(invoiceWriteOffId);
+            VoucherViewModel voucherVM = null;
+            _invoiceWriteOffService.Post(invoiceWriteOffId, voucherVM);
             return Json(new { Message = AplosMessage.Posted });
         }
 
@@ -376,7 +377,8 @@ namespace Aplos.Areas.Accounts.Controllers
         [HttpPost]
         public ActionResult PostCreditNoteSetOff(string invoiceWriteOffId)
         {
-            _invoiceWriteOffService.Post(invoiceWriteOffId);
+            VoucherViewModel voucherVM = null;
+            _invoiceWriteOffService.Post(invoiceWriteOffId, voucherVM);
             return Json(new { Message = AplosMessage.Posted });
         }
 
