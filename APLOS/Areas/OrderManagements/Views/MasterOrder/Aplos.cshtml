@@ -417,7 +417,7 @@
                                     <tr>
                                         <th>Code</th>
                                         <th>Check Status</th>
-                                        <th>Approvee Status</th>
+                                        <th>Approve Status</th>
                                         <th class="col-sm-1">Action</th>
 
                                         <th>Total Quantity</th>
@@ -2371,7 +2371,7 @@
                             <label class="col-sm-4 control-label">Production Type<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select name="Production Type" class="form-control" ng-model="soSplitModel.ProductionType" tabindex="102">
+                                    <select name="Production Type" class="form-control" ng-model="soSplitModel.ProductionType" required tabindex="102">
                                         <option value="">--Select--</option>
                                         <option value="Order">Order</option>
                                         <option value="Stock">Stock</option>
@@ -2478,7 +2478,7 @@
                             <label class="col-sm-4 control-label">Shipment From Stock<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select name="Shipment From Stock" class="form-control" ng-model="soSplitModel.ShipmentFromStock" tabindex="102">
+                                    <select name="Shipment From Stock" class="form-control" ng-model="soSplitModel.ShipmentFromStock" required tabindex="102">
                                         <option value="">--Select--</option>
                                         <option value="1">Yes</option>
                                         <option value="0">No</option>
