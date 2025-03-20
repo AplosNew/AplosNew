@@ -1677,6 +1677,7 @@ upanelApp.run(["$rootScope", "$cookies", "$window", "$location", "$filter", "bas
             return angular.isUndefined(val) || val === null || val === "";
         };
 
+        
         $rootScope.template =
             '<div class="row" style="display:inline-box;">'
             + '    <div style="float:left;padding-left:10px;" class="glyphicon glyphicon-list"> '
@@ -1689,7 +1690,16 @@ upanelApp.run(["$rootScope", "$cookies", "$window", "$location", "$filter", "bas
             location.href = $rootScope.bootPoint + args.item.Href;
             $("#AutoCompleteMenuSearch").ejAutocomplete("clearText");
         }
-
+        //$rootScope.alertHello = function (args) {
+        //    console.log('Hello', args.item.Href)
+        //}
+        $rootScope.InsertMenuAccessLog = function (data) {
+            $http({
+                method: 'Get',
+                url: 'menus/MenuMaster/PostMenuAccessLog?href=' + data.Href + '&menuItemName=' + data.MenuItemName + '&panel=' + 'Application',
+            }).then(function successCallback(response) {
+            });
+        }
         $rootScope.report = function (file_src) {
             $("#iframe_div_for_report").empty();
             var frame = $('<iframe id="report">')
@@ -1791,3 +1801,4 @@ upanelApp.run(["$rootScope", "$cookies", "$window", "$location", "$filter", "bas
     .constant("commonMessage", commonMessage)
 
     ;
+

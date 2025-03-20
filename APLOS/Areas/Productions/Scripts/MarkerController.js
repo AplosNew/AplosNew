@@ -11,7 +11,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
 
-   
+
     $scope.WidthUomList = [];
     $scope.GetWidthUnit = function () {
         $http({
@@ -20,7 +20,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         }).then(function successCallback(response) {
             $scope.WidthUomList = response.data;
             for (var i = 0; i < $scope.WidthUomList.length; i++) {
-                if ($scope.WidthUomList[i].UserName == "Yard") {
+                if ($scope.WidthUomList[i].UserName == "Inch") {
                     $scope.ModelNew.WidthUomId = $scope.WidthUomList[i].Id;
                     break;
                 }
@@ -37,8 +37,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         }).then(function successCallback(response) {
             $scope.lengthUomList = response.data;
             for (var i = 0; i < $scope.lengthUomList.length; i++) {
-                if ($scope.lengthUomList[i].UserName =="Inch") {
-                    $scope.ModelNew.GrossLengthUomId = $scope.lengthUomList[i].Id;
+                if ($scope.lengthUomList[i].UserName == "Yard") {
                     $scope.ModelNew.LengthUomId = $scope.lengthUomList[i].Id;
                     break;
                 }
@@ -127,7 +126,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
                     ob.Qty = $scope.SOList[i].Qty;
                     ob.SOPlanQty = $scope.SOList[i].SOPlanQty;
                     ob.Remarks = $scope.SOList[i].Remarks;
-
+                    ob.MarkerId = baseService.isUndefinedOrNull($scope.ModelNew.Id)== null ? null: $scope.ModelNew.Id;
                     $scope.selectedSOList.push(ob);
                 }
             }
@@ -137,23 +136,31 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
 
     $scope.FabricGRNRowList = [];
     $scope.GetFabricGRNRowList = function () {
-        $scope.FabricGRNRowList = [];
-        if ($scope.selectedSOList.length > 0) {
-            var uniquePackingId = removeDuplicates($scope.selectedSOList, 'SalesOrderId');
-            var wcSOId = "";
-            if (uniquePackingId.length > 0) {
-                wcSOId = "IN(";
-                wcSOId += Array.prototype.map.call(uniquePackingId, function (item) { return "'" + item.SalesOrderId + "'"; }).join(",") + ")";
+        try {
+            $scope.FabricGRNRowList = [];
+            if ($scope.selectedSOList.length > 0) {
+                var uniquePackingId = removeDuplicates($scope.selectedSOList, 'SalesOrderId');
+                var wcSOId = "";
+                if (uniquePackingId.length > 0) {
+                    wcSOId = "IN(";
+                    wcSOId += Array.prototype.map.call(uniquePackingId, function (item) { return "'" + item.SalesOrderId + "'"; }).join(",") + ")";
+                }
+                $scope.sqlInStatement = wcSOId;
             }
-            $scope.sqlInStatement = wcSOId;
+            if (!baseService.isUndefinedOrNull($scope.sqlInStatement)) {
+                $http({
+                    method: 'GET',
+                    url: "Productions/Marker/GetFabricGRNRowList?soId=" + $scope.sqlInStatement
+                }).then(function (response) {
+                    $scope.FabricGRNRowList = response.data;
+                });
+                angular.element(document.querySelector('#FabricGRNRowPoPUp')).modal('show');
+            } else {
+                throw "Select Sales Order.";
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
-        $http({
-            method: 'GET',
-            url: "Productions/Marker/GetFabricGRNRowList?soId=" + $scope.sqlInStatement
-        }).then(function (response) {
-            $scope.FabricGRNRowList = response.data;
-        });
-        angular.element(document.querySelector('#FabricGRNRowPoPUp')).modal('show');
     }
 
     function removeDuplicates(myArr, prop) {
@@ -168,10 +175,10 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     }
 
     $scope.SelectedFabricGRNRowList = [];
-    $scope.SelectFabricGRNRow= function () {
+    $scope.SelectFabricGRNRow = function () {
         for (var i = 0; i < $scope.FabricGRNRowList.length; i++) {
-            if ($scope.FabricGRNRowList[i].Flag == true) {
-                if (checkExistsGRN($scope.SelectedFabricGRNRowList, $scope.FabricGRNRowList[i].InventoryReceiveDetailId) === false) {
+            if ($scope.FabricGRNRowList[i].FlagG == true) {
+                if (checkExistsGRN($scope.SelectedFabricGRNRowList, $scope.FabricGRNRowList[i].InventoryReceiveDetailId, $scope.FabricGRNRowList[i].FirstCharacteristicsValueId) === false) {
                     var ob = {};
                     ob.Id = $scope.FabricGRNRowList[i].Id;
                     ob.InventoryReceiveDetailId = $scope.FabricGRNRowList[i].InventoryReceiveDetailId;
@@ -183,7 +190,8 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
                     ob.UOM = $scope.FabricGRNRowList[i].UOM;
                     ob.FirstCharacteristicsValueId = $scope.FabricGRNRowList[i].FirstCharacteristicsValueId;
                     ob.TransactionQty = $scope.FabricGRNRowList[i].TransactionQty;
-
+                    ob.MarkerId = baseService.isUndefinedOrNull($scope.ModelNew.Id) == null ? null : $scope.ModelNew.Id;
+                    ob.SalesOrderId = $scope.FabricGRNRowList[i].SalesOrderId;
                     $scope.SelectedFabricGRNRowList.push(ob);
                 }
             }
@@ -192,6 +200,14 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     }
 
 
+    function checkExistsGRN(list, id, Fid) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].InventoryReceiveDetailId === id && list[i].FirstCharacteristicsValueId === Fid) {
+                return true;
+            }
+        }
+        return false;
+    }
     function checkExists(list, id) {
         for (var i = 0; i < list.length; i++) {
             if (list[i].SalesOrderId === id) {
@@ -259,9 +275,9 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     // #endregion checkbox all
     $scope.MasterPlanId = null;
     $scope.SetMasterPlan = function (args) {
-       
+
         $scope.ModelNew.MasterPlanId = args.data.Id;
-        if ($scope.MasterPlanId != $scope.ModelNew.MasterPlanId ) {
+        if ($scope.MasterPlanId != $scope.ModelNew.MasterPlanId) {
             $scope.selectedSOList = [];
         }
         $scope.MasterPlanId = $scope.ModelNew.MasterPlanId;
@@ -303,17 +319,71 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         for (var i = 0; i < $scope.CutPlantRatioList.length; i++) {
             if ($scope.CutPlantRatioList[i].Id == $scope.ModelNew.CutPlanRatioId) {
                 $scope.ModelNew.NoOfPcs = $scope.CutPlantRatioList[i].AllotedQty;
+                if (!baseService.isUndefinedOrNull($scope.ModelNew.GSM)) {
+                    $scope.ModelNew.NetConsumptionperPcs = parseFloat($scope.ModelNew.NetWeight / $scope.ModelNew.NoOfPcs).toFixed(2);
+                    $scope.ModelNew.GrossConsumptionperPcs = parseFloat($scope.ModelNew.GrossWeight / $scope.ModelNew.NoOfPcs).toFixed(2);
+                }
                 break;
             }
         }
     }
 
     $scope.GetGrossWeight = function () {
-        $scope.ModelNew.GrossWeight = ($scope.ModelNew.Width * $scope.ModelNew.GrossLength * $scope.ModelNew.GSM) / TBA;
+        $scope.wuom = $("#WidthUomId option:selected").text();
+        $scope.luom = $("#LengthUomId option:selected").text();
+
+        if ($scope.wuom == "Yard" && $scope.luom == "Yard") {
+            $scope.ModelNew.GSM = ($scope.ModelNew.Width * 0.914) * ($scope.ModelNew.GrossLength * 0.914);
+            $scope.ModelNew.GrossWeight = parseFloat((($scope.ModelNew.Width * 0.914) * ($scope.ModelNew.GrossLength * 0.914) * $scope.ModelNew.GSM) / 1000).toFixed(2);
+
+        } else if ($scope.wuom == "Inch" && $scope.luom == "Yard") {
+            $scope.ModelNew.GSM = ($scope.ModelNew.Width * 0.0254) * ($scope.ModelNew.GrossLength * 0.914);
+            $scope.ModelNew.GrossWeight = parseFloat((($scope.ModelNew.Width * 0.0254) * ($scope.ModelNew.GrossLength * 0.914) * $scope.ModelNew.GSM) / 1000).toFixed(2);
+
+        } else {
+
+            if ($scope.luom == "Yard") {
+                $scope.ModelNew.GSM = ($scope.ModelNew.Width / 100) * ($scope.ModelNew.GrossLength * 0.914);
+                $scope.ModelNew.GrossWeight = parseFloat((($scope.ModelNew.Width / 100) * ($scope.ModelNew.GrossLength * 0.914) * $scope.ModelNew.GSM) / 1000).toFixed(2);
+
+            }
+            else {
+                $scope.ModelNew.GSM = ($scope.ModelNew.Width / 100) * $scope.ModelNew.GrossLength;
+                $scope.ModelNew.GrossWeight = parseFloat((($scope.ModelNew.Width / 100) * $scope.ModelNew.GrossLength * $scope.ModelNew.GSM) / 1000).toFixed(2);
+            }
+        }
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.NoOfPcs)) {
+            $scope.ModelNew.GrossConsumptionperPcs = parseFloat($scope.ModelNew.GrossWeight / $scope.ModelNew.NoOfPcs).toFixed(2);
+        }
     }
 
     $scope.GetNetWeight = function () {
-        $scope.ModelNew.NetWeight = ($scope.ModelNew.CutableWidth * $scope.ModelNew.NetLength * $scope.ModelNew.GSM) / TBA;
+        $scope.wuom = $("#WidthUomId option:selected").text();
+        $scope.luom = $("#LengthUomId option:selected").text();
+
+        if ($scope.wuom == "Yard" && $scope.luom == "Yard") {
+            $scope.ModelNew.GSM = ($scope.ModelNew.CutableWidth * 0.914) * ($scope.ModelNew.NetLength * 0.914);
+            $scope.ModelNew.NetWeight = parseFloat((($scope.ModelNew.CutableWidth * 0.914) * ($scope.ModelNew.NetLength * 0.914) * $scope.ModelNew.GSM) / 1000).toFixed(2);
+
+        } else if ($scope.wuom == "Inch" && $scope.luom == "Yard") {
+            $scope.ModelNew.GSM = ($scope.ModelNew.CutableWidth * 0.0254) * ($scope.ModelNew.NetLength * 0.914);
+            $scope.ModelNew.NetWeight = parseFloat((($scope.ModelNew.CutableWidth * 0.0254) * ($scope.ModelNew.NetLength * 0.914) * $scope.ModelNew.GSM) / 1000).toFixed(2);
+
+        } else {
+
+            if ($scope.luom == "Yard") {
+                $scope.ModelNew.GSM = ($scope.ModelNew.CutableWidth / 100) * ($scope.ModelNew.NetLength * 0.914);
+                $scope.ModelNew.NetWeight = parseFloat((($scope.ModelNew.CutableWidth / 100) * ($scope.ModelNew.NetLength * 0.914) * $scope.ModelNew.GSM) / 1000).toFixed(2);
+
+            }
+            else {
+                $scope.ModelNew.GSM = ($scope.ModelNew.CutableWidth / 100) * $scope.ModelNew.NetLength;
+                $scope.ModelNew.NetWeight = parseFloat((($scope.ModelNew.CutableWidth / 100) * $scope.ModelNew.NetLength * $scope.ModelNew.GSM) / 1000).toFixed(2);
+            }
+        }
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.NoOfPcs)) {
+            $scope.ModelNew.NetConsumptionperPcs = parseFloat($scope.ModelNew.NetWeight / $scope.ModelNew.NoOfPcs).toFixed(2);
+        }
     }
 
     $scope.Save = function () {
@@ -322,7 +392,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew },
+                data: { 'data': $scope.ModelNew, 'SOList': $scope.selectedSOList, 'FabricGRNRowList': $scope.SelectedFabricGRNRowList},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -343,184 +413,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
 
 
 
-    //#region Finishing Goods & Articale
-    $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 
-    $scope.getMaterial = function (index) {
-
-        $scope.materialType = 'ProductDefinition';
-        $scope.itemIndex = index;
-        $scope.getMaterialMasterbyTypePopUp();
-
-
-    };
-
-    $scope.getArticle = function (index) {
-        $scope.itemIndex = index;
-        $scope.getArticleSearchList($scope.ModelNew.FGMaterialMasterId);
-    };
-
-    $scope.FGmsg = null;
-    $scope.selectMaterialByType = function (ob) {
-        try {
-            $scope.FGMId = $scope.ModelNew.FGMaterialMasterId;
-
-            $http({
-                method: 'GET',
-                url: 'OrderManagements/BOMMaster/GetBOMSKUMappingDataForValidation?BOMMasterId=' + $scope.ModelNew.Id
-            }).then(function successCallback(response) {
-                if (baseService.arrayLength(response.data) > 0 && $scope.FGMId !== ob.Id) {
-                    ShowResult("As this Finish Goods has Matrix level SKU, so Finish Goods change is not acceptable.", 'failure');
-                }
-                else {
-                    $scope.ModelNew.FGMaterialMasterId = ob.Id;
-                    $scope.ModelNew.FGMaterialMaster = ob.UserName;
-                    $scope.ModelNew.ProductMasterName = ob.ProductMasterName;
-                    $scope.ModelNew.FGArticleId = null;
-                    $scope.ModelNew.FGArticle = null;
-                    $scope.ModelNew.HasAttribute = ob.HasAttribute;
-                    $scope.ModelNew.WithSKU = ob.WithSKU;
-                    if ($scope.ModelNew.HasAttribute) {
-                        $scope.materialType = null;
-                        $scope.getArticleSearchList(ob.Id);
-                    } else {
-                        $scope.closeMaterialMasterbyTypePopUp();
-                        return ShowResult('This material has no attribute', 'failure');
-                    }
-                    if ($scope.ModelNew.WithSKU) {
-                        $scope.FGmsg = "has";
-                    } else {
-                        $scope.FGmsg = "has no";
-                    }
-                    $scope.getFGCharacteristicsList($scope.ModelNew.FGMaterialMasterId);
-                    $scope.HSNCodeId = ob.HSNCodeId;
-                    $scope.closeMaterialMasterbyTypePopUp();
-                }
-            })
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
-
-
-
-    $scope.selectarticle = function (ob) {
-        try {
-            $scope.ModelNew.FGMaterialMasterId = ob.MaterialMasterId;
-            $scope.ModelNew.FGMaterialMaster = ob.MaterialMasterName;
-            $scope.ModelNew.FGArticleId = ob.Id;
-            $scope.ModelNew.FGArticle = ob.StandardName;
-            angular.element(document.querySelector('#articleSearchPop')).modal('hide');
-        } catch (e) {
-            ShowResult(e, '', 'articleSearchPop');
-        }
-    };
-
-    $scope.clearArticle = function () {
-        $scope.ModelNew.ArticleId = null;
-        $scope.ModelNew.FGArticle = null;
-    };
-    $scope.getFGCharacteristicsList = function (id) {
-        //$scope.clearCharNames();
-        $http({
-            method: 'GET',
-            url: 'Materials/MaterialMaster/getcharacteristicsbymaterialmasterid/',
-            params: {
-                materialMasterId: id
-            }
-        }).then(function (response) {
-            $scope.characteristicsList = [];
-            $scope.characteristicsList = response.data.charData;
-        });
-
-    };
-
-
-    $scope.getFGCharacteristicsListNew = function (id, MasterId) {
-        $http({
-            method: 'GET',
-            url: 'Materials/MaterialMaster/getcharacteristicsbymaterialmasterid/',
-            params: {
-                materialMasterId: id
-            }
-        }).then(function (response) {
-            $scope.characteristicsList = [];
-            $scope.characteristicsList = response.data.charData;
-            $scope.GetFGCharacteristicsValueCboAfterSave();
-        });
-
-    };
-    $scope.TotalRatio = 0;
-    $scope.SelectFGCharacteristicsValueList = [];
-    $scope.FGCharacteristicsValueList = [];
-    $scope.GetFGCharacteristicsValueCboAfterSave = function () {
-        $scope.TotalRatio = 0;
-        for (var i = 0; i < $scope.characteristicsList.length; i++) {
-            if ($scope.ModelNew.CharacteristicsId == $scope.characteristicsList[i].Value) {
-                var valueAssignmentLevel = $scope.characteristicsList[i].ValueAssignmentLevel;
-            }
-        }
-        $http({
-            method: 'POST',
-            url: $scope.path + "getCharacteristicsValueByCharacteristicsIdAfterSave",
-            data: { 'materialMasterId': $scope.ModelNew.FGMaterialMasterId, 'characteristicsId': $scope.ModelNew.CharacteristicsId, 'valueAssignmentLevel': valueAssignmentLevel, 'MarkerMasterId': $scope.ModelNew.Id },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.FGCharacteristicsValueList = [];
-            $scope.SelectFGCharacteristicsValueList = response.data;
-            for (var i = 0; i < $scope.SelectFGCharacteristicsValueList.length; i++) {
-                if ($scope.SelectFGCharacteristicsValueList[i].Ratio != null) {
-                    $scope.SKUDisable = true;
-                    break;
-                }
-                else {
-                    $scope.SKUDisable = false;
-                }
-            }
-            for (var i = 0; i < $scope.SelectFGCharacteristicsValueList.length; i++) {
-                if ($scope.SelectFGCharacteristicsValueList[i].IsSelect) {
-                    $scope.FGCharacteristicsValueList.push($scope.SelectFGCharacteristicsValueList[i]);
-                }
-            }
-            for (var i = 0; i < $scope.SelectFGCharacteristicsValueList.length; i++) {
-                if ($scope.SelectFGCharacteristicsValueList[i].Ratio != null) {
-                    $scope.TotalRatio = parseFloat($scope.SelectFGCharacteristicsValueList[i].Ratio) + parseFloat($scope.TotalRatio);
-                }
-            }
-        });
-        if (baseService.isUndefinedOrNull($scope.ModelNew.HeaderName)) {
-            $scope.HeaderName = $("#SKU option:selected").text();
-        }
-        else {
-            $scope.HeaderName = $scope.ModelNew.HeaderName;
-        }
-    }
-
-    //$scope.FGCharacteristicsValueList = [];
-    $scope.GetFGCharacteristicsValueCbo = function () {
-        for (var i = 0; i < $scope.characteristicsList.length; i++) {
-            if ($scope.ModelNew.CharacteristicsId == $scope.characteristicsList[i].Value) {
-                var valueAssignmentLevel = $scope.characteristicsList[i].ValueAssignmentLevel;
-            }
-        }
-        $http({
-            method: 'POST',
-            url: $scope.path + "getCharacteristicsValueByCharacteristicsId",
-            data: { 'materialMasterId': $scope.ModelNew.FGMaterialMasterId, 'characteristicsId': $scope.ModelNew.CharacteristicsId, 'valueAssignmentLevel': valueAssignmentLevel },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.SelectFGCharacteristicsValueList = response.data;
-        });
-        $scope.HeaderName = $("#SKU option:selected").text();
-    }
-
-    $scope.ClearList = function () {
-        $scope.FGCharacteristicsValueList = [];
-    }
-
-    //#endregion
-
-    $scope.SKUDisable = false;
 
     $scope.getData = function () {
         $http({
@@ -582,91 +475,6 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         }
     };
 
-
-
-    $scope.getDetails = function (MasterId) {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetDetailsList",
-            data: { 'masterid': MasterId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.FGCharacteristicsValueList = response.data;
-        });
-    };
-
-
-
-    //#region File 
-
-    //$("#uploadBtn4").change(function () {
-    //    $scope.filedata = this.files[0];
-    //});
-
-    //document.getElementById("uploadBtn4").onchange = function () {
-    //    var filename = document.getElementById("uploadFile4").value = this.value;
-    //    var res = filename.replace(/C:\\fakepath\\/i, '');
-    //    document.getElementById("uploadFile4").value = res;
-    //};
-
-
-    //#endregion
-
-    $scope.XSave = function () {
-        try {
-
-            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
-                throw $scope.filedata.name + ' File size must be below 2 mb';
-            var fileName = null;
-            if (!baseService.isUndefinedOrNull($scope.filedata))
-                fileName = $scope.filedata.name;
-            if (baseService.isUndefinedOrNull(fileName))
-                fileName = $scope.ModelNew.Attachment;
-            $scope.ModelNew.Attachment = fileName;
-            if (!baseService.isUndefinedOrNull($scope.ModelNew.Attachment)) {
-                if ($scope.ModelNew.Attachment.length > 50) {
-                    throw "File Name must be less than 50 character.";
-                }
-            }
-            var formData = new FormData();
-
-            $scope.$broadcast('show-errors-check-validity');
-
-            if ($scope.ModelNewForm.$valid) {
-                $http({
-                    method: 'POST',
-                    url: $scope.saveUrl,
-
-                    headers: { 'Content-Type': undefined },
-                    transformRequest: function (data) {
-                        formData.append("data", angular.toJson(data.data));
-                        if (baseService.isUndefinedOrNull($scope.filedata) === false) {
-                            formData.append('file', data.file);
-                        }
-                        formData.append("details", angular.toJson(data.details));
-                        return formData;
-                    },
-
-                    data: { 'data': $scope.ModelNew, 'details': $scope.FGCharacteristicsValueList, 'file': $scope.filedata },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        ClearFields(response.data.Sequence);
-                        $scope.getData();
-
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            }
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
 
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
@@ -735,40 +543,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     }
     $scope.getFabricWidth();
 
-   
 
-    $scope.ShowDiv = false;
-    $scope.AddLineItem = function () {
-        try {
-            $scope.ShowDiv = true;
-            var eDialog = $("#General").data("ejDialog");
-            $("#General").ejDialog("setTitle", $scope.HeaderName);
-            eDialog.open();
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
 
-    };
-    $scope.SelectList = function () {
-        //$scope.FGCharacteristicsValueList = [];
-        for (var i = 0; i < $scope.SelectFGCharacteristicsValueList.length; i++) {
-            if ($scope.SelectFGCharacteristicsValueList[i].IsSelect) {
-                if (checkExistList($scope.FGCharacteristicsValueList, $scope.SelectFGCharacteristicsValueList[i].CharacteristicsValueId) === false) {
-                    $scope.FGCharacteristicsValueList.push($scope.SelectFGCharacteristicsValueList[i]);
-                }
-                //$scope..push($scope.SelectFGCharacteristicsValueList[i]);
-            }
 
-        }
-        var eDialog = $("#General").data("ejDialog");
-        eDialog.close();
-    }
-    function checkExistList(list, Id) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].CharacteristicsValueId == Id) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

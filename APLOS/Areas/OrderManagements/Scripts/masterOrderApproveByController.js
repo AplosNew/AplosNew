@@ -254,9 +254,21 @@ function masterOrderApproveByController(accountService, $window, cboService, com
     $scope.WeekNo();
 
     $scope.companyList = [];
-    cboService.getCboCompanyByCompanyGroup(null, function (response) {
-        $scope.companyList = response;
-    });
+    $scope.GetCompanyCboList = function () {
+        try {
+
+            $http({
+                method: 'Get',
+                url: 'OrderManagements/masterorder/GetCompanyCboList'
+            }).then(function successCallback(response) {
+                $scope.companyList = response.data;
+            }
+            )
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    $scope.GetCompanyCboList();
 
     $scope.plantList = [];
     $scope.getPlantCbo = function () {

@@ -116,7 +116,9 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
         });
     };
 
-
+    $scope.SalesRegisterLists = [];
+    $scope.SalesRegisterPartyList = [];
+    $scope.SalesRegisterItemList = [];
     $scope.SalesAssetRegisterLists = [];
     $scope.SalesAssetRegisterPartyList = [];
     $scope.SalesAssetRegisterItemList = [];
@@ -164,25 +166,25 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
                 //    response.data[i].GRNEntryDate = new Date($scope.SalesRegisterLists[i].GRNEntryDate);
                 //}
             }
-            else if ($scope.report.ReportType == 'PartyWise') {
-                $scope.SalesRegisterPartyList = response.data.NewData;
-                //for (var i = 0; i < $scope.SalesRegisterPartyList.length; i++) {
-                //    response.data[i].GRNEntryDate = new Date($scope.SalesRegisterPartyList[i].GRNEntryDate);
-                //}
-            }
-            else if ($scope.report.ReportType == 'ItemWise') {
-                $scope.SalesRegisterItemList = response.data.NewData;
-                for (var i = 0; i < $scope.SalesRegisterItemList.length; i++) {
-                    response.data[i].GRNEntryDate = new Date($scope.SalesRegisterItemList[i].GRNEntryDate);
-                }
-            }
+            //else if ($scope.report.ReportType == 'PartyWise') {
+            //    $scope.SalesRegisterPartyList = response.data.NewData;
+            //    for (var i = 0; i < $scope.SalesRegisterPartyList.length; i++) {
+            //        response.data[i].GRNEntryDate = new Date($scope.SalesRegisterPartyList[i].GRNEntryDate);
+            //    }
+            //}
+            //else if ($scope.report.ReportType == 'ItemWise') {
+            //    $scope.SalesRegisterItemList = response.data.NewData;
+            //    for (var i = 0; i < $scope.SalesRegisterItemList.length; i++) {
+            //        response.data[i].GRNEntryDate = new Date($scope.SalesRegisterItemList[i].GRNEntryDate);
+            //    }
+            //}
 
             $scope.load();
         });
 
     };
 
-
+  
 
     $scope.GetSalesRegisterView = function () {
         $scope.SalesRegisterLists = [];
@@ -548,7 +550,7 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
             $scope.AssetSalesReportExcels();
         }
         else if ($scope.report.AssetReportType == 'ItemWise') {
-            $scope.SalesRegisterItemWiseReport();
+            $scope.AssetSalesRegisterItemWiseReport();
         }
     }
 }

@@ -4479,5 +4479,38 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         }
     };
 
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+
+    $scope.DownLoadData = function () {
+        var dataList = [];
+        var g = $("#GridSOItem").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.recipeMaterialList;
+        }
+        $scope.fileName = $filter("dateFiltering")(Date.now()) + "-SOList";
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrl,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
 
 }

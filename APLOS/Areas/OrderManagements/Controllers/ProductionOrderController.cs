@@ -203,7 +203,7 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
 	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
 	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
 	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
-	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
+	                            , SO.Qty, SO.Rate,SO.LineItemReference,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
 	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
 								,ST.POStatus,ST.POEntity,''ProcessEntity,ART.ProcessSetId,ART.IsDefaultProcessSet
                        FROM [TRN].[SalesOrder] AS SO 
@@ -246,7 +246,7 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
 	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), SO.CommitmentDate, 106),' ','-')
 	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
 	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
-	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
+	                            , SO.Qty, SO.Rate,SO.LineItemReference,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
 	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
 								,S.UserName POStatus,PE.UserName POEntity,POS.ProcessEntity,ART.ProcessSetId,ART.IsDefaultProcessSet
                        FROM [TRN].[SalesOrder] AS SO 
@@ -281,7 +281,7 @@ SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,null AS
 	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
 	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
 	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
-	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
+	                            , SO.Qty, SO.Rate,SO.LineItemReference,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
 	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
 								,ST.POStatus,ST.POEntity,''ProcessEntity,ART.ProcessSetId,ART.IsDefaultProcessSet
                        FROM [TRN].[SalesOrder] AS SO 
@@ -327,7 +327,7 @@ Where PT.EntityId='" + EntityId + @"' AND PT.BaseProcessId='" + ProcessId + @"'
 	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), SO.CommitmentDate, 106),' ','-')
 	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
 	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
-	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
+	                            , SO.Qty, SO.Rate,SO.LineItemReference,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
 	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
 								,S.UserName POStatus,PE.UserName POEntity,POS.ProcessEntity,ART.ProcessSetId,ART.IsDefaultProcessSet
                        FROM [TRN].[SalesOrder] AS SO 

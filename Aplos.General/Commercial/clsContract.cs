@@ -1212,7 +1212,7 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
                     ,L.Id LineId,L.UserName Line
                     FROM dbo.GoodWorkCheckBySetUp GWC
                     left join EmployeeInformation ei on ei.SystemId=GWC.CheckById
-LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
                             LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
                     left join org.Company C on C.Id=ei.CompanyId
                     left join org.Plant P on P.Id=ei.PlantId

@@ -12,7 +12,6 @@ namespace Aplos.Controllers
     {
         private readonly IUserService _userService;
         private readonly ICompanyGroupService _companyGroupService;
-
         public HomeController(
             IUserService userService
             , ICompanyGroupService companyGroupService
@@ -96,5 +95,7 @@ namespace Aplos.Controllers
         {
             return View();
         }
+        
+       
     }
 }

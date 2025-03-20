@@ -2893,6 +2893,10 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 sheet[ROW, COL].ColumnWidth = 12;
                 int colSalesOrderIds = COL;
                 COL++;
+                sheet[ROW, COL].Text = "LineItemReference";
+                sheet[ROW, COL].ColumnWidth = 50;
+                int colLineItemReference = COL;
+                COL++;
                 sheet[ROW, COL].Text = "SalesOrderDesc";
                 sheet[ROW, COL].ColumnWidth = 50;
                 int colSalesOrderDesc = COL;
@@ -3005,6 +3009,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                     sheet[ROW, colPlanWorkingHoursPerDay].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["PlanWorkingHoursPerDay"].ToString());
                     sheet[ROW, colbuyer].Text = dtOrder.Rows[i]["buyer"].ToString();
                     sheet[ROW, colSalesOrderIds].Text = dtOrder.Rows[i]["SalesOrderIds"].ToString();
+                    sheet[ROW, colLineItemReference].Text = dtOrder.Rows[i]["LineItemReference"].ToString();
                     sheet[ROW, colSalesOrderDesc].Text = dtOrder.Rows[i]["SalesOrderDesc"].ToString();
                     sheet[ROW, colMasterOrderNo].Text = dtOrder.Rows[i]["MasterOrderNo"].ToString();
                     sheet[ROW, colBuyerOrderNo].Text = dtOrder.Rows[i]["BuyerOrderNo"].ToString();

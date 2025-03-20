@@ -438,11 +438,11 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                 });
             }
         }
-        if ($scope.newList.length > 0) {
-            for (var q = 0; q < $scope.newList.length; q++) {
-                $scope.newList[q].TaxAmount = Math.round($filter("sumByKey")($filter("filter")($scope.newtaxList, { SalesMaterialId: $scope.newList[q].Id }), "Amount") * 1000 + Number.EPSILON) / 1000;
-            }
-        }
+        //if ($scope.newList.length > 0) {
+        //    for (var q = 0; q < $scope.newList.length; q++) {
+        //        $scope.newList[q].TaxAmount = Math.round($filter("sumByKey")($filter("filter")($scope.newtaxList, { SalesMaterialId: $scope.newList[q].SalesMaterialId }), "Amount") * 1000 + Number.EPSILON) / 1000;
+        //    }
+        //}
 
       
         if ($scope.productNew.SourceType == 'Packing') {
@@ -521,6 +521,8 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     function ClearFields() {
         $scope.Action = "Save";
         $scope.IsSaveButtonDisable = false;
+        $scope.productNew = {};
+        $scope.productNew.SalesDate = $filter("dateFiltering")(Date.now());
     }
 
 

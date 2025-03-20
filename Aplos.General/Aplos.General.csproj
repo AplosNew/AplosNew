@@ -108,6 +108,7 @@
     <Compile Include="IE\clsBulletin.cs" />
     <Compile Include="Farming\FarmingData.cs" />
     <Compile Include="FormulaEvaluator\ThreadConsumption.cs" />
+    <Compile Include="MenuAccessLog\MenuAccessService.cs" />
     <Compile Include="Organization\OrganizationAuthorization.cs" />
     <Compile Include="PerformanceManagement\JobEvaluationMasterService.cs" />
     <Compile Include="PerformanceManagement\JobEvaluationReportService.cs" />

@@ -529,6 +529,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         public ActionResult SalesReturn()
         {
             return View("~/Areas/SalesManagements/Views/SalesReturn.cshtml");
+
         }
 
         [Authorize, HttpGet]
