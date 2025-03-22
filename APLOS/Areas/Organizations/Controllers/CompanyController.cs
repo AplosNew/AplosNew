@@ -1,5 +1,6 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
+using Library.Accounting.Accounts;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
@@ -84,7 +85,7 @@ namespace Aplos.Areas.Organizations.Controllers
             return Json(_companyService.GetCompanyConfiguration(identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
 
-
+  
         [Authorize]
         public ActionResult Aplos()
         {

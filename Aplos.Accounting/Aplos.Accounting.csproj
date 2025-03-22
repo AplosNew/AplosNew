@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Accounts\AccountsBankReconcilliationService.cs" />
+    <Compile Include="Accounts\CompanyExtensionService.cs" />
     <Compile Include="Accounts\CheckQueryService.cs" />
     <Compile Include="Accounts\GroupBalanceReportService.cs" />
     <Compile Include="Accounts\FiscalYearCloseService.cs" />

@@ -474,6 +474,14 @@ namespace Aplos.Areas.Products.Controllers
         }
         #endregion Operations
 
+        [HttpGet, Authorize]
+        public JsonResult GetNewCompanyConfiguration()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            CompanyExtensionService companyExtensionService = new CompanyExtensionService(_sqlRepository);
+            return Json(companyExtensionService.GetCompanyConfiguration(identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+
         #region Posted and not posted Issue Delete permanently
         [Authorize, HttpGet]
         public JsonResult GetDeletableIssueList(GridParameter parameters)
