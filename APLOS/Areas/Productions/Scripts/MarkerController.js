@@ -126,7 +126,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
                     ob.Qty = $scope.SOList[i].Qty;
                     ob.SOPlanQty = $scope.SOList[i].SOPlanQty;
                     ob.Remarks = $scope.SOList[i].Remarks;
-                    ob.MarkerId = baseService.isUndefinedOrNull($scope.ModelNew.Id)== null ? null: $scope.ModelNew.Id;
+                    ob.MarkerId = baseService.isUndefinedOrNull($scope.ModelNew.Id) == null ? null : $scope.ModelNew.Id;
                     $scope.selectedSOList.push(ob);
                 }
             }
@@ -139,11 +139,11 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         try {
             $scope.FabricGRNRowList = [];
             if ($scope.selectedSOList.length > 0) {
-                var uniquePackingId = removeDuplicates($scope.selectedSOList, 'SalesOrderId');
+                var uniqueSOId = removeDuplicates($scope.selectedSOList, 'SalesOrderId');
                 var wcSOId = "";
-                if (uniquePackingId.length > 0) {
+                if (uniqueSOId.length > 0) {
                     wcSOId = "IN(";
-                    wcSOId += Array.prototype.map.call(uniquePackingId, function (item) { return "'" + item.SalesOrderId + "'"; }).join(",") + ")";
+                    wcSOId += Array.prototype.map.call(uniqueSOId, function (item) { return "'" + item.SalesOrderId + "'"; }).join(",") + ")";
                 }
                 $scope.sqlInStatement = wcSOId;
             }
@@ -309,6 +309,13 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             $http.get('Productions/Productionsummary/GetCutPlanRatioCbo?masterId=' + $scope.ModelNew.CutPlanId)
                 .then(function (response) {
                     $scope.CutPlantRatioList = response.data;
+                    if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+                        for (var i = 0; i < $scope.CutPlantRatioList.length; i++) {
+                            if ($scope.CutPlantRatioList[i].Id == $scope.ModelNew.CutPlanRatioId) {
+                                $scope.ModelNew.NoOfPcs = $scope.CutPlantRatioList[i].AllotedQty;
+                            }
+                        }
+                    }
                 });
         } catch (ex) {
             ShowResult(ex, 'Info');
@@ -392,7 +399,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew, 'SOList': $scope.selectedSOList, 'FabricGRNRowList': $scope.SelectedFabricGRNRowList},
+                data: { 'data': $scope.ModelNew, 'SOList': $scope.selectedSOList, 'FabricGRNRowList': $scope.SelectedFabricGRNRowList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -411,10 +418,6 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         }
     };
 
-
-
-
-
     $scope.getData = function () {
         $http({
             method: 'POST',
@@ -427,6 +430,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         });
     }
     $scope.getData();
+
     $scope.ModelTemp = {
         Id: null,
         Sequence: 0,
@@ -460,21 +464,53 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     $scope.CustomeFileName = null;
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
-        $scope.getFGCharacteristicsListNew($scope.ModelNew.FGMaterialMasterId, $scope.ModelNew.Id);
-        $scope.HeaderName = $scope.ModelNew.HeaderName;
-        if (!baseService.isUndefinedOrNull($scope.ModelNew.Attachment)) {
-            var str = $scope.ModelNew.Attachment;
-            var extention = str.substr(str.indexOf('.'));
-            $scope.CustomeFileName = $scope.ModelNew.Id + extention;
-        }
-        //$scope.filedata.name = $scope.ModelNew.Attachment;
-
+        $scope.GetCutPlanCbo();
+        $scope.GetCutPlanRatioCbo();
+        $scope.GetMarkerSO();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
     };
 
+    $scope.GetMarkerSO = function () {
+        try {
+            $http({
+                method: 'Get',
+                url: 'Productions/Marker/GetMarkerSOData?markerId=' + $scope.ModelNew.Id
+            }).then(function successCallback(response) {
+                $scope.selectedSOList = response.data;
+                $scope.GetMarkerFabricGRNRowList();
+            }
+            )
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+
+    $scope.GetMarkerFabricGRNRowList = function () {
+        try {
+            if ($scope.selectedSOList.length > 0) {
+                var uniqueSOId = removeDuplicates($scope.selectedSOList, 'SalesOrderId');
+                var wcSOId = "";
+                if (uniqueSOId.length > 0) {
+                    wcSOId = "IN(";
+                    wcSOId += Array.prototype.map.call(uniqueSOId, function (item) { return "'" + item.SalesOrderId + "'"; }).join(",") + ")";
+                }
+                $scope.sqlInStatement = wcSOId;
+            }
+            $http({
+                method: 'Get',
+                url: 'Productions/Marker/GetMarkerFabricGRNRowList?soId=' + $scope.sqlInStatement + '&markerId=' + $scope.ModelNew.Id
+            }).then(function successCallback(response) {
+                $scope.SelectedFabricGRNRowList = response.data;
+            }
+            )
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
@@ -515,33 +551,24 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             Description: null,
             Remarks: null,
             Active: true,
-            FGMaterialMasterId: null,
-            FGMaterialMaster: null,
-            FGArticleId: null,
-            FGArticle: null,
-            FabricWidthId: null,
-            ShrinkageGroupId: null,
-            CharacteristicsId: null,
-            ShadeId: null,
-            Length: null,
         };
         $scope.ModelNew.Sequence = seq;
-        $scope.FGCharacteristicsValueList = [];
-        $scope.characteristicsList = [];
-        $scope.SelectFGCharacteristicsValueList = [];
-        $scope.SKUDisable = false;
+        $scope.SelectedFabricGRNRowList = [];
+        $scope.selectedSOList = [];
+
+
     }
 
-    $scope.FabricWidthList = [];
-    $scope.getFabricWidth = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + "GetFabricWidth",
-        }).then(function successCallback(response) {
-            $scope.FabricWidthList = response.data;
-        });
-    }
-    $scope.getFabricWidth();
+    //$scope.FabricWidthList = [];
+    //$scope.getFabricWidth = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: $scope.path + "GetFabricWidth",
+    //    }).then(function successCallback(response) {
+    //        $scope.FabricWidthList = response.data;
+    //    });
+    //}
+    //$scope.getFabricWidth();
 
 
 

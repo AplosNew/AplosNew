@@ -187,7 +187,7 @@
                     <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="100"></div>
                     <div e-column e-template="#ProductionOrderId" e-headertext="PO No" e-width="120"></div>
                     <div e-column e-field="BookingLevel" e-headertext="Booking Level" e-visible="false" e-width="120"></div>
-                    <div e-column e-template="#Article" e-headertext="Article" e-width="300"></div>
+                    <div e-column e-template="#Article" e-headertext="Item/SO" e-width="300"></div>
                     @*<div e-column e-template="#ProductionArticle" e-headertext="Production Article" e-width="200"></div>*@
                     <div e-column e-template="#LotNumber" e-headertext="Lot Number" e-width="130"></div>
                     <div e-column e-template="#ProductionGrade" e-headertext="Grade" e-width="80"></div>
@@ -241,7 +241,8 @@
                 <div class="col-sm-12" style="padding:0px; height:30px;">
                     <div class="col-sm-10" style="padding:0px;">
                         <input type="text" name="Article" ng-model="data.Article" ng-show="data.BookingLevel=='ProductionOrder'" class="form-control">
-                        <input type="text" ng-click="$parent.getSalesOrderPopUp(this);" name="Sales Order" ng-show="data.BookingLevel=='SalesOrder'" placeholder="Select SO Item" ng-model="data.SOArticle" class="form-control">
+                        @*<input type="text" ng-click="$parent.getSalesOrderPopUp(this);" name="Sales Order" ng-show="data.BookingLevel=='SalesOrder'" placeholder="Select SO Item" ng-model="data.SOArticle" class="form-control">*@
+                        <input type="text" ng-click="$parent.getSalesOrderPopUp(this);" name="Sales Order" ng-show="data.BookingLevel=='SalesOrder'" placeholder="Select SO Item" ng-model="data.SalesOrderId" class="form-control">
                         <input type="text" ng-click="$parent.getMasterOrderItemPopUp(this);" name="Master Order Item" ng-show="data.BookingLevel=='MasterOrderItem'" placeholder="Select MO Item" ng-model="data.MOIArticle" class="form-control">
                         <input type="text" ng-click="$parent.getProductCodePopUp(this);" name="Product Code" ng-show="data.BookingLevel=='ProductCode'" ng-model="data.ProductCodeArticle" placeholder="Select Product Code" class="form-control">
                         @*<input type="text" ng-disabled="true" name="Sales Order" ng-show="data.BookingLevel=='SalesOrder'" placeholder="Select SO Item" ng-model="data.SOArticle" class="form-control">
@@ -712,7 +713,8 @@
                          e-allowselection="false" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="120"></div>
-                            <div e-column e-type="string" e-field="SOId" e-headertext="Sales Order No" e-width="60"></div>
+                            <div e-column e-type="string" e-field="SONo" e-headertext="Sales Order No" e-width="60"></div>
+                            <div e-column e-type="string" e-field="LineItemReference" e-headertext="LineItemReference" e-width="80"></div>
                             <div e-column e-type="string" e-field="MOIId" e-headertext="Line Item No" e-width="60"></div>
                             <div e-column e-field="DeliveryDate" e-headertext="Delivery Date" e-width="60"></div>
                             <div e-column e-type="number" e-format="{0:0.00}" e-field="PlannedQty" e-headertext="SO Qty" e-textalign="right" e-width="60"></div>
