@@ -191,6 +191,10 @@ namespace Library.Service.Extension.OrderControl
                     sheet[ROW, COL].ColumnWidth = 10;
                     int colSONos = COL;
                     COL++;
+                    sheet[ROW, COL].Text = "Line Item Reference";
+                    sheet[ROW, COL].ColumnWidth = 10;
+                    int colLIR = COL;
+                    COL++;
                     sheet[ROW, COL].Text = "Update Date";
                     sheet[ROW, COL].ColumnWidth = 8;
                     int colUpdateDate = COL;
@@ -257,6 +261,7 @@ namespace Library.Service.Extension.OrderControl
                         sheet[ROW, colDate].Text = clsStaticInfo.GetDate(dtOrderMaster.DefaultView[i]["Date"].ToString());
                         sheet[ROW, colStatus].Text = dtOrderMaster.DefaultView[i]["Status"].ToString();
                         sheet[ROW, colSONos].Text = dtOrderMaster.DefaultView[i]["SoNo"].ToString();
+                        sheet[ROW, colLIR].Text = dtOrderMaster.DefaultView[i]["LineItemReference"].ToString();
                         sheet[ROW, colBuyerItem].Text = dtOrderMaster.DefaultView[i]["BuyerItem"].ToString();
                         sheet[ROW, colBuyerCountry].Text = dtOrderMaster.DefaultView[i]["BuyerCountry"].ToString();
                         sheet[ROW, colPONumber].Text = dtOrderMaster.DefaultView[i]["PONumber"].ToString();
@@ -388,6 +393,10 @@ namespace Library.Service.Extension.OrderControl
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colSONo = COL;
                 COL++;
+                sheet[ROW, COL].Text = "Line Item Reference";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colLIR = COL;
+                COL++;
                 sheet[ROW, COL].Text = "Order Category";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colOrderCategory = COL;
@@ -498,6 +507,7 @@ namespace Library.Service.Extension.OrderControl
                     sheet[ROW, colStyleNo].Text = dtOrderMaster.DefaultView[i]["BuyerItemNo"].ToString();
                     sheet[ROW, colOwnStyleNo].Text = dtOrderMaster.DefaultView[i]["OwnItemNo"].ToString();
                     sheet[ROW, colSONo].Text = dtOrderMaster.DefaultView[i]["SalesOrderId"].ToString();
+                    sheet[ROW, colLIR].Text = dtOrderMaster.DefaultView[i]["LineItemReference"].ToString();
                     sheet[ROW, colQty].Number = clsStaticInfo.dbl(dtOrderMaster.DefaultView[i]["SOQuantity"].ToString());
                     sheet[ROW, colSODesc].Text = dtOrderMaster.DefaultView[i]["SODesc"].ToString();
                     sheet[ROW, colOrderCategory].Text = dtOrderMaster.DefaultView[i]["OrderCategory"].ToString();
@@ -552,7 +562,7 @@ namespace Library.Service.Extension.OrderControl
             string sql = @"SELECT 
                             CASE WHEN ISNULL(pod.Id,'')='' THEN 'Missing Production Order' 
                             ELSE CASE WHEN ISNULL(TTT.Id,'')='' THEN 'Missing Planning Schedule' ELSE '' END END AS StatusFlag,
-                            SO.Id AS SalesOrderId,so.OrderStatusId AS SalesOrderStatusId,ps.UserName AS ProductionStatus,
+                            SO.Id AS SalesOrderId,SO.LineItemReference,so.OrderStatusId AS SalesOrderStatusId,ps.UserName AS ProductionStatus,
                              pod.ProductionOrderId,EN.UserName AS EntityName,PLN.UserName AS Plant,oc.UserName AS OrderCategory,
                             mm.userName AS Material,PM.UserName AS Product,pc.UserName AS ProductCategory,PM.Id ProductMasterId,
                             so.Qty AS SOQuantity, Format(so.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,MO.Id AS MasterOrderId,
@@ -600,7 +610,7 @@ MM.UserName AS Material,MMA.StandardName AS Article,
                                                     moi.BuyerReferenceNo AS BuyerItem,moi.OwnReferenceNo AS OwnItem,
 
                                                     eioc.EmployeeName AS ControlEmployee,eimo.EmployeeName AS MasterOrderEmployee,eien.EmployeeName AS EntityEmployee,
-                                                    pod.ProductionOrderId AS PRNo,so.Id AS SoNo,cp.PONumber, so.Qty AS Quantity,oc.UpdatedDate,
+                                                    pod.ProductionOrderId AS PRNo,so.Id AS SoNo,SO.LineItemReference,cp.PONumber, so.Qty AS Quantity,oc.UpdatedDate,
                                                      Remarks=STUFF((select ','+format(ocrx.AddedDate,'dd-MMM-yyyy')+' '+ ocrx.Remarks
                                                                     from OrderControlRemarks AS ocrx
 		                                                           where oc.Id=ocrx.OrderControlId  ORDER BY ocrx.AddedDate DESC	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
@@ -737,7 +747,10 @@ MM.UserName AS Material,MMA.StandardName AS Article,
                                         trn.SalesOrder XSO 
                                             JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
                             where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-                                               
+                                 LineItemReference=STUFF((select distinct ','+xso.LineItemReference from 
+                                        trn.SalesOrder XSO 
+                                            JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+                            where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),                     
                                                
                                                PONumber=STUFF((select distinct ','+xcp.Id from 
                                         trn.SalesOrder XSO 
