@@ -903,9 +903,9 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public ActionResult PostVendorPayment(string invoiceWriteOffId)
+        public ActionResult PostVendorPayment(string invoiceWriteOffId, VoucherViewModel voucherVM)
         {
-            _invoiceWriteOffService.Post(invoiceWriteOffId);
+            _invoiceWriteOffService.Post(invoiceWriteOffId, voucherVM);
             return Json(new { Message = AplosMessage.Posted });
         }
 
@@ -1021,7 +1021,8 @@ namespace Aplos.Areas.Accounts.Controllers
         [HttpPost]
         public ActionResult PostCustomerInvoiceReceipt(string invoiceWriteOffId)
         {
-            _invoiceWriteOffService.Post(invoiceWriteOffId);
+            VoucherViewModel voucherVM = null;
+            _invoiceWriteOffService.Post(invoiceWriteOffId, voucherVM);
             return Json(new { Message = AplosMessage.Posted });
         }
 

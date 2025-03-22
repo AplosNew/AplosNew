@@ -2626,49 +2626,53 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.saveSplitSalesOrder = function () {
 
-        if ($scope.soSplitModel.Qty <= 0) {
-            ShowResult("Sales order split quantity can't be zero", 'failure', 'soSplitPoUp');
-            return false;
-        }
-
-        if ($scope.soSplitModel.ParentQty <= $scope.soSplitModel.Qty) {
-            ShowResult("Sales order split quantity '" + $scope.soSplitModel.Qty + "' can't greater than or equal Parent quantity '" + $scope.soSplitModel.ParentQty + "'", 'failure', 'soSplitPoUp');
-            return false;
-        }
-
-        if ($scope.soSplitModel.Rate < $scope.soSplitModel.Discount) {
-            ShowResult("Sales order split discount can't greater than Rate", 'failure', 'soSplitPoUp');
-            return false;
-        }
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.soSplitForm.$valid) {
-            if (baseService.isUndefinedOrNull($scope.soSplitModel.Id)) {
-                $http({
-                    method: 'POST'
-                    , url: $scope.path + 'CreateSplitSalesOrder'
-                    , data: {
-                        'masterItemId': $scope.masterItemId
-                        , 'salesOrderMaster': $scope.soSplitModel
-                    }
-                    , dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure', 'soSplitPoUp');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success', 'soSplitPoUp');
-                        getSalesOrderList();
-                        $scope.getMasterItemList();
-                        angular.element(document.querySelector('#soSplitPoUp')).modal('hide');
-                        $scope.popCode('success', response.data.Message);
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure', 'soSplitPoUp');
-                };
+        try {
+            if ($scope.soSplitModel.Qty <= 0) {
+                ShowResult("Sales order split quantity can't be zero", 'failure', 'soSplitPoUp');
+                return false;
             }
-            //else {
-            //    getSalesOrderTaxCategoryUpdateList($scope.soModel.Id);
-            //}
+
+            if ($scope.soSplitModel.ParentQty <= $scope.soSplitModel.Qty) {
+                ShowResult("Sales order split quantity '" + $scope.soSplitModel.Qty + "' can't greater than or equal Parent quantity '" + $scope.soSplitModel.ParentQty + "'", 'failure', 'soSplitPoUp');
+                return false;
+            }
+
+            if ($scope.soSplitModel.Rate < $scope.soSplitModel.Discount) {
+                ShowResult("Sales order split discount can't greater than Rate", 'failure', 'soSplitPoUp');
+                return false;
+            }
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.soSplitForm.$valid) {
+                if (baseService.isUndefinedOrNull($scope.soSplitModel.Id)) {
+                    $http({
+                        method: 'POST'
+                        , url: $scope.path + 'CreateSplitSalesOrder'
+                        , data: {
+                            'masterItemId': $scope.masterItemId
+                            , 'salesOrderMaster': $scope.soSplitModel
+                        }
+                        , dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure', 'soSplitPoUp');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success', 'soSplitPoUp');
+                            getSalesOrderList();
+                            $scope.getMasterItemList();
+                            angular.element(document.querySelector('#soSplitPoUp')).modal('hide');
+                            $scope.popCode('success', response.data.Message);
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure', 'soSplitPoUp');
+                    };
+                }
+                //else {
+                //    getSalesOrderTaxCategoryUpdateList($scope.soModel.Id);
+                //}
+            }
+        } catch (e) {
+            ShowResult(e, 'failure', 'soSplitPoUp');
         }
     };
 

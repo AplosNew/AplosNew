@@ -20,7 +20,7 @@ namespace Library.Service.Invoices
 
         FinancingTypeGL GetDebitNoteGL(string companyId, string financingTypeId);
 
-        void Post(string adjustmentNoteId, string entityId, string voucherId);
+        void Post(string adjustmentNoteId, VoucherViewModel voucherVM);
 
         string InsertCreditNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, IEnumerable<InvoiceTaxViewModel> tdsTaxList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList);
         string InsertCreditNote_InvoiceSetOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, IEnumerable<InvoiceTaxViewModel> tdsTaxList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList, IEnumerable<VoucherDetailViewModel> voucherDetailInvoiceList);

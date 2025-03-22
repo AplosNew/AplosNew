@@ -772,26 +772,15 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
         $scope.invoiceSalesAvailableList = [];
         $scope.invoiceTaxDetailList = [];
     };
-    $scope.voucher_Post = {
-        Id: null,
-        EntityId: null,
-        CurrencyId: null,
-        CurrencyCode: null,
-        VoucherNo: null,
-        PostingDate: null,
-        DocDate: null,
-        DocRefNo: null,
-        Narration: null,
-        Amount: null
-    };
+    
     $scope.adjustmentNoteId = null;
-    $scope.EntityId_Post = null;
-    $scope.voucherId = null;
+    $scope.voucher_Post = {};
     $scope.confirmPost = function (adjustmentNoteId, data) {
         $scope.adjustmentNoteId = adjustmentNoteId;
-        $scope.EntityId_Post = data.EntityId;
-        $scope.voucherId = data.VoucherId;
+        $scope.voucher_Post = {};
         $scope.voucher_Post = data;
+        $scope.voucher_Post.PostingDate = $filter("dateFiltering")(data.PostingDate);
+        $scope.voucher_Post.DocDate = $filter("dateFiltering")(data.DocDate);
         angular.element(document.querySelector('#PostPopUp')).modal('show');
         //$scope.message_confirmation = "Are you sure to Post?";
         //angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
@@ -799,8 +788,55 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
     $scope.closePostPopUp = function () {
         angular.element(document.querySelector("#PostPopUp")).modal("hide");
     };
+    function containsSpecialChars(str) {
+        const specialChars = /[@!#$%^&*()_+\=\[\]{};':"|,.<>\?`~]/;
+        return specialChars.test(str);
+    }
+    $scope.CheckSpecialCharecter_Edit = function () {
+        try {
+            if (containsSpecialChars($scope.voucher_Post.DocRefNo)) {
+                $scope.voucher_Post.DocRefNo = $scope.voucher_Post.DocRefNo.substring(0, $scope.voucher_Post.DocRefNo.length - 1);
+                throw "No special characters allowed for Doc Ref No.";
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    $scope.checkDocDate_Edit = function () {
+        var msg = "";
+        if (new Date($scope.voucher_Post.DocDate) > new Date()) {
+            $scope.invalidDocDate = true;
+            msg = "Doc date must be below or equal to current Date!";
+        }
+        else if (new Date($scope.voucher_Post.PostingDate) < new Date($scope.voucher_Post.DocDate)) {
+            msg = "Doc date must be below or equal to Posting Date!";
+            $scope.invalidDocDate = true;
+        }
+        else if (baseService.isUndefinedOrNull($scope.voucher_Post.DocDate)) {
+            msg = "Doc Date is required.";
+            $scope.invalidDocDate = true;
+        }
+        else $scope.invalidDocDate = false;
+        return manualValidation("div_DocDate_Edit", $scope.invalidDocDate, msg);
+    };
+
+    $scope.checkPostingDate_Edit = function () {
+        var msg = "";
+        if (new Date($scope.voucher_Post.PostingDate) > new Date()) {
+            msg = "Posting date must be below or equal to current Date!";
+            $scope.invalidPostingDate = true;
+        }
+        else if (baseService.isUndefinedOrNull($scope.voucher_Post.PostingDate)) {
+            msg = "Posting Date is required.";
+            $scope.invalidPostingDate = true;
+        }
+        else {
+            $scope.invalidPostingDate = false;
+        }
+        return manualValidation("div_PostingDate_Edit", $scope.invalidPostingDate, msg);
+    };
     $scope.post = function () {
-        if ($scope.EntityId_Post == null || $scope.EntityId_Post == "" || $scope.EntityId_Post == undefined) {
+        if ($scope.voucher_Post.EntityId == null || $scope.voucher_Post.EntityId == "" || $scope.voucher_Post.EntityId == undefined) {
             ShowResult("Please select Entity First!!", "failure");
         }
         $http({
@@ -808,8 +844,7 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
             url: $scope.postUrl,
             data: {
                 "adjustmentNoteId": $scope.adjustmentNoteId,
-                "entityId": $scope.EntityId_Post,
-                "voucherId": $scope.voucherId
+                "voucherVM": $scope.voucher_Post
             },
             dataType: "JSON"
         }).then(function successCallback(response) {

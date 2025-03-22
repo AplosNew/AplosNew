@@ -612,19 +612,70 @@ namespace Library.Planning.OrderManagement
                 CopyRow(dtFromMaster.Rows[0], ref drSalesOrder);
                 drSalesOrder["Id"] = NewId;
                 drSalesOrder["ParentId"] = salesOrderMaster.ParentId;
-                drSalesOrder["Qty"] = salesOrderMaster.Qty;
                 drSalesOrder["OrderStatusId"] = salesOrderMaster.OrderStatusId;
+                drSalesOrder["SOType"] = salesOrderMaster.SOType == null || salesOrderMaster.SOType == "" ? drSalesOrder["SOType"]: salesOrderMaster.SOType ;
                 drSalesOrder["OrderCategoryId"] = salesOrderMaster.OrderCategoryId;
                 drSalesOrder["DeliveryDate"] = salesOrderMaster.DeliveryDate;
+                drSalesOrder["DeliveryGroup"] = salesOrderMaster.DeliveryGroup == null || salesOrderMaster.DeliveryGroup == "" ? drSalesOrder["DeliveryGroup"]: salesOrderMaster.DeliveryGroup;
                 drSalesOrder["ShipmentModeId"] = salesOrderMaster.ShipmentModeId;
-                drSalesOrder["DestinationId"] = salesOrderMaster.DestinationId;
+
+                if (salesOrderMaster.ReviseDate == null || drSalesOrder["ReviseDate"].ToString() == null)
+                {
+                    drSalesOrder["ReviseDate"] = DBNull.Value;
+                }
+                else if (salesOrderMaster.ReviseDate != null && drSalesOrder["ReviseDate"].ToString() == null)
+                {
+                    drSalesOrder["ReviseDate"] = salesOrderMaster.ReviseDate;
+                }
+                else
+                {
+                    drSalesOrder["ReviseDate"] = drSalesOrder["ReviseDate"];
+                }
+               
+                drSalesOrder["BillDiscountingDays"] = salesOrderMaster.BillDiscountingDays == 0 ? drSalesOrder["BillDiscountingDays"]: salesOrderMaster.BillDiscountingDays ;
                 drSalesOrder["PackingTypeId"] = salesOrderMaster.PackingTypeId;
-                drSalesOrder["LineItemReference"] = salesOrderMaster.LineItemReference;
+
+                if (salesOrderMaster.PlanExFactoryDate == null || drSalesOrder["PlanExFactoryDate"].ToString() == null)
+                {
+                    drSalesOrder["PlanExFactoryDate"] = DBNull.Value;
+                }
+                else if (salesOrderMaster.PlanExFactoryDate != null && drSalesOrder["PlanExFactoryDate"].ToString() == null)
+                {
+                    drSalesOrder["PlanExFactoryDate"] = salesOrderMaster.PlanExFactoryDate;
+                }
+                else
+                {
+                    drSalesOrder["PlanExFactoryDate"] = drSalesOrder["PlanExFactoryDate"];
+                }
+
+                drSalesOrder["DestinationDescription"] = salesOrderMaster.DestinationDescription == null || salesOrderMaster.DestinationDescription == "" ? drSalesOrder["DestinationDescription"]:salesOrderMaster.DestinationDescription ;
+                drSalesOrder["LSD"] = salesOrderMaster.LSD;
                 drSalesOrder["MainRawMaterialInhouseDate"] = salesOrderMaster.MainRawMaterialInhouseDate;
                 drSalesOrder["OtherRawMaterialInhouseDate"] = salesOrderMaster.OtherRawMaterialInhouseDate;
-                drSalesOrder["LSD"] = salesOrderMaster.LSD;
                 drSalesOrder["ShipmentFromStock"] = salesOrderMaster.ShipmentFromStock;
+                drSalesOrder["Reason"] = salesOrderMaster.Reason == null || salesOrderMaster.Reason == "" ? drSalesOrder["Reason"]: salesOrderMaster.Reason ;
+                drSalesOrder["CustomerPOId"] = salesOrderMaster.CustomerPOId == null || salesOrderMaster.CustomerPOId == "" ? drSalesOrder["CustomerPOId"]:salesOrderMaster.CustomerPOId ;
+
+                if (salesOrderMaster.CommitmentDate == null || drSalesOrder["CommitmentDate"].ToString() == null)
+                {
+                    drSalesOrder["CommitmentDate"] = DBNull.Value;
+                }
+                else if (salesOrderMaster.CommitmentDate != null && drSalesOrder["CommitmentDate"].ToString() == null)
+                {
+                    drSalesOrder["CommitmentDate"] = salesOrderMaster.CommitmentDate;
+                }
+                else
+                {
+                    drSalesOrder["CommitmentDate"] = drSalesOrder["CommitmentDate"];
+                }
+
+                drSalesOrder["DestinationId"] = salesOrderMaster.DestinationId;
+                drSalesOrder["Qty"] = salesOrderMaster.Qty;
+                drSalesOrder["ResponsiblePersonId"] = salesOrderMaster.ResponsiblePersonId == null || salesOrderMaster.ResponsiblePersonId.ToString() == "" ? drSalesOrder["ResponsiblePersonId"]:salesOrderMaster.ResponsiblePersonId ;
                 drSalesOrder["ProductionType"] = salesOrderMaster.ProductionType;
+                drSalesOrder["StockResponsiblePersonId"] = salesOrderMaster.StockResponsiblePersonId == null || salesOrderMaster.StockResponsiblePersonId.ToString() == "" ? drSalesOrder["StockResponsiblePersonId"]:salesOrderMaster.StockResponsiblePersonId ;
+                drSalesOrder["LineItemReference"] = salesOrderMaster.LineItemReference == null || salesOrderMaster.LineItemReference.ToString() == "" ? drSalesOrder["LineItemReference"]: salesOrderMaster.LineItemReference ;
+                drSalesOrder["Description"] = salesOrderMaster.Description == null || salesOrderMaster.Description.ToString() == "" ? drSalesOrder["Description"]: salesOrderMaster.Description ;
                 dsToSalesOrder.Tables[0].Rows.Add(drSalesOrder);
 
                 for (int i = 0; i < dtFromFirstCharacteristics.Rows.Count; i++)
