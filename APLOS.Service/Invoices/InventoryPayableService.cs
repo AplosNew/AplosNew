@@ -7631,7 +7631,7 @@ namespace Library.Service.Invoices
             _AdjustmentNoteDetailRepository.Insert(adjustmentNoteDetail);
             return adjustmentNoteDetail;
         }
-        public string InsertPurchaseReturnPayable(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList)
+        public string InsertPurchaseReturnPayable(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, bool isDebitNote)
         {
             var flag = false;
             try
@@ -7651,6 +7651,16 @@ namespace Library.Service.Invoices
                 voucherVM.DocRefNo = "PR" + voucherVM.DocRefNo;
 
                 var adjustmentNote = InsertAdjustmentNote(voucherVM);
+                if (isDebitNote == false)
+                {
+                    adjustmentNote.WrittenOffAmount = adjustmentNote.Amount;
+                    adjustmentNote.IsWrittenOff = true;
+                }
+                else
+                {
+                    adjustmentNote.WrittenOffAmount = 0;
+                    adjustmentNote.IsWrittenOff = false;
+                }
 
                 //invoicewriteoff
                 // var invoiceWriteOff = InsertInvoiceWriteOff(voucherVM);
@@ -7667,6 +7677,7 @@ namespace Library.Service.Invoices
                 purhcaseReturn.Status = "Posting";
                 purhcaseReturn.VoucherId = voucher.Id;
                 purhcaseReturn.DocRefNo = voucherVM.DocRefNo;
+                purhcaseReturn.IsDebitNote = isDebitNote;
                 _purchaseReturnRepository.Update(purhcaseReturn);
 
 
@@ -7674,6 +7685,7 @@ namespace Library.Service.Invoices
                 decimal totalAmountDr = 0;
                 decimal totalAmountCr = 0;
                 var currentInvoiceWriteOffDetailId = 0;
+                string InvoiceWriteOffDetailId = null;
                 // INSERT INTO VoucherDetail
 
 
@@ -7688,68 +7700,81 @@ namespace Library.Service.Invoices
                             GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                             BudgetMasterId = voucherDetailVM.BudgetMasterId,
                             ActivityId = voucherDetailVM.ActivityId,
-                            Amount = adjustmentNote.Amount,
-                            WrittenOffAmount = 0,
-                            IsWrittenOff = false
+                            Amount = adjustmentNote.Amount
                         };
-                        InsertAdjustmentNoteDetail(adjustmentNote, adjustmentNoteDetail, 1);
-                        // INSERT INTO InvoiceWriteOff
-                        var invoiceWriteOff = _invoiceWriteOffService.InsertInvoiceWriteOff(voucherVM);
-                        
-                        var invoiceIds = voucherDetailVMList.Select(r => r.InvoiceId);
-                        var inviceDbList = _invoiceService.Query(r => invoiceIds.Contains(r.Id)).Select().ToList();
-                        var invoiceDetailIds = voucherDetailVMList.Select(r => r.InvoiceDetailId);
-                        var inviceDetailDbList = _invoiceService.GetInvoiceDetailList(r => invoiceDetailIds.Contains(r.Id)).Select().ToList();
-
-                        var invoiceDetail = inviceDetailDbList.FirstOrDefault(r => r.Id == voucherDetailVM.InvoiceDetailId);
-                        if (null == invoiceDetail)
-                            throw new CustomException("Invoice not found!");
-
-                        invoiceDetail.WrittenOffAmount += voucherDetailVM.Amount;
-                        if (invoiceDetail.NetAmount < invoiceDetail.WrittenOffAmount)
-                            throw new CustomException("Received amount can not cross balance amount.");
-
-                        invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
-                        invoiceDetail.UpdatedBy = invoiceWriteOff.AddedBy;
-                        invoiceDetail.UpdatedDate = invoiceWriteOff.AddedDate;
-                        invoiceDetail.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
-                        _invoiceService.UpdateInvoiceDetail(invoiceDetail);
-
-                        var invoice = inviceDbList.First(r => r.Id == invoiceDetail.InvoiceId);
-                        invoice.WrittenOffAmount = invoiceDetail.WrittenOffAmount;
-                        invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
-                        invoice.UpdatedBy = invoiceWriteOff.AddedBy;
-                        invoice.UpdatedDate = invoiceWriteOff.AddedDate;
-                        invoice.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
-                        _invoiceService.Update(invoice);
-
-                        // INSERT INTO InvoiceWriteOffDetail
-                        currentInvoiceWriteOffDetailId++;
-                        var invoiceWriteOffDetail = new InvoiceWriteOffDetail
+                        if (isDebitNote == false)
                         {
-                            GLGeneralInfoId = invoiceDetail.GLGeneralInfoId,
-                            BudgetMasterId = invoiceDetail.BudgetMasterId,
-                            ActivityId = invoiceDetail.ActivityId,
-                            CurrencyId = invoice.CurrencyId,
-                            InvoiceWriteOffId = invoiceWriteOff.Id,
-                            InvoiceId = voucherDetailVM.InvoiceId,
-                            InvoiceDetailId = voucherDetailVM.InvoiceDetailId,
-                            CompanyId = voucherVM.CompanyId,
-                            PlantId = voucherVM.PlantId,
-                            PartyId = invoice.PartyId,
-                            PartyPlantId = invoice.PartyPlantId,
-                            PartyType = invoice.PartyType,
-                            Amount = voucherDetailVM.Amount,
-                            AddedBy = invoiceWriteOff.AddedBy,
-                            AddedDate = invoiceWriteOff.AddedDate,
-                            AddedFromIP = invoiceWriteOff.AddedFromIP,
-                            Archive = invoiceWriteOff.Archive,
-                            DocDate = voucherVM.DocDate,
-                            DocRefNo = voucherVM.DocRefNo,
-                            Narration = voucherVM.Narration
-                        };
-                        _invoiceWriteOffService.InsertInvoiceWriteOffDetail(invoiceWriteOff, invoiceWriteOffDetail, currentInvoiceWriteOffDetailId);
+                            adjustmentNoteDetail.WrittenOffAmount = adjustmentNote.Amount;
+                            adjustmentNoteDetail.IsWrittenOff = true;
+                        }
+                        else
+                        {
+                            adjustmentNoteDetail.WrittenOffAmount = 0;
+                            adjustmentNoteDetail.IsWrittenOff = false;
+                        }
+                        InsertAdjustmentNoteDetail(adjustmentNote, adjustmentNoteDetail, 1);
+                        if (isDebitNote == false)
+                        {
+                            // INSERT INTO InvoiceWriteOff
+                            var invoiceWriteOff = _invoiceWriteOffService.InsertInvoiceWriteOff(voucherVM);
 
+                            var invoiceIds = voucherDetailVMList.Select(r => r.InvoiceId);
+                            var inviceDbList = _invoiceService.Query(r => invoiceIds.Contains(r.Id)).Select().ToList();
+                            var invoiceDetailIds = voucherDetailVMList.Select(r => r.InvoiceDetailId);
+                            var inviceDetailDbList = _invoiceService.GetInvoiceDetailList(r => invoiceDetailIds.Contains(r.Id)).Select().ToList();
+
+                            var invoiceDetail = inviceDetailDbList.FirstOrDefault(r => r.Id == voucherDetailVM.InvoiceDetailId);
+                            if (null == invoiceDetail)
+                                throw new CustomException("Invoice not found!");
+
+                            invoiceDetail.WrittenOffAmount += voucherDetailVM.Amount;
+                            if (invoiceDetail.NetAmount < invoiceDetail.WrittenOffAmount)
+                                throw new CustomException("Received amount can not cross balance amount.");
+
+                            invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
+                            invoiceDetail.UpdatedBy = invoiceWriteOff.AddedBy;
+                            invoiceDetail.UpdatedDate = invoiceWriteOff.AddedDate;
+                            invoiceDetail.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
+                            _invoiceService.UpdateInvoiceDetail(invoiceDetail);
+
+                            var invoice = inviceDbList.First(r => r.Id == invoiceDetail.InvoiceId);
+                            invoice.WrittenOffAmount = invoiceDetail.WrittenOffAmount;
+                            invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
+                            invoice.UpdatedBy = invoiceWriteOff.AddedBy;
+                            invoice.UpdatedDate = invoiceWriteOff.AddedDate;
+                            invoice.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
+                            _invoiceService.Update(invoice);
+
+                            // INSERT INTO InvoiceWriteOffDetail
+                            currentInvoiceWriteOffDetailId++;
+                            var invoiceWriteOffDetail = new InvoiceWriteOffDetail
+                            {
+                                GLGeneralInfoId = invoiceDetail.GLGeneralInfoId,
+                                BudgetMasterId = invoiceDetail.BudgetMasterId,
+                                ActivityId = invoiceDetail.ActivityId,
+                                CurrencyId = invoice.CurrencyId,
+                                InvoiceWriteOffId = invoiceWriteOff.Id,
+                                InvoiceId = voucherDetailVM.InvoiceId,
+                                InvoiceDetailId = voucherDetailVM.InvoiceDetailId,
+                                AdjustmentNoteId = adjustmentNoteDetail.AdjustmentNoteId,
+                                AdjustmentNoteDetailId = adjustmentNoteDetail.Id,
+                                CompanyId = voucherVM.CompanyId,
+                                PlantId = voucherVM.PlantId,
+                                PartyId = invoice.PartyId,
+                                PartyPlantId = invoice.PartyPlantId,
+                                PartyType = invoice.PartyType,
+                                Amount = voucherDetailVM.Amount,
+                                AddedBy = invoiceWriteOff.AddedBy,
+                                AddedDate = invoiceWriteOff.AddedDate,
+                                AddedFromIP = invoiceWriteOff.AddedFromIP,
+                                Archive = invoiceWriteOff.Archive,
+                                DocDate = voucherVM.DocDate,
+                                DocRefNo = voucherVM.DocRefNo,
+                                Narration = voucherVM.Narration
+                            };
+                            _invoiceWriteOffService.InsertInvoiceWriteOffDetail(invoiceWriteOff, invoiceWriteOffDetail, currentInvoiceWriteOffDetailId);
+                            InvoiceWriteOffDetailId = invoiceWriteOffDetail.Id;
+                        }
                         var voucherDetail = new VoucherDetail
                         {
                             GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
@@ -7762,12 +7787,11 @@ namespace Library.Service.Invoices
                             TrnNature = "DebitNote",
                             AdjustmentNoteDetailId = adjustmentNoteDetail.Id,
                             DrAmount = voucherVM.Amount,
-                            InvoiceWriteOffDetailId = invoiceWriteOffDetail.Id
+                            InvoiceWriteOffDetailId = InvoiceWriteOffDetailId
                         };
                         totalAmountDr += voucherDetail.DrAmount;
                         currentVoucherDetailId++;
                         _voucherService.InsertVoucherDetail(voucher, voucherDetail, currentVoucherDetailId);
-
                         // INSERT INTO VoucherDetailCurrency
                         _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetail, new VoucherDetailCurrency
                         {
