@@ -1152,6 +1152,11 @@ namespace Library.MaterialManagement.Inventory
 																																LEFT join TRN.InventoryTransferHistory ITH ON ITH.InventoryReceiveDetailId=IRD.Id		
 																														)x
 																														WHERE x.Id='" + item.InventoryReceiveDetailId + "'").FirstOrDefault());
+                                    //this condition will apply for short time as few issue have done from normal issue instead of BOQ issue
+                                    if(Convert.ToDecimal(item.BaseIssueQty)==0 && Convert.ToDecimal(item.ActualIssueQty) > 0){
+                                        item.BaseIssueQty = item.ActualIssueQty;
+                                        item.IssueQty = item.ActualIssueQty;
+                                    }
                                     decimal RemainingGRNQty = Convert.ToDecimal((item.BaseQty - (item.BaseIssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty + item.InventoryTransferQty)) + item.IssueReturnQty);
                                     decimal IssueDeduactionQty = 0;
                                     decimal RemainingQty = Convert.ToDecimal(_issueHistoryRepository.SqlQuery<decimal>(@"Select BaseQty-ISNULL(IIH.IssueQty,0) BalanceQty from TRN.InventoryReceiveDetail ird 

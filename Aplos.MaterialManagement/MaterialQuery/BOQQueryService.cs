@@ -196,7 +196,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                     WHERE  IM.CompanyId='" + companyId + "' AND IM.PlantId='"+plantId+@"'
                     AND IR.[Status]='Posting' AND IR.IsFOC=0
 					AND IRD.MaterialStorageId='"+ materialStorageId + @"' 
-					AND (IRD.POId IN ("+POId+ @") OR IRD.POId IN (''))  AND   SO.OrderStatusId='Active'
+					AND (IRD.POId IN ("+POId+ @") OR IRD.POId IN (''))  --AND   SO.OrderStatusId='Active'
 					 AND grnmap.BaseQty !=ISNULL(II.IssueQty,0)  
                     AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) 
 					) x";
@@ -238,7 +238,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								 GROUP BY IHB.InventoryReceiveDetailId ,IHB.BOQDetailId
 								 ) II ON II.InventoryReceiveDetailId=grnmap.InventoryReceiveDetailId  
                     WHERE  IM.CompanyId='" + companyId + @"' AND IM.PlantId='"+ plantId + "' AND IRD.MaterialStorageId='"+ materialStorageId + @"'
-                    	AND IRD.POId<>'' AND grnmap.BOQDetailId<>''  AND   SO.OrderStatusId='Active'
+                    	AND IRD.POId<>'' AND grnmap.BOQDetailId<>''  --AND   SO.OrderStatusId='Active'
                     AND IR.[Status]='Posting' AND IR.IsFOC=0 AND IRD.BaseQty !=ISNULL(II.IssueQty,0) 
                     AND MM.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                         LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
