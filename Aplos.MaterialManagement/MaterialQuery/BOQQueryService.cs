@@ -196,7 +196,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                     WHERE  IM.CompanyId='" + companyId + "' AND IM.PlantId='"+plantId+@"'
                     AND IR.[Status]='Posting' AND IR.IsFOC=0
 					AND IRD.MaterialStorageId='"+ materialStorageId + @"' 
-					AND (IRD.POId IN ("+POId+ @") OR IRD.POId IN (''))  AND   SO.OrderStatusId='Active'
+					AND (IRD.POId IN ("+POId+ @") OR IRD.POId IN (''))  --AND   SO.OrderStatusId='Active'
 					 AND grnmap.BaseQty !=ISNULL(II.IssueQty,0)  
                     AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) 
 					) x";
