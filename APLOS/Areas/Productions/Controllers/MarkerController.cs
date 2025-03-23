@@ -17,6 +17,7 @@ using Newtonsoft.Json;
 using Library.Service.Helpers;
 using System.IO;
 using Library.Core;
+using Library.MaterialManagement.CutPlan;
 
 #endregion Using
 
@@ -28,6 +29,7 @@ namespace Aplos.Areas.Productions.Controllers
         string TableName = "dbo.MarkerMaster";
         string DetailTableName = "dbo.MarkerDetails";
         private readonly ISqlRepository _sqlRepository;
+        clsCutPlan clsCP = new clsCutPlan();
         public MarkerController(ISqlRepository R)
         {
             _sqlRepository = R;
@@ -54,21 +56,13 @@ namespace Aplos.Areas.Productions.Controllers
         [Authorize, HttpGet]
         public JsonResult GetCheckByCbo()
         {
-            var sql = @"select distinct E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text,A.ActionStatus  
-                          from dbo.AuthorizationConfig A 
-                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where E.EmployeeStatus='Active' AND A.ActionStatus= 'MarkerCheckedBy'";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            return Json(clsCP.GetMarkerCheckByCbo(), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
         public JsonResult GetApprovedByCbo()
         {
-            var sql = @"select distinct E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text,A.ActionStatus  
-                          from dbo.AuthorizationConfig A 
-                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where E.EmployeeStatus='Active' AND A.ActionStatus='MarkerApproveBy'";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            return Json(clsCP.GetMarkerApproveByCbo(), JsonRequestBehavior.AllowGet);
         }
         [AllowAnonymous]
         public JsonResult GetCbo()
@@ -105,7 +99,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                 con.OpenDataSetThroughAdapter("select * from dbo.MarkerMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
-                con.OpenDataSetThroughAdapter("select * from [dbo].[GRNSOMap] where MarkerId='" + data["Id"] + "'", out dsGRN, false, "1"); 
+                con.OpenDataSetThroughAdapter("select * from [dbo].[GRNSOMap] where MarkerId='" + data["Id"] + "'", out dsGRN, false, "1");
                 con.OpenDataSetThroughAdapter("select * from dbo.MarkerSalesOrder where MarkerId='" + data["Id"] + "'", out dsSO, false, "1");
 
                 string _Id = "";
@@ -200,7 +194,7 @@ namespace Aplos.Areas.Productions.Controllers
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                
+
                 con.OpenDataSetThroughAdapter("select * from dbo.MarkerMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
@@ -208,7 +202,7 @@ namespace Aplos.Areas.Productions.Controllers
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
-                 
+
                     _Id = data["Id"].ToString();
                     data["CheckByDate"] = DateTime.Now;
                     EditRow(dsMaster.Tables[0].Rows[0], data);
@@ -343,91 +337,60 @@ namespace Aplos.Areas.Productions.Controllers
         [Authorize, HttpPost]
         public ActionResult GetList()
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select m.* From MarkerMaster m
-                                Where CheckByStatus IN('To Be Check','Pending','Reject')
-                                order by m.Sequence ";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            return Json(clsCP.GetMarkerData(), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
         public ActionResult GetSOList(string MasterPlanId)
         {
-            string sql = @"select distinct SO.Id SONo,CAST(0 as bit) Flag,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,MOI.OwnReferenceNo,MOI.BuyerReferenceNo,SO.Qty
-,isnull((select SOPlanQty from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id),SO.Qty + (MO.ExtraOrderPercentage*SO.Qty / 100)) as SOPlanQty,SO.Reason Remarks
+            return Json(clsCP.GetSOList(MasterPlanId), JsonRequestBehavior.AllowGet);
+        }
 
-from TRN.ProductionOrder PO
-left join TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderId=PO.Id
-left join TRN.ProductionOrderDetail POD ON POD.ProductionOrderId=PO.Id
-left join TRN.SalesOrder SO ON SO.Id=POD.SalesOrderId
-left join [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
-left join [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
-LEFT JOIN [MST].[MasterPlanSODetails] CPD on CPD.SalesOrderId=SO.Id and CPD.MasterPlanId='" + MasterPlanId + @"'
-where CPD.MasterPlanId = '" + MasterPlanId + @"'
-and PO.ProductionStatusId in (select Id from HKP.ProductionStatus where MasterPlanApplicable=1)
-and SO.OrderStatusId in (select Id from HKP.OrderStatus OS where OS. MasterPlanApplicable=1)
-and SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + @"' and Status=1) ";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        [Authorize, HttpGet]
+        public ActionResult GetMarkerSOData(string markerId)
+        {
+            try
+            {
+                return Json(clsCP.GetMarkerSOData(markerId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
         }
 
         [Authorize, HttpGet]
         public ActionResult GetFabricGRNRowList(string soId)
         {
-            string sql = @"SELECT CAST(0 as bit) FlagG, MP.Id,MP.InventoryReceiveDetailId,MP.FirstCharacteristicsValueId,IRD.InventoryReceiveId,IRD.TransactionQty,UOM.UserName UOM,BUoM.UserName BaseUoM,IR.Id GRNNo,IR.GRNDate
-,P.UserName PartyName,MM.UserName MaterialMasterName,MMA.StandardName ArticleName,CV.UserName SKUValue,MP.SalesOrderId
-FROM dbo.GRNSOMap MP
-LEFT JOIN  [TRN].[InventoryReceiveDetail] IRD ON MP.InventoryReceiveDetailId=IRD.Id
-LEFT JOIN TRN.InventoryReceive IR ON IRD.InventoryReceiveId=IR.Id
-LEFT JOIN HKP.Party P ON IR.PartyId=P.Id
-LEFT JOIN TRN.InventoryMaterial IM ON IRD.InventoryMaterialId=IM.Id
-LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-LEFT JOIN SCS.UnitOfMeasurement UOM ON IRD.TransactionUoMId=UOM.Id
-LEFT JOIN SCS.UnitOfMeasurement BUoM ON IRD.BaseUOMId=BUoM.Id
-LEFT JOIN MST.MaterialMaster MM ON IM.MaterialMasterId=MM.Id
-LEFT JOIN MST.MaterialMasterArticle MMA ON IM.ArticleId=MMA.Id
-LEFT JOIN [HKP].[CharacteristicsValue] CV ON MP.FirstCharacteristicsValueId=CV.Id
-Where MP.SalesOrderId  " + soId+"";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            return Json(clsCP.GetFabricGRNRowList(soId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetMarkerFabricGRNRowList(string soId, string markerId)
+        {
+            return Json(clsCP.GetMarkerFabricGRNRowList(soId, markerId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
         public ActionResult GetCheckByList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select m.*,mm.UserName FGMaterialMaster, mma.StandardName FGArticle ,c.UserName HeaderName
-                                From MarkerMaster m
-                                left join MST.MaterialMaster mm on mm.Id= m.FGMaterialMasterId
-                                left join MST.MaterialMasterArticle mma on mma.Id= m.FGArticleId
-                                left join HKP.Characteristics c on c.Id= m.CharacteristicsId
-                                Where m.CheckByStatus='To Be Check' AND CheckById='"+identity.EmployeeId+@"'
-                                order by m.Sequence ";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            return Json(clsCP.GetCheckByList(identity.EmployeeId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
         public ActionResult GetApproveByList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select m.*,mm.UserName FGMaterialMaster, mma.StandardName FGArticle ,c.UserName HeaderName
-                                From MarkerMaster m
-                                left join MST.MaterialMaster mm on mm.Id= m.FGMaterialMasterId
-                                left join MST.MaterialMasterArticle mma on mma.Id= m.FGArticleId
-                                left join HKP.Characteristics c on c.Id= m.CharacteristicsId
-                                Where CheckByStatus='Checked' AND ApproveById='" + identity.EmployeeId + @"'
-                                order by m.Sequence ";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+
+            return Json(clsCP.GetApproveByList(identity.EmployeeId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
         public ActionResult GetDetailsList(string masterid)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT CV.Id AS CharacteristicsValueId,CV.Code, CV.UserName AS [Text] 
-                                ,Ratio = case when M.Id is null then '' else M.Ratio end,M.Id
-                                FROM MarkerDetails M
-                            LEFT JOIN hkp.CharacteristicsValue CV ON CV.Id=M.CharacteristicsValueId
-                            Where M.MarkerMasterId='" + masterid + "'  Order by CV.Sequence";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            return Json(clsCP.GetDetailsList(masterid), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
@@ -567,14 +530,14 @@ Where MP.SalesOrderId  " + soId+"";
                     {
                         //if (item.Id != null && item.Ratio != 0)
                         //{
-                            dr = dsChild.Tables[0].DefaultView[0].Row;
-                            dr.BeginEdit();
-                            dr["Ratio"] = item.Ratio;
+                        dr = dsChild.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["Ratio"] = item.Ratio;
 
-                            dr["UpdatedBy"] = identity.Name;
-                            dr["UpdatedDate"] = DateTime.Now;
-                            dr["UpdatedFromIP"] = identity.IPAddress;
-                            dr.EndEdit();
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now;
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr.EndEdit();
                         //}
                     }
                 }

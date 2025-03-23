@@ -16,6 +16,7 @@ function baseService($http, $rootScope, $filter, paginationService) {
         , arrayLength: arrayLength
         , setCurrentPage: setCurrentPage
         , getCompanyConfiguration: getCompanyConfiguration
+        , getNewCompanyConfiguration: getNewCompanyConfiguration
         , isSeqValid: isSeqValid
         , isSequenceValidInList: isSequenceValidInList
         , checkSequence: checkSequence
@@ -34,6 +35,16 @@ function baseService($http, $rootScope, $filter, paginationService) {
     };
     function getCompanyConfiguration(callback) {
         $http.get('Organizations/Company/GetCompanyConfiguration')
+            .then(
+                function successCallback(response) {
+                    callback(response.data);
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    }
+    function getNewCompanyConfiguration(callback) {
+        $http.get('Products/InventoryIssue/GetNewCompanyConfiguration')
             .then(
                 function successCallback(response) {
                     callback(response.data);

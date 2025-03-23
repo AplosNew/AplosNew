@@ -474,6 +474,14 @@ namespace Aplos.Areas.Products.Controllers
         }
         #endregion Operations
 
+        [HttpGet, Authorize]
+        public JsonResult GetNewCompanyConfiguration()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            CompanyExtensionService companyExtensionService = new CompanyExtensionService(_sqlRepository);
+            return Json(companyExtensionService.GetCompanyConfiguration(identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+
         #region Posted and not posted Issue Delete permanently
         [Authorize, HttpGet]
         public JsonResult GetDeletableIssueList(GridParameter parameters)
@@ -2693,7 +2701,8 @@ namespace Aplos.Areas.Products.Controllers
                             LEFT JOIN HKP.Party V ON V.Id = boq.VendorId
                             LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id = pomap.PODetailId
                             LEFT JOIN TRN.PurchaseOrder PO ON PO.Id = POD.InventoryReceiveId
-							WHERE IR.[Status]='Posting' AND   SO.OrderStatusId='Active' AND IRD.MaterialStorageId='" + materialStorageId + "' and IR.PlantId='" + identity.PlantId + @"'
+							WHERE IR.[Status]='Posting' AND (IRD.BaseQty-IRD.BaseIssueQty)>0 --AND   SO.OrderStatusId='Active' 
+                            AND IRD.MaterialStorageId='" + materialStorageId + "' and IR.PlantId='" + identity.PlantId + @"'
                           "+ tempQuery + @"   ";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

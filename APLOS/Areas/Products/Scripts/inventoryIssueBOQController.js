@@ -71,7 +71,13 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
         $scope.materialStockList[index].TrasactopmUomQty = 0;
         $scope.materialStockList[index].TrasactopmUomQty = $scope.materialStockList[index].TempTrasactopmUomQty / getRow[0].BaseUOMFactor
     }
+    //baseService.getNewCompanyConfiguration(function (result) {
+    //    $scope.companyConfig = result;
+    //});
 
+    cboService.getCboEntityByPlant(null, null, '', function (result) {
+        $scope.EntityList = result;
+    });
     $scope.product = {
         Id: null
         , ComapnyGroupId: null
@@ -1045,13 +1051,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
         });
     }
     $scope.CostCenterLoadNew();
-    baseService.getCompanyConfiguration(function (result) {
-        $scope.companyConfig = result;
 
-    });
-    cboService.getCboEntityByPlant(null, null, '', function (result) {
-        $scope.EntityList = result;
-    });
     $scope.BudgetActivityList = [];
 
     $scope.getBudgetActivityInIssueMaterial = function (materialGroupMasterId) {
@@ -1359,7 +1359,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
 
         });
     }
-    $scope.POListDetails();
+    //$scope.POListDetails();
 
 
     $scope.data1 = $scope.lst;
