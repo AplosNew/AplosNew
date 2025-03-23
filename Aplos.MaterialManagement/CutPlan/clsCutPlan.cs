@@ -587,12 +587,9 @@ Where MP.SalesOrderId  " + soId + " AND MP.MarkerId='"+ markerId + "'";
 
         public IEnumerable<object> GetCheckByList(string EmployeeId)
         {
-            string sql = @"select m.*,mm.UserName FGMaterialMaster, mma.StandardName FGArticle ,c.UserName HeaderName
-                                From MarkerMaster m
-                                left join MST.MaterialMaster mm on mm.Id= m.FGMaterialMasterId
-                                left join MST.MaterialMasterArticle mma on mma.Id= m.FGArticleId
-                                left join HKP.Characteristics c on c.Id= m.CharacteristicsId
-                                Where m.CheckByStatus='To Be Check' AND CheckById='" + EmployeeId + @"'
+            string sql = @"select m.*,MP.PlanName MasterPlan From MarkerMaster m
+LEFT JOIN [MST].[MasterPlan] MP ON MP.Id=M.MasterPlanId
+                                Where m.CheckByStatus='To Be Check' --AND m.CheckById='" + EmployeeId + @"'
                                 order by m.Sequence ";
             return _sqlRepository.GetDataCollection(sql, null);
         }
@@ -600,12 +597,9 @@ Where MP.SalesOrderId  " + soId + " AND MP.MarkerId='"+ markerId + "'";
         public IEnumerable<object> GetApproveByList(string EmployeeId)
         {
            
-            string sql = @"select m.*,mm.UserName FGMaterialMaster, mma.StandardName FGArticle ,c.UserName HeaderName
-                                From MarkerMaster m
-                                left join MST.MaterialMaster mm on mm.Id= m.FGMaterialMasterId
-                                left join MST.MaterialMasterArticle mma on mma.Id= m.FGArticleId
-                                left join HKP.Characteristics c on c.Id= m.CharacteristicsId
-                                Where CheckByStatus='Checked' AND ApproveById='" + EmployeeId + @"'
+            string sql = @"select m.*,MP.PlanName MasterPlan From MarkerMaster m
+LEFT JOIN [MST].[MasterPlan] MP ON MP.Id=M.MasterPlanId
+                                Where CheckByStatus='Checked' --AND m.ApproveById='" + EmployeeId + @"'
                                 order by m.Sequence ";
             return _sqlRepository.GetDataCollection(sql, null);
         }
