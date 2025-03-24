@@ -56,7 +56,7 @@ namespace Library.Model.Inventory
         public string EmployeeId { get; set; }
 
         public bool IsApproved { get; set; }
-        public bool IsDebitNote { get; set; }
+        public bool? IsDebitNote { get; set; }
 
 
         public string CheckedBy { get; set; }

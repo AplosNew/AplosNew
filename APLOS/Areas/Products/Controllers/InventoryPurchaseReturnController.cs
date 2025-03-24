@@ -88,17 +88,17 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetPurchaseReturnMaterialPayable(string purchaseReturnId,bool isTaxApplicable)
+        public JsonResult GetPurchaseReturnMaterialPayable(string purchaseReturnId,bool isTaxApplicable, bool isDebitNote)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
             if(!isTaxApplicable)
-            return Json(_accountsInventoryPayableService.GetPurchaseReturnMaterialPayable(identity.CompanyId, identity.PlantId, purchaseReturnId), JsonRequestBehavior.AllowGet);
+            return Json(_accountsInventoryPayableService.GetPurchaseReturnMaterialPayable(identity.CompanyId, identity.PlantId, purchaseReturnId, isDebitNote), JsonRequestBehavior.AllowGet);
             else
-            return Json(_accountsInventoryPayableService.GetPurchaseReturnMaterialRCMPayable(identity.CompanyId, identity.PlantId, purchaseReturnId), JsonRequestBehavior.AllowGet);
+            return Json(_accountsInventoryPayableService.GetPurchaseReturnMaterialRCMPayable(identity.CompanyId, identity.PlantId, purchaseReturnId, isDebitNote), JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public JsonResult InsertPurchaseReturnPayable(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList)
+        public JsonResult InsertPurchaseReturnPayable(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, bool isDebitNote)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -106,7 +106,7 @@ namespace Aplos.Areas.Products.Controllers
             voucherVM.PlantId = identity.PlantId;
             voucherVM.IsPark = false;
             voucherVM.SourceType = SourceType.InventoryReturnPayable.ToString();
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _inventoryPayableService.InsertPurchaseReturnPayable(voucherVM, voucherDetailVMList, invoiceTaxVMList)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _inventoryPayableService.InsertPurchaseReturnPayable(voucherVM, voucherDetailVMList, invoiceTaxVMList, isDebitNote)) });
         }
         [HttpGet, Authorize]
         public ActionResult GetPurchaseReturnReport(ReportFormat reportFormat, string voucherId)

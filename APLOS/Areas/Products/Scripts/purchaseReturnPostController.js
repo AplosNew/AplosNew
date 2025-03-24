@@ -72,7 +72,8 @@ function purchaseReturnPostController(accountService, cboService, commonMessage,
         NoteType: "VendorDebitNote",
         SettlementType: "Others",
         FinancingTypeId: null,
-        CompanyCurrencyRate: 1
+        CompanyCurrencyRate: 1,
+        IsDebitNote: false
     };
 
     $scope.voucherDetail = {
@@ -228,7 +229,8 @@ function purchaseReturnPostController(accountService, cboService, commonMessage,
                     data: {
                         "voucherVM": $scope.voucher,
                         "voucherDetailVMList": $scope.newList,
-                        "invoiceTaxVMList": $scope.invoiceTaxDetailList
+                        "invoiceTaxVMList": $scope.invoiceTaxDetailList,
+                        "isDebitNote": $scope.voucher.IsDebitNote
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -516,12 +518,14 @@ function purchaseReturnPostController(accountService, cboService, commonMessage,
         $scope.voucher.VoucherDate = $filter("dateFiltering")(Date.now());
         $scope.voucher.CompanyCurrencyRate = data.data.ToCurrencyRate;
         $scope.voucher.PurchcaseReturnId = data.data.Id;
+        $scope.voucher.IsTaxApplicable = data.data.IsTaxApplicable;
         $scope.voucher.Id = data.data.Id;
+        $scope.voucher.IsDebitNote = false;
         $scope.paymentTerm();
         getPurchaseReturnList();
         getPurchaseReturnServiceList();
         //getServiceChargeList();
-        getPurchaseReturnMaterialPayableList(data.data.Id, data.data.IsTaxApplicable);
+        getPurchaseReturnMaterialPayableList(data.data.Id, data.data.IsTaxApplicable, $scope.voucher.IsDebitNote);
         //getInventoryTaxList(data.data.Id);
         factoryService.getCurrencyPrecision(data.data.BaseCurrencyId);
         //GetCurrencyExchangeRateList();
@@ -532,6 +536,11 @@ function purchaseReturnPostController(accountService, cboService, commonMessage,
         $scope.valueData = '';
         angular.element(document.querySelector('#PurchaseReturnpopUp')).modal('hide');
     };
+
+    $scope.getPurchaseReturnMaterialPayableListIsDebitNote = function () {
+        getPurchaseReturnMaterialPayableList($scope.voucher.Id, $scope.voucher.IsTaxApplicable, $scope.voucher.IsDebitNote);
+    };
+
     $scope.purchaseReturnList = [];
     function getPurchaseReturnList() {
         $http.get('Products/InventoryPurchaseReturn/GetGetPurchaseReturnMaterialList?purchaseReturnId=' + $scope.voucher.Id)
@@ -554,8 +563,8 @@ function purchaseReturnPostController(accountService, cboService, commonMessage,
     //            $scope.inventoryPayableList = response.data;
     //        });
     //}
-    function getPurchaseReturnMaterialPayableList(purchaseReturnId, isTaxApplicable) {
-        $http.get('Products/InventoryPurchaseReturn/GetPurchaseReturnMaterialPayable?purchaseReturnId=' + purchaseReturnId + '&IsTaxApplicable=' + isTaxApplicable )
+    function getPurchaseReturnMaterialPayableList(purchaseReturnId, isTaxApplicable, isDebitNote) {
+        $http.get('Products/InventoryPurchaseReturn/GetPurchaseReturnMaterialPayable?purchaseReturnId=' + purchaseReturnId + '&IsTaxApplicable=' + isTaxApplicable + '&isDebitNote=' + isDebitNote )
             .then(function (response) {
                 $scope.inventoryPayableList = [];
                 $scope.inventoryReceiveDetailList = [];
