@@ -589,7 +589,7 @@ Where MP.SalesOrderId  " + soId + " AND MP.MarkerId='"+ markerId + "'";
         {
             string sql = @"select m.*,MP.PlanName MasterPlan From MarkerMaster m
 LEFT JOIN [MST].[MasterPlan] MP ON MP.Id=M.MasterPlanId
-                                Where m.CheckByStatus='To Be Check' --AND m.CheckById='" + EmployeeId + @"'
+                                Where m.CheckByStatus='To Be Check' AND m.CheckById='" + EmployeeId + @"'
                                 order by m.Sequence ";
             return _sqlRepository.GetDataCollection(sql, null);
         }
@@ -599,7 +599,7 @@ LEFT JOIN [MST].[MasterPlan] MP ON MP.Id=M.MasterPlanId
            
             string sql = @"select m.*,MP.PlanName MasterPlan From MarkerMaster m
 LEFT JOIN [MST].[MasterPlan] MP ON MP.Id=M.MasterPlanId
-                                Where CheckByStatus='Checked' --AND m.ApproveById='" + EmployeeId + @"'
+                                Where CheckByStatus='Checked' AND ApprovedStatus<> 'Approved ' AND m.ApproveById='" + EmployeeId + @"'
                                 order by m.Sequence ";
             return _sqlRepository.GetDataCollection(sql, null);
         }
