@@ -30,9 +30,8 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Master Plan<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <div class="input-group">
                                 <input type="text" name="Master Plan" ng-model="ModelNew.MasterPlan" disabled class="form-control" readonly required>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -50,18 +49,29 @@
                             <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" disabled class="form-control" required tabindex="4" maxlength="50">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Check By</label>
-                        <div class="col-sm-8">
+
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">CheckBy Status<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
                             <div class="select-style">
-                                <select name="Check By" disabled class="form-control" ng-model="ModelNew.CheckById" tabindex="13">
+                                <select name="CheckByStatus" class="form-control" ng-model="ModelNew.CheckByStatus" required tabindex="13">
                                     <option value=""></option>
-                                    <option ng-repeat="item in CheckByList" value="{{item.Value}} ">{{item.Text}}</option>
+                                    <option ng-repeat="item in CheckByStatusList" value="{{item.Value}} ">{{item.Text}}</option>
                                 </select>
                             </div>
                         </div>
                     </div>
-
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Approve By<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select name="Approve By" class="form-control" ng-model="ModelNew.ApproveById" required tabindex="13">
+                                    <option value=""></option>
+                                    <option ng-repeat="item in approvedByList" value="{{item.Value}} ">{{item.Text}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class="col-sm-12 control-label"></label>
                     </div>
@@ -265,7 +275,6 @@
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                        <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                         <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                     </ul>
                 </div>

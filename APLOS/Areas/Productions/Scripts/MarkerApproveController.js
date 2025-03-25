@@ -7,11 +7,41 @@ function MarkerApproveController(commonMessage, $scope, $rootScope, baseService,
     $scope.SelectedFabricGRNRowList = [];
     $scope.selectedSOList = [];
     $scope.path = 'Productions/Marker/';
-    $scope.getListUrl = $scope.path + 'getlist';
-    $scope.getSeqUrl = $scope.path + 'getautosequence';
-    $scope.saveUrl = $scope.path + 'create';
-    $scope.deleteUrl = $scope.path + 'delete/';
-    baseService.init($scope.getListUrl);
+   
+
+    $scope.WidthUomList = [];
+    $scope.GetWidthUnit = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetWidthUnit",
+        }).then(function successCallback(response) {
+            $scope.WidthUomList = response.data;
+            for (var i = 0; i < $scope.WidthUomList.length; i++) {
+                if ($scope.WidthUomList[i].UserName == "Inch") {
+                    $scope.ModelNew.WidthUomId = $scope.WidthUomList[i].Id;
+                    break;
+                }
+            }
+        });
+    }
+    $scope.GetWidthUnit();
+
+    $scope.lengthUomList = [];
+    $scope.GetLengthUnit = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetLengthUnit",
+        }).then(function successCallback(response) {
+            $scope.lengthUomList = response.data;
+            for (var i = 0; i < $scope.lengthUomList.length; i++) {
+                if ($scope.lengthUomList[i].UserName == "Yard") {
+                    $scope.ModelNew.LengthUomId = $scope.lengthUomList[i].Id;
+                    break;
+                }
+            }
+        });
+    }
+    $scope.GetLengthUnit();
 
     $scope.ApproveByStatusList = [
         { 'Value': "Approved", 'Text': "Approved" },
@@ -35,7 +65,7 @@ function MarkerApproveController(commonMessage, $scope, $rootScope, baseService,
     $scope.CutPlantList = [];
     $scope.GetCutPlanCbo = function () {
         try {
-            $http.get('Productions/Productionsummary/GetCutPlanCbo')
+            $http.get('Productions/Productionsummary/GetCutPlanCbo?masterPlanId=' + $scope.ModelNew.MasterPlanId)
                 .then(function (response) {
                     $scope.CutPlantList = response.data;
                 });
@@ -43,7 +73,6 @@ function MarkerApproveController(commonMessage, $scope, $rootScope, baseService,
             ShowResult(ex, 'Info');
         }
     };
-    $scope.GetCutPlanCbo();
 
     $scope.CutPlantRatioList = [];
     $scope.GetCutPlanRatioCbo = function () {
@@ -52,6 +81,13 @@ function MarkerApproveController(commonMessage, $scope, $rootScope, baseService,
             $http.get('Productions/Productionsummary/GetCutPlanRatioCbo?masterId=' + $scope.ModelNew.CutPlanId)
                 .then(function (response) {
                     $scope.CutPlantRatioList = response.data;
+                    if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+                        for (var i = 0; i < $scope.CutPlantRatioList.length; i++) {
+                            if ($scope.CutPlantRatioList[i].Id == $scope.ModelNew.CutPlanRatioId) {
+                                $scope.ModelNew.NoOfPcs = $scope.CutPlantRatioList[i].AllotedQty;
+                            }
+                        }
+                    }
                 });
         } catch (ex) {
             ShowResult(ex, 'Info');
@@ -167,12 +203,42 @@ function MarkerApproveController(commonMessage, $scope, $rootScope, baseService,
         });
     }
 
+    $scope.Save = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.ModelNewForm.$valid) {
+               
+                $http({
+                    method: 'POST',
+                    url: 'Productions/Marker/Approved',
+                    data: { 'data': $scope.ModelNew },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        ClearFields(response.data.Sequence);
+                        $scope.getData();
+
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
     $scope.Clear = function () {
         ClearFields();
         return true;
     };
 
-    function ClearFields(seq) {
+    function ClearFields() {
         $scope.Action = 'Save';
         $scope.ModelNew = {
             Id: null,
@@ -194,7 +260,8 @@ function MarkerApproveController(commonMessage, $scope, $rootScope, baseService,
             ShadeId: null,
             Length: null,
         };
-       
+        $scope.SelectedFabricGRNRowList = [];
+        $scope.selectedSOList = [];
     }
 
 }
