@@ -2710,6 +2710,7 @@ UNION
         {
             parameters.CmdText = @"SELECT V.VoucherNo, A.Id, A.Id AS AdjustmentNoteId, PR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, PR.InvoicingPartyPlantId PartyPlantId, PP.UserName AS PartyPlantName, V.Id VoucherId, V.PostingDate, V.DocDate
                                 , V.DocRefNo, V.CurrencyId, C.Code AS CurrencyCode, VD.Amount, V.IsPark,PR.Id PurchaseReturnNo
+								,IsDebitNote=case when PR.IsDebitNote=1 then 'True'  ELSE '' END
                                 FROM  [TRN].[Voucher] AS V
 								LEFT JOIN TRN.PurchaseReturn PR ON PR.VoucherId=V.Id
                                 LEFT JOIN [HKP].[Party] AS P ON P.Id=PR.PartyId
