@@ -375,6 +375,7 @@
                 <th>Currency</th>
                 <th>Amount</th>
                 <th>Status</th>
+                <th>Is DebitNote</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -388,6 +389,7 @@
                 <td>{{x.CurrencyCode}}</td>
                 <td class="text-right">{{x.Amount | number:2}}</td>
                 <td>{{x.IsPark?'Parked':'Posted'}}</td>
+                <td>{{x.IsDebitNote}}</td>
                 <td class="text-right">
                     <ul class="list-inline action-list">
                         <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
