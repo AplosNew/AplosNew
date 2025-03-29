@@ -669,6 +669,10 @@ namespace Aplos.Areas.Employees.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(entity.EmployeeCodeTypeId))
+                {
+                    throw new Exception("Employee Code Type is required.");
+                }
                 // , Dictionary<string, object> WeekOff, Dictionary<string, object> OT
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IdentityParameter para = new IdentityParameter
