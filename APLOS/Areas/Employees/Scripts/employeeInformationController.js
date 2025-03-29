@@ -211,19 +211,19 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 $scope.employeeNew.EmployeeCodeTypeId = $scope.EmployeeCodeTypeId;
 
 
-                $http({
-                    method: 'GET',
-                    url: 'Employees/EmployeeInformation/GetEmpCodeGenSetting?employeeCodeTypeId=' + $scope.employeeNew.EmployeeCodeTypeId
-                }).then(function successCallback(response) {
-                    if (baseService.arrayLength(response.data) == 0) {
-                        ShowResult("Employee Code Generation Setting is not defined.", 'failure');
-                    } else {
-                        $scope.IsEmployeeCodeOpenField = response.data[0].IsEmployeeCodeOpenField;
-                        $scope.ShowVendorCtrl();
+                //$http({
+                //    method: 'GET',
+                //    url: 'Employees/EmployeeInformation/GetEmpCodeGenSetting?employeeCodeTypeId=' + $scope.employeeNew.EmployeeCodeTypeId
+                //}).then(function successCallback(response) {
+                //    if (baseService.arrayLength(response.data) == 0) {
+                //        ShowResult("Employee Code Generation Setting is not defined.", 'failure');
+                //    } else {
+                //        $scope.IsEmployeeCodeOpenField = response.data[0].IsEmployeeCodeOpenField;
+                //        $scope.ShowVendorCtrl();
+                //    }
+                //})
                         angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('show');
-                    }
-                })
-                $scope.LoadPlantJobLocation();
+               
             }
             else {
                 throw "Select Employee Code Type.";
@@ -288,6 +288,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 ShowResult("Employee Code Generation Setting is not defined.", 'failure');
             } else {
                 $scope.IsEmployeeCodeOpenField = response.data[0].IsEmployeeCodeOpenField;
+                $scope.ShowVendorCtrl();
             }
         })
     }
@@ -1823,6 +1824,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
     };
 
     $scope.NewEmpAddValidate = function () {
+        CheckField($scope.employeeNew.EmployeeCodeTypeId, "Employee Code Type");
         if ($scope.IsEmployeeCodeOpenField == true && baseService.isUndefinedOrNull($scope.employeeNew.EmployeeCode)) {
             throw "Employee Code is required.";
         }
@@ -1899,7 +1901,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
                     $scope.GetPlantWiseHRMSSetting();
                     $scope.getData();
                     ClearEmpFields();
-                    GetEmpCodeGenSetting();
+                  
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -3991,6 +3993,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         };
         $scope.employeeNew = Object.assign({}, $scope.model);
         $scope.employeeInformation = Object.assign({}, $scope.model);
+        $scope.employeeNew.EmployeeCodeTypeId = $scope.EmployeeCodeTypeId;
         $scope.GetPlantWiseHRMSSetting();
         //$scope.ShowVendor = false;
         //$scope.ShowEVendor = false;
@@ -4027,6 +4030,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.IsOTEntitled = false;
         $scope.employeeInformation.isLeaveOnDOC = false;
         $scope.employeeInformation.isLeaveOnDOJ = true;
+        GetEmpCodeGenSetting();
     };
 
     $scope.onBeginUpload = function (args) {

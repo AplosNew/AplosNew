@@ -232,7 +232,7 @@ namespace Library.OrderManagement.ShipmentControl
 
                 strSQL = @"SELECT oct.Id,so.Id SalesOrderId, FORMAT(so.DeliveryDate,'dd-MMM-yyyy') [Date],oct.CriticalityLevel 
                         ,SO.Description,soi.PlannedQty SOQty,CPO.PONumber ,B.UserName Buyer,mm.UserName MaterialMaster,ISNULL(mma.StandardName, '') Article, PM.UserName AS ProductMasterName ,p.UserName Customer
-                        ,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem,SO.Qty
+                        ,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem,SO.Qty,SO.LineItemReference
 						FROM trn.SalesOrder AS so
 						LEFT JOIN (
 	                                SELECT SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
@@ -369,7 +369,10 @@ namespace Library.OrderManagement.ShipmentControl
                                         trn.SalesOrder XSO 
                                             JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
                             where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-
+                            LineItemReference=STUFF((select distinct ','+xso.LineItemReference from 
+                                        trn.SalesOrder XSO 
+                                            JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+                            where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 															PO.Qty,FORMAT(PO.LSD,'dd-MMM-yyyy') LSD,FORMAT(PO.CommitmentDate,'dd-MMM-yyyy') CommitmentDate
 															,ISNULL(PD.Product,'') Product, PD.ProductCategory,PD.MaterialMaster,PD.Article
                             --from trn.ProductionOrder PO
