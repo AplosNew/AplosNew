@@ -1,0 +1,86 @@
+﻿
+<h3 class="site-heading">Voucher Print</h3>
+<div class="form-horizontal form-elements" ng-form id="form1" name="form1">
+    <div class="col-md-12 col-sm-4 col-md-4">
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Voucher No<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" ng-maxlength="50" name="Doc Ref" ng-model="voucher.VoucherNo" class="form-control" tabindex="4" required capitalize autocomplete="off">
+            </div>
+        </div>
+
+    </div>
+    <div class="col-md-12 col-sm-2 col-md-2">
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li><button ng-click="getVoucherData();" title="Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+</div>
+
+<div class="clearfix"></div>
+<div class="aplos-grid-toggle">
+
+    <div class="table-responsive modal-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>VoucherNo</th>
+                    <th>Source Type</th>
+                     <th>Transaction RefNo</th>
+                     <th>DocRef No</th>
+                     <th>Doc Date</th>
+                     <th>Voucher Date</th>
+                    <th>Posting Date</th>
+                    <th>Narration</th>
+                    <th>Status</th>
+                    <th class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="x in VoucherDataList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getById(x.Id);">
+                    <td>{{x.VoucherNo}}</td>
+                    <td>{{x.SourceType}}</td>
+                    <td>{{x.TransactionRefNo}}</td>
+                    <td>{{x.DocRefNo}}</td>
+                    <td>{{x.DocDate | dateFiltering}}</td>
+                    <td>{{x.VoucherDate | dateFiltering}}</td>
+                    <td>{{x.PostingDate | dateFiltering}}</td>
+                    <td>{{x.Narration}}</td>
+                    <td>{{x.IsPark?'Parked':'Posted'}}</td>
+                    <td class="text-right">
+                        <ul class="list-inline action-list">
+                            <li><a class="btn btn-action" ng-click="PrintReport('Pdf',x.SourceType,x.Id,x.BeneficiaryType)"><i class="fa fa-file-pdf-o"></i></a></li>
+                            <li><a class="btn btn-action" ng-click="PrintReport('Excel',x.SourceType,x.Id,x.BeneficiaryType)"><i class="fa fa-file-excel-o"></i></a></li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+@*<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="park(voucherId,sourceType)"></confirm-archive-generic>*@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

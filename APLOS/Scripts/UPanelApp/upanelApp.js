@@ -961,6 +961,7 @@ upanelApp.controller("ManualShiftNewController", ManualShiftNewController);
 upanelApp.controller("OSReceiveBillingController", OSReceiveBillingController);
 upanelApp.controller("entityFixedAssetsRegisterController", entityFixedAssetsRegisterController);
 upanelApp.controller("voucherParkController", voucherParkController);
+upanelApp.controller("voucherPrintController", voucherPrintController);
 upanelApp.controller("salaryProcessedReportExtraOTCTCCompanyController", salaryProcessedReportExtraOTCTCCompanyController);
 
 upanelApp.controller("EmployeeAdditionDeductionProcessController", EmployeeAdditionDeductionProcessController);

@@ -36,6 +36,10 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View("~/Areas/Accounts/Views/VoucherPark/Aplos.cshtml");
         }
+        public ActionResult VoucherPrint()
+        {
+            return View("~/Areas/Accounts/Views/VoucherPark/VoucherPrint.cshtml");
+        }
 
 
         [HttpPost, Authorize]
@@ -44,6 +48,13 @@ namespace Aplos.Areas.Accounts.Controllers
             AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(new { DATA = accountsCommonService.getVoucherDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, voucherNo), Error = false }, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetVoucherDataListforPrint(string voucherNo)
+        {
+            AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(new { DATA = accountsCommonService.getVoucherDataListforPrint(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, voucherNo), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

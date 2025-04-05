@@ -1925,6 +1925,15 @@ namespace Library.Accounting.Accounts
             return _sqlRepository.GetDataCollection(sql);
 
         }
+        public List<Dictionary<string, object>> getVoucherDataListforPrint(string companyGroupId, string companyId, string plantId, string voucherNo)
+        {
+            var sql = @"select V.*,I.PartyType BeneficiaryType from 
+                        trn.Voucher  AS V
+                        LEFT JOIN TRN.[Invoice] AS I ON I.VoucherId=V.Id
+                        where V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId + "' and V.CompanyId='" + companyId + "' and V.PlantId='" + plantId + @"'";
+            return _sqlRepository.GetDataCollection(sql);
+
+        }
         #endregion getVoucherDataList
 
         #region getVoucherGLDataList
