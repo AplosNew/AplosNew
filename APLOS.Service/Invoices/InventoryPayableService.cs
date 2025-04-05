@@ -7820,7 +7820,7 @@ namespace Library.Service.Invoices
                             BudgetMasterId = voucherDetailVM.BudgetMasterId,
                             ActivityId = voucherDetailVM.ActivityId,
                             TrnNature = TransactionNature.Purchases.ToString(),
-                            CrAmount = voucherDetailVM.Amount
+                            CrAmount = Math.Round(voucherDetailVM.Amount, 2, MidpointRounding.AwayFromZero)
                         };
                         totalAmountCr += voucherDetailCr.CrAmount;
                         currentVoucherDetailId++;
