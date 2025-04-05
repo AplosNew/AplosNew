@@ -1848,6 +1848,7 @@
     <Compile Include="SqlServerTypes\Loader.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Areas\Accounts\Scripts\voucherPrintController.js" />
     <Content Include="Areas\Accounts\Scripts\voucherTypeAdditionalInfoController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceReviseMaturedateController.js" />
     <Content Include="Areas\Accounts\Scripts\GLManagementController.js" />
@@ -5048,6 +5049,7 @@
     <Content Include="Areas\Productions\Views\Marker\Approve.cshtml" />
     <Content Include="Areas\Accounts\Views\VoucherTypeAdditionalInfo.cshtml" />
     <Content Include="Areas\MIS\Views\_CredentialPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\VoucherPark\VoucherPrint.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
