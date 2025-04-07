@@ -1538,9 +1538,10 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
             try
             {
-                strSql = @"SELECT * FROM [scs].[OffDayDetail]  
+                strSql = @"SELECT D.* FROM [scs].[OffDayDetail]  D
+left join scs.OffDayMaster M ON M.Id=D.OffDayMasterId
                             WHERE OffDayDate BETWEEN '" + sFromDate + @"' 
-                                  AND '" + sToDate + "' AND PlantID = '" + sPlantID + @"'";
+                                  AND '" + sToDate + "' AND D.PlantID = '" + sPlantID + @"'  AND M.OffDayType='W'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");

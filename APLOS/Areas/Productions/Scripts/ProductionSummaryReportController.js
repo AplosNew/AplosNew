@@ -135,20 +135,6 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
                 }
             }
 
-
-
-            //if (!angular.isUndefinedOrNull(EntityId)) {
-            //    if (angular.isUndefinedOrNull(ProcessId)) {
-            //        for (var i = 0; i < DropDownProcessListObj.popupListItems.length; i++) {
-            //            if (angular.isUndefinedOrNull(ProcessId)) {
-            //                ProcessId = + DropDownProcessListObj.popupListItems[i].Value;
-            //            } else {
-            //                ProcessId += ',' + DropDownProcessListObj.popupListItems[i].Value;
-            //            }
-            //        }
-            //    }
-            //}
-
             $scope.fileName = "ProductionOrderReportProcessWise.xlsx";
             $http({
                 method: 'POST',
