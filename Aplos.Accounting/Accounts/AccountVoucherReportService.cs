@@ -7551,9 +7551,10 @@ GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,
             worksheet.Name = "Fixed Asset Financial Register Report";
             reportFileName = "Fixed Asset Financial Register Report From" + Convert.ToDateTime(fromDate).ToString("dd-MMM-yyyy") + " To " + Convert.ToDateTime(toDate).ToString("dd-MMM-yyyy");
 
-            int COL = 1; int ROW = 5;
+            int COL = 1; int ROW = 6;
             int startCol = COL;
 
+            worksheet.Range[ROW - 2, 3].Text = "Fixed Asset Financial Register Report" ;
             worksheet.Range[ROW - 1, 3].Text = "From " + Convert.ToDateTime(fromDate).ToString("dd-MMM-yyyy") + " To " + Convert.ToDateTime(toDate).ToString("dd-MMM-yyyy");
 
             worksheet[ROW, COL].Text = "GL";
