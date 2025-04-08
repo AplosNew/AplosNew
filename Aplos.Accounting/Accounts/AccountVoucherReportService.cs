@@ -437,6 +437,44 @@ namespace Library.Accounting.Accounts
 
 
         }
+        public DataTable GetFixedAssetFinancialRegisterReportData(string companyGroupId, string companyId, string plantId, DateTime fromDate, DateTime toDate)
+        {
+            var cmdText = @"DECLARE @fromDate datetime='" + fromDate + @"' ,@toDate datetime='" + toDate + @"'
+
+                SELECT T.GL,T.Budget,T.Activity,SUM(T.RegisterItemAmount)RegisterItemAmount,SUM(T.DepreciationAmount)DepreciationAmount
+,SUM(T.NetAssetAmount)NetAssetAmount
+,JVAmount=isnull(jv.JVDrAmount,0)-Isnull(jv.JVCrAmount,0),TotalAmount=SUM(T.NetAssetAmount)+(isnull(jv.JVDrAmount,0)-Isnull(jv.JVCrAmount,0))
+,T.GLGeneralInfoId,t.BudgetMasterId,t.ActivityId
+FROM (
+select GL.UserName GL,B.UserName Budget,A.UserName Activity,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
+,ARC.Amount RegisterItemAmount,ISNULL(aDep.DepreciationAmount,0) DepreciationAmount,NetAssetAmount=ARC.Amount-ISNULL(aDep.DepreciationAmount,0)
+from trn.AssetRegisterChild ARC
+left join trn.AssetRegister AR on AR.Id = ARC.AssetRegisterId
+left join trn.VoucherDetail VD on VD.Id = ARC.VoucherdetailId
+left join trn.CapitalizationMaster CM on CM.Id = ARC.CapitalizationMasterId
+left join TRN.Voucher V on V.Id = CM.VoucherId
+left join hkp.GLGeneralInfo GL ON GL.Id=vd.GLGeneralInfoId
+left join MST.BudgetMaster BM ON BM.Id=vd.BudgetMasterId
+left join hkp.Budget B ON B.Id=BM.BudgetId
+left join hkp.Activity A ON A.Id=vd.ActivityId
+left join mst.BudgetMasterActivity bma ON bma.BudgetMasterId=VD.BudgetMasterId and bma.ActivityId=VD.ActivityId
+left join (select AssetRegisterChildId,SUM(DepreciationAmount) DepreciationAmount from [TRN].[AssetDepreciationDetail]  ADPD 
+	LEFT JOIN [TRN].[AssetDepreciation] ADP ON ADP.Id=ADPD.AssetDepreciationId LEFT JOIN [TRN].Voucher ADV ON ADV.Id=ADP.VoucherId
+		where ADV.PostingDate between @fromDate and @toDate AND ADV.IsPark=0  group by AssetRegisterChildId ) aDep ON aDep.AssetRegisterChildId=ARC.Id
+
+where v.PostingDate  between @fromDate and @toDate  and ARC.AssetRegisterId NOT IN (select AssetRegisterId from [TRN].[FixedAssetRegisterDisposedDetail] FRDD 
+join  [TRN].[FixedAssetRegisterDisposed] FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId 
+join trn.Voucher DV ON DV.Id=FRD.DisposedVoucherId and DV.IsPark=0
+where DV.PostingDate between @fromDate and @toDate))T
+
+LEFT JOIN (SELECT VD.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId,Sum(ISNULL(vdc.DrAmount,0)) JVDrAmount,sum(ISNULL(vdc.CrAmount,0)) JVCrAmount
+FROM TRN.VoucherDetailCurrency VDC JOIN TRN.VoucherDetail VD ON VD.Id=VDC.VoucherDetailId JOIN TRN.Voucher V ON V.Id=VD.VoucherId
+where v.PostingDate  between @fromDate and @toDate and V.SourceType='JournalVoucher'  and V.IsPark=0
+group by VD.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId) jv ON jv.GLGeneralInfoId=T.GLGeneralInfoId and jv.BudgetMasterId=T.BudgetMasterId and jv.ActivityId=T.ActivityId
+
+GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,t.BudgetMasterId,t.ActivityId ";
+            return _sqlRepository.GetDataTable(cmdText);
+        }
 
         public Dictionary<string, object> GetDailyTransactionHeader(string companyGroupId, string companyId, string plantId, DateTime date)
         {
@@ -7490,7 +7528,144 @@ namespace Library.Accounting.Accounts
             return workbook;
         }
 
+        public IWorkbook GetFixedAssetFinancialRegisterReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, DateTime fromDate, DateTime toDate)
+        {
 
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            ExcelEngine excelEngine = new ExcelEngine();
+            //Instantiate the Excel application object
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+
+            //Load the existing Excel workbook into IWorkbook
+            IWorkbook workbook = application.Workbooks.Create(1);
+
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+            DataTable dtDayBookData = GetFixedAssetFinancialRegisterReportData(companyGroupId, companyId, plantId, fromDate, toDate);
+
+            worksheet.Name = "Fixed Asset Financial Register Report";
+            reportFileName = "Fixed Asset Financial Register Report From" + Convert.ToDateTime(fromDate).ToString("dd-MMM-yyyy") + " To " + Convert.ToDateTime(toDate).ToString("dd-MMM-yyyy");
+
+            int COL = 1; int ROW = 5;
+            int startCol = COL;
+
+            worksheet.Range[ROW - 1, 3].Text = "From " + Convert.ToDateTime(fromDate).ToString("dd-MMM-yyyy") + " To " + Convert.ToDateTime(toDate).ToString("dd-MMM-yyyy");
+
+            worksheet[ROW, COL].Text = "GL";
+            int colGL = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Budget";
+            int colBudget = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Activity";
+            int colActivity = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Asset Amount";
+            int colAssetAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Depreciation Amount";
+            int colDepreciationAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Net Asset Amount";
+            int colNetAssetAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "JV Amount";
+            int colJVAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Total Financial Amount";
+            int colTotalAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+            int endCol = COL;
+            worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
+
+            ROW++;
+            int Row_Total_Start = ROW;
+            for (int i = 0; i < dtDayBookData.Rows.Count; i++)
+            {
+                worksheet[ROW, colGL].Text = dtDayBookData.Rows[i]["GL"].ToString();
+                worksheet[ROW, colBudget].Text = dtDayBookData.Rows[i]["Budget"].ToString();
+                worksheet[ROW, colActivity].Text = dtDayBookData.Rows[i]["Activity"].ToString();
+                worksheet[ROW, colAssetAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["RegisterItemAmount"].ToString());
+                worksheet[ROW, colAssetAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colDepreciationAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["DepreciationAmount"].ToString());
+                worksheet[ROW, colDepreciationAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colNetAssetAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["NetAssetAmount"].ToString());
+                worksheet[ROW, colNetAssetAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colJVAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["JVAmount"].ToString());
+                worksheet[ROW, colJVAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colTotalAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["TotalAmount"].ToString());
+                worksheet[ROW, colTotalAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                
+
+                worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.CellStyle.Font.Size = 8f;
+
+            var report = new ReportUtility();
+            // var workbook = report.GetWorkbook(ref excelEngine, 1);
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.PlantHeader(ref worksheet, endCol, "Fixed Asset Financial Register Report", identity.PlantId);
+            reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            worksheet.IsGridLinesVisible = false;
+
+            #region Freeze Panes
+
+            worksheet.IsDisplayZeros = false;
+            worksheet.UsedRange["A6"].FreezePanes();
+            worksheet.FirstVisibleColumn = 1;
+            worksheet.FirstVisibleRow = 6;
+
+            #endregion Freeze Panes
+
+            return workbook;
+        }
         public IWorkbook GetAssetDepreciationReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, DateTime fromDate, DateTime toDate, string assetDepreciationId)
         {
 
