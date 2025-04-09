@@ -44,6 +44,9 @@ function voucherPrintController(cboService, commonMessage, $scope, $rootScope, b
                 $window.open('Employees/EmployeeReport/GetEmployeePayableExpenseReport?reportFormat=' + reportFormat + '&voucherId=' + voucherId, '_blank');
             }
         }
+        else if (SourceType == 'JournalVoucher') {
+            $window.open('Accounts/Voucher/GetJournalVoucherReport?reportFormat=' + reportFormat + '&voucherId=' + voucherId, '_blank');
+        }
         else if (SourceType == 'BankJournal') {
             $window.open('Banks/BankReport/GetBankJournalReport?reportFormat=' + reportFormat + '&voucherId=' + voucherId, '_blank');
         }
@@ -51,7 +54,7 @@ function voucherPrintController(cboService, commonMessage, $scope, $rootScope, b
             $window.open('Banks/CashReport/GetCashJournalReport?reportFormat=' + reportFormat + '&voucherId=' + voucherId, '_blank');
         }
         else {
-            $window.open('Accounts/Invoice/ReportVendorInvoice?reportFormat=' + reportFormat + '&voucherId=' + voucherId, '_blank');
+            $window.open('Accounts/Voucher/GetJournalVoucherReport?reportFormat=' + reportFormat + '&voucherId=' + voucherId, '_blank');
         }
     }
   

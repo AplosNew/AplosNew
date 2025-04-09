@@ -2451,14 +2451,15 @@ SELECT X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAm
         [HttpGet, Authorize]
         public ActionResult GetGoodWorkPaymentAdviseApprovedList()
         {
-            string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
+            string sql = @"SELECT * FROM (select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
 						,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks,gwp.PaymentSource,ISNULL(gwp.PaymentsStatus,'Active') PaymentsStatus
-                        ,(select SUM(gwpad.Amount)DisbursementAmount
+                        ,ISNULL((select SUM(gwpad.Amount)DisbursementAmount
                                 from GoodWorkPaymentAdviseDetail gwpad
-                                where gwpad.PaymentAdviseId=gwp.Id and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0  AND gwpad.DisbursementVoucherId IS NULL)DisbursementAmount
+                                where gwpad.PaymentAdviseId=gwp.Id and gwpad.IsCheck=1 AND ISNULL(gwpad.IsDisburse,0)=0  AND gwpad.DisbursementVoucherId IS NULL),0)DisbursementAmount
 						from GoodWorkPaymentAdvise gwp 
 						left join EmployeeInformation ei on ei.SystemId=gwp.ByWhomId
-                        where gwp.ApprovedStatus ='PaymentApproved' ";
+                        where gwp.ApprovedStatus ='PaymentApproved')T
+						WHERE T.DisbursementAmount>0 ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

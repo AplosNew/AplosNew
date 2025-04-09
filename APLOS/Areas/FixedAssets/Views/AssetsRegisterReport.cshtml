@@ -59,6 +59,9 @@
                         <div e-column e-type="text" e-field="AssetRegisterId" e-headertext="Asset Register Id" e-width="40" style="height: 20px;"></div>
                         <div e-column e-type="text" e-field="UserReference" e-headertext="User Reference" e-width="20" e-textalign="right" style="height: 20px;"></div>
                         <div e-column e-type="text" e-field="CapitalizationDate" e-headertext="Capitalization Date" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="GL" e-headertext="GL" e-width="30" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="Budget" e-headertext="Budget" e-width="30" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="Activity" e-headertext="Activity" e-width="30" style="height: 20px;"></div>
                         <div e-column e-type="text" e-field="Factor" e-headertext="Factor" e-width="20" style="height: 20px;"></div>
                         <div e-column e-type="text" e-field="LifeTime" e-headertext="Life Time" e-width="20" style="height: 20px;"></div>
                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OpeningAmount" e-headertext="Opening Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
@@ -117,6 +120,7 @@
     <div class="common-btn">
         <ul class="list-inline text-left">
             <li><button ng-click="FixedAssetRegisterReportExcel();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+            <li><button ng-click="FixedAssetFinancialRegisterReportExcel();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Financial Register Download</button></li>
         </ul>
     </div>
 

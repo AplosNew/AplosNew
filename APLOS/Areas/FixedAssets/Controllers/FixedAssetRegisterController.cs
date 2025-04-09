@@ -1927,7 +1927,29 @@ namespace Aplos.Areas.FixedAssets.Controllers
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
-       
+        
+        [Authorize, HttpGet]
+        public ActionResult FixedAssetFinancialRegisterReport(ReportFormat reportFormat, DateTime fromdate, DateTime todate)
+        {
+            string reportFileName = "";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            Syncfusion.XlsIO.IWorkbook workbook = null;
+
+            workbook = _accountVoucherReportService.GetFixedAssetFinancialRegisterReport(out reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromdate, todate);
+
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
+
         #endregion
 
         #region Capitalize Asset Depreciation Report
