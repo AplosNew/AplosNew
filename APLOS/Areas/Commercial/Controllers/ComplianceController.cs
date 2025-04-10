@@ -192,9 +192,80 @@ namespace Aplos.Areas.Commercial.Controllers
 
             dr.EndEdit();
         }
-       
 
-        
+        [HttpPost]
+        public JsonResult CreateRP(List<Dictionary<string, object>> RPDataList,string masterId)
+        {
+            try
+            {
+                DataSet dsRP;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from dbo.ComplianceResponsiblePerson where ComplianceMasterId='" + masterId + "'", out dsRP, false, "1");
+
+                #region RPDataList 
+                if (RPDataList != null)
+                {
+                    foreach (var item in RPDataList)
+                    {
+                        DataView dv = new DataView(dsRP.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            AddNewRow(dsRP.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsRP);
+
+                return Json(new { Error = false,Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetRP(string masterId)
+        {
+            return Json(_sqlRepository.GetDataCollection(@"SELECT RP.Id,RP.EmpSystemID
+							    	,E.EmployeeName
+                                    ,LD.UserName LegalDesignation
+							    	,DEPT.UserName AS Department
+									,SC.UserName AS Section
+                                    ,E.EmployeeCode
+									,E.EmpPicPath
+                                    ,P.UserName Plant
+									,SS.UserName SubSection
+							    FROM ComplianceResponsiblePerson RP
+                                LEFT JOIN EmployeeInformation E ON E.SystemId=RP.EmpSystemID
+							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
+							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
+							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
+							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
+							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
+                                LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
+                                LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
+								LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
+                                LEFT JOIN ORG.Company C ON C.Id=E.CompanyId Where ComplianceMasterId='" + masterId + "'"), JsonRequestBehavior.AllowGet);
+        }
 
     }
 }
