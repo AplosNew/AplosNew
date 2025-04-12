@@ -700,7 +700,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         //General ledger report
         [HttpGet, Authorize]
-        public ActionResult GetGeneralLedgerReport(ReportFormat reportFormat, string glId, string budgetMasterId, string activityId, string fromDate, string toDate,bool active,bool IsGroupBy)
+        public ActionResult GetGeneralLedgerReport(ReportFormat reportFormat, string glId, string budgetMasterId, string activityId, string fromDate, string toDate,bool active,bool IsGroupBy, string bankMasterId, string cashMasterId, string partyId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -715,11 +715,11 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
                 else if (IsGroupBy == true && activityId != null)
                 {
-                    workbook = _accountVoucherReportService.GetGeneralLedgerReportWithDocRef(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate, active);
+                    workbook = _accountVoucherReportService.GetGeneralLedgerReportWithDocRef(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate, active, bankMasterId, cashMasterId, partyId);
                 }
                 else
                 {
-                    workbook = _accountVoucherReportService.GetGeneralLedgerReportWithDocRef(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate, active);
+                    workbook = _accountVoucherReportService.GetGeneralLedgerReportWithDocRef(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate, active, bankMasterId, cashMasterId, partyId);
                 }
                // var workbook = _accountVoucherReportService.GetGeneralLedgerReportWithDocRef(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate,active);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + " General Ledger";

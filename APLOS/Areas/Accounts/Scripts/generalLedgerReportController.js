@@ -1,12 +1,18 @@
 ﻿"use strict";
-generalLedgerReportController.$inject = ["$scope", "$rootScope", "$filter", "accountService", "$window", "baseService"];
-function generalLedgerReportController($scope, $rootScope, $filter, accountService, $window, baseService) {
+generalLedgerReportController.$inject = ["$scope", "$rootScope", "$filter", "bankService", "accountService", "$window", "baseService", "$controller", '$http'];
+function generalLedgerReportController($scope, $rootScope, $filter, bankService, accountService, $window, baseService, $controller, $http) {
     $rootScope.title = "General Ledger";
+    $controller("bankBaseController", { $scope: $scope, $http: $http });
+    $scope.partyType = 'Customer';
     $scope.report = {
         GLName: null,
         GLGeneralInfoId: null,
         BudgetMasterId: null,
         ActivityId: null,
+        BankCashParty: null,
+        BankMasterId: null,
+        CashMasterId: null,
+        PartyId: null,
         ReportFormat: "Pdf",
         FromDate: $filter("dateFiltering")(Date.now()),
         ToDate: $filter("dateFiltering")(Date.now()),
@@ -69,6 +75,15 @@ function generalLedgerReportController($scope, $rootScope, $filter, accountServi
             if (!baseService.isUndefinedOrNull($scope.report.ActivityId)) {
                 url += "&activityId=" + $scope.report.ActivityId;
             }
+            if (!baseService.isUndefinedOrNull($scope.report.BudgetMasterId)) {
+                url += "&bankMasterId=" + $scope.report.BankMasterId;
+            }
+            if (!baseService.isUndefinedOrNull($scope.report.ActivityId)) {
+                url += "&cashMasterId=" + $scope.report.CashMasterId;
+            }
+            if (!baseService.isUndefinedOrNull($scope.report.ActivityId)) {
+                url += "&partyId=" + $scope.report.PartyId;
+            }
             $window.open(url, "_blank");
         }
     };
@@ -99,8 +114,143 @@ function generalLedgerReportController($scope, $rootScope, $filter, accountServi
     //        $window.open(url, "_blank");
     //    }
     //};
+    $scope.bankACType = "Loan";
+    $scope.closeBankPopUp = function () {
+        if ($scope.bankIndex !== -1) {
+            var bank = $scope.bankList[$scope.bankIndex];
+            if (baseService.isUndefinedOrNull(bank.GLGeneralInfoId)) {
+                ShowResult("Bank GL not found!", "failure", "bankPopUp");
+                return;
+            }
 
+            else if (baseService.isUndefinedOrNull(bank.CurrencyId)) {
+                ShowResult("Bank Transaction Currency not found!", "failure", "bankPopUp");
+                return;
+            }
+            else {
+                $scope.report.AccountTitle = bank.AccountTitle;
+                $scope.report.BankName = bank.BankCode + " - " + bank.BankName + " - " + bank.AccountTitle + " - " + bank.AccountNumber;
+                $scope.report.BankMasterId = bank.BankMasterId;
+            }
+        }
+        $scope.hideBankPopUp();
+    };
+    bankService.getCashMasterCboList(function (result) {
+        $scope.cashkMasterList = result;
+    });
+    $scope.BankCashPartyByList = [
+        {
+            "name": "Bank",
+            "value": "Bank"
+        },
+        {
+            "name": "Cash",
+            "value": "Cash"
+        },
+        {
+            "name": "Party",
+            "value": "Party"
+        }
+    ];
 
+    $scope.searchByParty = "UserName"; $scope.searchParty = "";
+    $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+
+    $scope.changePartyType = function () {
+        $scope.partyType = $scope.report.PartyType;
+        $scope.customerNameCode = null;
+        $scope.GLNameCode = null;
+        $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+    };
+    $scope.partyList = [];
+    $scope.showPartyPopUpNew = function () {
+        if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor' || $scope.partyType === 'Director') {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListForReport?partyType=' + $scope.partyType;
+        }
+        else if ($scope.partyType === 'Party') {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListForReport';
+        }
+        else if ($scope.partyType === 'Other') {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListForReport';
+        }
+        else if ($scope.partyType === 'Both') {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListForReport';
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.partyUrl,
+            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.partyList = response.data;
+        });
+        angular.element(document.querySelector('#partyPopUp')).modal('show');
+    };
+    $scope.closePartyPopUpNew = function () {
+        angular.element(document.querySelector('#partyPopUp')).modal('hide');
+    };
+    $scope.closePartyPopUp = function myfunction(x) {
+        var data = x.data;
+        if ($scope.report.PartyType === 'Customer') {
+            $scope.report.vendorId = null;
+            $scope.report.PartyId = data.PartyId;
+            $scope.customerNameCode = data.Code + ' - ' + data.PartyName;
+            //$scope.getPartyPlantList($scope.report.PartyId);
+            //$scope.getPartyGSTINList($scope.report.PartyId, $scope.report.PartyPlantId);
+        }
+        else if ($scope.report.PartyType === 'Vendor') {
+            $scope.report.PartyId = null;
+            $scope.report.PartyId = data.PartyId;
+            $scope.customerNameCode = data.Code + ' - ' + data.PartyName;
+            //$scope.getPartyPlantList($scope.report.PartyId);
+            //$scope.getPartyGSTINList($scope.report.PartyId, $scope.report.PartyPlantId);
+        }
+        else if ($scope.report.PartyType === 'Director') {
+            $scope.report.PartyId = null;
+            $scope.report.PartyId = data.PartyId;
+            $scope.customerNameCode = data.Code + ' - ' + data.PartyName;
+            //$scope.getPartyPlantList($scope.report.PartyId);
+            //$scope.getPartyGSTINList($scope.report.PartyId, $scope.report.PartyPlantId);
+        }
+        else if ($scope.report.PartyType === 'Party') {
+            $scope.report.PartyId = null;
+            $scope.report.PartyId = data.PartyId;
+            $scope.customerNameCode = data.Code + ' - ' + data.PartyName;
+            //$scope.getPartyPlantList($scope.report.PartyId);
+            //$scope.getPartyGSTINList($scope.report.PartyId, $scope.report.PartyPlantId);
+        }
+        else {
+            $scope.report.PartyId = null;
+            $scope.report.vendorId = null;
+            $scope.report.MainPartyId = data.PartyId;
+            $scope.customerNameCode = data.Code + ' - ' + data.PartyName;
+        }
+        $scope.hidePartyPopUp();
+    };
+    $scope.hidePartyPopUp = function () {
+        angular.element(document.querySelector('#partyPopUp')).modal('hide');
+        $scope.partyIndex = -1;
+        $scope.partySelected = null;
+    };
+    $scope.clear = function () {
+        $scope.report = {
+        };
+        $scope.report.GLName = null;
+        $scope.report.GLGeneralInfoId = null;
+        $scope.report.BudgetMasterId = null;
+        $scope.report.ActivityId = null;
+        $scope.report.BankCashParty = null;
+        $scope.report.BankMasterId = null;
+        $scope.report.CashMasterId = null;
+        $scope.report.PartyId = null;
+        $scope.report.ReportFormat = "Pdf";
+        $scope.report.FromDate = $filter("dateFiltering")(Date.now());
+        $scope.report.ToDate = $filter("dateFiltering")(Date.now());
+        $scope.report.Active = true;
+        $scope.report.IsGroupBy = false;
+        $scope.customerNameCode = null;
+    };
     $scope.searchglByList = [
         {
             "name": "Account Group",

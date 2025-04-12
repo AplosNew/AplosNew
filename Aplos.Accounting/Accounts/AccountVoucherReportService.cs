@@ -487,8 +487,15 @@ GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,
                             WHERE V.Archive=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "' --AND V.PostingDate='" + date + "'";
             return _sqlRepository.GetData(cmdText);
         }
-        public DataTable GetGeneralLedgerData(string companyGroupId, string companyId, string plantId, string glId, string budgetMasterId, string activityId, string fromDate, string toDate, bool isOpeningBalance, string fiscalYearId)
+        public DataTable GetGeneralLedgerData(string companyGroupId, string companyId, string plantId, string glId, string budgetMasterId, string activityId, string fromDate, string toDate, bool isOpeningBalance, string fiscalYearId, string bankMasterId, string cashMasterId, string partyId)
         {
+            var bankCashPartyFilter = string.Empty;
+            if (bankMasterId != "null")
+                bankCashPartyFilter = " AND VD.BankMasterId='" + bankMasterId + "' ";
+            if (cashMasterId != "null")
+                bankCashPartyFilter = " AND VD.CashMasterId='" + cashMasterId + "' ";
+            if (partyId != "null")
+                bankCashPartyFilter = " AND VD.PartyId='" + partyId + "' ";
             var cmdText = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
                             SELECT REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
                              ,V.SourceType, V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, VD.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
@@ -529,7 +536,7 @@ GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,
 	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                             ) AS CC ON CC.VoucherDetailId=VD.Id
-                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "'";
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "' " + bankCashPartyFilter + " ";
             if (!string.IsNullOrEmpty(budgetMasterId))
                 cmdText += " AND VD.BudgetMasterId='" + budgetMasterId + "' ";
             if (!string.IsNullOrEmpty(activityId))
@@ -766,13 +773,20 @@ GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,
         }
 
 
-        public List<Dictionary<string, object>> GetGeneralOpeningBalanceLedgerData(string companyGroupId, string companyId, string plantId, string glId, string budgetMasterId, string activityId, string fromDate)
+        public List<Dictionary<string, object>> GetGeneralOpeningBalanceLedgerData(string companyGroupId, string companyId, string plantId, string glId, string budgetMasterId, string activityId, string fromDate, string bankMasterId, string cashMasterId, string partyId)
         {
             var budgetFilter = string.Empty;
             if (!string.IsNullOrEmpty(budgetMasterId))
                 budgetFilter = " AND VD.BudgetMasterId='" + budgetMasterId + "' ";
             if (!string.IsNullOrEmpty(activityId))
                 budgetFilter = " AND VD.ActivityId='" + activityId + "' ";
+            var bankCashPartyFilter = string.Empty;
+            if (bankMasterId!= "null")
+                bankCashPartyFilter = " AND VD.BankMasterId='" + bankMasterId + "' ";
+            if (cashMasterId != "null")
+                bankCashPartyFilter = " AND VD.CashMasterId='" + cashMasterId + "' ";
+            if (partyId != "null")
+                bankCashPartyFilter = " AND VD.PartyId='" + partyId + "' ";
             var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
                         SELECT SUM(DrAmount) - SUM(CrAmount) AS OB
                         , CompanyCurrencyId, SUM(CompanyCurrencyDrAmount)-SUM(CompanyCurrencyCrAmount) AS CompanyCurrencyOB
@@ -799,7 +813,7 @@ GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId=@companyId
                         ) AS HC ON HC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId=@companyId AND V.PlantId='" + plantId + "' AND VD.GLGeneralInfoId='" + glId + "' " + budgetFilter + " AND V.PostingDate < '" + fromDate.ToDbDate() + @"' AND V.SourceType!='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId=@companyId AND V.PlantId='" + plantId + "' AND VD.GLGeneralInfoId='" + glId + "' " + budgetFilter + " " + bankCashPartyFilter + " AND V.PostingDate < '" + fromDate.ToDbDate() + @"' AND V.SourceType!='OpeningBalance'
                         GROUP BY CC.CompanyCurrencyId, GC.CompanyGroupCurrencyId, HC.HardCurrencyId
                         UNION
                         SELECT SUM(VD.DrAmount) AS DrAmount, SUM(VD.CrAmount) AS CrAmount
@@ -823,7 +837,7 @@ GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId=@companyId
                         ) AS HC ON HC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId=@companyId AND V.PlantId='" + plantId + "' AND VD.GLGeneralInfoId='" + glId + "' " + budgetFilter + " AND V.PostingDate <='" + fromDate.ToDbDate() + @"' AND V.SourceType='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId=@companyId AND V.PlantId='" + plantId + "' AND VD.GLGeneralInfoId='" + glId + "' " + budgetFilter + " " + bankCashPartyFilter + " AND V.PostingDate <='" + fromDate.ToDbDate() + @"' AND V.SourceType='OpeningBalance'
                         GROUP BY CC.CompanyCurrencyId, GC.CompanyGroupCurrencyId, HC.HardCurrencyId
                         ) AS X GROUP BY X.CompanyCurrencyId, X.CompanyGroupCurrencyId, X.HardCurrencyId ORDER BY OB DESC";
 
@@ -1184,7 +1198,7 @@ GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,
 
                 // Get bank transaction data.
                 var fiscalYear = _sqlRepository.GetData("SELECT FiscalYearCode, FiscalYearName, StartDate, EndDate FROM [SCS].[FiscalYear] WHERE Id='" + fiscalYearId + "'");
-                var ledgerData = GetGeneralLedgerData(companyGroupId, companyId, plantId, null, null, null, null, null, true, fiscalYearId);
+                var ledgerData = GetGeneralLedgerData(companyGroupId, companyId, plantId, null, null, null, null, null, true, fiscalYearId, null, null, null);
                 var colA = 1;
                 var colB = 2;
                 var colC = 3;
@@ -1397,7 +1411,7 @@ GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,
 
                 // Get bank opening balance data.
                 var ledgerData = GetGeneralLedgerWithBudgetActivityGroupByData(companyGroupId, companyId, plantId, glId, budgetMasterId, activityId, fromDate, toDate, false, null);
-                var obVal = GetGeneralOpeningBalanceLedgerData(companyGroupId, companyId, plantId, glId, budgetMasterId, activityId, fromDate);
+                var obVal = GetGeneralOpeningBalanceLedgerData(companyGroupId, companyId, plantId, glId, budgetMasterId, activityId, fromDate, null, null, null);
 
 
                 if (obVal.Count > 0)
@@ -1686,7 +1700,7 @@ GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,
 
                 // Get bank opening balance data.
                 var ledgerData = GetGeneralLedgerGroupByData(companyGroupId, companyId, plantId, glId, budgetMasterId, activityId, fromDate, toDate, false, null);
-                var obVal = GetGeneralOpeningBalanceLedgerData(companyGroupId, companyId, plantId, glId, budgetMasterId, activityId, fromDate);
+                var obVal = GetGeneralOpeningBalanceLedgerData(companyGroupId, companyId, plantId, glId, budgetMasterId, activityId, fromDate, null, null, null);
 
 
                 if (obVal.Count > 0)
@@ -2000,7 +2014,7 @@ GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,
                 sheet.Range[reportUtility.GetColumnNameForXls(colVoucherNo) + row + ":" + reportUtility.GetColumnNameForXls(colCurrency) + row].Merge();
 
                 // Get bank opening balance data.
-                var obVal = GetGeneralOpeningBalanceLedgerData(companyGroupId, companyId, plantId, glId, budgetMasterId, activityId, fromDate);
+                var obVal = GetGeneralOpeningBalanceLedgerData(companyGroupId, companyId, plantId, glId, budgetMasterId, activityId, fromDate, null, null, null);
                 if (obVal.Count > 0)
                 {
                     // Set Opening Balance
@@ -2023,7 +2037,7 @@ GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,
 
                 int formulaStartRow = 0;
                 int formulaEndRow = 0;
-                var ledgerData = GetGeneralLedgerData(companyGroupId, companyId, plantId, glId, budgetMasterId, activityId, fromDate, toDate, false, null);
+                var ledgerData = GetGeneralLedgerData(companyGroupId, companyId, plantId, glId, budgetMasterId, activityId, fromDate, toDate, false, null, null, null, null);
                 if (ledgerData.Rows.Count > 0)
                 {
                     col = 1;
@@ -2137,7 +2151,7 @@ GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,
             }
         }
 
-        public IWorkbook GetGeneralLedgerReportWithDocRef(string companyGroupId, string companyId, string plantId, string plantName, string glId, string budgetMasterId, string activityId, string fromDate, string toDate, bool active)
+        public IWorkbook GetGeneralLedgerReportWithDocRef(string companyGroupId, string companyId, string plantId, string plantName, string glId, string budgetMasterId, string activityId, string fromDate, string toDate, bool active, string bankMasterId, string cashMasterId, string partyId)
         {
             try
             {
@@ -2283,7 +2297,7 @@ GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,
                 sheet.Range[reportUtility.GetColumnNameForXls(colVoucherNo) + row + ":" + reportUtility.GetColumnNameForXls(colCurrency) + row].Merge();
 
                 // Get bank opening balance data.
-                var obVal = GetGeneralOpeningBalanceLedgerData(companyGroupId, companyId, plantId, glId, budgetMasterId, activityId, fromDate);
+                var obVal = GetGeneralOpeningBalanceLedgerData(companyGroupId, companyId, plantId, glId, budgetMasterId, activityId, fromDate, bankMasterId, cashMasterId, partyId);
                 if (obVal.Count > 0)
                 {
                     // Set Opening Balance
@@ -2306,7 +2320,7 @@ GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,
 
                 int formulaStartRow = 0;
                 int formulaEndRow = 0;
-                var ledgerData = GetGeneralLedgerData(companyGroupId, companyId, plantId, glId, budgetMasterId, activityId, fromDate, toDate, false, null);
+                var ledgerData = GetGeneralLedgerData(companyGroupId, companyId, plantId, glId, budgetMasterId, activityId, fromDate, toDate, false, null, bankMasterId, cashMasterId, partyId);
                 if (ledgerData.Rows.Count > 0)
                 {
                     col = 1;
@@ -2570,7 +2584,7 @@ GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,
                 sheet.Range[reportUtility.GetColumnNameForXls(colVoucherNo) + row + ":" + reportUtility.GetColumnNameForXls(colCurrency) + row].Merge();
 
                 // Get bank opening balance data.
-                var obVal = GetGeneralOpeningBalanceLedgerData(companyGroupId, companyId, plantId, glId, budgetMasterId, activityId, fromDate);
+                var obVal = GetGeneralOpeningBalanceLedgerData(companyGroupId, companyId, plantId, glId, budgetMasterId, activityId, fromDate, null, null, null);
                 if (obVal.Count > 0)
                 {
                     // Set Opening Balance

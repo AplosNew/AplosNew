@@ -50,6 +50,61 @@
                 <input type="text" name="To Date" ng-model="report.ToDate" datepicker tabindex="3" class="form-control">
             </div>
         </div>
+        <div class="form-group" show-errors id="div_Cash">
+            <label class="col-sm-3 control-label">Bank Cash Party</label>
+            <div class="col-sm-9 show-message">
+                <div class="select-style">
+                    <select name="BankCashParty" class="form-control" ng-model="report.BankCashParty" ng-options="item.value as item.name for item in BankCashPartyByList">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors id="div_Bank" ng-show="report.BankCashParty=='Bank'">
+            <label class="col-sm-3 control-label">Bank</label>
+            <div class="col-sm-9 show-message">
+                <div class="input-group">
+                    <input type="text" name="BankName" ng-model="report.BankName" class="form-control" readonly data-toggle="tooltip" data-placement="top" title="{{report.BankName}}" tooltip>
+                    <span class="input-group-btn">
+                        <button ng-click="showBankPopUp(report.EntityId);" class="btn single-small-btn" tabindex="23"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors id="div_Cash" ng-show="report.BankCashParty=='Cash'">
+            <label class="col-sm-3 control-label">Cash</label>
+            <div class="col-sm-9 show-message">
+                <div class="select-style">
+                    <select name="Cash" class="form-control" ng-model="report.CashMasterId" ng-options="item.Id as item.UserName for item in cashkMasterList">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors id="div_PartyType" ng-show="report.BankCashParty=='Party'">
+            <label class="col-sm-3 control-label">Party Type</label>
+            <div class="col-sm-9 show-message">
+                <div class="select-style">
+                    <select name="Party Type" class="form-control" ng-change="changePartyType();" ng-model="report.PartyType">
+                        <option label="Customer" value="Customer" selected="selected">Customer</option>
+                        <option label="Vendor" value="Vendor">Vendor</option>
+                        <option label="Director" value="Director">Director</option>
+                        <option label="Both" value="Party">Both</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors id="div_Party" ng-show="report.BankCashParty=='Party'">
+            <label class="col-sm-3 control-label">Party</label>
+            <div class="col-sm-9 show-message">
+                <div class="input-group">
+                    <input type="text" name="Party" ng-model="customerNameCode" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="showPartyPopUpNew();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
         <div class="form-group">
             <label class="col-sm-3 control-label">DocRef.</label>
             <div class="col-sm-9">
@@ -70,6 +125,7 @@
                 </div>
             </div>
         </div>
+
         <div class="form-group" show-errors>
             <label class="col-sm-3 control-label">Format<sup>*</sup></label>
             <div class="col-sm-9 radio">
@@ -87,8 +143,11 @@
     <div class="common-btn">
         <ul class="list-inline text-left">
             <li><button ng-click="getReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+            <li><button ng-click="clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             @*<li><button ng-click="getReportWithDocRef();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Doc</button></li>*@
         </ul>
     </div>
 </div>
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
+@Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
