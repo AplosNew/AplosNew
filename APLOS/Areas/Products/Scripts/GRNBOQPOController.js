@@ -683,7 +683,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     function ClearFields() {
         $scope.SaveButtonDisable = "";
         $scope.Action = "Save";
-        $scope.IsBaseOnDueDateEnable = false;
+        $scope.IsBaseOnDueDateEnable = false; $scope.advanceTaxesList = [];
         $scope.productNew = {
             FixedAssetOrInventory: 'Inventory'
             , PODepended: false
