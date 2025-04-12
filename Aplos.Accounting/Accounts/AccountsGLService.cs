@@ -72,9 +72,10 @@ namespace Library.Accounting.Accounts
                                     LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
                                     LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
                                     WHERE GLGI.Archive=0 AND GLGI.Active=1 AND GLCG.CompanyGroupId='" + companyGroupId + "' AND GLCI.CompanyId='" + companyId + @"' 
-                                    AND GLGI.Id NOT IN(SELECT BM.GLGeneralInfoId FROM [MST].[BankMaster] AS BM WHERE BM.GLGeneralInfoId <> '' and BM.AccountType='HouseBank')
-                                    AND GLGI.Id NOT IN(SELECT CM.GLGeneralInfoId FROM [MST].[CashMaster] AS CM WHERE CM.GLGeneralInfoId <> '') AND GLGI.IsPostingAutomaticOnly = 0
-                                    AND GLGI.Id NOT IN(SELECT AC.GLGeneralInfoId FROM [HKP].[GLAccountType] AS AC WHERE AC.AccountType ='" + ReconcileAccountEnum.Asset + "')  AND BMA.Active=1";
+                                    --AND GLGI.Id NOT IN(SELECT BM.GLGeneralInfoId FROM [MST].[BankMaster] AS BM WHERE BM.GLGeneralInfoId <> '' and BM.AccountType='HouseBank')
+                                    --AND GLGI.Id NOT IN(SELECT CM.GLGeneralInfoId FROM [MST].[CashMaster] AS CM WHERE CM.GLGeneralInfoId <> '') AND GLGI.IsPostingAutomaticOnly = 0
+                                    --AND GLGI.Id NOT IN(SELECT AC.GLGeneralInfoId FROM [HKP].[GLAccountType] AS AC WHERE AC.AccountType ='" + ReconcileAccountEnum.Asset + @"')  
+AND BMA.Active=1";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
@@ -346,7 +347,7 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN MST.TaxCodeDetail TCD ON TCD.TaxCodeId=TC.Id AND TCD.TaxCodeYearId=TCY.Id
                         WHERE TC.InputOrOutput='" + TaxCodeInputOutput.Input + @"'
 						AND TYP.StartDate <='" + postingDate.ToDbDate() + "' AND TYP.EndDate >='" + postingDate.ToDbDate() + "' AND CO.Id='" + companyId + @"' 
-                         AND TCA.TaxCategoryLevel='"+ TaxCategoryLevelEnum.Invoice.ToString() + @"'
+                         AND TCA.TaxCategoryLevel='"+ TaxCategoryLevelEnum.Invoice.ToString() + @"' AND TCA.TaxCategoryType='TCS'
                     --UNION ALL
 						-- SELECT DISTINCT TC.Id, TC.UserName AS Text
                         --FROM [MST].[TaxCodeYear] AS TCY
