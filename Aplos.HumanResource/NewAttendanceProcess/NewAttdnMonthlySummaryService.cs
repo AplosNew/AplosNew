@@ -11,6 +11,7 @@ using Syncfusion.XlsIO;
 using System.Drawing;
 using Library.Crosscutting.Security;
 using System.Threading;
+using ConnectionManager;
 
 namespace Library.HumanResource.NewAttendanceProcess
 {
@@ -1451,8 +1452,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                 where p.WeekOffValue='1' and OtMonth='" + Month+"' and OtYear='"+Year+"' "+empStr+@"
                 group by EmpSystemID";
 
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-                
+               // objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(sql, out ds);
+
 
             }
             catch (Exception ex)

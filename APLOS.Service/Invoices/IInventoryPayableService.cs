@@ -46,7 +46,7 @@ namespace Library.Service.Invoices
         void PostMultipleJournalSalesReturn(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
          , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
           , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<VoucherDetailViewModel> inventoryJVList, OtherInvoice otherInvoiceVM);
-        string InsertPurchaseReturnPayable(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList);
+        string InsertPurchaseReturnPayable(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, bool isDebitNote);
         string InsertInventoryTransferPayable(string receiveId, VoucherViewModel voucherVM
            , IEnumerable<VoucherDetailViewModel> fromPlantInventoryTransferJV
            , IEnumerable<VoucherDetailViewModel> toPlantInventoryTransferJV

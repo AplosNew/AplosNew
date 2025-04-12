@@ -94,6 +94,7 @@
                                     <div e-column e-type="string" e-field="LotNumber" e-headertext="LotNumber" e-width="150"></div>
                                     <div e-column e-type="string" e-field="OwnOrderNo" e-headertext="OwnOrderNo" e-width="180"></div>
                                     <div e-column e-type="string" e-field="SONos" e-headertext="SalesOrderIds" e-width="180"></div>
+                                    <div e-column e-type="string" e-field="LineItemReference" e-headertext="LineItemReference" e-width="180"></div>
                                     <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="180"></div>
                                     <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="180"></div>
                                     <div e-column e-type="string" e-field="NoOfWorkStation" e-textalign="right" e-headertext="WorkStation" e-width="100"></div>
@@ -177,6 +178,7 @@
                                     <div e-column e-type="string" e-field="LotNumber" e-headertext="LotNumber" e-width="150"></div>
                                     <div e-column e-type="string" e-field="OwnOrderNo" e-headertext="OwnOrderNo" e-width="180"></div>
                                     <div e-column e-type="string" e-field="SONos" e-headertext="SalesOrderIds" e-width="180"></div>
+                                    <div e-column e-type="string" e-field="LineItemReference" e-headertext="LineItemReference" e-width="180"></div>
                                     <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="180"></div>
                                     <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="180"></div>
                                     <div e-column e-type="string" e-field="NoOfWorkStation" e-textalign="right" e-headertext="WorkStation" e-width="100"></div>
@@ -259,6 +261,7 @@
                                     <div e-column e-type="string" e-field="LotNumber" e-headertext="LotNumber" e-width="150"></div>
                                     <div e-column e-type="string" e-field="OwnOrderNo" e-headertext="OwnOrderNo" e-width="180"></div>
                                     <div e-column e-type="string" e-field="SONos" e-headertext="SalesOrderIds" e-width="180"></div>
+                                    <div e-column e-type="string" e-field="LineItemReference" e-headertext="LineItemReference" e-width="180"></div>
                                     <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="180"></div>
                                     <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="180"></div>
                                     <div e-column e-type="number" e-format="{0:0.00}" e-field="PlannedQty" e-headertext="PlannedQty" e-textalign="right" e-width="100"></div>
@@ -340,6 +343,7 @@
                                     <div e-column e-type="string" e-field="LotNumber" e-headertext="LotNumber" e-width="150"></div>
                                     <div e-column e-type="string" e-field="OwnOrderNo" e-headertext="OwnOrderNo" e-width="180"></div>
                                     <div e-column e-type="string" e-field="SONos" e-headertext="SalesOrderIds" e-width="180"></div>
+                                    <div e-column e-type="string" e-field="LineItemReference" e-headertext="LineItemReference" e-width="180"></div>
                                     <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="180"></div>
                                     <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="180"></div>
                                     <div e-column e-type="number" e-format="{0:0.00}" e-field="PlannedQty" e-headertext="PlannedQty" e-textalign="right" e-width="100"></div>
@@ -398,19 +402,20 @@
                                             <div e-column e-field="Article" e-headertext="Article" e-width="120"></div>
                                             <div e-column e-field="MasterOrderNo" e-headertext="MO No" e-width="80"></div>
                                             <div e-column e-field="SONo" e-headertext="SO No" e-width="80"></div>
+                                            <div e-column e-type="string" e-field="LineItemReference" e-headertext="LineItemReference" e-width="180"></div>
                                             <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="120"></div>
                                             <div e-column e-field="POStatus" e-headertext="PO Status" e-width="50"></div>
                                             <div e-column e-field="AddedBy" e-headertext="Added By" e-width="80" textAlign='Left'></div>
                                             <div e-column e-field="AddedDate" e-headertext="Added Date" e-width="90" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                                             <div e-column e-field="UpdatedBy" e-headertext="Updated By" e-width="90"></div>
                                             <div e-column e-field="UpdatedDate" e-headertext="Updated Date" e-width="90" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                                            <div e-column e-field="SOQty" e-headertext="SO Qty" e-width="80"textAlign='Right'></div>
-                                            <div e-column e-field="BaseProcPlanPercentage" e-headertext="Base Proc Plan Percentage" e-width="80"textAlign='Right'></div>
-                                            <div e-column e-field="ActualPlanScheduleQty" e-headertext="Actual Plan Schedule Qty" e-width="80"textAlign='Right'></div>
-                                            <div e-column e-field="FirstProcessProQty" e-headertext="FirstProcessBookQty" e-width="80"textAlign='Right'></div>
-                                            <div e-column e-field="RequestedQty" e-headertext="Requested Qty" e-width="80"textAlign='Right'></div>
-                                            <div e-column e-field="IssueQty" e-headertext="Issue Qty" e-width="80"textAlign='Right'></div>
-                                            <div e-column e-field="TotalQty" e-headertext="Total Qty" e-width="80"textAlign='Right'></div>
+                                            <div e-column e-field="SOQty" e-headertext="SO Qty" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="BaseProcPlanPercentage" e-headertext="Base Proc Plan Percentage" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="ActualPlanScheduleQty" e-headertext="Actual Plan Schedule Qty" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="FirstProcessProQty" e-headertext="FirstProcessBookQty" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="RequestedQty" e-headertext="Requested Qty" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="IssueQty" e-headertext="Issue Qty" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="TotalQty" e-headertext="Total Qty" e-width="80" textAlign='Right'></div>
                                             <div e-column e-field="ShouldBeBaseProcessPlannedQty" e-headertext="Should Be Base Process Planned Qty" e-width="90" textAlign='Right'></div>
                                             <div e-column e-field="BaseProcessProduceQty" e-headertext="Base Process Produce Qty" e-width="90" textAlign='Right'></div>
                                             <div e-column e-field="BaseProcessRemainingQty" e-headertext="Base Process Remaining Qty" e-width="90" textAlign='Right'></div>

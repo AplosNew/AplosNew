@@ -3427,7 +3427,8 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
             var sql = @"DECLARE @fromDate varchar(50)='" + fromDate + @"',@toDate varchar(50)='" + toDate + @"', @companyGroupId varchar(10)='" + companyGroupId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"'
 
 SELECT CapitalizationMasterId,	CapitalizationChildId,	DepreciationRules
-,FixedAssetMasterId,FixedAssetMaster,FixedAssetItemId,FixedAssetItem,AssetRegisterId,UserReference,CapitalizationDate,Factor,LifeTime
+,FixedAssetMasterId,FixedAssetMaster,FixedAssetItemId,FixedAssetItem,AssetRegisterId,UserReference,CapitalizationDate
+,GL,Budget,Activity,Factor,LifeTime
 ,(( AssetAmount +AdditionAssetAmount)-ISNULL((OpeningDepreciationAmount+AdjustmentDepreciationAmount),0)) OpeningAmount
 , (AdditionAssetAmountFTP)CapitalizedAmountFTP
 ,(( AssetAmount +AdditionAssetAmount+AdditionAssetAmountFTP)-ISNULL((OpeningDepreciationAmount+AdjustmentDepreciationAmount),0)) TotalAmount
@@ -3436,6 +3437,7 @@ SELECT CapitalizationMasterId,	CapitalizationChildId,	DepreciationRules
 
 FROM(SELECT ARC.CapitalizationMasterId,ARC.CapitalizationChildId,FADR.DepreciationRules,ARC.Amount AssetAmount,ISNULL(ARC.AdjustmentDepreciationAmount,0)AdjustmentDepreciationAmount,ARC.NetAmount
 							,FAI.FixedAssetMasterId,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem, AR.FixedAssetItemId,ARC.AssetRegisterId,REPLACE(CONVERT(VARCHAR(11), CM.CapitalizationDate, 106), ' ', '-') CapitalizationDate
+							,GL.UserName GL,B.UserName Budget,A.UserName Activity
 							,AR.AssetSlNo, AR.RFId, AR.BarCode, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks  
 							,FADR.Factor,FADR.LifeTime
 								,ISNULL((SELECT (SUM(ARCA.Amount)-ISNULL(SUM(ISNULL(ARCA.AdjustmentDepreciationAmount,0)),0)) AdditionAssetAmount
@@ -3461,6 +3463,13 @@ FROM(SELECT ARC.CapitalizationMasterId,ARC.CapitalizationChildId,FADR.Depreciati
 							LEFT JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=ARC.CapitalizationMasterId
 							LEFT JOIN MST.CompanyFixedAssetDepreciationRule CFADR  ON  CFADR.FixedAssetMasterId = FAI.FixedAssetMasterId 
 							LEFT JOIN [MST].[FixedAssetDepreciationRule] FADR  ON  FADR.Id = CFADR.DepreciationRuleId 
+							left join trn.VoucherDetail VD on VD.Id = ARC.VoucherdetailId
+							left join TRN.Voucher V on V.Id = CM.VoucherId
+							left join hkp.GLGeneralInfo GL ON GL.Id=vd.GLGeneralInfoId
+							left join MST.BudgetMaster BM ON BM.Id=vd.BudgetMasterId
+							left join hkp.Budget B ON B.Id=BM.BudgetId
+							left join hkp.Activity A ON A.Id=vd.ActivityId
+							left join mst.BudgetMasterActivity bma ON bma.BudgetMasterId=VD.BudgetMasterId and bma.ActivityId=VD.ActivityId
 		                WHERE ARC.CompanyGroupId=@companyGroupId AND ARC.CompanyId=@companyId  AND ARC.PlantId=@plantId  AND ARC.VoucherDetailId is not null AND CM.Type='New'
 						AND ARC.AssetRegisterId NOT IN (SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail] fadd 
 join trn.FixedAssetRegisterDisposed fad on fad.Id=fadd.FixedAssetRegisterDisposedId
@@ -3470,13 +3479,15 @@ where fad.DisposedVoucherId<>'')
 
 UNION ALL
 SELECT CapitalizationMasterId,	CapitalizationChildId,	DepreciationRules
-,FixedAssetMasterId,FixedAssetMaster,FixedAssetItemId,FixedAssetItem,AssetRegisterId,UserReference,CapitalizationDate,Factor,LifeTime
+,FixedAssetMasterId,FixedAssetMaster,FixedAssetItemId,FixedAssetItem,AssetRegisterId,UserReference,CapitalizationDate
+,GL,Budget,Activity,Factor,LifeTime
 ,0 OpeningAmount, ( AssetAmount +AdditionAssetAmountFTP)CapitalizedAmountFTP, ( AssetAmount +AdditionAssetAmountFTP)TotalAmount
 ,ISNULL((DepreciationAmountFTP+AdjustmentDepreciationAmount),0)DepreciationAmount
 ,(( AssetAmount +AdditionAssetAmountFTP)-ISNULL((DepreciationAmountFTP+AdjustmentDepreciationAmount),0))NetAmount 	
 
 FROM(SELECT ARC.CapitalizationMasterId,ARC.CapitalizationChildId,FADR.DepreciationRules,ARC.Amount AssetAmount,ISNULL(ARC.AdjustmentDepreciationAmount,0)AdjustmentDepreciationAmount,ARC.NetAmount
 							,FAI.FixedAssetMasterId,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem, AR.FixedAssetItemId,ARC.AssetRegisterId,REPLACE(CONVERT(VARCHAR(11), CM.CapitalizationDate, 106), ' ', '-') CapitalizationDate
+							,GL.UserName GL,B.UserName Budget,A.UserName Activity
 							,AR.AssetSlNo, AR.RFId, AR.BarCode, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
 							,FADR.Factor,FADR.LifeTime
 							,ISNULL((SELECT (SUM(ARCA.Amount)-ISNULL(SUM(ISNULL(ARCA.AdjustmentDepreciationAmount,0)),0)) AdditionAssetAmount
@@ -3494,6 +3505,13 @@ FROM(SELECT ARC.CapitalizationMasterId,ARC.CapitalizationChildId,FADR.Depreciati
 							LEFT JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=ARC.CapitalizationMasterId
 							LEFT JOIN MST.CompanyFixedAssetDepreciationRule CFADR  ON  CFADR.FixedAssetMasterId = FAI.FixedAssetMasterId 
 							LEFT JOIN [MST].[FixedAssetDepreciationRule] FADR  ON  FADR.Id = CFADR.DepreciationRuleId 
+							left join trn.VoucherDetail VD on VD.Id = ARC.VoucherdetailId
+							left join TRN.Voucher V on V.Id = CM.VoucherId
+							left join hkp.GLGeneralInfo GL ON GL.Id=vd.GLGeneralInfoId
+							left join MST.BudgetMaster BM ON BM.Id=vd.BudgetMasterId
+							left join hkp.Budget B ON B.Id=BM.BudgetId
+							left join hkp.Activity A ON A.Id=vd.ActivityId
+							left join mst.BudgetMasterActivity bma ON bma.BudgetMasterId=VD.BudgetMasterId and bma.ActivityId=VD.ActivityId
 		                WHERE ARC.CompanyGroupId=@companyGroupId AND ARC.CompanyId=@companyId  AND ARC.PlantId=@plantId  AND ARC.VoucherDetailId is not null AND CM.Type='New'
 						AND ARC.AssetRegisterId NOT IN (SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail] fadd 
 join trn.FixedAssetRegisterDisposed fad on fad.Id=fadd.FixedAssetRegisterDisposedId

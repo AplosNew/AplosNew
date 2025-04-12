@@ -502,6 +502,7 @@
     <Compile Include="Areas\Commercial\Controllers\LcNavigationController.cs" />
     <Compile Include="Areas\Commercial\Controllers\LCReportsController.cs" />
     <Compile Include="Areas\Commercial\Controllers\CommercialAdditionalInfoController.cs" />
+    <Compile Include="Areas\Commercial\Controllers\ComplianceController.cs" />
     <Compile Include="Areas\Commercial\Controllers\PostSalesInvoiceController.cs" />
     <Compile Include="Areas\Commercial\Controllers\AutoLoanController.cs" />
     <Compile Include="Areas\Commercial\Controllers\PIInvoiceController.cs" />
@@ -1848,6 +1849,7 @@
     <Compile Include="SqlServerTypes\Loader.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Areas\Accounts\Scripts\voucherPrintController.js" />
     <Content Include="Areas\Accounts\Scripts\voucherTypeAdditionalInfoController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceReviseMaturedateController.js" />
     <Content Include="Areas\Accounts\Scripts\GLManagementController.js" />
@@ -1975,6 +1977,7 @@
     <Content Include="Areas\Attendances\Scripts\EmployeeMultipleAdvanceController.js" />
     <Content Include="Areas\Commercial\Scripts\ContractSummaryController.js" />
     <Content Include="Areas\Commercial\Scripts\LCPendingReportController.js" />
+    <Content Include="Areas\Commercial\Scripts\ComplianceController.js" />
     <Content Include="Areas\Costings\Scripts\OrderLineCostingItemServiceMasterMappingController.js" />
     <Content Include="Areas\Employees\Scripts\CasteController.js" />
     <Content Include="Areas\FixedAssets\Scripts\assetDisposeController.js" />
@@ -5048,6 +5051,8 @@
     <Content Include="Areas\Productions\Views\Marker\Approve.cshtml" />
     <Content Include="Areas\Accounts\Views\VoucherTypeAdditionalInfo.cshtml" />
     <Content Include="Areas\MIS\Views\_CredentialPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\VoucherPark\VoucherPrint.cshtml" />
+    <Content Include="Areas\Commercial\Views\Compliance\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

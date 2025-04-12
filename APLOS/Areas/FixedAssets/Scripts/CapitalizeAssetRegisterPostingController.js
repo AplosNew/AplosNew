@@ -100,6 +100,9 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
         $scope.voucher.FixedAssetItem = data.FixedAssetItem;
         $scope.voucher.Qty = data.Qty;
         $scope.voucher.CapitalizationDate = $filter("dateFiltering")(data.CapitalizationDate);
+        $scope.voucher.PostingDate = $filter("dateFiltering")(data.CapitalizationDate);
+        $scope.voucher.DocDate = $filter("dateFiltering")(data.CapitalizationDate);
+        $scope.voucher.Narration = null;
 
         $scope.capitalizationMaster.Id = data.Id;
         $scope.capitalizationMaster.FixedAssetItemId = data.FixedAssetItemId;

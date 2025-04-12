@@ -1084,10 +1084,10 @@ namespace Library.Service.Employees
                 {
                     _expenseBookingApprovalHistoryRepository.Delete(item.Id);
                 }
-                foreach (var item in expensesBookingDetail)
-                {
-                    _expenseBookingDetailRepository.Delete(item.Id);
-                }
+                //foreach (var item in expensesBookingDetail)
+                //{
+                //    _expenseBookingDetailRepository.Delete(item.Id);
+                //}
                 if (expensesBooking.BeneficiaryType == "Vendor")
                 {
                     if (invoiceTax != null)
@@ -1141,8 +1141,13 @@ namespace Library.Service.Employees
                     }
                     _employeePayableRepository.Delete(employeePayable.Id);
                 }
-                
-                _expenseBookingRepository.Delete(expensesBooking.Id);
+
+                //_expenseBookingRepository.Delete(expensesBooking.Id);
+                var expensesBookingEntity = _expenseBookingRepository.Find(expensesBooking.Id);
+                expensesBookingEntity.VoucherId = null;
+                expensesBookingEntity.IsPosted = false;
+                expensesBookingEntity.ApprovalStatus = "ToBeChecked";
+                _expenseBookingRepository.Update(expensesBookingEntity);
                 _voucherService.DeleteVoucher(voucher.Id);
                 _unitOfWork.SaveChanges();
                 flag = false;

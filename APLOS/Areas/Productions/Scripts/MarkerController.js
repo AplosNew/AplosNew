@@ -461,7 +461,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         });
     };
     $scope.GetSequence();
-    $scope.CustomeFileName = null;
+
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.GetCutPlanCbo();
