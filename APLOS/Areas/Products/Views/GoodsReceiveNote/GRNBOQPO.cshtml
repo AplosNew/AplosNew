@@ -550,7 +550,7 @@
                                         <td colspan="11" class="text-right"><strong>Total : </strong></td>
                                         <td class="text-right" ng-show="GriddataSelected.length===0"><strong>{{MasterList | sumByKey : 'OriginalPOQty' }}</strong></td>
                                         @*<td ng-show="GriddataSelected.length===0"></td>*@
-                                        <td class="text-right"><strong>{{MasterList | sumByKey : 'TotalPOQty' }}</strong></td>
+                                        <td  colspan="2"class="text-right"><strong>{{MasterList | sumByKey : 'TotalPOQty' }}</strong></td>
                                         <td class="text-right"><strong>{{MasterList | sumByKey : 'POQty' }}</strong></td>
                                         <td></td>
                                         <td class="text-right" ng-hide="false"><strong>{{MasterList | sumByKey : 'GRNRcvQty' }}</strong></td>
@@ -633,7 +633,7 @@
                                                 </td>
                                                 <td id="td_TaxCodeAmount">
                                                     <div class="show-message">
-                                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="advanceTax.TaxAmount" ng-keyup="copyTaxesAmount();checkRowValidationSdditionalTax(advanceTax.TaxAmount);" ng-disabled="productNew.TaxOptionAddiTax==='Yes'">
+                                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="advanceTax.TaxAmount" ng-keyup="copyTaxesAmount();checkRowValidationSdditionalTax(advanceTax.TaxAmount);" >
                                                     </div>
                                                 </td>
                                                 <td class="text-right">

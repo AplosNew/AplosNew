@@ -395,34 +395,6 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     }
 
 
-    //$scope.ProWCDataReport = function () {
-    //    var wcdataLists = [];
-    //    var g = $("#GridWC").data("ejGrid");
-    //    wcdataLists = g.getFilteredRecords();
-
-    //    if (wcdataLists.length == 0) {
-    //        wcdataLists = $scope.ProductionDataWCReportList;
-    //    }
-
-    //    $scope.fileName = "ProductionDataWithWC";
-
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.exportgriddataUrlUpd,
-    //        data: { 'reportFileName': $scope.fileName, 'data': wcdataLists },
-    //        dataType: 'JSON'
-    //    }).then(function successCallback(response) {
-    //        if (response.data.Error == true) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-    //        else {
-    //            $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-    //        }
-    //    }, function errorCallback(response) {
-    //        ShowResult(response.data.Message, 'failure');
-    //    });
-    //}
-
     $scope.ProWCDataReport = function () {
         try {
             var dataList = [];
@@ -788,7 +760,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     $scope.POWisefilters();
 
     $scope.powisemeters = [];
-    $scope.SumfilterComplete = function () {
+    $scope.POWisefilterComplete = function () {
 
         var g = $("#POWIsesummaryfilters").data("ejGrid");
         var fl = g.getFilteredRecords();
@@ -812,7 +784,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
 
     $scope.POWiseList = [];
     $scope.GetPOWiseView = function () {
-        $scope.SumfilterComplete();
+        $scope.POWisefilterComplete();
         $http({
             method: 'POST',
             url: $scope.path +'POWiseData',

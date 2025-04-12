@@ -3109,7 +3109,7 @@ GROUP BY FAR.FABudgetMasterId
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
                     sheet[ROW, colVen].Text = data.Rows[i]["VendorName"].ToString();
-                    sheet[ROW, colID].Text = data.Rows[i]["InvoiceDate"].ToString();
+                    sheet[ROW, colGD].Text = data.Rows[i]["InvoiceDate"].ToString();
                     sheet[ROW, colGN].Text = data.Rows[i]["GRNNo"].ToString();
                     sheet[ROW, colGRN].Text = data.Rows[i]["InventoryReceiveDetailId"].ToString();
                     sheet[ROW, colM].Text = data.Rows[i]["MaterialMasterName"].ToString();

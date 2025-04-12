@@ -265,6 +265,11 @@ namespace Aplos.Areas.Productions.Controllers
                 int colSalesOrderIds = COL;
 
                 COL++;
+                sheet[ROW, COL].Text = "LineItemReference";
+                sheet[ROW, COL].ColumnWidth = 41;
+                int colLineItemReference = COL;
+
+                COL++;
                 sheet[ROW, COL].Text = "Product";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colProduct = COL;
@@ -399,6 +404,7 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colLotNumber].Text = data.Rows[i]["LotNumber"].ToString();
                     sheet[ROW, colOwnOrderNo].Text = data.Rows[i]["OwnOrderNo"].ToString();
                     sheet[ROW, colSalesOrderIds].Text = data.Rows[i]["SONos"].ToString();
+                    sheet[ROW, colLineItemReference].Text = data.Rows[i]["LineItemReference"].ToString();
                     sheet[ROW, colProduct].Text = data.Rows[i]["Product"].ToString();
                     sheet[ROW, colArticle].Text = data.Rows[i]["Article"].ToString();
                     sheet[ROW, colWorkStation].Number = clsStaticInfo.dbl(data.Rows[i]["NoOfWorkStation"].ToString());
@@ -956,6 +962,11 @@ namespace Aplos.Areas.Productions.Controllers
                 int colSalesOrderIds = COL;
 
                 COL++;
+                sheet[ROW, COL].Text = "LineItemReference";
+                sheet[ROW, COL].ColumnWidth = 41;
+                int colLineItemReference = COL;
+
+                COL++;
                 sheet[ROW, COL].Text = "Product";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colProduct = COL;
@@ -1078,6 +1089,7 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colLotNumber].Text = data.Rows[i]["LotNumber"].ToString();
                     sheet[ROW, colOwnOrderNo].Text = data.Rows[i]["OwnOrderNo"].ToString();
                     sheet[ROW, colSalesOrderIds].Text = data.Rows[i]["SONos"].ToString();
+                    sheet[ROW, colLineItemReference].Text = data.Rows[i]["LineItemReference"].ToString();
                     sheet[ROW, colProduct].Text = data.Rows[i]["Product"].ToString();
                     sheet[ROW, colArticle].Text = data.Rows[i]["Article"].ToString();
                     sheet[ROW, colWorkStation].Number = clsStaticInfo.dbl(data.Rows[i]["NoOfWorkStation"].ToString());
@@ -1280,6 +1292,11 @@ namespace Aplos.Areas.Productions.Controllers
                 int colSalesOrderIds = COL;
 
                 COL++;
+                sheet[ROW, COL].Text = "LineItemReference";
+                sheet[ROW, COL].ColumnWidth = 41;
+                int colLineItemReference = COL;
+
+                COL++;
                 sheet[ROW, COL].Text = "Product";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colProduct = COL;
@@ -1399,6 +1416,7 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colLotNumber].Text = data.Rows[i]["LotNumber"].ToString();
                     sheet[ROW, colOwnOrderNo].Text = data.Rows[i]["OwnOrderNo"].ToString();
                     sheet[ROW, colSalesOrderIds].Text = data.Rows[i]["SONos"].ToString();
+                    sheet[ROW, colLineItemReference].Text = data.Rows[i]["LineItemReference"].ToString();
                     sheet[ROW, colProduct].Text = data.Rows[i]["Product"].ToString();
                     sheet[ROW, colArticle].Text = data.Rows[i]["Article"].ToString();
                     sheet[ROW, colPlannedQty].Number = clsStaticInfo.dbl(data.Rows[i]["PlannedQty"].ToString());
@@ -1683,6 +1701,11 @@ namespace Aplos.Areas.Productions.Controllers
                 int colSalesOrderIds = COL;
 
                 COL++;
+                sheet[ROW, COL].Text = "LineItemReference";
+                sheet[ROW, COL].ColumnWidth = 41;
+                int colLineItemReference = COL;
+
+                COL++;
                 sheet[ROW, COL].Text = "Product";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colProduct = COL;
@@ -1801,6 +1824,7 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colLotNumber].Text = data.Rows[i]["LotNumber"].ToString();
                     sheet[ROW, colOwnOrderNo].Text = data.Rows[i]["OwnOrderNo"].ToString();
                     sheet[ROW, colSalesOrderIds].Text = data.Rows[i]["SONos"].ToString();
+                    sheet[ROW, colLineItemReference].Text = data.Rows[i]["LineItemReference"].ToString();
                     sheet[ROW, colProduct].Text = data.Rows[i]["Product"].ToString();
                     sheet[ROW, colArticle].Text = data.Rows[i]["Article"].ToString();
                     sheet[ROW, colPlannedQty].Number = clsStaticInfo.dbl(data.Rows[i]["PlannedQty"].ToString());
@@ -2030,6 +2054,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, COL].Text = "Article"; sheet[ROW, COL].ColumnWidth = 16; int colArticle = COL; COL++;
                 sheet[ROW, COL].Text = "MO No"; sheet[ROW, COL].ColumnWidth = 16; int colMONO = COL; COL++;
                 sheet[ROW, COL].Text = "SO No"; sheet[ROW, COL].ColumnWidth = 16; int colSONO = COL; COL++;
+                sheet[ROW, COL].Text = "LineItemReference"; sheet[ROW, COL].ColumnWidth = 16; int colLineItemReference = COL; COL++;
                 sheet[ROW, COL].Text = "Responsible Person"; sheet[ROW, COL].ColumnWidth = 16; int colRP = COL; COL++;
                 sheet[ROW, COL].Text = "Added By"; sheet[ROW, COL].ColumnWidth = 16; int colAddedBy = COL; COL++;
                 sheet[ROW, COL].Text = "Added Date"; sheet[ROW, COL].ColumnWidth = 16; int colAddedDate = COL; COL++;
@@ -2112,6 +2137,7 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colCustomer].Text = data.Rows[i]["Customer"].ToString();
                     sheet[ROW, colArticle].Text = data.Rows[i]["Article"].ToString();
                     sheet[ROW, colSONO].Text = data.Rows[i]["SONo"].ToString();
+                    sheet[ROW, colLineItemReference].Text = data.Rows[i]["LineItemReference"].ToString();
                     sheet[ROW, colMONO].Text = data.Rows[i]["MasterOrderNo"].ToString();
                     sheet[ROW, colRP].Text = data.Rows[i]["ResponsiblePerson"].ToString();
                     sheet[ROW, colPOStatus].Text = data.Rows[i]["POStatus"].ToString();

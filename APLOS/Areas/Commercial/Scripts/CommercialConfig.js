@@ -132,5 +132,9 @@ function CommercialConfig($routeProvider) {
             templateUrl: 'Commercial/contract/ContractSummary',
             controller: 'ContractSummaryController'
         })
+        .when('/compliance', {
+            templateUrl: 'Commercial/Compliance/Aplos',
+            controller: 'ComplianceController'
+        })
         ;
 }
