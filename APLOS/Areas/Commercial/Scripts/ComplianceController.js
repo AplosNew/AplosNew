@@ -61,6 +61,7 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.ModelNew.ComplianceValue = $scope.ModelNew.ComplianceValue.toString();
+        $scope.GetRPList();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -122,20 +123,21 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
     function ClearFields() {
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.RPDataList = [];
     }
 
-    $scope.ShowResponsiblePerson = function () {
-        try {
-            if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
-                throw "Select Master data first.";
-            }
-            $scope.GetRPList();
-            angular.element(document.querySelector('#ResponsiblePersonPopUp')).modal('show');
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
+    //$scope.ShowResponsiblePerson = function () {
+    //    try {
+    //        if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+    //            throw "Select Master data first.";
+    //        }
+    //        $scope.GetRPList();
+    //        angular.element(document.querySelector('#ResponsiblePersonPopUp')).modal('show');
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
 
-    }
+    //}
 
     $scope.CloseResponsiblePerson = function () {
         angular.element(document.querySelector('#ResponsiblePersonPopUp')).modal('hide');
@@ -257,5 +259,40 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         }
         return false;
     }
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+    $scope.message_detailconfirmation = null;
+    $scope.removeRP = function (obj) {
+        $scope.bomDetailNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.bomDetailNew.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.bomDetailNew.EmployeeCode + ' ]';
+        angular.element(document.querySelector('#confirmBoMDetailPopUp')).modal('show');
+    }
+
+    $scope.DeleteRP = function () {
+        $http({
+            method: 'POST',
+            url: 'Commercial/Compliance//DeleteRP?id=' + $scope.bomDetailNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetRPList();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
 
 }

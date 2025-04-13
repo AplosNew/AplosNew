@@ -68,9 +68,9 @@ namespace Aplos.Areas.Commercial.Controllers
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where ItemName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where ItemName='" + data["ItemName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("ItemName already exists!!!");
+                    throw new Exception("Item Name already exists!!!");
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where   Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
@@ -106,7 +106,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 _info.SaveDataSets(dsMaster);
 
 
-                return Json(new { Error = false,Message = AplosMessage.Updated });
+                return Json(new { Error = false,Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
@@ -119,7 +119,6 @@ namespace Aplos.Areas.Commercial.Controllers
 
         public ActionResult Delete(string id)
         {
-            string sql = @"select * from [HKP].[LCOpenChargesTypeGL] where LCOpenChargesTypeId = '"+ id + "'";
                 try
                 {
                     if (string.IsNullOrEmpty(id))
@@ -128,6 +127,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                     con.BeginTransaction();
                     con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                    con.executeQuery("delete from dbo.ComplianceResponsiblePerson where ComplianceMasterId='" + id + "'");
                     con.CommitTransaction();
 
                     return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
@@ -137,6 +137,28 @@ namespace Aplos.Areas.Commercial.Controllers
                     return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
                 }
             
+
+        }
+
+        public ActionResult DeleteRP(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.ComplianceResponsiblePerson where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
 
         }
 
