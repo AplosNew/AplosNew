@@ -1286,8 +1286,9 @@
                                 <div class="input-group">
                                     <input type="text" ng-model="soModel.PONumber" name="PO Number" class="form-control" readonly tabindex="103">
                                     <span class="input-group-btn">
-                                        <button ng-click="getPOSearchData();" type="submit" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                        <button ng-click="poFgEntryPopup();" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"></i></button>
+                                        <button ng-click="getPOSearchData();" title="Search" type="submit" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="poEditPopup();" title="Edit" class="btn single-small-btn"><i class="glyphicon glyphicon-pencil"></i></button>
+                                        <button ng-click="poFgEntryPopup();" title="Add New" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"></i></button>
                                     </span>
                                 </div>
                             </div>
