@@ -1,0 +1,419 @@
+﻿<togglable name={{title}}></togglable>
+<div style="padding:0px;">
+    <div class="form-elements form-horizontal" ng-form name="jobWorkItem">
+        <div class="row">
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtCode">
+                        Invoice No<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtCode" ng-disabled="true" name="InvoiceNo" class="form-control" ng-model="JobWorkItem.InvoiceNo" required tabindex="2" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtShortName">
+                        Invoice Date<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtShortName" ng-disabled="true" name="InvoiceDate" datepicker class="form-control" ng-model="JobWorkItem.InvoiceDate" required tabindex="3" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtStandardName">
+                        SB Number<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtStandardName" name="SBNumber" class="form-control" ng-model="JobWorkItem.SBNumber" required tabindex="4" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtShortName">
+                        SB Date<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtShortName" name="SB Date" datepicker class="form-control" ng-model="JobWorkItem.SBDate" required tabindex="3" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        Port Code<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="PortCode" class="form-control" ng-model="JobWorkItem.PortCode" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        Invoice Value<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="InvoiceValue" class="form-control" ng-model="JobWorkItem.InvoiceValue" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        EXRate<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="EXRate" class="form-control" ng-model="JobWorkItem.EXRate" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        FOB Value INR<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="FOBValueInr" class="form-control" ng-model="JobWorkItem.FOBValueInr" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+        <div class="row">
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        RODTEP<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="RODTEP" class="form-control" ng-model="JobWorkItem.RODTEP" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        DBK Value<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="DBKValue" class="form-control" ng-model="JobWorkItem.DBKValue" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        IGSTAmount<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="IGSTAmount" class="form-control" ng-model="JobWorkItem.IGSTAmount" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        Comm %<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="CommPercentage" class="form-control" ng-model="JobWorkItem.CommPercentage" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        Comm Amount<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="CommAmount" class="form-control" ng-model="JobWorkItem.CommAmount" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        INSURANCE AMOUNT<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="InsuranceAmount" class="form-control" ng-model="JobWorkItem.InsuranceAmount" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        INCOTERMS<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="Incoterms" class="form-control" ng-model="JobWorkItem.Incoterms" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn" style="padding-top: 20px;">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{JobWorkItem.Id==null?'Save':'Update'}}</button></li>
+                <li> <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>                
+            </ul>
+        </div>
+    </div>
+    <div class="aplos-grid-toggle">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12" style="padding-top: 0px;">
+                <div id="GridData" ej-grid e-datasource="gridDataList" e-gridlines="vertical" e-templaterefresh="refreshGridGridElementCode"
+                     e-allowfiltering="true"
+                     e-allowpaging="true"
+                     e-allowsorting="true"
+                     e-allowResizing="true"
+                     e-allowTextWrap="true"
+                     e-allowscrolling="true"
+                     e-filtersettings-filterType="excel"
+                     e-enabletouch="true" e-responsive="true"
+                     e-recorddoubleclick="recorddoubleclick">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                        <div e-column e-field="InvoiceNo" e-headertext="InvoiceNo" e-width="100" e-format="{0:n2}"></div>
+                        <div e-column e-field="InvoiceDate" e-headertext="InvoiceDate" e-width="100"></div>
+                        <div e-column e-field="SBNumber" e-headertext="SBNumber" e-width="150"></div>
+                        <div e-column e-field="SBDate" e-headertext="SBDate" e-width="150"></div>
+                        <div e-column e-field="PortCode" e-headertext="PortCode" e-width="150"></div>
+                        <div e-column e-field="InvoiceValue" e-headertext="InvoiceValue" e-width="150"></div>
+                        <div e-column e-field="EXRate" e-headertext="EXRate" e-width="150"></div>
+                        <div e-column e-field="FOBValueInr" e-headertext="FOBValueInr" e-width="120"></div>
+                        <div e-column e-field="RODTEP" e-headertext="RODTEP" e-width="150"></div>
+                        <div e-column e-field="DBKValue" e-headertext="DBKValue" e-width="150"></div>
+                        <div e-column e-field="IGSTAmount" e-headertext="IGSTAmount" e-width="150"></div>
+                        <div e-column e-field="CommPercentage" e-headertext="CommPercentage" e-width="150"></div>
+                        <div e-column e-field="CommAmount" e-headertext="CommAmount" e-width="200"></div>
+                        <div e-column e-field="InsuranceAmount" e-headertext="InsuranceAmount" e-width="200"></div>
+                        <div e-column e-field="Incoterms" e-headertext="Incoterms" e-width="200"></div>
+                        <div e-column e-template="#GridActions" e-width="75" textAlign='center'></div>
+                    </div>
+                </div>
+                 <script type="text/template" id="GridActions">
+        
+     </script>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("~/Areas/Employees/Views/Shared/_ResponsiblePersonPopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message="Are you sure want to Delete?" data-ng-click-right-button="removeRow()"></confirm-archive-generic>
+
+<div class="modal fade site-modal in" id="EmployeePopUpResPerson" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Gate Entry List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="GridEmployeeResPerson" ej-grid e-datasource="EmpResPersonList"
+                             e-allowfiltering="true" e-recorddoubleclick="setEmpData" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="GateEntryNo" e-headertext="GateEntryNo" e-width="60"></div>
+                                <div e-column e-type="string" e-field="GateEntryDate" e-headertext="GateEntryDate" e-width="40"></div>
+                                <div e-column e-type="string" e-field="Quantity" e-headertext="Quantity" e-width="40"></div>
+                                <div e-column e-type="string" e-field="Party" e-headertext="Party" e-width="100"></div>
+                                <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                                @*<div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                                <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeEmpResPersonPopUp('EmployeePopUpResPerson');" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="ApprovedPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Responsible Person List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="GridApprovedBy" ej-grid e-datasource="ApprovedByList"
+                             e-allowfiltering="true" e-recorddoubleclick="setApprovedByData" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="140"></div>
+                                <div e-column e-type="string" e-field="PositionName" e-headertext="Position" e-width="140"></div>
+                                <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                                <div e-column e-type="string" e-field="DepartmentName" e-headertext="Department Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                                <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeapprovedbyPopUp('ApprovedPopUp');" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style type="text/css">
+    .inner-content .form-group {
+        margin-bottom: 0px;
+    }
+    .form-horizontal .form-group {
+        margin-right: 0px;
+        margin-left: 0px;
+    }
+
+    .table-condensed > tbody > tr > td, .table-condensed > tbody > tr > th, .table-condensed > tfoot > tr > td, .table-condensed > tfoot > tr > th, .table-condensed > thead > tr > td, .table-condensed > thead > tr > th {
+        padding: 5px;
+        vertical-align: middle;
+        font-size: 12px;
+    }
+
+    .btnGSD {
+        display: block;
+        height: 25px;
+        width: 100%;
+        padding: 0;
+        font-size: 10px;
+        border: none;
+        border-bottom: 1px solid #039;
+        background: none;
+        color: #039;
+        font-weight: bold;
+        border-radius: 1%;
+        font-family: Verdana;
+    }
+
+    .btnET {
+        display: block;
+        height: 25px;
+        width: 100%;
+        padding: 0;
+        font-size: 10px;
+        border: none;
+        border-bottom: 1px solid #039;
+        background: none;
+        color: #039;
+        font-weight: bold;
+        border-radius: 1%;
+        font-family: Verdana;
+    }
+
+    .table-bordered > thead > tr > td, .table-bordered > thead > tr > th {
+        border: none;
+        border-bottom: 2px solid #6678b1;
+        color: #039;
+        font-size: 11px;
+        text-align: center;
+        font-family: verdana;
+    }
+
+    .form-control {
+        border-radius: 0;
+        box-shadow: none;
+        border: 1px solid #34495e;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .tdAvg .form-control {
+        background: none;
+        border: none;
+        color: #000;
+        font-size: 13px;
+        border-bottom: 1.5px solid #2e3439;
+    }
+
+    .tdRatings .form-control {
+        background: none;
+        border: none;
+        color: #000;
+        font-size: 13px;
+        border-bottom: 1.5px solid #2e3439;
+    }
+
+    .tdBtSec .form-control {
+        background: none;
+        border: none;
+        color: #000;
+        font-size: 13px;
+        border-bottom: 1.5px solid #2e3439;
+    }
+
+    .tdTitle {
+        background: #fff;
+        text-transform: uppercase;
+        font-weight: bold;
+        vertical-align: middle;
+        text-align: center;
+        font-family: verdana;
+    }
+
+    .radio label {
+        font-weight: 400;
+        padding-left: 5px;
+        font-family: verdana;
+        font-size: 10pt;
+    }
+
+    .form-elements .control-label, .master-details-search .control-label, .download-token .control-label, .form-element-ctrl .control-label {
+        font-family: verdana;
+        font-size: 9pt;
+        font-weight: 400;
+    }
+
+    .site-tab ul li a {
+        font-family: verdana;
+        font-size: 10pt;
+    }
+
+    fieldset.scheduler-border {
+        border: 1px groove #ddd !important;
+        padding: 0 1.4em 1.4em 1.4em !important;
+        margin: 0 0 1.5em 0 !important;
+        -webkit-box-shadow: 0px 0px 0px 0px #000;
+        box-shadow: 0px 0px 0px 0px #000;
+    }
+
+    legend.scheduler-border {
+        font-size: 1.2em !important;
+        font-weight: bold !important;
+        text-align: left !important;
+        width: auto;
+        padding: 0 10px;
+        border-bottom: none;
+    }
+</style>
