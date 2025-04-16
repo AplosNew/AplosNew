@@ -35,21 +35,21 @@ namespace Aplos.Areas.Outsourcing.Controllers
         {
             string sql = "";
             sql = @"select (Select Id from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) Id , Sa.Id InvoiceNo ,Format( Sa.InvoiceDate , 'dd-MM-yyyy') InvoiceDate
-                    ,(Select SBNumber from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) SBNumber
-                    ,(Select format(SBDate,'dd-MMM-yyyy') from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) SBDate
-                    ,(Select PortCode from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) PortCode
-                    ,(Select InvoiceValue from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) InvoiceValue
+                    ,case when(Select InvoiceNo from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) = Sa.Id then (Select SBNumber from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) else (select ShippingBillNo from [dbo].[PostSalesInvoice] where SalesId = SA.Id) end SBNumber
+                    ,case when(Select InvoiceNo from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) = Sa.Id then (Select Format( SBDate , 'dd-MM-yyyy') from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) else (select Format( ShippingBillDate , 'dd-MM-yyyy') from [dbo].[PostSalesInvoice] where SalesId = SA.Id) end SBDate
+                    ,case when(Select InvoiceNo from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) = Sa.Id then (Select PortCode from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) else (select PortCode from [dbo].[PostSalesInvoice] where SalesId = SA.Id) end PortCode
+                    ,case when(Select InvoiceNo from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) = Sa.Id then (Select InvoiceValue from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) else (select Convert(decimal(10,2) , SUM(BaseAmount)) from [TRN].[SalesMaterial] where SalesId = SA.Id Group By SalesId) end InvoiceValue
                     ,(Select EXRate from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) EXRate
                     ,(Select FOBValueInr from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) FOBValueInr
                     ,(Select RODTEP from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) RODTEP
                     ,(Select DBKValue from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) DBKValue
-                    ,(Select IGSTAmount from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) IGSTAmount
+					,case when(Select InvoiceNo from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) = Sa.Id then (Select InvoiceValue from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) else (select Convert(decimal(10,2) , SUM(BooksCurrencyTaxAmount)) from [TRN].[SalesMaterial] where SalesId = SA.Id Group By SalesId) end IGSTAmount
                     ,(Select CommPercentage from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) CommPercentage
                     ,(Select CommAmount from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) CommAmount
                     ,(Select InsuranceAmount from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) InsuranceAmount
                     ,(Select Incoterms from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) Incoterms
                     from trn.Sales Sa
-                    where Sa.InvoiceDate >= '2025-04-01'  and Sa.CurrencyId = 12 order by Sa.InvoiceDate Desc";
+                    where  Sa.InvoiceDate >= '2023-04-01' and  Sa.CurrencyId = 12  order by Sa.InvoiceDate Desc ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -58,16 +58,29 @@ namespace Aplos.Areas.Outsourcing.Controllers
         public JsonResult GetSelectedData(string Id)
         {
             string sql = "";
-            if(Id != null){
-                sql = @"select * from trn.ExportDB EDB
-                    WHERE EDB.Id ='" + Id + "'";
-            }
-            else
-            {
-                sql = @"select * from trn.Sales Sa Where Sa.InvoiceDate >= '2025-04-01'  and Sa.CurrencyId = 12";
-            }
+            sql = @"Select  
+ Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else Sa.Id end InvoiceNo
+,Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select Format(InvoiceDate,'yyyy-MM-dd') from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else Format(Sa.InvoiceDate,'yyyy-MM-dd') end InvoiceDate
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select Id from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end Id
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select SBNumber from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else (select ShippingBillNo from [dbo].[PostSalesInvoice] where SalesId = SA.Id) end SBNumber
+,Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select Format(SBDate,'yyyy-MM-dd') from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else (select Format( ShippingBillDate , 'dd-MM-yyyy') from [dbo].[PostSalesInvoice] where SalesId = SA.Id) end SBDate
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select PortCode from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else (select PortCode from [dbo].[PostSalesInvoice] where SalesId = SA.Id) end PortCode
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select PortCode from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else (select Convert(decimal(10,2) , SUM(BaseAmount)) from [TRN].[SalesMaterial] where SalesId = SA.Id Group By SalesId) end InvoiceValue
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select EXRate from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end EXRate
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select FOBValueInr from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end FOBValueInr
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select RODTEP from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end RODTEP
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select DBKValue from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end DBKValue
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select IGSTAmount from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else (select Convert(decimal(10,2) , SUM(BooksCurrencyTaxAmount)) from [TRN].[SalesMaterial] where SalesId = SA.Id Group By SalesId) end IGSTAmount
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select CommPercentage from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end CommPercentage
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select CommAmount from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end CommAmount
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select Incoterms from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end InsuranceAmount
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select CommPercentage from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end Incoterms
+from TRN.Sales Sa
+                        left join [dbo].[PostSalesInvoice] PSI on PSI.SalesId = Sa.Id
+                        Where Sa.InvoiceDate >= '2023-04-01'  and Sa.CurrencyId = 12 and Sa.Id = '" + Id + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
         }
 
         [HttpGet, Authorize]

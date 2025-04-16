@@ -110,7 +110,7 @@ function ExportDBController(addressService, $window, cboService, commonMessage, 
 
     $scope.recorddoubleclick = function ($event) {
         var x = $event;
-        $scope.RowId = x.data.Id;
+        $scope.RowId = x.data.InvoiceNo;
         $scope.PopulateSelectedDate($scope.RowId);
     };
     $scope.LoadSelectedData = function (Id) {
