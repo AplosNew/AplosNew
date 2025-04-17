@@ -163,12 +163,72 @@
                     </div>
                 </div>
             </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        COMM $<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="CommDoller" class="form-control" ng-model="JobWorkItem.CommDoller" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        FOB $<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="FOBDoller" class="form-control" ng-model="JobWorkItem.FOBDoller" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        INSURANCE $<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="InsuranceDoller" class="form-control" ng-model="JobWorkItem.InsuranceDoller" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        Fright<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="Fright" class="form-control" ng-model="JobWorkItem.Fright" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        Fright $<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="FrightDoller" class="form-control" ng-model="JobWorkItem.FrightDoller" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        Customer<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" ng-disabled="true"  name="Customer" class="form-control" ng-model="JobWorkItem.Customer" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="common-btn" style="padding-top: 20px;">
             <ul class="list-inline text-right">
                 <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{JobWorkItem.Id==null?'Save':'Update'}}</button></li>
-                <li> <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>                
+              @*  <li> <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>   *@             
             </ul>
         </div>
     </div>
@@ -189,20 +249,25 @@
                         <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
                         <div e-column e-field="InvoiceNo" e-headertext="InvoiceNo" e-width="100" e-format="{0:n2}"></div>
                         <div e-column e-field="InvoiceDate" e-headertext="InvoiceDate" e-width="100"></div>
-                        <div e-column e-field="SBNumber" e-headertext="SBNumber" e-width="150"></div>
-                        <div e-column e-field="SBDate" e-headertext="SBDate" e-width="150"></div>
-                        <div e-column e-field="PortCode" e-headertext="PortCode" e-width="150"></div>
-                        <div e-column e-field="InvoiceValue" e-headertext="InvoiceValue" e-width="150"></div>
-                        <div e-column e-field="EXRate" e-headertext="EXRate" e-width="150"></div>
-                        <div e-column e-field="FOBValueInr" e-headertext="FOBValueInr" e-width="120"></div>
-                        <div e-column e-field="RODTEP" e-headertext="RODTEP" e-width="150"></div>
-                        <div e-column e-field="DBKValue" e-headertext="DBKValue" e-width="150"></div>
-                        <div e-column e-field="IGSTAmount" e-headertext="IGSTAmount" e-width="150"></div>
-                        <div e-column e-field="CommPercentage" e-headertext="CommPercentage" e-width="150"></div>
-                        <div e-column e-field="CommAmount" e-headertext="CommAmount" e-width="200"></div>
-                        <div e-column e-field="InsuranceAmount" e-headertext="InsuranceAmount" e-width="200"></div>
-                        <div e-column e-field="Incoterms" e-headertext="Incoterms" e-width="200"></div>
-                        <div e-column e-template="#GridActions" e-width="75" textAlign='center'></div>
+                        <div e-column e-field="Customer" e-headertext="Customer" e-width="200"></div>
+                        <div e-column e-field="SBNumber" e-headertext="SBNumber" e-width="100"></div>
+                        <div e-column e-field="SBDate" e-headertext="SBDate" e-width="100"></div>
+                        <div e-column e-field="PortCode" e-headertext="PortCode" e-width="100"></div>
+                        <div e-column e-field="InvoiceValue" e-headertext="InvoiceValue" e-width="100"></div>
+                        <div e-column e-field="EXRate" e-headertext="EXRate" e-width="100"></div>
+                        <div e-column e-field="FOBValueInr" e-headertext="FOBValueInr" e-width="100"></div>
+                        <div e-column e-field="RODTEP" e-headertext="RODTEP" e-width="100"></div>
+                        <div e-column e-field="DBKValue" e-headertext="DBKValue" e-width="100"></div>
+                        <div e-column e-field="IGSTAmount" e-headertext="IGSTAmount" e-width="100"></div>
+                        <div e-column e-field="CommPercentage" e-headertext="CommPercentage" e-width="100"></div>
+                        <div e-column e-field="CommAmount" e-headertext="CommAmount" e-width="100"></div>
+                        <div e-column e-field="InsuranceAmount" e-headertext="InsuranceAmount" e-width="100"></div>
+                        <div e-column e-field="Incoterms" e-headertext="Incoterms" e-width="100"></div>
+                        <div e-column e-field="CommDoller" e-headertext="CommDoller" e-width="100"></div>
+                        <div e-column e-field="FOBDoller" e-headertext="FOBDoller" e-width="100"></div>
+                        <div e-column e-field="InsuranceDoller" e-headertext="InsuranceDoller" e-width="100"></div>
+                        <div e-column e-field="Fright" e-headertext="Fright" e-width="100"></div>
+                        <div e-column e-field="FrightDoller" e-headertext="FrightDoller" e-width="100"></div>
                     </div>
                 </div>
                  <script type="text/template" id="GridActions">
