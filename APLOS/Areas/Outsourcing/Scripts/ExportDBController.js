@@ -22,6 +22,12 @@ function ExportDBController(addressService, $window, cboService, commonMessage, 
         CommAmount: null,
         InsuranceAmount: null,
         Incoterms: null,
+        Customer: null,
+        CommDoller: null,
+        FOBDoller: null,
+        InsuranceDoller: null,
+        Fright: null,
+        FrightDoller: null,
     };
     $scope.JobWorkItem = Object.assign({}, $scope.JobWorkItemModelTemp);
 
@@ -147,6 +153,12 @@ function ExportDBController(addressService, $window, cboService, commonMessage, 
                 $scope.JobWorkItem.CommAmount = response.data[0].CommAmount;
                 $scope.JobWorkItem.InsuranceAmount = response.data[0].InsuranceAmount;
                 $scope.JobWorkItem.Incoterms = response.data[0].Incoterms;
+                $scope.JobWorkItem.CommDoller = response.data[0].CommDoller;
+                $scope.JobWorkItem.FOBDoller = response.data[0].FOBDoller;
+                $scope.JobWorkItem.InsuranceDoller = response.data[0].InsuranceDoller;
+                $scope.JobWorkItem.Fright = response.data[0].Fright;
+                $scope.JobWorkItem.FrightDoller = response.data[0].FrightDoller;
+                $scope.JobWorkItem.Customer = response.data[0].Customer;
 
                 
 

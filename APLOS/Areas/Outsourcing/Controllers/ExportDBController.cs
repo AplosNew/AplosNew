@@ -48,6 +48,12 @@ namespace Aplos.Areas.Outsourcing.Controllers
                     ,(Select CommAmount from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) CommAmount
                     ,(Select InsuranceAmount from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) InsuranceAmount
                     ,(Select Incoterms from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) Incoterms
+					,(Select CommDoller from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) CommDoller
+					,(Select FOBDoller from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) FOBDoller
+					,(Select InsuranceDoller from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) InsuranceDoller
+					,(Select Fright from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) Fright
+					,(Select FrightDoller from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) FrightDoller
+					,(Select UserName from HKP.Party where Id = Sa.PartyId ) Customer
                     from trn.Sales Sa
                     where  Sa.InvoiceDate >= '2023-04-01' and  Sa.CurrencyId = 12  order by Sa.InvoiceDate Desc ";
 
@@ -73,10 +79,17 @@ namespace Aplos.Areas.Outsourcing.Controllers
 , Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select IGSTAmount from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else (select Convert(decimal(10,2) , SUM(BooksCurrencyTaxAmount)) from [TRN].[SalesMaterial] where SalesId = SA.Id Group By SalesId) end IGSTAmount
 , Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select CommPercentage from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end CommPercentage
 , Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select CommAmount from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end CommAmount
-, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select Incoterms from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end InsuranceAmount
-, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select CommPercentage from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end Incoterms
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select InsuranceAmount from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end InsuranceAmount
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select Incoterms from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end Incoterms
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select CommDoller from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end CommDoller
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select FOBDoller from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end FOBDoller
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select InsuranceDoller from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end InsuranceDoller
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select Fright from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end Fright
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select FrightDoller from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end FrightDoller
+,PT.UserName Customer
 from TRN.Sales Sa
                         left join [dbo].[PostSalesInvoice] PSI on PSI.SalesId = Sa.Id
+						left join HKP.Party PT on PT.Id = Sa.PartyId
                         Where Sa.InvoiceDate >= '2023-04-01'  and Sa.CurrencyId = 12 and Sa.Id = '" + Id + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -154,6 +167,11 @@ from TRN.Sales Sa
                     dr["CommAmount"] = saveData["CommAmount"];
                     dr["InsuranceAmount"] = saveData["InsuranceAmount"];
                     dr["Incoterms"] = saveData["Incoterms"];
+                    dr["CommDoller"] = saveData["CommDoller"];
+                    dr["FOBDoller"] = saveData["FOBDoller"];
+                    dr["InsuranceDoller"] = saveData["InsuranceDoller"];
+                    dr["Fright"] = saveData["Fright"];
+                    dr["FrightDoller"] = saveData["FrightDoller"];
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = System.DateTime.Now.ToString();
                     dr["AddedFromIP"] = identity.IPAddress;
@@ -184,6 +202,11 @@ from TRN.Sales Sa
                     dr["CommAmount"] = saveData["CommAmount"];
                     dr["InsuranceAmount"] = saveData["InsuranceAmount"];
                     dr["Incoterms"] = saveData["Incoterms"];
+                    dr["CommDoller"] = saveData["CommDoller"];
+                    dr["FOBDoller"] = saveData["FOBDoller"];
+                    dr["InsuranceDoller"] = saveData["InsuranceDoller"];
+                    dr["Fright"] = saveData["Fright"];
+                    dr["FrightDoller"] = saveData["FrightDoller"];
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = System.DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
