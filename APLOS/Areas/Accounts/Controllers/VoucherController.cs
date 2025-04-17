@@ -2496,7 +2496,7 @@ namespace Aplos.Areas.Accounts.Controllers
 																WHERE ACT.Id IN('Revenue','Expense') AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] ))
                                             GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, 
 											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id, BA.AccountTitle, CM.UserName
-											,VD.BankMasterId, VD.CashMasterId, P.UserName, VD.PartyId,BMA.Id
+											,VD.BankMasterId, VD.CashMasterId, P.UserName, VD.PartyId,BMA.Id 
 
 											UNION 
 
@@ -2586,7 +2586,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
                                                 GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, 
 											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id, BA.AccountTitle, CM.UserName
-											,VD.BankMasterId, VD.CashMasterId, P.UserName, VD.PartyId,BMA.Id
+											,VD.BankMasterId, VD.CashMasterId, P.UserName, VD.PartyId,BMA.Id 
 											) TOTAL
 
 											GROUP BY AccountCodeId,ParallelCurrencyId,CurrencyCode,BalanceType,[MainHead],GLGeneralInfoId,GL,GLGeneralInfoCode,Budget
