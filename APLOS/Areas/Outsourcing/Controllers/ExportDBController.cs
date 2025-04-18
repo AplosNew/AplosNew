@@ -43,7 +43,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
                     ,(Select FOBValueInr from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) FOBValueInr
                     ,(Select RODTEP from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) RODTEP
                     ,(Select DBKValue from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) DBKValue
-					,case when(Select InvoiceNo from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) = Sa.Id then (Select InvoiceValue from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) else (select Convert(decimal(10,2) , SUM(BooksCurrencyTaxAmount)) from [TRN].[SalesMaterial] where SalesId = SA.Id Group By SalesId) end IGSTAmount
+					,case when(Select InvoiceNo from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) = Sa.Id then (Select IGSTAmount from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) else (select Convert(decimal(10,2) , SUM(BooksCurrencyTaxAmount)) from [TRN].[SalesMaterial] where SalesId = SA.Id Group By SalesId) end IGSTAmount
                     ,(Select CommPercentage from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) CommPercentage
                     ,(Select CommAmount from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) CommAmount
                     ,(Select InsuranceAmount from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) InsuranceAmount
