@@ -651,6 +651,17 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.ShowResultCustom();
     }
 
+    $scope.message_detailconfirmation = null;
+    $scope.removeTNC = function (obj) {
+
+        $scope.TNC = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.TNC.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.TNC.UserName + ' ]';
+        angular.element(document.querySelector('#confirmBoMDetailPopUp')).modal('show');
+    }
+
+    
+
     $scope.ShowResultCustom = function (message, type) {
         $("#TermsAndConditionsPoUp").ejDialog("setTitle", "Terms And Conditions");
         var eDialog = $("#TermsAndConditionsPoUp").data("ejDialog");
@@ -765,18 +776,10 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         }
     };
 
-    $scope.message_detailconfirmation = null;
-    $scope.removeBoMDetail = function (obj) {
-        $scope.bomDetailNew = obj.data;
-        if (!baseService.isUndefinedOrNull($scope.bomDetailNew.Id))
-            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.bomDetailNew.UserName + ' ]';
-        angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
-    }
-
     $scope.DeleteTNC = function () {
         $http({
             method: 'POST',
-            url: 'Commercial/Contract/DeleteContractTermsAndConditions?id=' + $scope.bomDetailNew.Id
+            url: 'Commercial/Contract/DeleteContractTermsAndConditions?id=' + $scope.TNC.Id
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');

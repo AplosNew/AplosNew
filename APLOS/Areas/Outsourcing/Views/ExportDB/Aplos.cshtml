@@ -5,74 +5,62 @@
             <div class="col-sm-12 col-md-3 col-lg-3">
                 <div class="form-group" show-errors>
                     <label class="control-label" for="txtCode">
-                        Sequence<sup>*</sup>
+                        Invoice No<sup>*</sup>
                     </label>
                     <div class="show-message">
-                        <input type="text" id="txtSequence" name="Sequence" class="form-control" ng-model="JobWorkItem.Sequence" required tabindex="1" />
-                        <input type="hidden" id="txtId" name="txtId" ng-model="JobWorkItem.Id" />
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-12 col-md-3 col-lg-3">
-                <div class="form-group" show-errors>
-                    <label class="control-label" for="txtCode">
-                        CustomerInvNo<sup>*</sup>
-                    </label>
-                    <div class="show-message">
-                        <input type="text" id="txtCode" name="CustomerInvoiceNo" class="form-control" ng-model="JobWorkItem.CustomerInvoiceNo" required tabindex="2" />
+                        <input type="text" id="txtCode" ng-disabled="true" name="InvoiceNo" class="form-control" ng-model="JobWorkItem.InvoiceNo" required tabindex="2" />
                     </div>
                 </div>
             </div>
             <div class="col-sm-12 col-md-3 col-lg-3">
                 <div class="form-group" show-errors>
                     <label class="control-label" for="txtShortName">
-                        CustomerInvDate<sup>*</sup>
+                        Invoice Date<sup>*</sup>
                     </label>
                     <div class="show-message">
-                        <input type="text" id="txtShortName" name="CustomerInvoiceDate" datepicker placeholder="dd-MM-yyyy" class="form-control" ng-model="JobWorkItem.CustomerInvoiceDate" required tabindex="3" />
+                        <input type="text" id="txtShortName" ng-disabled="true" name="InvoiceDate" datepicker placeholder="dd-MM-yyyy" class="form-control" ng-model="JobWorkItem.InvoiceDate" required tabindex="3" />
                     </div>
                 </div>
             </div>
             <div class="col-sm-12 col-md-3 col-lg-3">
                 <div class="form-group" show-errors>
                     <label class="control-label" for="txtStandardName">
-                        Customer Name<sup>*</sup>
+                        SB Number<sup>*</sup>
                     </label>
                     <div class="show-message">
-                        <input type="text" id="txtStandardName" name="Customer Name" class="form-control" ng-model="JobWorkItem.CustomerName" required tabindex="4" />
+                        <input type="text" id="txtStandardName" name="SBNumber" class="form-control" ng-model="JobWorkItem.SBNumber" required tabindex="4" />
                     </div>
                 </div>
-            </div>            
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtShortName">
+                        SB Date<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtShortName" name="SB Date" datepicker class="form-control" placeholder="dd-MM-yyyy" ng-model="JobWorkItem.SBDate" required tabindex="3" />
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="row">
             <div class="col-sm-12 col-md-3 col-lg-3">
                 <div class="form-group" show-errors>
                     <label class="control-label" for="txtUserName">
-                        Article<sup>*</sup>
+                        Port Code<sup>*</sup>
                     </label>
                     <div class="show-message">
-                        <input type="text" id="txtUserName" name="Article" class="form-control" ng-model="JobWorkItem.Article" required tabindex="5" />
+                        <input type="text" id="txtUserName" name="PortCode" class="form-control" ng-model="JobWorkItem.PortCode" required tabindex="5" />
                     </div>
                 </div>
             </div>
             <div class="col-sm-12 col-md-3 col-lg-3">
                 <div class="form-group" show-errors>
                     <label class="control-label" for="txtUserName">
-                        Lot<sup>*</sup>
+                        Invoice Value<sup>*</sup>
                     </label>
                     <div class="show-message">
-                        <input type="text" id="txtUserName" name="Lot" class="form-control" ng-model="JobWorkItem.Lot" required tabindex="5" />
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-sm-12 col-md-3 col-lg-3">
-                <div class="form-group" show-errors>
-                    <label class="control-label" for="txtUserName">
-                        Shade<sup>*</sup>
-                    </label>
-                    <div class="show-message">
-                        <input type="text" id="txtUserName" name="Shade" class="form-control" ng-model="JobWorkItem.Shade" required tabindex="5" />
+                        <input type="text" id="txtUserName" name="InvoiceValue" class="form-control" ng-model="JobWorkItem.InvoiceValue" required tabindex="5" />
                     </div>
                 </div>
             </div>
@@ -80,10 +68,21 @@
             <div class="col-sm-12 col-md-3 col-lg-3">
                 <div class="form-group" show-errors>
                     <label class="control-label" for="txtUserName">
-                        Quantity<sup>*</sup>
+                        EXRate<sup>*</sup>
                     </label>
                     <div class="show-message">
-                        <input type="number" id="txtUserName" name="Quantity" class="form-control" ng-model="JobWorkItem.Quantity" required tabindex="5" />
+                        <input type="text" id="txtUserName" name="EXRate" class="form-control" ng-model="JobWorkItem.EXRate" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        FOB Value INR<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="FOBValueInr" class="form-control" ng-model="JobWorkItem.FOBValueInr" required tabindex="5" />
                     </div>
                 </div>
             </div>
@@ -95,71 +94,141 @@
             <div class="col-sm-12 col-md-3 col-lg-3">
                 <div class="form-group" show-errors>
                     <label class="control-label" for="txtUserName">
-                        Material Value<sup>*</sup>
+                        RODTEP<sup>*</sup>
                     </label>
                     <div class="show-message">
-                        <input type="number" id="txtUserName" name="Material Value" class="form-control" ng-model="JobWorkItem.MaterialValue" required tabindex="5" />
+                        <input type="text" id="txtUserName" name="RODTEP" class="form-control" ng-model="JobWorkItem.RODTEP" required tabindex="5" />
                     </div>
                 </div>
             </div>
             <div class="col-sm-12 col-md-3 col-lg-3">
                 <div class="form-group" show-errors>
                     <label class="control-label" for="txtUserName">
-                        Tax Value<sup>*</sup>
+                        DBK Value<sup>*</sup>
                     </label>
                     <div class="show-message">
-                        <input type="number" id="txtUserName" name="Tax Value" class="form-control" ng-model="JobWorkItem.TaxValue" required tabindex="5" />
+                        <input type="text" id="txtUserName" name="DBKValue" class="form-control" ng-model="JobWorkItem.DBKValue" required tabindex="5" />
                     </div>
                 </div>
             </div>
             <div class="col-sm-12 col-md-3 col-lg-3">
                 <div class="form-group" show-errors>
                     <label class="control-label" for="txtUserName">
-                        Total Value<sup>*</sup>
+                        IGSTAmount<sup>*</sup>
                     </label>
                     <div class="show-message">
-                        <input type="number" id="txtUserName" name="Total Value" class="form-control" ng-model="JobWorkItem.TotalValue" required tabindex="5" />
+                        <input type="text" id="txtUserName" name="IGSTAmount" class="form-control" ng-model="JobWorkItem.IGSTAmount" required tabindex="5" />
                     </div>
                 </div>
             </div>
             <div class="col-sm-12 col-md-3 col-lg-3">
-                <div class="form-group">
-                    <div class="row">
-                        <label class="col-sm-12 control-label">Gate Entry No<sup>*</sup></label>
-                        <div class="col-sm-12">
-                            <div class="input-group">
-                                <span class="input-group-addon">{{JobWorkItem.GateEntryNo}}</span>
-                                <input type="text" ng-model="JobWorkItem.Party" class="form-control" readonly>
-                                <input type="hidden" ng-model="JobWorkItem.GateEntryNo" />
-                                <span class="input-group-btn">
-                                    <button ng-click="MaterialMstPopUp()" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                    <button ng-click="MaterialMstClear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                </span>
-                            </div>
-                        </div>
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        Comm %<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="CommPercentage" class="form-control" ng-model="JobWorkItem.CommPercentage" required tabindex="5" />
                     </div>
                 </div>
             </div>
 
             <div class="col-sm-12 col-md-3 col-lg-3">
-                <div class="form-group">
-                    <label class="control-label">HSN</label>
-                    <input type="text" name="Remarks" tabindex="5" class="form-control" ng-model="JobWorkItem.Remarks" />
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        Comm Amount<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="CommAmount" class="form-control" ng-model="JobWorkItem.CommAmount" required tabindex="5" />
+                    </div>
                 </div>
             </div>
 
             <div class="col-sm-12 col-md-3 col-lg-3">
-                <div class="form-group">
-                    <label class="control-label">Begs</label>
-                    <input type="number" name="Begs" tabindex="5" class="form-control" ng-model="JobWorkItem.Begs" />
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        INSURANCE AMOUNT<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="InsuranceAmount" class="form-control" ng-model="JobWorkItem.InsuranceAmount" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        INCOTERMS<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="Incoterms" class="form-control" ng-model="JobWorkItem.Incoterms" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        COMM $<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="CommDoller" class="form-control" ng-model="JobWorkItem.CommDoller" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        FOB $<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="FOBDoller" class="form-control" ng-model="JobWorkItem.FOBDoller" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        INSURANCE $<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="InsuranceDoller" class="form-control" ng-model="JobWorkItem.InsuranceDoller" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        Fright<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="Fright" class="form-control" ng-model="JobWorkItem.Fright" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        Fright $<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" name="FrightDoller" class="form-control" ng-model="JobWorkItem.FrightDoller" required tabindex="5" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-3">
+                <div class="form-group" show-errors>
+                    <label class="control-label" for="txtUserName">
+                        Customer<sup>*</sup>
+                    </label>
+                    <div class="show-message">
+                        <input type="text" id="txtUserName" ng-disabled="true"  name="Customer" class="form-control" ng-model="JobWorkItem.Customer" required tabindex="5" />
+                    </div>
                 </div>
             </div>
         </div>
         <div class="common-btn" style="padding-top: 20px;">
             <ul class="list-inline text-right">
                 <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{JobWorkItem.Id==null?'Save':'Update'}}</button></li>
-                <li> <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>                
+              @*  <li> <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>   *@             
             </ul>
         </div>
     </div>
@@ -178,21 +247,27 @@
                      e-recorddoubleclick="recorddoubleclick">
                     <div e-columns>
                         <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
-                        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="100" e-format="{0:n2}"></div>
-                        <div e-column e-field="GateEntryNo" e-headertext="GateEntryNo" e-width="100"></div>
-                        <div e-column e-field="CustomerInvoiceNo" e-headertext="CustomerInvNo" e-width="150"></div>
-                        <div e-column e-field="CustomerInvoiceDate" e-headertext="CustomerInvDate" e-width="150"></div>
-                        <div e-column e-field="CustomerName" e-headertext="Customer Name" e-width="150"></div>
-                        <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
-                        <div e-column e-field="Lot" e-headertext="Lot" e-width="150"></div>
-                        <div e-column e-field="Shade" e-headertext="Shade" e-width="120"></div>
-                        <div e-column e-field="Quantity" e-headertext="Quantity" e-width="150"></div>
-                        <div e-column e-field="MaterialValue" e-headertext="MaterialValue" e-width="150"></div>
-                        <div e-column e-field="TaxValue" e-headertext="TaxValue" e-width="150"></div>
-                        <div e-column e-field="TotalValue" e-headertext="TotalValue" e-width="150"></div>
-                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="200"></div>
-                        <div e-column e-field="Begs" e-headertext="Begs" e-width="200"></div>
-                        <div e-column e-template="#GridActions" e-width="75" textAlign='center'></div>
+                        <div e-column e-field="InvoiceNo" e-headertext="InvoiceNo" e-width="100" e-format="{0:n2}"></div>
+                        <div e-column e-field="InvoiceDate" e-headertext="InvoiceDate" e-width="100"></div>
+                        <div e-column e-field="Customer" e-headertext="Customer" e-width="200"></div>
+                        <div e-column e-field="SBNumber" e-headertext="SBNumber" e-width="100"></div>
+                        <div e-column e-field="SBDate" e-headertext="SBDate" e-width="100"></div>
+                        <div e-column e-field="PortCode" e-headertext="PortCode" e-width="100"></div>
+                        <div e-column e-field="InvoiceValue" e-headertext="InvoiceValue" e-width="100"></div>
+                        <div e-column e-field="EXRate" e-headertext="EXRate" e-width="100"></div>
+                        <div e-column e-field="FOBValueInr" e-headertext="FOBValueInr" e-width="100"></div>
+                        <div e-column e-field="RODTEP" e-headertext="RODTEP" e-width="100"></div>
+                        <div e-column e-field="DBKValue" e-headertext="DBKValue" e-width="100"></div>
+                        <div e-column e-field="IGSTAmount" e-headertext="IGSTAmount" e-width="100"></div>
+                        <div e-column e-field="CommPercentage" e-headertext="CommPercentage" e-width="100"></div>
+                        <div e-column e-field="CommAmount" e-headertext="CommAmount" e-width="100"></div>
+                        <div e-column e-field="InsuranceAmount" e-headertext="InsuranceAmount" e-width="100"></div>
+                        <div e-column e-field="Incoterms" e-headertext="Incoterms" e-width="100"></div>
+                        <div e-column e-field="CommDoller" e-headertext="CommDoller" e-width="100"></div>
+                        <div e-column e-field="FOBDoller" e-headertext="FOBDoller" e-width="100"></div>
+                        <div e-column e-field="InsuranceDoller" e-headertext="InsuranceDoller" e-width="100"></div>
+                        <div e-column e-field="Fright" e-headertext="Fright" e-width="100"></div>
+                        <div e-column e-field="FrightDoller" e-headertext="FrightDoller" e-width="100"></div>
                     </div>
                 </div>
                  <script type="text/template" id="GridActions">

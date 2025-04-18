@@ -2896,7 +2896,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         , PODate: null
         , Active: true
     };
-    $scope.poFgEntryPopup = function () {
+    $scope.poEditPopup = function () {
         if (!baseService.isUndefinedOrNull($scope.soModel.CustomerPOId)) {
             $scope.poModel.Id = $scope.soModel.CustomerPOId;
             $scope.poModel.PONumber = $scope.soModel.PONumber;
@@ -2915,6 +2915,21 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
         angular.element(document.querySelector('#poEntryPopup')).modal('show');
     };
+
+    $scope.poFgEntryPopup = function () {
+        $scope.poModel = {
+            Id: null
+            , PONumber: null
+            , CustomerId: $scope.fileNew.PartyId
+            , CompanyGroupId: $window.companyGroupId
+            , CompanyId: $window.companyId
+            , MasterOrderId: $scope.fileNew.Id
+            , PODate: null
+            , Active: true
+        };
+        angular.element(document.querySelector('#poEntryPopup')).modal('show');
+    };
+
 
     $scope.SavePO = function () {
         try {

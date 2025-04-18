@@ -118,6 +118,7 @@ WHERE CT.ContractId " + contractId+"";
             return Json(clsCon.GetContractTermsAndConditionsList(ContractId), JsonRequestBehavior.AllowGet);
         }
 
+
         [HttpGet, Authorize]
         public ActionResult GetContractDetail(string partyId, string contractId)
         {

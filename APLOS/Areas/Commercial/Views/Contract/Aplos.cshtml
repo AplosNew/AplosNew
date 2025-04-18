@@ -631,7 +631,7 @@
                             </div>
                         </div>
                         <script type="text/template" id="ShowActionButtonsBOM">
-                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeDesignation(this);" style="margin: -6px;"></i></button>
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeTNC(this);" style="margin: -6px;"></i></button>
                         </script>
                     </div>
 
@@ -990,10 +990,10 @@
 </div>
 
 <confirm-archive-generic modalid="ConPopUp" title="Confirmation" message={{message}} data-ng-click-left-button="NewMasterLC();" data-ng-click-right-button="getMasterLCData();"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteTNC();"></confirm-archive-generic>
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteMOI();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmSOPopUp" title="Confirmation" message={{message_detailconfirm}} data-ng-click-right-button="DeleteSO();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmLCPopUp" title="Confirmation" message={{message_detailLCconfirm}} data-ng-click-left-button="Save();" data-ng-click-right-button="LCYes();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmBoMDetailPopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteTNC();"></confirm-archive-generic>
 <div class="loader" data-loader>
     Please wait
     <div class="bounce1"></div>
