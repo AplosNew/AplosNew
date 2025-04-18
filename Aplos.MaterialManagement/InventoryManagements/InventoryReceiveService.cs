@@ -1593,7 +1593,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     if (Asset != null && Inventory != null)
                     {
                         cmdText = @"select 					
-					dense_rank() over (partition by IR.GRNDate, IR.AddedDate,IRD.Id order by IR.GRNDate, IR.AddedDate,IRD.Id ,main.IssueDate DESC) AS Seq,	 IRD.Id
+					dense_rank() over (partition by IR.GRNDate, IR.AddedDate,IRD.Id order by IR.GRNDate, IR.AddedDate,IRD.Id ,main.IssueNo DESC) AS Seq,	 IRD.Id
                      ,isnull(MM.UserName,'') MaterialMasterName	
 					,MM.id MId
 					,isnull( ART.StandardName,'') ArticleName		
@@ -1601,13 +1601,13 @@ namespace Library.MaterialManagement.InventoryManagements
 					, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
 					, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 					, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 	
-                    ,IsPark=case when IR.VoucherId<>'' then 'No' else 'Yes' end,GL.UserName GL,B.UserName Budget,A.UserName Activity
+                    ,IsPark=case when IR.VoucherId<>'' then 'No' else 'Yes' end ,GL.UserName GL,B.UserName Budget,A.UserName Activity
 					,TUoM.UserName UOM,main.IssueType
 					,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') RcvDate
 					,Round(IRD.TransactionQty,2) RcvQty
 					,Round(IRD.BooksCurrencyBaseRate,2) RcvRate
 					,Round(IRD.TotalMaterialBooksCurrencyAmount,2) RcvAmount	
-					,IR.VoucherId VoucherNo
+					,V.VoucherNo
 
 					,REPLACE(CONVERT(CHAR(11), main.IssueDate, 106),' ','-') IssueDate
 					,main.IssueNo IssueNo
@@ -1678,6 +1678,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN MST.BudgetMaster BM ON BM.Id=ird.postdrBudgetmasterid
 						LEFT JOIN HKP.Budget B ON B.Id=bm.BudgetId
 						LEFT JOIN HKP.Activity A ON A.Id=ird.postdrActivityId
+                        LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
 						left join(select IH.InventoryReceiveDetailId,II.IssueDate,II.Id IssueNo,II.IssueType,II.VoucherId IssueVoucherNo,NULL POReturnDate,NULL PurchaseReturnNo, NULL ReturnIssueDate  ,NULL ReturnIssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo
 
                                     ,(Sum(Isnull(Ih.Qty,0))) IssueQty 
@@ -1758,13 +1759,13 @@ namespace Library.MaterialManagement.InventoryManagements
 					, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
 					, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 					, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 	
-                    ,IsPark=case when IR.VoucherId<>'' then 'No' else 'Yes' end,GL.UserName GL,B.UserName Budget,A.UserName Activity
+                    ,IsPark=case when IR.VoucherId<>'' then 'No' else 'Yes' end ,GL.UserName GL,B.UserName Budget,A.UserName Activity
 					,TUoM.UserName UOM,main.IssueType
 					,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') RcvDate
 					,Round(IRD.TransactionQty,2) RcvQty
 					,Round(IRD.BooksCurrencyBaseRate,2) RcvRate
 					,Round(IRD.TotalMaterialBooksCurrencyAmount,2) RcvAmount	
-					,IR.VoucherId VoucherNo
+					,V.VoucherNo
 
 					,REPLACE(CONVERT(CHAR(11), main.IssueDate, 106),' ','-') IssueDate
 					,main.IssueNo IssueNo
@@ -1828,6 +1829,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN MST.BudgetMaster BM ON BM.Id=ird.postdrBudgetmasterid
 						LEFT JOIN HKP.Budget B ON B.Id=bm.BudgetId
 						LEFT JOIN HKP.Activity A ON A.Id=ird.postdrActivityId
+                        LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
 						left join(select IH.InventoryReceiveDetailId,II.IssueDate,II.Id IssueNo,II.IssueType,II.VoucherId IssueVoucherNo,NULL POReturnDate,NULL PurchaseReturnNo, NULL ReturnIssueDate  ,NULL ReturnIssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo
 
                                     ,(Sum(Isnull(Ih.Qty,0))) IssueQty 
@@ -1908,12 +1910,13 @@ namespace Library.MaterialManagement.InventoryManagements
 					, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
 					, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 					, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 	
+                    ,IsPark=case when IR.VoucherId<>'' then 'No' else 'Yes' end ,GL.UserName GL,B.UserName Budget,A.UserName Activity
 					,TUoM.UserName UOM,main.IssueType
 					,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') RcvDate
 					,Round(IRD.TransactionQty,2) RcvQty
 					,Round(IRD.BooksCurrencyBaseRate,2) RcvRate
 					,Round(IRD.TotalMaterialBooksCurrencyAmount,2) RcvAmount	
-					,IR.VoucherId VoucherNo
+					,V.VoucherNo
 
 					,REPLACE(CONVERT(CHAR(11), main.IssueDate, 106),' ','-') IssueDate
 					,main.IssueNo IssueNo
@@ -1975,6 +1978,11 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
                         left join HKP.Party P on IR.PartyId=p.Id
                         left join [HKP].[MaterialCategory] MC on MC.Id=MM.MaterialCategoryId
+                        LEFT JOIN HKP.GLGeneralinfo GL ON GL.Id=ird.postdrglgeneralinfoid
+						LEFT JOIN MST.BudgetMaster BM ON BM.Id=ird.postdrBudgetmasterid
+						LEFT JOIN HKP.Budget B ON B.Id=bm.BudgetId
+						LEFT JOIN HKP.Activity A ON A.Id=ird.postdrActivityId
+                        LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
 						left join(select IH.InventoryReceiveDetailId,II.IssueDate,II.Id IssueNo,II.IssueType,II.VoucherId IssueVoucherNo,NULL POReturnDate,NULL PurchaseReturnNo, NULL ReturnIssueDate  ,NULL ReturnIssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo
 
                                     ,(Sum(Isnull(Ih.Qty,0))) IssueQty 
@@ -2078,66 +2086,66 @@ namespace Library.MaterialManagement.InventoryManagements
                     //sheet1.UsedRange.WrapText = true;
                     sheet1[_row, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     //sheet1[_row, 1].CellStyle.Interior.Color = System.Drawing.Color.GreenYellow;
-                    sheet1.Range[_row, 1, _row, 15].BorderAround(ExcelLineStyle.Thick);
-                    sheet1.Range[_row, 1, _row, 15].BorderInside(ExcelLineStyle.Hair);
-                    sheet1.Range[_row, 1, _row, 15].CellStyle.FillBackground = ExcelKnownColors.Tan;
-                    sheet1.Range[_row, 1, _row, 15].Merge();
+                    sheet1.Range[_row, 1, _row, 16].BorderAround(ExcelLineStyle.Thick);
+                    sheet1.Range[_row, 1, _row, 16].BorderInside(ExcelLineStyle.Hair);
+                    sheet1.Range[_row, 1, _row, 16].CellStyle.FillBackground = ExcelKnownColors.Tan;
+                    sheet1.Range[_row, 1, _row, 16].Merge();
 
 
 
-                    sheet1[_row, 16].Text = "PURCHASE RETURN";
-                    sheet1[_row, 16].CellStyle.Font.Size = 10;
-                    sheet1[_row, 16].CellStyle.Font.Bold = true;
-                    sheet1[_row, 16].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1[_row, 17].Text = "PURCHASE RETURN";
+                    sheet1[_row, 17].CellStyle.Font.Size = 10;
+                    sheet1[_row, 17].CellStyle.Font.Bold = true;
+                    sheet1[_row, 17].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     //sheet1[_row, 1].CellStyle.Interior.Color = System.Drawing.Color.GreenYellow;
-                    sheet1.Range[_row, 16, _row, 20].BorderAround(ExcelLineStyle.Thick);
-                    sheet1.Range[_row, 16, _row, 20].BorderInside(ExcelLineStyle.Hair);
-                    sheet1.Range[_row, 16, _row, 20].CellStyle.FillBackground = ExcelKnownColors.Tan;
-                    sheet1.Range[_row, 16, _row, 20].Merge();
+                    sheet1.Range[_row, 17, _row, 21].BorderAround(ExcelLineStyle.Thick);
+                    sheet1.Range[_row, 17, _row, 21].BorderInside(ExcelLineStyle.Hair);
+                    sheet1.Range[_row, 17, _row, 21].CellStyle.FillBackground = ExcelKnownColors.Tan;
+                    sheet1.Range[_row, 17, _row, 21].Merge();
 
 
-                    sheet1[_row, 21].Text = "ISSUE";
-                    sheet1[_row, 21].CellStyle.Font.Size = 10;
-                    sheet1[_row, 21].CellStyle.Font.Bold = true;
-                    sheet1[_row, 21].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1[_row, 22].Text = "ISSUE";
+                    sheet1[_row, 22].CellStyle.Font.Size = 10;
+                    sheet1[_row, 22].CellStyle.Font.Bold = true;
+                    sheet1[_row, 22].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     //sheet1[_row, 6].CellStyle.Interior.Color = System.Drawing.Color.Gray;
-                    sheet1.Range[_row, 21, _row, 27].BorderAround(ExcelLineStyle.Thick);
-                    sheet1.Range[_row, 21, _row, 27].BorderInside(ExcelLineStyle.Hair);
-                    sheet1.Range[_row, 21, _row, 27].CellStyle.FillBackground = ExcelKnownColors.Tan;
-                    sheet1.Range[_row, 21, _row, 27].Merge();
+                    sheet1.Range[_row, 22, _row, 28].BorderAround(ExcelLineStyle.Thick);
+                    sheet1.Range[_row, 22, _row, 28].BorderInside(ExcelLineStyle.Hair);
+                    sheet1.Range[_row, 22, _row, 28].CellStyle.FillBackground = ExcelKnownColors.Tan;
+                    sheet1.Range[_row, 22, _row, 28].Merge();
 
 
-                    sheet1[_row, 28].Text = "ISSUE RETURN";
-                    sheet1[_row, 28].CellStyle.Font.Size = 10;
-                    sheet1[_row, 28].CellStyle.Font.Bold = true;
-                    sheet1[_row, 28].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1[_row, 29].Text = "ISSUE RETURN";
+                    sheet1[_row, 29].CellStyle.Font.Size = 10;
+                    sheet1[_row, 29].CellStyle.Font.Bold = true;
+                    sheet1[_row, 29].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     //sheet1[_row, 6].CellStyle.Interior.Color = System.Drawing.Color.Gray;
-                    sheet1.Range[_row, 28, _row, 32].BorderAround(ExcelLineStyle.Thick);
-                    sheet1.Range[_row, 28, _row, 32].BorderInside(ExcelLineStyle.Hair);
-                    sheet1.Range[_row, 28, _row, 32].CellStyle.FillBackground = ExcelKnownColors.Tan;
-                    sheet1.Range[_row, 28, _row, 32].Merge();
+                    sheet1.Range[_row, 29, _row, 33].BorderAround(ExcelLineStyle.Thick);
+                    sheet1.Range[_row, 29, _row, 33].BorderInside(ExcelLineStyle.Hair);
+                    sheet1.Range[_row, 29, _row, 33].CellStyle.FillBackground = ExcelKnownColors.Tan;
+                    sheet1.Range[_row, 29, _row, 33].Merge();
 
 
-                    sheet1[_row, 33].Text = "ADJUSTMENT";
-                    sheet1[_row, 33].CellStyle.Font.Size = 10;
-                    sheet1[_row, 33].CellStyle.Font.Bold = true;
-                    sheet1[_row, 33].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1[_row, 34].Text = "ADJUSTMENT";
+                    sheet1[_row, 34].CellStyle.Font.Size = 10;
+                    sheet1[_row, 34].CellStyle.Font.Bold = true;
+                    sheet1[_row, 34].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     //sheet1[_row, 6].CellStyle.Interior.Color = System.Drawing.Color.Gray;
-                    sheet1.Range[_row, 33, _row, 37].BorderAround(ExcelLineStyle.Thick);
-                    sheet1.Range[_row, 33, _row, 37].BorderInside(ExcelLineStyle.Hair);
-                    sheet1.Range[_row, 33, _row, 37].CellStyle.FillBackground = ExcelKnownColors.Tan;
-                    sheet1.Range[_row, 33, _row, 37].Merge();
+                    sheet1.Range[_row, 34, _row, 38].BorderAround(ExcelLineStyle.Thick);
+                    sheet1.Range[_row, 34, _row, 38].BorderInside(ExcelLineStyle.Hair);
+                    sheet1.Range[_row, 34, _row, 38].CellStyle.FillBackground = ExcelKnownColors.Tan;
+                    sheet1.Range[_row, 34, _row, 38].Merge();
 
 
-                    sheet1[_row, 38].Text = "STOCK BALANCE";
-                    sheet1[_row, 38].CellStyle.Font.Size = 10;
-                    sheet1[_row, 38].CellStyle.Font.Bold = true;
-                    sheet1[_row, 38].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1[_row, 39].Text = "STOCK BALANCE";
+                    sheet1[_row, 39].CellStyle.Font.Size = 10;
+                    sheet1[_row, 39].CellStyle.Font.Bold = true;
+                    sheet1[_row, 39].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     //sheet1[_row, 11].CellStyle.Interior.Color = System.Drawing.Color.HotPink;
-                    sheet1.Range[_row, 38, _row, 40].BorderAround(ExcelLineStyle.Thick);
-                    sheet1.Range[_row, 38, _row, 40].BorderInside(ExcelLineStyle.Hair);
-                    sheet1.Range[_row, 38, _row, 40].CellStyle.FillBackground = ExcelKnownColors.Tan;
-                    sheet1.Range[_row, 38, _row, 40].Merge();
+                    sheet1.Range[_row, 39, _row, 41].BorderAround(ExcelLineStyle.Thick);
+                    sheet1.Range[_row, 39, _row, 41].BorderInside(ExcelLineStyle.Hair);
+                    sheet1.Range[_row, 39, _row, 41].CellStyle.FillBackground = ExcelKnownColors.Tan;
+                    sheet1.Range[_row, 39, _row, 41].Merge();
 
                     var _rowL = _row;
                     var row = _row + 1;
@@ -2290,6 +2298,16 @@ namespace Library.MaterialManagement.InventoryManagements
                 //sheet1headreColIndex++;
 
                 sheet1.Range[_rowL, sheet1headreColIndex].Text = "IsPark";
+                sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+                sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+                sheet1headreColIndex++;
+
+                var colRCVIsAsset = sheet1headreColIndex;
+                //sheet1headreColIndex++;
+
+                sheet1.Range[_rowL, sheet1headreColIndex].Text = "IsAsset";
                 sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
                 sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2607,6 +2625,7 @@ namespace Library.MaterialManagement.InventoryManagements
                             report.SetText(ref sheet1, _rowL, colRCVBudget, inventoryMaterialList.Rows[n]["Budget"].ToString());
                             report.SetText(ref sheet1, _rowL, colRCVActivity, inventoryMaterialList.Rows[n]["Activity"].ToString());
                             report.SetText(ref sheet1, _rowL, colRCVIsPark, inventoryMaterialList.Rows[n]["IsPark"].ToString());
+                            report.SetText(ref sheet1, _rowL, colRCVIsAsset, inventoryMaterialList.Rows[n]["IsAsset"].ToString());
 
                             //start
                             var RcvQty = clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RcvQty"].ToString());
