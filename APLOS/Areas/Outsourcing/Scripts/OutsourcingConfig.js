@@ -91,5 +91,9 @@ function OutsourcingConfig($routeProvider, $locationProvider) {
             templateUrl: 'Outsourcing/JobWorkEntry/aplos',
             controller: 'JobWorkEntryController'
         })
+        .when('/Export-DB', {
+            templateUrl: 'Outsourcing/ExportDB/aplos',
+            controller: 'ExportDBController'
+        })
         ;
 }

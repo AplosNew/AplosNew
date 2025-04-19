@@ -898,15 +898,18 @@ LEFT JOIN ORG.Department DEPT ON pr.DepartmentId=DEPT.Id
 LEFT join MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
 left join hkp.LegalDesignation D on D.Id=ei.LegalDesignationId
-left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate=GW.WorkDate
+left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate=GW.WorkDate and APD.DayStatus <> 'A'
 LEFT JOIN dbo.GoodWorkSetup GWS ON GWS.Id=GW.UserGroupId
 LEFT JOIN dbo.EmployeeInformation R ON GWS.ResponsiblePersonId=R.SystemId
 LEFT JOIN [dbo].[GoodWorkPaymentAdvise] GPA ON GPA.Id=GWD.GWPaymentAdviseId
 LEFT JOIN dbo.EmployeeInformation GPAP ON GPAP.SystemId=GPA.ApprovedById
 LEFT JOIN ORG.Entity EN ON EN.Id=PMB.EntityId
-where GW.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' and APD.DayStatus <> 'A'
+where GW.WorkDate between '" + fromDate + @"' AND '" + toDate + @"'
 Order By GW.WorkDate";
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                var data = _sqlRepository.GetDataCollection(sql);
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
             }
             catch (Exception e)
             {
