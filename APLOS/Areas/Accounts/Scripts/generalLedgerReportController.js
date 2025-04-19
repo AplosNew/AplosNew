@@ -10,9 +10,9 @@ function generalLedgerReportController($scope, $rootScope, $filter, bankService,
         BudgetMasterId: null,
         ActivityId: null,
         BankCashParty: null,
-        BankMasterId: null,
-        CashMasterId: null,
-        PartyId: null,
+        BankMasterId: "",
+        CashMasterId: "",
+        PartyId: "",
         ReportFormat: "Pdf",
         FromDate: $filter("dateFiltering")(Date.now()),
         ToDate: $filter("dateFiltering")(Date.now()),
@@ -75,13 +75,13 @@ function generalLedgerReportController($scope, $rootScope, $filter, bankService,
             if (!baseService.isUndefinedOrNull($scope.report.ActivityId)) {
                 url += "&activityId=" + $scope.report.ActivityId;
             }
-            if (!baseService.isUndefinedOrNull($scope.report.BudgetMasterId)) {
+            if (!baseService.isUndefinedOrNull($scope.report.BankMasterId)) {
                 url += "&bankMasterId=" + $scope.report.BankMasterId;
             }
-            if (!baseService.isUndefinedOrNull($scope.report.ActivityId)) {
+            if (!baseService.isUndefinedOrNull($scope.report.CashMasterId)) {
                 url += "&cashMasterId=" + $scope.report.CashMasterId;
             }
-            if (!baseService.isUndefinedOrNull($scope.report.ActivityId)) {
+            if (!baseService.isUndefinedOrNull($scope.report.PartyId)) {
                 url += "&partyId=" + $scope.report.PartyId;
             }
             $window.open(url, "_blank");
@@ -241,9 +241,9 @@ function generalLedgerReportController($scope, $rootScope, $filter, bankService,
         $scope.report.BudgetMasterId = null;
         $scope.report.ActivityId = null;
         $scope.report.BankCashParty = null;
-        $scope.report.BankMasterId = null;
-        $scope.report.CashMasterId = null;
-        $scope.report.PartyId = null;
+        $scope.report.BankMasterId = "";
+        $scope.report.CashMasterId = "";
+        $scope.report.PartyId = "";
         $scope.report.ReportFormat = "Pdf";
         $scope.report.FromDate = $filter("dateFiltering")(Date.now());
         $scope.report.ToDate = $filter("dateFiltering")(Date.now());
