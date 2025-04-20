@@ -1,5 +1,4 @@
-﻿
-<togglable name="{{title}}"></togglable>
+﻿<togglable name="{{title}}"></togglable>
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <input type="hidden" ng-model="ModelNew.Id">
     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -18,7 +17,25 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Item Name<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Item Name" ng-model="ModelNew.ItemName" class="form-control" required autocomplete="off" tabindex="5" maxlength="100">
+                <div class="input-group">
+                    <input type="text" name="Item Name" ng-model="ModelNew.ItemName" class="form-control" required autocomplete="off" tabindex="5" maxlength="100">
+                    <span class="input-group-btn">
+                        <button ng-click="showCheckPointsPopUp ();" ng-disabled="ModelNew.Id==null" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-plus"></i>Check Points</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Audit Frequency<sup>*</sup></label>
+            <div class="col-sm-4 show-message">
+                <input type="text" name="Audit Frequency" ng-model="ModelNew.AuditFrequency" only-numbers class="form-control" required autocomplete="off" tabindex="5" maxlength="100">
+            </div>
+            <div class="col-sm-4 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="ModelNew.AuditFrequencyUnit" name="AuditFrequencyUnit" ng-options="item.Value as item.Text for item in auditFrequencyUnitList" tabindex="7" required>
+                        <option value=""></option>
+                    </select>
+                </div>
             </div>
         </div>
         <div class="form-group" show-errors>
@@ -51,7 +68,7 @@
                 </div>
             </div>
         </div>
-       
+
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
@@ -90,9 +107,9 @@
                 <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="10"></textarea>
             </div>
         </div>
-       
+
     </div>
-    
+
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
@@ -103,7 +120,8 @@
     <div class="tab-design">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="bank" role="tab" data-toggle="tab">Responsible Person</a></li>
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="RP" role="tab" data-toggle="tab">Responsible Person</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Ad" role="tab" data-toggle="tab">Auditor</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -111,7 +129,7 @@
                 <div class="common-btn">
                     <ul class="list-inline text-left">
                         <li>
-                            <button ng-click="popUp();" class="btn"><i class="glyphicon glyphicon-plus"></i>Add Responsible Person</button>
+                            <button ng-click="popUp('RP');" class="btn"><i class="glyphicon glyphicon-plus"></i>Add Responsible Person</button>
                         </li>
                     </ul>
                 </div>
@@ -132,6 +150,33 @@
                 </div>
                 <script type="text/template" id="ShowActionButtons">
                     <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeRP(this);" style="margin: -6px;"></i></button>
+                </script>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li>
+                            <button ng-click="popUp('Auditor');" class="btn"><i class="glyphicon glyphicon-plus"></i>Add Auditor</button>
+                        </li>
+                    </ul>
+                </div>
+                <div style="color:black;" id="GridAuditor" ej-grid e-datasource="ADDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-headertext="Actions" e-template="#ShowActionButtonsAD" e-width="30"></div>
+                        <div e-column e-field="EmpSystemID" e-headertext="Emp SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                        <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                        <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                        <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                        <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                        <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                        <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="ShowActionButtonsAD">
+                    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeAD(this);" style="margin: -6px;"></i></button>
                 </script>
             </div>
         </div>
@@ -217,6 +262,29 @@
         </div>
     </div>
     @*<script type="text/x-jsrender" id="empimage">
-        <img src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
-    </script>*@
+            <img src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
+        </script>*@
+</div>
+<div class="modal fade site-modal in" id="CheckPointsPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="CloseCheckPointsPopUp()">&times;</button>
+                <h4 class="modal-title">Check Points</h4>
+            </div>
+            <div class="modal-body">
+                <div id="gridCP" ej-grid e-datasource="CheckPointsList" e-pagesettings-pagesize="4" e-minheight="300"
+                     e-endadd="SaveCheckPoints" e-endedit="SaveCheckPoints" e-enddelete="DeleteCheckPoints" e-editsettings-allowediting="true" e-editsettings-allowadding="true" e-editsettings-allowdeleting="true"
+                     e-toolbarsettings-showtoolbar="true" e-toolbarsettings-toolbaritems="[ej.Grid.ToolBarItems.Add, ej.Grid.ToolBarItems.Edit, ej.Grid.ToolBarItems.Delete, ej.Grid.ToolBarItems.Update, ej.Grid.ToolBarItems.Cancel]"
+                     e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filtertype="excel">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-isprimarykey="true"></div>
+                        <div e-column e-field="ComplianceMasterId" e-headertext="ComplianceMasterId" e-visible="false"></div>
+                        <div e-column e-field="CheckPointName" e-headertext="CheckPointName" e-width="5"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

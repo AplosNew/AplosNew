@@ -18,11 +18,17 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         { 'Value': "Important", 'Text': "Important" }
     ];
 
+    $scope.auditFrequencyUnitList = [
+        { 'Value': "Days", 'Text': "Days" },
+        { 'Value': "Hour", 'Text': "Hour" }
+    ];
+
     $scope.ComplianceValueList = [
         { 'Value': "0", 'Text': "0" },
         { 'Value': "1", 'Text': "1" },
         { 'Value': "2", 'Text': "2" },
-        { 'Value': "3", 'Text': "3" }
+        { 'Value': "3", 'Text': "3" },
+        { 'Value': "4", 'Text': "4" }
     ];
 
 
@@ -126,28 +132,16 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         $scope.RPDataList = [];
     }
 
-    //$scope.ShowResponsiblePerson = function () {
-    //    try {
-    //        if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
-    //            throw "Select Master data first.";
-    //        }
-    //        $scope.GetRPList();
-    //        angular.element(document.querySelector('#ResponsiblePersonPopUp')).modal('show');
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-
-    //}
-
     $scope.CloseResponsiblePerson = function () {
         angular.element(document.querySelector('#ResponsiblePersonPopUp')).modal('hide');
 
     }
 
     $scope.popUpDataList = [];
-    $scope.popUp = function () {
+    $scope.name = null;
+    $scope.popUp = function (name) {
         try {
-
+            $scope.name = name;
             if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
                 $scope.popUpDataList = [];
                 $http({
@@ -198,60 +192,122 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
     };
 
     $scope.RPDataList = [];
-
     $scope.GetRPList = function () {
         $http({
             method: 'GET',
-            url: "Commercial/Compliance/GetRP?masterId="+$scope.ModelNew.Id,
+            url: "Commercial/Compliance/GetRP?masterId=" + $scope.ModelNew.Id,
         }).then(function successCallback(response) {
             $scope.RPDataList = response.data;
+            $scope.GetADList();
+        });
+    }
+
+    $scope.ADDataList = [];
+    $scope.GetADList = function () {
+        $http({
+            method: 'GET',
+            url: "Commercial/Compliance/GetAuditorData?masterId=" + $scope.ModelNew.Id,
+        }).then(function successCallback(response) {
+            $scope.ADDataList = response.data;
         });
     }
 
     $scope.SaveRP = function () {
-        for (var i = 0; i < $scope.popUpDataList.length; i++) {
-            if ($scope.popUpDataList[i].Flag == true) {
-                if (checkExists($scope.RPDataList, $scope.popUpDataList[i].SystemId) === false) {
-                    var ob = {};
-                    ob.Id = Math.floor(Math.random() * 9) - 10 ;
-                    ob.ComplianceMasterId = $scope.ModelNew.Id;
-                    ob.EmpSystemID = $scope.popUpDataList[i].SystemId;
-                    ob.EmployeeCode = $scope.popUpDataList[i].EmployeeCode;
-                    ob.EmployeeName = $scope.popUpDataList[i].EmployeeName;
-                    ob.Plant = $scope.popUpDataList[i].Plant;
-                    ob.LegalDesignation = $scope.popUpDataList[i].LegalDesignation;
-                    ob.Department = $scope.popUpDataList[i].Department;
-                    ob.Section = $scope.popUpDataList[i].Section;
-                    ob.SubSection = $scope.popUpDataList[i].SubSection;
-                    ob.Line = $scope.popUpDataList[i].Line;
-                    $scope.RPDataList.push(ob);
+        if ($scope.name == "RP") {
+            for (var i = 0; i < $scope.popUpDataList.length; i++) {
+                if ($scope.popUpDataList[i].Flag == true) {
+                    if (checkExists($scope.RPDataList, $scope.popUpDataList[i].SystemId) === false) {
+                        var ob = {};
+                        ob.Id = Math.floor(Math.random() * 9) - 10;
+                        ob.ComplianceMasterId = $scope.ModelNew.Id;
+                        ob.EmpSystemID = $scope.popUpDataList[i].SystemId;
+                        ob.EmployeeCode = $scope.popUpDataList[i].EmployeeCode;
+                        ob.EmployeeName = $scope.popUpDataList[i].EmployeeName;
+                        ob.Plant = $scope.popUpDataList[i].Plant;
+                        ob.LegalDesignation = $scope.popUpDataList[i].LegalDesignation;
+                        ob.Department = $scope.popUpDataList[i].Department;
+                        ob.Section = $scope.popUpDataList[i].Section;
+                        ob.SubSection = $scope.popUpDataList[i].SubSection;
+                        ob.Line = $scope.popUpDataList[i].Line;
+                        ob.SourceType = "ResponsiblePerson";
+                        $scope.RPDataList.push(ob);
+                    }
+                }
+            }
+            if ($scope.RPDataList.length > 0) {
+                $http({
+                    method: 'POST',
+                    url: 'Commercial/Compliance/CreateRP',
+                    data: { 'RPDataList': $scope.RPDataList, 'masterId': $scope.ModelNew.Id },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetRPList();
+                        $scope.closePopUp();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
                 }
             }
         }
-        if ($scope.RPDataList.length > 0) {
-            $http({
-                method: 'POST',
-                url: 'Commercial/Compliance/CreateRP',
-                data: { 'RPDataList': $scope.RPDataList, 'masterId': $scope.ModelNew.Id},
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
+        else {
+            for (var i = 0; i < $scope.popUpDataList.length; i++) {
+                if ($scope.popUpDataList[i].Flag == true) {
+                    if (checkExistsAD($scope.ADDataList, $scope.popUpDataList[i].SystemId) === false) {
+                        var ob = {};
+                        ob.Id = Math.floor(Math.random() * 9) - 10;
+                        ob.ComplianceMasterId = $scope.ModelNew.Id;
+                        ob.EmpSystemID = $scope.popUpDataList[i].SystemId;
+                        ob.EmployeeCode = $scope.popUpDataList[i].EmployeeCode;
+                        ob.EmployeeName = $scope.popUpDataList[i].EmployeeName;
+                        ob.Plant = $scope.popUpDataList[i].Plant;
+                        ob.LegalDesignation = $scope.popUpDataList[i].LegalDesignation;
+                        ob.Department = $scope.popUpDataList[i].Department;
+                        ob.Section = $scope.popUpDataList[i].Section;
+                        ob.SubSection = $scope.popUpDataList[i].SubSection;
+                        ob.Line = $scope.popUpDataList[i].Line;
+                        ob.SourceType = "Auditor";
+                        $scope.ADDataList.push(ob);
+                    }
+                }
+            }
+            if ($scope.ADDataList.length > 0) {
+                $http({
+                    method: 'POST',
+                    url: 'Commercial/Compliance/CreateAD',
+                    data: { 'RPDataList': $scope.ADDataList, 'masterId': $scope.ModelNew.Id },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetADList();
+                        $scope.closePopUp();
+                    }
+                }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                   
-                    $scope.closePopUp();
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
             }
         }
 
-        
     }
 
     function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EmpSystemID === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function checkExistsAD(list, id) {
         for (var i = 0; i < list.length; i++) {
             if (list[i].EmpSystemID === id) {
                 return true;
@@ -276,10 +332,17 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         angular.element(document.querySelector('#confirmBoMDetailPopUp')).modal('show');
     }
 
+    $scope.removeAD = function (obj) {
+        $scope.bomDetailNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.bomDetailNew.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.bomDetailNew.EmployeeCode + ' ]';
+        angular.element(document.querySelector('#confirmBoMDetailPopUp')).modal('show');
+    }
+
     $scope.DeleteRP = function () {
         $http({
             method: 'POST',
-            url: 'Commercial/Compliance//DeleteRP?id=' + $scope.bomDetailNew.Id
+            url: 'Commercial/Compliance/DeleteRP?id=' + $scope.bomDetailNew.Id
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
@@ -294,5 +357,68 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         });
 
     };
+
+    $scope.CheckPointsList = [];
+    $scope.showCheckPointsPopUp = function () {
+        $scope.GetCheckPointsList();
+        angular.element(document.querySelector('#CheckPointsPopUp')).modal('show');
+
+    }
+
+    $scope.CloseCheckPointsPopUp = function () {
+        angular.element(document.querySelector('#CheckPointsPopUp')).modal('hide');
+
+    }
+
+    $scope.GetCheckPointsList = function () {
+        $scope.CheckPointsList = [];
+        $http.get('Commercial/Compliance/GetComplianceCheckPointsData?masterId=' + $scope.ModelNew.Id)
+            .then(function (response) {
+                $scope.CheckPointsList = response.data;
+            });
+    }
+
+    $scope.CheckPointsModel = { Id: null, ComplianceMasterId: null, CheckPointName: null }
+
+    $scope.SaveCheckPoints = function (model) {
+        try {
+            model.data.ComplianceMasterId = $scope.ModelNew.Id;
+            $http({
+                method: 'POST',
+                data: { data: model.data },
+                url: 'Commercial/Compliance/CreateCheckPoint'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.CheckPointsModel = { Id: null, ComplianceMasterId: null, CheckPointName: null }
+                    $scope.GetCheckPointsList();
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    $scope.DeleteCheckPoints = function (model) {
+        try {
+            $http({
+                method: 'POST',
+                data: { id: model.data.Id },
+                url: 'Commercial/Compliance/DeleteCheckPoint'
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetCheckPointsList();
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
 }

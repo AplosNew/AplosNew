@@ -490,11 +490,11 @@ GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,
         public DataTable GetGeneralLedgerData(string companyGroupId, string companyId, string plantId, string glId, string budgetMasterId, string activityId, string fromDate, string toDate, bool isOpeningBalance, string fiscalYearId, string bankMasterId, string cashMasterId, string partyId)
         {
             var bankCashPartyFilter = string.Empty;
-            if (bankMasterId != "null")
+            if (!string.IsNullOrEmpty(bankMasterId))
                 bankCashPartyFilter = " AND VD.BankMasterId='" + bankMasterId + "' ";
-            if (cashMasterId != "null")
+            if (!string.IsNullOrEmpty(cashMasterId))
                 bankCashPartyFilter = " AND VD.CashMasterId='" + cashMasterId + "' ";
-            if (partyId != "null")
+            if (!string.IsNullOrEmpty(partyId))
                 bankCashPartyFilter = " AND VD.PartyId='" + partyId + "' ";
             var cmdText = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
                             SELECT REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
@@ -781,11 +781,11 @@ GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,
             if (!string.IsNullOrEmpty(activityId))
                 budgetFilter = " AND VD.ActivityId='" + activityId + "' ";
             var bankCashPartyFilter = string.Empty;
-            if (bankMasterId!= "null")
+            if (!string.IsNullOrEmpty(bankMasterId))
                 bankCashPartyFilter = " AND VD.BankMasterId='" + bankMasterId + "' ";
-            if (cashMasterId != "null")
+            if (!string.IsNullOrEmpty(cashMasterId))
                 bankCashPartyFilter = " AND VD.CashMasterId='" + cashMasterId + "' ";
-            if (partyId != "null")
+            if (!string.IsNullOrEmpty(partyId))
                 bankCashPartyFilter = " AND VD.PartyId='" + partyId + "' ";
             var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
                         SELECT SUM(DrAmount) - SUM(CrAmount) AS OB
@@ -814,6 +814,12 @@ GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,
 	                        WHERE CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId=@companyId
                         ) AS HC ON HC.VoucherDetailId=VD.Id
                         WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId=@companyId AND V.PlantId='" + plantId + "' AND VD.GLGeneralInfoId='" + glId + "' " + budgetFilter + " " + bankCashPartyFilter + " AND V.PostingDate < '" + fromDate.ToDbDate() + @"' AND V.SourceType!='OpeningBalance'
+                        AND VD.Id NOT IN ( SELECT VD.Id FROM  TRN.VoucherDetail AS VD  
+										INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+										LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+										LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+										LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+										WHERE ACT.Id IN('Revenue','Expense') AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] ))
                         GROUP BY CC.CompanyCurrencyId, GC.CompanyGroupCurrencyId, HC.HardCurrencyId
                         UNION
                         SELECT SUM(VD.DrAmount) AS DrAmount, SUM(VD.CrAmount) AS CrAmount
