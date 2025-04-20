@@ -37,7 +37,7 @@ namespace Aplos.Areas.Commercial.Controllers
         #endregion Constructor
 
 
-        [Authorize]
+     
         public ActionResult Aplos()
         {
             return View();
