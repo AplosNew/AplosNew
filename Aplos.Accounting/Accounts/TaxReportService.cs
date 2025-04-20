@@ -277,6 +277,10 @@ namespace Library.Accounting.Accounts
                 int iGSTIN = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "GSTIN";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+                int iEntity = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Entity";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
 
                 xlsCol++;
                 int iVoucherType = xlsCol;
@@ -396,6 +400,7 @@ namespace Library.Accounting.Accounts
                                 sheet1[perStartRow, iPartyPlant, xlsRow - 1, iPartyPlant].BorderAround(ExcelLineStyle.Hair);
                                 sheet1[perStartRow, iGSTIN, xlsRow - 1, iGSTIN].BorderAround(ExcelLineStyle.Hair);
                                 sheet1[perStartRow, iVoucherType, xlsRow - 1, iVoucherType].BorderAround(ExcelLineStyle.Hair);
+                                sheet1[perStartRow, iEntity, xlsRow - 1, iEntity].BorderAround(ExcelLineStyle.Hair);
                                 sheet1[perStartRow, iVoucherNo, xlsRow - 1, iVoucherNo].BorderAround(ExcelLineStyle.Hair);
                                 sheet1[perStartRow, iVoucherRef, xlsRow - 1, iVoucherRef].BorderAround(ExcelLineStyle.Hair);
                                 sheet1[perStartRow, iTaxableAmount, xlsRow - 1, iTaxableAmount].BorderAround(ExcelLineStyle.Hair);
@@ -438,6 +443,7 @@ namespace Library.Accounting.Accounts
                         sheet1.Range[xlsRow, iPartyPlant].Text = dtRCMPayable.Rows[i]["PartyPlant"].ToString();
                         sheet1.Range[xlsRow, iGSTIN].Text = dtRCMPayable.Rows[i]["GSTIN"].ToString();
                         sheet1.Range[xlsRow, iVoucherType].Text = dtRCMPayable.Rows[i]["SourceType"].ToString();
+                        sheet1.Range[xlsRow, iEntity].Text = dtRCMPayable.Rows[i]["Entity"].ToString();
                         sheet1.Range[xlsRow, iVoucherNo].Text = dtRCMPayable.Rows[i]["VoucherNo"].ToString();
                         sheet1.Range[xlsRow, iVoucherRef].Text = dtRCMPayable.Rows[i]["DocRefNo"].ToString();//TaxableAmount
                         sheet1.Range[xlsRow, iTaxableAmount].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["TaxableAmount"].ToString());//TaxableAmount
@@ -501,6 +507,7 @@ namespace Library.Accounting.Accounts
                 sheet1[perStartRow, iGSTIN, xlsRow - 1, iGSTIN].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iVoucherType, xlsRow - 1, iVoucherType].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iVoucherNo, xlsRow - 1, iVoucherNo].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iEntity, xlsRow - 1, iEntity].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iVoucherRef, xlsRow - 1, iVoucherRef].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iTaxableAmount, xlsRow - 1, iTaxableAmount].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iTaxableAmount, xlsRow - 1, iTaxableAmount].BorderAround(ExcelLineStyle.Hair);
@@ -1207,7 +1214,7 @@ select DENSE_RANK() over(partition by VoucherNo,TaxCode order by Id) AS Seq,* fr
                 select SourceType= case when V.SourceType='VendorInvoice' then 'Inbound Invoice'
 						                when V.SourceType='VendorPayment' then 'Vendor Payment'
 						                when V.SourceType='InventoryPayable' then 'Purchase' else '' end
-                ,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,V.DocDate,P.UserName PartyName,P.TINNO GSTIN 
+                 ,E.UserName Entity,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,V.DocDate,P.UserName PartyName,P.TINNO GSTIN 
                 ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material' 
 				                   when v.SourceType='VendorInvoice' then 'GL'
 				                   when v.SourceType='VendorPayment' then 'GL'
@@ -1228,6 +1235,7 @@ select DENSE_RANK() over(partition by VoucherNo,TaxCode order by Id) AS Seq,* fr
                 FROM  TRN.InvoiceTaxDetail ITD   
 				LEFT JOIN TRN.InvoiceTax IT ON IT.Id=ITD.InvoiceTaxId
                 LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
+                LEFT JOIN ORG.Entity  E ON E.Id=V.EntityId
                 LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
                 LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
                 LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
@@ -1255,7 +1263,7 @@ select DENSE_RANK() over(partition by VoucherNo,TaxCode order by Id) AS Seq,* fr
                 AND v.SourceType IN ('VendorInvoice','VendorPayment')
                 UNION ALL
 				select 'Purchase' SourceType
-                ,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,V.DocDate,P.UserName PartyName,P.TINNO GSTIN 
+                 ,E.UserName Entity,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,V.DocDate,P.UserName PartyName,P.TINNO GSTIN 
                 ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material' 
 				                   else '' end
 				                   ,Particular=case when v.SourceType='InventoryPayable' then MM.UserName 
@@ -1271,6 +1279,7 @@ select DENSE_RANK() over(partition by VoucherNo,TaxCode order by Id) AS Seq,* fr
                 FROM  TRN.InvoiceTaxDetail ITD   
 				LEFT JOIN TRN.InvoiceTax IT ON IT.Id=ITD.InvoiceTaxId
                 LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
+                LEFT JOIN ORG.Entity  E ON E.Id=V.EntityId
                 LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
                 LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
                 LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
@@ -1297,7 +1306,7 @@ select DENSE_RANK() over(partition by VoucherNo,TaxCode order by Id) AS Seq,* fr
 				and V.PlantId = '" + plantId + @"' and V.IsPark=0 and IRT.InventoryServiceId IS NULL and v.SourceType='InventoryPayable'
                 union all
 				select 'Purchase' SourceType
-                ,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,V.DocDate,P.UserName PartyName,P.TINNO GSTIN 
+                 ,E.UserName Entity,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,V.DocDate,P.UserName PartyName,P.TINNO GSTIN 
                 ,LineItemType=case when v.SourceType='InventoryPayable' then 'Service' 
 				                   else '' end
 				                   ,Particular=case when v.SourceType='InventoryPayable' then SM.UserName 
@@ -1313,6 +1322,7 @@ select DENSE_RANK() over(partition by VoucherNo,TaxCode order by Id) AS Seq,* fr
                 FROM  TRN.InvoiceTaxDetail ITD   
 				LEFT JOIN TRN.InvoiceTax IT ON IT.Id=ITD.InvoiceTaxId
                 LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
+                LEFT JOIN ORG.Entity  E ON E.Id=V.EntityId
                 LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
                 LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
                 LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
