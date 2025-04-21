@@ -43,6 +43,11 @@ namespace Aplos.Areas.Commercial.Controllers
             return View();
         }
 
+        public ActionResult Transaction()
+        {
+            return View();
+        }
+
 
 
         [HttpPost, Authorize]
