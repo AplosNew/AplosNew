@@ -583,6 +583,7 @@ GROUP BY A.SONo,A.Qty )PK ON PK.SoNo=SO.Id
                                 
 								where os.id<> 'Closed' and os.Id <>'Cancelled' and so.OrderStatusId not in ('Closed','Cancelled')
                                 " + filter+@" "+diffCols+ @") da 
+                                " + filRange + " " + timing + @"
 UNION 
 Select * from (Select  e.UserName as Entity,prt.Username as Customers,b.UserName as Buyer, mo.BuyerReferenceNo,mo.OwnReferenceNo
 								,moi.BuyerReferenceNo as IBuyerReferenceNo,moi.OwnReferenceNo as IOwnReferenceNo,mma.StandardName Article,so.Id SONo, SO.LineItemReference, so.Qty,Pk.DispatchBalance, format(so.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate, format(so.CommitmentDate,'dd-MMM-yyyy') as CommitmentDate 
