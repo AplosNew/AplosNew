@@ -669,7 +669,7 @@ inner Join (select QMP.QMID IssueId,QMP.Id ParameterId,1 as PlanSet,PR.UserName 
                moi.MasterOrderId as MasterOrderNo,pc.UserName as ProductCategory, psc.UserName as ProductSubCategory,moi.Id as ItemId,mma.StandardName as ItemArticle,
                 pl.Remarks,ma.Code as MaterialCode,ma.UserName as Material,ma.Id as MaterialId,PM.UserName as Product , prod.UserName as Prod,PM.Id as ProductId,
                 pl.Id as ProductLibId, par.UserName as Customer,par.Id as CustomerId,moi.BuyerReferenceNo , moi.OwnReferenceNo
-				
+				,HSN.Code HSNCode
                 FROM trn.masterorder mo 
 				left join trn.MasterOrderItem moi on moi.MasterOrderId = mo.Id
 				left join dbo.ProductLibrary pl on pl.Id = moi.ProductLibraryId
@@ -689,6 +689,7 @@ inner Join (select QMP.QMID IssueId,QMP.Id ParameterId,1 as PlanSet,PR.UserName 
                 left join hkp.Product prod on prod.Id = pm.ProductId
 				left join hkp.ProductSubCategory psc on psc.Id = pm.ProductSubCategoryId
 				LEFT OUTER JOIN [MST].[MaterialMasterArticle] mma ON mma.Id=moi.ArticleId
+				left join hkp.HSNCode HSN on HSN.Id = MMA.HSNCodeId
 				left join (
 				Select so.Id, isnull(sum(sm.TransactionQty),0) as Despatch from trn.SalesOrder so 
 				left join trn.SalesMaterial sm on sm.SalesOrderId = so.Id
@@ -700,7 +701,7 @@ inner Join (select QMP.QMID IssueId,QMP.Id ParameterId,1 as PlanSet,PR.UserName 
 				 group by so.Id,sos.Despatch,so.DeliveryDate,pl.Code,po.id,uom.UserName,os.UserName,
 				 moi.MasterOrderId,pc.UserName, psc.UserName,moi.Id,mma.StandardName,
                 pl.Remarks,ma.Code,ma.UserName,ma.Id,PM.UserName, prod.UserName,PM.Id,
-                pl.Id, par.UserName,par.Id,moi.BuyerReferenceNo , moi.OwnReferenceNo
+                pl.Id, par.UserName,par.Id,moi.BuyerReferenceNo , moi.OwnReferenceNo,HSN.Code
 				) as req
 
        where CustomerId = '" + customer + @"'
