@@ -1950,9 +1950,6 @@ LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
-LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
@@ -2978,7 +2975,6 @@ LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
-LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=DM.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
