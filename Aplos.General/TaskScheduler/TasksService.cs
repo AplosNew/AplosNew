@@ -2246,7 +2246,7 @@ SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=P.PositionId
+LEFT JOIN ORG.Position p ON p.Id=mb.PositionId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
@@ -2935,7 +2935,7 @@ SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, ISNULL(COUNT(TD.Id),0) TaskDue
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=DM.PositionId
+LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
