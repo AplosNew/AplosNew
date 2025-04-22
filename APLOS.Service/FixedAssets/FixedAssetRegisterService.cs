@@ -2970,7 +2970,9 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= IR.EmployeeId
 									LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=IM.MaterialMasterId
 									LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id=IM.ArticleId
-                                    Where IRD.IsAsset=1 AND  IR.VoucherId<>'' AND V.IsPark=0  AND IRD.Id NOT IN (Select ISNULL([InventoryReceiveDetailId],'') from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + "";
+                                    Where IRD.IsAsset=1 AND  IR.VoucherId<>'' AND V.IsPark=0  
+                                    AND IRD.Id NOT IN (select ISNULL(InventoryReceiveDetailId,'') from TRN.InventoryIssueHistory)
+                                    AND IRD.Id NOT IN (Select ISNULL([InventoryReceiveDetailId],'') from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + "";
                 }
                 else if (faType == "CI")
                 {
