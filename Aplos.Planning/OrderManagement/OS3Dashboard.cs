@@ -33,9 +33,24 @@ namespace Library.Planning.OrderManagement
                             left join org.Plant p on p.Id = e.PlantId
                             left join dbo.EmployeeInformation emp on emp.SystemId = mo.ResponsiblePersonId 
                             left join dbo.EmployeeInformation ee on ee.SystemId = e.EmployeeId
-                            where mo.OrderStatusId<>'Closed' and mo.OrderStatusId<>'Cancelled'
+							where mo.OrderStatusId<>'Closed' and mo.OrderStatusId<>'Cancelled'
                             and so.OrderStatusId not in ('Closed','Cancelled')
-                            ";
+							UNION
+Select distinct isnull(p.id,'') as PlantId, isnull(p.username,'') as Plant, isnull(e.Id,'') as EntityId, isnull(e.Username,'') as Entity ,
+                            isnull(cus.Id,'') as CustomerId,isnull(cus.UserName,'') as Customer , isnull(mo.ResponsiblePersonId,'') as MResId , isnull(emp.EmployeeName,'') as MResP  ,
+                            isnull(e.EmployeeId,'') as ERespId , isnull(ee.EmployeeName,'') as EResp , so.OrderStatusId as Status
+							from  TRN.ProductionOrder PO
+							LEFT JOIN TRN.ProductionOrderDetail PD ON PO.Id=PD.ProductionOrderId
+							LEFT JOIN TRN.SalesOrder SO ON PD.SalesOrderId=SO.Id
+							left join org.entity e on e.Id = PO.EntityId
+							left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
+                            left join trn.MasterOrder mo on mo.id = moi.MasterOrderId
+                            left join hkp.Party cus on cus.Id = mo.PartyId
+                            left join org.Plant p on p.Id = e.PlantId
+                            left join dbo.EmployeeInformation emp on emp.SystemId = mo.ResponsiblePersonId 
+                            left join dbo.EmployeeInformation ee on ee.SystemId = e.EmployeeId
+                            where mo.OrderStatusId<>'Closed' and mo.OrderStatusId<>'Cancelled'
+                            and so.OrderStatusId not in ('Closed','Cancelled') AND isnull(p.id,'')<>''";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch(Exception e)
@@ -183,7 +198,24 @@ namespace Library.Planning.OrderManagement
 								left outer join dbo.EmployeeInformation emp on emp.SystemId = mo.ResponsiblePersonId
 								left outer join dbo.EmployeeInformation ee on ee.SystemId = e.EmployeeId
 								where os.id<> 'Closed' and os.Id <>'Cancelled' and so.OrderStatusId not in ('Closed','Cancelled')
-                                " + filter+@"
+                                " + filter+ @"
+UNION 
+								Select distinct so.Id ,so.Qty , so.Rate , so.CM , so.DeliveryDate,so.AddedDate , so.CommitmentDate , pod.ProductionOrderID , (SELECT MAX(xp1.ProductionDate) FROM ProductionPlanningType1 Xp1 WHERE Xp1.ProductionOrderID=pod.ProductionOrderID) as ProductionDate, so.OrderStatusId as OrderStatusId ,
+                                DateDiff(Day,(SELECT MAX(xp1.ProductionDate) FROM ProductionPlanningType1 Xp1 WHERE Xp1.ProductionOrderID = pod.ProductionOrderID), so.DeliveryDate) as EarlyOrLateBy , prt.Username as customers , e.UserName as Entity ,  (case when so.PlanExFactoryDate is null then so.CommitmentDate else PlanExFactoryDate end) as DDate , emp.EmployeeName as MResp,
+								ee.EmployeeName as EResp  " + ids + @"
+                                from TRN.ProductionOrder PO 
+							    LEFT JOIN TRN.ProductionOrderDetail pod ON PO.Id=pod.ProductionOrderId
+							    LEFT JOIN TRN.SalesOrder SO  ON pod.SalesOrderId=SO.Id
+							    left join org.entity e on e.Id = PO.EntityId
+								left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
+								left join trn.MasterOrder mo on mo.id = moi.MasterOrderId
+								left join hkp.orderstatus os on os.Id = mo.OrderStatusId
+								left outer join org.Plant p on p.Id = mo.PlantId
+								left outer join hkp.Party prt on prt.Id = mo.PartyId
+								left outer join dbo.EmployeeInformation emp on emp.SystemId = mo.ResponsiblePersonId
+								left outer join dbo.EmployeeInformation ee on ee.SystemId = e.EmployeeId
+								where os.id<> 'Closed' and os.Id <>'Cancelled' and so.OrderStatusId not in ('Closed','Cancelled')
+                                  " + filter + @" 
                                 ) as da
                                 " + groupBy+"";
 
@@ -550,8 +582,58 @@ GROUP BY A.SONo,A.Qty )PK ON PK.SoNo=SO.Id
 								) as rem on rem.SalesOrderId = so.Id
                                 
 								where os.id<> 'Closed' and os.Id <>'Cancelled' and so.OrderStatusId not in ('Closed','Cancelled')
-                                " + filter+@" "+diffCols+@") da 
-                                "+ filRange + " "+timing+"";
+                                " + filter+@" "+diffCols+ @") da 
+                                " + filRange + " " + timing + @"
+UNION 
+Select * from (Select  e.UserName as Entity,prt.Username as Customers,b.UserName as Buyer, mo.BuyerReferenceNo,mo.OwnReferenceNo
+								,moi.BuyerReferenceNo as IBuyerReferenceNo,moi.OwnReferenceNo as IOwnReferenceNo,mma.StandardName Article,so.Id SONo, SO.LineItemReference, so.Qty,Pk.DispatchBalance, format(so.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate, format(so.CommitmentDate,'dd-MMM-yyyy') as CommitmentDate 
+								,format((SELECT MAX(xp1.ProductionDate) FROM ProductionPlanningType1 Xp1 WHERE Xp1.ProductionOrderID=pod.ProductionOrderID),'dd-MMM-yyyy') as ProductionDate,  format((case when so.PlanExFactoryDate is null then so.CommitmentDate else PlanExFactoryDate end) , 'dd-MMM-yyyy') as DDate
+								,mo.Id as OrderNo,moi.Id as ItemNo,po.Id as PRNo,emp.EmployeeName as MResp,DateDiff(Day,(SELECT MAX(xp1.ProductionDate) FROM ProductionPlanningType1 Xp1 WHERE Xp1.ProductionOrderID = pod.ProductionOrderID), so.DeliveryDate) as EarlyOrLateBy 
+								,so.OrderStatusId as OrderStatusId,ps.UserName as POStatus,OC.UserName OrderType,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END,so.AddedDate  , pod.ProductionOrderID , os.Username as MOOrderStatusId ,ee.EmployeeName as EResp ,mo.BuyerId,rem.Remarks
+								
+                               from trn.ProductionOrder po 
+                                left outer join trn.ProductionOrderDetail pod on po.Id = pod.ProductionOrderId 
+                                left outer join TRN.SalesOrder SO on pod.SalesOrderId = so.Id
+								left outer join trn.MasterOrderItem moi on so.MasterOrderItemId=moi.Id
+							    LEFT JOIN trn.MasterOrder mo ON mo.Id=moi.MasterOrderId
+								left join hkp.orderstatus os on os.Id = mo.OrderStatusId
+								left JOIN mst.MaterialMasterArticle AS mma ON mma.Id=moi.ArticleId							
+								LEFT JOIN (SELECT A.SONo,A.Qty,DispatchBalance=ISNULL(A.Qty-SUM(A.TotalQtyNetWeight),0) FROM (
+SELECT 
+so.Id SONo, so.Qty,POLR.TotalQtyNetWeight
+FROM trn.SalesOrder so 								
+LEFT JOIN trn.PackingLineItem PLI ON PLI.SOId=SO.Id
+LEFT JOIN 
+(							
+Select (sc.NetWeight * Count(sc.RefNo)) as TotalQtyNetWeight,PackingLineItemId from trn.POLotReference po
+left join dbo.ItemScanChild sc on sc.PackingId = po.Id
+GROUP BY PackingLineItemId,sc.NetWeight
+)POLR ON POLR.PackingLineItemId=PLI.PackingLineItemId
+)A
+GROUP BY A.SONo,A.Qty )PK ON PK.SoNo=SO.Id
+                                LEFT JOIN HKP.OrderCategory OC ON OC.Id = SO.OrderCategoryId
+								
+								left outer join org.entity e on e.Id = po.EntityId
+								left outer join org.Plant p on p.Id = mo.PlantId
+								left outer join hkp.Party prt on prt.Id = mo.PartyId
+								left outer join dbo.EmployeeInformation emp on emp.SystemId = mo.ResponsiblePersonId
+								left outer join dbo.EmployeeInformation ee on ee.SystemId = e.EmployeeId
+								
+								left outer join hkp.ProductionStatus ps on ps.Id = po.ProductionStatusId
+                                left join hkp.Buyer b on b.Id = mo.BuyerId
+                                left join (Select  oc.SalesOrderId ,
+                                 (Select top 1 Concat( format(cr.AddedDate,'dd/MMM/yy') ,' - ' ,cr.Remarks) as Remarks from dbo.OrderControlRemarks cr left join dbo.OrderControl c on c.Id = cr.OrderControlId
+								where c.SalesOrderId = oc.SalesOrderId order by cr.AddedDate desc
+                                ) as Remarks
+                                from dbo.OrderControl oc
+                                left join dbo.OrderControlRemarks ocr on ocr.OrderControlId = oc.Id
+                                where oc.SalesOrderId is not null
+                                group by oc.SalesOrderId
+								) as rem on rem.SalesOrderId = so.Id
+                                
+								where os.id<> 'Closed' and os.Id <>'Cancelled' and so.OrderStatusId not in ('Closed','Cancelled')
+                                " + filter + @" " + diffCols + @")da
+                                " + filRange + " "+timing+"";
                 
                 return _sqlRepository.GetDataCollection(str);
             }

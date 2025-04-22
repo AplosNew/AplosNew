@@ -1310,6 +1310,7 @@ upanelApp.controller("MarkerCheckController", MarkerCheckController)
 upanelApp.controller("MarkerApproveController", MarkerApproveController)
 upanelApp.controller("ComplianceController", ComplianceController)
 upanelApp.controller("ExportDBController", ExportDBController)
+upanelApp.controller("ComplianceTransactionController", ComplianceTransactionController)
 
 
 
