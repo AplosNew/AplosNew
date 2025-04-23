@@ -64,9 +64,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
       
         [HttpPost , Authorize]
-        public ActionResult getClickData(Dictionary<string,string> parameters , string group , string col , string range , string analysis , string type)
+        public ActionResult getClickData(Dictionary<string,string> parameters , string group , string col , string range , string analysis , string type, string entityId)
         {
-            return Json(os3.getClickData(parameters, group, col , range , analysis, type), JsonRequestBehavior.AllowGet);
+            return Json(os3.getClickData(parameters, group, col , range , analysis, type, entityId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]

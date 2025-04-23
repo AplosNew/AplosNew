@@ -181,7 +181,7 @@ function OS3DashboardController(cboService, commonMessage, $scope, $rootScope, b
             $http({
                 method: 'POST',
                 url: $scope.path + 'getClickData',
-                data: { 'parameters': $scope.parameters, 'group': $scope.group, 'col': two, 'range': e.columnName, 'analysis': $scope.dateCgroup, 'type': $scope.chartTypeG }
+                data: { 'parameters': $scope.parameters, 'group': $scope.group, 'col': two, 'range': e.columnName, 'analysis': $scope.dateCgroup, 'type': $scope.chartTypeG, 'entityId': $scope.Detail2 }
             }).then(function success(response) {
                // console.log(response);
                 $scope.DetailList = response.data;
