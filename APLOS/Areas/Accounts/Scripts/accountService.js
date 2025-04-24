@@ -19,6 +19,7 @@ function accountService($http) {
         , getCboCreditNoteTypeList: getCboCreditNoteTypeList
         , getCboDebitNoteTypeList: getCboDebitNoteTypeList
         , getBudgetMasterActivityCbo: getBudgetMasterActivityCbo
+        , getAllBudgetMasterActivityCbo: getAllBudgetMasterActivityCbo
         , getTaxCategoryCbo: getTaxCategoryCbo
         , getTaxCategoryMaterialLevelCbo: getTaxCategoryMaterialLevelCbo
     };
@@ -84,6 +85,9 @@ function accountService($http) {
     }
     function getBudgetMasterActivityCbo(budgetMasterId, callback) {
         base('Accounts/BudgetMaster/GetBudgetMasterActivityCbo?budgetMasterId=' + budgetMasterId, callback);
+    }
+    function getAllBudgetMasterActivityCbo(budgetMasterId, callback) {
+        base('Accounts/BudgetMaster/GetAllBudgetMasterActivityCbo?budgetMasterId=' + budgetMasterId, callback);
     }
     function getTaxCategoryCbo(countryId, callback) {
         base('Accounts/TaxCategory/GetCbo?countryId=' + countryId, callback);
