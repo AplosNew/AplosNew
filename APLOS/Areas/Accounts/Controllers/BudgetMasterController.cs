@@ -73,7 +73,19 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return Json(_budgetMasterActivityService.GetBudgetMasterActivityCbo(budgetMasterId, level, null), JsonRequestBehavior.AllowGet);
         }
-
+        [HttpGet, Authorize]
+        public ActionResult GetAllBudgetMasterActivityCbo(string budgetMasterId)
+        {
+            return Json(GetAllBudgetMasterActivityCboData(budgetMasterId), JsonRequestBehavior.AllowGet);
+        }
+        public IEnumerable<object> GetAllBudgetMasterActivityCboData(string budgetMasterId)
+        {
+            var sql = @"SELECT BMA.BudgetMasterId, BMA.ActivityId, A.UserName AS ActivityName, A.FALinked,A.IsOrderSpecific,A.ActivityOrderType,BMA.IsServiceApplicable,BMA.ActivityOrderType
+                        FROM [MST].[BudgetMasterActivity] AS BMA
+                        JOIN [HKP].[Activity] AS A ON A.Id=BMA.ActivityId
+                        WHERE BMA.BudgetMasterId='" + budgetMasterId + "' ORDER BY A.Code, A.UserName";
+            return _sqlRepository.GetDataCollection(sql);
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetCboActivityForSetup(string coaId, string glId, string budgetId)

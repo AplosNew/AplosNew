@@ -1761,7 +1761,6 @@ LEFT JOIN (
 			}
 		}
 
-
 		public Dictionary<string, object> GetStockCountryWise(InventoryMaterialViewModel entity, string issueDate)
 		{
 			try

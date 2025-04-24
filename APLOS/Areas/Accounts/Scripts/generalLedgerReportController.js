@@ -38,7 +38,7 @@ function generalLedgerReportController($scope, $rootScope, $filter, bankService,
 
     $scope.activityList = [];
     $scope.getBudgetMasterActivityCbo = function (budgetMasterId) {
-        accountService.getBudgetMasterActivityCbo(budgetMasterId, function (result) {
+        accountService.getAllBudgetMasterActivityCbo(budgetMasterId, function (result) {
             $scope.activityList = result;
         });
     };
