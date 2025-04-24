@@ -331,6 +331,7 @@ function TaskTemplateController(cboService, commonMessage, $scope, $rootScope, b
                 IsLastTask: $scope.TaskMasters[i].IsLastTask,
                 IsMandatory: $scope.TaskMasters[i].IsMandatory,
                 TaskAppliedOnEnum: $scope.TaskMasters[i].TaskAppliedOnEnum,
+                Active: $scope.TaskMasters[i].Active,
                 offset: '',
                 duration: $scope.TaskMasters[i].Duration,
                 progress: "0",

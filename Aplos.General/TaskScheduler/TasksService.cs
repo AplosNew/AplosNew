@@ -4229,7 +4229,7 @@ LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date,ET.DueDate) BETWEEN '" + fromDate + @"' AND '" + todate + @"'
-AND (Convert(date, ET.DueDate) > Convert(date,'10-Aug-2022') OR ET.UpdatedDate IS NULL)
+AND (Convert(date, ET.DueDate) > Convert(date,'" + todate + @"') OR ET.UpdatedDate IS NULL)
 AND ISNULL(ET.isDone,0)=0 AND ET.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed'  " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
@@ -4463,7 +4463,7 @@ LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date,ET.DueDate) BETWEEN '" + fromDate + @"' AND '" + todate + @"'
-AND (Convert(date, ET.DueDate) > Convert(date,'10-Aug-2022') OR ET.UpdatedDate IS NULL)
+AND (Convert(date, ET.DueDate) > Convert(date,'" + todate + @"') OR ET.UpdatedDate IS NULL)
 AND ISNULL(ET.isDone,0)=0 AND ET.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed'  " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
