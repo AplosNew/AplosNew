@@ -2586,6 +2586,31 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 
     };
 
+
+
+    $scope.FinancialMaterialStoreLedgerReportExcelAll = function (reportFormat) {
+
+        var reportFormat = "Excel";
+       
+        if (baseService.isUndefinedOrNull($scope.report.FromDate2)) {
+            ShowResult('Select From Date', 'failure');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.report.ToDate2)) {
+            ShowResult('Select To Date', 'failure');
+            return false;
+        }
+
+        try {
+
+            var file_src = 'Materials/MaterialLedger/FinancialMaterialStoreLedgerReportExcelAll?reportFormat=' + reportFormat + "&fromDate=" + $scope.report.FromDate2 + "&toDate=" + $scope.report.ToDate2 ;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
     $scope.setCharData = function (data) {       
         $scope[$scope.charValueSearchFor].CharacteristicsValueId = data.CharacteristicsValueId;
         $scope[$scope.charValueSearchFor].FreeText = data.UserName;

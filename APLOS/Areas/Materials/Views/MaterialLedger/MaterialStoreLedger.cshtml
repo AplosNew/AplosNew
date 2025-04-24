@@ -8,6 +8,7 @@
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSetMLedger(1) }"><a ng-click="setTabMLedger(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Material and Articlre Wise</a></li>
                 <li role="presentation" ng-class="{ active: isSetMLedger1(2) }"><a ng-click="setTabMLedger1(2)" href="" aria-controls="general" role="tab" data-toggle="tab">All Materials</a></li>
+                <li role="presentation" ng-class="{ active: isSetMLedger1(3) }"><a ng-click="setTabMLedger1(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Financial Material Store Ledger</a></li>
 
             </ul>
 
@@ -128,11 +129,11 @@
                                     </div>
                                 </div>
                                 @*<div class="common-btn">
-                                        <ul class="list-inline text-right">
-                                            <li><button ng-click="getPurchaseRegisterReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
+                                <ul class="list-inline text-right">
+                                    <li><button ng-click="getPurchaseRegisterReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
 
-                                        </ul>
-                                    </div>*@
+                                </ul>
+                            </div>*@
                             </fieldset>
                         </div>
                         <div class="clearfix"></div>
@@ -141,67 +142,67 @@
                         <div class="col-xs-12 col-sm-6 col-md-6">
 
                             @* <fieldset class="scheduler-border">
-                                <legend class="scheduler-border">Select Options</legend>*@
+                        <legend class="scheduler-border">Select Options</legend>*@
                             @*<div class="col-xs-12 col-sm-6 col-md-6">
-                                    <div class="form-group">
-                                        <label class="col-sm-4 col-xs-4 control-label" title="Select Option" tooltip>Select Option<sup>*</sup></label>
-                                        <div class="radio col-sm-8 col-xs-8">
-                                            <label>
-                                                <input type="radio" name="As On Date" ng-click="change('AsOnDate')" ng-model="productNew.AsOnDate" value="AsOnDate">
-                                                <span class="cr" tabindex="14"><i class="cr-icon"></i></span>As On Date
-                                            </label>
-                                            <label>
-                                                <input type="radio" name="As On Date" ng-click="change('ForThePeriod')" ng-model="productNew.AsOnDate" value="ForThePeriod">
-                                                <span class="cr" tabindex="15"><i class="cr-icon"></i></span>For The Period
-                                            </label>
-                                        </div>
-                                    </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 col-xs-4 control-label" title="Select Option" tooltip>Select Option<sup>*</sup></label>
+                                <div class="radio col-sm-8 col-xs-8">
+                                    <label>
+                                        <input type="radio" name="As On Date" ng-click="change('AsOnDate')" ng-model="productNew.AsOnDate" value="AsOnDate">
+                                        <span class="cr" tabindex="14"><i class="cr-icon"></i></span>As On Date
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="As On Date" ng-click="change('ForThePeriod')" ng-model="productNew.AsOnDate" value="ForThePeriod">
+                                        <span class="cr" tabindex="15"><i class="cr-icon"></i></span>For The Period
+                                    </label>
+                                </div>
+                            </div>
 
 
-                                </div>*@
+                        </div>*@
 
 
                             <div class="clearfix"></div>
                             @*<div class="form-group">
-                                    <label class="col-sm-3 control-label"></label>
-                                    <div class="col-sm-1">
-                                        <div class="checkbox-site">
-                                            <label>
-                                                <input type="checkbox" ng-model="productNew.Qty" value="Qty">
-                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <label class="col-sm-4 control-label"> Qty</label>
+                            <label class="col-sm-3 control-label"></label>
+                            <div class="col-sm-1">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="productNew.Qty" value="Qty">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
                                 </div>
-                                <div class="clearfix"></div>
-                                <div class="form-group">
-                                    <label class="col-sm-3 control-label"></label>
-                                    <div class="col-sm-1">
-                                        <div class="checkbox-site">
-                                            <label>
-                                                <input type="checkbox" ng-model="productNew.Amount" value="Amount">
-                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <label class="col-sm-4 control-label">Amount</label>
-                                </div>*@
+                            </div>
+                            <label class="col-sm-4 control-label"> Qty</label>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"></label>
+                            <div class="col-sm-1">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="productNew.Amount" value="Amount">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-4 control-label">Amount</label>
+                        </div>*@
 
 
                             @*<div class="clearfix"></div>
-                                <div class="form-group" show-errors id="div_FromDate">
-                                    <label class="col-sm-3 control-label" ng-hide="productNew.AsOnDate==='AsOnDate'">From Date<sup>*</sup></label>
-                                    <div class="col-sm-9 show-message">
-                                        <input type="text" name="Form Date" ng-model="report.FromDate" datepicker tabindex="2" class="form-control" ng-hide="productNew.AsOnDate==='AsOnDate'">  ng-disabled="productNew.AsOnDate==='AsOnDate'"
-                                    </div>
-                                </div>
-                                <div class="form-group" show-errors id="div_ToDate">
-                                    <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
-                                    <div class="col-sm-9  show-message">
-                                        <input type="text" name="To Date" ng-model="report.ToDate" datepicker tabindex="3" class="form-control">
-                                    </div>
-                                </div>*@
+                        <div class="form-group" show-errors id="div_FromDate">
+                            <label class="col-sm-3 control-label" ng-hide="productNew.AsOnDate==='AsOnDate'">From Date<sup>*</sup></label>
+                            <div class="col-sm-9 show-message">
+                                <input type="text" name="Form Date" ng-model="report.FromDate" datepicker tabindex="2" class="form-control" ng-hide="productNew.AsOnDate==='AsOnDate'">  ng-disabled="productNew.AsOnDate==='AsOnDate'"
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors id="div_ToDate">
+                            <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                            <div class="col-sm-9  show-message">
+                                <input type="text" name="To Date" ng-model="report.ToDate" datepicker tabindex="3" class="form-control">
+                            </div>
+                        </div>*@
                             <div class="clearfix"></div>
                             <div class="form-group" ng-hide="true">
                                 <label class="col-sm-3 control-label"></label>
@@ -223,7 +224,7 @@
                             <ul class="list-inline text-left">
 
                                 @*<li> <button id="" class="btn" ng-click="MaterialStoreLedgerReportPdf();"><i class="glyphicon glyphicon-download"></i> Export To Pdf</button></li>
-                                    <li> <button id="" class="btn" ng-click="MaterialStoreLedgerReportExcel();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>*@
+                            <li> <button id="" class="btn" ng-click="MaterialStoreLedgerReportExcel();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>*@
 
                                 <li>
                                     <div ej-tooltip e-showshadow="true" e-content="" ng-click="MaterialStoreLedgerReportPdf('Pdf');" e-width="width">
@@ -246,10 +247,6 @@
 
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetMLedger1(2), active: isSetMLedger1(2) }">
-
-
-
-
                 <fieldset class="scheduler-border">
 
                     <div class="form-elements form-horizontal" ng-form="from0">
@@ -306,11 +303,11 @@
                                     </div>
                                 </div>
                                 @*<div class="common-btn">
-                                        <ul class="list-inline text-right">
-                                            <li><button ng-click="getPurchaseRegisterReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
+                                <ul class="list-inline text-right">
+                                    <li><button ng-click="getPurchaseRegisterReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
 
-                                        </ul>
-                                    </div>*@
+                                </ul>
+                            </div>*@
                             </fieldset>
                         </div>
                         <div class="clearfix"></div>
@@ -323,6 +320,44 @@
                                 </li>
                                 <li>
                                     <div ej-tooltip e-showshadow="true" e-content="" ng-click="MaterialStoreLedgerReportExcelAll('Excel');" e-width="width">
+                                        <button class="btn"><i class="glyphicon glyphicon-file"></i>Export To Excel</button>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </fieldset>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetMLedger1(3), active: isSetMLedger1(3) }">
+                <fieldset class="scheduler-border">
+
+                    <div class="form-elements form-horizontal" ng-form="from0">
+                         
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <fieldset class="scheduler-border">
+                                <legend class="scheduler-border">Filter By GRN Date</legend>
+
+                                <div class="clearfix"></div>
+                                <div class="form-group" show-errors id="div_FromDate">
+                                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                                    <div class="col-sm-9 show-message">
+                                        <input type="text" name="Form Date" ng-model="report.FromDate2" datepicker tabindex="2" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group" show-errors id="div_ToDate">
+                                    <label class="col-sm-3 control-label">TO Date<sup>*</sup></label>
+                                    <div class="col-sm-9  show-message">
+                                        <input type="text" name="To Date" ng-model="report.ToDate2" datepicker tabindex="3" class="form-control">
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li>
+                                    <div ej-tooltip e-showshadow="true" e-content="" ng-click="FinancialMaterialStoreLedgerReportExcelAll('Excel');" e-width="width">
                                         <button class="btn"><i class="glyphicon glyphicon-file"></i>Export To Excel</button>
                                     </div>
                                 </li>

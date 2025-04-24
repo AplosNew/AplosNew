@@ -865,8 +865,8 @@ AND BMA.Active=1";
 											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id, BA.AccountTitle, CM.UserName
 											,VD.BankMasterId, VD.CashMasterId, P.UserName, VD.PartyId,VD.PartyPlantId,CPC.PartyType,CPV.PartyType ) x 
                                             WHERE
-											  (ISNULL(DRcumulative,0.00) between   -2 and 2   and ISNULL(DRcumulative,0.00) <> 0.00) OR 
-											  (ISNULL(CRcumulative,0.00) <> 0 and ISNULL(CRcumulative,0.00) between   -2 and 2 )) tb  where tb.TrnType='" + trnType+@"'
+											  (ISNULL(DRcumulative,0.00) between   -2 and 100   and ISNULL(DRcumulative,0.00) <> 0.00) OR 
+											  (ISNULL(CRcumulative,0.00) <> 0 and ISNULL(CRcumulative,0.00) between   -2 and 100 )) tb  where tb.TrnType='" + trnType+@"'
 											  ";
                 return _sqlRepository.GetDataCollection(sql);
             }
