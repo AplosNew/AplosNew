@@ -64,6 +64,7 @@ namespace Library.Model.Inventory
         public string OrderSpecific { get; set; }
         public decimal Tolerance { get; set; }  
         public decimal Amount { get; set; }  
+        public decimal TransactionAmount { get; set; }  
 
         
 
