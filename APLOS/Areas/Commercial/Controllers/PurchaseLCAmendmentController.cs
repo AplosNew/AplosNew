@@ -313,7 +313,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     DataSet dsMaster;
                     foreach (var item in POList)
                     {
-                        string sql = "SELECT * FROM TRN.PurchaseOrder WHERE Id='" + item.Id + "'";
+                        string sql = "SELECT * FROM [dbo].[POLCMap] WHERE PurchaseOrderId='" + item.Id + "'";
                         objCon = new ConnectionManager.DAL.ConManager("1");
                         objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
                         if (dsMaster.Tables[0].Rows.Count > 0)
@@ -324,12 +324,29 @@ namespace Aplos.Areas.Commercial.Controllers
                             dr["ContractId"] = model.ContractId;
                             dr["PurchaseLCId"] = masterId;
                             dr["OrderSpecific"] = model.OrderSpecific;
-
+                            dr["PurchaseOrderId"] = item.Id;
+                            dr["Amount"] = item.TransactionAmount;
                             dr["UpdatedBy"] = identity.Name;
                             dr["UpdatedDate"] = DateTime.Now;
                             dr["UpdatedFromIP"] = identity.IPAddress;
 
                             dr.EndEdit();
+                        }
+                        else //if (dsMaster.Tables[0].Rows.Count == 0)
+                        {
+                            DataRow dr = dsMaster.Tables[0].NewRow();
+
+                            dr["ContractId"] = model.ContractId;
+                            dr["PurchaseLCId"] = masterId;
+                            dr["PurchaseOrderId"] = item.Id;
+                            dr["OrderSpecific"] = model.OrderSpecific;
+                            dr["Amount"] = item.TransactionAmount;
+
+                            dr["AddedBy"] = identity.Name;
+                            dr["AddedDate"] = DateTime.Now;
+                            dr["AddedFromIP"] = identity.IPAddress;
+                            dsMaster.Tables[0].Rows.Add(dr);
+
                         }
 
                         clsStaticInfo obj = new clsStaticInfo();
@@ -347,6 +364,8 @@ namespace Aplos.Areas.Commercial.Controllers
                 throw ex;
             }
         }
+
+      
 
         private void UpdateServiceOrderPO(IEnumerable<ServicePOMaster> SPOList, string masterId, PurchaseLC model)
         {

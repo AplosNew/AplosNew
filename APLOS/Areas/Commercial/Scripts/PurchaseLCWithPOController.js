@@ -382,14 +382,14 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
                         }
                     } else {
                         //throw "Please select same Vendor, Currency and Contract.";
-                        throw "Please select same Vendor, Currency.";
+                        throw "Please select same Vendor, Currency & Payment Term.";
                     }
                 }
             }
             for (var i = 0; i < $scope.selectedPOList.length; i++) {
                 $scope.LcAmount += $scope.selectedPOList[i].TransactionAmount;
             }
-            //$scope.purchaseLCNew.Amount = $scope.LcAmount;
+            $scope.purchaseLCNew.Amount = $scope.LcAmount;
 
         } catch (e) {
             ShowResult(e, 'failure');
@@ -414,7 +414,7 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
         for (var i = 0; i < $scope.selectedPOList.length; i++) {
             $scope.LcAmount += $scope.selectedPOList[i].TransactionAmount;
         }
-        //$scope.purchaseLCNew.Amount = $scope.LcAmount;
+        $scope.purchaseLCNew.Amount = $scope.LcAmount;
     }
 
     $window.onresize = function (event) {
@@ -586,6 +586,10 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
     };
 
     $scope.Save = function () {
+        for (var i = 0; i < $scope.selectedPOList.length; i++) {
+            $scope.LcAmount += $scope.selectedPOList[i].TransactionAmount;
+        }
+        $scope.purchaseLCNew.Amount = $scope.LcAmount;
         $scope.materialPoList = [];
         $scope.servcePoList = [];
         $scope.jwOutSourcePoList = [];

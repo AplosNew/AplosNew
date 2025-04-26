@@ -414,6 +414,10 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colSO = COL;
                 COL++;
+                sheet[ROW, COL].Text = "Line Item Ref#";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colLIR = COL;
+                COL++;
                 sheet[ROW, COL].Text = "Production Order#";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colProductionOrder = COL;
@@ -570,6 +574,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                         sheet[ROW, colOrder].Text = clsStaticInfo.nullrecorder(TaskList[item][0]["MasterOrderId"].ToString());
                         sheet[ROW, colStyle].Text = clsStaticInfo.nullrecorder(TaskList[item][0]["StyleNo"].ToString());
                         sheet[ROW, colSO].Text = clsStaticInfo.nullrecorder(TaskList[item][0]["SONo"].ToString());
+                        sheet[ROW, colLIR].Text = clsStaticInfo.nullrecorder(TaskList[item][0]["LineItemReference"].ToString());
                         sheet[ROW, colProductionOrder].Text = clsStaticInfo.nullrecorder(TaskList[item][0]["PRNo"].ToString());
 
 
@@ -1346,7 +1351,10 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                     StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
 				                                        trn.MasterOrderItem XMOI 	                                                   
 				                                    where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-				
+				LineItemReference=STUFF((select distinct ','+so.LineItemReference from 
+				                                        trn.MasterOrderItem XMOI 	 
+				                                        INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id                                                  
+				                                    where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
                                     SONo=STUFF((select distinct ','+so.Id from 
 				                                        trn.MasterOrderItem XMOI 	 
 				                                        INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id                                                  
@@ -1368,7 +1376,10 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                                     SELECT 2 AS RNK, 'Style' AS TNAType, MOI.BuyerReferenceNo+'STYLE' AS [KEY], tm.Id AS TaskManagerMasterId,b.Id AS BuyerId,tt.TaskTemplateId, b.UserName AS Buyer,mo.Id  AS MasterOrderId,
                                 StyleNo=MOI.BuyerReferenceNo,
-				
+				LineItemReference=STUFF((select distinct ','+so.LineItemReference from 
+				                                 trn.MasterOrderItem XMOI 	 
+				                                 INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id                                                  
+				                                where MOI.Id=XMOI.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
                                 SONo=STUFF((select distinct ','+so.Id from 
 				                                 trn.MasterOrderItem XMOI 	 
 				                                 INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id                                                  
@@ -1391,7 +1402,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                               SELECT  3 AS RNK, 'Sales Order' AS TNAType, so.Id+'SO' AS [KEY],tm.Id AS TaskManagerMasterId,b.Id AS BuyerId,tt.TaskTemplateId, b.UserName AS Buyer,mo.Id  AS MasterOrderId,
                                 StyleNo=MOI.BuyerReferenceNo,
-				
+				so.LineItemReference,
                                 SONo=so.Id,
 				
                                 PRNo=STUFF((select distinct ','+pod.ProductionOrderId from 
@@ -1411,7 +1422,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                SELECT 4 AS RNK, 'Prod. Order' AS TNAType, PR.ProductionOrderId+'PR' AS [KEY],tm.Id AS TaskManagerMasterId,
                                 PR.BuyerId,tt.TaskTemplateId,   PR.Buyer,
                                 PR.MasterOrderId,
-                                PR.StyleNo,pr.SONo,
+                                PR.StyleNo,pr.LineItemReference,pr.SONo,
 				
 				
                                 pr.ProductionOrderId AS PRNo
@@ -1436,7 +1447,11 @@ namespace Aplos.Areas.TaskManagement.Controllers
 														 INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
 														 INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
 														where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                	
+                                	 ,LineItemReference=STUFF((select distinct ','+sox.LineItemReference from 
+														 trn.MasterOrderItem XMOI 	 
+														 INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+														 INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+														where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                 			  ,SONo=STUFF((select distinct ','+sox.Id from 
 														 trn.MasterOrderItem XMOI 	 
 														 INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
@@ -1645,7 +1660,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
         private string TNATasks()
         {
-            string sql = @" 	SELECT  'Order' AS Dependency, tt.TaskTemplateId,TMMM.Id AS TaskMasterId, 
+            string sql = @"SELECT  'Order' AS Dependency, tt.TaskTemplateId,TMMM.Id AS TaskMasterId, 
                                     	     MO.MasterOrderNo AS MasterOrderId,MO.BuyerId,
                              B.UserName AS Buyer
                             
@@ -1654,6 +1669,11 @@ namespace Aplos.Areas.TaskManagement.Controllers
                             where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 
                             SONo=STUFF((select distinct ','+so.Id from 
+                            trn.MasterOrderItem XMOI 
+                            INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
+                            where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                            LineItemReference=STUFF((select distinct ','+so.LineItemReference from 
                             trn.MasterOrderItem XMOI 
                             INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
                             where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
@@ -1687,6 +1707,11 @@ namespace Aplos.Areas.TaskManagement.Controllers
                             INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
                             where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 
+                            LineItemReference=STUFF((select distinct ','+so.LineItemReference from 
+                            trn.MasterOrderItem XMOI 
+                            INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
+                            where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
                             SOQty=(select sum(so.Qty) from 
                             trn.MasterOrderItem XMOI 
                             INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
@@ -1714,6 +1739,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                MO.MasterOrderNo,B.Id, B.UserName AS Buyer
                             ,StyleNo= MOI.BuyerReferenceNo
                             ,SONo=so.Id
+                            ,so.LineItemReference
                             ,SOQty=SO.Qty
                             ,PRNo=STUFF((select distinct ','+xpod.ProductionOrderId from  trn.ProductionOrderDetail AS xpod
                             where xpod.SalesOrderId = so.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
@@ -1733,7 +1759,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                           
 
                             SELECT 'Prod. Order' AS Dependency,tt.TaskTemplateId, TMM.Id AS TaskMasterId, 
-                               pr.MasterOrderId,PR.BuyerId,pr.Buyer,pr.StyleNo, pr.SONo,PR.SOQty, pr.ProductionOrderId
+                               pr.MasterOrderId,PR.BuyerId,pr.Buyer,pr.StyleNo, pr.SONo,pr.LineItemReference,PR.SOQty, pr.ProductionOrderId
                             ,Department=bd.UserName,Division=bd2.UserName
 				
                                  FROM TaskManagerMaster AS tmm
@@ -1762,6 +1788,13 @@ namespace Aplos.Areas.TaskManagement.Controllers
 														 INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
 														 INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
 														where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+                                                ,LineItemReference=STUFF((select distinct ','+sox.LineItemReference from 
+														 trn.MasterOrderItem XMOI 	 
+														 INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+														 INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+														where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
                                                 ,SOQty=(select sum(sox.Qty) from 
 														 trn.MasterOrderItem XMOI 	 
 														 INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
