@@ -1036,6 +1036,31 @@ namespace Aplos.Areas.Materials.Controllers
                     return View();
             }
         }
+
+        [Authorize, HttpGet]
+        public ActionResult FinancialMaterialStoreLedgerReportExcelAll(ReportFormat reportFormat, string plantId, string fromDate, string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var reportFileName = "";
+            plantId = identity.PlantId;
+            
+            reportFileName = "Financial Material Store Ledger";
+
+            Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+            var workbook = obj.CreateFinancialMaterialStoreLedgerAll(identity.CompanyId, plantId, fromDate, toDate);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcelx(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
+
         #endregion
 
         #region In Ward Material Report

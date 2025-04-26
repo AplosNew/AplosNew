@@ -343,6 +343,10 @@ function purchaseLCAmendmentController(accountService, commonMessage, $scope, $r
         if (baseService.isUndefinedOrNull($scope.purchaseLCNew.VendorId)) {
             throw "Vendor is required.";
         }
+        if (baseService.isUndefinedOrNull($scope.purchaseLCNew.Amount)) {
+            throw "Amount is required.";
+        }
+       
         if ($scope.purchaseLCNew.Type === 'Usance') {
             if ($scope.purchaseLCNew.Tenure === 0 || $scope.purchaseLCNew.Tenure < 0) {
                 throw "Usance value must greater than 0.";
@@ -409,9 +413,10 @@ function purchaseLCAmendmentController(accountService, commonMessage, $scope, $r
                     ob.VendorId = $scope.GriddataPOWithOutLC[i].PartyId;
                     ob.CurrencyId = $scope.GriddataPOWithOutLC[i].CurrencyId;
                     ob.Id = $scope.GriddataPOWithOutLC[i].Id;
+                    ob.PaymentTermId = $scope.GriddataPOWithOutLC[i].PaymentTermId;
 
                     //if (checkSameVendor($scope.selectedPOList, ob.VendorId, ob.CurrencyId, ob.ContractId)) {
-                    if (checkSame($scope.selectedPOList, ob.VendorId, ob.CurrencyId)) {
+                    if (checkSame($scope.selectedPOList, ob.VendorId, ob.CurrencyId, ob.PaymentTermId)) {
                         if (checkExistList($scope.selectedPOList, ob.Id) === false) {
 
                             $scope.purchaseLCNew.VendorId = $scope.GriddataPOWithOutLC[i].PartyId;
@@ -435,7 +440,7 @@ function purchaseLCAmendmentController(accountService, commonMessage, $scope, $r
                         }
                     } else {
                         //throw "Please select same Vendor, Currency and Contract.";
-                        throw "Please select same Vendor, Currency.";
+                        throw "Please select same Vendor, Currency & Payment Term.";
                     }
                 }
             }
@@ -524,9 +529,9 @@ function purchaseLCAmendmentController(accountService, commonMessage, $scope, $r
         }
         return true;
     }
-    function checkSame(list, vendorId, currencyId) {
+    function checkSame(list, vendorId, currencyId, PaymentTermId) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].PartyId !== vendorId || list[i].CurrencyId !== currencyId) {
+            if (list[i].PartyId !== vendorId || list[i].CurrencyId !== currencyId || list[i].PaymentTermId !== PaymentTermId) {
                 return false;
             }
         }
@@ -545,6 +550,10 @@ function purchaseLCAmendmentController(accountService, commonMessage, $scope, $r
 
     $scope.Save = function () {
         try {
+            for (var i = 0; i < $scope.selectedPOList.length; i++) {
+                $scope.LcAmount += $scope.selectedPOList[i].TransactionAmount;
+            }
+            $scope.purchaseLCNew.Amount = $scope.LcAmount;
             $scope.materialPoList = [];
             $scope.servcePoList = [];
             $scope.jwOutSourcePoList = [];

@@ -1,105 +1,62 @@
-﻿<togglable name="{{title}}"></togglable>
+﻿
+<link href="~/Scripts/BootstrapTimePicker/css/bootstrap-timepicker.css" rel="stylesheet" />
+<script src="~/Scripts/BootstrapTimePicker/Scripts/bootstrap.js"></script>
+<script src="~/Scripts/BootstrapTimePicker/js/bootstrap-timepicker.js"></script><togglable name="{{title}}"></togglable>
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <input type="hidden" ng-model="ModelNew.Id">
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Compliance Group<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Transaction Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Compliance Group" ng-model="ModelNew.ComplianceGroup" class="form-control" maxlength="100" autocomplete="off" required tabindex="1">
+                <input type="text" name="TransactionDate" ng-model="ModelNew.TransactionDate" datepicker class="form-control" maxlength="100" autocomplete="off" required tabindex="1">
             </div>
         </div>
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Category Name<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Location Reference<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Category Name" ng-model="ModelNew.Category" class="form-control" required autocomplete="off" tabindex="3" maxlength="100">
+                <div class="select-style">
+                    <select class="form-control" ng-model="ModelNew.LocationId" name="Location" ng-options="item.Id as item.LocationReference for item in ComplianceList" tabindex="7" required>
+                        <option value=""></option>
+                    </select>
+                </div>
             </div>
         </div>
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Item Name<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="input-group">
-                    <input type="text" name="Item Name" ng-model="ModelNew.ItemName" class="form-control" required autocomplete="off" tabindex="5" maxlength="100">
+                    <input type="text" name="Master Plan" ng-model="ModelNew.EmployeeCode" class="form-control" readonly required>
                     <span class="input-group-btn">
-                        <button ng-click="showCheckPointsPopUp ();" ng-disabled="ModelNew.Id==null" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-plus"></i>Check Points</button>
+                        <button ng-click="popUp();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </div>
         </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Audit Frequency<sup>*</sup></label>
-            <div class="col-sm-4 show-message">
-                <input type="text" name="Audit Frequency" ng-model="ModelNew.AuditFrequency" only-numbers class="form-control" required autocomplete="off" tabindex="5" maxlength="100">
-            </div>
-            <div class="col-sm-4 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.AuditFrequencyUnit" name="AuditFrequencyUnit" ng-options="item.Value as item.Text for item in auditFrequencyUnitList" tabindex="7" required>
-                        <option value=""></option>
-                    </select>
-                </div>
+        
+
+
+
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+      
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Transaction Time<sup>*</sup></label>
+            <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
+                <input id="TransactionTime" type="text" class="form-control input-small" ng-model="ModelNew.TransactionTime" style="margin-left:-10%; width:94%" tabindex="7">
+                <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
             </div>
         </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Compliance Value<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.ComplianceValue" name="Compliance Value" ng-options="item.Value as item.Text for item in ComplianceValueList" tabindex="7" required>
+                    <select class="form-control" ng-model="ModelNew.ComplianceValue" name="Compliance Value" ng-options="item.Id as item.ComplianceValue for item in ComplianceList" tabindex="7" required>
                         <option value=""></option>
                     </select>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Scan Applicable</label>
-            <div class="col-sm-2">
-                <div class="checkbox-site">
-                    <label>
-                        <input type="checkbox" ng-model="ModelNew.ScanApplicable" tabindex="10">
-                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                    </label>
-                </div>
-            </div>
-            <label class="col-sm-3 control-label">Code Applicable</label>
-            <div class="col-sm-2">
-                <div class="checkbox-site">
-                    <label>
-                        <input type="checkbox" ng-model="ModelNew.CodeApplicable" tabindex="10">
-                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                    </label>
                 </div>
             </div>
         </div>
 
-    </div>
-    <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required autocomplete="off" tabindex="2" maxlength="10">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">SubCategory Name<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="SubCategory Name" ng-model="ModelNew.SubCategory" class="form-control" required autocomplete="off" tabindex="4" maxlength="100">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Criticality Level<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select name="Criticality Level" class="form-control" ng-model="ModelNew.CriticalityLevel" required tabindex="6">
-                        <option value=""></option>
-                        <option ng-repeat="item in CriticalityLevelList" value="{{item.Value}} ">{{item.Text}}</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Location Reference<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Location Reference" ng-model="ModelNew.LocationReference" class="form-control" required autocomplete="off" tabindex="8" maxlength="100">
-            </div>
-        </div>
 
         <div class="form-group">
             <label class="col-sm-4 control-label">Remarks</label>
@@ -167,9 +124,8 @@
             <div class="modal-body">
                 <div class="content-container-fluid" style="color:black;">
                     <div style="color:black;" id="GridPopUp" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-templaterefresh="refreshTemplate" e-allowselection="true" e-filtersettings-filterType="excel">
+                         e-recorddoubleclick="SetEmployee"  e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
-                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                             <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
                             <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
                             <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
@@ -181,17 +137,12 @@
                             <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
                             <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
                         </div>
-                        <script type="text/template" id="checkboxTemplate">
-                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
-                        </script>
-                        <script type="text/x-jsrender" id="headerTemplate">
-                            <input type="checkbox" id="headchk" />
-                        </script>
+                        
                     </div>
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li> <button ng-click="SaveRP()" class="btn">Apply</button></li>
+                        <li> <button ng-click="closePopUp()" class="btn">Close</button></li>
                     </ul>
                 </div>
             </div>
@@ -199,3 +150,17 @@
     </div>
   
 </div>
+
+<script type="text/javascript">
+    $('[id*=TransactionTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
+        var hours = e.time.hours, //Returns a string
+            min = e.time.minutes
+        //merdian = e.time.meridian;
+
+        if (hours.length == 1) {
+            $('[id*=TransactionTime]').timepicker('setTime', '0' + hours + ':' + min);
+
+        }
+    });
+   
+</script>

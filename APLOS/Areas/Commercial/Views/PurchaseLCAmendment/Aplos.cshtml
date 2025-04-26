@@ -15,14 +15,15 @@
 
                         <div e-columns>
                             <div e-column e-template="#checkboxTemplate" e-textalign="center" e-width="40"></div>
-                            <div e-column e-field="Id" e-headertext="POId" e-width="50"></div>
-                            <div e-column e-field="PODate" e-headertext="PODate" e-width="60"></div>
+                            <div e-column e-type="string" e-field="Id" e-headertext="POId" e-width="50"></div>
+                            <div e-column e-type="string" e-field="PODate" e-headertext="PODate" e-width="60"></div>
                             <div e-column e-type="string" e-field="DocRefNo" e-headertext="DocRefNo" e-width="80"></div>
-                            <div e-column e-field="StandardName" e-headertext="Vendor" e-width="100"></div>
-                            <div e-column e-field="TransactionAmount" e-headertext="Amount" e-width="90" e-textalign="right"></div>
-                            <div e-column e-field="Currency" e-headertext="Currency" e-width="30"></div>
-                            <div e-column e-field="OrderSpecifi" e-headertext="Order Specific" e-width="70"></div>
-                            <div e-column e-field="ContractNo" e-headertext="ContractNo" e-width="80"></div>
+                            <div e-column e-type="string" e-field="StandardName" e-headertext="Vendor" e-width="100"></div>
+                            <div e-column e-type="string" e-field="TransactionAmount" e-headertext="Amount" e-width="90" e-textalign="right"></div>
+                            <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="30"></div>
+                            <div e-column e-type="string" e-field="PaymentTerm" e-headertext="Payment Term" e-width="70"></div>
+                            <div e-column e-type="string" e-field="OrderSpecifi" e-headertext="Order Specific" e-width="70"></div>
+                            <div e-column e-type="string" e-field="ContractNo" e-headertext="ContractNo" e-width="80"></div>
                             <div e-column e-field="Flag" e-headertext="State" e-width="60"></div>
                         </div>
                     </div>
@@ -44,14 +45,15 @@
 
                         <div e-columns>
                             <div e-column e-template="#checkboxTemplate" e-textalign="center" e-width="40"></div>
-                            <div e-column e-field="Id" e-headertext="POId" e-width="150"></div>
-                            <div e-column e-field="PODate" e-headertext="PODate" e-width="60"></div>
+                            <div e-column e-type="string" e-field="Id" e-headertext="POId" e-width="50"></div>
+                            <div e-column e-type="string" e-field="PODate" e-headertext="PODate" e-width="60"></div>
                             <div e-column e-type="string" e-field="DocRefNo" e-headertext="DocRefNo" e-width="80"></div>
-                            <div e-column e-field="StandardName" e-headertext="Vendor" e-width="100"></div>
-                            <div e-column e-field="TransactionAmount" e-headertext="Amount" e-width="80" e-textalign="right"></div>
-                            <div e-column e-field="Currency" e-headertext="Currency" e-width="30"></div>
-                            <div e-column e-field="OrderSpecifi" e-headertext="Order Specific" e-width="70"></div>
-                            <div e-column e-field="ContractNo" e-headertext="ContractNo" e-width="80"></div>
+                            <div e-column e-type="string" e-field="StandardName" e-headertext="Vendor" e-width="100"></div>
+                            <div e-column e-type="string" e-field="TransactionAmount" e-headertext="Amount" e-width="80" e-textalign="right"></div>
+                            <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="30"></div>
+                            <div e-column e-type="string" e-field="PaymentTerm" e-headertext="Payment Term" e-width="70"></div>
+                            <div e-column e-type="string" e-field="OrderSpecifi" e-headertext="Order Specific" e-width="70"></div>
+                            <div e-column e-type="string" e-field="ContractNo" e-headertext="ContractNo" e-width="80"></div>
                             <div e-column e-field="Flag" e-headertext="State" e-width="60"></div>
                         </div>
                         <script type="text/template" id="checkboxTemplate">
@@ -114,21 +116,21 @@
                 <input type="text" name="LC Opening Date" ng-disabled="true" ng-model="purchaseLCNew.LCDate" datepicker class="form-control" required tabindex="9">
             </div>
         </div>
-        <div class="form-group" show-errors>
+        <div class="form-group">
             <label class="col-sm-4 control-label">Amount<sup>*</sup></label>
-            <div class="col-sm-3 show-message">
-                <input type="text" n-decimals="2" name="Amount" ng-model="purchaseLCNew.Amount" class="form-control" maxlength="15" required tabindex="12">
+            <div class="col-sm-3">
+                <input type="text" n-decimals="2" name="Amount" ng-model="purchaseLCNew.Amount" class="form-control" maxlength="15" tabindex="12">
             </div>
             <label class="col-sm-2 control-label" style="margin-left:-25px">Currency<sup>*</sup></label>
-            <div class="col-sm-2 show-message" style="padding-right: 0px; width: 69px;">
+            <div class="col-sm-2" style="padding-right: 0px; width: 69px;">
                 <div class="select-style">
-                    <select id="currencyId" class="form-control" tabindex="15" name="Currency" ng-model="purchaseLCNew.CurrencyId" disabled ng-change="GetCurrencyExchangeRateList();" required>
+                    <select id="currencyId" class="form-control" tabindex="15" name="Currency" ng-model="purchaseLCNew.CurrencyId" disabled ng-change="GetCurrencyExchangeRateList();">
                         <option value="">--Select--</option>
                         <option ng-repeat="option in currencyList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
                 </div>
             </div>
-            <div class="col-sm-1 show-message" style="width: 17%; margin-left: -16px;">
+            <div class="col-sm-1" style="width: 17%; margin-left: -16px;">
                 <input type="text" n-decimals="2" id="Rate" name="Rate" ng-model="purchaseLCNew.Rate" disabled class="form-control text-right" tabindex="5" autocomplete="off">
             </div>
         </div>
