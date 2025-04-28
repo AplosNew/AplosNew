@@ -51,6 +51,7 @@ namespace Library.Model.Machines
         /// Description
         /// </summary>
         public string Description { get; set; }
+        public string ProcessId { get; set; }
 
         #endregion Scalar Properties
 

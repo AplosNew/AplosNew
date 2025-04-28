@@ -53,9 +53,10 @@ namespace Library.Service.Machines
 		                                            ,SC.[Description]
 		                                            ,SC.Remarks
 		                                            ,SC.Active
-		                                            ,SC.Id
+		                                            ,SC.Id,P.UserName Process,SC.ProcessId
                                             FROM [" + DbSchema.HKP + @"].[" + DbTable.CompanyGroupOperationActivity + @"] AS CGSC
                                             INNER JOIN [" + DbSchema.HKP + @"].[" + DbTable.OperationActivity + @"] AS SC ON SC.Id=CGSC.OperationActivityId
+                                            LEFT JOIN HKP.Process P ON P.Id=SC.ProcessId
                                             WHERE CGSC.CompanyGroupId='" + identity.CompanyGroupId + "'";
                 return _sqlRepository.GetGridData(parameters);
             }
