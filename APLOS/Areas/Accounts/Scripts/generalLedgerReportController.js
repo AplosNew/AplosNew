@@ -133,7 +133,7 @@ function generalLedgerReportController($scope, $rootScope, $filter, bankService,
                 $scope.report.BankMasterId = bank.BankMasterId;
             }
         }
-        $scope.hideBankPopUp();
+        $scope.hideALLBankPopUp();
     };
     bankService.getCashMasterCboList(function (result) {
         $scope.cashkMasterList = result;

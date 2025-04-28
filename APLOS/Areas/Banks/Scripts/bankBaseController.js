@@ -101,6 +101,22 @@ function bankBaseController($scope, $http, baseService) {
         angular.element(document.querySelector("#bankPopUp")).modal("show");
     };
 
+    $scope.showALLBankPopUp = function () {
+        $scope.getALLBankList = function (pageno) {
+            $scope.url = "Banks/BankMaster/GetAllBankMasterLists";
+            baseService.paginationBase($scope.url, pageno, $scope.bankParameters)
+                .then(function (result) {
+                    $scope.bankList = result.Rows;
+                    $scope.bankParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure");
+                }).finally(function () {
+                });
+        };
+        $scope.getALLBankList();
+        angular.element(document.querySelector("#aLLBankPopUp")).modal("show");
+    };
+
     $scope.showBankPaymentPopUp = function () {
         $scope.getBankList = function (pageno) {
             baseService.paginationBase("banks/bankmaster/GetHouseBankBankMasterList", pageno, $scope.bankParameters)
@@ -122,6 +138,11 @@ function bankBaseController($scope, $http, baseService) {
 
     $scope.hideBankPopUp = function () {
         angular.element(document.querySelector("#bankPopUp")).modal("hide");
+        $scope.bankIndex = -1;
+        $scope.bankSelected = null;
+    };
+    $scope.hideALLBankPopUp = function () {
+        angular.element(document.querySelector("#aLLBankPopUp")).modal("hide");
         $scope.bankIndex = -1;
         $scope.bankSelected = null;
     };
