@@ -2589,7 +2589,6 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 
 
     $scope.FinancialMaterialStoreLedgerReportExcelAll = function (reportFormat) {
-
         var reportFormat = "Excel";
        
         if (baseService.isUndefinedOrNull($scope.report.FromDate2)) {
