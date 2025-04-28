@@ -33,7 +33,8 @@ function operationActivityController(commonMessage, $scope, $rootScope, baseServ
         Description: null,
         Remarks: null,
         Active: true,
-        ProcessId: null
+        ProcessId: null,
+        MachineApplicable:false
     };
     $scope.operationActionNew = Object.assign({}, $scope.operationAction);
 
