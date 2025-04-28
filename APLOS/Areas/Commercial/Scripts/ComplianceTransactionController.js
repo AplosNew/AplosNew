@@ -7,11 +7,11 @@ function ComplianceTransactionController(cboService, commonMessage, $scope, $roo
     $scope.ComplianceList = [];
     $scope.path = 'Commercial/Compliance/';
     $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'create';
-    $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.saveUrl = $scope.path + 'CreateTransaction';
+    $scope.deleteUrl = $scope.path + 'DeleteTransaction/';
     $scope.Action = 'Save';
     $scope.searchBy = "Code"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'Remarks', name: "Remarks" }];
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'ComplianceValue', name: "ComplianceValue" }, { value: 'LocationReference', name: "LocationReference" }];
 
     $scope.getComplianceData = function () {
         $http({
@@ -25,24 +25,26 @@ function ComplianceTransactionController(cboService, commonMessage, $scope, $roo
     }
     $scope.getComplianceData();
 
+    $scope.getCTData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetCTList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelList = response.data;
+        });
+    }
+    $scope.getCTData();
+
     $scope.ModelTemp = {
-        Id: null,
-        ComplianceGroup: null,
-        Code: null,
-        Category: null,
-        SubCategory: null,
-        ItemName: null,
-        CriticalityLevel: null,
-        ComplianceValue: null,
-        Remarks: null,
-        LocationReference: null,
-        ScanApplicable: null,
-        CodeApplicable: null
+        Id: null, ValueId: null, LocationId: null, ComplianceDate: null, ComplianceTime: null, EmployeeId: null, Remarks: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.ModelNew.ComplianceTime = $scope.ModelNew.ComTime;
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -64,7 +66,7 @@ function ComplianceTransactionController(cboService, commonMessage, $scope, $roo
                 else {
                     ShowResult(response.data.Message, 'success');
                     ClearFields();
-                    $scope.getData();
+                    $scope.getCTData();
 
                 }
             }), function errorCallBack(response) {
@@ -87,7 +89,7 @@ function ComplianceTransactionController(cboService, commonMessage, $scope, $roo
                 else {
                     ShowResult(response.data.Message, 'success');
                     ClearFields();
-                    $scope.getData();
+                    $scope.getCTData();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -126,8 +128,7 @@ function ComplianceTransactionController(cboService, commonMessage, $scope, $roo
 
     $scope.SetEmployee = function (args) {
         $scope.ModelNew.EmployeeId = args.data.SystemId;
-        $scope.ModelNew.EmployeeCode = args.data.EmployeeCode;
-        $scope.ModelNew.EmployeeName = args.data.EmployeeName;
+        $scope.ModelNew.EmployeeCode = args.data.EmployeeCode + "-" + args.data.EmployeeName;
         angular.element(document.querySelector('#popUp')).modal('hide');
     };
 

@@ -87,9 +87,14 @@ namespace OTSBD
                 DateTime edoj = Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOJ"]);
                 nd = Convert.ToDateTime(doj).Day;
                 monthName = Convert.ToDateTime(doj).ToString("MMM");
-               var monthNo = Convert.ToDateTime(doj).ToString("MM");
+                var monthNo = Convert.ToDateTime(doj).ToString("MM");
+                var dosmonthNo = Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("MM");
                 var yearNo = Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("yyyy");
-                if (monthNo=="12")
+                if (monthNo == "12")
+                {
+                    yearNo = Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).AddYears(-1).ToString("yyyy");
+                }
+                if (Convert.ToInt32(monthNo) > Convert.ToInt32(dosmonthNo))
                 {
                     yearNo = Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).AddYears(-1).ToString("yyyy");
                 }
@@ -103,9 +108,9 @@ namespace OTSBD
                 }
                 var fromDate = Convert.ToDateTime(nd + monthName + yearNo).AddDays(1).ToString("dd-MMM-yyyy");
                 GetExtraDaysforServicePeriod(sEmpSystemId, fromDate.ToString(), Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("dd-MMM-yyyy"), out dsExtraDays);
-                if (dsExtraDays.Tables[0].Rows.Count>0)
+                if (dsExtraDays.Tables[0].Rows.Count > 0)
                 {
-                    ExtraDays =Convert.ToInt32(dsExtraDays.Tables[0].Rows[0]["PresentDays"].ToString());
+                    ExtraDays = Convert.ToInt32(dsExtraDays.Tables[0].Rows[0]["PresentDays"].ToString());
                 }
                 //all head and Salary info
                 GetSalaryHead(out dsSalHd);
