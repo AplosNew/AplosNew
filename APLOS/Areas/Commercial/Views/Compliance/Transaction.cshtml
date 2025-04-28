@@ -8,7 +8,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Transaction Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="TransactionDate" ng-model="ModelNew.TransactionDate" datepicker class="form-control" maxlength="100" autocomplete="off" required tabindex="1">
+                <input type="text" name="TransactionDate" ng-model="ModelNew.ComplianceDate" datepicker class="form-control" maxlength="100" autocomplete="off" required tabindex="1">
             </div>
         </div>
         <div class="form-group" show-errors>
@@ -42,7 +42,7 @@
         <div class="form-group">
             <label class="col-sm-4 control-label">Transaction Time<sup>*</sup></label>
             <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
-                <input id="TransactionTime" type="text" class="form-control input-small" ng-model="ModelNew.TransactionTime" style="margin-left:-10%; width:94%" tabindex="7">
+                <input id="TransactionTime" type="text" class="form-control input-small" ng-model="ModelNew.ComplianceTime" style="margin-left:-10%; width:94%" tabindex="7">
                 <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
             </div>
         </div>
@@ -50,7 +50,7 @@
             <label class="col-sm-4 control-label">Compliance Value<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.ComplianceValue" name="Compliance Value" ng-options="item.Id as item.ComplianceValue for item in ComplianceList" tabindex="7" required>
+                    <select class="form-control" ng-model="ModelNew.ValueId" name="Compliance Value" ng-options="item.Id as item.ComplianceValue for item in ComplianceList" tabindex="7" required>
                         <option value=""></option>
                     </select>
                 </div>
@@ -88,10 +88,10 @@
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getCTData()">
                 </div>
                 <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    <button type="button" ng-click="getCTData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                 </div>
             </div>
         </div>
@@ -103,12 +103,10 @@
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
-            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
-            <div e-column e-field="ComplianceGroup" e-headertext="Compliance Group" e-width="5"></div>
-            <div e-column e-field="Category" e-headertext="Category Name" e-width="5"></div>
-            <div e-column e-field="SubCategory" e-headertext="SubCategory Name" e-width="5"></div>
-            <div e-column e-field="ItemName" e-headertext="ItemName" e-width="5"></div>
-            <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+            <div e-column e-field="ComDate" e-format="{0:dd-MMM-yyyy}" e-type="string" e-headertext="ComplianceDate" e-width="3"></div>
+            <div e-column e-field="ComTime" e-headertext="Compliance Time" e-width="5"></div>
+            <div e-column e-field="ComplianceValue" e-headertext="ComplianceValue" e-width="5"></div>
+            <div e-column e-field="LocationReference" e-headertext="LocationReference" e-width="5"></div>
         </div>
     </div>
 </div>

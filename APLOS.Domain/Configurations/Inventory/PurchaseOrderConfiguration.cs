@@ -13,6 +13,7 @@ namespace Library.Model.Configurations.Inventory
             ToTable(nameof(PurchaseOrder), DbSchema.Transaction);
             Ignore(r => r.ModelState);
             Ignore(r => r.Amount);
+            Ignore(r => r.TransactionAmount);
         }
     }
 }

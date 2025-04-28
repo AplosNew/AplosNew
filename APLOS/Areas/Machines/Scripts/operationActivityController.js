@@ -32,7 +32,9 @@ function operationActivityController(commonMessage, $scope, $rootScope, baseServ
         UserName: null,
         Description: null,
         Remarks: null,
-        Active: true
+        Active: true,
+        ProcessId: null,
+        MachineApplicable:false
     };
     $scope.operationActionNew = Object.assign({}, $scope.operationAction);
 
@@ -52,6 +54,17 @@ function operationActivityController(commonMessage, $scope, $rootScope, baseServ
             $rootScope.toggle();
         }
     };
+
+    $scope.GetCboProcess = function () {
+        $http({
+            method: 'GET',
+            url: 'IE/OperationMaster/GetCboProcess'
+        }).then(function successCallback(response) {
+            $scope.ProcessList = response.data;
+        });
+    }
+    $scope.GetCboProcess();
+
     $scope.Save = function () {
         angular.copy($scope.operationActionNew, $scope.operationAction);
         $scope.$broadcast('show-errors-check-validity');
@@ -72,6 +85,7 @@ function operationActivityController(commonMessage, $scope, $rootScope, baseServ
                         $scope.operationActions = $filter('orderBy')($scope.operationActions, 'Sequence');
                         baseService.paginationAdd();
                         ClearFields(response.data.Sequence);
+                        $scope.getData();
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -94,6 +108,7 @@ function operationActivityController(commonMessage, $scope, $rootScope, baseServ
                             $scope.operationActions = $filter('orderBy')($scope.operationActions, 'Sequence');
                         }
                         ClearFields(response.data.Sequence);
+                        $scope.getData();
                     }
                 }, function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -116,6 +131,7 @@ function operationActivityController(commonMessage, $scope, $rootScope, baseServ
                     $scope.operationActions.splice($scope.index, 1);
                     baseService.paginationRemove();
                     ClearFields(response.data.Sequence);
+                    $scope.getData();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
