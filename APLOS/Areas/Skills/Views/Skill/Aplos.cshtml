@@ -36,18 +36,37 @@
                                 <input type="text" name="User Name" ng-model="skillNew.UserName" class="form-control" required tabindex="5" maxlength="50">
                             </div>
                         </div>
+                        <div class="form-group" id="" show-errors>
+                            <label class="col-sm-4 control-label">Skill Group<sup>*</sup></label>
+                            <div class="col-sm-8 show-message ">
+                                <div class="select-style">
+                                    <select class="form-control" id="currency" name="Skill Group" ng-model="skillNew.SkillGroupId" ng-options="item.Value as item.Text for item in SkillGroupingList" tabindex="7" required>
+                                        <option value="">---Select---</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Description</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" rows="3" ng-model="skillNew.Description" tabindex="7" maxlength="250"></textarea>
+                                <textarea class="form-control" rows="2" ng-model="skillNew.Description" tabindex="7" maxlength="250"></textarea>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Machine Applicable</label>
-                            <div class="col-sm-8">
+                            <div class="col-sm-2">
                                 <div class="checkbox-site">
                                     <label class="control-label">
                                         <input type="checkbox" ng-model="skillNew.IsMachineApplicable">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-4 control-label">Operation Applicable</label>
+                            <div class="col-sm-2">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="skillNew.OperationApplicable" tabindex="8">
                                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                     </label>
                                 </div>
@@ -81,12 +100,21 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Remarks</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" rows="3" ng-model="skillNew.Remarks" maxlength="250" tabindex="8"></textarea>
+                                <textarea class="form-control" rows="4" ng-model="skillNew.Remarks" maxlength="250" tabindex="8"></textarea>
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-4 control-label">Dashboard Applicable</label>
+                            <div class="col-sm-2">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="skillNew.DashboardApplicable" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
                             <label class="col-sm-4 control-label">Active</label>
-                            <div class="col-sm-8">
+                            <div class="col-sm-2">
                                 <div class="checkbox-site">
                                     <label class="control-label">
                                         <input type="checkbox" ng-model="skillNew.Active">
@@ -181,7 +209,10 @@
                     <th>Standard Name</th>
                     <th>User Name</th>
                     <th>Skill Category</th>
+                    <th>Skill Group</th>
                     <th>Machine Applicable</th>
+                    <th>Operation Applicable</th>
+                    <th>Dashboard Applicable</th>
                     <th>Active</th>
                 </tr>
             </thead>
@@ -193,7 +224,10 @@
                     <td>{{x.StandardName}}</td>
                     <td>{{x.UserName}}</td>
                     <td>{{x.SkillCategoryName}}</td>
+                    <td>{{x.SkillGroup}}</td>
                     <td>{{x.IsMachineApplicable?'Yes':'No'}}</td>
+                    <td>{{x.OperationApplicable?'Yes':'No'}}</td>
+                    <td>{{x.DashboardApplicable?'Yes':'No'}}</td>
                     <td>{{x.Active?'Yes':'No'}}</td>
                 </tr>
             </tbody>

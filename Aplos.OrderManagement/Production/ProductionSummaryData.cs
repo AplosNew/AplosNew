@@ -5703,7 +5703,7 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                 Select ps.Id,trkp.UserName AS Plant,trke.UserName AS Entity,PS.EntityID,PS.WorkCenterMasterId, PS.ProductionOrderID,wcm.Code AS WorkCenter,FORMAT(PS.ProductionDate,'dd-MMM-yyyy') AS ActualDate,PS.Quantity AS ActualQty,ORD.CM*PS.Quantity AS ActualCM
                 ,pt1.SPT AS SAM,ps.ProcessId,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter,mm.UserName AS Material,MA.StandardName AS Article,PL.Code ProductCode
                 ,PM.UserName AS Product,PC.UserName AS ProductCategory,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate,
-                sn.Quantity AS PlanQty,ORD.CM*sn.Quantity AS PlanCM,ORD.CM,CPL.[Username] AS ProductionShift,so.Id AS SalesOrderIdBooking,SO.LineItemReference
+                ISNULL(sn.Quantity,0) AS PlanQty,ORD.CM*ISNULL(sn.Quantity,0) AS PlanCM,ORD.CM,CPL.[Username] AS ProductionShift,so.Id AS SalesOrderIdBooking,SO.LineItemReference
                 ,wcm.StandardTimePerDay AS StandardWorkingHours, wcm.NoOfWorkStation AS StandardWorkStations,wcm.DailyFixedCost,wcm.VariableCost AS VariableCostPerHour,
                 PS.ProductionHours AS WorkingHours,SN.isBuildUp,
                 pt1.TargetPerDay AS LineTargetPerDay,PT1.TargetPerHour AS PlanTargetPerHour,PT1.PlanWorkingHoursPerDay,
@@ -5843,7 +5843,7 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
                 where PS.ProductionOrderID=Xpod.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-                ,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate,sn.Quantity AS PlanQty,ORD.CM*sn.Quantity AS PlanCM,ORD.CM
+                ,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate,ISNULL(sn.Quantity,0) AS PlanQty,ORD.CM*ISNULL(sn.Quantity,0) AS PlanCM,ORD.CM
 
                 ,CPL.[Username] AS ProductionShift,so.Id AS SalesOrderIdBooking,SO.LineItemReference
                 --,so.Id AS SalesOrderIdBooking,so.[Description] AS SalesOrderDescBooking,
