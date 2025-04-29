@@ -1,8 +1,8 @@
 ﻿'use strict';
 OperationMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function OperationMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Operation Master'; 
-    $scope.Action = 'Save';  
+    $rootScope.title = 'Operation Master';
+    $scope.Action = 'Save';
     $scope.Action1 = 'Save';
     $scope.Action2 = 'Delete';
     $scope.OperationActivityList = [];
@@ -16,8 +16,8 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.GetDataByMasterOrderIdList = [];
     $scope.EntityList = [];
     //$scope.LineList = [];
-    $scope.PositionList = []; 
-  
+    $scope.PositionList = [];
+
     $scope.path = 'IE/OperationMaster/';//ControlerName
     $scope.saveUrl = $scope.path + 'Create';
     $scope.updateUrl = $scope.path + 'Edit';
@@ -49,25 +49,25 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.modelNew = Object.assign({}, $scope.model);
 
     $scope.modelM = {
-        Id: null,       
-        CompanyGroupId:null,
+        Id: null,
+        CompanyGroupId: null,
         Sequence: null,
         OperationMasterId: null,
         EntityId: null,
         ShiftId: null,
-        LineId:null,
+        LineId: null,
         PositionId: null,
-       UserName: null,
-     Caption: null,
-      ManpowerBudget: null,
-      Active: null      
+        UserName: null,
+        Caption: null,
+        ManpowerBudget: null,
+        Active: null
     };
     $scope.modelNewM = Object.assign({}, $scope.modelM);
     $(".searchableDDL").select2();
     $scope.modelNewM.Active = true;
     $scope.modelNew.Active = true;
- 
-  
+
+
     // #region GET Display DTA ON GRID
     $scope.GriddataOperationMaster = [];
     $scope.getaldataOperationMaster = function () {
@@ -76,10 +76,10 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
             method: "GET",
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
-            url: 'IE/OperationMaster/GetOperationMaster', 
+            url: 'IE/OperationMaster/GetOperationMaster',
         }).then(function successCallback(response) {
             $scope.GriddataOperationMaster = response.data;
-           
+
             //entrydata = copy(searchdata);
         });
     };
@@ -99,8 +99,8 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
     };
     //$scope.GetOperationPositionMPBudget();
 
-    
-//#endregion
+
+    //#endregion
 
 
 
@@ -143,12 +143,12 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
             url: 'IE/OperationMaster/GetCboPosition'
         }).then(function successCallback(response) {
             $scope.PositionList = response.data;
-            $scope.modelNewM.PositionId=$('#Position option:selected').val();
+            $scope.modelNewM.PositionId = $('#Position option:selected').val();
 
         });
     }
     $scope.PositionCbo();
-    
+
     $scope.OperationActivityCbo = function () {
         $http({
             method: 'GET',
@@ -191,8 +191,6 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         });
     }
     $scope.GetCboSkillCbo();
-    
-   
 
     $scope.GetCboMachineMasterCbo = function () {
         //debugger;
@@ -208,14 +206,14 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.GetCboSkillCboByMachine = function () {
         $http({
             method: 'GET',
-            url: 'IE/OperationMaster/GetCboSkillCboByMachine?Id='+$scope.modelNew.MachineMasterId
+            url: 'IE/OperationMaster/GetCboSkillCboByMachine?Id=' + $scope.modelNew.MachineMasterId
         }).then(function successCallback(response) {
             //$scope.SkillList = response.data;
             //if (!baseService.isUndefinedOrNull(response.data))
-                $scope.modelNew.SkillId = response.data[0].SkillId;
+            $scope.modelNew.SkillId = response.data[0].SkillId;
             //else
-                //$scope.modelNew.SkillId = '';
-                //$scope.SkillList = [];
+            //$scope.modelNew.SkillId = '';
+            //$scope.SkillList = [];
         });
     }
 
@@ -231,7 +229,21 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.GetCboSkillGroupingCbo();
 
 
+    $scope.GetSkillGroupingCbo = function () {
+        for (var i = 0; i < $scope.SkillList.length; i++) {
+            if ($scope.modelNew.SkillId == $scope.SkillList[i].Value) {
+                var sgId = $scope.SkillList[i].SkillGroupId;
+                break;
+            }
+        }
 
+        for (var i = 0; i < $scope.SkillGroupingList.length; i++) {
+            if ($scope.SkillGroupingList[i].Value == sgId) {
+                $scope.modelNew.SkillGroupId = $scope.SkillGroupingList[i].Value;
+                break;
+            }
+        }
+    }
 
 
 
@@ -258,10 +270,10 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         });
     }
     $scope.GetCboProcess();
-    
-   
-   
-//#endregion
+
+
+
+    //#endregion
 
 
     // #region For AutoSequenceNo
@@ -270,13 +282,13 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
             method: 'GET',
             url: 'IE/OperationMaster/GetAutoSequence'
         }).then(function successCallback(response) {
-           $scope.modelNew.Sequence = response.data;
+            $scope.modelNew.Sequence = response.data;
         });
     }
     $scope.GeneratSequenceNo();
 
-    
- //#endregion AutoSequenceNo
+
+    //#endregion AutoSequenceNo
 
     // #region For AutoSequenceNo For ManPower
     $scope.GetAutoSequenceForManPower = function () {
@@ -291,12 +303,12 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.GetAutoSequenceForManPower();
 
 
- //#endregion AutoSequenceNo
+    //#endregion AutoSequenceNo
 
-    
 
- // #region Data Save Update and Delete
-   
+
+    // #region Data Save Update and Delete
+
 
     $scope.Save = function () {
         //debugger;
@@ -318,12 +330,12 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
                         }
                         else {
                             ShowResult(response.data.Message, 'success');
-                            $scope.Action = 'Update';                    
-                           
+                            $scope.Action = 'Update';
+
                             $scope.getaldataOperationMaster();
                             //$scope.Clear();
-                            $scope.modelNew.OperationMasterIdID = response.data.Id;  
-                     
+                            $scope.modelNew.OperationMasterIdID = response.data.Id;
+
                         }
                     }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
@@ -352,13 +364,13 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
                         throw response.data.Message;
                     });
                 }
-           }
+            }
         } catch (e) {
             ShowResult(e, 'failure');
         }
     };
 
-    
+
 
 
     $scope.Delete = function () {
@@ -381,36 +393,36 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
                 }
             });
         }
-    
+
         else
             ShowResult('First delete all line item.', 'failure');
     };
     $scope.valuePassInDelModal = function () {
-       // $scope.id = id;
+        // $scope.id = id;
         $scope.message = 'Are you sure want to permanently delete this?';
         angular.element(document.querySelector('#removerPopUp')).modal('show');
     };
     $scope.DeleteManpower = function () {
 
         if (!baseService.isUndefinedOrNull($scope.modelNewM.Id)) {
-            
-           // if ($scope.Action2 === 'Delete') {
-                $http({
-                    method: 'POST',
-                    url: $scope.deleteUrl1 + $scope.modelNewM.Id,
-                    dataType: 'JSON'
-                }).then(function (response) {
-                    if (response.data.Error === true)
-                        ShowResult(response.data.Message, 'failure');
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.GetOperationPositionMPBudget();
-                        ClearFieldss();
-                    }
-                    function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                });
+
+            // if ($scope.Action2 === 'Delete') {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl1 + $scope.modelNewM.Id,
+                dataType: 'JSON'
+            }).then(function (response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetOperationPositionMPBudget();
+                    ClearFieldss();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
             //}
         }
 
@@ -429,7 +441,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         $scope.Action = 'Save';
         $scope.OperationMaster = {};
         $scope.modelNew = { Active: true };
-       // $scope.modelNew.Active = true;
+        // $scope.modelNew.Active = true;
         $scope.modelNew.Sequence = seq;
     }
     function ClearFieldss(seq) {
@@ -439,23 +451,23 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         //$scope.modelNew.Active = true;
         $scope.modelNewM.Sequence = seq;
     }
- 
- //#endregion 
+
+    //#endregion 
 
 
     $scope.recorddoubleclick = function ($event) {
-        
+
         //debugger;       
         var x = $event;
-        $scope.OMId = x.data.Id;       
+        $scope.OMId = x.data.Id;
         $scope.modelNew.OperationMasterIdID = x.data.Id;
         $scope.modelNew.SkillId = x.data.SkillId;
         $scope.GetDataByMasterOrderIdfn($scope.OMId);
-       // $scope.GetDataByMasterOrderIdfnMP1($scope.OMId);
+        // $scope.GetDataByMasterOrderIdfnMP1($scope.OMId);
         $scope.GetOperationPositionMPBudget();
         $scope.GetAutoSequenceForManPower();
         $scope.Action = 'Update';
-       // $scope.Action1 = 'Update';
+        // $scope.Action1 = 'Update';
         //$scope.Action1 = 'Update';   
         //$scope.modelNewM.PositionId = $('#Position option:selected').val();
         if (!$rootScope.isCollapsed) $rootScope.toggle();
@@ -466,9 +478,9 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         $scope.OMId = x.data.Id;
         $scope.OperationMasterId = x.data.OperationMasterId;
         $scope.GetDataByMasterOrderIdfnMP($scope.OMId);
-        $scope.modelNewM=x.data;
+        $scope.modelNewM = x.data;
         $scope.Action1 = 'Update';
-        
+
         $scope.modelNewM.PositionId = $('#Position option:selected').val();
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     };
@@ -478,7 +490,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
             method: 'GET',
             url: 'IE/OperationMaster/GetDataByMasterOrderId?id=' + OMId
         }).then(function successCallback(response) {
-          
+
             $scope.modelNew = response.data[0];
             $scope.modelNew.OperationMasterIdID = response.data[0].Id;
 
@@ -520,17 +532,17 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
     };
     $scope.SaveManpower = function () {
         //debugger;
-  //      for (var i = 0; i < $scope.GetOperationPositionMp.length; i++) {
-  //          if ($scope.GetOperationPositionMp[i].EntityId === $scope.modelNewM.EntityId
-  //              && $scope.GetOperationPositionMp[i].PositionId === $scope.modelNewM.PositionId
-  //              && $scope.GetOperationPositionMp[i].SystemID === $scope.modelNewM.ShiftId) {
-  //              ShowResult('Combination Already Exists', 'failure');
-  //              return false;
-		//	}
-		//}
+        //      for (var i = 0; i < $scope.GetOperationPositionMp.length; i++) {
+        //          if ($scope.GetOperationPositionMp[i].EntityId === $scope.modelNewM.EntityId
+        //              && $scope.GetOperationPositionMp[i].PositionId === $scope.modelNewM.PositionId
+        //              && $scope.GetOperationPositionMp[i].SystemID === $scope.modelNewM.ShiftId) {
+        //              ShowResult('Combination Already Exists', 'failure');
+        //              return false;
+        //	}
+        //}
         angular.copy($scope.modelNewM, $scope.modelM);
-        $scope.modelM.OperationMasterId = $scope.modelNew.OperationMasterIdID;   
-        
+        $scope.modelM.OperationMasterId = $scope.modelNew.OperationMasterIdID;
+
         $scope.$broadcast('show-errors-check-validity');
         try {
             if ($scope.modelNewForm1.$valid) {
@@ -559,7 +571,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
                             ShowResult(response.data.Message, 'success');
                             //$scope.Action1 = 'Update';
                             $scope.GetOperationPositionMPBudget();
-                           $scope.Clear1();
+                            $scope.Clear1();
 
                         }
                     }), function errorCallBack(response) {
@@ -592,7 +604,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
                         else {
                             ShowResult(response.data.Message, 'success');
                             $scope.GetOperationPositionMPBudget();
-                         
+
                         }
                     }, function errorCallBack(response) {
                         //$scope.getData();
@@ -657,7 +669,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.selectPositionPopUp = function (data) {
         $scope.selectedPositionId = data.Id;
         $scope.modelNewM.UserName = data.Id + ' - ' + data.UserName;
-        $scope.modelNewM.PositionId = data.Id ;
+        $scope.modelNewM.PositionId = data.Id;
         $scope.modelNewM.PositionCode = $scope.selectedPositionId;
         $scope.closePositionPopUp();
     };
@@ -668,16 +680,16 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
     //********************** Position PopUp End ************************************
 
     //$scope.Clear
-       //********************** Opertation Master report  ************************************
+    //********************** Opertation Master report  ************************************
 
     $scope.OpertationMasterReportPdf = function (id, reportFormat) {
-        
+
         var reportFormat = "Pdf";
         //if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
         window.open('IE/OperationMaster/OperationMasterReports?reportFormat=' + reportFormat, '_blank');
     };
     $scope.OpertationMasterReportExcel = function (id, reportFormat) {
-        
+
         var reportFormat = "Excel";
         //if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
         window.open('IE/OperationMaster/OperationMasterReports?reportFormat=' + reportFormat, '_blank');

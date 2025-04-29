@@ -30,6 +30,10 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     $scope.saveUrl1 = $scope.path + 'CreateManpower';
     $scope.updateUrl1 = $scope.path + 'EditManpower';
     $scope.deleteUrl1 = $scope.path + 'DeleteManpower/';
+
+    $scope.getMGSeqUrl = $scope.path + 'GetMGAutoSequence';
+    $scope.saveMGUrl = $scope.path + 'CreateMG';
+    $scope.deleteMGUrl = $scope.path + 'DeleteMG';
     $scope.model = {
         Id: null,
         CompanyGroupId: null,
@@ -110,7 +114,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     // #region GET Display DTA ON GRID
     $scope.GriddataOperationMaster = [];
     $scope.getaldataOperationMaster = function () {
-        debugger;
+        
         $http({
             method: "GET",
             dataType: 'JSON',
@@ -152,8 +156,6 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.MachineCategoryCbo();
 
-
-
     $scope.MachineSubCategoryCbo = function () {
         $http({
             method: 'GET',
@@ -175,18 +177,6 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     $scope.GetCboOperationTypeCbo();
 
 
-
-    //$scope.GetCboOperationCategoryCbo = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'IE/MachineMasterUI/GetCboOperationCategory'
-    //    }).then(function successCallback(response) {
-    //        $scope.OperationCategoryList = response.data;
-    //    });
-    //}
-    //$scope.GetCboOperationCategoryCbo();
-
-
     $scope.GetCboSkillCbo = function () {
         $http({
             method: 'GET',
@@ -198,9 +188,8 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     $scope.GetCboSkillCbo();
 
 
-
     $scope.GetCboMachineMasterCbo = function () {
-        debugger;
+        
         $http({
             method: 'GET',
             url: 'IE/OperationMaster/GetCboMachineMaster'
@@ -212,7 +201,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
 
 
     $scope.GetCboSkillGroupingCbo = function () {
-        debugger;
+        
         $http({
             method: 'GET',
             url: 'IE/OperationMaster/GetCboSkillGrouping'
@@ -223,7 +212,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     $scope.GetCboSkillGroupingCbo();
 
     $scope.GetCbolegalDesignation = function () {
-        debugger;
+        
         $http({
             method: 'GET',
             url: 'IE/OperationMaster/GetCbolegalDesignation'
@@ -235,7 +224,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
 
 
     $scope.GetCboProcess = function () {
-        debugger;
+        
         $http({
             method: 'GET',
             url: 'IE/OperationMaster/GetCboProcess'
@@ -266,7 +255,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
 
     // #region For AutoSequenceNo For ManPower
     $scope.GetAutoSequenceForManPower = function () {
-        debugger;
+        
         $http({
             method: 'GET',
             url: 'IE/OperationMaster/GetAutoSequenceForManPower'
@@ -285,7 +274,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
 
 
     $scope.Save = function () {
-       /* debugger;*/
+       /* */
         angular.copy($scope.modelNew, $scope.model);
         $scope.$broadcast('show-errors-check-validity');
         try {
@@ -494,7 +483,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
 
 
     $scope.recorddoubleclick = function ($event) {
-        debugger;
+        
         var x = $event;
         $scope.OMId = x.data.Id;
 
@@ -508,7 +497,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     };
     $scope.recorddoubleclickMP = function ($event) {
-        debugger;
+        
         var x = $event;
         $scope.OMId = x.data.Id;
         $scope.OperationMasterId = x.data.OperationMasterId;
@@ -518,7 +507,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     };
     $scope.GetDataByMasterOrderIdfn = function (OMId) {
-        debugger;
+        
         $http({
             method: 'GET',
             url: 'IE/MachineMasterUI/GetDataByMasterOrderId?id=' + OMId
@@ -531,7 +520,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     }
 
     $scope.GetDataByMasterOrderIdfnMP = function (OMId) {
-        debugger;
+        
         $http({
             method: 'GET',
             url: 'IE/OperationMaster/GetDataByMasterOrderIdMP?id=' + OMId
@@ -748,7 +737,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     }
 
     $scope.AssetSave = function () {
-        debugger;
+        
         angular.copy($scope.modelNewA, $scope.modelA);
         $scope.$broadcast('show-errors-check-validity');
         try {
@@ -850,7 +839,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     };
 
     $scope.EntityCapacitySave = function () {
-        debugger;
+        
         angular.copy($scope.modelEntityCapacity, $scope.modelEntity);
         $scope.$broadcast('show-errors-check-validity');
         try {
@@ -947,4 +936,115 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         }
 
     }
+
+    //#region MG
+    $scope.searchMGBy = "UserName"; $scope.searchMG = "";
+    $scope.searchMGByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+
+    $scope.ModelMGList = [];
+    $scope.MachineGroupList = [];
+    $scope.getMGData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetMGList",
+            data: { column: $scope.searchMGBy, value: $scope.searchMG },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelMGList = response.data;
+            $scope.MachineGroupList = response.data;
+            ClearMGFields(response.data.Sequence);
+            $scope.GetMGSequence();
+        });
+    }
+    $scope.getMGData();
+
+    $scope.ModelMGTemp = {
+        Id: null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Description: null,
+        Remarks: null,
+        Active: true
+    };
+    $scope.MachineGroupNew = Object.assign({}, $scope.ModelMGTemp);
+
+    $scope.GetMGSequence = function () {
+        cboService.getSequence($scope.getMGSeqUrl, function (data) {
+            $scope.ModelMGTemp.Sequence = data;
+            $scope.MachineGroupNew.Sequence = data;
+        });
+    };
+    $scope.GetMGSequence();
+
+    $scope.GetMG = function (args) {
+
+        $scope.MachineGroupNew = Object.assign({}, args.data);
+        $scope.ActionMG = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.SaveMachineGroup = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.MachineGroupNewForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveMGUrl,
+                data: { 'data': $scope.MachineGroupNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearMGFields(response.data.Sequence);
+                    $scope.getMGData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.DeleteMG = function () {
+        if (!baseService.isUndefinedOrNull($scope.MachineGroupNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteMGUrl + $scope.MachineGroupNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearMGFields(response.data.Sequence);
+                    $scope.getMGData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.ClearMG = function () {
+        ClearMGFields($scope.GetMGSequence());
+        return true;
+    };
+
+    function ClearMGFields(seq) {
+        $scope.ActionMG = 'Save';
+        $scope.MachineGroupNew = Object.assign({}, $scope.ModelMGTemp);
+        $scope.MachineGroupNew.Sequence = seq;
+    }
+    //#endregion
+
 }

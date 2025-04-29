@@ -21,6 +21,8 @@ function SkillController(commonMessage, $scope, $rootScope, baseService, $routeP
             }).finally(function () {
             });
     };
+    $scope.getData();
+
     $rootScope.searchByList = [
         {
             'name': 'Sequence',
@@ -52,7 +54,7 @@ function SkillController(commonMessage, $scope, $rootScope, baseService, $routeP
         }
     ];
 
-    $scope.getData();
+ 
     $scope.skill = {
         Id: null,
         SkillCategoryId: null,
@@ -141,6 +143,7 @@ function SkillController(commonMessage, $scope, $rootScope, baseService, $routeP
                         $scope.skills = $filter('orderBy')($scope.skills, 'Sequence');
                         baseService.paginationAdd();
                         ClearFields(response.data.Sequence);
+                        $scope.getData();
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -167,6 +170,7 @@ function SkillController(commonMessage, $scope, $rootScope, baseService, $routeP
                             $scope.skills = $filter('orderBy')($scope.skills, 'Sequence');
                         }
                         ClearFields(response.data.Sequence);
+                        $scope.getData();
                     }
                 }, function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -189,6 +193,7 @@ function SkillController(commonMessage, $scope, $rootScope, baseService, $routeP
                     $scope.skills.splice($scope.index, 1);
                     baseService.paginationRemove();
                     ClearFields(response.data.Sequence);
+                    $scope.getData();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');

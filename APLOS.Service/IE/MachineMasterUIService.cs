@@ -324,7 +324,7 @@ namespace Library.Service.IE
                                   ,MM.UserName
 	                              ,MC.UserName AS MachineCategory
 	                              ,MSC.UserName AS MachineSubCategory
-	                              ,SK.UserName AS Skill
+	                              ,SK.UserName AS MachineGroup
                                   ,MM.Description
                                   ,MM.MachineMake
                                   ,MM.MachineModel
@@ -343,12 +343,12 @@ namespace Library.Service.IE
 								  ,MM.RunningAir
 								  ,MM.MaintanenceScheduleApplicable
                                   ,MM.Active
-     
+                                  ,MM.MachineGroupId
                               FROM MST.MachineMaster As MM
                              LEFT JOIN ORG.CompanyGroup AS CG on CG.ID=MM.CompanyGroupID
                              LEFT JOIN  HKP.MachineCategory AS MC on MC.Id=MM.MachineCategoryId
                              LEFT JOIN HKP. MachineSubCategory AS MSC  on MSC.ID=MM.MachineSubCategoryID
-                             LEFT JOIN HKP.Skill AS SK ON SK.ID=MM.SkillId order by MM.Sequence";
+                             LEFT JOIN [HKP].[MachineGroup] AS SK ON SK.ID=MM.MachineGroupId order by MM.Sequence";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
