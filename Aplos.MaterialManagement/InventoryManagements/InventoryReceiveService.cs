@@ -3384,8 +3384,6 @@ namespace Library.MaterialManagement.InventoryManagements
 
 
                 Head = "Fianacial Material Store";// + fromDate + "To" + toDate + "";
-
-                //Head = "Material Store Ledger ";//Material Store Ledger as on"+ " " + toDate;
                 CreateFinancialMaterialStoreLedgerAll(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate);
                 workbook.Version = ExcelVersion.Excel2016;
                 return workbook;
@@ -3488,17 +3486,19 @@ namespace Library.MaterialManagement.InventoryManagements
                 //Receive
                 //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Date");
                 //sheet1headreColIndex++;
-                var colRCVDate = sheet1headreColIndex;
-                sheet1.Range[_rowL, sheet1headreColIndex].Text = "Date";
+                
+
+                //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "MRNo");
+                var colRCVMRNo = sheet1headreColIndex;
+                sheet1.Range[_rowL, sheet1headreColIndex].Text = "MRNo";
                 sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
                 sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
                 sheet1headreColIndex++;
 
-                //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "MRNo");
-                var colRCVMRNo = sheet1headreColIndex;
-                sheet1.Range[_rowL, sheet1headreColIndex].Text = "MRNo";
+                var colRCVDate = sheet1headreColIndex;
+                sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN Date";
                 sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
                 sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
