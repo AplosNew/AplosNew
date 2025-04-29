@@ -56,6 +56,7 @@ function SkillController(commonMessage, $scope, $rootScope, baseService, $routeP
     $scope.skill = {
         Id: null,
         SkillCategoryId: null,
+        SkillGroupId: null,
         SkillCategoryName: null,
         CompanyGroupId: null,
         Sequence: null,
@@ -66,11 +67,25 @@ function SkillController(commonMessage, $scope, $rootScope, baseService, $routeP
         Description: null,
         Remarks: null,
         IsMachineApplicable: false,
-        Active: true
+        Active: true,
+        DashboardApplicable: true,
+        OperationApplicable: true
     };
     $scope.skillNew = Object.assign({}, $scope.skill);
 
     // #region name
+
+    $scope.SkillGroupingList = [];
+    $scope.GetCboSkillGroupingCbo = function () {
+        //debugger;
+        $http({
+            method: 'GET',
+            url: 'IE/OperationMaster/GetCboSkillGrouping'
+        }).then(function successCallback(response) {
+            $scope.SkillGroupingList = response.data;
+        });
+    }
+    $scope.GetCboSkillGroupingCbo();
 
     $scope.skillcategoryList = [];
     $http({

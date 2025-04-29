@@ -5,6 +5,8 @@ function operationActivityController(commonMessage, $scope, $rootScope, baseServ
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.operationActions = [];
+    $scope.operationActivityGroupList= [];
+    $scope.ModelList= [];
     $scope.path = 'Machines/operationActivity/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
@@ -23,6 +25,15 @@ function operationActivityController(commonMessage, $scope, $rootScope, baseServ
     };
     $scope.getData();
 
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+
     $scope.operationAction = {
         Id: null,
         Sequence: null,
@@ -34,7 +45,7 @@ function operationActivityController(commonMessage, $scope, $rootScope, baseServ
         Remarks: null,
         Active: true,
         ProcessId: null,
-        MachineApplicable:false
+        MachineApplicable: false
     };
     $scope.operationActionNew = Object.assign({}, $scope.operationAction);
 
@@ -150,4 +161,6 @@ function operationActivityController(commonMessage, $scope, $rootScope, baseServ
         $scope.operationActionNew.Sequence = seq;
         $scope.operationActionNew.Active = true;
     }
+
+
 };
