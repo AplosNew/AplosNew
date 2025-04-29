@@ -16,6 +16,7 @@ namespace Library.Model.Machines
         /// IsActive
         /// </summary>
         public bool Active { get; set; }
+        public bool MachineApplicable { get; set; }
 
         /// <summary>
         /// This is Sequence for sorting.
@@ -51,6 +52,7 @@ namespace Library.Model.Machines
         /// Description
         /// </summary>
         public string Description { get; set; }
+        public string ProcessId { get; set; }
 
         #endregion Scalar Properties
 

@@ -53,6 +53,33 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Bank.ToString()));
             }
         }
+        public GridModel GetAllBankMasterLists(GridParameter parameters, string companyGroupId, string companyId, string plantId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT BM.Id AS BankMasterId, BM.AccountTitle, BM.AccountNumber, BM.GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
+                                    , BM.BudgetMasterId, BU.Code AS BudgetCode, BU.UserName AS BudgetName, BM.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
+                                    , ACT.UserName AS BankAccountTypeName, BM.BankId, BM.Code AS BankCode, B.UserName AS BankName, BM.BankBranchId, BB.Code AS BankBranchCode, BB.UserName AS BankBranchName
+                                    , BM.CurrencyId, C.Code AS CurrencyCode, C.[Name] AS CurrencyName, BM.EntityId
+                                    FROM [MST].[BankMaster] AS BM
+                                    LEFT JOIN [HKP].[GLGeneralInfo] As GL ON GL.Id=BM.GLGeneralInfoId
+                                    LEFT JOIN [MST].[BudgetMaster] AS BUM ON BUM.Id=BM.BudgetMasterId
+                                    LEFT JOIN [HKP].[Budget] AS BU ON BU.Id=BUM.BudgetId
+                                    LEFT JOIN [HKP].[Activity] AS A ON A.Id=BM.ActivityId
+                                    LEFT JOIN [HKP].[BankAccountType] AS ACT ON ACT.Id=BM.BankAccountTypeId
+                                    LEFT JOIN [HKP].[Bank] AS B ON B.Id=BM.BankId
+                                    LEFT JOIN [HKP].[BankBranch] AS BB ON BB.Id=BM.BankBranchId
+                                    LEFT JOIN [SCS].Currency AS C ON C.Id=BM.CurrencyId
+                                    WHERE BM.Archive=0 AND BM.Active=1 AND BM.CompanyGroupId='" + companyGroupId + "' AND BM.CompanyId='" + companyId + "' AND (BM.PlantId='" + plantId + @"' OR BM.PlantId IS NULL) ";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Bank.ToString()));
+            }
+        }
         public List<Dictionary<string, object>> GetBankMasterCboListByEntity(string companyGroupId, string companyId, string plantId, string entityId, BankACType bankACType)
         {
             try

@@ -125,6 +125,13 @@ namespace Aplos.Areas.Banks.Controllers
             //Need To delete
             //return Json(_bankMasterService.GetBankMasterList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, entityId, bankACType), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public JsonResult GetAllBankMasterLists(GridParameter parameters)
+        {
+            AccountsBankService _accountsBankService = new AccountsBankService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsBankService.GetAllBankMasterLists(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetAllBankMasterList(GridParameter parameters)

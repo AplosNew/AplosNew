@@ -66,7 +66,7 @@
                 <div class="input-group">
                     <input type="text" name="BankName" ng-model="report.BankName" class="form-control" readonly data-toggle="tooltip" data-placement="top" title="{{report.BankName}}" tooltip>
                     <span class="input-group-btn">
-                        <button ng-click="showBankPopUp(report.EntityId);" class="btn single-small-btn" tabindex="23"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="showALLBankPopUp();" class="btn single-small-btn" tabindex="23"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </div>
@@ -148,5 +148,5 @@
     </div>
 </div>
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
-@Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
+@Html.Partial("~/Areas/Banks/Views/_ALLBankPopUp.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
