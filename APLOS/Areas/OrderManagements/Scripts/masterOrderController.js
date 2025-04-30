@@ -3421,11 +3421,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 var iSKU = $scope.skuList[0].childList[i];
                 for (var j = 0; j < $scope.skuList[0].childList.length; j++) {
                     var skuChild = $scope.skuList[0].childList[j];
-                    //if (skuChild.ValueFreeText != null && skuChild.CharacteristicsValueId != null && iSKU.ValueFreeText != null && iSKU.CharacteristicsValueId != null)
-                    //    if (iSKU.ValueFreeText.toLowerCase() == skuChild.ValueFreeText.toLowerCase() && iSKU.CharacteristicsValueId == skuChild.CharacteristicsValueId) {
-                    //        count++;
-                    //    }
-
                     if (skuChild.ValueFreeText != null || skuChild.CharacteristicsValueId != null || iSKU.ValueFreeText != null || iSKU.CharacteristicsValueId != null)
                         if (!baseService.isUndefinedOrNull(iSKU.ValueFreeText) || !baseService.isUndefinedOrNull(skuChild.ValueFreeText)) {
                             if (iSKU.ValueFreeText.toLowerCase() == skuChild.ValueFreeText.toLowerCase() || iSKU.CharacteristicsValueId == skuChild.CharacteristicsValueId) {
