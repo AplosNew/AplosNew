@@ -3184,6 +3184,7 @@
     <Content Include="Areas\Setups\Scripts\shiftGroupController.js" />
     <Content Include="Areas\Setups\Scripts\plantSettingController.js" />
     <Content Include="Areas\Setups\Views\HSNTaxPercentageNew\Aplos.cshtml" />
+    <Content Include="Areas\Skills\Scripts\skillUploadController.js" />
     <Content Include="Areas\TaskManagement\Scripts\EditControlController.js" />
     <Content Include="Areas\TaskManagement\Scripts\TaskCloserMasterController.js" />
     <Content Include="Areas\TaskManagement\Scripts\UserEditControlController.js" />
@@ -5242,6 +5243,7 @@
     <Content Include="Areas\Products\Views\PurchaseOrder\_ServiceControlServiceMasterPopUp.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesProcess.cshtml" />
     <Content Include="Areas\Setups\Views\ServiceMaster\_ServiceMasterPopUpNew.cshtml" />
+    <Content Include="Areas\Skills\Views\Skill\SkillUpload.cshtml" />
     <None Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>PayrollsDataSet.Designer.cs</LastGenOutput>
