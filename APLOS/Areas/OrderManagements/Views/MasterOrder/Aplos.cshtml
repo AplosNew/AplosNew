@@ -3,8 +3,9 @@
     .modellgModify {
         width: 1200px;
     }
+
     .modellgModifyNew {
-        width: 1500px;
+        width: 1600px;
     }
 </style>
 <div class="row">
@@ -2053,7 +2054,7 @@
 </div>
 <!-- #endregion Third Characteristics -->
 <!-- #region fourth Characteristics -->
-<div class="modal fade site-modal in" id="fourthPopup" role="dialog" data-backdrop="static" style="overflow-x: auto !important; overflow-y: auto !important;" >
+<div class="modal fade site-modal in" id="fourthPopup" role="dialog" data-backdrop="static" style="overflow-x: auto !important; overflow-y: auto !important;">
     <div class="modal-dialog modal-lg modellgModifyNew">
         <div class="modal-content">
             <div class="modal-header">
@@ -2065,11 +2066,11 @@
                     <div class="form-elements form-horizontal table-responsive modal-table">
                         <button ng-click="AddSOSKU('1');" title="Add New {{rowName}}" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i>{{rowName}}</button>
                         <button ng-click="AddSOSKU('2');" title="Add New {{columnName}}" align="left" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i>{{columnName}}</button>
-                        
+
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>
+                                    <th style="width:400px">
                                         @*<button ng-click="AddSOSKU('1');" title="Add New {{rowName}}" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> </button>*@
                                         {{rowName}}
                                     </th>
@@ -2099,27 +2100,39 @@
                                 </tr>
                             </thead>
                             <tbody>
+
+                                
+                               
+
                                 <tr ng-repeat="x in skuList">
-                                    <td>
-                                        <input ej-dropdownlist e-enablefiltersearch="true" allow-paging="true" allow-Adding="true" allow-Editing="true"
-                                               e-datasource="char1ValueList" e-value="x.CharacteristicsValueId" e-fields-value="Value" toolbar-Settings="toolbarItems" edit-Settings="editSettings"
-                                               e-fields-text="Text" e-change="verifySkuMatrix" e-width="100%" />
+                                    <td style="width:400px">
                                         <div ng-class="{'has-error':x.isDuplicate == true, '':x.isDuplicate != true}">
-                                            <input type="text" ng-model="x.ValueFreeText" class="form-control" ng-keyup="verifySkuMatrix();" maxlength="25" />
-                                            <button ng-click="showColorPopup($index);" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
-                                        </div>
-                                        @*<span class="input-group-btn">
-                                            
-                                        </span>*@
-                                    </td>
-                                    <td ng-repeat="y in x.childList">
-                                        <input type="text" n-decimals="2" ng-model="y.Qty" ng-keyup="sumQty(x, $parent.$index );" class="form-control text-right" />
-                                    </td>
-                                    <td>
-                                        <button ng-click="removeSkuMatrixRow($index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove" @*ng-disabled="skuList.length <= 1"*@><i class="glyphicon glyphicon-remove"></i></button>
-                                    </td>
-                                </tr>
-                            </tbody>
+                                            <div class="input-group">
+                                                <div class="col-sm-6" style="padding-right:0px;">
+                                                    <input ej-dropdownlist e-enablefiltersearch="true" allow-paging="true" allow-Adding="true" allow-Editing="true"
+                                                           e-datasource="char1ValueList" e-value="x.CharacteristicsValueId" e-fields-value="Value" toolbar-Settings="toolbarItems" edit-Settings="editSettings"
+                                                           e-fields-text="Text" e-change="verifySkuMatrix" />@*e-width="100%"*@
+                                                    </div>
+                                                    <div class="col-sm-4" style="padding-left:0px;">
+                                                        <input type="text" ng-model="x.ValueFreeText" class="form-control" ng-keyup="verifySkuMatrix();" maxlength="25" />
+                                                       
+                                                    </div>
+                                                    <div class="col-sm-2" style="padding-left:0px;">
+                                                        <span class="input-group-btn">
+                                                            <button ng-click="showColorPopup($index);" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                </div>
+                                        </td>
+                                        <td ng-repeat="y in x.childList">
+                                            <input type="text" n-decimals="2" ng-model="y.Qty" ng-keyup="sumQty(x, $parent.$index );" class="form-control text-right" />
+                                        </td>
+                                        <td>
+                                            <button ng-click="removeSkuMatrixRow($index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove" @*ng-disabled="skuList.length <= 1"*@><i class="glyphicon glyphicon-remove"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
                         </table>
                         <button ng-click="addSkuMatrixRow();" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add </button>
                     </div>
