@@ -71,7 +71,8 @@ function SkillController(commonMessage, $scope, $rootScope, baseService, $routeP
         IsMachineApplicable: false,
         Active: true,
         DashboardApplicable: true,
-        OperationApplicable: true
+        OperationApplicable: true,
+        OperationActivityId:null
     };
     $scope.skillNew = Object.assign({}, $scope.skill);
 
@@ -96,6 +97,16 @@ function SkillController(commonMessage, $scope, $rootScope, baseService, $routeP
     }).then(function successCallback(response) {
         $scope.skillcategoryList = response.data;
     });
+
+    $scope.OperationActivityCbo = function () {
+        $http({
+            method: 'GET',
+            url: 'IE/OperationMaster/GetCboOperationActivity'
+        }).then(function successCallback(response) {
+            $scope.OperationActivityList = response.data;
+        });
+    }
+    $scope.OperationActivityCbo();
 
     // #endregion
 
