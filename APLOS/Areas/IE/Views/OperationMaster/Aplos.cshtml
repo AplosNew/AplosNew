@@ -145,7 +145,7 @@
                     <div class="col-sm-8 show-message ">
                         <div class="select-style">
                             <select class="form-control" id="currency" name="Operation Activity" ng-model="modelNew.OperationActivityId" ng-options="item.Value as item.Text for item in OperationActivityList" tabindex="1" required>
-                                <option value="">---Please Select---</option>
+                                <option value="">---Select---</option>
                             </select>
                         </div>
                     </div>
@@ -163,7 +163,7 @@
                     <div class="col-sm-8 show-message ">
                         <div class="select-style">
                             <select class="form-control" id="currency" name="Operation Type" ng-model="modelNew.OperationTypeId" ng-options="item.Value as item.Text for item in OperationTypeList" tabindex="2" required>
-                                <option value="">---Please Select---</option>
+                                <option value="">---Select---</option>
                             </select>
                         </div>
                     </div>
@@ -177,7 +177,7 @@
                         <div class="select-style">
                             <select class="form-control" id="currency" name="Operation Category" ng-model="modelNew.OperationCategoryId" ng-options="item.Value as item.Text for item in OperationCategoryList" tabindex="3" required>
 
-                                <option value="">---Please Select---</option>
+                                <option value="">---Select---</option>
                             </select>
                         </div>
                     </div>
@@ -192,7 +192,7 @@
                     <div class="col-sm-8 show-message ">
                         <div class="select-style">
                             <select class="form-control" id="currency" name="Type" ng-model="modelNew.Type" tabindex="4" required>
-                                <option value="">---Please Select---</option>
+                                <option value="">---Select---</option>
                                 <option value="ACTIVITY">ACTIVITY</option>
                                 <option value="OPERATION">OPERATION</option>
                             </select>
@@ -216,8 +216,8 @@
                     <div class="col-sm-8 show-message ">
                         <div class="select-style">
                             <select class="form-control" id="currency" name="Machine Master" ng-disabled="modelNew.Type!='OPERATION'" ng-model="modelNew.MachineMasterId" ng-options="item.Value as item.Text for item in MachineMasterList"
-                                    tabindex="5" ng-change="GetCboSkillCboByMachine();">
-                                <option value="">---Please Select---</option>
+                                    tabindex="5" @*ng-change="GetCboSkillCboByMachine();"*@>
+                                <option value="">---Select---</option>
                             </select>
                         </div>
                     </div>
@@ -230,9 +230,9 @@
                     <div class="col-sm-8 show-message ">
 						<div class="select-style">
 							@*modelNew.Type!='ACTIVITY'*@
-							<select class="form-control" id="currency" name="Skill" ng-disabled="modelNew.Type!='ACTIVITY'" ng-model="modelNew.SkillId" ng-options="item.Value as item.Text for item in SkillList"
+							<select class="form-control" id="Skill" name="Skill" @*ng-disabled="modelNew.Type!='ACTIVITY'"*@ ng-change="GetSkillGroupingCbo();" ng-model="modelNew.SkillId" ng-options="item.Value as item.Text for item in SkillList"
 									tabindex="6">
-								<option value="">---Please Select---</option>
+								<option value="">---Select---</option>
 							</select>
 						</div>
                     </div>
@@ -244,8 +244,8 @@
                     <label class="col-sm-4 control-label">Skill Group<sup>*</sup></label>
                     <div class="col-sm-8 show-message ">
                         <div class="select-style">
-                            <select class="form-control" id="currency" name="Skill Group" ng-model="modelNew.SkillGroupId" ng-options="item.Value as item.Text for item in SkillGroupingList" tabindex="7" required>
-                                <option value="">---Please Select---</option>
+                            <select class="form-control" id="SkillGroup" name="Skill Group" ng-model="modelNew.SkillGroupId" disabled ng-options="item.Value as item.Text for item in SkillGroupingList" tabindex="7" required>
+                                <option value="">---Select---</option>
                             </select>
                         </div>
                     </div>
@@ -264,7 +264,7 @@
                         <div class="select-style">
                             <select class="form-control" id="currency" name="Legal Designation" ng-model="modelNew.LegalDesignationId" ng-options="item.Value as item.Text for item in legalDesignationList"
                                     tabindex="8">
-                                <option value="">---Please Select---</option>
+                                <option value="">---Select---</option>
                             </select>
                         </div>
                     </div>
@@ -277,7 +277,7 @@
                     <div class="col-sm-8 show-message ">
                         <div class="select-style">
                             <select class="form-control" id="Process" name="Process" ng-model="modelNew.ProcessId" ng-options="item.Value as item.Text for item in ProcessList" tabindex="9">
-                                <option value="">---Please Select---</option>
+                                <option value="">---Select---</option>
                             </select>
                         </div>
                     </div>
@@ -371,7 +371,7 @@
                                 <div class="col-sm-8 show-message ">
                                     <div class="select-style">
                                         <select class="form-control" id="Entity" name="Entity" ng-model="modelNewM.EntityId" ng-options="item.Value as item.Text for item in EntityList" tabindex="9">
-                                            <option value="">---Please Select---</option>
+                                            <option value="">---Select---</option>
                                         </select>
                                     </div>
                                 </div>
@@ -385,7 +385,7 @@
                         <div class="input-group">
                             <div class="select-style">
                                 <select style="width:280px;" class="form-control searchableDDL" id="Position" name="Position" ng-model="modelNewM.PositionId" ng-options="item.Value as item.Text for item in PositionList" tabindex="9">
-                                    <option value="">---Please Select---</option>
+                                    <option value="">---Select---</option>
                                 </select>
                             </div>
 
@@ -405,7 +405,7 @@
                                     <div class="input-group">
                                         <div class="select-style">
                                             <select style="width:455px;" class="form-control searchableDDL" id="Position" name="Position" ng-model="modelNewM.PositionId" ng-options="item.Value as item.Text for item in PositionList" tabindex="9">
-                                                <option value="">---Please Select---</option>
+                                                <option value="">---Select---</option>
                                             </select>
                                         </div>
 
@@ -435,7 +435,7 @@
                             <div class="col-sm-8 show-message ">
                                 <div class="select-style">
                                     <select class="form-control" id="Shift" name="Shift" ng-model="modelNewM.ShiftId" ng-options="item.Value as item.Text for item in ShiftList" tabindex="19">
-                                        <option value="">---Please Select---</option>
+                                        <option value="">---Select---</option>
                                     </select>
                                 </div>
                             </div>
@@ -448,7 +448,7 @@
                 <div class="col-sm-8 show-message ">
                     <div class="select-style">
                         <select class="form-control" id="Line" name="Line" ng-model="modelNewM.LineId" ng-options="item.Value as item.Text for item in LineList" tabindex="9">
-                            <option value="">---Please Select---</option>
+                            <option value="">---Select---</option>
                         </select>
                     </div>
                 </div>

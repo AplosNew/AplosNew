@@ -43,6 +43,7 @@ namespace Library.Model.IE
         public string MachinePerticulars { get; set; }
 
         public string SkillId { get; set; }
+        public string MachineGroupId { get; set; }
         public decimal ProductionMachineQty { get; set; }
         public decimal SampleMachineQty { get; set; }
         public decimal TrainingMachineQty { get; set; }

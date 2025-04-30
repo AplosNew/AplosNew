@@ -209,7 +209,7 @@ namespace Library.Service.IE
             {
 
                 return from m in _SkillService.Query().Select().OrderBy(r => r.UserName)
-                       select new { Text = m.UserName, Value = m.Id };
+                       select new { Text = m.UserName, Value = m.Id,SkillGroupId=m.SkillGroupId };
             }
             catch (Exception ex)
             {
