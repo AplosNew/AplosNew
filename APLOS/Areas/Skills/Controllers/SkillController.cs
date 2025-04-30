@@ -33,6 +33,12 @@ namespace Aplos.Areas.Skills.Controllers
         {
             return View();
         }
+
+        public ActionResult SkillUpload()
+        {
+            return View();
+        }
+
         #endregion
 
         #region -- Operations
