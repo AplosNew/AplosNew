@@ -1103,5 +1103,9 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/VoucherType/VoucherTypeAdditionalinfo",
             controller: "voucherTypeAdditionalInfoController"
         })
+        .when('/skill-upload', {
+            templateUrl: 'Accounts/BalanceSheetScheduling/SkillUpload',
+            controller: 'skillUploadController'
+        })
         ;
 } 

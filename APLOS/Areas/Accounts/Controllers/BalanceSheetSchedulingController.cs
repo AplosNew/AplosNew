@@ -48,6 +48,10 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View();
         }
+        public ActionResult SkillUpload()
+        {
+            return View();
+        }
         #endregion
 
         [HttpGet, Authorize]
@@ -183,7 +187,7 @@ namespace Aplos.Areas.Accounts.Controllers
                             ,SalaryHead= CASE WHEN ISNULL(SD.Id,'')<>'' THEN SD.Id ELSE D.Component END,D.Component,D.BalanceSheetSchedulingId
                             FROM [dbo].[FormulaDetail] D
                             LEFT JOIN dbo.BalanceSheetScheduling SD ON SD.Id=D.BalanceSheetSchedulingHeadId
-                            WHERE D.BalanceSheetSchedulingId='"+ balanceSheetSchedulingId + "' Order By D.Sequence";
+                            WHERE D.BalanceSheetSchedulingId='" + balanceSheetSchedulingId + "' Order By D.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -365,7 +369,7 @@ namespace Aplos.Areas.Accounts.Controllers
                                 vm.UserReport = dsExcel.Tables[0].Rows[i][20].ToString().Trim();
                                 vm.IsAllowed = dsExcel.Tables[0].Rows[i][21].ToString().Trim();
                                 vm.AllowedDays = Convert.ToInt32(dsExcel.Tables[0].Rows[i][22]);
-                                if (!string.IsNullOrEmpty(dsExcel.Tables[0].Rows[i][23].ToString())| !string.IsNullOrWhiteSpace(dsExcel.Tables[0].Rows[i][23].ToString()))
+                                if (!string.IsNullOrEmpty(dsExcel.Tables[0].Rows[i][23].ToString()) | !string.IsNullOrWhiteSpace(dsExcel.Tables[0].Rows[i][23].ToString()))
                                 {
                                     vm.MonthDay = Convert.ToInt32(dsExcel.Tables[0].Rows[i][23]);
                                 }
@@ -754,7 +758,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        
+
                         xlsCol += 1;
                         sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["OptionNo"].ToString().Trim();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
@@ -1311,5 +1315,335 @@ namespace Aplos.Areas.Accounts.Controllers
 
         }
 
+        #region SkillUpload
+        [HttpGet, Authorize]
+        public ActionResult GetSkillSampleFile(ReportFormat reportFormat)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            IWorkbook workbook = GetSampleFileEmployeeSkill(identity.Name);
+            var reportFileName = "Employee Skill Data upload Sample File";
+
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+
+        }
+
+        public IWorkbook GetSampleFileEmployeeSkill(string Name)
+        {
+            #region declare
+            clsReport objRpt = null;
+            OTSBD.clsStaticInfo objStatic = null;
+            objStatic = new OTSBD.clsStaticInfo();
+            string OTConsiderOn = string.Empty;
+
+            #endregion
+            try
+            {
+                ReportUtility ru = new ReportUtility();
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                var workbook = ru.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2013;
+
+                objRpt = new clsReport();
+                string toDay = DateTime.Now.ToString("dd-MMM-yyyy");
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+
+                #region Lunch Out
+                IWorksheet sheet1 = null;
+                sheet1 = workbook.Worksheets[0];
+                IWorksheet sheetSource = null;
+                sheetSource = workbook.Worksheets[1];
+                xlsRow = 1;
+
+                #region ------------------Column Header------------------
+
+
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillId"); int colSkillId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillUserName"); int colSkillUserName = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillGroup"); int colSkillGroup = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillCategory"); int colSkillCategory = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MachineApplicable"); int colMachineApplicable = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OperationApplicable"); int colOperationApplicable = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DashboardApplicable"); int colDashboardApllicable = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmpSystemId"); int colEmpSystemId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remark"); int colRemark = xlsCol;
+
+                endXlsCol = xlsCol;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+
+                xlsRow++;
+
+                #endregion ------------------Column Header------------------
+
+                DataTable dtSkill = GetSkillData();
+                for (int i = 0; i < dtSkill.Rows.Count; i++)
+                {
+                    sheet1[xlsRow, colSkillId].Text = dtSkill.Rows[i]["SkillId"].ToString();
+                    sheet1[xlsRow, colSkillUserName].Text = dtSkill.Rows[i]["SkillUserName"].ToString();
+                    sheet1[xlsRow, colSkillGroup].Text = dtSkill.Rows[i]["SkillGroup"].ToString();
+                    sheet1[xlsRow, colSkillCategory].Text = dtSkill.Rows[i]["SkillCategory"].ToString();
+                    sheet1[xlsRow, colMachineApplicable].Text = dtSkill.Rows[i]["MachineApplicable"].ToString();
+                    sheet1[xlsRow, colOperationApplicable].Text = dtSkill.Rows[i]["OperationApplicable"].ToString();
+                    sheet1[xlsRow, colDashboardApllicable].Text = dtSkill.Rows[i]["DashboardApplicable"].ToString();
+                    xlsRow++;
+                }
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.CellStyle.Font.Size = 10;
+                sheet1.Range["A1"].CellStyle.Font.Size = 10;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                sheet1.Name = "Sheet1";
+                #endregion Page Setup
+
+                #endregion  Lunch Out
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable GetSkillData()
+        {
+            var cmdText = @"Select S.Id SkillId,S.UserName SkillUserName,SG.UserName SkillGroup,SC.UserName SkillCategory
+,MachineApplicable=CASE WHEN IsMachineApplicable=1 THEN 'Yes' ELSE 'No' END
+,OperationApplicable=CASE WHEN OperationApplicable=1 THEN 'Yes' ELSE 'No' END
+,DashboardApplicable=CASE WHEN DashboardApplicable=1 THEN 'Yes' ELSE 'No' END
+from HKP.Skill S
+LEFT JOIN [SCS].[SkillGrouping] SG ON SG.Id=S.SkillGroupId
+LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId ";
+            return _sqlRepository.GetDataTable(cmdText);
+
+
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult ImportSkillData(FormCollection form)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                List<EmployeeSkill> data = new List<EmployeeSkill>();
+
+                var file = Request.Files["file"];
+
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                else
+                {
+                    throw new CustomException(Resources.ExcelUploadError);
+                }
+                string path = "";
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetAttendanceRawData(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+                FileInfo docFile;
+                string exception = "\r\n";
+                try
+                {
+                    try
+                    {
+                        string connString = string.Empty;
+                        ExcelEngine excelEngine = null;
+                        IApplication application = null;
+                        IWorkbook workbook = null;
+
+                        excelEngine = new ExcelEngine();
+                        application = excelEngine.Excel;
+                        workbook = excelEngine.Excel.Workbooks.Open(path);
+
+                        DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+                        DataSet dsExcel = new DataSet();
+                        dsExcel.Tables.Add(dt);
+
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            exception += "\r\nTrying to delete";
+                            docFile.Delete();
+                        }
+
+                        if (dsExcel.Tables[0].Rows.Count > 0)
+                        {
+                            for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
+                            {
+                                EmployeeSkill vm = new EmployeeSkill();
+
+                                vm.SkillId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.SkillUserName = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                vm.SkillGroup = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
+                                vm.SkillCategory = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
+                                vm.MachineApplicable = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
+                                vm.OperationApplicable = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
+                                vm.DashboardApllicable = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.Remark = dsExcel.Tables[0].Rows[i][7].ToString().Trim();
+                                vm.EmpSystemId = dsExcel.Tables[0].Rows[i][8].ToString().Trim();
+                                data.Add(vm);
+
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Please Select File");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            docFile.Delete();
+                        }
+                        throw (ex);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    //throw ex;
+                }
+                finally
+                {
+                }
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost,Authorize]
+        public ActionResult SaveEmployeeSkillData(IEnumerable<EmployeeSkill> skillDataList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster;
+
+            foreach (var item in skillDataList)
+            {
+                string sql = "SELECT * FROM [dbo].[EmployeeSkill] WHERE Id='" + item.Id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    
+
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+                    dr["EmpSystemId"] = item.EmpSystemId;
+                    dr["SkillId"] = item.SkillId;
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+                else
+                {
+                    //edit
+                    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                    dr.BeginEdit();
+                    
+                    dr["EmpSystemId"] = item.EmpSystemId;
+                    dr["SkillId"] = item.SkillId;
+
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = DateTime.Now;
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+
+                    dr.EndEdit();
+                }
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+            }
+            return Json(new { Message = AplosMessage.Insert });
+        }
+
+
+        #endregion
+
+    }
+
+    public class EmployeeSkill
+    {
+        public int Id { get; set; }
+        public string SkillId { get; set; }
+        public string SkillUserName { get; set; }
+        public string SkillGroup { get; set; }
+        public string SkillCategory { get; set; }
+        public string MachineApplicable { get; set; }
+        public string OperationApplicable { get; set; }
+        public string DashboardApllicable { get; set; }
+        public string EmpSystemId { get; set; }
+        public string Remark { get; set; }
     }
 }

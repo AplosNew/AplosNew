@@ -8,7 +8,13 @@ using System.Web.Mvc;
 using Library.Crosscutting.Security;
 using System.Threading;
 using System.Web.Script.Serialization;
-
+using System;
+using System.Data;
+using Library.Service.Helpers;
+using Syncfusion.XlsIO;
+using Library.Data.Sql;
+using OTSBD;
+using Library.Model.Enums;
 #endregion
 
 namespace Aplos.Areas.Skills.Controllers
@@ -18,12 +24,14 @@ namespace Aplos.Areas.Skills.Controllers
         #region Constructor
         private readonly ISkillService _skillService;
         private readonly ISkillProcessService _skillProcessService;
+        private readonly ISqlRepository _sqlRepository;
         public SkillController(
               ISkillService skillService
-            , ISkillProcessService skillProcessService)
+            , ISkillProcessService skillProcessService,ISqlRepository R)
         {
             _skillService = skillService;
             _skillProcessService = skillProcessService;
+            _sqlRepository = R;
         }
         #endregion
 
@@ -34,10 +42,7 @@ namespace Aplos.Areas.Skills.Controllers
             return View();
         }
 
-        public ActionResult SkillUpload()
-        {
-            return View();
-        }
+       
 
         #endregion
 
@@ -115,5 +120,6 @@ namespace Aplos.Areas.Skills.Controllers
             return Json(new { Sequence = _skillService.GetAutoSequence(), Message = AplosMessage.Deleted });
         }
         #endregion
+
     }
 }

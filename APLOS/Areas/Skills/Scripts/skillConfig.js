@@ -8,10 +8,7 @@
             templateUrl: 'skills/skill/aplos',
             controller: 'skillController'
         })
-        .when('/skill-upload', {
-            templateUrl: 'skills/skill/SkillUpload',
-            controller: 'skillUploadController'
-        })
+        
         ;
 }
 SkillConfig.$inject = ['$routeProvider', '$locationProvider'];
