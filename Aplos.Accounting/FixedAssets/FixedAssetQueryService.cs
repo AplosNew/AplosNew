@@ -3433,8 +3433,8 @@ SELECT CapitalizationMasterId,	CapitalizationChildId,	DepreciationRules
 , (AdditionAssetAmountFTP)CapitalizedAmountFTP
 ,(( AssetAmount +AdditionAssetAmount+AdditionAssetAmountFTP)-ISNULL((OpeningDepreciationAmount+AdjustmentDepreciationAmount),0)) TotalAmount
 ,ISNULL((DepreciationAmountFTP),0)DepreciationAmount
-,DisposeAmount=case when DisposeAmount>0 then ISNULL((DisposeAmount),0)-ISNULL((OpeningDepreciationAmount+AdjustmentDepreciationAmount),0) else 0 end
-,(( AssetAmount +AdditionAssetAmount+AdditionAssetAmountFTP)-ISNULL((OpeningDepreciationAmount+AdjustmentDepreciationAmount+DepreciationAmountFTP),0)-(case when DisposeAmount>0 then ISNULL((DisposeAmount),0)-ISNULL((OpeningDepreciationAmount+AdjustmentDepreciationAmount),0) else 0 end)) NetAmount 	
+,DisposeAmount=case when DisposeAmount>0 then ISNULL((DisposeAmount),0)-ISNULL((OpeningDepreciationAmount+AdjustmentDepreciationAmount+DepreciationAmountFTP),0) else 0 end
+,(( AssetAmount +AdditionAssetAmount+AdditionAssetAmountFTP)-ISNULL((OpeningDepreciationAmount+AdjustmentDepreciationAmount+DepreciationAmountFTP),0)-(case when DisposeAmount>0 then ISNULL((DisposeAmount),0)-ISNULL((OpeningDepreciationAmount+AdjustmentDepreciationAmount+DepreciationAmountFTP),0) else 0 end)) NetAmount 	
 
 FROM(SELECT ARC.CapitalizationMasterId,ARC.CapitalizationChildId,FADR.DepreciationRules,ARC.Amount AssetAmount,ISNULL(ARC.AdjustmentDepreciationAmount,0)AdjustmentDepreciationAmount,ARC.NetAmount
 							,FAI.FixedAssetMasterId,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem, AR.FixedAssetItemId,ARC.AssetRegisterId,REPLACE(CONVERT(VARCHAR(11), CM.CapitalizationDate, 106), ' ', '-') CapitalizationDate
@@ -3482,11 +3482,7 @@ FROM(SELECT ARC.CapitalizationMasterId,ARC.CapitalizationChildId,FADR.Depreciati
 							left join mst.BudgetMasterActivity bma ON bma.BudgetMasterId=VD.BudgetMasterId and bma.ActivityId=VD.ActivityId
 							LEFT JOIN [TRN].[FixedAssetRegisterDisposedDetail] FADD ON FADD.AssetRegisterId=AR.iD
 		                WHERE ARC.CompanyGroupId=@companyGroupId AND ARC.CompanyId=@companyId  AND ARC.PlantId=@plantId  AND ARC.VoucherDetailId is not null AND CM.Type='New'
---						AND ARC.AssetRegisterId NOT IN (SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail] fadd 
---join trn.FixedAssetRegisterDisposed fad on fad.Id=fadd.FixedAssetRegisterDisposedId
---where fad.DisposedVoucherId<>'')
 					    AND convert(Date,CM.CapitalizationDate) <  @fromDate ) T
-				        
 
 UNION ALL
 SELECT CapitalizationMasterId,	CapitalizationChildId,	DepreciationRules
@@ -3534,9 +3530,7 @@ FROM(SELECT ARC.CapitalizationMasterId,ARC.CapitalizationChildId,FADR.Depreciati
 							left join mst.BudgetMasterActivity bma ON bma.BudgetMasterId=VD.BudgetMasterId and bma.ActivityId=VD.ActivityId
 							LEFT JOIN [TRN].[FixedAssetRegisterDisposedDetail] FADD ON FADD.AssetRegisterId=AR.iD
 		                WHERE ARC.CompanyGroupId=@companyGroupId AND ARC.CompanyId=@companyId  AND ARC.PlantId=@plantId  AND ARC.VoucherDetailId is not null AND CM.Type='New'
---						AND ARC.AssetRegisterId NOT IN (SELECT * FROM [TRN].[FixedAssetRegisterDisposedDetail] fadd 
---join trn.FixedAssetRegisterDisposed fad on fad.Id=fadd.FixedAssetRegisterDisposedId
---where fad.DisposedVoucherId<>'')
+
 					    AND convert(Date,CM.CapitalizationDate) BETWEEN  @fromDate AND @toDate) T
 				        ORDER BY FixedAssetMaster,FixedAssetItem  ";
             return _sqlRepository.GetDataCollection(sql);
