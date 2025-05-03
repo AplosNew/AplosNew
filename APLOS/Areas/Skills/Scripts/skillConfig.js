@@ -8,6 +8,7 @@
             templateUrl: 'skills/skill/aplos',
             controller: 'skillController'
         })
+        
         ;
 }
 SkillConfig.$inject = ['$routeProvider', '$locationProvider'];

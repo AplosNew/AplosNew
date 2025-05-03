@@ -3,6 +3,10 @@
     .modellgModify {
         width: 1200px;
     }
+
+    .modellgModifyNew {
+        width: 1600px;
+    }
 </style>
 <div class="row">
     <div ng-form="fileNewForm" id="ganttContainer">
@@ -1405,7 +1409,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Line Item Reference</label>
                             <div class="col-sm-8">
-                                <input type="text" name="LineItemReference" style="text-align:left" ng-model="soModel.LineItemReference"  ng-keyup="CheckSpecialLineItemReferenceCharecter();" class="form-control text-right" tabindex="107">
+                                <input type="text" name="LineItemReference" style="text-align:left" ng-model="soModel.LineItemReference" ng-keyup="CheckSpecialLineItemReferenceCharecter();" class="form-control text-right" tabindex="107">
                             </div>
                         </div>
                         <div class="form-group">
@@ -1793,119 +1797,123 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body form-element-ctrl form-horizontal">
-                <div class="col-xs-12 col-sm-6 col-md-6 hide">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">{{char1.Name}}<sup>*</sup></label>
-                        <div class="col-sm-8">
-                            <div class="select-style">
-                                <select class="form-control" ng-model="char1.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
-                                    <option value=""></option>
-                                </select>
+                <div class="col-lg-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div class="col-xs-12 col-sm-6 col-md-6 hide">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">{{char1.Name}}<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="char1.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Quantity<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" n-decimals="2" name="Qty" ng-model="char1.Qty" class="form-control text-right">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Quantity<sup>*</sup></label>
-                        <div class="col-sm-8">
-                            <input type="text" n-decimals="2" name="Qty" ng-model="char1.Qty" class="form-control text-right">
+                        <div class="col-xs-12 col-sm-6 col-md-6 hide">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Value</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="ValueFreeText" ng-model="char1.ValueFreeText" maxlength="15" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="common-btn hide" style="padding-right: 15px;">
+                            <ul class="list-inline text-right">
+                                <li>
+                                    <button ng-click="charSave();" class="btn"><i class=""></i> Save</button>
+                                </li>
+                                <li>
+                                    <button ng-click="firstSkuClosePopUp();" class="btn">Close</button>
+                                </li>
+                                <li>
+                                    <button ng-click="genericDelete(null, 'first');" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            {{char1.Name}}
+                                        </th>
+                                        <th>Value FreeText</th>
+                                        <th>Quantity</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in firstSKUList">
+                                        <td>
+                                            @*<div class="select-style">
+                                                    <select class="form-control" ng-model="x.CharacteristicsValueId" ng-change="verifyFirstSkuList()" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>*@
+                                            <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="char1ValueList" e-value="x.CharacteristicsValueId" e-fields-value="Value" e-fields-text="Text" e-change="verifySkuMatrix" e-width="100%" />
+
+                                        </td>
+                                        <td ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
+                                            <input type="text" name="ValueFreeText" ng-model="x.ValueFreeText" maxlength="15" class="form-control" ng-keyup="verifyFirstSkuList()" />
+
+                                        </td>
+                                        <td>
+                                            <input type="text" n-decimals="2" name="Qty" ng-model="x.Qty" maxlength="15" class="form-control text-right" />
+
+                                        </td>
+                                        <td class="text-right table-td">
+                                            <ul class="list-inline action-list">
+                                                <li class="hide">
+                                                    <button ng-click="firstSkuEdit(x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i></button>
+                                                </li>
+                                                <li>
+                                                    <button ng-click="removeFirstSkuList(x.Id, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove" ng-disabled="firstSKUList.length <= 1"><i class="glyphicon glyphicon-remove"></i></button>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <button ng-click="addFirstSkuList();" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add </button>
+                                        </td>
+                                        <td colspan="2" class="text-right">
+                                            <strong ng-show="firstSKUList.length > 0">Total = {{firstSKUList | sumByKey : 'Qty' | number }}</strong>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="common-btn" style="padding-right: 15px;">
+                            <ul class="list-inline text-right">
+                                <li>
+                                    <button ng-click="charSave(1);" class="btn"><i class=""></i> Save</button>
+                                </li>
+                                <li>
+                                    <button ng-click="firstSkuClosePopUp();" class="btn">Close</button>
+                                </li>
+                            </ul>
                         </div>
                     </div>
-                </div>
-                <div class="col-xs-12 col-sm-6 col-md-6 hide">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Value</label>
-                        <div class="col-sm-8">
-                            <input type="text" name="ValueFreeText" ng-model="char1.ValueFreeText" maxlength="15" class="form-control">
-                        </div>
-                    </div>
-                </div>
-                <div class="common-btn hide" style="padding-right: 15px;">
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="charSave();" class="btn"><i class=""></i> Save</button>
-                        </li>
-                        <li>
-                            <button ng-click="firstSkuClosePopUp();" class="btn">Close</button>
-                        </li>
-                        <li>
-                            <button ng-click="genericDelete(null, 'first');" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button>
-                        </li>
-                    </ul>
-                </div>
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>
-                                    {{char1.Name}}
-                                </th>
-                                <th>Value FreeText</th>
-                                <th>Quantity</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="x in firstSKUList">
-                                <td>
-                                    @*<div class="select-style">
-                                            <select class="form-control" ng-model="x.CharacteristicsValueId" ng-change="verifyFirstSkuList()" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
-                                                <option value=""></option>
-                                            </select>
-                                        </div>*@
-                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="char1ValueList" e-value="x.CharacteristicsValueId" e-fields-value="Value" e-fields-text="Text" e-change="verifySkuMatrix" e-width="100%" />
 
-                                </td>
-                                <td ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
-                                    <input type="text" name="ValueFreeText" ng-model="x.ValueFreeText" maxlength="15" class="form-control" ng-keyup="verifyFirstSkuList()" />
 
-                                </td>
-                                <td>
-                                    <input type="text" n-decimals="2" name="Qty" ng-model="x.Qty" maxlength="15" class="form-control text-right" />
-
-                                </td>
-                                <td class="text-right table-td">
-                                    <ul class="list-inline action-list">
-                                        <li class="hide">
-                                            <button ng-click="firstSkuEdit(x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i></button>
-                                        </li>
-                                        <li>
-                                            <button ng-click="removeFirstSkuList(x.Id, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove" ng-disabled="firstSKUList.length <= 1"><i class="glyphicon glyphicon-remove"></i></button>
-                                        </li>
-                                    </ul>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <button ng-click="addFirstSkuList();" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add </button>
-                                </td>
-                                <td colspan="2" class="text-right">
-                                    <strong ng-show="firstSKUList.length > 0">Total = {{firstSKUList | sumByKey : 'Qty' | number }}</strong>
-                                </td>
-                                <td></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="common-btn" style="padding-right: 15px;">
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="charSave(1);" class="btn"><i class=""></i> Save</button>
-                        </li>
-                        <li>
-                            <button ng-click="firstSkuClosePopUp();" class="btn">Close</button>
-                        </li>
-                    </ul>
                 </div>
             </div>
-
-
         </div>
     </div>
 </div>
 <!-- #endregion First Characteristics -->
 <!-- #region Second Characteristics -->
-<div class="modal fade site-modal in" id="secondPopup" role="dialog" data-backdrop="static">
+<div class="modal fade site-modal in" id="secondPopup" role="dialog" data-backdrop="static" style="overflow-x: auto !important;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -1914,45 +1922,49 @@
             </div>
             <div class="modal-body">
                 <div class="modal-body">
-                    <div class="form-elements form-horizontal table-responsive modal-table">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>{{rowName}}</th>
-                                    <th ng-repeat="x in skuList[0].childList">
-                                        @*<div class="select-style">
-                                                <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true"
-                                                        ng-change="chvChange(x.CharacteristicsValueId, $index);">
-                                                    <option value=""></option>
-                                                </select>
-                                            </div>*@
-                                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="char2ValueList" e-value="x.CharacteristicsValueId" e-fields-value="Value" e-fields-text="Text" e-change="verifySkuMatrix" e-width="100px" />
-                                        <div>
-                                            <input type="text" ng-model="x.ValueFreeText" ng-keyup="chvKeyChange(x.ValueFreeText, $index);" class="form-control" maxlength="15">
-                                        </div>
-                                    </th>
-                                    <th ng-click="addSkuMatrixColumn()"> Add sku Column </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-repeat="x in skuList">
-                                    <td>
-                                        @*<div class="select-style">
-                                                <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
-                                                    <option value=""></option>
-                                                </select>
-                                            </div>*@
-                                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="char1ValueList" e-value="x.CharacteristicsValueId" e-fields-value="Value" e-fields-text="Text" e-change="verifySkuMatrix" e-width="100%" />
-                                        <div>
-                                            <input type="text" ng-model="x.ValueFreeText" class="form-control" maxlength="15">
-                                        </div>
-                                    </td>
-                                    <td ng-repeat="y in x.childList">
-                                        <input type="text" only-numbers ng-model="y.Qty" ng-keyup="sumQty(x, $parent.$index );" class="form-control text-right">
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="form-elements form-horizontal table-striped modal-table">
+                        <div class="col-lg-12">
+                            <div class="content-container-fluid" style="color:black;overflow:scroll">
+                                <table class="table table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th>{{rowName}}</th>
+                                            <th ng-repeat="x in skuList[0].childList">
+                                                @*<div class="select-style">
+                                                        <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true"
+                                                                ng-change="chvChange(x.CharacteristicsValueId, $index);">
+                                                            <option value=""></option>
+                                                        </select>
+                                                    </div>*@
+                                                <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="char2ValueList" e-value="x.CharacteristicsValueId" e-fields-value="Value" e-fields-text="Text" e-change="verifySkuMatrix" e-width="100px" />
+                                                <div>
+                                                    <input type="text" ng-model="x.ValueFreeText" ng-keyup="chvKeyChange(x.ValueFreeText, $index);" class="form-control" maxlength="15">
+                                                </div>
+                                            </th>
+                                            <th ng-click="addSkuMatrixColumn()"> Add sku Column </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in skuList">
+                                            <td>
+                                                @*<div class="select-style">
+                                                        <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
+                                                            <option value=""></option>
+                                                        </select>
+                                                    </div>*@
+                                                <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="char1ValueList" e-value="x.CharacteristicsValueId" e-fields-value="Value" e-fields-text="Text" e-change="verifySkuMatrix" e-width="100%" />
+                                                <div>
+                                                    <input type="text" ng-model="x.ValueFreeText" class="form-control" maxlength="15">
+                                                </div>
+                                            </td>
+                                            <td ng-repeat="y in x.childList">
+                                                <input type="text" only-numbers ng-model="y.Qty" ng-keyup="sumQty(x, $parent.$index );" class="form-control text-right">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="common-btn" style="padding-right: 15px;">
@@ -2042,8 +2054,8 @@
 </div>
 <!-- #endregion Third Characteristics -->
 <!-- #region fourth Characteristics -->
-<div class="modal fade site-modal in" id="fourthPopup" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify">
+<div class="modal fade site-modal in" id="fourthPopup" role="dialog" data-backdrop="static" style="overflow-x: auto !important; overflow-y: auto !important;">
+    <div class="modal-dialog modal-lg modellgModifyNew">
         <div class="modal-content">
             <div class="modal-header">
                 SKU
@@ -2054,10 +2066,11 @@
                     <div class="form-elements form-horizontal table-responsive modal-table">
                         <button ng-click="AddSOSKU('1');" title="Add New {{rowName}}" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i>{{rowName}}</button>
                         <button ng-click="AddSOSKU('2');" title="Add New {{columnName}}" align="left" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i>{{columnName}}</button>
+
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>
+                                    <th style="width:400px">
                                         @*<button ng-click="AddSOSKU('1');" title="Add New {{rowName}}" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> </button>*@
                                         {{rowName}}
                                     </th>
@@ -2087,34 +2100,39 @@
                                 </tr>
                             </thead>
                             <tbody>
+
+                                
+                               
+
                                 <tr ng-repeat="x in skuList">
-                                    <td>
-                                        @*<div class="select-style" ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
-                                                <select class="form-control" ng-model="x.CharacteristicsValueId" ng-change="verifySkuMatrix();" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
-                                                    <option value=""></option>
-                                                </select>
-                                            </div>*@
-                                        @*<div class="select-style" ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
-                                                <select class="form-control" ng-model="x.CharacteristicsValueId" ng-change="verifySkuMatrix();" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
-                                                    <option value=""></option>
-                                                </select>
-                                            </div>*@
-                                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="char1ValueList" e-value="x.CharacteristicsValueId" e-fields-value="Value" e-fields-text="Text" e-change="verifySkuMatrix" e-width="100%" />
+                                    <td style="width:400px">
                                         <div ng-class="{'has-error':x.isDuplicate == true, '':x.isDuplicate != true}">
-                                            <input type="text" ng-model="x.ValueFreeText" class="form-control" ng-keyup="verifySkuMatrix();" maxlength="15" />
-                                        </div>
-                                        <span class="input-group-btn">
-                                            <button ng-click="showColorPopup($index);" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
-                                        </span>
-                                    </td>
-                                    <td ng-repeat="y in x.childList">
-                                        <input type="text" n-decimals="2" ng-model="y.Qty" ng-keyup="sumQty(x, $parent.$index );" class="form-control text-right" />
-                                    </td>
-                                    <td>
-                                        <button ng-click="removeSkuMatrixRow($index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove" @*ng-disabled="skuList.length <= 1"*@><i class="glyphicon glyphicon-remove"></i></button>
-                                    </td>
-                                </tr>
-                            </tbody>
+                                            <div class="input-group">
+                                                <div class="col-sm-6" style="padding-right:0px;">
+                                                    <input ej-dropdownlist e-enablefiltersearch="true" allow-paging="true" allow-Adding="true" allow-Editing="true"
+                                                           e-datasource="char1ValueList" e-value="x.CharacteristicsValueId" e-fields-value="Value" toolbar-Settings="toolbarItems" edit-Settings="editSettings"
+                                                           e-fields-text="Text" e-change="verifySkuMatrix" />@*e-width="100%"*@
+                                                    </div>
+                                                    <div class="col-sm-4" style="padding-left:0px;">
+                                                        <input type="text" ng-model="x.ValueFreeText" class="form-control" ng-keyup="verifySkuMatrix();" maxlength="25" />
+                                                       
+                                                    </div>
+                                                    <div class="col-sm-2" style="padding-left:0px;">
+                                                        <span class="input-group-btn">
+                                                            <button ng-click="showColorPopup($index);" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                </div>
+                                        </td>
+                                        <td ng-repeat="y in x.childList">
+                                            <input type="text" n-decimals="2" ng-model="y.Qty" ng-keyup="sumQty(x, $parent.$index );" class="form-control text-right" />
+                                        </td>
+                                        <td>
+                                            <button ng-click="removeSkuMatrixRow($index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove" @*ng-disabled="skuList.length <= 1"*@><i class="glyphicon glyphicon-remove"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
                         </table>
                         <button ng-click="addSkuMatrixRow();" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add </button>
                     </div>
@@ -2134,6 +2152,8 @@
         </div>
     </div>
 </div>
+
+
 <!-- #endregion Fourth Characteristics -->
 <!-- #region Sales Order Tax -->
 <div class="modal fade site-modal in" id="taxPopup" role="dialog" data-backdrop="static">
@@ -2383,7 +2403,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Line Item Reference</label>
                             <div class="col-sm-8">
-                                <input type="text" name="LineItemReference" style="text-align:left" ng-model="soSplitModel.LineItemReference"   ng-keyup="CheckSpecialLineItemReferenceCharecter();" class="form-control text-right" tabindex="107">
+                                <input type="text" name="LineItemReference" style="text-align:left" ng-model="soSplitModel.LineItemReference" ng-keyup="CheckSpecialLineItemReferenceCharecter();" class="form-control text-right" tabindex="107">
                             </div>
                         </div>
                         <div class="form-group">
@@ -4508,82 +4528,7 @@
     </div>
 </div>
 
-<!--<div class="modal fade site-modal in" id="SKUPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">SKU Detail<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                                <div class="row">
-                                    <div class="col-xs-12 col-sm-6 col-md-6">
 
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">SKU1<sup>*</sup></label>
-                                            <div class="col-sm-8 show-message">
-                                                <div class="select-style">
-                                                    <select name="FirstCharacteristics" class="form-control" ng-model="ModelSKUDNew.FGFirstCharacteristicsValueId" ng-options="item.Value as item.Text for item in sku1List" required tabindex="501"-->
-@*ng-change="GetSOBookedQtyAndLevel(soModel.Id);*@
-<!--">
-                    <option value="">--Select--</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <div class="form-group">
-        <label class="col-sm-4 control-label">Quantity</label>
-        <div class="col-sm-8">
-            <input type="text" name="Quantity" ng-model="ModelSKUDNew.Quantity" class="form-control" tabindex="503">
-        </div>
-    </div>
-</div>
-<div class="col-xs-12 col-sm-6 col-md-6">
-    <div class="form-group">
-        <label class="col-sm-4 control-label">SKU2<sup>*</sup></label>
-        <div class="col-sm-8 show-message">
-            <div class="select-style">
-                <select name="SecondCharacteristics" class="form-control" ng-model="ModelSKUDNew.FGSecondCharacteristicsId" ng-options="item.Value as item.Text for item in sku2List" required tabindex="502"-->
-@*ng-change="GetSOBookedQtyAndLevel(soModel.Id);*@
-<!--">
-                                                        <option value="">--Select--</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Plan %</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="Plan" ng-model="ModelSKUDNew.Plan" class="form-control" tabindex="503">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="common-btn">
-                                        <ul class="list-inline text-right">
-                                            <li> <button ng-click="SaveSKUDetail();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-                                            <li> <button ng-click="ClearSKUD();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-xs-12">
-                                        <div id="GridSO" ej-grid e-datasource="SKUDetailList" e-recorddoubleclick="GetSKUDetailDblClick"
-                                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                                            <div e-columns>
-                                                <div e-column e-headertext="Actions" e-template="#ShowActionButtonSKU" e-width="1"></div>
-                                                <div e-column e-field="FirstCharacteristics" e-headertext="SKU1" e-width="4"></div>
-                                                <div e-column e-field="SecondCharacteristics" e-headertext="SKU2" e-width="4"></div>
-                                                <div e-column e-field="Quantity" e-headertext="Quantity" e-width="4"></div>
-                                                <div e-column e-field="Plan" e-headertext="Plan %" e-width="3"></div>
-                                            </div>
-                                        </div>
-                                        <script type="text/template" id="ShowActionButtonSKU">
-                                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeSKUDetail(this);" style="margin: -6px;"></i></button>
-                                        </script>
-                                    </div>
-                                </div>
-                </div>
-            </div>
-        </div>
-</div>-->
 
 <div class="modal fade site-modal in" id="SOAddInfoPopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-md">

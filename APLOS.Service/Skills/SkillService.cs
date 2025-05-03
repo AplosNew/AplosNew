@@ -66,10 +66,11 @@ namespace Library.Service.Skills
 		                                        ,SK.[Description]
 		                                        ,SK.Remarks
 		                                        ,SK.Active
-		                                        ,SK.Id,SK.SkillGroupId,SK.OperationApplicable,SK.DashboardApplicabl,SG.UserName SkillGroup
+		                                        ,SK.Id,SK.SkillGroupId,SK.OperationApplicable,SK.DashboardApplicable,SG.UserName SkillGroup,SK.OperationActivityId,OA.UserName OperationActivity
                                        FROM [" + DbSchema.HKP + @"].[Skill] AS SK
                                        LEFT OUTER JOIN [" + DbSchema.HKP + @"].[SkillCategory] AS SC ON SK.SkillCategoryId=SC.Id
                                        LEFT JOIN [SCS].[SkillGrouping] SG ON SG.Id=SK.SkillGroupId
+                                       LEFT JOIN HKP.OperationActivity OA ON OA.Id=SK.OperationActivityId
                                        WHERE SK.CompanyGroupId='" + identity.CompanyGroupId + "'";
                 return _sqlRepository.GetGridData(parameters);
             }

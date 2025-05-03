@@ -98,9 +98,19 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-4 control-label">Operation Activity<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" id="currency" name="Operation Activity" ng-model="skillNew.OperationActivityId" ng-options="item.Value as item.Text for item in OperationActivityList" tabindex="1">
+                                        <option value="">---Select---</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Remarks</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" rows="4" ng-model="skillNew.Remarks" maxlength="250" tabindex="8"></textarea>
+                                <textarea class="form-control" rows="3" ng-model="skillNew.Remarks" maxlength="250" tabindex="8"></textarea>
                             </div>
                         </div>
                         <div class="form-group">
@@ -210,6 +220,7 @@
                     <th>User Name</th>
                     <th>Skill Category</th>
                     <th>Skill Group</th>
+                    <th>Operation Activity</th>
                     <th>Machine Applicable</th>
                     <th>Operation Applicable</th>
                     <th>Dashboard Applicable</th>
@@ -225,6 +236,7 @@
                     <td>{{x.UserName}}</td>
                     <td>{{x.SkillCategoryName}}</td>
                     <td>{{x.SkillGroup}}</td>
+                    <td>{{x.OperationActivity}}</td>
                     <td>{{x.IsMachineApplicable?'Yes':'No'}}</td>
                     <td>{{x.OperationApplicable?'Yes':'No'}}</td>
                     <td>{{x.DashboardApplicable?'Yes':'No'}}</td>
