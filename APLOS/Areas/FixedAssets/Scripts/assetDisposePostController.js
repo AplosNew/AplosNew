@@ -129,6 +129,7 @@ function assetDisposePostController(accountService, cboService, commonMessage, $
         $scope.voucher.Department = data.Department;
         $scope.voucher.Status = data.Status;
         $scope.voucher.DocDate = $filter("dateFiltering")(data.DocDate);
+        $scope.voucher.PostingDate = $filter("dateFiltering")(data.DocDate);
         $scope.voucher.Remarks = data.Remarks;
         $scope.voucher.DeliveryPartyPlantId = data.DeliveryPartyPlantId;
         $scope.voucher.InvoicingByAddress = data.InvoicingByAddress;

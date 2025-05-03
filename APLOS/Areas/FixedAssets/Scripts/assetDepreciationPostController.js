@@ -125,6 +125,8 @@ function assetDepreciationPostController(accountService, cboService, commonMessa
         $scope.voucher.BaseCurrency = data.BaseCurrency;
         $scope.voucher.DepreciationAmount = data.DepreciationAmount;
         $scope.voucher.ProcessDate = $filter("dateFiltering")(data.ProcessDate);
+        $scope.voucher.DocDate = $filter("dateFiltering")(data.ProcessDate);
+        $scope.voucher.PostingDate = $filter("dateFiltering")(data.ProcessDate);
 
         $scope.getDepreciationJV(data.AssetDepreciationId);
         
