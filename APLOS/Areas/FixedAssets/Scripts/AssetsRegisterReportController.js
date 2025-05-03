@@ -155,6 +155,7 @@ function AssetsRegisterReportController(commonMessage, $scope, $rootScope, $filt
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CapitalizedAmountFTP", dataMember: "CapitalizedAmountFTP", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalAmount", dataMember: "TotalAmount", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "DepreciationAmount", dataMember: "DepreciationAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "DisposeAmount", dataMember: "DisposeAmount", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetAmount", dataMember: "NetAmount", format: "{0:N2}" }
         ],
         showCaptionSummary: true
