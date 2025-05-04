@@ -1,4 +1,5 @@
 ﻿using Aplos.Controllers;
+using Aplos.HumanResource;
 using Aplos.Properties;
 using Library.Accounting.Accounts;
 using Library.Core;
@@ -49,6 +50,10 @@ namespace Aplos.Areas.Accounts.Controllers
             return View();
         }
         public ActionResult SkillUpload()
+        {
+            return View();
+        }
+        public ActionResult EmployeeOperationUpload()
         {
             return View();
         }
@@ -1692,15 +1697,17 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId ";
 
 
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillId"); int colSkillId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillUserName"); int colSkillUserName = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OperationMasterId"); int colOperationMasterId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OperationMaster"); int colOperationMaster = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OperationActivity"); int colOperationActivity = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OperationType"); int colOperationType = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OperationCategory"); int colOperationCategory = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Skill"); int colSkill = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillGroup"); int colSkillGroup = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillCategory"); int colSkillCategory = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MachineApplicable"); int colMachineApplicable = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OperationApplicable"); int colOperationApplicable = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DashboardApplicable"); int colDashboardApllicable = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmpSystemId"); int colEmpSystemId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remark"); int colRemark = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LegalDesignation"); int colLegalDesignation = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MachineMaster"); int colMachineMaster = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Process"); int colProcess = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmpSystemId"); int colEmpSystemId = xlsCol; 
 
                 endXlsCol = xlsCol;
 
@@ -1717,13 +1724,16 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId ";
                 DataTable dtSkill = GetOperationData();
                 for (int i = 0; i < dtSkill.Rows.Count; i++)
                 {
-                    sheet1[xlsRow, colSkillId].Text = dtSkill.Rows[i]["SkillId"].ToString();
-                    sheet1[xlsRow, colSkillUserName].Text = dtSkill.Rows[i]["SkillUserName"].ToString();
+                    sheet1[xlsRow, colOperationMasterId].Text = dtSkill.Rows[i]["OperationMasterId"].ToString();
+                    sheet1[xlsRow, colOperationMaster].Text = dtSkill.Rows[i]["OperationMaster"].ToString();
+                    sheet1[xlsRow, colOperationActivity].Text = dtSkill.Rows[i]["OperationActivity"].ToString();
+                    sheet1[xlsRow, colOperationType].Text = dtSkill.Rows[i]["OperationType"].ToString();
+                    sheet1[xlsRow, colOperationCategory].Text = dtSkill.Rows[i]["OperationCategory"].ToString();
+                    sheet1[xlsRow, colSkill].Text = dtSkill.Rows[i]["Skill"].ToString();
                     sheet1[xlsRow, colSkillGroup].Text = dtSkill.Rows[i]["SkillGroup"].ToString();
-                    sheet1[xlsRow, colSkillCategory].Text = dtSkill.Rows[i]["SkillCategory"].ToString();
-                    sheet1[xlsRow, colMachineApplicable].Text = dtSkill.Rows[i]["MachineApplicable"].ToString();
-                    sheet1[xlsRow, colOperationApplicable].Text = dtSkill.Rows[i]["OperationApplicable"].ToString();
-                    sheet1[xlsRow, colDashboardApllicable].Text = dtSkill.Rows[i]["DashboardApplicable"].ToString();
+                    sheet1[xlsRow, colLegalDesignation].Text = dtSkill.Rows[i]["LegalDesignation"].ToString();
+                    sheet1[xlsRow, colMachineMaster].Text = dtSkill.Rows[i]["MachineMaster"].ToString();
+                    sheet1[xlsRow, colProcess].Text = dtSkill.Rows[i]["Process"].ToString();
                     xlsRow++;
                 }
 
@@ -1764,13 +1774,17 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId ";
         }
         public DataTable GetOperationData()
         {
-            var cmdText = @"Select S.Id SkillId,S.UserName SkillUserName,SG.UserName SkillGroup,SC.UserName SkillCategory
-,MachineApplicable=CASE WHEN IsMachineApplicable=1 THEN 'Yes' ELSE 'No' END
-,OperationApplicable=CASE WHEN OperationApplicable=1 THEN 'Yes' ELSE 'No' END
-,DashboardApplicable=CASE WHEN DashboardApplicable=1 THEN 'Yes' ELSE 'No' END
-from HKP.Skill S
-LEFT JOIN [SCS].[SkillGrouping] SG ON SG.Id=S.SkillGroupId
-LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId ";
+            var cmdText = @"SELECT OM.Id OperationMasterId,OM.UserName OperationMaster,OA.UserName OperationActivity,OT.UserName OperationType,OC.UserName OperationCategory
+,S.UserName Skill,SG.UserName SkillGroup,LD.UserName LegalDesignation,MM.UserName MachineMaster,P.UserName Process
+FROM MST.OperationMaster OM
+LEFT JOIn HKP.OperationActivity OA ON OA.Id=OM.OperationActivityId
+LEFT JOIN HKP.OperationType OT ON OT.Id=OM.OperationTypeId
+LEFT JOIN HKP.OperationCategory OC ON OC.Id=OM.OperationCategoryId
+LEFT JOIN HKP.Skill S ON S.Id=OM.SkillId
+LEFT JOIN SCS.SkillGrouping SG ON SG.Id=OM.SkillGroupId
+LEFT JOIN HKP.LegalDesignation LD ON LD.Id=OM.LegalDesignationId
+LEFT JOIN MST.MachineMaster MM ON MM.Id=OM.MachineMasterId
+LEFT JOIN HKP.Process P ON P.Id=OM.ProcessId";
             return _sqlRepository.GetDataTable(cmdText);
 
 
@@ -1896,13 +1910,13 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId ";
         }
 
         [HttpPost, Authorize]
-        public ActionResult SaveEmployeeOperationData(IEnumerable<EmployeeSkill> skillDataList)
+        public ActionResult SaveEmployeeOperationData(IEnumerable<EmployeeOperation> operationDataList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsMaster;
 
-            foreach (var item in skillDataList)
+            foreach (var item in operationDataList)
             {
                 string sql = "SELECT * FROM [dbo].[EmployeeOperation] WHERE Id='" + item.Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -1914,7 +1928,7 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId ";
 
                     DataRow dr = dsMaster.Tables[0].NewRow();
                     dr["EmpSystemId"] = item.EmpSystemId;
-                    dr["SkillId"] = item.SkillId;
+                    dr["OperationMasterId"] = item.OperationMasterId;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -1930,7 +1944,7 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId ";
                     dr.BeginEdit();
 
                     dr["EmpSystemId"] = item.EmpSystemId;
-                    dr["SkillId"] = item.SkillId;
+                    dr["OperationMasterId"] = item.OperationMasterId;
 
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now;

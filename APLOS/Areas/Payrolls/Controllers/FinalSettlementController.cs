@@ -2090,7 +2090,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 FROM SalaryInfoDefine SID 
 LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
 WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-Where GD.GWPaymentAdviseId IS NULL AND GD.EmpSystemId='" + empId + @"' 
+Where GD.GWPaymentAdviseId IS NOT NULL AND GD.EmpSystemId='" + empId + @"' 
 AND GD.EmpSystemID NOT IN(Select EmployeeId from dbo.ExceptionGoodWorkEmployee) AND GD.AdditionalOT<>0 AND ISNULL(PastOTDisbursed,0)=0
 Group By OLS.OTreductionFactor,B.Basic
  ) AS varchar(100))

@@ -5061,6 +5061,7 @@
     <Content Include="Areas\Outsourcing\Views\ExportDB\Aplos.cshtml" />
     <Content Include="Areas\Commercial\Views\Compliance\Transaction.cshtml" />
     <Content Include="Areas\Banks\Views\_ALLBankPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\EmployeeOperationUpload.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

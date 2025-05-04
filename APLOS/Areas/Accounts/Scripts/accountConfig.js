@@ -1107,5 +1107,9 @@ function accountConfig($routeProvider) {
             templateUrl: 'Accounts/BalanceSheetScheduling/SkillUpload',
             controller: 'skillUploadController'
         })
+        .when('/eo-upload', {
+            templateUrl: 'Accounts/BalanceSheetScheduling/EmployeeOperationUpload',
+            controller: 'employeeOperationUploadController'
+        })
         ;
 } 
