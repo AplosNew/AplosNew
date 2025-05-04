@@ -7,9 +7,9 @@ function employeeOperationUploadController(commonMessage, $scope, $rootScope, ba
     //  #region Skill Data Upload Download
     $scope.GetSampleFile = function () {
         var ReportFormat = 'Excel';
-        location.href = $scope.pathBalanceSheetScheduling + 'GetSkillSampleFile?reportFormat=' + ReportFormat;
+        location.href = $scope.pathBalanceSheetScheduling + 'GetOperationSampleFile?reportFormat=' + ReportFormat;
     };
-    $scope.EmployeeSkillUploadedData = [];
+    $scope.EmployeeOperationUploadedData = [];
     $scope.picdata = null;
     $scope.ShowSaveBtn = false;
     $("#uploadImage").change(function () {
@@ -31,7 +31,7 @@ function employeeOperationUploadController(commonMessage, $scope, $rootScope, ba
                 var picData = new FormData();
                 $http({
                     method: 'POST',
-                    url: $scope.pathBalanceSheetScheduling + 'ImportSkillData',
+                    url: $scope.pathBalanceSheetScheduling + 'ImportEmployeeOperationData',
                     headers: { 'Content-Type': undefined },
                     transformRequest: function (data) {
                         picData.append("modelNew", angular.toJson(data.modelNew));
@@ -51,8 +51,8 @@ function employeeOperationUploadController(commonMessage, $scope, $rootScope, ba
 
                     }
                     else {
-                        $scope.EmployeeSkillUploadedData = [];
-                        $scope.EmployeeSkillUploadedData = response.data;
+                        $scope.EmployeeOperationUploadedData = [];
+                        $scope.EmployeeOperationUploadedData = response.data;
                         $scope.ShowSaveBtn = true;
                     }
                 }, function errorCallback(response) {
@@ -66,14 +66,14 @@ function employeeOperationUploadController(commonMessage, $scope, $rootScope, ba
             ShowResult(e, "failure");
         }
     };
-    $scope.SaveEmployeeSkillUploadedData = function () {
+    $scope.SaveEmployeeOperationUploadedData = function () {
 
         try {
             $.ajax({
                 type: "POST",
-                url: $scope.pathBalanceSheetScheduling + 'SaveEmployeeSkillData',
+                url: $scope.pathBalanceSheetScheduling + 'SaveEmployeeOperationData',
                 data: {
-                    'skillDataList': $scope.EmployeeSkillUploadedData
+                    'operationDataList': $scope.EmployeeOperationUploadedData
                 },
                 dataType: "json",
                 success: function (response) {
@@ -83,7 +83,7 @@ function employeeOperationUploadController(commonMessage, $scope, $rootScope, ba
                     }
                     else {
                         ShowResult(response.Message, 'success');
-                        $scope.EmployeeSkillUploadedData = [];
+                        $scope.EmployeeOperationUploadedData = [];
                         $("#uploadImage").val(null);
                         $scope.ShowSaveBtn = false;
                     }
@@ -98,5 +98,5 @@ function employeeOperationUploadController(commonMessage, $scope, $rootScope, ba
 
         }
     };
-    //  #endregion EmployeeSkillUploadedData Upload Download
+    //  #endregion EmployeeOperationUploadedData Upload Download
 }

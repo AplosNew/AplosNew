@@ -1312,6 +1312,7 @@ upanelApp.controller("ComplianceController", ComplianceController)
 upanelApp.controller("ExportDBController", ExportDBController)
 upanelApp.controller("ComplianceTransactionController", ComplianceTransactionController)
 upanelApp.controller("skillUploadController", skillUploadController)
+upanelApp.controller("employeeOperationUploadController", employeeOperationUploadController)
 
 
 
