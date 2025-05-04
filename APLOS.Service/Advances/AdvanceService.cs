@@ -9874,7 +9874,16 @@ namespace Library.Service.Advances
 
                 if (dsMaster1.Tables[0].Rows.Count > 0)
                 {
-                    throw new CustomException("Voucher Park Mode not allowed,  Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    throw new CustomException("Voucher Delete not allowed,  Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                }
+                DataSet dsMaster2 = null;
+                string setOffsql2 = @"select * from TRN.EmployeeAdvanceDeduction where EmployeeAdvanceDetailId in(select Id from trn.EmployeeAdvanceDetail  where voucherId in (select Id from trn.voucher where  Id = '" + voucherId + @"' ))";
+                
+                objCon1.OpenDataSetThroughAdapter(setOffsql2, out dsMaster2, false, "1");
+
+                if (dsMaster2.Tables[0].Rows.Count > 0)
+                {
+                    throw new CustomException("Voucher Delete not allowed,  Please delete Monthly Advance Deduction Confirmation first!");
                 }
 
                 // Delete Loan
