@@ -363,25 +363,17 @@
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="DisposeNo" e-headertext="Dispose No" e-width="80" e-filter="false"></div>
+            <div e-column e-field="DisposeNo" e-headertext="Dispose No" e-width="60" e-filter="false"></div>
             <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="80" e-filter="false"></div>
             <div e-column e-field="PostingDate" e-headertext="Posting Date" e-width="60"></div>
-            <div e-column e-field="Status" e-headertext="Status" e-width="70"></div>
-            <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="120"></div>
-            <div e-column e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
+            <div e-column e-field="Status" e-headertext="Status" e-width="60"></div>
+            <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="70"></div>
+            <div e-column e-field="CustomerName" e-headertext="Customer" e-width="110"></div>
             <div e-column e-field="TrnCurrency" e-headertext="Currency" e-width="60"></div>
-            @*<div e-column e-field="BaseCurrency" e-headertext="Base Currency" e-width="60"></div>*@
-            <div e-column e-field="NegotiationValue" e-headertext="Negotiation Amount" e-width="80"></div>
-            @*<div e-column e-field="NagotiationBooksValue" e-headertext="Base Negotiation" e-width="80"></div>*@
-
-            @*<div e-column e-field="FABaseAmount" e-headertext="FABaseAmount" e-width="80"></div>
-        <div e-column e-field="SubAssetBaseAmount" e-headertext="Sub Base Amount" e-width="80"></div>
-        <div e-column e-field="PurchaseBaseAmount" e-headertext="Total Base Amount" e-width="80"></div>
-        <div e-column e-field="ADBaseAmount" e-headertext="Depreciation" e-width="80"></div>
-        <div e-column e-field="NetBaseBookValue" e-headertext="Net Base Amount" e-width="80"></div>*@
-            @*<div e-column e-field="NetBookValue" e-headertext="Net Amount" e-width="80"></div>*@
-            @*<div e-column e-field="IsPark" e-headertext="Status" e-width="40"></div>*@
-            <div e-column e-template="#ShowActionButtonsassigned" e-headertext="PDF&Excel" e-width="70"></div>
+            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="NegotiationValue" e-headertext="Negotiation Amount" e-width="80"></div>
+            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TaxAmount" e-headertext="Tax Amount" e-width="80"></div>
+            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ReceivableAmount" e-headertext="Receivable Amount" e-width="80"></div>
+            <div e-column e-template="#ShowActionButtonsassigned" e-headertext="PDF&Excel" e-width="90"></div>
 
         </div>
     </div>

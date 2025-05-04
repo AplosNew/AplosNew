@@ -3080,6 +3080,9 @@ GROUP BY FAR.FABudgetMasterId
                 sheet[ROW, COL].Text = "GRN Date"; sheet[ROW, COL].ColumnWidth = 16; int colGD = COL; COL++;
                 sheet[ROW, COL].Text = "GRNNo"; sheet[ROW, COL].ColumnWidth = 16; int colGN = COL; COL++;
                 sheet[ROW, COL].Text = "GRNRowId"; sheet[ROW, COL].ColumnWidth = 16; int colGRN = COL; COL++;
+                sheet[ROW, COL].Text = "GL"; sheet[ROW, COL].ColumnWidth = 16; int colAssetGLName = COL; COL++;
+                sheet[ROW, COL].Text = "Budget"; sheet[ROW, COL].ColumnWidth = 16; int colAssetBudgetName = COL; COL++;
+                sheet[ROW, COL].Text = "Activity"; sheet[ROW, COL].ColumnWidth = 16; int colActivityName = COL; COL++;
                 sheet[ROW, COL].Text = "Material"; sheet[ROW, COL].ColumnWidth = 16; int colM = COL; COL++;
                 sheet[ROW, COL].Text = "Article"; sheet[ROW, COL].ColumnWidth = 16; int colA = COL; COL++;
                 sheet[ROW, COL].Text = "UoM"; sheet[ROW, COL].ColumnWidth = 16; int colU = COL; COL++;
@@ -3114,6 +3117,9 @@ GROUP BY FAR.FABudgetMasterId
                     sheet[ROW, colGD].Text = data.Rows[i]["InvoiceDate"].ToString();
                     sheet[ROW, colGN].Text = data.Rows[i]["GRNNo"].ToString();
                     sheet[ROW, colGRN].Text = data.Rows[i]["InventoryReceiveDetailId"].ToString();
+                    sheet[ROW, colAssetGLName].Text = data.Rows[i]["AssetGLName"].ToString();
+                    sheet[ROW, colAssetBudgetName].Text = data.Rows[i]["AssetBudgetName"].ToString();
+                    sheet[ROW, colActivityName].Text = data.Rows[i]["ActivityName"].ToString();
                     sheet[ROW, colM].Text = data.Rows[i]["MaterialMasterName"].ToString();
                     sheet[ROW, colA].Text = data.Rows[i]["ArticleStandardName"].ToString();
                     sheet[ROW, colU].Text = data.Rows[i]["BaseUoM"].ToString();
