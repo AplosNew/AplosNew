@@ -1423,7 +1423,8 @@ namespace Library.Accounting.FixedAssets
             var sql = @"select top 100 * from (select frd.Id DisposeNo,cast(substring(frd.Id,3,8) as int)SlNo,frd.EmployeeId,ei.EmployeeName,D.UserName Department
 									,frd.Status,frd.Remarks,DG.UserName Designation,c.Code TrnCurrency,frd.IsPark,  c.Id trnCurrencyId
 									,format( frd.DocDate,'dd-MMM-yyyy')DocDate ,P.UserName CustomerName,frd.PartyId,frd.PartyPlantId 
-									 ,frd.DeliveryPartyPlantId,frd.InvoicingByAddress,frd.DeliveryByAddress,c.Code TrnPurchaseCurrency,V.VoucherNo,V.PostingDate,V.Id
+									,frd.DeliveryPartyPlantId,frd.InvoicingByAddress,frd.DeliveryByAddress,c.Code TrnPurchaseCurrency,V.VoucherNo
+                                    ,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate,V.Id
 									,sum(isnull( rdd.NegotiationValue,0))NegotiationValue
                                     ,sum(isnull( rdd.BaseNagotiationValue,0))BaseNagotiationValue
                 from TRN.FixedAssetRegisterDisposed frd 

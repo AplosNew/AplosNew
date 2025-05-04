@@ -40,13 +40,13 @@
             <div id="div_PostingDate" class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Posting Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input required datepicker="checkPostingDate();checkDocDate();" id="postingDate" type="text" name="Posting Date" ng-model="voucher.PostingDate" class="form-control" tabindex="1">
+                    <input required id="postingDate" type="text" name="Posting Date" ng-model="voucher.PostingDate" class="form-control" tabindex="1" readonly>
                 </div>
             </div>
             <div id="div_DocDate" class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Doc Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input required datepicker="checkPostingDate();checkDocDate();"  id="docDate" type="text" name="Doc Date" ng-model="voucher.DocDate" class="form-control" tabindex="1">
+                    <input required id="docDate" type="text" name="Doc Date" ng-model="voucher.DocDate" class="form-control" tabindex="1" readonly>
                 </div>
             </div>
             <div class="form-group" show-errors>

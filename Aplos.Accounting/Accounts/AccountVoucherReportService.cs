@@ -424,12 +424,13 @@ namespace Library.Accounting.Accounts
 
                         SELECT AssetDepreciationId,AD.ProcessName, REPLACE(CONVERT(CHAR(11), AD.ProcessDate, 106),' ','-') AS ProcessDate, AssetRegisterId, AssetRegisterChildId
 	                    , CapitalizationMasterId, CapitalizationChildId, REPLACE(CONVERT(CHAR(11), CapitalizationDate, 106),' ','-') AS CapitalizationDate, ADDS.FixedAssetMasterId
-	                    , FixedAssetItemId,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem, DepreciationDays, DepreciationType, DepreciationRate, AssetValue
-	                    , DepreciationAmount, AccumulatedDepreciationAmount, NetAssetValue, AD.Remarks
+	                    , ADDS.FixedAssetItemId,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem, DepreciationDays, DepreciationType, DepreciationRate, AssetValue
+	                    , DepreciationAmount, AccumulatedDepreciationAmount, NetAssetValue, AD.Remarks,AR.UserReference
 	                    FROM [TRN].[AssetDepreciation] AD
 	                    INNER JOIN [TRN].[AssetDepreciationDetail] ADDS  ON  ADDS.AssetDepreciationId = AD.Id
 	                    LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=ADDS.FixedAssetItemId
                         LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
+                        LEFT JOIN [TRN].[AssetRegister]  AR ON AR.Id=ADDS.AssetRegisterId
 	                    WHERE ADDS.AssetDepreciationId= CASE WHEN @AssetDepreciationId<> 'null' THEN @AssetDepreciationId ELSE ADDS.AssetDepreciationId END
                         AND AD.CompanyGroupId='" + companyGroupId + "' AND AD.CompanyId ='" + companyId + "' AND AD.PlantId='" + plantId + "' AND CONVERT(DATE, AD.ProcessDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"'
                         ORDER BY AssetRegisterId, AssetRegisterChildId, CapitalizationMasterId, CapitalizationChildId";
@@ -7924,6 +7925,12 @@ group by x.GL,x.Budget,x.Activity,x.GLGeneralInfoId,x.BudgetMasterId,x.ActivityI
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
+            worksheet[ROW, COL].Text = "User Reference";
+            int colUserReference = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
             worksheet[ROW, COL].Text = "Depreciation Days";
             int colDepreciationDays = COL;
             worksheet[ROW, COL].ColumnWidth = 12;
@@ -7992,6 +7999,7 @@ group by x.GL,x.Budget,x.Activity,x.GLGeneralInfoId,x.BudgetMasterId,x.ActivityI
                 worksheet[ROW, colFixedAssetItemId].Text = dtDayBookData.Rows[i]["FixedAssetItemId"].ToString();
                 worksheet[ROW, colFixedAssetMaster].Text = dtDayBookData.Rows[i]["FixedAssetMaster"].ToString();
                 worksheet[ROW, colFixedAssetItem].Text = dtDayBookData.Rows[i]["FixedAssetItem"].ToString();
+                worksheet[ROW, colUserReference].Text = dtDayBookData.Rows[i]["UserReference"].ToString();
                 worksheet[ROW, colDepreciationDays].Text = dtDayBookData.Rows[i]["DepreciationDays"].ToString();
                 worksheet[ROW, colDepreciationType].Text = dtDayBookData.Rows[i]["DepreciationType"].ToString();
                 worksheet[ROW, colDepreciationRate].Text = dtDayBookData.Rows[i]["DepreciationRate"].ToString();
