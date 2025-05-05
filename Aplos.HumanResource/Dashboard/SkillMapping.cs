@@ -302,7 +302,7 @@ group by mo.PlantId , c.Id , p.UserName , c.UserName";
         {
 
             var str = @"select  isnull(emp.Skill1,0) as Skill1, isnull(emp.Skill2,0) as Skill2, isnull(emp.Skill3,0) as Skill3,skc.[Sequence],omp.Id as ProcessId, 
-om.Id AS OperationMasterId,om.SkillId, om.SkillGroupId , om.OperationTypeId , isnull(om.Code,'') as SkillCode,om.UserName AS Skill ,	om.OperationCategoryId as CategoryId,
+om.Id AS OperationMasterId,om.SkillId, om.SkillGroupId , om.OperationTypeId , isnull(om.Code,'') as SkillCode,om.UserName AS Skill,sg.UserName SkillGroup ,om.OperationCategoryId as CategoryId,
 skc.UserName as SkillCat,omsk.SkillCategoryId,omsk.UserName AS UserName,
 isnull(DT.ProductionDate,'" + fromDate + @"') as ProductionDate , isnull(dt.SkillIdTemp,'') as SkillIdTemp, isnull(sum(dt.RequiredManPower),0) as RequiredManPower,
 isnull(sum(dt.AllotedManpower),0) as AllotedManpower , 
@@ -310,6 +310,7 @@ isnull(emp.CompanyId,'') as CompanyId,convert(DECIMAL(18,2),ISNULL(sum(dt.Allote
 FROM
  hkp.Skill AS omsk 
 LEFT OUTER JOIN hkp.SkillCategory AS skc ON skc.Id = omsk.SkillCategoryId
+LEFT OUTER JOIN SCS.SkillGrouping AS sg ON sg.Id = omsk.SkillGroupId
 left JOIN mst.OperationMaster AS om ON om.SkillId=omsk.Id       
 LEFT OUTER JOIN hkp.Process AS omp ON omp.Id=om.ProcessId
 
@@ -387,7 +388,7 @@ LEFT JOIN (SELECT
 
 					     where isnull(omsk.SkillCategoryId,'')  IN(" + parameters["CategoryId"] + @")  
 group by emp.Skill1 , emp.Skill2 , emp.Skill3 ,skc.[Sequence] , omp.Id , om.Id , om.SkillId , om.SkillGroupId , om.OperationTypeId,om.Code,
-om.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategoryId , omsk.UserName , dt.ProductionDate , dt.SkillIdTemp , emp.CompanyId
+om.UserName,sg.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategoryId , omsk.UserName , dt.ProductionDate , dt.SkillIdTemp , emp.CompanyId
             ORDER BY  skc.[Sequence]";
 
             DataTable dtRequiredManpower = _sqlRepository.GetDataTable(str);
@@ -408,6 +409,7 @@ om.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategoryId , omsk.U
             SkillData.Columns.Add("SkillId");
             SkillData.Columns.Add("RowCaption");
             SkillData.Columns.Add("Skill");
+            SkillData.Columns.Add("SkillGroup");
             SkillData.Columns.Add("SkillCategory");
             SkillData.Columns.Add("SkillCode");
             SkillData.Columns.Add("Skill1");
@@ -439,6 +441,7 @@ om.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategoryId , omsk.U
                         dr["Index"] = ind;
                         dr["SkillId"] = dtRequiredManpower.Rows[i]["SkillId"];
                         dr["Skill"] = dtRequiredManpower.Rows[i]["Skill"];
+                        dr["SkillGroup"] = dtRequiredManpower.Rows[i]["SkillGroup"];
                         dr["SkillCategory"] = dtRequiredManpower.Rows[i]["SkillCat"];
                         dr["SkillCode"] = dtRequiredManpower.Rows[i]["SkillCode"];
                         dr["Skill1"] = dtRequiredManpower.Rows[i]["Skill1"];
@@ -479,6 +482,7 @@ om.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategoryId , omsk.U
                         dr["Index"] = ind;
                         dr["SkillId"] = dtRequiredManpower.Rows[i]["SkillId"];
                         dr["Skill"] = dtRequiredManpower.Rows[i]["Skill"];
+                        dr["SkillGroup"] = dtRequiredManpower.Rows[i]["SkillGroup"];
                         dr["SkillCategory"] = dtRequiredManpower.Rows[i]["SkillCat"];
                         dr["SkillCode"] = dtRequiredManpower.Rows[i]["SkillCode"];
                         string skilled = dtRequiredManpower.Rows[i]["Skill1"].ToString();
@@ -516,6 +520,7 @@ om.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategoryId , omsk.U
                         dr["Index"] = ind;
                         dr["SkillId"] = dtRequiredManpower.Rows[i]["SkillId"];
                         dr["Skill"] = dtRequiredManpower.Rows[i]["Skill"];
+                        dr["SkillGroup"] = dtRequiredManpower.Rows[i]["SkillGroup"];
                         dr["SkillCategory"] = dtRequiredManpower.Rows[i]["SkillCat"];
                         dr["SkillCode"] = dtRequiredManpower.Rows[i]["SkillCode"];
                         dr["Flag"] = "RequiredManPower";
