@@ -7641,7 +7641,8 @@ namespace Library.Service.Invoices
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
                 var direct = new System.Text.StringBuilder();
-                var directsql = "";
+                var directinvoicetax = new System.Text.StringBuilder();
+                var directsql = ""; var invoicetaxsql = "";
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 voucherVM.PartyType = PartyType.Vendor.ToString();
@@ -7856,7 +7857,12 @@ namespace Library.Service.Invoices
                                 AddedDate = voucher.AddedDate,
                                 AddedFromIP = voucher.AddedFromIP
                             };
+
                             _invoiceTaxService.InsertInvoiceTax(voucherVM, invoiceTax, invoiceTaxPk);
+                            
+                            invoicetaxsql = @"UPdate [ACS].[PKGenerator] SET UpdatedDate=GETDATE(), MaxNumber='"+ invoiceTaxPk.MaxNumber + "' where Id='"+ invoiceTaxPk.Id + @"'";
+
+                            directinvoicetax.Append(invoicetaxsql);
                             var invoiceTaxDetail = new InvoiceTaxDetail
                             {
                                 Id = invoiceTax.Id + 1,
@@ -7922,6 +7928,9 @@ namespace Library.Service.Invoices
                             AddedFromIP = voucher.AddedFromIP
                         };
                         _invoiceTaxService.InsertInvoiceTax(voucherVM, invoiceTax, invoiceTaxPk);
+                        invoicetaxsql = @"UPdate [ACS].[PKGenerator] SET UpdatedDate=GETDATE(), MaxNumber='" + invoiceTaxPk.MaxNumber + "' where Id='" + invoiceTaxPk.Id + @"'";
+
+                        directinvoicetax.Append(invoicetaxsql);
                         var invoiceTaxDetail = new InvoiceTaxDetail
                         {
                             Id = invoiceTax.Id + 1,
@@ -7950,9 +7959,14 @@ namespace Library.Service.Invoices
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
+                
                 if (direct.ToString() != "")
                 {
                     _sqlRepository.ExecuteSqlCommand(direct.ToString());
+                }
+                if (directinvoicetax.ToString() != "")
+                {
+                    _sqlRepository.ExecuteSqlCommand(directinvoicetax.ToString());
                 }
                 return voucher.VoucherNo;
             }
