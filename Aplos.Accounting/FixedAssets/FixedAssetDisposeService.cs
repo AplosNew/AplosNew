@@ -1421,11 +1421,16 @@ namespace Library.Accounting.FixedAssets
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
             var sql = @"select top 100 * from (select frd.Id DisposeNo,cast(substring(frd.Id,3,8) as int)SlNo,frd.EmployeeId,ei.EmployeeName,D.UserName Department
-									,frd.Status,frd.Remarks,DG.UserName Designation,c.Code TrnCurrency,frd.IsPark,  c.Id trnCurrencyId
+									,frd.Status,frd.Remarks,DG.UserName Designation,c.Code TrnCurrency,V.IsPark,  c.Id trnCurrencyId
 									,format( frd.DocDate,'dd-MMM-yyyy')DocDate ,P.UserName CustomerName,frd.PartyId,frd.PartyPlantId 
-									 ,frd.DeliveryPartyPlantId,frd.InvoicingByAddress,frd.DeliveryByAddress,c.Code TrnPurchaseCurrency,V.VoucherNo,V.PostingDate,V.Id
+									,frd.DeliveryPartyPlantId,frd.InvoicingByAddress,frd.DeliveryByAddress,c.Code TrnPurchaseCurrency,V.VoucherNo
+                                    ,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate,V.Id
 									,sum(isnull( rdd.NegotiationValue,0))NegotiationValue
                                     ,sum(isnull( rdd.BaseNagotiationValue,0))BaseNagotiationValue
+									,ISNULL((SELECT SUM(Amount) FROM [TRN].[FixedAssetRegisterDisposedTax] WHERE FixedAssetRegisterDisposedId=frd.Id),0) 
+										+ ISNULL((SELECT SUM(TaxAmount) FROM [TRN].[FixedAssetRegisterDisposedAdditionalTax] WHERE FixedAssetRegisterDisposedId=frd.Id),0) AS TaxAmount
+									,SUM(rdd.NegotiationValue)+ISNULL((SELECT SUM(Amount) FROM [TRN].[FixedAssetRegisterDisposedTax] WHERE FixedAssetRegisterDisposedId=frd.Id),0) 
+										+ ISNULL((SELECT SUM(TaxAmount) FROM [TRN].[FixedAssetRegisterDisposedAdditionalTax] WHERE FixedAssetRegisterDisposedId=frd.Id),0) AS ReceivableAmount
                 from TRN.FixedAssetRegisterDisposed frd 
 				join TRN.FixedAssetRegisterDisposedDetail rdd ON rdd.FixedAssetRegisterDisposedId=frd.Id
                 left join  TRN.AssetRegister AR on AR.Id=rdd.AssetRegisterId
@@ -1434,10 +1439,10 @@ namespace Library.Accounting.FixedAssets
 				left join HKP.Designation DG ON DG.Id=EI.GivenDesignationID
 				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
-	            LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
                 LEFT JOIN TRN.Voucher V ON V.Id =frd.DisposedVoucherId
+				LEFT JOIN SCS.Currency C ON C.Id =V.CurrencyId
 				WHERE V.SourceType='FixedAssetDisposeJournal'
-                group by frd.Id,frd.Status,frd.Remarks,frd.EmployeeId,ei.EmployeeName,D.UserName,DG.UserName ,c.Code,frd.IsPark,c.Id,frd.DocDate
+                group by frd.Id,frd.Status,frd.Remarks,frd.EmployeeId,ei.EmployeeName,D.UserName,DG.UserName ,c.Code,V.IsPark,c.Id,frd.DocDate
 				,P.UserName ,frd.PartyId,frd.PartyPlantId ,frd.DeliveryPartyPlantId,frd.InvoicingByAddress,frd.DeliveryByAddress,c.Code,V.VoucherNo,V.PostingDate,V.Id) AS TEMP WHERE " + strkey + " order by PostingDate desc ";
             return _sqlRepository.GetDataCollection(sql);
         }

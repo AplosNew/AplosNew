@@ -1850,6 +1850,7 @@
     <Compile Include="SqlServerTypes\Loader.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Areas\Accounts\Scripts\employeeOperationUploadController.js" />
     <Content Include="Areas\Accounts\Scripts\voucherPrintController.js" />
     <Content Include="Areas\Accounts\Scripts\voucherTypeAdditionalInfoController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceReviseMaturedateController.js" />
@@ -3184,6 +3185,7 @@
     <Content Include="Areas\Setups\Scripts\shiftGroupController.js" />
     <Content Include="Areas\Setups\Scripts\plantSettingController.js" />
     <Content Include="Areas\Setups\Views\HSNTaxPercentageNew\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Scripts\skillUploadController.js" />
     <Content Include="Areas\TaskManagement\Scripts\EditControlController.js" />
     <Content Include="Areas\TaskManagement\Scripts\TaskCloserMasterController.js" />
     <Content Include="Areas\TaskManagement\Scripts\UserEditControlController.js" />
@@ -5059,6 +5061,7 @@
     <Content Include="Areas\Outsourcing\Views\ExportDB\Aplos.cshtml" />
     <Content Include="Areas\Commercial\Views\Compliance\Transaction.cshtml" />
     <Content Include="Areas\Banks\Views\_ALLBankPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\EmployeeOperationUpload.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -5242,6 +5245,7 @@
     <Content Include="Areas\Products\Views\PurchaseOrder\_ServiceControlServiceMasterPopUp.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesProcess.cshtml" />
     <Content Include="Areas\Setups\Views\ServiceMaster\_ServiceMasterPopUpNew.cshtml" />
+    <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\SkillUpload.cshtml" />
     <None Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>PayrollsDataSet.Designer.cs</LastGenOutput>
