@@ -139,17 +139,9 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
             ShowResult('Please select Report Type', 'failure');
             return false;
         }
-
         if ($scope.report.AssetReportType == 'SaleWise') {
             $scope.gridAssetDataURL = 'Products/salesRegister/GetAssetSalesRegister'
         }
-        //else if ($scope.report.ReportType == 'PartyWise') {
-        //    $scope.gridDataURL = 'Products/salesRegister/SalesRegisterCustomerWiseData'
-        //}
-        //else if ($scope.report.ReportType == 'ItemWise') {
-        //    $scope.gridDataURL = 'Products/salesRegister/GetSalesRegisterItemWiseData'
-        //}
-        //'Materials/MaterialLedger/GetPurchaseRegister'
         $http({
             method: 'POST',
             url: $scope.gridAssetDataURL,
@@ -162,26 +154,9 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
         }).then(function successCallback(response) {
             if ($scope.report.AssetReportType == 'SaleWise') {
                 $scope.SalesAssetRegisterLists = response.data.NewData;
-                //for (var i = 0; i < $scope.SalesAssetRegisterLists.length; i++) {
-                //    response.data[i].GRNEntryDate = new Date($scope.SalesRegisterLists[i].GRNEntryDate);
-                //}
             }
-            //else if ($scope.report.ReportType == 'PartyWise') {
-            //    $scope.SalesRegisterPartyList = response.data.NewData;
-            //    for (var i = 0; i < $scope.SalesRegisterPartyList.length; i++) {
-            //        response.data[i].GRNEntryDate = new Date($scope.SalesRegisterPartyList[i].GRNEntryDate);
-            //    }
-            //}
-            //else if ($scope.report.ReportType == 'ItemWise') {
-            //    $scope.SalesRegisterItemList = response.data.NewData;
-            //    for (var i = 0; i < $scope.SalesRegisterItemList.length; i++) {
-            //        response.data[i].GRNEntryDate = new Date($scope.SalesRegisterItemList[i].GRNEntryDate);
-            //    }
-            //}
-
             $scope.load();
         });
-
     };
 
   
