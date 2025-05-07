@@ -3039,5 +3039,14 @@ Where EmpSystemId='" + empId + "'";
         public string UpdatedBy { get; set; }
         public DateTime UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
+        public string OperationMaster { get; set; }
+        public string OperationActivity { get; set; }
+        public string OperationType { get; set; }
+        public string OperationCategory { get; set; }
+        public string Skill { get; set; }
+        public string SkillGroup { get; set; }
+        public string LegalDesignation { get; set; }
+        public string MachineMaster { get; set; }
+        public string Process { get; set; }
     }
 }

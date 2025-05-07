@@ -513,6 +513,7 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
             { field: 'SkillCategory', width: 40, headerText: "Skill Category" },
             { field: 'SkillCode', width: 80, headerText: "Skill Code" },
             { field: 'Skill', width: 180, headerText: "Skill" },
+            { field: 'SkillGroup', width: 180, headerText: "Skill Group" },
             { field: 'Skill1', width: 80, headerText: "Skill 1" },
             { field: 'Skill2', width: 80, headerText: "Skill 2" },
             { field: 'Skill3', width: 80, headerText: "Skill 3" }
