@@ -100,8 +100,9 @@ namespace Library.Service.Skills
             }
         }
 
-        public GridModel GetCommonSkillListByProcess(GridParameter parameters, string companyGroupId, string[] processIds)
+        public GridModel GetCommonSkillListByProcess(GridParameter parameters, string companyGroupId, string[] processIds, bool MachineRequired)
         {
+            
             parameters.CmdText = @";WITH CTE AS
                     (
                        SELECT SP.SkillId, SK.UserName SkillCategoryName, SK.[Sequence], SK.Code, SK.ShortName, SK.StandardName, SK.UserName--,SP.ProcessId
@@ -109,7 +110,7 @@ namespace Library.Service.Skills
 	                    FROM [HKP].[SkillProcess] AS SP
 	                    JOIN [HKP].[Skill] AS SK ON SP.SkillId=SK.Id
 	                    LEFT JOIN [HKP].[SkillCategory] AS SKC ON SK.SkillCategoryId=SKC.Id
-	                    WHERE SP.ProcessId IN (" + ReturnStringArray(processIds) + ") AND SK.CompanyGroupId='"+ companyGroupId + @"' AND SK.IsMachineApplicable=0 AND SK.Active=1
+	                    WHERE SP.ProcessId IN (" + ReturnStringArray(processIds) + ") AND SK.CompanyGroupId='"+ companyGroupId + @"' AND SK.IsMachineApplicable='"+ MachineRequired + @"' AND SK.Active=1
                     ) SELECT DISTINCT *, COUNT(*) OVER () AS TotalRows FROM CTE";
             return _sqlRepository.GetDifferentGridData(parameters);
         }

@@ -442,22 +442,23 @@ namespace Library.Accounting.Accounts
         {
             var cmdText = @"DECLARE @fromDate datetime='" + fromDate + @"' ,@toDate datetime='" + toDate + @"'
 
-                select x.GL,x.Budget,x.Activity
+           select x.GL,x.Budget,x.Activity
  ,SUM(x.OpeningAmount)OpeningAmount
  ,SUM(x.OpeningJV) OpeningJV
  ,SUM(x.OpeningAmount)+SUM(x.OpeningJV) TotalOpeningAmount
  ,SUM(x.RegisterItemAmount)RegisterItemAmount
- ,SUM(x.DepreciationAmount)DepreciationAmount
-,SUM(x.OpeningAmount)+SUM(x.OpeningJV)+SUM(x.RegisterItemAmount)-SUM(x.DepreciationAmount) NetAssetAmount
+ ,SUM(x.DepreciationAmount)DepreciationAmount,SUM(X.DisposeAmount) DisposeAmount
+,SUM(x.OpeningAmount)+SUM(x.OpeningJV)+SUM(x.RegisterItemAmount)-SUM(x.DepreciationAmount)-SUM(X.DisposeAmount) NetAssetAmount
 ,0 JVAmount 
-,TotalAmount=SUM(x.OpeningAmount)+SUM(x.OpeningJV)+SUM(x.RegisterItemAmount)-SUM(x.DepreciationAmount)+sum(isnull(x.JVAmount,0))
+,TotalAmount=SUM(x.OpeningAmount)+SUM(x.OpeningJV)+SUM(x.RegisterItemAmount)-SUM(x.DepreciationAmount)-SUM(X.DisposeAmount)+sum(isnull(x.JVAmount,0))
 ,x.GLGeneralInfoId,x.BudgetMasterId,x.ActivityId from (
  
  SELECT T.GL,T.Budget,T.Activity
- ,SUM(T.OpeningAmount)-T.OBDepreciationAmount OpeningAmount
+ ,SUM(T.OpeningAmount)-T.OBDepreciationAmount-(SUM(T.OPDisposeAmount)-SUM(T.OPDesposeDepAmount)) OpeningAmount
  ,isnull(jv.JVDrAmount,0)-Isnull(jv.JVCrAmount,0) OpeningJV
  ,SUM(T.RegisterItemAmount)RegisterItemAmount
  ,SUM(T.DepreciationAmount)DepreciationAmount
+ ,0  DisposeAmount
 ,SUM(T.NetAssetAmount)NetAssetAmount
 ,0 JVAmount 
 ,TotalAmount=SUM(T.NetAssetAmount)+(isnull(jv.JVDrAmount,0)-Isnull(jv.JVCrAmount,0))
@@ -465,7 +466,7 @@ namespace Library.Accounting.Accounts
 FROM (
 --opening
 select GL.UserName GL,B.UserName Budget,A.UserName Activity,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
-,ARC.Amount OpeningAmount,ISNULL(aDep.DepreciationAmount,0) OBDepreciationAmount, 0 RegisterItemAmount 
+,ARC.Amount OpeningAmount,0 OPDisposeAmount,0 OPDesposeDepAmount,ISNULL(aDep.DepreciationAmount,0) OBDepreciationAmount, 0 RegisterItemAmount 
 ,0 DepreciationAmount
 ,0 NetAssetAmount
 from trn.AssetRegisterChild ARC
@@ -480,21 +481,37 @@ left join MST.BudgetMaster BM ON BM.Id=vd.BudgetMasterId
 left join hkp.Budget B ON B.Id=BM.BudgetId
 left join hkp.Activity A ON A.Id=vd.ActivityId
 left join mst.BudgetMasterActivity bma ON bma.BudgetMasterId=VD.BudgetMasterId and bma.ActivityId=VD.ActivityId
-
 left join (
 	select VD.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId,SUM(VDC.CrAmount) DepreciationAmount
 	FROM trn.VoucherDetail VD  
 	LEFT JOIN  trn.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id  
 	LEFT JOIN [TRN].Voucher ADV ON ADV.Id=VD.VoucherId
-		where ADV.PostingDate< @fromDate  and ADV.Ispark=0  and ADV.SourceType='DepreciationJournal' --AND ADV.IsPark=0  
+		where ADV.PostingDate< @fromDate  and ADV.Ispark=0  and ADV.SourceType='DepreciationJournal' 
 		group by VD.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
 		) aDep ON aDep.GLGeneralInfoId=VD.GLGeneralInfoId and aDep.BudgetMasterId=VD.BudgetMasterId and aDep.ActivityId=VD.ActivityId
 
 where v.PostingDate < @fromDate  and v.Ispark=0 
-and ARC.AssetRegisterId NOT IN (select AssetRegisterId from [TRN].[FixedAssetRegisterDisposedDetail] FRDD 
-join  [TRN].[FixedAssetRegisterDisposed] FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId 
+
+Union all
+select GL.UserName GL,B.UserName Budget,A.UserName Activity,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
+,0 OpeningAmount,ISNULL(ARC.Amount,0) OPDisposeAmount,ISNULL(ARC.DepreciationAmount,0) OPDesposeDepAmount,0 OBDepreciationAmount, 0 RegisterItemAmount 
+,0 DepreciationAmount
+,0 NetAssetAmount
+from trn.AssetRegisterChild ARC
+left join trn.AssetRegister AR on AR.Id = ARC.AssetRegisterId
+join [TRN].[FixedAssetRegisterDisposedDetail] fardd ON fardd.AssetRegisterId=AR.Id
+join  [TRN].[FixedAssetRegisterDisposed] FRD ON FRD.Id=fardd.FixedAssetRegisterDisposedId 
 join trn.Voucher DV ON DV.Id=FRD.DisposedVoucherId and DV.IsPark=0
-where DV.PostingDate< @fromDate)
+LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=ARC.FixedAssetItemId
+LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
+left join trn.VoucherDetail VD on VD.Id = ARC.VoucherdetailId
+left join hkp.GLGeneralInfo GL ON GL.Id=vd.GLGeneralInfoId
+left join MST.BudgetMaster BM ON BM.Id=vd.BudgetMasterId
+left join hkp.Budget B ON B.Id=BM.BudgetId
+left join hkp.Activity A ON A.Id=vd.ActivityId
+left join mst.BudgetMasterActivity bma ON bma.BudgetMasterId=VD.BudgetMasterId and bma.ActivityId=VD.ActivityId
+where convert(Date,Dv.PostingDate) <  @fromDate   and dv.Ispark=0 
+ 
 )T
 
 LEFT JOIN (SELECT VD.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId,Sum(ISNULL(vdc.DrAmount,0)) JVDrAmount,sum(ISNULL(vdc.CrAmount,0)) JVCrAmount
@@ -511,17 +528,17 @@ SELECT T.GL,T.Budget,T.Activity
  ,SUM(T.OpeningAmount)OpeningAmount
  ,SUM(T.OpeningJV) OpeningJV
  ,SUM(T.RegisterItemAmount)RegisterItemAmount
- ,SUM(T.DepreciationAmount)DepreciationAmount
+ ,SUM(T.DepreciationAmount)DepreciationAmount,sum(ISNULL(T.FPDisposeAmount,0))-sum(ISNULL(T.FPDesposeDepAmount,0)) DisposeAmount
 ,SUM(T.NetAssetAmount)NetAssetAmount
 ,JVAmount=isnull(jv.JVDrAmount,0)-Isnull(jv.JVCrAmount,0)
 ,TotalAmount=SUM(T.NetAssetAmount)+(isnull(jv.JVDrAmount,0)-Isnull(jv.JVCrAmount,0))
 ,T.GLGeneralInfoId,t.BudgetMasterId,t.ActivityId
 FROM (
 
-select GL.UserName GL,B.UserName Budget,A.UserName Activity,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
-,0 OpeningAmount,0 OpeningJV,ARC.Amount RegisterItemAmount
-,0 DepreciationAmount--,ISNULL(aDep.DepreciationAmount,0) DepreciationAmount
-,NetAssetAmount=ARC.Amount-ISNULL(aDep.DepreciationAmount,0)
+select  GL.UserName GL,B.UserName Budget,A.UserName Activity,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
+,0 OpeningAmount,0 OpeningJV,SUM(ARC.Amount) RegisterItemAmount
+,0 DepreciationAmount ,0 FPDisposeAmount,0 FPDesposeDepAmount
+,NetAssetAmount=SUM(ARC.Amount)-SUM(ISNULL(aDep.DepreciationAmount,0))
 from trn.AssetRegisterChild ARC
 left join trn.AssetRegister AR on AR.Id = ARC.AssetRegisterId
 LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=ARC.FixedAssetItemId
@@ -537,19 +554,18 @@ left join mst.BudgetMasterActivity bma ON bma.BudgetMasterId=VD.BudgetMasterId a
 left join (select AssetRegisterChildId,SUM(DepreciationAmount) DepreciationAmount from [TRN].[AssetDepreciationDetail]  ADPD 
 	LEFT JOIN [TRN].[AssetDepreciation] ADP ON ADP.Id=ADPD.AssetDepreciationId LEFT JOIN [TRN].Voucher ADV ON ADV.Id=ADP.VoucherId
 		where ADV.PostingDate between @fromDate and @toDate AND ADV.IsPark=0  group by AssetRegisterChildId ) aDep ON aDep.AssetRegisterChildId=ARC.Id
+ 
 
-where v.PostingDate  between @fromDate and @toDate  and v.Ispark=0 and ARC.AssetRegisterId NOT IN (select AssetRegisterId from [TRN].[FixedAssetRegisterDisposedDetail] FRDD 
-join  [TRN].[FixedAssetRegisterDisposed] FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId 
-join trn.Voucher DV ON DV.Id=FRD.DisposedVoucherId and DV.IsPark=0
-where DV.PostingDate between @fromDate and @toDate)
-
+where convert(Date,v.PostingDate)  between @fromDate and @toDate  and v.Ispark=0 
+group by  ARC.AssetRegisterId,GL.UserName ,B.UserName ,A.UserName ,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
+ 
 
 
 UNION ALL
 
 select GL.UserName GL,B.UserName Budget,A.UserName Activity,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
 ,0 OpeningAmount,0 OpeningJV,0 RegisterItemAmount
-,ISNULL(aDep.DepreciationAmount,0) DepreciationAmount
+,ISNULL(aDep.DepreciationAmount,0) DepreciationAmount,0 FPDisposeAmount,0 FPDesposeDepAmount
 ,0 NetAssetAmount
 from trn.AssetRegisterChild ARC
 left join trn.AssetRegister AR on AR.Id = ARC.AssetRegisterId
@@ -565,8 +581,28 @@ left join hkp.Activity A ON A.Id=vd.ActivityId
 left join mst.BudgetMasterActivity bma ON bma.BudgetMasterId=VD.BudgetMasterId and bma.ActivityId=VD.ActivityId
 left join (select AssetRegisterChildId,SUM(DepreciationAmount) DepreciationAmount from [TRN].[AssetDepreciationDetail]  ADPD 
 	LEFT JOIN [TRN].[AssetDepreciation] ADP ON ADP.Id=ADPD.AssetDepreciationId LEFT JOIN [TRN].Voucher ADV ON ADV.Id=ADP.VoucherId
-		where ADV.PostingDate between @fromDate and @toDate  AND ADV.IsPark=0  group by AssetRegisterChildId ) aDep ON aDep.AssetRegisterChildId=ARC.Id
+		where ADV.PostingDate between  @fromDate and @toDate  AND ADV.IsPark=0  group by AssetRegisterChildId ) aDep ON aDep.AssetRegisterChildId=ARC.Id
+UNION ALL
 
+select  GL.UserName GL,B.UserName Budget,A.UserName Activity,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
+,0 OpeningAmount,0 OpeningJV,0 RegisterItemAmount
+,0 DepreciationAmount ,ISNULL(ARC.Amount,0) FPDisposeAmount,ISNULL(ARC.DepreciationAmount,0) FPDesposeDepAmount--,ISNULL(aDep.DepreciationAmount,0) DepreciationAmount
+,0 NetAssetAmount 
+from trn.AssetRegisterChild ARC
+left join trn.AssetRegister AR on AR.Id = ARC.AssetRegisterId
+join [TRN].[FixedAssetRegisterDisposedDetail] fardd ON fardd.AssetRegisterId=AR.Id
+join  [TRN].[FixedAssetRegisterDisposed] FRD ON FRD.Id=fardd.FixedAssetRegisterDisposedId 
+join trn.Voucher DV ON DV.Id=FRD.DisposedVoucherId and DV.IsPark=0
+LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=ARC.FixedAssetItemId
+LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
+left join trn.VoucherDetail VD on VD.Id = ARC.VoucherdetailId
+left join hkp.GLGeneralInfo GL ON GL.Id=vd.GLGeneralInfoId
+left join MST.BudgetMaster BM ON BM.Id=vd.BudgetMasterId
+left join hkp.Budget B ON B.Id=BM.BudgetId
+left join hkp.Activity A ON A.Id=vd.ActivityId
+left join mst.BudgetMasterActivity bma ON bma.BudgetMasterId=VD.BudgetMasterId and bma.ActivityId=VD.ActivityId
+where convert(Date,Dv.PostingDate)  between @fromDate and @toDate  and dv.Ispark=0 
+ 
 )T
 
 LEFT JOIN (SELECT VD.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId,Sum(ISNULL(vdc.DrAmount,0)) JVDrAmount,sum(ISNULL(vdc.CrAmount,0)) JVCrAmount
@@ -576,7 +612,7 @@ group by VD.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId) jv ON jv.GLGeneralI
 
 GROUP BY T.GL,T.Budget,T.Activity,jv.JVCrAmount,jv.JVDrAmount,T.GLGeneralInfoId,t.BudgetMasterId,t.ActivityId
 ) x
-group by x.GL,x.Budget,x.Activity,x.GLGeneralInfoId,x.BudgetMasterId,x.ActivityId ";
+group by x.GL,x.Budget,x.Activity,x.GLGeneralInfoId,x.BudgetMasterId,x.ActivityId  ";
             return _sqlRepository.GetDataTable(cmdText);
         }
 
@@ -7734,6 +7770,13 @@ group by x.GL,x.Budget,x.Activity,x.GLGeneralInfoId,x.BudgetMasterId,x.ActivityI
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
+            worksheet[ROW, COL].Text = "Disposed Amount";
+            int colDisposeAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
             worksheet[ROW, COL].Text = "Net Asset Amount";
             int colNetAssetAmount = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
@@ -7778,6 +7821,8 @@ group by x.GL,x.Budget,x.Activity,x.GLGeneralInfoId,x.BudgetMasterId,x.ActivityI
                 worksheet[ROW, colAssetAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                 worksheet[ROW, colDepreciationAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["DepreciationAmount"].ToString());
                 worksheet[ROW, colDepreciationAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colDisposeAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["DisposeAmount"].ToString());
+                worksheet[ROW, colDisposeAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                 worksheet[ROW, colNetAssetAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["NetAssetAmount"].ToString());
                 worksheet[ROW, colNetAssetAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                 worksheet[ROW, colJVAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["JVAmount"].ToString());
