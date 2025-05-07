@@ -59,7 +59,7 @@ namespace Aplos.Areas.Costings.Controllers
   FROM TRN.MasterOrderItem AS moi 
 LEFT JOIN TRN.MasterOrder AS mo ON mo.Id=MOI.MasterOrderId
 LEFT JOIN HKP.Party P ON P.Id=MO.PartyId
-WHERE ISNULL(moi.OrderCostingMasterTemplateId,'')<>'' AND MO.OrderStatusId='Active'";
+WHERE MO.OrderStatusId='Active'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)

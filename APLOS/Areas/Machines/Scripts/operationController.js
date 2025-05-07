@@ -535,6 +535,8 @@ function OperationController(cboService, commonMessage, $scope, $rootScope, base
         $rootScope.tempList = [];
         angular.element(document.querySelector('#processPopUp')).modal('hide');
     };
+
+    $scope.MachineRequired = false;
     function getOperationProcessList() {
         $http({
             method: 'GET',
@@ -544,9 +546,12 @@ function OperationController(cboService, commonMessage, $scope, $rootScope, base
             });
         if ($scope.operationNew.IsMachineRequired === true)
         {
+            $scope.MachineRequired = true;
             $scope.operationNew.IsMachineRequired= "M";
         } else
         {
+            $scope.MachineRequired = false;
+
             $scope.operationNew.IsMachineRequired = "H";
         }
     }
@@ -780,7 +785,7 @@ function OperationController(cboService, commonMessage, $scope, $rootScope, base
     $scope.skillPoUp = function () {
         $scope.excluedList = [];
         $scope.skillDataList = [];
-        $scope.skillUrl = 'Skills/Skill/GetCommonSkillListByProcess?processIds=' + baseService.getColumnValueList($scope.sprocessList, 'ProcessId');
+        $scope.skillUrl = 'Skills/Skill/GetCommonSkillListByProcess?processIds=' + baseService.getColumnValueList($scope.sprocessList, 'ProcessId') +'&MachineRequired='+$scope.MachineRequired;
         baseService.setCurrentPage('dataList');
         $scope.getSkillData = function (pageno) {
             baseService.paginationBase($scope.skillUrl, pageno, $scope.skillParameters)
