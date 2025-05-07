@@ -121,12 +121,12 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
     $scope.SalesRegisterItemList = [];
     $scope.SalesAssetRegisterLists = [];
     $scope.SalesAssetRegisterPartyList = [];
-    $scope.SalesAssetRegisterItemList = [];
+    $scope.SalesAssetRegisterItemWiseLists = [];
     $scope.pivotTableFieldListID = [];
     $scope.GetAssetSalesRegisterView = function () {
         $scope.SalesAssetRegisterLists = [];
         $scope.SalesAssetRegisterPartyList = [];
-        $scope.SalesAssetRegisterItemList = [];
+        $scope.SalesAssetRegisterItemWiseLists = [];
         if ($scope.report.AssetFromDate === null || $scope.report.AssetFromDate === "") {
             ShowResult('Select From Date', 'failure');
             return false;
@@ -142,6 +142,9 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
         if ($scope.report.AssetReportType == 'SaleWise') {
             $scope.gridAssetDataURL = 'Products/salesRegister/GetAssetSalesRegister'
         }
+        else if ($scope.report.AssetReportType == 'ItemWise') {
+            $scope.gridAssetDataURL = 'Products/salesRegister/GetAssetSalesRegisterItemWise'
+        }
         $http({
             method: 'POST',
             url: $scope.gridAssetDataURL,
@@ -154,6 +157,9 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
         }).then(function successCallback(response) {
             if ($scope.report.AssetReportType == 'SaleWise') {
                 $scope.SalesAssetRegisterLists = response.data.NewData;
+            }
+            if ($scope.report.AssetReportType == 'ItemWise') {
+                $scope.SalesAssetRegisterItemWiseLists = response.data.NewData;
             }
             $scope.load();
         });
@@ -496,6 +502,60 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
             dataList = $scope.SalesAssetRegisterLists;
         }
         $scope.fileName = 'Sales Register Sales Wise';
+        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+        $http({
+            method: 'POST',
+            url: $scope.exportAssetgriddataUrl,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+    $scope.AssetSalesRegisterItemWiseReport = function () {
+        var Type = null;
+        if ($scope.productNew.AsOnDate === 'AsOnDate') {
+
+            if ($scope.report.AssetToDate === "" || $scope.report.AssetToDate === null || $scope.report.AssetToDate === undefined) {
+                ShowResult('Select To Date', 'failure');
+                return false;
+            }
+            Type = 'AsOnDate';
+        }
+        else {
+
+            if ($scope.report.AssetFromDate === "" || $scope.report.AssetFromDate === null || $scope.report.AssetFromDate === undefined) {
+                ShowResult('Select From Date', 'failure');
+                return false;
+            }
+            if ($scope.report.AssetToDate === "" || $scope.report.AssetToDate === null || $scope.report.AssetToDate === undefined) {
+                ShowResult('Select To Date', 'failure');
+                return false;
+            }
+            Type = 'ForThePeriod';
+        }
+
+        $scope.report.Summary = 'Summary';
+
+        var dataList = [];
+        var g = $("#GridAssetItemPrint").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.SalesAssetRegisterItemWiseLists;
+        }
+        $scope.fileName = 'Asset Sales Register Item Wise';
         $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
         $http({
             method: 'POST',

@@ -2018,5 +2018,174 @@ SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserNam
 			}
 		}
 
+		public DataTable GetAssetSalesRegisterItemWiseSql(string FromDate, string ToDate, string Type)
+		{
+			var sql = "";
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+				string temp = "";
+				if (Type == "ForThePeriod")
+				{
+					temp = "BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"'";
+
+				}
+				else
+				{
+					temp = "<= '" + ToDate + @"'";
+
+				}
+
+				sql = @"SELECT * FROM (SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo	,PAG.UserName PartyAccountGroup,C.Code BookCurrency
+									,SMD.AssetRegisterId,FAM.UserName AssetMaster,FAI.UserName AssetItem,AR.UserReference,V.VoucherNo,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') PostingDate
+									,TotalVoucherAmount=ISNULL(ARC.AssetValue,0)-ISNULL(ARC.Depreciationamount,0)+ round(isnull(TAxInfo.TaxAmount,0),2)
+									+ round(isnull(TAxInfo2.TaxAmount,0),2)
+									+ round(isnull(TAxInfo1.TaxAmount,0),2)
+									+round(isnull(TAxInfo6.BooksTaxAmount,0),2)
+									,PurchaseAmount=ISNULL(ARC.AssetValue,0) 
+									,ISNULL(ARC.Depreciationamount,0) Depreciationamount,AR.AdjustmentDepreciationAmount
+									,NetAssetAmount=ISNULL(ARC.AssetValue,0)-ISNULL(ARC.Depreciationamount,0)
+									,SMD.BaseNagotiationValue NagotiationValue 
+									,[Profit/Loss]=SMD.BaseNagotiationValue+AR.AdjustmentDepreciationAmount -(ISNULL(ARC.AssetValue,0)-ISNULL(ARC.Depreciationamount,0))
+									,CGSTBC= round(isnull(TAxInfo.TaxAmount,0),2) 		
+									,SGSTBC= round(isnull(TAxInfo2.TaxAmount,0),2)
+									,IGSTBC= round(isnull(TAxInfo1.TaxAmount,0),2)
+									,TCSBC=round(isnull(TAxInfo6.TaxAmount,0),2) 
+									,TotalSalesAmount=ISNULL(SMD.BaseNagotiationValue,0)
+									+ round(isnull(TAxInfo.TaxAmount,0),2)
+									+ round(isnull(TAxInfo2.TaxAmount,0),2)
+									+ round(isnull(TAxInfo1.TaxAmount,0),2)
+									+round(isnull(TAxInfo6.BooksTaxAmount,0),2)
+									,IV.SetOff SetOffAmount
+									,Balance=ISNULL(SMD.BaseNagotiationValue,0)
+									+ round(isnull(TAxInfo.TaxAmount,0),2)
+									+ round(isnull(TAxInfo2.TaxAmount,0),2)
+									+ round(isnull(TAxInfo1.TaxAmount,0),2)
+									+round(isnull(TAxInfo6.BooksTaxAmount,0),2)
+									-isnull(IV.SetOff,0)
+									,SA.Id DisposeId,SA.Id InvoiceNo ,REPLACE(CONVERT(CHAR(11), SA.DocDate, 106),' ','-') InvoiceDate,SA.Id DocRefNo,REPLACE(CONVERT(CHAR(11), SA.DocDate, 106),' ','-') DocDate
+									--, ProductionOrder=STUFF((select distinct ','+CPO.PONumber
+		       --                                  from trn.SalesMaterial SMX									 
+									--			 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
+									--			  LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = XSO.CustomerPOId
+									--                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									--, MasterOrder=STUFF((select distinct ','+MO.MasterOrderNo
+		       --                                  from trn.SalesMaterial SMX									 
+									--			 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
+									--			  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
+									--			  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
+									--                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									--,SalesOrder=STUFF((select distinct ','+XSO.Id 
+		       --                                  from trn.SalesMaterial SMX									 
+									--			 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId                                     
+									--                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									,CU.Code InvoiceCurrency,SA.ToCurrencyRate InvoiceCurrencyRate
+									,V.Id VoucherId,REPLACE(CONVERT(CHAR(11), V.PostedDate, 106),' ','-') PostedDate,V.IsPark,'' OrderType,SA.AddedBy PreparedBy
+									,REPLACE(CONVERT(CHAR(11), SA.AddedDate, 106),' ','-') EntryDate
+
+									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory
+									,CN.UserName Country
+						            FROM  [TRN].[FixedAssetRegisterDisposed] AS SA
+									LEFT JOIN [TRN].[FixedAssetRegisterDisposedDetail] SMD  ON SA.Id=SMD.FixedAssetRegisterDisposedId
+									LEFT JOIN TRN.AssetRegister AR ON AR.Id=SMD.AssetRegisterId
+									LEFT JOIN (select AssetRegisterId,SUM(Amount) AssetValue,sum(depreciationamount) depreciationamount FROM  TRN.AssetRegisterChild GROUP BY  AssetRegisterId)ARC ON ARC.AssetRegisterId=AR.Id
+									LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+									LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
+									LEFT JOIN (SELECT AssetRegisterId,sum(DepreciationAmount) DepreciationAmount FROM [TRN].[AssetDepreciationDetail]  GROUP BY  AssetRegisterId) ADPD ON ADPD.AssetRegisterId=AR.Id
+									--LEFT JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=ARC.CapitalizationMasterId
+									LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
+									LEFT JOIN TRN.Voucher V  on V.Id=SA.DisposedVoucherId
+									LEFT JOIN [HKP].[Party] AS P ON P.Id=SA.PartyId
+									LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'  AND CP.PlantId=V.PlantId
+									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
+									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+									LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
+									LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=SA.PartyPlantId
+									LEFT JOIN [HKP].[PartyPlant] AS PPD ON PPD.Id=SA.DeliveryPartyPlantId
+									LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
+									LEFT JOIN [SCS].[Country] AS CN ON CN.Id=AM.CountryId
+									LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
+									LEFT JOIN [ORG].[Company] AS CO ON CO.Id=V.CompanyId
+									LEFT JOIN [SCS].[Currency] AS C ON C.Id=CO.BaseCurrencyId
+									 
+									LEFT JOIN (SELECT I.PartyId,I.PartyPlantId,I.VoucherId,ISNULL(IWd.SetOffAmount,0) SetOff,SourceType 
+													from [TRN].Invoice I 
+													LEFT JOIN (select iwd.invoiceId,sum(vdc.CrAmount) SetOffAmount from TRN.InvoiceWriteOffDetail iwd 
+													left join trn.voucherdetail vd on vd.InvoiceWriteOffDetailId=iwd.Id
+													left join trn.voucherdetailcurrency vdc on vdc.voucherdetailId=vd.id group by invoiceId)IWd ON Iwd.InvoiceId=I.Id where  PartyType='Customer' and SourceType='SalesInvoice'
+													
+													) IV ON IV.VoucherId=SA.DisposedVoucherId AND IV.PartyId=SA.PartyId and iv.PartyPlantId=sa.PartyPlantId
+									LEFT JOIN (SELECT A.FixedAssetRegisterDisposedDetailId, sum(A.Amount) TaxAmount 
+												FROM [TRN].[FixedAssetRegisterDisposedTax] A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+												--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+												WHERE B.Code='CGST'  
+												Group by A.FixedAssetRegisterDisposedDetailId
+												) TAxInfo	ON TAxInfo.FixedAssetRegisterDisposedDetailId=SMD.Id
+									LEFT JOIN (SELECT A.FixedAssetRegisterDisposedDetailId, sum(A.Amount) TaxAmount 
+												FROM [TRN].[FixedAssetRegisterDisposedTax] A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+												--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+												WHERE B.Code='IGST' --and A.SalesServiceId IS NULL	
+												Group by A.FixedAssetRegisterDisposedDetailId
+												) TAxInfo1	ON TAxInfo1.FixedAssetRegisterDisposedDetailId=SMD.Id 
+
+									LEFT JOIN (SELECT A.FixedAssetRegisterDisposedDetailId, sum(A.Amount) TaxAmount 
+												FROM [TRN].[FixedAssetRegisterDisposedTax] A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+												--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+												WHERE B.Code='SGST' --and A.SalesServiceId IS NULL
+												Group by A.FixedAssetRegisterDisposedDetailId
+												) TAxInfo2	ON TAxInfo2.FixedAssetRegisterDisposedDetailId=SMD.Id 
+
+									LEFT JOIN (SELECT A.FixedAssetRegisterDisposedDetailId, sum(A.Amount) TaxAmount 
+												FROM [TRN].[FixedAssetRegisterDisposedTax] A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+												--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+												WHERE B.Code='TDS' --and A.SalesServiceId IS NULL
+												Group by A.FixedAssetRegisterDisposedDetailId
+												) TAxInfo3	ON TAxInfo3.FixedAssetRegisterDisposedDetailId=SMD.Id 
+
+									LEFT JOIN (SELECT A.FixedAssetRegisterDisposedDetailId, sum(A.Amount) TaxAmount 
+												FROM [TRN].[FixedAssetRegisterDisposedTax] A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+												--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+												WHERE B.Code='VAT' --and A.SalesServiceId IS NULL		
+												Group by A.FixedAssetRegisterDisposedDetailId
+									) TAxInfo4 ON TAxInfo4.FixedAssetRegisterDisposedDetailId=SMD.Id 
+
+									LEFT JOIN (SELECT A.FixedAssetRegisterDisposedDetailId, sum(A.Amount) TaxAmount 
+												FROM [TRN].[FixedAssetRegisterDisposedTax] A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+												--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+												WHERE B.Code='AIT' --and A.SalesServiceId IS NULL		
+												Group by A.FixedAssetRegisterDisposedDetailId
+									) TAxInfo5 ON TAxInfo5.FixedAssetRegisterDisposedDetailId=SMD.Id 
+									LEFT JOIN (SELECT A.FixedAssetRegisterDisposedId
+									,SUM(A.TaxAmount) BooksTaxAmount,SUM(TaxAmount) TaxAmount
+												FROM TRN.FixedAssetRegisterDisposedAdditionalTax A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 		
+												WHERE B.Code='TCS'  
+												Group BY A.FixedAssetRegisterDisposedId			
+									) TAxInfo6 ON  TAxInfo6.FixedAssetRegisterDisposedId=sa.Id
+									
+									WHERE   convert(Date,SA.DocDate) "+ temp + @"  and 
+									Sa.[Status]='Sales'
+
+								 ) X ORDER BY X.EntryDate";
+
+				return _sqlRepository.GetDataTable(sql);
+
+
+			}
+
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
 	}
 }

@@ -215,49 +215,49 @@
         <div class="clearfix"></div>
         <fieldset class="scheduler-border" ng-show="SalesRegisterPartyList.length">
             <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Party Wise</span></legend>
-                <div class="content-container-fluid" style="color:black;">
-                    <div style="color:black;" id="GridPartyPrint" ej-grid e-datasource="SalesRegisterPartyList"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
-                         e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
-                         e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
-                        @*<div e-stackedheaderrows>
-                            <div e-stackedheaderrow>
-                                <div e-stackedheadercolumns>
+            <div class="content-container-fluid" style="color:black;">
+                <div style="color:black;" id="GridPartyPrint" ej-grid e-datasource="SalesRegisterPartyList"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
+                     e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
+                    @*<div e-stackedheaderrows>
+                        <div e-stackedheaderrow>
+                            <div e-stackedheadercolumns>
 
-                                    <div e-stackedheadercolumn e-headertext="Posted (Dr.)" e-column="GLCode,GL,BudgetrefNo,Budget,ActivityId,ActivityCode,Activity" textAlign='Center'></div>
-                                    <div e-stackedheadercolumn e-headertext="Posted (Cr.)" e-column="CGLCode,CGL,CBudgetrefNo,CBUdget,CActivityId,CActivityCode,CActivity" textAlign='Center'></div>
-                                </div>
+                                <div e-stackedheadercolumn e-headertext="Posted (Dr.)" e-column="GLCode,GL,BudgetrefNo,Budget,ActivityId,ActivityCode,Activity" textAlign='Center'></div>
+                                <div e-stackedheadercolumn e-headertext="Posted (Cr.)" e-column="CGLCode,CGL,CBudgetrefNo,CBUdget,CActivityId,CActivityCode,CActivity" textAlign='Center'></div>
                             </div>
-                        </div>*@
-                        <div e-columns>
-                            <div e-column e-field="PartyId" e-headertext="Party Id" e-width="100" textAlign='Left'></div>
-                            <div e-column e-field="PartyName" e-headertext="Party Name" e-width="120" textAlign='Left'></div>
-                            <div e-column e-field="BillTo" e-headertext="Bill To" e-width="150" textAlign='Left'></div>
-                            <div e-column e-field="ShipTo" e-headertext="Ship To" e-width="150" textAlign='Left'></div>
-                            <div e-column e-field="PartyTaxNo" e-headertext="PartyTaxNo" e-width="180"></div>
-                            <div e-column e-field="PartyAccountGroup" e-headertext="Party AccountGroup" e-width="180"></div>
-                            <div e-column e-field="BookCurrency" e-headertext="BookCurrency" e-width="60"></div>
-                            <div e-column e-field="InvoiceValueBC" e-headertext="InvoiceValue (BC)" e-width="130" textAlign='Left'></div>
-                            <div e-column e-field="BasicValueBC" e-headertext="BasicValue(BC)" e-width="130" textAlign='Left'></div>
-                            <div e-column e-field="TotalTaxServiceAndChargesBC" e-headertext="TotalTaxServiceAndChargesBC" e-width="130" textAlign='Left'></div>
-                            <div e-column e-field="TotalTaxBC" e-headertext="TotalTaxBC" e-width="130" textAlign='Right'></div>
-                            <div e-column e-field="ServiceChargeTaxBC" e-headertext="ServiceChargeTaxBC" e-width="130" textAlign='Right'></div>
-                            <div e-column e-field="CGSTBC" e-headertext="CGSTBC" e-width="130" textAlign='Right'></div>
-                            <div e-column e-field="SGSTBC" e-headertext="SGSTBC" e-width="130" textAlign='Right'></div>
-                            <div e-column e-field="IGSTBC" e-headertext="IGSTBC" e-width="100"></div>
-                            <div e-column e-field="TCSBC" e-headertext="TCSBC" e-width="100"></div>
-                            <div e-column e-field="SetOffAmount" e-headertext="SetOff" e-width="100"></div>
-                            <div e-column e-field="Balance" e-headertext="Balance" e-width="100"></div>
-                            <div e-column e-field="PartyGroup" e-headertext="Party Group" e-width="100" textAlign='Right'></div>
-                            <div e-column e-field="PartyCategory" e-headertext="Party Category" e-width="100" textAlign='Right'></div>
-                            <div e-column e-field="PartySubCategory" e-headertext="Party SubCategory" e-width="100" textAlign='Right'></div>
-                            <div e-column e-field="PartyType" e-headertext="Party Type" e-width="180"></div>
-                            <div e-column e-field="Country" e-headertext="Country" e-width="180"></div>
                         </div>
-
+                    </div>*@
+                    <div e-columns>
+                        <div e-column e-field="PartyId" e-headertext="Party Id" e-width="100" textAlign='Left'></div>
+                        <div e-column e-field="PartyName" e-headertext="Party Name" e-width="120" textAlign='Left'></div>
+                        <div e-column e-field="BillTo" e-headertext="Bill To" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="ShipTo" e-headertext="Ship To" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="PartyTaxNo" e-headertext="PartyTaxNo" e-width="180"></div>
+                        <div e-column e-field="PartyAccountGroup" e-headertext="Party AccountGroup" e-width="180"></div>
+                        <div e-column e-field="BookCurrency" e-headertext="BookCurrency" e-width="60"></div>
+                        <div e-column e-field="InvoiceValueBC" e-headertext="InvoiceValue (BC)" e-width="130" textAlign='Left'></div>
+                        <div e-column e-field="BasicValueBC" e-headertext="BasicValue(BC)" e-width="130" textAlign='Left'></div>
+                        <div e-column e-field="TotalTaxServiceAndChargesBC" e-headertext="TotalTaxServiceAndChargesBC" e-width="130" textAlign='Left'></div>
+                        <div e-column e-field="TotalTaxBC" e-headertext="TotalTaxBC" e-width="130" textAlign='Right'></div>
+                        <div e-column e-field="ServiceChargeTaxBC" e-headertext="ServiceChargeTaxBC" e-width="130" textAlign='Right'></div>
+                        <div e-column e-field="CGSTBC" e-headertext="CGSTBC" e-width="130" textAlign='Right'></div>
+                        <div e-column e-field="SGSTBC" e-headertext="SGSTBC" e-width="130" textAlign='Right'></div>
+                        <div e-column e-field="IGSTBC" e-headertext="IGSTBC" e-width="100"></div>
+                        <div e-column e-field="TCSBC" e-headertext="TCSBC" e-width="100"></div>
+                        <div e-column e-field="SetOffAmount" e-headertext="SetOff" e-width="100"></div>
+                        <div e-column e-field="Balance" e-headertext="Balance" e-width="100"></div>
+                        <div e-column e-field="PartyGroup" e-headertext="Party Group" e-width="100" textAlign='Right'></div>
+                        <div e-column e-field="PartyCategory" e-headertext="Party Category" e-width="100" textAlign='Right'></div>
+                        <div e-column e-field="PartySubCategory" e-headertext="Party SubCategory" e-width="100" textAlign='Right'></div>
+                        <div e-column e-field="PartyType" e-headertext="Party Type" e-width="180"></div>
+                        <div e-column e-field="Country" e-headertext="Country" e-width="180"></div>
                     </div>
 
                 </div>
+
+            </div>
         </fieldset>
         <fieldset class="scheduler-border" ng-show="report.ReportType=='SaleWise'">
             <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;"> Sales Wise</span></legend>
@@ -418,111 +418,59 @@
             </div>
         </fieldset>
         <div class="clearfix"></div>
-        <!--<fieldset class="scheduler-border" ng-show="SalesAssetRegisterPartyList.length">
-            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Party Wise</span></legend>
-            <div id="PR">
-                <div class="content-container-fluid" style="color:black;">
 
-                    <div style="color:black;" id="GridAssetPartyPrint" ej-grid e-datasource="SalesAssetRegisterPartyList"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
-                         e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
-                         e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
-                        <div e-stackedheaderrows>
-                            <div e-stackedheaderrow>
-                                <div e-stackedheadercolumns>
+        <fieldset class="scheduler-border" ng-show="SalesAssetRegisterLists.length">
+            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Asset Sales Wise</span></legend>
+            <div class="content-container-fluid" style="color:black;">
+                <div style="color:black;" id="GridAssetSalesPrint" ej-grid e-datasource="SalesAssetRegisterLists"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected1"
+                     e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
+                    <div e-columns>
+                        <div e-column e-field="PartyId" e-headertext="Sales Id" e-width="100" textAlign='Left'></div>
+                        <div e-column e-field="PartyName" e-headertext="Customer Name" e-width="100"></div>
+                        <div e-column e-field="BillTo" e-headertext="Bill To" e-width="180" textAlign='Left'></div>
+                        <div e-column e-field="ShipTo" e-headertext="Ship To" e-width="180" textAlign='Left'></div>
+                        <div e-column e-field="PartyTaxNo" e-headertext="PartyTaxNo" e-width="100"></div>
+                        <div e-column e-field="PartyAccountGroup" e-headertext="PartyAccountGroup" e-width="100"></div>
+                        <div e-column e-field="BookCurrency" e-headertext="BookCurrency" e-width="100"></div>
+                        <div e-column e-field="InvoiceValueBC" e-headertext="InvoiceValueBC" e-width="100"></div>
+                        <div e-column e-field="BasicValueBC" e-headertext="BasicValueBC" e-width="100"></div>
+                        <div e-column e-field="TotalTaxServiceAndChargesBC" e-headertext="TotalTaxServiceAndChargesBC" e-width="100"></div>
+                        <div e-column e-field="TotalTaxBC" e-headertext="TotalTaxBC" e-width="100"></div>
+                        <div e-column e-field="CGSTBC" e-headertext="CGSTBC" e-width="100"></div>
+                        <div e-column e-field="SGSTBC" e-headertext="SGSTBC" e-width="100"></div>
+                        <div e-column e-field="IGSTBC" e-headertext="IGSTBC" e-width="100"></div>
+                        <div e-column e-field="TCSBC" e-headertext="TCSBC" e-width="100"></div>
 
-                                    <div e-stackedheadercolumn e-headertext="Posted (Dr.)" e-column="GLCode,GL,BudgetrefNo,Budget,ActivityId,ActivityCode,Activity" textAlign='Center'></div>
-                                    <div e-stackedheadercolumn e-headertext="Posted (Cr.)" e-column="CGLCode,CGL,CBudgetrefNo,CBUdget,CActivityId,CActivityCode,CActivity" textAlign='Center'></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div e-columns>-->
-
-                            @*<div e-column e-field="[S.N]" e-headertext="SI" e-width="50" e-filter="false"></div>*@
-                            @*<div e-column e-field="DocDate" e-headertext="Doc Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>*@
-                            <!--<div e-column e-field="PartyId" e-headertext="Party Id" e-width="100" textAlign='Left'></div>
-                            <div e-column e-field="PartyName" e-headertext="Party Name" e-width="120" textAlign='Left'></div>
-                            <div e-column e-field="BillTo" e-headertext="Bill To" e-width="150" textAlign='Left'></div>
-                            <div e-column e-field="ShipTo" e-headertext="Ship To" e-width="150" textAlign='Left'></div>
-                            <div e-column e-field="PartyTaxNo" e-headertext="PartyTaxNo" e-width="180"></div>
-                            <div e-column e-field="PartyAccountGroup" e-headertext="Party AccountGroup" e-width="180"></div>
-                            <div e-column e-field="BookCurrency" e-headertext="BookCurrency" e-width="60"></div>
-                            <div e-column e-field="InvoiceValueBC" e-headertext="InvoiceValue (BC)" e-width="130" textAlign='Left'></div>
-                            <div e-column e-field="BasicValueBC" e-headertext="BasicValue(BC)" e-width="130" textAlign='Left'></div>
-                            <div e-column e-field="TotalTaxServiceAndChargesBC" e-headertext="TotalTaxServiceAndChargesBC" e-width="130" textAlign='Left'></div>
-                            <div e-column e-field="TotalTaxBC" e-headertext="TotalTaxBC" e-width="130" textAlign='Right'></div>
-                            <div e-column e-field="ServiceChargeTaxBC" e-headertext="ServiceChargeTaxBC" e-width="130" textAlign='Right'></div>
-                            <div e-column e-field="CGSTBC" e-headertext="CGSTBC" e-width="130" textAlign='Right'></div>
-                            <div e-column e-field="SGSTBC" e-headertext="SGSTBC" e-width="130" textAlign='Right'></div>
-                            <div e-column e-field="IGSTBC" e-headertext="IGSTBC" e-width="100"></div>
-                            <div e-column e-field="TCSBC" e-headertext="TCSBC" e-width="100"></div>
-                            <div e-column e-field="SetOffAmount" e-headertext="SetOff" e-width="100"></div>
-                            <div e-column e-field="Balance" e-headertext="Balance" e-width="100"></div>
-                            <div e-column e-field="PartyGroup" e-headertext="Party Group" e-width="100" textAlign='Right'></div>
-                            <div e-column e-field="PartyCategory" e-headertext="Party Category" e-width="100" textAlign='Right'></div>
-                            <div e-column e-field="PartySubCategory" e-headertext="Party SubCategory" e-width="100" textAlign='Right'></div>
-                            <div e-column e-field="PartyType" e-headertext="Party Type" e-width="180"></div>
-
-                            <div e-column e-field="Country" e-headertext="Country" e-width="180"></div>
-                        </div>
-
+                        <div e-column e-field="SetOffAmount" e-headertext="SetOffAmount" e-width="100"></div>
+                        <div e-column e-field="Balance" e-headertext="Balance" e-width="100"></div>
+                        <div e-column e-field="DisposeId" e-headertext="DisposeId" e-width="100"></div>
+                        <div e-column e-field="InvoiceNo" e-headertext="InvoiceNo" e-width="100"></div>
+                        <div e-column e-field="DocDate" e-headertext="Invoice Date" e-width="100"></div>
+                        <div e-column e-field="DocRefNo" e-headertext="DocRefNo" e-width="100"></div>
+                        <div e-column e-field="DocDate" e-headertext="DocDate" e-width="100"></div>
+                        <div e-column e-field="InvoiceCurrency" e-headertext="InvoiceCurrency" e-width="100"></div>
+                        <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="130"></div>
+                        <div e-column e-field="PONumber" e-headertext="Customer PO Number" e-width="100"></div>
+                        <div e-column e-field="MasterOrder" e-headertext="Master Order Number" e-width="100"></div>
+                        <div e-column e-field="SONumber" e-headertext="Sales Order Number" e-width="100"></div>
+                        <div e-column e-field="InvoiceCurrencyRate" e-headertext="InvoiceCurrencyRate" e-width="130" textAlign='Left'></div>
+                        <div e-column e-field="PartyGroup" e-headertext="Party Group" e-width="100" textAlign='Right'></div>
+                        <div e-column e-field="PartyCategory" e-headertext="Party Category" e-width="100" textAlign='Right'></div>
+                        <div e-column e-field="PartySubCategory" e-headertext="Party SubCategory" e-width="100" textAlign='Right'></div>
+                        <div e-column e-field="PartyAccountGroup" e-headertext="Party AccountGroup" e-width="180"></div>
                     </div>
 
                 </div>
             </div>
-        </fieldset>-->
-        <fieldset class="scheduler-border" ng-show="SalesAssetRegisterLists.length">
-            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Asset Sales Wise</span></legend>
-                <div class="content-container-fluid" style="color:black;">
-                    <div style="color:black;" id="GridAssetSalesPrint" ej-grid e-datasource="SalesAssetRegisterLists"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
-                         e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected1"
-                         e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
-                        <div e-columns>
-                            <div e-column e-field="PartyId" e-headertext="Sales Id" e-width="100" textAlign='Left'></div>
-                            <div e-column e-field="PartyName" e-headertext="Customer Name" e-width="100"></div>
-                            <div e-column e-field="BillTo" e-headertext="Bill To" e-width="180" textAlign='Left'></div>
-                            <div e-column e-field="ShipTo" e-headertext="Ship To" e-width="180" textAlign='Left'></div>
-                            <div e-column e-field="PartyTaxNo" e-headertext="PartyTaxNo" e-width="100"></div>
-                            <div e-column e-field="PartyAccountGroup" e-headertext="PartyAccountGroup" e-width="100"></div>
-                            <div e-column e-field="BookCurrency" e-headertext="BookCurrency" e-width="100"></div>
-                            <div e-column e-field="InvoiceValueBC" e-headertext="InvoiceValueBC" e-width="100"></div>
-                            <div e-column e-field="BasicValueBC" e-headertext="BasicValueBC" e-width="100"></div>
-                            <div e-column e-field="TotalTaxServiceAndChargesBC" e-headertext="TotalTaxServiceAndChargesBC" e-width="100"></div>
-                            <div e-column e-field="TotalTaxBC" e-headertext="TotalTaxBC" e-width="100"></div>
-                            <div e-column e-field="CGSTBC" e-headertext="CGSTBC" e-width="100"></div>
-                            <div e-column e-field="SGSTBC" e-headertext="SGSTBC" e-width="100"></div>
-                            <div e-column e-field="IGSTBC" e-headertext="IGSTBC" e-width="100"></div>
-                            <div e-column e-field="TCSBC" e-headertext="TCSBC" e-width="100"></div>
-
-                            <div e-column e-field="SetOffAmount" e-headertext="SetOffAmount" e-width="100"></div>
-                            <div e-column e-field="Balance" e-headertext="Balance" e-width="100"></div>
-                            <div e-column e-field="DisposeId" e-headertext="DisposeId" e-width="100"></div>
-                            <div e-column e-field="InvoiceNo" e-headertext="InvoiceNo" e-width="100"></div>
-                            <div e-column e-field="DocDate" e-headertext="Invoice Date" e-width="100"></div>
-                            <div e-column e-field="DocRefNo" e-headertext="DocRefNo" e-width="100"></div>
-                            <div e-column e-field="DocDate" e-headertext="DocDate" e-width="100"></div>
-                            <div e-column e-field="InvoiceCurrency" e-headertext="InvoiceCurrency" e-width="100"></div>
-                            <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="130"></div>
-                            <div e-column e-field="PONumber" e-headertext="Customer PO Number" e-width="100"></div>
-                            <div e-column e-field="MasterOrder" e-headertext="Master Order Number" e-width="100"></div>
-                            <div e-column e-field="SONumber" e-headertext="Sales Order Number" e-width="100"></div>
-                            <div e-column e-field="InvoiceCurrencyRate" e-headertext="InvoiceCurrencyRate" e-width="130" textAlign='Left'></div>
-                            <div e-column e-field="PartyGroup" e-headertext="Party Group" e-width="100" textAlign='Right'></div>
-                            <div e-column e-field="PartyCategory" e-headertext="Party Category" e-width="100" textAlign='Right'></div>
-                            <div e-column e-field="PartySubCategory" e-headertext="Party SubCategory" e-width="100" textAlign='Right'></div>
-                            <div e-column e-field="PartyAccountGroup" e-headertext="Party AccountGroup" e-width="180"></div>
-                        </div>
-
-                    </div>
-                </div>
         </fieldset>
-        <fieldset class="scheduler-border" ng-show="SalesAssetRegisterItemList.length">
+        <fieldset class="scheduler-border" ng-show="SalesAssetRegisterItemWiseLists.length">
             <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Item Wise</span></legend>
             <div id="PR">
                 <div class="content-container-fluid" style="color:black;">
 
-                    <div style="color:black;" id="GridItemPrint" ej-grid e-datasource="SalesAssetRegisterItemList"
+                    <div style="color:black;" id="GridAssetItemPrint" ej-grid e-datasource="SalesAssetRegisterItemWiseLists"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                          e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
                          e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
@@ -549,16 +497,28 @@
                             <div e-column e-field="PartyTaxNo" e-headertext="PartyTaxNo" e-width="100" textAlign='Left'></div>
                             <div e-column e-field="PartyAccountGroup" e-headertext="PartyAccountGroup" e-width="100" textAlign='Left'></div>
                             <div e-column e-field="BookCurrency" e-headertext="BookCurrency" e-width="100" textAlign='Left'></div>
-                            <div e-column e-field="InvoiceValueBC" e-headertext="InvoiceValue (BC)" e-width="100"></div>
-                            <div e-column e-field="BasicValueBC" e-headertext="BasicValue (BC)" e-width="100"></div>
+                            <div e-column e-field="AssetRegisterId" e-headertext="AssetRegisterNo" e-width="100"></div>
+                            <div e-column e-field="AssetMaster" e-headertext="AssetMaster" e-width="100"></div>
+                            <div e-column e-field="AssetItem" e-headertext="AssetItem" e-width="100"></div>
+                            <div e-column e-field="UserReference" e-headertext="UserReference" e-width="100"></div>
+                            <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
+                            <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                             <div e-column e-field="TotalTaxServiceAndChargesBC" e-headertext="TotalTaxServiceAndChargesBC" e-width="100"></div>
+                            <div e-column e-field="TotalVoucherAmount" e-headertext="TotalVoucherAmount" e-width="100"></div>
+                            <div e-column e-field="PurchaseAmount" e-headertext="PurchaseAmount" e-width="100"></div>
+                            <div e-column e-field="Depreciationamount" e-headertext="Depreciationamount" e-width="100"></div>
+                            <div e-column e-field="AdjustmentDepreciationAmount" e-headertext="AdjustmentDepreciationAmount" e-width="100"></div>
                             <div e-column e-field="TotalTaxBC" e-headertext="TotalTaxBC" e-width="100"></div>
-                            <div e-column e-field="ServiceChargesBC" e-headertext="ServiceChargesBC" e-width="100"></div>
-                            <div e-column e-field="ServiceChargeTaxBC" e-headertext="ServiceChargeTaxBC" e-width="100"></div>
+                            <div e-column e-field="NetAssetAmount" e-headertext="NetAssetAmount" e-width="100"></div>
+                            <div e-column e-field="NagotiationValue" e-headertext="NagotiationValue" e-width="100"></div>
+                            <div e-column e-field="Profit/Loss" e-headertext="Profit/Loss" e-width="100"></div>
+                            <div e-column e-field="TotalSalesAmount" e-headertext="TotalSalesAmount" e-width="100"></div>
                             <div e-column e-field="CGSTBC" e-headertext="CGSTBC" e-width="100" textAlign='Left'></div>
                             <div e-column e-field="SGSTBC" e-headertext="SGSTBC" e-width="100" textAlign='Left'></div>
                             <div e-column e-field="IGSTBC" e-headertext="IGSTBC" e-width="100" textAlign='Left'></div>
                             <div e-column e-field="TCSBC" e-headertext="TCSBC" e-width="100" textAlign='Left'></div>
+                            <div e-column e-field="SetOffAmount" e-headertext="SetOffAmount" e-width="100"></div>
+                            <div e-column e-field="Balance" e-headertext="Balance" e-width="100"></div>
                             <div e-column e-field="InvoiceRowId" e-headertext="InvoiceRowId" e-width="100" textAlign='Left'></div>
                             <div e-column e-field="InvoiceId" e-headertext="InvoiceId" e-width="100" textAlign='Left'></div>
                             <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
@@ -575,29 +535,6 @@
                             <div e-column e-field="PaymentDays" e-headertext="PaymentDays" e-width="50" textAlign='Left'></div>
                             <div e-column e-field="MatureDate" e-headertext="MatureDate" e-width="80" textAlign='Left'></div>
                             <div e-column e-field="DueDays" e-headertext="DueDays" e-width="50"></div>
-
-                            <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="80"></div>
-                            <div e-column e-field="VoucherId" e-headertext="VoucherId" e-width="60"></div>
-                            <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="60"></div>
-                            <div e-column e-field="PostedDate" e-headertext="Posted Date" e-width="60"></div>
-                            <div e-column e-field="IsPark" e-headertext="IsPark" e-width="60"></div>
-                            <div e-column e-field="OrderType" e-headertext="Order Type" e-width="80"></div>
-                            <div e-column e-field="Article" e-headertext="Article" e-width="100"></div>
-                            <div e-column e-field="ProductCode" e-headertext="ProductCode" e-width="100"></div>
-                            <div e-column e-field="ProductGroup" e-headertext="ProductGroup" e-width="100"></div>
-                            <div e-column e-field="MaterialGroup" e-headertext="MaterialGroup" e-width="100"></div>
-                            <div e-column e-field="MaterialType" e-headertext="MaterialType" e-width="100"></div>
-                            <div e-column e-field="Material" e-headertext="Material" e-width="200"></div>
-                            <div e-column e-field="MaterialCategory" e-headertext="MaterialCategory" e-width="200"></div>
-                            <div e-column e-field="MaterialSubCategory" e-headertext="MaterialSubCategory" e-width="200"></div>
-                            <div e-column e-field="HSNCode" e-headertext="HSNCode" e-width="60"></div>
-                            <div e-column e-field="UOM" e-headertext="UOM" e-width="60"></div>
-                            <div e-column e-field="TransactionQty" e-headertext="TransactionQty" e-width="60"></div>
-                            <div e-column e-field="TransactionRate" e-headertext="TransactionRate" e-width="60"></div>
-                            <div e-column e-field="TransactionAmount" e-headertext="TransactionAmount" e-width="60"></div>
-                            <div e-column e-field="Remark" e-headertext="Remark" e-width="60"></div>
-                            <div e-column e-field="DrControlId" e-headertext="DrControlId" e-width="60"></div>
-                            <div e-column e-field="CrControlId" e-headertext="CrControlId" e-width="60"></div>
                             <div e-column e-field="PreparedBy" e-headertext="PreparedBy" e-width="60"></div>
                             <div e-column e-field="EntryDate" e-headertext="EntryDate" e-width="60"></div>
                             <div e-column e-field="Entity" e-headertext="Entity" e-width="60"></div>
