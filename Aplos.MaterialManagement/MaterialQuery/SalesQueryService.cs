@@ -2037,8 +2037,8 @@ SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserNam
 
 				}
 
-				sql = @"SELECT * FROM (SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo	,PAG.UserName PartyAccountGroup,C.Code BookCurrency
-									,SMD.AssetRegisterId,FAM.UserName AssetMaster,FAI.UserName AssetItem,AR.UserReference,V.VoucherNo,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') PostingDate
+				sql = @"SELECT * FROM (SELECT  SMD.AssetRegisterId,FAM.UserName AssetMaster,FAI.UserName AssetItem,AR.UserReference,V.VoucherNo,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') PostingDate
+									,IsPark=case when V.IsPark=0 then 'No' when V.IsPark=1 then 'Yes' else 'NoVoucher'end,ARC.GL,ARC.Budget,ARC.Activity,Sa.[Status] SalesType
 									,TotalVoucherAmount=ISNULL(ARC.AssetValue,0)-ISNULL(ARC.Depreciationamount,0)+ round(isnull(TAxInfo.TaxAmount,0),2)
 									+ round(isnull(TAxInfo2.TaxAmount,0),2)
 									+ round(isnull(TAxInfo1.TaxAmount,0),2)
@@ -2065,35 +2065,28 @@ SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserNam
 									+round(isnull(TAxInfo6.BooksTaxAmount,0),2)
 									-isnull(IV.SetOff,0)
 									,SA.Id DisposeId,SA.Id InvoiceNo ,REPLACE(CONVERT(CHAR(11), SA.DocDate, 106),' ','-') InvoiceDate,SA.Id DocRefNo,REPLACE(CONVERT(CHAR(11), SA.DocDate, 106),' ','-') DocDate
-									--, ProductionOrder=STUFF((select distinct ','+CPO.PONumber
-		       --                                  from trn.SalesMaterial SMX									 
-									--			 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
-									--			  LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = XSO.CustomerPOId
-									--                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-									--, MasterOrder=STUFF((select distinct ','+MO.MasterOrderNo
-		       --                                  from trn.SalesMaterial SMX									 
-									--			 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
-									--			  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
-									--			  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
-									--                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-									--,SalesOrder=STUFF((select distinct ','+XSO.Id 
-		       --                                  from trn.SalesMaterial SMX									 
-									--			 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId                                     
-									--                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 									,CU.Code InvoiceCurrency,SA.ToCurrencyRate InvoiceCurrencyRate
-									,V.Id VoucherId,REPLACE(CONVERT(CHAR(11), V.PostedDate, 106),' ','-') PostedDate,V.IsPark,'' OrderType,SA.AddedBy PreparedBy
-									,REPLACE(CONVERT(CHAR(11), SA.AddedDate, 106),' ','-') EntryDate
-
+									,V.Id VoucherId,REPLACE(CONVERT(CHAR(11), V.PostedDate, 106),' ','-') PostedDate,'' OrderType,SA.AddedBy PreparedBy
+									,REPLACE(CONVERT(CHAR(11), SA.AddedDate, 106),' ','-') EntryDate,P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo	,PAG.UserName PartyAccountGroup,C.Code BookCurrency
 									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory
 									,CN.UserName Country
 						            FROM  [TRN].[FixedAssetRegisterDisposed] AS SA
 									LEFT JOIN [TRN].[FixedAssetRegisterDisposedDetail] SMD  ON SA.Id=SMD.FixedAssetRegisterDisposedId
 									LEFT JOIN TRN.AssetRegister AR ON AR.Id=SMD.AssetRegisterId
-									LEFT JOIN (select AssetRegisterId,SUM(Amount) AssetValue,sum(depreciationamount) depreciationamount FROM  TRN.AssetRegisterChild GROUP BY  AssetRegisterId)ARC ON ARC.AssetRegisterId=AR.Id
+									LEFT JOIN (select AssetRegisterId,SUM(ARC.Amount) AssetValue,sum(ARC.Depreciationamount) DepreciationAmount 
+									,GL.UserName GL,B.UserName Budget,A.UserName Activity 
+											FROM  TRN.AssetRegisterChild ARC
+											LEFT JOIN trn.VoucherDetail VD on VD.Id = ARC.VoucherdetailId
+											LEFT JOIN hkp.GLGeneralInfo GL ON GL.Id=vd.GLGeneralInfoId
+											LEFT JOIN MST.BudgetMaster BM ON BM.Id=vd.BudgetMasterId
+											LEFT JOIN hkp.Budget B ON B.Id=BM.BudgetId
+											LEFT JOIN hkp.Activity A ON A.Id=vd.ActivityId
+											LEFT JOIN mst.BudgetMasterActivity bma ON bma.BudgetMasterId=VD.BudgetMasterId and bma.ActivityId=VD.ActivityId
+											GROUP BY  AssetRegisterId,GL.UserName ,B.UserName ,A.UserName ,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
+											)ARC ON ARC.AssetRegisterId=AR.Id
 									LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
 									LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
 									LEFT JOIN (SELECT AssetRegisterId,sum(DepreciationAmount) DepreciationAmount FROM [TRN].[AssetDepreciationDetail]  GROUP BY  AssetRegisterId) ADPD ON ADPD.AssetRegisterId=AR.Id
-									--LEFT JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=ARC.CapitalizationMasterId
 									LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
 									LEFT JOIN TRN.Voucher V  on V.Id=SA.DisposedVoucherId
 									LEFT JOIN [HKP].[Party] AS P ON P.Id=SA.PartyId
@@ -2170,10 +2163,7 @@ SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserNam
 												WHERE B.Code='TCS'  
 												Group BY A.FixedAssetRegisterDisposedId			
 									) TAxInfo6 ON  TAxInfo6.FixedAssetRegisterDisposedId=sa.Id
-									
-									WHERE   convert(Date,SA.DocDate) "+ temp + @"  and 
-									Sa.[Status]='Sales'
-
+									WHERE   CONVERT(Date,SA.DocDate) " + temp + @"  
 								 ) X ORDER BY X.EntryDate";
 
 				return _sqlRepository.GetDataTable(sql);
