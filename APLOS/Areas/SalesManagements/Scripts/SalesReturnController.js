@@ -94,7 +94,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
             $scope.getLocationCbo();
         }
         else {
-            getIssueDetailList($scope.product.SalesId, data.data.PackingId,null);
+            getIssueDetailList($scope.product.SalesId, data.data.PackingId, null);
 
         }
 
@@ -444,7 +444,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         //    }
         //}
 
-      
+
         if ($scope.productNew.SourceType == 'Packing') {
             for (var i = 0; i < $scope.newList.length; i++) {
                 if ($scope.newList[i].VerifiedQty > 0 && $scope.newList[i].VerifiedQty != $scope.newList[i].ReturnQty) {
@@ -483,8 +483,8 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                         , 'itemScanCildList': $scope.tempitemScanList
                         , 'ItemScandata': $scope.tempitemScan
                         , 'itemScanCildNewList': $scope.itemScanNewListForSales
-                        , 'serviceDataList':  $scope.chargesList
-                        , 'serviceTaxList':  $scope.Servicetaxlist
+                        , 'serviceDataList': $scope.chargesList
+                        , 'serviceTaxList': $scope.Servicetaxlist
                         , 'additionalTaxList': $scope.advanceTaxesList
                     }
                     , dataType: 'JSON'
@@ -526,7 +526,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     }
 
 
-    function getIssueDetailList(salesId, packingId,smIds) {
+    function getIssueDetailList(salesId, packingId, smIds) {
         if ($scope.productNew.SourceType == 'Packing') {
             $scope.returnDetailurl = 'SalesManagements/Sales/GetPackingSalesDetailDataBySales?salesId=' + salesId + '&packingid=' + packingId + '&smIds=' + smIds
         } else {
@@ -557,7 +557,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     $scope.sqlInStatement = null;
     function getItemScanChildByPackingId(salesId, packingId) {
         $scope.tempitemScanList = [];
-        
+
         if ($scope.productNew.SourceType == 'Packing') {
             $scope.returnDetailurl = 'SalesManagements/Sales/GetItemScanChildDataByPackingId?salesId=' + salesId + '&packingid=' + packingId
         }
@@ -570,15 +570,15 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                     //for (var di = 0; di < $scope.tempitemScanList.length; di++) {
                     //    $scope.tempidList.push($scope.tempitemScanList[di]);
                     //}
-                   // if ($scope.tempitemScanList.length > 0) {
-                        var uniqueSalesMaterialId = removeDuplicates($scope.tempitemScanList, 'SalesMaterialId');
-                        var wcSMId = "";
-                        if (uniqueSalesMaterialId.length > 0) {
-                            wcSMId = "IN(";
-                            wcSMId += Array.prototype.map.call(uniqueSalesMaterialId, function (item) { return "'" + item.SalesMaterialId + "'"; }).join(",") + ")";
-                        }
-                        $scope.sqlInStatement = wcSMId;
-                   // }
+                    // if ($scope.tempitemScanList.length > 0) {
+                    var uniqueSalesMaterialId = removeDuplicates($scope.tempitemScanList, 'SalesMaterialId');
+                    var wcSMId = "";
+                    if (uniqueSalesMaterialId.length > 0) {
+                        wcSMId = "IN(";
+                        wcSMId += Array.prototype.map.call(uniqueSalesMaterialId, function (item) { return "'" + item.SalesMaterialId + "'"; }).join(",") + ")";
+                    }
+                    $scope.sqlInStatement = wcSMId;
+                    // }
                 }
 
                 getIssueDetailList($scope.product.SalesId, packingId, $scope.sqlInStatement);
@@ -678,7 +678,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                 $scope.taxlist[j].Amount = Math.round((data.Amount * ($scope.taxlist[j].Percentage / 100)) * 100 + Number.EPSILON) / 100
                 data.TaxAmount += Math.round((data.Amount * ($scope.taxlist[j].Percentage / 100)) * 100 + Number.EPSILON) / 100
             }
-           
+
 
             if ($scope.chargesList.length > 0) {
                 //var TotalServiceCharge = $filter('sumByKey')($filter('filter')($scope.chargesList), 'BalanceAmount');
@@ -717,8 +717,32 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         location.href = "Sales/SalesReturnReport?salesReturnId=" + data.Id;
     };
 
+
+    $scope.DeleteSalesReturn = function (data) {
+        $http({
+            method: 'POST'
+            , url: "Sales/SalesReturnDelete"
+            , data: {
+                'SalesReturnId': data.Id,
+                'SalesId':data.SalesId
+            }
+            , dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+
+    };
+
     //#region Additional TAX Code
-    $scope.advanceTax = { Id: null, SalesId: null, Amount: 0, Percentage: 0, BooksCurrencyTransactionAmount: 0, HSNCodeId:null, TotalSumAfterTCSVal: 0 };
+    $scope.advanceTax = { Id: null, SalesId: null, Amount: 0, Percentage: 0, BooksCurrencyTransactionAmount: 0, HSNCodeId: null, TotalSumAfterTCSVal: 0 };
     $scope.advanceTaxesList = [];
     $scope.additionalTax = function () {
         for (var i = 0; i < $scope.advanceTaxesList.length; i++) {
