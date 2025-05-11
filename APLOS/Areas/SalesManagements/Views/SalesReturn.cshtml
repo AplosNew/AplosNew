@@ -457,6 +457,7 @@
                 <div e-column e-field="Qty" e-headertext="Qty" e-width="30"></div>
                 <div e-column e-field="Verified_Qty" e-headertext="Verified_Qty" e-width="30"></div>
                 <div e-column e-headertext="Report" e-template="#ReportTemplate" e-width="10"></div>
+                <div e-column e-headertext="Delete" e-template="#DeleteTemplate" e-width="10"></div>
             </div>
         </div>
         <script id="ReportTemplate" type="text/template">
@@ -465,6 +466,17 @@
                     <li>
                         <button ng-click="$parent.LocalTaxInvoiceReport(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
                             <i class="fa fa-file-pdf-o"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </script>
+        <script id="DeleteTemplate" type="text/template">
+            <div class="common-btn">
+                <ul class="common-btn list-inline text-center">
+                    <li>
+                        <button ng-click="$parent.DeleteSalesReturn(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                            <i class="glyphicon glyphicon-trash"></i>
                         </button>
                     </li>
                 </ul>

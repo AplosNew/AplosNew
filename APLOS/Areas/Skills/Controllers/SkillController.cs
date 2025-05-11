@@ -65,10 +65,10 @@ namespace Aplos.Areas.Skills.Controllers
         /// <param name="processIds"></param>
         /// <returns></returns>
         [Authorize]
-        public JsonResult GetCommonSkillListByProcess(GridParameter parameters, string processIds)
+        public JsonResult GetCommonSkillListByProcess(GridParameter parameters, string processIds,bool MachineRequired)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_skillService.GetCommonSkillListByProcess(parameters, identity.CompanyGroupId, new JavaScriptSerializer().Deserialize<string[]>(processIds)), JsonRequestBehavior.AllowGet);
+            return Json(_skillService.GetCommonSkillListByProcess(parameters, identity.CompanyGroupId, new JavaScriptSerializer().Deserialize<string[]>(processIds), MachineRequired), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize]

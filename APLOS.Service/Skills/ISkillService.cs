@@ -34,7 +34,7 @@ namespace Library.Service.Skills
 
         GridModel GetIsMachineSkillList(GridParameter parameters, string companyGroupId, string[] skillProcessIds);
 
-        GridModel GetCommonSkillListByProcess(GridParameter parameters, string companyGroupId, string[] processIds);
+        GridModel GetCommonSkillListByProcess(GridParameter parameters, string companyGroupId, string[] processIds, bool MachineRequired);
 
         decimal GetAutoSequence();
 
