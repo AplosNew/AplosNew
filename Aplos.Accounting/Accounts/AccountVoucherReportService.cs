@@ -438,6 +438,26 @@ namespace Library.Accounting.Accounts
 
 
         }
+        public DataTable GetAssetDepreciationReportDataByAssetDepreciationId(string companyGroupId, string companyId, string plantId, string assetDepreciationId)
+        {
+            var cmdText = @"DECLARE @AssetDepreciationId varchar(50)='" + assetDepreciationId + @"'
+
+                        SELECT AssetDepreciationId,AD.ProcessName, REPLACE(CONVERT(CHAR(11), AD.ProcessDate, 106),' ','-') AS ProcessDate, AssetRegisterId, AssetRegisterChildId
+	                    , CapitalizationMasterId, CapitalizationChildId, REPLACE(CONVERT(CHAR(11), CapitalizationDate, 106),' ','-') AS CapitalizationDate, ADDS.FixedAssetMasterId
+	                    , ADDS.FixedAssetItemId,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem, DepreciationDays, DepreciationType, DepreciationRate, AssetValue
+	                    , DepreciationAmount, AccumulatedDepreciationAmount, NetAssetValue, AD.Remarks,AR.UserReference
+	                    FROM [TRN].[AssetDepreciation] AD
+	                    INNER JOIN [TRN].[AssetDepreciationDetail] ADDS  ON  ADDS.AssetDepreciationId = AD.Id
+	                    LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=ADDS.FixedAssetItemId
+                        LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
+                        LEFT JOIN [TRN].[AssetRegister]  AR ON AR.Id=ADDS.AssetRegisterId
+	                    WHERE ADDS.AssetDepreciationId=  @AssetDepreciationId
+                        AND AD.CompanyGroupId='" + companyGroupId + "' AND AD.CompanyId ='" + companyId + "' AND AD.PlantId='" + plantId + @"' 
+                        ORDER BY AssetRegisterId, AssetRegisterChildId, CapitalizationMasterId, CapitalizationChildId";
+            return _sqlRepository.GetDataTable(cmdText);
+
+
+        }
         public DataTable GetFixedAssetFinancialRegisterReportData(string companyGroupId, string companyId, string plantId, DateTime fromDate, DateTime toDate)
         {
             var cmdText = @"DECLARE @fromDate datetime='" + fromDate + @"' ,@toDate datetime='" + toDate + @"'
@@ -7864,6 +7884,232 @@ group by x.GL,x.Budget,x.Activity,x.GLGeneralInfoId,x.BudgetMasterId,x.ActivityI
 
             return workbook;
         }
+        public IWorkbook GetAssetDepreciationReportByAssetDepreciationId(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string assetDepreciationId)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            ExcelEngine excelEngine = new ExcelEngine();
+            //Instantiate the Excel application object
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+
+            //Load the existing Excel workbook into IWorkbook
+            IWorkbook workbook = application.Workbooks.Create(1);
+
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+            DataTable dtDayBookData = GetAssetDepreciationReportDataByAssetDepreciationId(companyGroupId, companyId, plantId, assetDepreciationId);
+
+            worksheet.Name = "Capitalize Assets Depreciation Report";
+            reportFileName = "Capitalize Assets Depreciation Report Asset DepreciationId: " + assetDepreciationId ;
+
+            int COL = 1; int ROW = 5;
+            int startCol = COL;
+
+            worksheet.Range[ROW - 1, 3].Text = "Asset DepreciationId: " + assetDepreciationId;
+
+            worksheet[ROW, COL].Text = "SL. No";
+            int colSLNO = COL;
+            worksheet[ROW, COL].ColumnWidth = 5;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Asset Depreciation Id";
+            int colAssetDepreciationId = COL;
+            worksheet[ROW, COL].ColumnWidth = 13;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "ProcessName";
+            int colProcessName = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Process Date";
+            int colProcessDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Asset Register Id";
+            int colAssetRegisterId = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Asset Register Child Id";
+            int colAssetRegisterChildId = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Capitalization Master Id";
+            int colCapitalizationMasterId = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Capitalization Child Id";
+            int colCapitalizationChildId = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Capitalization Date";
+            int colCapitalizationDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Asset Master Id";
+            int colFixedAssetMasterId = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Asset Item Id";
+            int colFixedAssetItemId = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Asset Master";
+            int colFixedAssetMaster = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Asset Item";
+            int colFixedAssetItem = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "User Reference";
+            int colUserReference = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Depreciation Days";
+            int colDepreciationDays = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Depreciation Type";
+            int colDepreciationType = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Depreciation Rate";
+            int colDepreciationRate = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "AssetValue";
+            int colAssetValue = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Depreciation Amount";
+            int colDepreciationAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Acc. Depreciation Amount";
+            int colAccumulatedDepreciationAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Net Asset Value";
+            int colNetAssetValue = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+            int endCol = COL;
+            worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
+            
+            ROW++;
+            int Row_Total_Start = ROW;
+            for (int i = 0; i < dtDayBookData.Rows.Count; i++)
+            {
+                worksheet[ROW, colSLNO].Number = (i + 1);
+                worksheet[ROW, colAssetDepreciationId].Text = dtDayBookData.Rows[i]["AssetDepreciationId"].ToString();
+                worksheet[ROW, colProcessName].Text = dtDayBookData.Rows[i]["ProcessName"].ToString();
+                worksheet[ROW, colProcessDate].Text = dtDayBookData.Rows[i]["ProcessDate"].ToString();
+                worksheet[ROW, colAssetRegisterId].Text = dtDayBookData.Rows[i]["AssetRegisterId"].ToString();
+                worksheet[ROW, colAssetRegisterChildId].Text = dtDayBookData.Rows[i]["AssetRegisterChildId"].ToString();
+                worksheet[ROW, colCapitalizationMasterId].Text = dtDayBookData.Rows[i]["CapitalizationMasterId"].ToString();
+                worksheet[ROW, colCapitalizationChildId].Text = dtDayBookData.Rows[i]["CapitalizationChildId"].ToString();
+                worksheet[ROW, colCapitalizationDate].Text = dtDayBookData.Rows[i]["CapitalizationDate"].ToString();
+                worksheet[ROW, colFixedAssetMasterId].Text = dtDayBookData.Rows[i]["FixedAssetMasterId"].ToString();
+                worksheet[ROW, colFixedAssetItemId].Text = dtDayBookData.Rows[i]["FixedAssetItemId"].ToString();
+                worksheet[ROW, colFixedAssetMaster].Text = dtDayBookData.Rows[i]["FixedAssetMaster"].ToString();
+                worksheet[ROW, colFixedAssetItem].Text = dtDayBookData.Rows[i]["FixedAssetItem"].ToString();
+                worksheet[ROW, colUserReference].Text = dtDayBookData.Rows[i]["UserReference"].ToString();
+                worksheet[ROW, colDepreciationDays].Text = dtDayBookData.Rows[i]["DepreciationDays"].ToString();
+                worksheet[ROW, colDepreciationType].Text = dtDayBookData.Rows[i]["DepreciationType"].ToString();
+                worksheet[ROW, colDepreciationRate].Text = dtDayBookData.Rows[i]["DepreciationRate"].ToString();
+                worksheet[ROW, colAssetValue].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["AssetValue"].ToString());
+                worksheet[ROW, colAssetValue].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colDepreciationAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["DepreciationAmount"].ToString());
+                worksheet[ROW, colDepreciationAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colAccumulatedDepreciationAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["AccumulatedDepreciationAmount"].ToString());
+                worksheet[ROW, colAccumulatedDepreciationAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colNetAssetValue].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["NetAssetValue"].ToString());
+                worksheet[ROW, colNetAssetValue].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.CellStyle.Font.Size = 8f;
+
+            var report = new ReportUtility();
+            // var workbook = report.GetWorkbook(ref excelEngine, 1);
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.PlantHeader(ref worksheet, endCol, "Capitalize Assets Depreciation Report", identity.PlantId);
+            reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            worksheet.IsGridLinesVisible = false;
+
+            #region Freeze Panes
+
+            worksheet.IsDisplayZeros = false;
+            worksheet.UsedRange["A6"].FreezePanes();
+            worksheet.FirstVisibleColumn = 1;
+            worksheet.FirstVisibleRow = 6;
+
+            #endregion Freeze Panes
+
+            return workbook;
+        }
         public IWorkbook GetAssetDepreciationReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, DateTime fromDate, DateTime toDate, string assetDepreciationId)
         {
 
@@ -8026,7 +8272,7 @@ group by x.GL,x.Budget,x.Activity,x.GLGeneralInfoId,x.BudgetMasterId,x.ActivityI
             worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
             worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
             worksheet.Range[ROW, 1, ROW, endCol].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
-            
+
             ROW++;
             int Row_Total_Start = ROW;
             for (int i = 0; i < dtDayBookData.Rows.Count; i++)

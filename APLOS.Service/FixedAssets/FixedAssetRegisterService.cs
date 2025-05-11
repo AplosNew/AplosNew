@@ -5149,6 +5149,43 @@ GROUP BY FAR.FABudgetMasterId
                     _unitOfWork.Rollback();
             }
         }
+
+        public void DeleteDepreciationProcess(string assetDepreciationId)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+
+                var inDirect = new System.Text.StringBuilder();
+                var inDirectsql = "";
+
+                inDirectsql = @"DELETE FROM [TRN].[AssetDepreciationDetail] WHERE AssetDepreciationId in('" + assetDepreciationId + @"') AND AssetRegisterId NOT IN(SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail])
+	                            DELETE FROM [TRN].[AssetDepreciation] WHERE Id in('" + assetDepreciationId + @"') AND Id NOT IN(SELECT AssetDepreciationId FROM [TRN].[AssetDepreciationDetail] WHERE AssetDepreciationId in('" + assetDepreciationId + @"') AND AssetRegisterId  IN(SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail]))
+	                            UPDATE [TRN].[AssetDepreciation] SET Status='Disposed Assets Depreciation' WHERE Id in('" + assetDepreciationId + @"') AND Id  IN(SELECT AssetDepreciationId FROM [TRN].[AssetDepreciationDetail] WHERE AssetDepreciationId in('" + assetDepreciationId + @"') AND AssetRegisterId  IN(SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail])) ";
+                inDirect.Append(inDirectsql);
+                _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
         public string EditFixedAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister)
         {
             var flag = false;

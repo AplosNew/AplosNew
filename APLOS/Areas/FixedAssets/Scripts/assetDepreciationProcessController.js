@@ -7,6 +7,33 @@ function assetDepreciationProcessController(cboService, commonMessage, $scope, $
     $scope.url = "FixedAssets/FixedAssetRegister";
     $scope.saveUrl = $scope.path + 'SaveAssetDepreciationProcess';
 
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+    $scope.searchByDepreciationProcessData = "ProcessName"; $scope.searchDepreciationProcessData = "";
+    $scope.searchByListDepreciationProcessData = [{ value: 'AssetDepreciationId', name: "Id" }, { value: 'ProcessName', name: "Process Name" }, { value: 'ProcessDate', name: "Process Date" }, { value: 'VoucherNo', name: "Voucher No" }];
+
+    $scope.masterList = [];
+    $scope.getData = function () {
+        $scope.masterList = [];
+        $http({
+            method: 'Post'
+            , url: 'FixedAssets/FixedAssetRegister/GetDepreciationProcessDataList'
+            , data: { column: $scope.searchByDepreciationProcessData, value: $scope.searchDepreciationProcessData }
+            , dataType: 'JSON'
+        }).then(function (response) {
+            $scope.masterList = response.data;
+        }), function (response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+    };
+    $scope.getData();
+
     $scope.depreciationProcess = {
         FiscalYearId: null,
         ToDate: $filter("dateFiltering")(Date.now()),
@@ -225,7 +252,61 @@ function assetDepreciationProcessController(cboService, commonMessage, $scope, $
 
     };
 
+    $scope.assetDepreciationId = null;
+    $scope.confirmDelete = function (data) {
+        if (data.data.VoucherNo != "") {
+            ShowResult("Posted data cann't delete!" + " VoucherNo: " + data.data.VoucherNo + " delete first!");
+            return false;
+        }
+        $scope.assetDepreciationId = data.data.AssetDepreciationId;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+    };
+    $scope.deleteUrl = $scope.path + "/DeleteDepreciationProcess";
+    $scope.delete = function (assetDepreciationId) {
+        $http({
+            method: "POST",
+            url: $scope.deleteUrl,
+            data: {
+                "assetDepreciationId": assetDepreciationId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.assetDepreciationId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
 
+    $scope.onClickReportDownloadExcel = function (args) {
+        var reportFormat = "Excel";
+        try {
+            var file_src = $scope.path + 'GetAssetDepreciationReportByAssetDepreciationId?reportFormat=' + reportFormat + '&assetDepreciationId=' + args.AssetDepreciationId
+            $rootScope.report(file_src);
+        } catch (e) {
+
+        }
+    };
+
+    $scope.onClickReportDownloadPdf = function (args) {
+        var reportFormat = "Pdf";
+        if (baseService.isUndefinedOrNull(args.AssetDepreciationId)) return ShowResult('No Id found', 'failure');
+        try {
+            $window.open('FixedAssets/FixedAssetRegister/GetAssetDepreciationReportByAssetDepreciationId?reportFormat=' + reportFormat + '&assetDepreciationId=' + args.AssetDepreciationId, '_blank');
+            //var file_src = $scope.path + 'GetAssetDepreciationReportByAssetDepreciationId?reportFormat=' + reportFormat + '&assetDepreciationId=' + args.AssetDepreciationId
+            //$rootScope.report(file_src);
+        } catch (e) {
+
+        }
+    };
 
 };
 
