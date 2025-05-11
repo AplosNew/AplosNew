@@ -940,6 +940,64 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
         }
 
+        [HttpPost]
+        public ActionResult SalesReturnDelete(string SalesReturnId, string SalesId)
+        {
+            try
+            {
+                DeleteSalesReturn(SalesReturnId, SalesId);
+                return Json(new { Error = false, Message = "Data Deleteded successfully" }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+        }
+        private void DeleteSalesReturn(string SalesRetrunId, string SalesId)
+        {
+
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                DataSet dsnewScanCheck;
+                DataSet dsreturnPost;
+                objCon.getDataSet("select * from itemscanchild where refno in (select refno from itemscanchild where SalesReturnId=('" + SalesRetrunId + @"')) and SalesReturnId is null and isreturn=1 ", out dsnewScanCheck);
+                objCon.getDataSet("select * from trn.salesreturn WHERE   Id=('" + SalesRetrunId + @"') and VoucherId<>'' ", out dsreturnPost);
+                if (dsreturnPost.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Sales Return Voucher need to delete first. !!!");
+                }
+                if (dsnewScanCheck.Tables[0].Rows.Count > 0)
+                {
+                    objCon.ExecuteNonQueryWrapper(@"delete itemscanchild where refno in (select refno from itemscanchild where SalesReturnId=('" + SalesRetrunId + @"')) and SalesReturnId is null and isreturn=1 and Booked=0", true, "1");
+                    objCon.ExecuteNonQueryWrapper(@"update dbo.itemscanchild set SalesReturnId=NULL  where SalesReturnId=('" + SalesRetrunId + @"')", true, "1");
+                    objCon.ExecuteNonQueryWrapper(@"delete trn.salesreturntax where SalesReturnId=('" + SalesRetrunId + @"')", true, "1");
+                    objCon.ExecuteNonQueryWrapper(@"delete trn.salesreturndetail where salesreturnid='" + SalesRetrunId + @"'", true, "1");
+                    objCon.ExecuteNonQueryWrapper(@"delete trn.salesreturn where id='" + SalesRetrunId + @"'", true, "1");
+                }
+                else
+                {
+                    objCon.ExecuteNonQueryWrapper(@"update dbo.itemscanchild set SalesReturnId=NULL  where SalesReturnId=('" + SalesRetrunId + @"')", true, "1");
+                    objCon.ExecuteNonQueryWrapper(@"delete trn.salesreturntax where SalesReturnId=('" + SalesRetrunId + @"')", true, "1");
+                    objCon.ExecuteNonQueryWrapper(@"delete trn.salesreturndetail where salesreturnid='" + SalesRetrunId + @"'", true, "1");
+                    objCon.ExecuteNonQueryWrapper(@"delete trn.salesreturn where id='" + SalesRetrunId + @"'", true, "1");
+
+                }
+
+                objCon.CommitTransaction();
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
         #endregion
 
         #region Sales Return Post
