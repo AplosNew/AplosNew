@@ -169,6 +169,7 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
 
     $scope.setData = function (obj) {
         $scope.Clear();
+        $scope.ServicePeriod = "";
         var data = obj.data;
         $scope.leaveApplicationNew.EmployeeCode = data.EmployeeCode;
         $scope.leaveApplicationNew.EmpSystemID = data.SystemID;
@@ -178,8 +179,32 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
         $scope.leaveApplicationNew.DOC = data.DOC;
         $scope.leaveApplicationNew.LegalDesignation = data.LegalDesignation;
         $scope.leaveApplicationNew.DesignationGroup = data.DesignationGroup;
+        $scope.leaveApplicationNew.PolicyName = data.PolicyName;
         $scope.imageSrc = virtualPath.EmployeePic + data.EmpPicPath;
         angular.element(document.querySelector('#employeePopUp')).modal('hide');
+
+        const start = new Date(data.DOJ);
+        const today = new Date();
+
+        let years = today.getFullYear() - start.getFullYear();
+        let months = today.getMonth() - start.getMonth();
+        let days = today.getDate() - start.getDate();
+
+        // Adjust months and years if needed
+        if (days < 0) {
+            months -= 1;
+            const previousMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+            days += previousMonth.getDate();
+        }
+
+        if (months < 0) {
+            years -= 1;
+            months += 12;
+        }
+
+        $scope.ServicePeriod = "" + years + " years " + months + " months " + days + " days";
+
+
         $scope.getData();
         $scope.leavetypecbo();
         $scope.getLeaveBalance();
@@ -209,7 +234,10 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
         });
     };
 
+
+    $scope.ServicePeriod = "";
     $scope.GetEnterEmployeeOutInfo = function () {
+        $scope.ServicePeriod = "";
         var parameters = {
             'SearchValue': $scope.leaveApplicationNew.EmployeeCode
         };
@@ -228,7 +256,32 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
                 $scope.leaveApplicationNew.SectionId = data[0].SectionId;
                 $scope.leaveApplicationNew.DOJ = data[0].DOJ;
                 $scope.leaveApplicationNew.DOC = data[0].DOC;
+                $scope.leaveApplicationNew.PolicyName = data[0].PolicyName;
+                $scope.leaveApplicationNew.LegalDesignation = data[0].LegalDesignation;
+                $scope.leaveApplicationNew.DesignationGroup = data[0].DesignationGroup;
                 $scope.imageSrc = virtualPath.EmployeePic + data[0].EmpPicPath;
+                const start = new Date(data[0].DOJ);
+                const today = new Date();
+
+                let years = today.getFullYear() - start.getFullYear();
+                let months = today.getMonth() - start.getMonth();
+                let days = today.getDate() - start.getDate();
+
+                // Adjust months and years if needed
+                if (days < 0) {
+                    months -= 1;
+                    const previousMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+                    days += previousMonth.getDate();
+                }
+
+                if (months < 0) {
+                    years -= 1;
+                    months += 12;
+                }
+
+                $scope.ServicePeriod = "" + years + " years " + months + " months " + days + " days";
+
+
                 $scope.getData();
                 $scope.leavetypecbo();
                 $scope.getLeaveBalance();
@@ -245,6 +298,7 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
 
     $scope.setEmpData = function (obj) {
         $scope.Clear();
+        $scope.ServicePeriod = "";
         var data = obj.data;
         $scope.leaveApplicationNew.EmployeeCode = data.EmployeeCode;
         $scope.leaveApplicationNew.EmpSystemID = data.SystemID;
@@ -252,11 +306,35 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
         $scope.leaveApplicationNew.SectionId = data.SectionId;
         $scope.leaveApplicationNew.DOJ = data.DOJ;
         $scope.leaveApplicationNew.DOC = data.DOC;
+        $scope.leaveApplicationNew.PolicyName = data.PolicyName;
         $scope.leaveApplicationNew.DesignationGroup = data.DesignationGroup;
         $scope.leaveApplicationNew.LegalDesignation = data.LegalDesignation;
         $scope.imageSrc = virtualPath.EmployeePic + data.EmpPicPath;
 
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+
+        const start = new Date(data.DOJ);
+        const today = new Date();
+
+        let years = today.getFullYear() - start.getFullYear();
+        let months = today.getMonth() - start.getMonth();
+        let days = today.getDate() - start.getDate();
+
+        // Adjust months and years if needed
+        if (days < 0) {
+            months -= 1;
+            const previousMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+            days += previousMonth.getDate();
+        }
+
+        if (months < 0) {
+            years -= 1;
+            months += 12;
+        }
+
+        $scope.ServicePeriod = "" + years + " years " + months + " months " + days + " days";
+
+
         $scope.getData();
         $scope.leavetypecbo();
         $scope.getLeaveBalance();
