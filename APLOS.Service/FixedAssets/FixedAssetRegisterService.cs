@@ -13,6 +13,7 @@ using Library.Model.Vouchers;
 using Library.Service.Core;
 using Library.Service.Currencies;
 using Library.Service.Enums;
+using Library.Service.Extension.Accounts;
 using Library.Service.Helpers;
 using Library.Service.Logs;
 using Library.Service.Organizations;
@@ -5149,6 +5150,84 @@ GROUP BY FAR.FABudgetMasterId
                     _unitOfWork.Rollback();
             }
         }
+
+        public void DeleteDepreciationProcess(string assetDepreciationId)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+
+                var inDirect = new System.Text.StringBuilder();
+                var inDirectsql = "";
+
+                inDirectsql = @"DELETE FROM [TRN].[AssetDepreciationDetail] WHERE AssetDepreciationId in('" + assetDepreciationId + @"') AND AssetRegisterId NOT IN(SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail])
+	                            DELETE FROM [TRN].[AssetDepreciation] WHERE Id in('" + assetDepreciationId + @"') AND Id NOT IN(SELECT AssetDepreciationId FROM [TRN].[AssetDepreciationDetail] WHERE AssetDepreciationId in('" + assetDepreciationId + @"') AND AssetRegisterId  IN(SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail]))
+	                            UPDATE [TRN].[AssetDepreciation] SET Status='Disposed Assets Depreciation' WHERE Id in('" + assetDepreciationId + @"') AND Id  IN(SELECT AssetDepreciationId FROM [TRN].[AssetDepreciationDetail] WHERE AssetDepreciationId in('" + assetDepreciationId + @"') AND AssetRegisterId  IN(SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail])) ";
+                inDirect.Append(inDirectsql);
+                _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+        public void DeleteDepreciationProcessPost(string voucherId, string deletedRemarks)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherService.FindVoucher(voucherId);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.CheckingFiscalYearClose(voucher);
+                _accountsCommonService.InsertVoucherLogDeleted(voucherId, voucher.VoucherNo, "", "", "", "", "", "", "", "", "", "", "", deletedRemarks);
+
+                var inDirect = new System.Text.StringBuilder();
+                var inDirectsql = "";
+
+                inDirectsql = @"UPDATE [TRN].[AssetDepreciationDetail] SET VoucherDetailId=NULL  where AssetDepreciationId in(SELECT Id FROM  [TRN].[AssetDepreciation] WHERE VoucherId in('" + voucherId + @"'))
+	                            UPDATE [TRN].[AssetDepreciation]  SET VoucherId=NULL WHERE VoucherId in('" + voucherId + @"')
+	                            DELETE from trn.VoucherDetailCurrency where VoucherId in('" + voucherId + @"')
+	                            DELETE from trn.VoucherDetail where VoucherId in('" + voucherId + @"')
+	                            DELETE from trn.Voucher where Id in('" + voucherId + @"') ";
+                inDirect.Append(inDirectsql);
+                _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
         public string EditFixedAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister)
         {
             var flag = false;

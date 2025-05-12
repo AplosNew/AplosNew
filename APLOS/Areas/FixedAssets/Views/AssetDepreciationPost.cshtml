@@ -145,17 +145,18 @@
     </div>
 </div>
 <div class="table-responsive aplos-grid-toggle">
-    <div id="GridEdit" ej-grid e-datasource="voucherList"  e-load="loadGridEdit"
+    <div id="GridEdit" ej-grid e-datasource="voucherList" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="70" e-filter="false"></div>
-            <div e-column e-field="PostingDate" e-headertext="Posting Date" e-width="60"></div>
-            <div e-column e-field="AssetDepreciationId" e-headertext="Asset Depreciation Id" e-width="60"></div>
-            <div e-column e-field="ProcessName" e-headertext="Process Name" e-width="100"></div>
-            <div e-column e-field="ProcessDate" e-headertext="Depreciation Process Date" e-width="60"></div>
-            <div e-column e-field="BaseCurrency" e-headertext="Currency" e-width="40"></div>
-            <div e-column e-field="DepreciationAmount" e-headertext="Amount" e-width="60" e-type="numeric" e-format="{0:0.00}" e-textalign="right"></div>
+            <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="40" e-filter="false"></div>
+            <div e-column e-field="PostingDate" e-headertext="Posting Date" e-width="40"></div>
+            <div e-column e-field="AssetDepreciationId" e-headertext="Asset Depreciation Id" e-width="30"></div>
+            <div e-column e-field="ProcessName" e-headertext="Process Name" e-width="120"></div>
+            <div e-column e-field="ProcessDate" e-headertext="Depreciation Process Date" e-width="40"></div>
+            <div e-column e-field="Status" e-headertext="Status" e-width="30"></div>
+            <div e-column e-field="BaseCurrency" e-headertext="Currency" e-width="30"></div>
+            <div e-column e-field="DepreciationAmount" e-headertext="Amount" e-width="40" e-type="numeric" e-format="{0:0.00}" e-textalign="right"></div>
             <div e-column e-template="#ShowActionButtonsassigned" e-headertext="PDF&Excel" e-width="80"></div>
 
         </div>
@@ -174,7 +175,9 @@
                         <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-pdf-o"></i></button>
                     </div>
                 </li>
-
+                <li ng-show="data.Status=='Parked'">
+                    <a class="btn btn-action" ng-click="$parent.confirmDelete(this);" title="Delete" href=""><i class=""></i>Delete</a>
+                </li>
             </ul>
         </div>
     </script>
@@ -220,6 +223,7 @@
                                 <div e-column e-field="AssetDepreciationId" e-headertext="Asset Depreciation Id" e-width="30"></div>
                                 <div e-column e-field="ProcessName" e-headertext="Process Name" e-width="100"></div>
                                 <div e-column e-field="ProcessDate" e-headertext="Depreciation Process Date" e-width="60"></div>
+                                <div e-column e-field="Status" e-headertext="Status" e-width="40"></div>
                                 <div e-column e-field="BaseCurrency" e-headertext="Currency" e-width="40"></div>
                                 <div e-column e-field="DepreciationAmount" e-headertext="Depreciation Amount" e-width="80" e-type="numeric" e-format="{0:0.00}" e-textalign="right"></div>
                             </div>
@@ -230,6 +234,26 @@
                     <li><button ng-click="closeFixedAssetDepreciationPopUp();" class="btn"> Close</button></li>
                 </ul>
                 <i>**Showing top 100  order by Depreciation Process Date</i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="confirmDeletePopUp_Remarks" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:600px">
+        <div class="modal-content" ng-form name="confirmDeletePopUp_RemarksForm">
+            <div class="modal-header">Are you sure to Delete?</div>
+            <div class="modal-body">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-2 control-label">Remarks<sup>*</sup></label>
+                    <div class="col-sm-10 show-message">
+                        <textarea rows="4" type="text" maxlength="500" name="DeletedRemarks" tabindex="8" class="form-control" ng-model="deletedRemarks" required></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="closeconfirmDeletePopUp_Remarks()">No</button>
+                <button type="button" class="btn btn-default" ng-click="delete()">Yes</button>
             </div>
         </div>
     </div>

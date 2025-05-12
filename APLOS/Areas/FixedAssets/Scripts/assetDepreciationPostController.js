@@ -1,6 +1,6 @@
 ﻿"use strict";
-assetDepreciationPostController.$inject = ["accountService", "cboService","commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller"];
-function assetDepreciationPostController(accountService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
+assetDepreciationPostController.$inject = ["accountService", "cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller", "$window"];
+function assetDepreciationPostController(accountService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, $window) {
     $rootScope.title = "Capitalize Asset Depreciation Post";
     $scope.Action = "Post";
     $scope.index = -1;
@@ -19,7 +19,7 @@ function assetDepreciationPostController(accountService, cboService, commonMessa
 
     $scope.voucherDetailList = [];
     $scope.searchBy = "VoucherNo"; $scope.search = "";
-    $scope.searchByList = [{ value: 'VoucherNo', name: "Voucher No" }, { value: 'PostingDate', name: "Posting Date" }, { value: 'AssetDepreciationId', name: "Asset Depreciation Id" }, { value: 'ProcessName', name: "Process Name" }, { value: 'ProcessDate', name: "Depreciation Process Date" }];
+    $scope.searchByList = [{ value: 'VoucherNo', name: "Voucher No" }, { value: 'PostingDate', name: "Posting Date" }, { value: 'AssetDepreciationId', name: "Asset Depreciation Id" }, { value: 'ProcessName', name: "Process Name" }, { value: 'ProcessDate', name: "Depreciation Process Date" }, { value: 'Status', name: "Status" }];
 
     $scope.voucherList = [];
     $scope.getData = function () {
@@ -286,11 +286,48 @@ function assetDepreciationPostController(accountService, cboService, commonMessa
         var reportFormat = "Pdf";
         if (baseService.isUndefinedOrNull(args.Id)) return ShowResult('No Id found', 'failure');
         try {
-            var file_src = $scope.path + 'AssetsDepreciationPostReport?reportFormat=' + reportFormat + '&depreciationVoucherId=' + args.Id
-            $rootScope.report(file_src);
+            $window.open('FixedAssets/FixedAssetRegister/AssetsDepreciationPostReport?reportFormat=' + reportFormat + '&depreciationVoucherId=' + args.Id, '_blank');
+            //var file_src = $scope.path + 'AssetsDepreciationPostReport?reportFormat=' + reportFormat + '&depreciationVoucherId=' + args.Id
+            //$rootScope.report(file_src);
         } catch (e) {
 
         }
+    };
+
+    $scope.voucherId = null;
+    $scope.deletedRemarks = "";
+    $scope.confirmDelete = function (data) {
+        $scope.voucherId = data.data.Id;
+        angular.element(document.querySelector("#confirmDeletePopUp_Remarks")).modal("show");
+    };
+    $scope.closeconfirmDeletePopUp_Remarks = function () {
+        angular.element(document.querySelector("#confirmDeletePopUp_Remarks")).modal("hide");
+    };
+    $scope.deleteUrl = $scope.path + "/DeleteDepreciationProcessPost";
+    $scope.delete = function () {
+        $http({
+            method: "POST",
+            url: $scope.deleteUrl,
+            data: {
+                "voucherId": $scope.voucherId,
+                "deletedRemarks": $scope.deletedRemarks
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                $scope.deletedRemarks = "";
+                $scope.closeconfirmDeletePopUp_Remarks();
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.voucherId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
     };
 
 }

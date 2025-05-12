@@ -246,10 +246,9 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult GetEmpInfo(string SearchValue)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" SELECT Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,PR.SectionId,SS.UserName SubSection
-                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
-EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
+            string sql = @"SELECT Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,DG.UserName DesignationGroup,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric,LPM.PolicyName
                                         FROM EmployeeInformation EMP
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
@@ -262,12 +261,17 @@ EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
                                         LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
+Left join  MST.DesignationMaster DeM on DeM.DesignationId = EMP.GivenDesignationId
+										LEFT JOIN HKP.DesignationGroup DG ON DG.Id=DEM.DesignationGroupId
+										left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DEM.Id and DMC.PlantId=emp.PlantId   
+								     	LEFT JOIN dbo.LeavePolicyMaster LPM ON LPM.SystemID=DMC.LeavePolicyMasterId
                                         WHERE emp.PlantID='" + identity.PlantId + @"'  and EMP.CompanyId='" + identity.CompanyId + @"' and EMP.EmployeeStatus='Active' 
                                         And emp.EmployeeCode='" + SearchValue + @"'
                                         ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric ";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+
         private string GetDate(string s)
         {
             if (string.IsNullOrEmpty(s))

@@ -536,7 +536,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
                 }
-                if (sourceType == SourceType.PurchaseLCOpeningCharges.ToString())
+                if (sourceType == SourceType.PurchaseLCOpeningCharges.ToString() || sourceType == SourceType.DepreciationJournal.ToString())
                 {
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);

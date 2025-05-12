@@ -2542,6 +2542,22 @@ namespace Library.Accounting.FixedAssets
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+
+        public List<Dictionary<string, object>> GetDepreciationProcessDataList(string column, string value, string companyId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            var sql = @"select top 100 * from (select AD.Id AssetDepreciationId,AD.ProcessName,FORMAT(AD.ProcessDate, 'dd-MMM-yyyy') ProcessDate
+                                    ,ISNULL((SELECT SUM(DepreciationAmount) FROM [TRN].[AssetDepreciationDetail] WHERE AssetDepreciationId=AD.Id),0) DepreciationAmount
+									,BC.Code BaseCurrency,AD.CurrencyId,1 ToCurrencyRate,ISNULL(v.VoucherNo,'')VoucherNo,AD.VoucherId,AD.Status,AD.AddedDate
+                FROM  [TRN].[AssetDepreciation] AD
+				LEFT JOIN SCS.Currency BC ON BC.Id =AD.CurrencyId
+                LEFT JOIN TRN.Voucher V ON V.Id =AD.VoucherId
+                ) AS TEMP WHERE " + strkey + " order by AddedDate DESC   ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
         #endregion
 
         #region Fixed Asset Depreciation POST
@@ -3343,10 +3359,10 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
             var sql = @"select top 100 * from (select V.Id,V.VoucherNo,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate
 									,AD.ProcessName,FORMAT(AD.ProcessDate, 'dd-MMM-yyyy') ProcessDate
                                     ,ISNULL((SELECT SUM(DepreciationAmount) FROM [TRN].[AssetDepreciationDetail] WHERE AssetDepreciationId=AD.Id),0) DepreciationAmount
-									,BC.Code BaseCurrency,AD.Id AssetDepreciationId
+									,BC.Code BaseCurrency,AD.Id AssetDepreciationId,V.PostingDate VPostingDate,V.IsPark,Status= case when V.IsPark=0 then 'Posted' else 'Parked' end
                 FROM  [TRN].[AssetDepreciation] AD
 				INNER JOIN TRN.Voucher V ON V.Id=AD.VoucherId
-				LEFT JOIN SCS.Currency BC ON BC.Id =AD.CurrencyId ) AS TEMP WHERE " + strkey + " order by PostingDate DESC   ";
+				LEFT JOIN SCS.Currency BC ON BC.Id =AD.CurrencyId ) AS TEMP WHERE " + strkey + " order by VPostingDate DESC   ";
             return _sqlRepository.GetDataCollection(sql);
         }
         public List<Dictionary<string, object>> GetAssetDepreciationListForPosting(string column, string value, string companyId)
@@ -3356,7 +3372,7 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
                 strkey = column + " like '%" + value + "%'";
             var sql = @"select top 100 * from (select AD.Id AssetDepreciationId,AD.ProcessName,FORMAT(AD.ProcessDate, 'dd-MMM-yyyy') ProcessDate
                                     ,ISNULL((SELECT SUM(DepreciationAmount) FROM [TRN].[AssetDepreciationDetail] WHERE AssetDepreciationId=AD.Id),0) DepreciationAmount
-									,BC.Code BaseCurrency,AD.CurrencyId,1 ToCurrencyRate
+									,BC.Code BaseCurrency,AD.CurrencyId,1 ToCurrencyRate,AD.Status
                 FROM  [TRN].[AssetDepreciation] AD
 				LEFT JOIN SCS.Currency BC ON BC.Id =AD.CurrencyId 
                 WHERE AD.CompanyId='" + companyId + @"' AND AD.VoucherId IS NULL

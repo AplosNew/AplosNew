@@ -1858,6 +1858,16 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
             return Json(new { Message = AplosMessage.Insert });
         }
+
+        [Authorize, HttpPost]
+        public ActionResult GetDepreciationProcessDataList(string column, string value)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            return Json(_fixedAssetQueryService.GetDepreciationProcessDataList(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+
         #endregion
 
         #region Capitalize Asset Depreciation Post
@@ -1986,6 +1996,27 @@ namespace Aplos.Areas.FixedAssets.Controllers
                     return View();
             }
         }
+        [Authorize, HttpGet]
+        public ActionResult GetAssetDepreciationReportByAssetDepreciationId(ReportFormat reportFormat, string assetDepreciationId)
+        {
+            string reportFileName = "";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            Syncfusion.XlsIO.IWorkbook workbook = null;
+
+            workbook = _accountVoucherReportService.GetAssetDepreciationReportByAssetDepreciationId(out reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, assetDepreciationId);
+
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
         #endregion
 
         #region Capitalize Asset Dispose
@@ -2028,6 +2059,20 @@ namespace Aplos.Areas.FixedAssets.Controllers
         public JsonResult DeleteCapitalizeAssetRegisterDisposed(string fixedAssetRegisterDisposedId)
         {
             _fixedAssetRegisterService.DeleteCapitalizeAssetRegisterDisposed(fixedAssetRegisterDisposedId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+        [HttpPost]
+        public JsonResult DeleteDepreciationProcess(string assetDepreciationId)
+        {
+            _fixedAssetRegisterService.DeleteDepreciationProcess(assetDepreciationId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+        [HttpPost]
+        public JsonResult DeleteDepreciationProcessPost(string voucherId, string deletedRemarks)
+        {
+            if (deletedRemarks == null || deletedRemarks == "")
+                throw new CustomException("Deleted Remarks is required!");
+            _fixedAssetRegisterService.DeleteDepreciationProcessPost(voucherId, deletedRemarks);
             return Json(new { Message = AplosMessage.Deleted });
         }
         #region Additional Tax
