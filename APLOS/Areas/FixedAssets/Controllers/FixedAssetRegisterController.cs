@@ -2067,6 +2067,14 @@ namespace Aplos.Areas.FixedAssets.Controllers
             _fixedAssetRegisterService.DeleteDepreciationProcess(assetDepreciationId);
             return Json(new { Message = AplosMessage.Deleted });
         }
+        [HttpPost]
+        public JsonResult DeleteDepreciationProcessPost(string voucherId, string deletedRemarks)
+        {
+            if (deletedRemarks == null || deletedRemarks == "")
+                throw new CustomException("Deleted Remarks is required!");
+            _fixedAssetRegisterService.DeleteDepreciationProcessPost(voucherId, deletedRemarks);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
         #region Additional Tax
         [Authorize, HttpPost]//
         public ActionResult SaveAdditinalTax(string fixedAssetRegisterDisposedId, decimal BooksCurrencyBaseRate, List<Dictionary<string, object>> UserSendData)
