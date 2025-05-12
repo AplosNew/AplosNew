@@ -940,12 +940,13 @@ namespace Aplos.Areas.Commercial.Controllers
                              distinct PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
                             InvPP.StandardName ,ISNULL(PLC.OrderSpecific,PO.OrderSpecific) OrderSpecifi,ISNULL(PLC.ContractId, PO.ContractId) ContractId
 							,PLCM.PurchaseLCId, CN.Code Currency,PO.CurrencyId
-                            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount+ISNULL(POC.Amount,0)) TransactionAmount
-                            ,PLCM.Amount LCAmount,BalanceAmount=CONVERT(NUMERIC(10,2),POD.TransactionAmount+ISNULL(POC.Amount,0))-PLCM.Amount,0 Amount
+                            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount+ISNULL(POC.Amount,0)+ISNULL(POT.TaxAmount,0)) TransactionAmount
+                            ,PLCM.Amount LCAmount,BalanceAmount=CONVERT(NUMERIC(10,2),POD.TransactionAmount+ISNULL(POT.TaxAmount,0)+ISNULL(POC.Amount,0))-PLCM.Amount,0 Amount
                             , 0 AS [check],Flag='MaterialPO',PLC.LCRef,PO.DocRefNo,PO.PaymentTermId,PT.UserName PaymentTerm
                             FROM  [dbo].[POLCMap] PLCM
 							LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PLCM.PurchaseOrderId
                             INNER JOIN (SELECT SUM(TransactionAmount) TransactionAmount, InventoryReceiveId FROM [TRN].[PurchaseOrderDetail] GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.Id
+                            LEFT JOIN (SELECT InventoryReceiveId,SUM(TaxAmount) TaxAmount FROM TRN.PurchaseOrderTax GROUP BY InventoryReceiveId) POT ON POT.InventoryReceiveId=PO.ID   
                             LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
                             LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
                             LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=PO.PurchaseLCId  
@@ -956,9 +957,10 @@ namespace Aplos.Areas.Commercial.Controllers
                     SELECT 
                             distinct PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
                             InvPP.StandardName ,ISNULL(PLC.OrderSpecific,PO.OrderSpecific) OrderSpecifi,ISNULL(PLC.ContractId, PO.ContractId) ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
-                            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount,0 LCAmount,0 BalanceAmount,0 Amount, 0 AS [check],Flag='ServicePO',PLC.LCRef,PO.DocRefNo,PO.PaymentTermId,PT.UserName PaymentTerm
+                            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount+ISNULL(POT.TaxAmount,0)) TransactionAmount,0 LCAmount,0 BalanceAmount,0 Amount, 0 AS [check],Flag='ServicePO',PLC.LCRef,PO.DocRefNo,PO.PaymentTermId,PT.UserName PaymentTerm
                             FROM TRN.[ServicePOMaster] PO
                             INNER JOIN (SELECT SUM(Amount) TransactionAmount, ServicePOMasterId FROM [TRN].[ServicePODetail] GROUP BY ServicePOMasterId) POD ON POD.ServicePOMasterId=PO.Id
+                            LEFT JOIN (SELECT InventoryReceiveId,SUM(TaxAmount) TaxAmount FROM TRN.PurchaseOrderTax GROUP BY InventoryReceiveId) POT ON POT.InventoryReceiveId=PO.ID
                             LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
                             LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
                             LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=PO.PurchaseLCId 
@@ -968,9 +970,10 @@ namespace Aplos.Areas.Commercial.Controllers
                     SELECT 
                             distinct PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
                             InvPP.StandardName ,ISNULL(PLC.OrderSpecific,PO.OrderSpecific) OrderSpecifi,ISNULL(PLC.ContractId, PO.ContractId) ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
-                            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount,0 LCAmount,0 BalanceAmount,0 Amount, 0 AS [check],Flag='OutSourcePO',PLC.LCRef,PO.DocRefNo,PO.PaymentTermId,PT.UserName PaymentTerm
+                            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount+ISNULL(POT.TaxAmount,0)) TransactionAmount,0 LCAmount,0 BalanceAmount,0 Amount, 0 AS [check],Flag='OutSourcePO',PLC.LCRef,PO.DocRefNo,PO.PaymentTermId,PT.UserName PaymentTerm
                             FROM [dbo].[OSTransformationPO] PO
                             INNER JOIN (SELECT SUM(ISNULL(TransactionAmount,0)) TransactionAmount, OSTransformationPOId FROM [dbo].[OSTransformationPODetail] GROUP BY OSTransformationPOId) POD ON POD.OSTransformationPOId=PO.Id
+                            LEFT JOIN (SELECT InventoryReceiveId,SUM(TaxAmount) TaxAmount FROM TRN.PurchaseOrderTax GROUP BY InventoryReceiveId) POT ON POT.InventoryReceiveId=PO.ID          
                             LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
                             LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
                             LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=PO.PurchaseLCId 

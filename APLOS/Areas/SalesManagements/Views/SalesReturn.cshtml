@@ -452,6 +452,7 @@
                 <div e-column e-field="Id" e-headertext="Sales Return" e-width="20"></div>
                 <div e-column e-field="SalesId" e-headertext="Sales No" e-width="30"></div>
                 <div e-column e-field="DocRefNo" e-headertext="DocRefNo" e-width="40"></div>
+                <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="80"></div>
                 <div e-column e-field="Customer" e-headertext="Customer" e-width="40"></div>
                 <div e-column e-field="SalesReturnDate" e-headertext="SalesReturnDate" e-width="20"></div>
                 <div e-column e-field="Qty" e-headertext="Qty" e-width="30"></div>
@@ -475,7 +476,7 @@
             <div class="common-btn">
                 <ul class="common-btn list-inline text-center">
                     <li>
-                        <button ng-click="$parent.DeleteSalesReturn(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                        <button ng-click="$parent.DeleteSalesReturn(data);" ng-hide="data.VoucherId" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
                             <i class="glyphicon glyphicon-trash"></i>
                         </button>
                     </li>
