@@ -2044,8 +2044,8 @@ SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserNam
 									+ round(isnull(TAxInfo1.TaxAmount,0),2)
 									+round(isnull(TAxInfo6.BooksTaxAmount,0),2)
 									,PurchaseAmount=ISNULL(ARC.AssetValue,0) 
-									,ISNULL(ARC.Depreciationamount,0) Depreciationamount,AR.AdjustmentDepreciationAmount
-									,NetAssetAmount=ISNULL(ARC.AssetValue,0)-ISNULL(ARC.Depreciationamount,0)
+									,ISNULL(ARC.Depreciationamount,0) Depreciationamount,ISNULL(AR.AdjustmentDepreciationAmount,0) AdjustmentDepreciationAmount
+									,NetAssetAmount=ISNULL(ARC.AssetValue,0)-ISNULL(ARC.Depreciationamount,0)-ISNULL(AR.AdjustmentDepreciationAmount,0)
 									,SMD.BaseNagotiationValue NagotiationValue 
 									,[Profit/Loss]=SMD.BaseNagotiationValue+AR.AdjustmentDepreciationAmount -(ISNULL(ARC.AssetValue,0)-ISNULL(ARC.Depreciationamount,0))
 									,CGSTBC= round(isnull(TAxInfo.TaxAmount,0),2) 		
