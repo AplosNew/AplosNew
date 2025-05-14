@@ -386,11 +386,8 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
                     }
                 }
             }
-            for (var i = 0; i < $scope.selectedPOList.length; i++) {
-                $scope.LcAmount += $scope.selectedPOList[i].TransactionAmount;
-            }
-            $scope.purchaseLCNew.Amount = $scope.LcAmount;
-
+            
+            $scope.purchaseLCNew.Amount = Math.round(($filter('sumByKey')($filter('filter')($scope.selectedPOList), 'BalanceAmount') * 1000 + Number.EPSILON) / 1000);
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -411,10 +408,7 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
                 }
             }
         }
-        for (var i = 0; i < $scope.selectedPOList.length; i++) {
-            $scope.LcAmount += $scope.selectedPOList[i].TransactionAmount;
-        }
-        $scope.purchaseLCNew.Amount = $scope.LcAmount;
+        $scope.purchaseLCNew.Amount = Math.round(($filter('sumByKey')($filter('filter')($scope.selectedPOList), 'Amount') * 1000 + Number.EPSILON) / 1000);
     }
 
     $window.onresize = function (event) {
@@ -586,10 +580,6 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
     };
 
     $scope.Save = function () {
-        for (var i = 0; i < $scope.selectedPOList.length; i++) {
-            $scope.LcAmount += $scope.selectedPOList[i].TransactionAmount;
-        }
-        $scope.purchaseLCNew.Amount = $scope.LcAmount;
         $scope.materialPoList = [];
         $scope.servcePoList = [];
         $scope.jwOutSourcePoList = [];
@@ -1166,7 +1156,7 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
             $scope.purchaseLCNew.Amount = data.data.BalanceAmount;
         }
         else {
-        $scope.purchaseLCNew.Amount=$filter('sumByKey')($filter('filter')($scope.selectedPOList), 'Amount')
+            $scope.purchaseLCNew.Amount = Math.round(($filter('sumByKey')($filter('filter')($scope.selectedPOList), 'Amount') * 1000 + Number.EPSILON) / 1000);
         }
     }
 

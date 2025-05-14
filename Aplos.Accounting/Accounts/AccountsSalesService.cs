@@ -2438,12 +2438,15 @@ namespace Library.Accounting.Accounts
 			{
 				string CmdText = @"SELECT  II.Id,II.DocRefNo,II.SalesReturnDate, Pt.UserName Customer,
                                 SUM(IID.TransactionQty) Qty,ISNULL(ISC.ReturnNetWeight,0) Verified_Qty,II.Narration,II.SalesId
+								,II.voucherid,V.VoucherNo,V.PostingDate
                                 FROM [TRN].[SalesReturn] AS II
                                 JOIN TRN.SalesReturnDetail AS IID ON IID.SalesReturnId=II.Id
 								LEFT JOIN (SELECT SalesReturnId,sum(ReturnNetWeight) ReturnNetWeight FROM ItemScanChild group by SalesReturnId) ISC ON ISC.SalesReturnId=II.Id
                                 left join trn.Sales SS on ss.Id = II.SalesId 
 								left join hkp.Party PT on PT.Id = ss.PartyId
-								GROUP BY II.Id,II.Narration,II.Id,II.SalesId,II.DocRefNo,II.SalesReturnDate,II.Addeddate,ISC.ReturnNetWeight , Pt.UserName
+								left join TRN.Voucher V ON V.Id=II.VoucherId
+								GROUP BY II.Id,II.Narration,II.Id,II.SalesId,II.DocRefNo,II.SalesReturnDate,II.Addeddate,ISC.ReturnNetWeight 
+								, Pt.UserName,II.voucherid,V.VoucherNo,V.PostingDate
 								Order By II.AddedDate desc";
 				return _sqlRepository.GetDataCollection(CmdText);
 			}

@@ -411,7 +411,6 @@ namespace Library.Service.Invoices
                                     DrTax.DrVoucherDetailId = voucherDr.Id;
                                     _inventoryReceiveTaxRepository.Update(DrTax);
                                 }
-
                             }
                             #region Currency
 
@@ -529,7 +528,6 @@ namespace Library.Service.Invoices
                                 }
                             }
 
-
                             #region Currency
 
                             foreach (var voucherDetailCurrency in voucherDetailCurrencyVMList)
@@ -561,7 +559,6 @@ namespace Library.Service.Invoices
                     {
                         var tdsTax = new AdditionalTax
                         {
-
                             TaxYearId = voucher.TaxYearId,
                             TaxYearPeriodId = voucher.TaxYearPeriodId,
                             TaxAmount = additionalTaxList.Sum(r => r.TaxAmount),
@@ -580,12 +577,9 @@ namespace Library.Service.Invoices
                         int addtionalTaxDetailId = 0;
                         foreach (var tdsTaxVM in additionalTaxList)
                         {
-
                             if (null == tdsTaxVM.TaxCodeId)
                                 throw new CustomException("Tax code not found!");
-
                             var taxCodeGL = _accountsCommonService.GetTaxCodeGL(tdsTaxVM.TaxCodeId);
-                           
 
                             addtionalTaxDetailId++;
                             var tdsTaxDetail = new AdditionalTaxDetail
@@ -604,8 +598,6 @@ namespace Library.Service.Invoices
                                 AddedFromIP = voucher.AddedFromIP
                             };
                             _additionalTaxDetailRepository.Insert(tdsTaxDetail);
-
-
                         }
                     }
 
