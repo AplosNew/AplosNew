@@ -389,7 +389,7 @@ namespace Aplos.Areas.Commercial.Controllers
                             dr["PurchaseLCId"] = masterId;
                             dr["OrderSpecific"] = model.OrderSpecific;
                             dr["PurchaseOrderId"] = item.Id;
-                            dr["Amount"] = item.TransactionAmount;
+                            dr["Amount"] = item.Amount;
                             dr["UpdatedBy"] = identity.Name;
                             dr["UpdatedDate"] = DateTime.Now;
                             dr["UpdatedFromIP"] = identity.IPAddress;
@@ -404,7 +404,7 @@ namespace Aplos.Areas.Commercial.Controllers
                             dr["PurchaseLCId"] = masterId;
                             dr["PurchaseOrderId"] = item.Id;
                             dr["OrderSpecific"] = model.OrderSpecific;
-                            dr["Amount"] = item.TransactionAmount;
+                            dr["Amount"] = item.Amount;
 
                             dr["AddedBy"] = identity.Name;
                             dr["AddedDate"] = DateTime.Now;
