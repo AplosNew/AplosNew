@@ -3307,7 +3307,7 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
 						,CASE WHEN ( select TOP 1 AD.FiscalYearId from [TRN].[AssetDepreciation] AD 
 							INNER JOIN [TRN].[AssetDepreciationDetail] ADDS ON ADDS.AssetDepreciationId=AD.Id   where AD.FiscalYearId='" + fiscalYearId + @"'	AND ADDS.FixedAssetMasterId=FAM.Id)>0 
 					    THEN 'Processed upto '+ CAST(( select TOP 1 AD.ProcessDate from [TRN].[AssetDepreciation] AD 
-							INNER JOIN [TRN].[AssetDepreciationDetail] ADDS ON ADDS.AssetDepreciationId=AD.Id   where AD.FiscalYearId='" + fiscalYearId + @"'	AND ADDS.FixedAssetMasterId=FAM.Id ORDER BY AD.Id DESC) AS varchar)
+							INNER JOIN [TRN].[AssetDepreciationDetail] ADDS ON ADDS.AssetDepreciationId=AD.Id   where AD.FiscalYearId='" + fiscalYearId + @"'	AND ADDS.FixedAssetMasterId=FAM.Id AND ISNULL(AD.Status,'') not in ('Disposed Assets Depreciation') ORDER BY AD.ProcessDate DESC) AS varchar)
 						ELSE   'Not Process' END ProcessStatus
 						,(select COUNT(ARC.Id) from [TRN].[AssetRegisterChild] ARC
 								LEFT JOIN [TRN].[CapitalizationMaster] CM  ON  CM.Id = ARC.CapitalizationMasterId
@@ -3315,7 +3315,7 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
 						,(select COUNT(AD.Id) from [TRN].[AssetDepreciation] AD 
 							INNER JOIN [TRN].[AssetDepreciationDetail] ADDS ON ADDS.AssetDepreciationId=AD.Id  where AD.FiscalYearId=@FiscalYearId AND ADDS.FixedAssetMasterId=FAM.Id)PreviousYearAssetProcess
 						,CASE WHEN (select TOP 1 AD.ProcessDate from [TRN].[AssetDepreciation] AD 
-							INNER JOIN [TRN].[AssetDepreciationDetail] ADDS ON ADDS.AssetDepreciationId=AD.Id  where AD.FiscalYearId=@FiscalYearId AND ADDS.FixedAssetMasterId=FAM.Id ORDER BY AD.Id DESC)=@FromDate THEN 'Yes' ELSE 'No' END PreviousYearAssetFullProcess
+							INNER JOIN [TRN].[AssetDepreciationDetail] ADDS ON ADDS.AssetDepreciationId=AD.Id  where AD.FiscalYearId=@FiscalYearId AND ADDS.FixedAssetMasterId=FAM.Id AND ISNULL(AD.Status,'') not in ('Disposed Assets Depreciation') ORDER BY AD.ProcessDate DESC)=@FromDate THEN 'Yes' ELSE 'No' END PreviousYearAssetFullProcess
                         FROM  MST.[FixedAssetMaster]  FAM
                         LEFT OUTER JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
                         LEFT OUTER JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
