@@ -66,7 +66,6 @@ namespace Library.Model.Inventory
         public decimal Amount { get; set; }  
         public decimal TransactionAmount { get; set; }  
 
-        
 
         #endregion Scalar Properties
 
