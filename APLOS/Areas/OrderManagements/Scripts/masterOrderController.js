@@ -928,7 +928,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
 
 
-        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + $scope.fileNew.CompanyId + '&PlantId=' + $scope.fileNew.PlantId;
+        //$scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + $scope.fileNew.CompanyId + '&PlantId=' + $scope.fileNew.PlantId;
+        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
 
         $http({
             method: 'POST',
