@@ -29,7 +29,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         IEnumerable<object> LoadGrdAllocatedLvDetails(string companyGroupId, string plantId, string employeeId, string calanderYearId);
         IEnumerable<object> LoadGrdAllocatedLvDetailsNew(string companyGroupId, string plantId, string employeeId, string calanderYearId);
-        
+        IEnumerable<object> LoadGrdAllocatedLvDetailsNew(string companyGroupId, string plantId, string employeeId, string calanderYearId, string year);
         void DeleteGraph(string id);
         void DeleteApprovedLeaveGraph(string id,string EmpSystemid);
     }
