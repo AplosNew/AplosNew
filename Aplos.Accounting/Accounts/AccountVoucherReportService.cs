@@ -606,7 +606,7 @@ UNION ALL
 
 select  GL.UserName GL,B.UserName Budget,A.UserName Activity,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
 ,0 OpeningAmount,0 OpeningJV,0 RegisterItemAmount
-,0 DepreciationAmount ,ISNULL(ARC.Amount,0) FPDisposeAmount,ISNULL(ARC.DepreciationAmount,0) FPDesposeDepAmount--,ISNULL(aDep.DepreciationAmount,0) DepreciationAmount
+,ISNULL(AR.AdjustmentDepreciationAmount,0) DepreciationAmount ,ISNULL(ARC.Amount,0)-ISNULL(AR.AdjustmentDepreciationAmount,0),ISNULL(ARC.DepreciationAmount,0) FPDesposeDepAmount--,ISNULL(aDep.DepreciationAmount,0) DepreciationAmount
 ,0 NetAssetAmount 
 from trn.AssetRegisterChild ARC
 left join trn.AssetRegister AR on AR.Id = ARC.AssetRegisterId
