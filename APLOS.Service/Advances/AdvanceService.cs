@@ -557,8 +557,8 @@ namespace Library.Service.Advances
             parameters.CmdText = @"SELECT V.VoucherNo, A.Id, A.Id As AdvanceId--,BC.Id AS BankChargeId
                                 , A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.EmployeeId, EI.EmployeeCode
                                  , EI.EmployeeName, EIR.EmployeeCode AS ResponsibleCode,EIR.EmployeeName AS ResponsibleName, A.VoucherId, A.PostingDate, A.DocDate, A.DocRefNo
-                                 , A.CurrencyId, C.Code AS CurrencyCode, A.Amount, A.IsWrittenOff, A.WrittenOffAmount, A.IsPark, A.IsInterTransaction, A.IsPosted, AD.NetAmount
-                                 , Status = case when A.IsPark = 0 then 'Posted' else 'Parked' end,A.AdvanceGroupNo
+                                 , A.CurrencyId, C.Code AS CurrencyCode, A.Amount, A.IsWrittenOff, A.WrittenOffAmount, V.IsPark, A.IsInterTransaction, A.IsPosted, AD.NetAmount
+                                 , Status = case when V.IsPark = 0 then 'Posted' else 'Parked' end,A.AdvanceGroupNo
                                 ,E.UserName EntityName,V.EntityId,V.Narration,A.CompanyGroupId,A.CompanyId,A.PlantId
                                  FROM [TRN].[Advance] AS A
                                  LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
@@ -580,9 +580,9 @@ namespace Library.Service.Advances
                                     			WHERE A.AdvanceGroupNo=xPDAMAP.AdvanceGroupNo for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 												,NULL  Id, NULL AdvanceId, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.EmployeeId, EI.EmployeeCode
                                  , EI.EmployeeName, EIR.EmployeeCode AS ResponsibleCode,EIR.EmployeeName AS ResponsibleName, NULL VoucherId, A.PostingDate, A.DocDate, A.DocRefNo
-                                 , A.CurrencyId, C.Code AS CurrencyCode, SUM(A.Amount) Amount, A.IsWrittenOff, SUM(A.WrittenOffAmount) WrittenOffAmount, A.IsPark
+                                 , A.CurrencyId, C.Code AS CurrencyCode, SUM(A.Amount) Amount, A.IsWrittenOff, SUM(A.WrittenOffAmount) WrittenOffAmount, V.IsPark
 								 , A.IsInterTransaction, A.IsPosted, SUM(AD.NetAmount) NetAmount
-                                 , Status = case when A.IsPark = 0 then 'Posted' else 'Parked' end,A.AdvanceGroupNo
+                                 , Status = case when V.IsPark = 0 then 'Posted' else 'Parked' end,A.AdvanceGroupNo
                                 ,E.UserName EntityName,V.EntityId,V.Narration,A.CompanyGroupId,A.CompanyId,A.PlantId
                                  FROM [TRN].[Advance] AS A
                                  LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
@@ -599,7 +599,7 @@ namespace Library.Service.Advances
 
                                 Group By A.PartyId, P.Code, P.UserName, A.PartyPlantId, PP.UserName, A.EmployeeId, EI.EmployeeCode
                                  , EI.EmployeeName, EIR.EmployeeCode,EIR.EmployeeName, A.PostingDate, A.DocDate, A.DocRefNo
-                                 , A.CurrencyId, C.Code  , A.IsWrittenOff,A.AdvanceGroupNo,A.IsPark , A.IsInterTransaction, A.IsPosted,E.UserName,V.EntityId,V.Narration,A.CompanyGroupId,A.CompanyId,A.PlantId
+                                 , A.CurrencyId, C.Code  , A.IsWrittenOff,A.AdvanceGroupNo,V.IsPark , A.IsInterTransaction, A.IsPosted,E.UserName,V.EntityId,V.Narration,A.CompanyGroupId,A.CompanyId,A.PlantId
 ";
             parameters.sort = " PostingDate DESC, VoucherNo";
             parameters.order = "DESC";
