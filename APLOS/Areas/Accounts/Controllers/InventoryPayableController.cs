@@ -476,6 +476,15 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(accountsInventoryPayableService.GetIssueMaterialGL(parameters, issueId, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize, HttpGet]
+        public JsonResult GetGetInventoryReceiveDetailListByIssueIdList(GridParameter parameters, string issueId)
+        {
+            AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsInventoryPayableService.GetGetInventoryReceiveDetailListByIssueIdList(parameters, issueId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpGet]
         public JsonResult GetInventoryMaterialIssueReturnGLList(GridParameter parameters, string issueId)
         {
