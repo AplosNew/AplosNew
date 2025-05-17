@@ -78,18 +78,19 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
     cboService.getEmployeeCbo(function (result) {
         $scope.empList = result;
     });
-
+    $scope.YearsNo = "";
     $scope.leaveYearlist = [];
     cboService.getCboLeaveYear(function (result) {
         $scope.leaveYearlist = result;
         $scope.YearNo = $filter("filter")($scope.leaveYearlist, { Text: new Date().getFullYear() })[0].Value;
+        $scope.YearsNo = $filter("filter")($scope.leaveYearlist, { Text: new Date().getFullYear() })[0].Text;
         //$scope.getLeaveBalance();
     });
 
     $scope.YearNo = null;
     $scope.getLeaveBalance = function () {
         if (!baseService.isUndefinedOrNull($scope.YearNo)) {
-            $http.get('HumanResource/LeaveApplicationNew/GetEmpLeaveBalanceNew?EmpsystemId=' + $scope.leaveApplicationNew.EmpSystemID + '&calanderYearId=' + $scope.YearNo)
+            $http.get('HumanResource/LeaveApplicationNew/GetEmpLeaveBalanceNew?EmpsystemId=' + $scope.leaveApplicationNew.EmpSystemID + '&calanderYearId=' + $scope.YearNo + '&year=' + $scope.YearsNo)
                 .then(function (response) {
                     $scope.LeaveBalanceList = response.data;
                 });

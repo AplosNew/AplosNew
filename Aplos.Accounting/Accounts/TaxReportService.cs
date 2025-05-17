@@ -8867,6 +8867,40 @@ SELECT
                             where TC.TaxCategoryType='GST' AND (CP.TaxApplicable IS NULL OR CP.TaxApplicable ='Optional') AND V.IsPark=0
 							AND IR.PlantId = '" + plantId + @"' and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
                             AND v.SourceType='SalesInvoice' and IRT.SalesServiceId IS NULL
+
+                            UNION ALL
+                            SELECT 'Asset Sales' SourceType
+                            ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate,P.UserName PartyName,PP.GSTIN
+							, ITD.Id GRNNo,pp.UserName PartyPlantName
+                            ,LineItemType=case   WHEN v.SourceType='FixedAssetDisposeJournal' THEN 'GL' ELSE '' END
+                            ,TaxableAmount=ISNULL(IVDD.DrAmount,0) 
+                            ,0 DrAmount,CrAmount=ISNULL(IT.Amount,0)
+	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
+                            ,TC.TaxCategoryType,TC.Code TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory
+							,0 IsRCM
+                            ,0 IsExcludingTax,IsTaxApplicable=CASE WHEN IsNULL(CP.TaxApplicable,'')='Mandatory' THEN 1 ELSE 0 END 
+							,'FixedPercentage' [Type],IT.[Percentage] ValueOfFixed
+                            ,IT.[Percentage],NULL HSNCodeId,null Material
+							,TaxPercentage= IT.[Percentage],V.AddedDate EntryDate
+                            ,NULL PlaceofSupply,0 ReverseCharge,NULL Suppliesundersection7ofIGSTAct,NULL InvoiceType,NULL ECommerceGSTIN
+                            ,NULL ItemName,NULL HSNSAC,0 Rate,0 CessAmount,0 ApplicableofTaxRate,EN.UserName Entity
+                            from [TRN].[FixedAssetRegisterDisposed] ITD  
+							LEFT JOIN (select FixedAssetRegisterDisposedId,TaxCategoryId,Percentage,Sum(Amount)Amount from [TRN].[FixedAssetRegisterDisposedTax]
+												 GROUP BY FixedAssetRegisterDisposedId,TaxCategoryId,Percentage) IT ON ITD.Id=IT.FixedAssetRegisterDisposedId 
+							LEFT JOIN TRN.Voucher V ON V.Id=ITD.DisposedVoucherId
+                           LEFT JOIN (SELECT IVD.*
+							FROM TRN.Voucher IV 
+										JOIN TRN.VoucherDetail IVD ON IVD.VoucherId=IV.Id AND IVD.DrAmount>0 AND IVD.InvoiceDetailId IS NOT NULL
+									) IVDD ON IVDD.VoucherId=ITD.DisposedVoucherId
+							LEFT JOIN HKP.Activity AP ON AP.Id=IVDD.ActivityId
+							LEFT JOIN HKP.Party P ON P.Id=IVDD.PartyId
+							LEFT JOIN ORG.Entity EN ON EN.Id=V.EntityId
+                            LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
+                            Left join hkp.PartyPlant pp on pp.Id=IVDD.PartyPlantId
+							LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer' AND CP.PlantId = '" + plantId + @"'
+                            where TC.TaxCategoryType='GST'  AND V.IsPark=0
+							AND V.PlantId = '" + plantId + @"' and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
+                            AND v.SourceType='FixedAssetDisposeJournal' 
   ) x
 							group by x.VoucherNo,x.VoucherDate,x.PostingDate,x.DocRefNo,x.DocDate,x.PartyName
 							,x.TCSequence,x.PartyPlantName,x.GSTIN,x.SourceType
@@ -11335,6 +11369,40 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 							AND IR.PlantId = '" + plantId + @"'   and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
                             AND v.SourceType='SalesInvoice' and IRT.SalesServiceId<>''
 
+                            UNION ALL
+                            SELECT 'Asset Sales' SourceType
+                            ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate,P.UserName PartyName,PP.GSTIN
+							, ITD.Id GRNNo,pp.UserName PartyPlantName
+                            ,LineItemType=case   WHEN v.SourceType='FixedAssetDisposeJournal' THEN 'Sales' ELSE '' END
+							, 'Asset Sales' Particular
+                            ,TaxableAmount=ISNULL(IVDD.DrAmount,0) 
+                            ,ITD.Id,0 DrAmount,CrAmount=ISNULL(IT.Amount,0)
+	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
+                            ,TC.TaxCategoryType,TC.Code TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory
+							,0 IsRCM,TC.Code TaxCodeName
+                            ,0 IsExcludingTax,IsTaxApplicable=CASE WHEN IsNULL(CP.TaxApplicable,'')='Mandatory' THEN 1 ELSE 0 END 
+							,'FixedPercentage' [Type],IT.[Percentage] ValueOfFixed
+                            ,IT.[Percentage],NULL HSNCodeId,null Material
+							,TaxPercentage= IT.[Percentage] ,TC.UserName+'-'+TC.Code ActivityName,'' InventoryReceiveDetailId
+                            ,'' InventorySalesServiceId,EN.UserName Entity
+                            from [TRN].[FixedAssetRegisterDisposed] ITD  
+							LEFT JOIN (select FixedAssetRegisterDisposedId,TaxCategoryId,Percentage,Sum(Amount)Amount from [TRN].[FixedAssetRegisterDisposedTax]
+												 GROUP BY FixedAssetRegisterDisposedId,TaxCategoryId,Percentage) IT ON ITD.Id=IT.FixedAssetRegisterDisposedId 
+							LEFT JOIN TRN.Voucher V ON V.Id=ITD.DisposedVoucherId
+                           LEFT JOIN (SELECT IVD.*
+							FROM TRN.Voucher IV 
+										JOIN TRN.VoucherDetail IVD ON IVD.VoucherId=IV.Id AND IVD.DrAmount>0 AND IVD.InvoiceDetailId IS NOT NULL
+									) IVDD ON IVDD.VoucherId=ITD.DisposedVoucherId
+							LEFT JOIN HKP.Activity AP ON AP.Id=IVDD.ActivityId
+							LEFT JOIN HKP.Party P ON P.Id=IVDD.PartyId
+							LEFT JOIN ORG.Entity EN ON EN.Id=V.EntityId
+                            LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
+                            Left join hkp.PartyPlant pp on pp.Id=IVDD.PartyPlantId
+							LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer' AND CP.PlantId = '" + plantId + @"'
+                            where TC.TaxCategoryType='GST'  AND V.IsPark=0
+							AND V.PlantId = '" + plantId + @"' and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
+                            AND v.SourceType='FixedAssetDisposeJournal' 
+
                             ) x
 							ORDER BY [Percentage],VoucherNo, DocDate, ISNULL(InventoryReceiveDetailId,''),ISNULL(InventoryServiceId,'')  ";
             return _sqlRepository.GetDataTable(strSql);
@@ -13400,8 +13468,49 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 				where TC.TaxCategoryType='TCS' AND ITD.AType='Dr' 
 				AND V.PostingDate between '" + fromDate + "' AND '" + toDate + "' and V.PlantId = '" + plantId + @"' and V.IsPark=0
              
+                UNION ALL
+				select SourceType= V.SourceType
+                ,V.VoucherNo InvoiceVoucherNo,'' InventoryReceiveId
+				,V.PostingDate InvoicePostingDate,V.DocRefNo InvoieDocRefNo,format( V.DocDate, 'dd-MMM-yyyy') InvoiceDocDate
+				,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,format( V.DocDate, 'dd-MMM-yyyy')DocDate, P.UserName PartyName,P.TINNO GSTIN 
+                ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material' 
+				                   when v.SourceType='FixedAssetDisposeJournal' then 'GL'
+                                   when v.SourceType='SalesInvoice' then 'GL'
+				                   when v.SourceType='VendorPayment' then 'GL'
+				                   when v.SourceType='CreditNoteSetOff' then 'GL'
+				                   else '' end
+				                   ,Particular=case when v.SourceType='FixedAssetDisposeJournal' then TXC.UserName 
+									                WHEN v.SourceType='VendorPayment' THEN AP.UserName
+									                WHEN v.SourceType='CreditNoteSetOff' THEN AP.UserName
+				                   else '' end
+				  ,TaxableAmount=IVDD.DrAmount-it.taxAmount
+                ,InvoiceAmount=IVDD.DrAmount
+                ,IT.Id,0 DrAmount ,CrAmount= IT.TaxAmount 
 
-				UNION ALL
+                ,TC.Code TaxCode ,TC.Sequence TCSequence,TC.TaxCategoryType,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
+                ,'' IsExcludingTax,'' IsTaxApplicable,TAXC.[Type],ValueOfFixedNew = TAXC.UserName +' - '+ convert(varchar,TAXC.ValueOfFixed),TAXC.ValueOfFixed
+                ,IsNULL(IT.[Percentage],0) Percentage
+                ,P.VATResistrationNo PanNo,TXC.UserName TDSPer,TXC.Code Section
+                FROM [TRN].[FixedAssetRegisterDisposedAdditionalTax] IT 
+                left join [TRN].[FixedAssetRegisterDisposed] ITD  ON ITD.Id=IT.FixedAssetRegisterDisposedId 
+                LEFT JOIN TRN.Voucher V ON V.Id=ITD.DisposedVoucherId
+				LEFT JOIN MST.TaxCode TXC ON TXC.Id=IT.TaxCodeId
+				LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId AND TC.TaxCategoryType='TCS'
+                LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
+	                LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
+	               LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @") AND TACD.TaxCodeYearId=TAY.Id) TAXC ON TAXC.Id=IT.TaxCodeId
+                
+                LEFT JOIN (SELECT IVD.*
+				FROM TRN.Voucher IV 
+							JOIN TRN.VoucherDetail IVD ON IVD.VoucherId=IV.Id AND IVD.DrAmount>0 AND IVD.InvoiceDetailId IS NOT NULL
+						) IVDD ON IVDD.VoucherId=ITD.DisposedVoucherId
+                LEFT JOIN HKP.Activity AP ON AP.Id=IVDD.ActivityId
+				LEFT JOIN HKP.Party P ON P.Id=IVDD.PartyId
+                WHERE TC.TaxCategoryType='TCS' 
+				AND V.PostingDate between '" + fromDate + @"' AND '" + toDate + @"' and V.PlantId = '" + plantId + @"' and V.IsPark=0
+
+
+                UNION ALL
 				select SourceType= V.SourceType
                 ,V.VoucherNo InvoiceVoucherNo,IV.InventoryReceiveId
 				,V.PostingDate InvoicePostingDate,V.DocRefNo InvoieDocRefNo,format( V.DocDate, 'dd-MMM-yyyy') InvoiceDocDate
