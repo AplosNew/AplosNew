@@ -20,6 +20,7 @@ using Library.Model.Payments;
 using Library.Accounting.Accounts;
 using Library.Data.Sql;
 using Library.Model.Accounts;
+using Library.Model.Inventory;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -235,7 +236,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         [Authorize,HttpPost]
         public JsonResult CreateIssue(string issueId, string voucherTypeId, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<InventoryMaterialViewModel> invIssueDetailList, IEnumerable<InventoryMaterialViewModel> invIssueDetailGLList)
+            , IEnumerable<InventoryMaterialViewModel> invIssueDetailList, IEnumerable<InventoryMaterialViewModel> invIssueDetailGLList, IEnumerable<InventoryReceiveDetail> InventoryReceiveDetailList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var voucherVM = new VoucherViewModel
@@ -248,6 +249,15 @@ namespace Aplos.Areas.Accounts.Controllers
                 PostingDate = DateTime.Now
             };
 
+            foreach (var item in InventoryReceiveDetailList)
+            {
+                if (item.PostDrGLGeneralInfoId == null)
+                    throw new CustomException("GL is Not Mapped !");
+                if (item.PostDrBudgetMasterId == null)
+                    throw new CustomException("Budget is Not Mapped !");
+                if (item.PostDrActivityId == null)
+                    throw new CustomException("Activity is Not Mapped!");
+            }
             foreach (var item in voucherDetailVMList)
             {
                 if (item.GLGeneralInfoId == null)

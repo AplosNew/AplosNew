@@ -50,7 +50,7 @@ namespace Aplos.Areas.Employees.Controllers
         #region -----------------------------------Excel Report--------------------------------------------------
 
 
-        [HttpGet, Authorize]
+        [HttpPost, Authorize]
         public ActionResult EmployeeInFoIndexReport(ReportFormat reportFormat, string radioValue, bool IsCheck, bool LA, bool TBS)
         {
 
@@ -395,6 +395,11 @@ namespace Aplos.Areas.Employees.Controllers
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ESIC No"); cESIC = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bonus", 6); cBonus = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Attendance Bonus", 25); ColAttnBns = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Training Title", 25); int ColTrainingTitle = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Training Topic", 25); int ColTrainingTopic = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Training Institute", 25); int ColTrainingInstitute = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ExCompany", 25);  int ColExCompany = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ExDesigntion", 25);int ColExDesigntion = xlsCol; xlsCol++;
                 xlsCol--;
                 endXlsCol = xlsCol;
                 xlsRow++;
@@ -512,6 +517,11 @@ namespace Aplos.Areas.Employees.Controllers
                     oRU.SetText(ref sheet1, xlsRow, cBS, dsEmpInfo.Tables[0].Rows[i]["BudgetShift"].ToString());
                     oRU.SetText(ref sheet1, xlsRow, cEL, dsEmpInfo.Tables[0].Rows[i]["EmployeeLocation"].ToString());
                     oRU.SetText(ref sheet1, xlsRow, ColAttnBns, dsEmpInfo.Tables[0].Rows[i]["AttenBnsPolicyName"].ToString());
+                    oRU.SetText(ref sheet1, xlsRow, ColTrainingTitle, dsEmpInfo.Tables[0].Rows[i]["TrainingTitle"].ToString());
+                    oRU.SetText(ref sheet1, xlsRow, ColTrainingTopic, dsEmpInfo.Tables[0].Rows[i]["TrainingTopic"].ToString());
+                    oRU.SetText(ref sheet1, xlsRow, ColTrainingInstitute, dsEmpInfo.Tables[0].Rows[i]["TrainingInstitute"].ToString());
+                    oRU.SetText(ref sheet1, xlsRow, ColExCompany, dsEmpInfo.Tables[0].Rows[i]["ExCompany"].ToString());
+                    oRU.SetText(ref sheet1, xlsRow, ColExDesigntion, dsEmpInfo.Tables[0].Rows[i]["ExDesigntion"].ToString());
 
                     oRU.SetText(ref sheet1, xlsRow, colPF, dsEmpInfo.Tables[0].Rows[i]["PF"].ToString());
                     oRU.SetText(ref sheet1, xlsRow, cPF, dsEmpInfo.Tables[0].Rows[i]["PFNumber"].ToString());
@@ -735,6 +745,676 @@ namespace Aplos.Areas.Employees.Controllers
             return workbook;
         }
 
+        [HttpPost, Authorize]
+        public ActionResult XlsEmployeeInfo(ReportFormat reportFormat, string radioValue, bool IsCheck, bool LA, bool TBS)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var excelEngine = new ExcelEngine();
+                var report = new ReportUtility();
+                var workbook = report.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2016;
+
+                var sheet1 = workbook.Worksheets[0];
+
+                sheet1.Name = "EmployeeInformation";
+
+                #region Variable
+                clsReport objRpt = null;
+                DataSet dsEmpInfo = null;
+                DataView dvEmpID = null;
+                DataSet dsCmp = null;
+                DataSet dsFactory = null;
+                DataSet dsEntityPosition = null;
+                Dictionary<string, DataRow> dsShiftAndEffectiveDate, dsTodayShift, dsAlignWithCompany, dsMinimumWage, dsIndividualOT, dsBonus, dsGross; //, dsCTC
+                IApplication application = null;
+                ReportUtility oRU = null;
+                int xlsRow = 1, xlsCol = 1;
+                int _FirstVisibleRow = 0;
+                bool IsBudgetCodeApplicable = false;
+
+                #endregion Variable
+
+                int ROW = 6;
+                int endCol = 1;
+                int COL = 1;
+                int startRow = 0;
+                #region DataSet
+                objRpt = new clsReport();
+                oRU = new ReportUtility();
+
+                var plantWiseData = GetPlantWiseHRMSSetting();
+
+                GetEmployeesData(identity.CompanyId, radioValue.ToString(), IsCheck, LA, TBS, out dsEmpInfo);
+                objRpt.GetEntityPositionInfo(identity.CompanyId, out dsEntityPosition);
+                objRpt.GetEmployeesTodaysShift(out dsTodayShift);
+                objRpt.GetEmployeesShiftAndEffectiveDate(out dsShiftAndEffectiveDate);
+                objRpt.GetEmployeesWeekOffEffectiveDateAlignWithCompany(out dsAlignWithCompany);
+                objRpt.GetEmployeesMinimumWage(out dsMinimumWage);
+                objRpt.GetEmployeesIndividualOTEntitlement(out dsIndividualOT);
+                objRpt.GetEmployeesBonus(out dsBonus);
+                objRpt.GetEmployeesGrossSalary(out dsGross);
+                //objRpt.GetEmployeesCTCSalary(out dsCTC);
+
+                dvEmpID = new DataView();
+                dvEmpID.Table = dsEmpInfo.Tables[0];
+
+                DataView dvEntity = new DataView(dsEntityPosition.Tables[0]);
+                dvEntity.RowFilter = "EP='E'";
+                dvEntity.Sort = "Sequence";
+                DataTable dtEntity = dvEntity.ToTable(true, "UserName", "Sequence");
+
+                DataView dvPosition = new DataView(dsEntityPosition.Tables[0]);
+                dvPosition.RowFilter = "EP='P'";
+                dvPosition.Sort = "Sequence";
+                DataTable dtPosition = dvPosition.ToTable(true, "UserName", "Sequence");
+
+                DataView dvBC = new DataView(dsEmpInfo.Tables[0]);
+                DataTable dtBC = dvBC.ToTable(true, "IsPositionCodeApplicable");
+                for (int i = 0; i < dtBC.Rows.Count; i++)
+                {
+                    IsBudgetCodeApplicable = bplib.clsWebLib.GetBoolData(dsEmpInfo.Tables[0].Rows[i]["IsPositionCodeApplicable"].ToString());
+                    if (IsBudgetCodeApplicable)
+                    {
+                        break;
+                    }
+                }
+
+                objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
+                //objRpt.SelectedPlant(identity.PlantId, out dsFactory);
+
+                #endregion DataSet
+
+                if (dvEmpID.Count > 0)
+                {
+                    xlsRow = 5;
+
+                    _FirstVisibleRow = xlsRow;
+
+                    #region variable
+                    string companyId = identity.CompanyId;
+                    int cSystemID = 0;
+                    int cEmployeeId = 0;
+                    int cEmployeeCode = 0;
+                    int cBudgetCode = 0;
+                    int cName = 0;
+                    int cDOJ = 0;
+                    int cProbPeriod = 0;
+                    int cDOC = 0;
+                    int cDOB = 0;
+                    int cDOS = 0;
+                    int cCompany = 0;
+                    int cDepartment = 0;
+                    int cPaygroup = 0;
+                    int cGivenDesignation = 0;
+                    int cLD = 0;
+                    int cGivenDesignationGroup = 0;
+                    int cGivenSalaryRule = 0;
+                    int cSalaryRule = 0;
+                    int cWeekOff = 0;
+                    int cIFSCCode = 0;
+                    //bc
+                    int cEntityCode = 0;
+                    int cEntity = 0;
+                    //po
+                    int cPositionCode = 0;
+                    int cDirectManpowerCost = 0;
+                    int cPosition = 0;
+                    int cpDesignation = 0;
+                    int cGN = 0;
+                    int cNID = 0;
+                    int cTIN = 0;
+                    int cES = 0;
+                    int cJL = 0;
+                    int cPA = 0;
+                    int cPA2 = 0;
+                    int cPhone = 0;
+                    int cPic = 0;
+                    int cFP = 0;
+                    int cN = 0;
+                    int cEC = 0;
+                    int cEL = 0;
+                    int cBL = 0;
+                    int cBS = 0;
+                    int cG = 0;
+                    int cMW = 0;
+                    int cPH = 0;
+                    int cOT = 0;
+                    int cDOT = 0;
+                    int cPM = 0;
+                    int cB = 0;
+                    int cBN = 0;
+                    int cPF = 0;
+                    int cESIC = 0;
+                    int cBonus = 0;
+                    int colPF = 0;
+                    int colESIC = 0;
+                    int colOM = 0;
+                    int cEmployeeCurrentStatus = 0;
+                    int cBloodGroup = 0;
+                    int cReligion = 0;
+                    int cCaste = 0;
+                    int ColAttendanceGroup = 0;
+                    int ColGS = 0;
+                    int ColSFT = 0;
+                    int ColAttnBns = 0;
+                    int cShift = 0;
+                    int cRoster = 0;
+                    int cEDate = 0;
+                    int cWEDate = 0;
+                    int cMaxOtHour = 0;
+                    int cAlignWithCC = 0;
+                    int cIndv = 0;
+                    int cFather = 0;
+                    int cMother = 0;
+                    int cSpouse = 0;
+                    int cParAddress = 0;
+                    int cParAddress2 = 0;
+                    int cPresThana = 0;
+                    int cPresCity = 0;
+                    int cParArea = 0;
+                    int cPresArea = 0;
+                    int cPresDistrict = 0;
+                    int cPresState = 0;
+                    int cPresCountry = 0;
+                    int cParmThana = 0;
+                    int cParmArea = 0;
+                    int cParmCity = 0;
+                    int cParmDistrict = 0;
+                    int cParmState = 0;
+                    int cParmCountry = 0;
+                    int cDirect = 0;
+                    int cContractor = 0;
+                    int cMultipleOperation = 0;
+                    int cSingleOperation = 0;
+                    int cTenureMonth = 0;
+                    //int cCTC = 0;
+                    int cREN = 0;
+                    int cREC = 0;
+
+                    #endregion variable
+
+                    int endXlsCol = 0;
+                    xlsRow++;
+                    xlsCol = 1;
+                    #region Column Header
+
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow - 1, xlsCol, "Employee info", ExcelHAlign.HAlignCenter);
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SystemID"); cSystemID = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeId"); cEmployeeId = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Employee Code"); cEmployeeCode = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 25); cName = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Father Name", 25); cFather = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Mother Name", 25); cMother = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Spouse Name", 25); cSpouse = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Present Address1", 40); cPA = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Present Address2", 40); cPA2 = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Pres. Area"); cPresArea = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Pres. Thana"); cPresThana = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Pres. City"); cPresCity = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Pres. District"); cPresDistrict = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Pres. State/Division"); cPresState = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Pres. Country"); cPresCountry = xlsCol; xlsCol++;
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Permanent Address1", 40); cParAddress = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Permanent Address2", 40); cParAddress2 = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Per. Area"); cParArea = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Per. Thana"); cParmThana = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Per. City"); cParmCity = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Per. District"); cParmDistrict = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Per. State/Division"); cParmState = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Per. Country"); cParmCountry = xlsCol; xlsCol++;
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Contractor Name", 15); cContractor = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Gender", 7); cGN = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Religion", 8); cReligion = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Caste", 8); cCaste = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Blood Group", 11); cBloodGroup = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PhoneNo"); cPhone = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Picture", 7); cPic = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Card Number"); cN = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Finger Print", 11); cFP = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "NID"); cNID = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TIN"); cTIN = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB"); cDOB = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); cDOJ = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Tenure(Month)", 14); cTenureMonth = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOS"); cDOS = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "P.Period", 8); cProbPeriod = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOC"); cDOC = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Employee Status"); cES = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Employee Current Status", 19); cEmployeeCurrentStatus = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Today's Shift"); ColSFT = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shift Effective Date"); cEDate = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Roster Shift Name"); cRoster = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Assign Shift Name", 30); cShift = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Week Off", 25); cWeekOff = xlsCol; xlsCol++;
+                    //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Week Off Effective Date"); cWEDate = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Align With Company", 11); cAlignWithCC = xlsCol; xlsCol++;
+                    // oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Individual Week Off", 9); cIndv = xlsCol; xlsCol++;
+                    //  oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Min. OT"); cMaxOtHour = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Job Location", 14); cJL = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Company", 25); cCompany = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Department", 30); cDepartment = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Payroll Group", 17); cPaygroup = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Attendance Group", 18); ColAttendanceGroup = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Std. Designation", 25); cGivenDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Legal/Given Designation", 25); cLD = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Std. Designation Group", 25); cGivenDesignationGroup = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp. Category"); cEC = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Ref Emp Code"); cREC = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Ref Emp Name"); cREN = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Operation Code", 15); cSingleOperation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Multiple Operation Code", 15); cMultipleOperation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Salary Rule", 25); cSalaryRule = xlsCol; xlsCol++;
+
+                    //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Salary Rule (GD)", 25); cGivenSalaryRule = xlsCol; xlsCol++;
+
+                    if (IsBudgetCodeApplicable)
+                    {
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode", 11); cBudgetCode = xlsCol; xlsCol++;
+                        sheet1.Range[xlsRow - 1, 1, xlsRow - 1, xlsCol - 1].Merge();
+
+                        //bc
+                        oRU.SetHeaderText(ref sheet1, xlsRow - 1, xlsCol, "Entity info", ExcelHAlign.HAlignCenter);
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Entity Code", 10); cEntityCode = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Entity", 20); cEntity = xlsCol; xlsCol++;
+                        for (int i = 0; i < dtEntity.Rows.Count; i++)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtEntity.Rows[i]["UserName"].ToString(), 25); xlsCol++;
+                        }
+                        sheet1.Range[xlsRow - 1, cEntityCode, xlsRow - 1, xlsCol - 1].Merge();
+
+                        //po
+                        oRU.SetHeaderText(ref sheet1, xlsRow - 1, xlsCol, "Position info", ExcelHAlign.HAlignCenter);
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Position Code", 10); cPositionCode = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Position", 45); cPosition = xlsCol; xlsCol++;
+                        for (int i = 0; i < dtPosition.Rows.Count; i++)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtPosition.Rows[i]["UserName"].ToString(), 15); xlsCol++;
+                        }
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 15); cpDesignation = xlsCol; xlsCol++;
+
+                        sheet1.Range[xlsRow - 1, cPositionCode, xlsRow - 1, cpDesignation].Merge();
+                    }//IsBudgetCodeApplicable
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budgeted Line"); cBL = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budgeted Shift"); cBS = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Direct Manpower Cost", 25); cDirectManpowerCost = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Direct Manpower", 25); cDirect = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Employee Location"); cEL = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Grade"); cG = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Minimum Wage"); cMW = xlsCol; xlsCol++;
+
+                    if (plantWiseData.Rows.Count > 0)
+                    {
+                        if (Convert.ToBoolean(plantWiseData.Rows[0]["IsSalaryStructureShowInEIReport"]) == true)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Gross Amount"); ColGS = xlsCol; xlsCol++;
+                        }
+                    }
+                    //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CTC Amount"); cCTC = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Individual OT Entitlement"); cOT = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation OT Entitlement"); cDOT = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Paid Hours"); cPH = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Payment Mode"); cPM = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bank Name", 25); cBN = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Account No"); cB = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IFSC Code", 25); cIFSCCode = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PF", 6); colPF = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PF No"); cPF = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ESIC", 6); colESIC = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ESIC No"); cESIC = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bonus", 6); cBonus = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Attendance Bonus", 25); ColAttnBns = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Training Title", 25); int ColTrainingTitle = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Training Topic", 25); int ColTrainingTopic = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Training Institute", 25); int ColTrainingInstitute = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ExCompany", 25); int ColExCompany = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ExDesigntion", 25); int ColExDesigntion = xlsCol; xlsCol++;
+                    xlsCol--;
+                    endXlsCol = xlsCol;
+                    xlsRow++;
+                    startRow = xlsRow;
+                    #endregion
+
+                    for (int i = 0; i < dsEmpInfo.Tables[0].Rows.Count; i++)
+                    {
+                        oRU.SetText(ref sheet1, xlsRow, cSystemID, dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cEmployeeId, dsEmpInfo.Tables[0].Rows[i]["EmployeeId"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, dsEmpInfo.Tables[0].Rows[i]["EmployeeCode"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cName, dsEmpInfo.Tables[0].Rows[i]["EmployeeName"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cFather, dsEmpInfo.Tables[0].Rows[i]["FatherName"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cMother, dsEmpInfo.Tables[0].Rows[i]["MotherName"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cSpouse, dsEmpInfo.Tables[0].Rows[i]["SpouseName"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cPA, dsEmpInfo.Tables[0].Rows[i]["PresentAddress1"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cPA2, dsEmpInfo.Tables[0].Rows[i]["PresentAddress2"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cPresArea, dsEmpInfo.Tables[0].Rows[i]["PresentArea"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cPresThana, dsEmpInfo.Tables[0].Rows[i]["PresThana"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cPresCity, dsEmpInfo.Tables[0].Rows[i]["PresCity"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cPresDistrict, dsEmpInfo.Tables[0].Rows[i]["PresDistrict"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cPresState, dsEmpInfo.Tables[0].Rows[i]["PresState"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cPresCountry, dsEmpInfo.Tables[0].Rows[i]["PresCountry"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cParAddress, dsEmpInfo.Tables[0].Rows[i]["ParmanentAddress1"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cParAddress2, dsEmpInfo.Tables[0].Rows[i]["ParmanentAddress2"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cParArea, dsEmpInfo.Tables[0].Rows[i]["ParmanentArea"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cParmThana, dsEmpInfo.Tables[0].Rows[i]["ParmThana"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cParmCity, dsEmpInfo.Tables[0].Rows[i]["ParmCity"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cParmDistrict, dsEmpInfo.Tables[0].Rows[i]["ParmDistrict"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cParmState, dsEmpInfo.Tables[0].Rows[i]["ParmState"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cParmCountry, dsEmpInfo.Tables[0].Rows[i]["ParmCountry"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cGN, dsEmpInfo.Tables[0].Rows[i]["GenderID"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cContractor, dsEmpInfo.Tables[0].Rows[i]["ContractorName"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cReligion, dsEmpInfo.Tables[0].Rows[i]["Religion"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cCaste, dsEmpInfo.Tables[0].Rows[i]["Caste"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cBloodGroup, dsEmpInfo.Tables[0].Rows[i]["BloodGroup"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cPhone, dsEmpInfo.Tables[0].Rows[i]["CellPhnNo"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cPic, dsEmpInfo.Tables[0].Rows[i]["Picture"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cN, dsEmpInfo.Tables[0].Rows[i]["CardNumber"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cFP, dsEmpInfo.Tables[0].Rows[i]["Fingerprint"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cNID, dsEmpInfo.Tables[0].Rows[i]["NationalID"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cTIN, dsEmpInfo.Tables[0].Rows[i]["TIN"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOB, dsEmpInfo.Tables[0].Rows[i]["DOB"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOJ, dsEmpInfo.Tables[0].Rows[i]["DOJ"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOS, dsEmpInfo.Tables[0].Rows[i]["DOS"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cProbPeriod, dsEmpInfo.Tables[0].Rows[i]["ProbationPeriod"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOC, dsEmpInfo.Tables[0].Rows[i]["DOC"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cWeekOff, dsEmpInfo.Tables[0].Rows[i]["WeekOff"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cIFSCCode, dsEmpInfo.Tables[0].Rows[i]["IFSCCode"].ToString());
+                        if (bplib.clsWebLib.GetBoolData(dsEmpInfo.Tables[0].Rows[i]["IsConfirmed"].ToString()) == false)
+                        {
+                            sheet1.Range[xlsRow, cDOC].CellStyle.Font.Color = ExcelKnownColors.Red;
+                        }
+                        oRU.SetText(ref sheet1, xlsRow, cES, dsEmpInfo.Tables[0].Rows[i]["EmployeeStatus"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cEmployeeCurrentStatus, dsEmpInfo.Tables[0].Rows[i]["EmployeeCurrentStatus"].ToString());
+
+                        oRU.SetText(ref sheet1, xlsRow, cJL, dsEmpInfo.Tables[0].Rows[i]["JobLocation"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cCompany, dsEmpInfo.Tables[0].Rows[i]["Company"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDepartment, dsEmpInfo.Tables[0].Rows[i]["Department"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cPaygroup, dsEmpInfo.Tables[0].Rows[i]["PayrollGroup"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, ColAttendanceGroup, dsEmpInfo.Tables[0].Rows[i]["AttendanceGroup"].ToString());
+                        //oRU.SetText(ref sheet1, xlsRow, cGivenDesignation, dsEmpInfo.Tables[0].Rows[i]["GivenDesignation"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cGivenDesignation, dsEmpInfo.Tables[0].Rows[i]["StandardDesignation"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cLD, dsEmpInfo.Tables[0].Rows[i]["LegalDesignation"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cGivenDesignationGroup, dsEmpInfo.Tables[0].Rows[i]["StandardDesignationGroup"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cEC, dsEmpInfo.Tables[0].Rows[i]["EmployeeCategory"].ToString());
+
+                        if (dsEmpInfo.Tables[0].Rows[i]["Operation"].ToString() == "Operation Master")
+                        {
+                            oRU.SetText(ref sheet1, xlsRow, cSingleOperation, dsEmpInfo.Tables[0].Rows[i]["OperationMasterCode"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cMultipleOperation, dsEmpInfo.Tables[0].Rows[i]["MultipleOperationMaster"].ToString());
+                        }
+                        if (dsEmpInfo.Tables[0].Rows[i]["Operation"].ToString() == "Operation Variation")
+                        {
+                            oRU.SetText(ref sheet1, xlsRow, cSingleOperation, dsEmpInfo.Tables[0].Rows[i]["OperationVariationCode"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cMultipleOperation, dsEmpInfo.Tables[0].Rows[i]["MultipleOperationVariation"].ToString());
+                        }
+
+                        oRU.SetText(ref sheet1, xlsRow, cDOT, dsEmpInfo.Tables[0].Rows[i]["DesignationOT"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cPH, dsEmpInfo.Tables[0].Rows[i]["PaidHours"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cPM, dsEmpInfo.Tables[0].Rows[i]["PaymentMode"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cBN, dsEmpInfo.Tables[0].Rows[i]["BankName"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cB, dsEmpInfo.Tables[0].Rows[i]["BankAccNo"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cREC, dsEmpInfo.Tables[0].Rows[i]["RefEmpCode"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cREN, dsEmpInfo.Tables[0].Rows[i]["Ref1Name"].ToString());
+
+                        oRU.SetText(ref sheet1, xlsRow, cDirectManpowerCost, dsEmpInfo.Tables[0].Rows[i]["DirectManpowerCost"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDirect, dsEmpInfo.Tables[0].Rows[i]["Direct"].ToString());
+                        if (bplib.clsWebLib.GetBoolData(dsEmpInfo.Tables[0].Rows[i]["IsPositionCodeApplicable"].ToString()))
+                        {
+                            oRU.SetText(ref sheet1, xlsRow, cBudgetCode, dsEmpInfo.Tables[0].Rows[i]["BudgetCode"].ToString());
+                            //entity
+                            oRU.SetText(ref sheet1, xlsRow, cEntityCode, dsEmpInfo.Tables[0].Rows[i]["EntityCode"].ToString());
+
+                            oRU.SetText(ref sheet1, xlsRow, cEntity, dsEmpInfo.Tables[0].Rows[i]["Entity"].ToString());
+
+                            for (int c = 0; c < dtEntity.Rows.Count; c++)
+                            {
+                                string _colname = dtEntity.Rows[c]["UserName"].ToString();
+                                oRU.SetText(ref sheet1, xlsRow, cEntity + c + 1, dsEmpInfo.Tables[0].Rows[i]["e" + _colname].ToString());
+                            }
+
+                            //position
+                            oRU.SetText(ref sheet1, xlsRow, cPositionCode, dsEmpInfo.Tables[0].Rows[i]["PositionCode"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cPosition, dsEmpInfo.Tables[0].Rows[i]["Position"].ToString());
+                            for (int c = 0; c < dtPosition.Rows.Count; c++)
+                            {
+                                string _colname = dtPosition.Rows[c]["UserName"].ToString();
+                                oRU.SetText(ref sheet1, xlsRow, cPosition + c + 1, dsEmpInfo.Tables[0].Rows[i]["p" + _colname].ToString());
+                            }
+                            oRU.SetText(ref sheet1, xlsRow, cpDesignation, dsEmpInfo.Tables[0].Rows[i]["pDesignation"].ToString());
+                        }//is bc applicable
+
+                        oRU.SetText(ref sheet1, xlsRow, cBL, dsEmpInfo.Tables[0].Rows[i]["BudgetLine"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cBS, dsEmpInfo.Tables[0].Rows[i]["BudgetShift"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cEL, dsEmpInfo.Tables[0].Rows[i]["EmployeeLocation"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, ColAttnBns, dsEmpInfo.Tables[0].Rows[i]["AttenBnsPolicyName"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, ColTrainingTitle, dsEmpInfo.Tables[0].Rows[i]["TrainingTitle"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, ColTrainingTopic, dsEmpInfo.Tables[0].Rows[i]["TrainingTopic"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, ColTrainingInstitute, dsEmpInfo.Tables[0].Rows[i]["TrainingInstitute"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, ColExCompany, dsEmpInfo.Tables[0].Rows[i]["ExCompany"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, ColExDesigntion, dsEmpInfo.Tables[0].Rows[i]["ExDesigntion"].ToString());
+
+                        oRU.SetText(ref sheet1, xlsRow, colPF, dsEmpInfo.Tables[0].Rows[i]["PF"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cPF, dsEmpInfo.Tables[0].Rows[i]["PFNumber"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, colESIC, dsEmpInfo.Tables[0].Rows[i]["ESIC"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cESIC, dsEmpInfo.Tables[0].Rows[i]["ESICNumber"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cSalaryRule, dsEmpInfo.Tables[0].Rows[i]["SalaryRuleName"].ToString());
+
+                        oRU.SetText(ref sheet1, xlsRow, cG, dsEmpInfo.Tables[0].Rows[i]["Grade"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cTenureMonth, dsEmpInfo.Tables[0].Rows[i]["TenureMonth"].ToString());
+
+                        // from Other DataSet
+
+                        if (dsTodayShift.ContainsKey(dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()))
+                        {
+                            DataRow drTemp = dsTodayShift[dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()];
+                            oRU.SetText(ref sheet1, xlsRow, ColSFT, drTemp["ShiftDefinationDescription"].ToString());
+                        }
+
+                        if (dsShiftAndEffectiveDate.ContainsKey(dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()))
+                        {
+                            DataRow drTemp = dsShiftAndEffectiveDate[dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()];
+                            oRU.SetText(ref sheet1, xlsRow, cEDate, drTemp["EffectiveDate"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cRoster, drTemp["ShiftRosterDescription"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cShift, drTemp["ShiftName"].ToString());
+                        }
+
+                        if (dsAlignWithCompany.ContainsKey(dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()))
+                        {
+                            DataRow drTemp = dsAlignWithCompany[dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()];
+
+                            // oRU.SetText(ref sheet1, xlsRow, cWEDate, drTemp["WeekOffEffectiveDate"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cAlignWithCC, drTemp["AlignWithCC"].ToString());
+                            /*oRU.SetText(ref sheet1, xlsRow, cIndv, drTemp["FstOffDay"].ToString());
+                            if (drTemp["AlignWithCC"].ToString() == "Yes")
+                            {
+                                oRU.SetText(ref sheet1, xlsRow, cIndv, "");
+                            }
+                            else
+                            {
+                                oRU.SetText(ref sheet1, xlsRow, cIndv, drTemp["FstOffDay"].ToString());
+                            }*/
+                        }
+
+                        if (dsMinimumWage.ContainsKey(dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()))
+                        {
+                            DataRow drTemp = dsMinimumWage[dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()];
+
+                            oRU.SetText(ref sheet1, xlsRow, cMW, drTemp["SalaryHeadValue"].ToString());
+                        }
+
+                        if (dsBonus.ContainsKey(dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()))
+                        {
+                            DataRow drTemp = dsBonus[dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()];
+
+                            oRU.SetText(ref sheet1, xlsRow, cBonus, drTemp["BONUS"].ToString());
+                        }
+
+                        if (plantWiseData.Rows.Count > 0)
+                        {
+                            if (Convert.ToBoolean(plantWiseData.Rows[0]["IsSalaryStructureShowInEIReport"]) == true)
+                            {
+                                if (dsGross.ContainsKey(dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()))
+                                {
+                                    DataRow drTemp = dsGross[dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()];
+
+                                    oRU.SetText(ref sheet1, xlsRow, ColGS, drTemp["DefineAmount"].ToString());
+                                }
+                            }
+                        }
+
+
+                        //if (dsCTC.ContainsKey(dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()))
+                        //{
+                        //    DataRow drTemp = dsCTC[dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()];
+
+                        //    oRU.SetText(ref sheet1, xlsRow, cCTC, drTemp["DefineAmount"].ToString());
+                        //}
+
+                        if (dsIndividualOT.ContainsKey(dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()))
+                        {
+                            DataRow drTemp = dsIndividualOT[dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()];
+
+                            oRU.SetText(ref sheet1, xlsRow, cOT, drTemp["OverTime"].ToString());
+                        }
+
+                        xlsRow++;
+                    }
+                    sheet1.AutoFilters.FilterRange = sheet1.Range[startRow - 1, 1, xlsRow, endXlsCol];
+                    string CmpName = string.Empty;
+                    string CompanyImage = string.Empty;
+                    string FactoryName = string.Empty;
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                        CompanyImage = dsCmp.Tables[0].Rows[0]["CompanyImage"].ToString();
+                    }
+                    else
+                    {
+                        CmpName = "";
+                    }
+                    #region ******************Report Header******************
+                    try
+                    {
+                        string strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), CompanyImage);  // IDCardEng.xlsx
+                        Image companyLogo = Image.FromFile(strPath);
+                        if (companyLogo != null)
+                        {
+                            double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
+                            int totalWidthPixel = (int)(totalWidth * 7.5);
+                            int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) + sheet1.GetRowHeight(3) + sheet1.GetRowHeight(3)) * 1.50);
+
+                            companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                            IPictureShape pic = null;
+
+                            pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
+
+
+                        }
+
+
+                    }
+                    catch (Exception)
+                    {
+
+
+                    }
+
+                    xlsRow = 1;
+                    xlsCol = 1;
+                    string FactoryAddress = string.Empty;
+
+
+                    sheet1.Range[xlsRow, 3].Text = CmpName;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 14;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 30;
+                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        //FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
+                        FactoryName = dsCmp.Tables[0].Rows[0]["Address1"].ToString();
+                    }
+                    else
+                    {
+                        FactoryName = "";
+                    }
+                    sheet1.Range[xlsRow, 3].Text = FactoryName;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 8;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    sheet1.Range[xlsRow, 3].Text = "Employee Information";
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    string strRptDateRange = "";
+                    strRptDateRange = "";
+                    sheet1.Range[xlsRow, 3].Text = strRptDateRange;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    #endregion ******************Report Header******************
+
+                    #region UsedRange Alignment
+
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                    #endregion UsedRange Alignment
+
+
+                }
+                else
+                {
+
+                }
+
+                //var startRow = 0;
+                var endRow = 0;
+                int RowIndex = ROW;
+                startRow = ROW;
+                ROW++;
+                report.PageSetup(ref sheet1, 5, ExcelPageOrientation.Landscape);
+
+
+                string fileName = "EmployeeInformation-"+identity.UserId+".xls";
+
+            string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName);
+            workbook.Version = ExcelVersion.Excel2016;
+            workbook.SaveAs(fullPath);
+            return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
+
+            }
+
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+            finally
+            {
+            }
+        }//End Function
 
         public DataTable GetPlantWiseHRMSSetting()
         {
@@ -833,6 +1513,20 @@ namespace Aplos.Areas.Employees.Controllers
 								where wo.EmpSystemID = e.SystemId
 								order by effectivedate desc)
 					   end WeekOff,  EB.IFSCCode,EADD.UserName Caste
+
+,TrainingTitle=STUFF((Select distinct ','+ TrainingTitle from dbo.EmpTrainingInformation Where EmpSystemId=E.SystemId
+					   for XML path(''),Type).value('.','varchar(max)'),1,1,'')
+					   ,TrainingTopic=STUFF((Select distinct','+TopicCovered from dbo.EmpTrainingInformation Where EmpSystemId=E.SystemId
+					   for xml path(''),Type).value('.','varchar(max)'),1,1,'')
+					   ,TrainingInstitute=STUFF((Select distinct ','+InstituteName from dbo.EmpTrainingInformation Where EmpSystemId=E.SystemId
+					   for xml path(''),Type).value('.','varchar(max)'),1,1,'')
+
+					  ,ExCompany=STUFF((Select distinct ','+ Employer from EmpExperienceInformation Where EmpSystemID=E.SystemId
+					  for xml path(''),Type).value('.','varchar(max)'),1,1,'')
+
+					   ,ExDesigntion=STUFF((Select distinct ','+ Designation from EmpExperienceInformation Where EmpSystemID=E.SystemId
+					  for xml path(''),Type).value('.','varchar(max)'),1,1,'')
+
                             FROM EmployeeInformation e
 							LEFT JOIN MST.ManpowerBudget mpb ON mpb.Id = e.BudgetCode
                             LEFT JOIN ORG.Company C ON C.Id = E.CompanyId

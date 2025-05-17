@@ -4534,6 +4534,26 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
+		public GridModel GetInventoryReceiveDetailListByIssueId(GridParameter parameters, string issueId, string companyId)
+		{
+			try
+			{
+				parameters.CmdText = @"DECLARE  @issueId varchar(10)='" + issueId + @"' 
+                            SELECT IRD.InventoryReceiveId ,IRD.Id,IRD.PostDrGLGeneralInfoId,	IRD.PostDrBudgetMasterId,	IRD.PostDrActivityId,IRD.VoucherDetailId
+                              FROM TRN.InventoryIssueHistory IIH
+							  LEFT JOIN trn.InventoryIssueDetail IID ON IIH.InventoryIssueDetailId = IID.Id	
+							  LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+							  WHERE IID.InventoryIssueId=@issueId";
+				return _sqlRepository.GetDifferentGridData(parameters);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
+
 		public GridModel GetIssueMaterialGL(GridParameter parameters, string issueId, string companyId)
         {
             try
