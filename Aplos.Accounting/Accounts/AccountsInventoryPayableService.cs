@@ -4534,7 +4534,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
-		public GridModel GetGetInventoryReceiveDetailListByIssueIdList(GridParameter parameters, string issueId, string companyId)
+		public GridModel GetInventoryReceiveDetailListByIssueId(GridParameter parameters, string issueId, string companyId)
 		{
 			try
 			{
