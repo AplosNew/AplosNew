@@ -2017,6 +2017,27 @@ namespace Aplos.Areas.FixedAssets.Controllers
                     return View();
             }
         }
+        [Authorize, HttpGet]
+        public ActionResult GetAssetDepreciationGLWiseReportByAssetDepreciationId(ReportFormat reportFormat, string assetDepreciationId)
+        {
+            string reportFileName = "";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            Syncfusion.XlsIO.IWorkbook workbook = null;
+
+            workbook = _accountVoucherReportService.GetAssetDepreciationGLWiseReportByAssetDepreciationId(out reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, assetDepreciationId);
+
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
         #endregion
 
         #region Capitalize Asset Dispose
