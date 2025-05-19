@@ -1142,7 +1142,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	}
 
 	//#endregion
-
+	$scope.ispostDisable = false;
 	$scope.Save = function () {
 
 
@@ -1184,6 +1184,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 		var UIStatus = $("#SlipAssetIssueUI").val();
 		$scope.productNew.IssueRequestMasterId = $scope.issueId;
 		$scope.productNew.CustomerId = $scope.productNew.PartyId;
+		$scope.ispostDisable = true;
 		if ($scope.Action === "Save") {
 			$http({
 				method: 'POST'
@@ -1211,6 +1212,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 					$scope.SalesDetails();
 					$scope.getData();
 					$scope.GetDataList();
+					$scope.ispostDisable = false;
 				}
 			}), function (response) {
 				ShowResult(response.data.Message, 'failure');
@@ -1345,6 +1347,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 
 	function ClearFields() {
 		$scope.Action = "Save";
+		$scope.ispostDisable = false;
 		$scope.product = {};
 		$scope.detailList = [];
 		$scope.detailModel = {};
