@@ -455,8 +455,25 @@ namespace Library.Accounting.Accounts
                         AND AD.CompanyGroupId='" + companyGroupId + "' AND AD.CompanyId ='" + companyId + "' AND AD.PlantId='" + plantId + @"' 
                         ORDER BY AssetRegisterId, AssetRegisterChildId, CapitalizationMasterId, CapitalizationChildId";
             return _sqlRepository.GetDataTable(cmdText);
+        }
+        public DataTable GetAssetDepreciationGLWiseReportDataByAssetDepreciationId(string companyGroupId, string companyId, string plantId, string assetDepreciationId)
+        {
+            var cmdText = @"DECLARE @AssetDepreciationId varchar(50)='" + assetDepreciationId + @"'
 
-
+                        SELECT GLGeneralInfoId =BM.GLGeneralInfoId  ,GLGeneralInfoCode =GL.AccountCode ,GLGeneralInfoName =GL.AccountCode + ' - ' + GL.UserName
+							,BudgetMasterId =VD.BudgetMasterId,BudgetCode = B.Code,BudgetName =B.UserName 
+							,ActivityId = VD.ActivityId,ActivityCode = A.Code,ActivityName =A.UserName
+							, SUM( ISNULL(ADDS.DepreciationAmount,0)) AS DepreciationAmount
+						FROM [TRN].[AssetDepreciationDetail] ADDS
+						LEFT JOIN [TRN].[AssetRegisterChild]  ARC ON ARC.Id=ADDS.AssetRegisterChildId
+						LEFT JOIN [TRN].[VoucherDetail]  VD ON VD.Id=ARC.VoucherDetailId
+						LEFT JOIN [MST].[BudgetMaster] AS BM ON  BM.Id=VD.BudgetMasterId
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON VD.GLGeneralInfoId=GL.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON VD.ActivityId= A.Id
+						WHERE ADDS.AssetDepreciationId=@assetDepreciationId 
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, VD.BudgetMasterId, B.Code, B.UserName, VD.ActivityId, A.Code, A.UserName ";
+            return _sqlRepository.GetDataTable(cmdText);
         }
         public DataTable GetFixedAssetFinancialRegisterReportData(string companyGroupId, string companyId, string plantId, DateTime fromDate, DateTime toDate)
         {
@@ -8091,6 +8108,116 @@ group by x.GL,x.Budget,x.Activity,x.GLGeneralInfoId,x.BudgetMasterId,x.ActivityI
             // var workbook = report.GetWorkbook(ref excelEngine, 1);
             ReportUtility reportUtility = new ReportUtility();
             reportUtility.PlantHeader(ref worksheet, endCol, "Capitalize Assets Depreciation Report", identity.PlantId);
+            reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            worksheet.IsGridLinesVisible = false;
+
+            #region Freeze Panes
+
+            worksheet.IsDisplayZeros = false;
+            worksheet.UsedRange["A6"].FreezePanes();
+            worksheet.FirstVisibleColumn = 1;
+            worksheet.FirstVisibleRow = 6;
+
+            #endregion Freeze Panes
+
+            return workbook;
+        }
+        public IWorkbook GetAssetDepreciationGLWiseReportByAssetDepreciationId(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string assetDepreciationId)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            ExcelEngine excelEngine = new ExcelEngine();
+            //Instantiate the Excel application object
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+
+            //Load the existing Excel workbook into IWorkbook
+            IWorkbook workbook = application.Workbooks.Create(1);
+
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+            DataTable dtDayBookData = GetAssetDepreciationGLWiseReportDataByAssetDepreciationId(companyGroupId, companyId, plantId, assetDepreciationId);
+
+            worksheet.Name = "Capitalize Assets Depreciation GL Wise Report";
+            reportFileName = "Capitalize Assets Depreciation GL Wise Report Asset DepreciationId: " + assetDepreciationId;
+
+            int COL = 1; int ROW = 5;
+            int startCol = COL;
+
+            worksheet.Range[ROW - 1, 3].Text = "Asset DepreciationId: " + assetDepreciationId;
+
+            worksheet[ROW, COL].Text = "SL. No";
+            int colSLNO = COL;
+            worksheet[ROW, COL].ColumnWidth = 4;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "GL";
+            int colGLGeneralInfoName = COL;
+            worksheet[ROW, COL].ColumnWidth = 35;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Budget";
+            int colBudgetName = COL;
+            worksheet[ROW, COL].ColumnWidth = 35;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Activity";
+            int colActivityName = COL;
+            worksheet[ROW, COL].ColumnWidth = 35;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            
+
+            worksheet[ROW, COL].Text = "Depreciation Amount";
+            int colDepreciationAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+            int endCol = COL;
+            worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
+
+            ROW++;
+            int Row_Total_Start = ROW;
+            for (int i = 0; i < dtDayBookData.Rows.Count; i++)
+            {
+                worksheet[ROW, colSLNO].Number = (i + 1);
+                worksheet[ROW, colGLGeneralInfoName].Text = dtDayBookData.Rows[i]["GLGeneralInfoName"].ToString();
+                worksheet[ROW, colBudgetName].Text = dtDayBookData.Rows[i]["BudgetName"].ToString();
+                worksheet[ROW, colActivityName].Text = dtDayBookData.Rows[i]["ActivityName"].ToString();
+                
+                worksheet[ROW, colDepreciationAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["DepreciationAmount"].ToString());
+                worksheet[ROW, colDepreciationAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.CellStyle.Font.Size = 8f;
+
+            var report = new ReportUtility();
+            // var workbook = report.GetWorkbook(ref excelEngine, 1);
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.PlantHeader(ref worksheet, endCol, "Capitalize Assets Depreciation GL Wise Report", identity.PlantId);
             reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
             worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
