@@ -308,6 +308,16 @@ function assetDepreciationProcessController(cboService, commonMessage, $scope, $
         }
     };
 
+    $scope.onClickGLWiseReportDownloadExcel = function (args) {
+        var reportFormat = "Excel";
+        try {
+            var file_src = $scope.path + 'GetAssetDepreciationGLWiseReportByAssetDepreciationId?reportFormat=' + reportFormat + '&assetDepreciationId=' + args.AssetDepreciationId
+            $rootScope.report(file_src);
+        } catch (e) {
+
+        }
+    };
+
 };
 
 
