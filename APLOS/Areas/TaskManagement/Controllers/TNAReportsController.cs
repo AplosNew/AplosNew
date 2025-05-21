@@ -87,7 +87,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                 p.UserName AS ProcessName,
                                 isnull(DTO.UserName,'') AS Department,isnull(EATO.EmployeeName,'') AS AssignToEmployeeName,isnull(EAB.EmployeeName,'') AS AssignByEmployeeName,
                                 isnull(tc.UserName,'') AS TaskCategory,isnull(tsc.UserName,'') AS TaskSubCategory
-
+                                ,LineItemReference
                                  FROM TaskManagerMaster AS tm
                                 inner join (" + TNAOrderColumns() + @") AS MO on TaskManagerMasterId=Tm.Id
                                 INNER JOIN TNATasks AS TT ON TT.Id=tm.TNATasksId
@@ -1347,7 +1347,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
         }
         private string TNAOrderColumns()
         {
-            string s = @"SELECT 1 AS RNK, 'Order' AS TNAType,  MasterOrderId+'ORDER' AS [KEY],tm.Id AS TaskManagerMasterId,b.Id AS BuyerId,tt.TaskTemplateId, b.UserName AS Buyer,mo.Id  AS MasterOrderId,
+            string s = @"SELECT 1 AS RNK, 'Order' AS TNAType,  (ISNULL(MasterOrderId,'')+tm.Id+'ORDER') AS [KEY],tm.Id AS TaskManagerMasterId,b.Id AS BuyerId,tt.TaskTemplateId, b.UserName AS Buyer,mo.Id  AS MasterOrderId,
                                     StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
 				                                        trn.MasterOrderItem XMOI 	                                                   
 				                                    where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
@@ -1374,7 +1374,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                                     UNION
 
-                                    SELECT 2 AS RNK, 'Style' AS TNAType, MOI.BuyerReferenceNo+'STYLE' AS [KEY], tm.Id AS TaskManagerMasterId,b.Id AS BuyerId,tt.TaskTemplateId, b.UserName AS Buyer,mo.Id  AS MasterOrderId,
+                                    SELECT 2 AS RNK, 'Style' AS TNAType, (ISNULL(MOI.BuyerReferenceNo,'')+tm.Id+'STYLE') AS [KEY], tm.Id AS TaskManagerMasterId,b.Id AS BuyerId,tt.TaskTemplateId, b.UserName AS Buyer,mo.Id  AS MasterOrderId,
                                 StyleNo=MOI.BuyerReferenceNo,
 				LineItemReference=STUFF((select distinct ','+so.LineItemReference from 
 				                                 trn.MasterOrderItem XMOI 	 
@@ -1400,7 +1400,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                 
                                 UNION
 
-                              SELECT  3 AS RNK, 'Sales Order' AS TNAType, so.Id+'SO' AS [KEY],tm.Id AS TaskManagerMasterId,b.Id AS BuyerId,tt.TaskTemplateId, b.UserName AS Buyer,mo.Id  AS MasterOrderId,
+                              SELECT  3 AS RNK, 'Sales Order' AS TNAType, (ISNULL(so.Id,'')+tm.Id+'SO') AS [KEY],tm.Id AS TaskManagerMasterId,b.Id AS BuyerId,tt.TaskTemplateId, b.UserName AS Buyer,mo.Id  AS MasterOrderId,
                                 StyleNo=MOI.BuyerReferenceNo,
 				so.LineItemReference,
                                 SONo=so.Id,
@@ -1419,7 +1419,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                 
                                 UNION
 
-                               SELECT 4 AS RNK, 'Prod. Order' AS TNAType, PR.ProductionOrderId+'PR' AS [KEY],tm.Id AS TaskManagerMasterId,
+                               SELECT 4 AS RNK, 'Prod. Order' AS TNAType, (ISNULL(PR.ProductionOrderId,'')+tm.Id+'PR') AS [KEY],tm.Id AS TaskManagerMasterId,
                                 PR.BuyerId,tt.TaskTemplateId,   PR.Buyer,
                                 PR.MasterOrderId,
                                 PR.StyleNo,pr.LineItemReference,pr.SONo,
@@ -2164,6 +2164,12 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 colSONo = xlsCol;
                 sheet1.Range[xlsRow, colSONo].Text = "SO No";
                 sheet1.Range[xlsRow, colSONo].ColumnWidth = 30;
+
+                xlsCol += 1;
+                int colLIR = xlsCol;
+                sheet1.Range[xlsRow, colLIR].Text = "Line Item Ref#";
+                sheet1.Range[xlsRow, colLIR].ColumnWidth = 30;
+
                 xlsCol += 1;
                 int colSOQty = xlsCol;
                 sheet1.Range[xlsRow, colSOQty].Text = "SO Qty";
@@ -2239,6 +2245,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                     sheet1.Range[xlsRow, colStyleNo].Text = dtTNA.Rows[i]["StyleNo"].ToString();
 
                     sheet1.Range[xlsRow, colSONo].Text = dtTNA.Rows[i]["SONo"].ToString();
+                    sheet1.Range[xlsRow, colLIR].Text = dtTNA.Rows[i]["LineItemReference"].ToString();
 
                     sheet1.Range[xlsRow, colPRNo].Text = dtTNA.Rows[i]["PRNo"].ToString();
 

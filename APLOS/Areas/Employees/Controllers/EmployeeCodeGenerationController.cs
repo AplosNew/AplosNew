@@ -86,7 +86,7 @@ namespace Aplos.Areas.Employees.Controllers
         {
             try
             {
-                DataSet dsMaster, dsDetail;
+                DataSet dsMaster, dsDetail, dsIdDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from dbo.EmployeeCodeGenGroup where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
@@ -111,6 +111,8 @@ namespace Aplos.Areas.Employees.Controllers
                 con.OpenDataSetThroughAdapter("select * from dbo.EmployeeCodeGenGroup where Id='" + data["Id"] + "'", out dsMaster, false, "1");
                 con.OpenDataSetThroughAdapter("select * from dbo.EmployeeCodeGenGroupDetail where EmployeeCodeGenGroupId='" + data["Id"] + "'", out dsDetail, false, "1");
 
+             
+
                 string _Id = "";
 
                 #region EmployeeCodeGenGroup insert update
@@ -132,16 +134,23 @@ namespace Aplos.Areas.Employees.Controllers
                 #endregion data update
 
                 int count = 0;
+                con.OpenDataSetThroughAdapter("select COUNT(Id)Idcount from dbo.EmployeeCodeGenGroupDetail where EmployeeCodeGenGroupId='" + data["Id"] + "'", out dsIdDetail, false, "1");
+                if (dsIdDetail.Tables[0].Rows.Count>0)
+                {
+                    count =Convert.ToInt32(dsIdDetail.Tables[0].Rows[0]["Idcount"].ToString());
+                }
+
                 if (detaildata!=null)
                 {
                     foreach (var item in detaildata)
                     {
-                        count++;
+                       
                         DataView dv = new DataView(dsDetail.Tables[0]);
                         dv.RowFilter = "Id='" + item["Id"] + "'";
 
                         if (dv.Count == 0)
                         {
+                            count++;
                             item["Id"] = mId + count;
                             item["EmployeeCodeGenGroupId"] = mId;
 
