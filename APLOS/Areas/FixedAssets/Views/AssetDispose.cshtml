@@ -345,7 +345,7 @@
                 <li>
                     <a class="btn btn-action" ng-click="$parent.FixedDisposeTaxInvoice(this);" title="Tax Invoice" href="" target="_blank"><i class=""></i>TI</a>
                 </li>
-                <li>
+                <li ng-show="data.VoucherNo==''">
                     <a class="btn btn-action" ng-click="$parent.confirmDelete(this);" title="Delete" href="" ><i class=""></i>Delete</a>
                 </li>
             </ul>
