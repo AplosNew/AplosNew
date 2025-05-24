@@ -420,6 +420,23 @@ namespace Library.Accounting.Accounts
 
         public DataTable GetAssetDepreciationReportData(string companyGroupId, string companyId, string plantId, DateTime fromDate, DateTime toDate, string assetDepreciationId)
         {
+            var assetRegisterDisposedquey = string.Empty;
+            if (assetDepreciationId == "null")
+                assetRegisterDisposedquey = @" UNION ALL
+                            SELECT 0 AssetDepreciationId, AD.Remarks ProcessName, REPLACE(CONVERT(CHAR(11), V.PostingDate, 106), ' ', '-') AS ProcessDate, AssetRegisterId, '' AssetRegisterChildId
+	                        , '' CapitalizationMasterId, '' CapitalizationChildId, '' CapitalizationDate, FAI.FixedAssetMasterId
+	                        , AR.FixedAssetItemId,FAM.UserName FixedAssetMaster, FAI.UserName FixedAssetItem, 0 DepreciationDays, '' DepreciationType, 0 DepreciationRate, 0 AssetValue
+	                        ,ISNULL(AR.AdjustmentDepreciationAmount, 0) DepreciationAmount, ISNULL(AR.AdjustmentDepreciationAmount, 0) AccumulatedDepreciationAmount, 0 NetAssetValue, AD.Remarks,AR.UserReference
+                                FROM[TRN].[FixedAssetRegisterDisposed] AD
+                                INNER JOIN[TRN].[FixedAssetRegisterDisposedDetail] ADDS ON  ADDS.FixedAssetRegisterDisposedId = AD.Id
+                            LEFT JOIN[TRN].[AssetRegister]  AR ON AR.Id = ADDS.AssetRegisterId
+                            LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id = AR.FixedAssetItemId
+                            LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id = FAI.FixedAssetMasterId
+                            LEFT JOIN[TRN].[Voucher]  V ON V.Id = AD.DisposedVoucherId
+                            WHERE CONVERT(DATE, V.PostingDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"'
+                            AND ISNULL(AR.AdjustmentDepreciationAmount,0)> 0
+                            ORDER BY AssetRegisterId ";
+
             var cmdText = @"DECLARE @AssetDepreciationId varchar(50)='" + assetDepreciationId + @"'
 
                         SELECT AssetDepreciationId,AD.ProcessName, REPLACE(CONVERT(CHAR(11), AD.ProcessDate, 106),' ','-') AS ProcessDate, AssetRegisterId, AssetRegisterChildId
@@ -433,7 +450,8 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN [TRN].[AssetRegister]  AR ON AR.Id=ADDS.AssetRegisterId
 	                    WHERE ADDS.AssetDepreciationId= CASE WHEN @AssetDepreciationId<> 'null' THEN @AssetDepreciationId ELSE ADDS.AssetDepreciationId END
                         AND AD.CompanyGroupId='" + companyGroupId + "' AND AD.CompanyId ='" + companyId + "' AND AD.PlantId='" + plantId + "' AND CONVERT(DATE, AD.ProcessDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"'
-                        ORDER BY AssetRegisterId, AssetRegisterChildId, CapitalizationMasterId, CapitalizationChildId";
+                        
+                        " + assetRegisterDisposedquey + " ";
             return _sqlRepository.GetDataTable(cmdText);
 
 
