@@ -68,8 +68,17 @@ function LegalDesignationController(cboService, commonMessage, $scope, $rootScop
         , IsGradeSpecific: false
         , UserDefineReortDesignation: null
         , Factor: 1
+        , LegalUserCategoryId:null
     };
     $scope.legalDesignationNew = angular.copy($scope.legalDesignation);
+
+    $scope.empTypeList = [];
+    $http({
+        method: 'GET',
+        url: 'employees/employeecategory/getcbo'
+    }).then(function successCallback(response) {
+        $scope.empTypeList = response.data;
+    });
 
     $scope.language = {
         Id: null

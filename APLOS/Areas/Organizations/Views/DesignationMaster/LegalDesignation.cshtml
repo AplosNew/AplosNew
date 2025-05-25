@@ -32,6 +32,17 @@
                                     <input maxlength="100" type="text" ng-model="legalDesignationNew.UserName" name="UserName" class="form-control" required tabindex="5">
                                 </div>
                             </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Legal User Category<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select required name="Employee Category" ng-model="legalDesignationNew.LegalUserCategoryId" class="col-sm-3 form-control"
+                                                id="empTypeId" ng-options="item.Value as item.Text for item in empTypeList" tabindex="5">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Active</label>
                                 <div class="col-sm-3">
@@ -42,16 +53,6 @@
                                         </label>
                                     </div>
                                 </div>
-                                <label class="col-sm-3 control-label">Is Grade Specific</label>
-                                <div class="col-sm-2">
-                                    <div class="checkbox-site">
-                                        <label>
-                                            <input type="checkbox" ng-model="legalDesignationNew.IsGradeSpecific">
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                        </label>
-                                    </div>
-                                </div>
-
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Description</label>
@@ -85,6 +86,18 @@
                                 <div class="col-sm-8">
                                     <input maxlength="50" type="text" name="Factor" n-decimals="2" ng-model="legalDesignationNew.Factor" class="form-control" tabindex="8">
                                 </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Is Grade Specific</label>
+                                <div class="col-sm-2">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="legalDesignationNew.IsGradeSpecific">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Remarks</label>
@@ -265,6 +278,7 @@
                     <th>Designation Master</th>
                     <th>Designation Group</th>
                     <th>Designation</th>
+                    <th>Legal User Category</th>
                     <th>Active</th>
                 </tr>
             </thead>
@@ -279,6 +293,7 @@
                     <td>{{x.DesignationMaster}}</td>
                     <td>{{x.DesignationGroup}}</td>
                     <td>{{x.Designation}}</td>
+                    <td>{{x.LegalUserCategory}}</td>
                     <td>{{x.Active?'Yes':'No'}}</td>
                 </tr>
             </tbody>
