@@ -3661,16 +3661,10 @@ namespace Aplos.MaterialManagement
 						) TAxInfo2	ON TAxInfo2.InventoryReceiveId=IR.Id 
 			LEFT JOIN (SELECT x.InventoryReceiveId, x.TaxCategoryName,x.Code   ,SUM(x.TaxAmount) TaxAmount FROM (
 						SELECT  A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code   ,SUM(A.TaxAmount) TaxAmount 
-						FROM [TRN].[InventoryReceiveTax] A
-						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-						WHERE B.Code='TDS' and A.InventoryReceiveDetailId<>''   Group By A.InventoryReceiveId, B.UserName ,B.Code  --and InventoryReceiveDetailId<>'' 
-						UNION ALL
-						SELECT  A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code   
-						,SUM(A.TaxAmount) TaxAmount 
-						FROM  TRN.InventoryService ISV
-						LEFT JOIN [TRN].[InventoryReceiveTax] A ON ISV.Id=A.InventoryServiceId   
-						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-						WHERE B.Code='TDS' AND ISV.IsOtherVendor=0  and A.InventoryReceiveDetailId IS NULL   group by A.InventoryReceiveId, B.UserName ,B.Code 
+						FROM TRN.AdditionalTaxdetail AD
+						LEFT JOIN TRN.AdditionalTax  A ON AD.AdditionalTaxId=A.Id
+						LEFT JOIN  [MST].[TaxCategory] B ON AD.TaxCategoryId=B.Id 
+						WHERE B.Code='TDS'     Group By A.InventoryReceiveId, B.UserName ,B.Code  
 						)X GROUP BY x.InventoryReceiveId, x.TaxCategoryName,x.Code
 						) TAxInfo3	ON TAxInfo3.InventoryReceiveId=IR.Id 
 			LEFT JOIN (SELECT x.InventoryReceiveId, x.TaxCategoryName,x.Code   ,SUM(x.TaxAmount) TaxAmount FROM (
@@ -3703,16 +3697,10 @@ namespace Aplos.MaterialManagement
 			) TAxInfo5 ON TAxInfo5.InventoryReceiveId=IR.Id 
 			LEFT JOIN (SELECT x.InventoryReceiveId, x.TaxCategoryName,x.Code   ,SUM(x.TaxAmount) TaxAmount FROM (
 						SELECT  A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code   ,SUM(A.TaxAmount) TaxAmount 
-						FROM [TRN].[InventoryReceiveTax] A
-						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-						WHERE B.Code='TCS' and A.InventoryReceiveDetailId<>''   Group By A.InventoryReceiveId, B.UserName ,B.Code  --and InventoryReceiveDetailId<>'' 
-						UNION ALL
-						SELECT  A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code   
-						,SUM(A.TaxAmount) TaxAmount 
-						FROM  TRN.InventoryService ISV
-						LEFT JOIN [TRN].[InventoryReceiveTax] A ON ISV.Id=A.InventoryServiceId   
-						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-						WHERE B.Code='TCS' AND ISV.IsOtherVendor=0  and A.InventoryReceiveDetailId IS NULL   group by A.InventoryReceiveId, B.UserName ,B.Code 
+						FROM [TRN].[InventoryReceiveAdditionalTax] A
+						LEFT JOIN MST.TaxCode TC ON TC.Id=A.TaxCodeId
+						LEFT JOIN  [MST].[TaxCategory] B ON TC.TaxCategoryId=B.Id 
+						WHERE B.Code='TCS'    Group By A.InventoryReceiveId, B.UserName ,B.Code  --and InventoryReceiveDetailId<>'' 
 						)X GROUP BY x.InventoryReceiveId, x.TaxCategoryName,x.Code
 			) TAxInfo6 ON TAxInfo6.InventoryReceiveId=IR.Id  
 					where  IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
@@ -3802,13 +3790,14 @@ namespace Aplos.MaterialManagement
 						 JOIN TRN.InventoryService ISV ON ISV.Id=A.InventoryServiceId  AND ISV.IsOtherVendor=1 
 						WHERE B.Code='AIT'   group by A.InventoryReceiveId, B.UserName ,B.Code  
 			) TAxInfo5 ON TAxInfo5.InventoryReceiveId=IR.Id 
-			LEFT JOIN (SELECT  A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code   
-						,SUM(A.TaxAmount) TaxAmount 
-						FROM  [TRN].[InventoryReceiveTax] A
-						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-						 JOIN TRN.InventoryService ISV ON ISV.Id=A.InventoryServiceId  AND ISV.IsOtherVendor=1 
-						WHERE B.Code='TCS'   group by A.InventoryReceiveId, B.UserName ,B.Code  
-			) TAxInfo6 ON TAxInfo6.InventoryReceiveId=IR.Id
+			LEFT JOIN (SELECT x.InventoryReceiveId, x.TaxCategoryName,x.Code   ,SUM(x.TaxAmount) TaxAmount FROM (
+						SELECT  A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code   ,SUM(A.TaxAmount) TaxAmount 
+						FROM [TRN].[InventoryReceiveAdditionalTax] A
+						LEFT JOIN MST.TaxCode TC ON TC.Id=A.TaxCodeId
+						LEFT JOIN  [MST].[TaxCategory] B ON TC.TaxCategoryId=B.Id 
+						WHERE B.Code='TCS'    Group By A.InventoryReceiveId, B.UserName ,B.Code  --and InventoryReceiveDetailId<>'' 
+						)X GROUP BY x.InventoryReceiveId, x.TaxCategoryName,x.Code
+			) TAxInfo6 ON TAxInfo6.InventoryReceiveId=IR.Id  
 					where  IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN   '" + FromDate + @"' AND '" + ToDate + @"' 
                     AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN','GRNBYBOQ')  and ird.IsOtherVendor=1  
 
