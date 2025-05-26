@@ -264,6 +264,7 @@ function LegalDesignationController(cboService, commonMessage, $scope, $rootScop
                             baseService.paginationAdd();
                             ClearFields(response.data.Sequence);
                             $scope.setTab(1);
+                            $scope.getData();
                             $scope.getPlant();
                             $scope.legalSalaryGradeDesignationList = [];
                         }
@@ -293,6 +294,7 @@ function LegalDesignationController(cboService, commonMessage, $scope, $rootScop
                             }
                             ClearFields(response.data.Sequence);
                             $scope.setTab(1);
+                            $scope.getData();
                             $scope.getPlant();
                             $scope.legalSalaryGradeDesignationList = [];
                         }
