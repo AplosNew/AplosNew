@@ -2077,6 +2077,12 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(new { Data = fixedAssetDisposed, Message = AplosMessage.Insert + "Disposed No: " + fixedAssetDisposed.Id + "" });
         }
         [HttpPost]
+        public JsonResult DeleteCapitalizationMaster(string capitalizationMasterId)
+        {
+            _fixedAssetRegisterService.DeleteCapitalizationMaster(capitalizationMasterId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+        [HttpPost]
         public JsonResult DeleteCapitalizeAssetRegisterDisposed(string fixedAssetRegisterDisposedId)
         {
             _fixedAssetRegisterService.DeleteCapitalizeAssetRegisterDisposed(fixedAssetRegisterDisposedId);

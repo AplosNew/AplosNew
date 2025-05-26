@@ -302,16 +302,16 @@
             <div e-column e-field="FixedAssetItem" e-headertext="Asset Item" e-width="100"></div>
             <div e-column e-field="FixedAssetMaster" e-headertext="Asset Master" e-width="100"></div>
             <div e-column e-field="CD" e-headertext="Capitalization Date" e-width="80"></div>
-            <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+            <div e-column e-field="Qty" e-headertext="Qty" e-width="50"></div>
             <div e-column e-field="GRNAmount" e-headertext="GRN Amount" e-width="80"></div>
             <div e-column e-field="IssueAmount" e-headertext="Issue Amount" e-width="80"></div>
-            <div e-column e-field="ExpensesAmount" e-headertext="Expenses Amount" e-width="80"></div>
+            <div e-column e-field="ExpensesAmount" e-headertext="Expenses Amount" e-width="60"></div>
             <div e-column e-field="TotalAmount" e-headertext="Total Amount" e-width="80"></div>
             <div e-column e-field="ApprovedByName" e-headertext="ApprovedBy" e-width="80"></div>
             <div e-column e-field="Approved" e-headertext="Approved" e-width="50"></div>
             <div e-column e-field="Type" e-headertext="Type" e-width="50"></div>
             <div e-column e-field="CMStatus" e-headertext="Status" e-width="50"></div>
-            <div e-column e-template="#ShowActionButtonsassigned" e-headertext="Actions" e-width="50" e-textalign="center"></div>
+            <div e-column e-template="#ShowActionButtonsassigned" e-headertext="Actions" e-width="100" e-textalign="center"></div>
         </div>
     </div>
     <script type="text/ng-template" id="ShowActionButtonsassigned">
@@ -322,7 +322,9 @@
                         <button class="btn" style="background-color: #1c1f32;"><i class="glyphicon glyphicon-floppy-disk"></i></button>
                     </div>
                 </li>
-
+                <li ng-show="data.CMStatus=='Parked'">
+                    <a class="btn btn-action" ng-click="$parent.confirmDelete(this);" title="Delete" href=""><i class=""></i>Delete</a>
+                </li>
             </ul>
         </div>
     </script>
@@ -527,7 +529,6 @@
 </div>
 
 <confirm-archive-generic modalid="DeleteConfirmationPopUp" title="Confirmation" message={{message_conf}} data-ng-click-right-button="RemoveAssetRegisterId()"></confirm-archive-generic>
-
-
 <confirm-archive-generic data-modalid="confirmregisterdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRegisterYes()"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmVoucherRemovePopUp" title="Confirmation" message={{message_VoucherRemoveconfirmation}} data-ng-click-right-button="RemoveVoucher();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(capitalizationMasterId)"></confirm-archive-generic>

@@ -5114,6 +5114,42 @@ GROUP BY FAR.FABudgetMasterId
                     _unitOfWork.Rollback();
             }
         }
+        public void DeleteCapitalizationMaster(string capitalizationMasterId)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+
+                var inDirect = new System.Text.StringBuilder();
+                var inDirectsql = "";
+
+                inDirectsql = @"DELETE FROM [TRN].[AssetRegisterChild] where CapitalizationMasterId in('" + capitalizationMasterId + @"')
+                                DELETE FROM [TRN].[AssetRegister] where CapitalizationMasterId='" + capitalizationMasterId + @"'
+		                        DELETE FROM [TRN].[CapitalizationMasterDetail] where CapitalizationMasterId in('" + capitalizationMasterId + @"')
+		                        DELETE FROM [TRN].[CapitalizationMaster] where Id in('" + capitalizationMasterId + @"') ";
+                inDirect.Append(inDirectsql);
+                _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
         public void DeleteCapitalizeAssetRegisterDisposed(string fixedAssetRegisterDisposedId)
         {
             var flag = false;

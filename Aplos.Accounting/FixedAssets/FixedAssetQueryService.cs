@@ -2627,11 +2627,12 @@ namespace Library.Accounting.FixedAssets
                 strkey = column + " like '%" + value + "%'";
             var sql = @"select top 100 * from (SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName
                         ,E.EmployeeCode ApprovedByEmployeeCode,Approved=CASE WHEN CM.IsApproved=1 THEN 'Approved' ELSE '' END,FAI.FixedAssetMasterId,FAM.UserName FixedAssetMaster
-                        ,CMStatus = case when CM.VoucherId is not null then 'Posted' else 'Parked' end
+                        ,CMStatus = case when CM.VoucherId is not null then 'Posted' else 'Parked' end ,ISNULL(V.VoucherNo,'')VoucherNo
                         FROM [TRN].[CapitalizationMaster] CM
                         LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
                         LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
                         LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
+                        LEFT JOIN [TRN].[Voucher] V ON V.Id=CM.VoucherId
                 ) AS TEMP WHERE " + strkey + " order by AddedDate DESC   ";
             return _sqlRepository.GetDataCollection(sql);
         }
@@ -2836,6 +2837,10 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                         {
                             Id = id,
                             FixedAssetItemId = data["FixedAssetItemId"].ToString(),
+                            CapitalizationMasterId = masterId,
+                            CompanyGroupId = identity.CompanyGroupId,
+                            CompanyId = identity.CompanyId,
+                            PlantId = identity.PlantId,
                             AddedBy = identity.Name,
                             AddedDate = System.DateTime.Now.ToString(),
                             AddedFromIP = identity.IPAddress,
