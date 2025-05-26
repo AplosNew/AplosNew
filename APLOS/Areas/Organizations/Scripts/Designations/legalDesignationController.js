@@ -68,8 +68,17 @@ function LegalDesignationController(cboService, commonMessage, $scope, $rootScop
         , IsGradeSpecific: false
         , UserDefineReortDesignation: null
         , Factor: 1
+        , LegalUserCategoryId:null
     };
     $scope.legalDesignationNew = angular.copy($scope.legalDesignation);
+
+    $scope.empTypeList = [];
+    $http({
+        method: 'GET',
+        url: 'employees/employeecategory/getcbo'
+    }).then(function successCallback(response) {
+        $scope.empTypeList = response.data;
+    });
 
     $scope.language = {
         Id: null
@@ -255,6 +264,7 @@ function LegalDesignationController(cboService, commonMessage, $scope, $rootScop
                             baseService.paginationAdd();
                             ClearFields(response.data.Sequence);
                             $scope.setTab(1);
+                            $scope.getData();
                             $scope.getPlant();
                             $scope.legalSalaryGradeDesignationList = [];
                         }
@@ -284,6 +294,7 @@ function LegalDesignationController(cboService, commonMessage, $scope, $rootScop
                             }
                             ClearFields(response.data.Sequence);
                             $scope.setTab(1);
+                            $scope.getData();
                             $scope.getPlant();
                             $scope.legalSalaryGradeDesignationList = [];
                         }

@@ -463,6 +463,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
             $scope.DData = $scope.salesVM.DocDate;
             $scope.InDate = $scope.salesVM.InvoiceDate;
             $scope.MDate = $scope.salesVM.MatureDate;
+            $scope.salesVM.PostingDate = $scope.salesVM.InvoiceDate;
             $scope.PDate = $scope.salesVM.PostingDate;
             $scope.VDate = $scope.salesVM.VoucherDate;
 
@@ -1769,7 +1770,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
         var tQty = baseService.isUndefinedOrNull($scope.materialMaster.TransactionQty) ? 0 : parseFloat($scope.materialMaster.TransactionQty);
         var tRate = baseService.isUndefinedOrNull($scope.materialMaster.TransactionRate) ? 0 : parseFloat($scope.materialMaster.TransactionRate);
         if (tQty > 0 && tRate > 0)
-            $scope.materialMaster.TransactionAmount = tRate * tQty;
+            $scope.materialMaster.TransactionAmount = parseFloat(tRate * tQty).toFixed(4);
         else
             $scope.materialMaster.TransactionAmount = 0;
         for (var i = 0; i < baseService.arrayLength($scope.materialtaxCategoryList); i++) {

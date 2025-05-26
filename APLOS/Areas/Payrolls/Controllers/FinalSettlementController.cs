@@ -2025,11 +2025,11 @@ AND AD.SourceType in ('EmployeeAdvance') AND AD.EmployeeId='" + empId + @"' and 
 GROUP BY AD.EmployeeId) AS decimal(18,0))) AS varchar(100))
 	
 WHEN OL.UserName='ExpensesPayable' THEN CAST((
-			 cast((SELECT ISNULL(SUM(AD.NetAmount)-SUM(AD.WrittenOffAmount),0) AS Balance
+			 cast((SELECT ISNULL(SUM(AD.Amount)-SUM(AD.WrittenOffAmount),0) AS Balance
 FROM trn.EmployeePayable AS AD
  WHERE AD.Archive=0 AND AD.IsPark=0 AND AD.IsWrittenOff=0 AND AD.IsWrittenOff=0
  AND AD.SourceType IN ('EmployeePayable')
- AND AD.EmployeeId='" + empId + @"' AND (AD.NetAmount-AD.WrittenOffAmount)>0) AS decimal(18,0))) AS varchar(100))
+ AND AD.EmployeeId='" + empId + @"' AND (AD.Amount-AD.WrittenOffAmount)>0) AS decimal(18,0))) AS varchar(100))
 	
 
 WHEN OL.UserName='UnPaidSalary' THEN CAST((
