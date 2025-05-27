@@ -964,4 +964,37 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
             ShowResult("Distributed Amount must be equal Total Amount.!", "failure");
         }
     };
+    $scope.capitalizationMasterId = null;
+    $scope.confirmDelete = function (data) {
+        if (data.data.VoucherNo != "") {
+            ShowResult("Posted data cann't delete!" + " VoucherNo: " + data.data.VoucherNo + " delete first!");
+            return false;
+        }
+        $scope.capitalizationMasterId = data.data.Id;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+    };
+    $scope.deleteUrl = $scope.path + "/DeleteCapitalizationMaster";
+    $scope.delete = function (capitalizationMasterId) {
+        $http({
+            method: "POST",
+            url: $scope.deleteUrl,
+            data: {
+                "capitalizationMasterId": capitalizationMasterId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.capitalizationMasterId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
 }
