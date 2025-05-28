@@ -379,6 +379,38 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
                 if (sourceType == SourceType.FixedAssetCapitalizeJournal.ToString())
                 {
+                    ConnectionManager.DAL.ConManager objCon1;
+                    DataSet dsMaster1 = null;
+                    string setOffsql = @"SELECT AD.AssetDepreciationId	
+								from	[TRN].[CapitalizationMasterDetail] CD
+								INNER JOIN trn.CapitalizationMaster CM ON CM.Id=CD.CapitalizationMasterId
+								INNER JOIN [TRN].[AssetDepreciationDetail] AD ON AD.CapitalizationMasterId=CM.Id
+								INNER JOIN trn.Voucher V ON V.Id=CM.VoucherId
+								WHERE CM.VoucherId= '" + voucherId + @"' ";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+
+                    if (dsMaster1.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed,  Asset Depreciation Id:  '" + dsMaster1.Tables[0].Rows[0]["AssetDepreciationId"].ToString() + "' have to delete first!");
+                    }
+
+                    DataSet dsMaster2 = null;
+                    string setOffsql2 = @"SELECT ARD.FixedAssetRegisterDisposedId	
+								from	[TRN].[CapitalizationMasterDetail] CD
+								INNER JOIN trn.CapitalizationMaster CM ON CM.Id=CD.CapitalizationMasterId
+								INNER JOIN [TRN].[AssetRegisterChild] AR ON AR.CapitalizationMasterId=CM.Id
+								INNER JOIN [TRN].[FixedAssetRegisterDisposedDetail] ARD ON ARD.AssetRegisterId=AR.AssetRegisterId
+								INNER JOIN trn.Voucher V ON V.Id=CM.VoucherId
+								WHERE CM.VoucherId =  '" + voucherId + @"' ";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsql2, out dsMaster2, false, "1");
+
+                    if (dsMaster2.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed, Fixed Asset Register Disposed Id: '" + dsMaster2.Tables[0].Rows[0]["FixedAssetRegisterDisposedId"].ToString() + "' have to delete first!");
+                    }
+
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
                 }
