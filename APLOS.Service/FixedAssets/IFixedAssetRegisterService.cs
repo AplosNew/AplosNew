@@ -121,6 +121,8 @@ namespace Library.Service.FixedAssets
         string EditFixedAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister);
 
         void InsertCapitalizeAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetailViewModel> assetRegisterList, IEnumerable<FixedAssetRegisterDisposedTaxViewModel> disposedTaxList);
+        void DeleteCapitalizationMaster(string capitalizationMasterId);
+        void DeleteCapitalizationMasterPost(string voucherId, string deletedRemarks);
         void DeleteCapitalizeAssetRegisterDisposed(string fixedAssetRegisterDisposedId);
         void DeleteDepreciationProcess(string assetDepreciationId);
         void DeleteDepreciationProcessPost(string voucherId, string deletedRemarks);

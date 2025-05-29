@@ -144,8 +144,9 @@ namespace Library.MaterialManagement.Inventory
                             ,IRD.RefferenceNo,IRD.BaseUoMFactor
                             ,Replace(CONVERT(VARCHAR(11), IRD.DeliveryDate, 106), ' ', '-') DeliveryDate
                             ,C.UserName CountryName,C.Id CountryId,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById,HN.Code HSNCode,IRD.Tolerance
-                            ,ISNULL(RD.GRNTotalAmount,0) GRNAmount,ISNULL(ACPT.ACPTTotalAmount,0) ACPTAmount
-                        FROM [TRN].[PurchaseOrderDetail] AS IRD
+                            ,ISNULL(RD.GRNTotalAmount,0) GRNAmount,ISNULL(ACPT.ACPTTotalAmount,0) ACPTAmount,PO.POType
+                        FROM [TRN].[PurchaseOrderDetail] AS IRD 
+						LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=IRD.InventoryReceiveId
                         left JOIN MST.MaterialMaster AS MM ON IRD.InventoryMaterialId=MM.Id
                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
                         LEFT JOIN MST.MaterialMasterArticle AS ART ON IRD.ArticleId=ART.Id

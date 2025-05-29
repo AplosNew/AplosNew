@@ -129,9 +129,14 @@ function POParameterChangeController(  $scope, $rootScope, baseService, $http, $
         $http.get('Products/PurchaseOrder/GetInventoryMaterialList?inveReveiveId=' + inveReveiveId)
             .then(function (response) {
                 $scope.inventoryMaterialList = ej.DataManager(response.data.Rows).executeLocal(ej.Query().sortBy("UserName desc"));//response.data.Rows;
+                var poboq = $filter("filter")($scope.inventoryMaterialList, { POType: 'POBOQ' });
+                if (poboq.length > 0) {
+                    $scope.IsToleranceUpdate = true;
+                }
             });
-
+       
     }
+
     $scope.POTaxUpdateList = [];
     $scope.GetPOTaxUpdate = function (poId) {
         $http({

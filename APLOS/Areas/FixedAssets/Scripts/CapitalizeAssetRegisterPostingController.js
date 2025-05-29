@@ -433,6 +433,42 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
         }
     };
 
+    $scope.voucherId = null;
+    $scope.deletedRemarks = "";
+    $scope.confirmDelete = function (data) {
+        $scope.voucherId = data.data.Id;
+        angular.element(document.querySelector("#confirmDeletePopUp_Remarks")).modal("show");
+    };
+    $scope.closeconfirmDeletePopUp_Remarks = function () {
+        angular.element(document.querySelector("#confirmDeletePopUp_Remarks")).modal("hide");
+    };
+    $scope.deleteUrl = $scope.path + "/DeleteCapitalizationMasterPost";
+    $scope.delete = function () {
+        $http({
+            method: "POST",
+            url: $scope.deleteUrl,
+            data: {
+                "voucherId": $scope.voucherId,
+                "deletedRemarks": $scope.deletedRemarks
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                $scope.deletedRemarks = "";
+                $scope.closeconfirmDeletePopUp_Remarks();
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.voucherId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
     // #region  Addition Posting
     $scope.searchByAddition = "VoucherNo"; $scope.searchAddition = "";
     $scope.searchByListAddition = [{ value: 'VoucherNo', name: "Voucher No" }, { value: 'PostingDate', name: "Posting Date" }, { value: 'FixedAssetMasterId', name: "Asset Master Id" }, { value: 'FixedAssetItemId', name: "Asset Item Id" }, { value: 'FixedAssetMaster', name: "Asset Master" }, { value: 'FixedAssetItem', name: "Asset Item" }, { value: 'FixedAssetCategory', name: "Asset Category" }, { value: 'FixedAssetSubCategory', name: "Asset Sub Category" }];

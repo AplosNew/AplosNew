@@ -3219,7 +3219,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
             $scope.voucher_PaymentTerm.MatureDate = $filter("date")(date, "dd-MMM-yyyy");
         }
     };
-    $scope.updatePaymentTermUrl = "Accounts/InventoryPayable/UpdateInvoicePaymentTerm";
+    $scope.updatePaymentTermUrl = "Accounts/Invoice/UpdateInvoicePaymentTerm";
     $scope.updatePaymentTerm = function () {
         if ($scope.voucher_PaymentTerm.PaymentTermId == null || $scope.voucher_PaymentTerm.PaymentTermId == "" || $scope.voucher_PaymentTerm.PaymentTermId == undefined) {
             ShowResult("Please select Payment Term First!!", "failure");

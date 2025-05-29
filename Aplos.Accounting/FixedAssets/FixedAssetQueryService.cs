@@ -2627,11 +2627,12 @@ namespace Library.Accounting.FixedAssets
                 strkey = column + " like '%" + value + "%'";
             var sql = @"select top 100 * from (SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName
                         ,E.EmployeeCode ApprovedByEmployeeCode,Approved=CASE WHEN CM.IsApproved=1 THEN 'Approved' ELSE '' END,FAI.FixedAssetMasterId,FAM.UserName FixedAssetMaster
-                        ,CMStatus = case when CM.VoucherId is not null then 'Posted' else 'Parked' end
+                        ,CMStatus = case when CM.VoucherId is not null then 'Posted' else 'Parked' end ,ISNULL(V.VoucherNo,'')VoucherNo
                         FROM [TRN].[CapitalizationMaster] CM
                         LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
                         LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
                         LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
+                        LEFT JOIN [TRN].[Voucher] V ON V.Id=CM.VoucherId
                 ) AS TEMP WHERE " + strkey + " order by AddedDate DESC   ";
             return _sqlRepository.GetDataCollection(sql);
         }
@@ -2836,6 +2837,10 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                         {
                             Id = id,
                             FixedAssetItemId = data["FixedAssetItemId"].ToString(),
+                            CapitalizationMasterId = masterId,
+                            CompanyGroupId = identity.CompanyGroupId,
+                            CompanyId = identity.CompanyId,
+                            PlantId = identity.PlantId,
                             AddedBy = identity.Name,
                             AddedDate = System.DateTime.Now.ToString(),
                             AddedFromIP = identity.IPAddress,
@@ -3037,7 +3042,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
 									,FAC.UserName FixedAssetCategory
 									,FASC.UserName FixedAssetSubCategory
 									,CM.Qty,CM.Type,V.VoucherNo,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate
-									,CM.TotalAmount Amount
+									,CM.TotalAmount Amount,V.PostingDate VPostingDate,V.IsPark,Status= case when V.IsPark=0 then 'Posted' else 'Parked' end
 				FROM TRN.Voucher V 
 				INNER JOIN [TRN].[CapitalizationMaster] CM ON CM.VoucherId=V.Id
 				LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
@@ -3045,7 +3050,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 LEFT  JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
                 LEFT  JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
                 WHERE V.CompanyId='" + companyId + @"' AND V.Archive=0 
-                ) AS TEMP WHERE " + strkey + " order by PostingDate DESC   ";
+                ) AS TEMP WHERE " + strkey + " order by VPostingDate DESC   ";
             return _sqlRepository.GetDataCollection(sql);
         }
         public List<Dictionary<string, object>> GetAssetRegisterList(string companyGroupId, string companyId, string column, string value)
