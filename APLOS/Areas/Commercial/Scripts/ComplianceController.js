@@ -9,6 +9,16 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.Action = 'Save';
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
     $scope.searchBy = "Code"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'Remarks', name: "Remarks" }];
 
@@ -31,7 +41,6 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         { 'Value': "4", 'Text': "4" }
     ];
 
-
     $scope.getData = function () {
         $http({
             method: 'POST',
@@ -43,8 +52,6 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         });
     }
     $scope.getData();
-
-
 
     $scope.ModelTemp = {
         Id: null,
@@ -61,8 +68,6 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         CodeApplicable: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-
-
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
@@ -420,5 +425,339 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
             ShowResult(e, 'failure');
         }
     }
+
+    //#region Group
+    $scope.etype = "";
+    $scope.GroupModelList = [];
+    $scope.GroupsearchBy = "UserName"; $scope.search = "";
+    $scope.GroupsearchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+
+
+    $scope.getGroupData = function (etype) {
+        $scope.etype = etype;
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetDataList",
+            data: { column: $scope.GroupsearchBy, value: $scope.searchGroup, 'entryType': $scope.etype },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.GroupModelList = response.data;
+            ClearGroupFields(response.data.Sequence);
+            $scope.GetGroupSequence();
+        });
+    }
+    //$scope.getGroupData();
+
+    $scope.GroupModelTemp = {
+        Id: null,
+        EntryType: null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Description: null,
+        Remarks: null,
+        Active: true
+    };
+    $scope.GroupModelNew = Object.assign({}, $scope.GroupModelTemp);
+
+    $scope.GetGroupSequence = function () {
+        $http.get('Commercial/Compliance/GetCategoryTypeAutoSequence?entryType=' + $scope.etype)
+            .then(function (response) {
+                $scope.GroupModelNew.Sequence = response.data;
+            });
+    };
+
+    $scope.GetGroup = function (args) {
+        $scope.GroupModelNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.SaveGroup = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.GroupModelNewForm.$valid) {
+            $http({
+                method: 'POST',
+                url: 'Commercial/Compliance/CreateData',
+                data: { 'data': $scope.GroupModelNew, 'entryType': $scope.etype},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearGroupFields(response.data.Sequence);
+                    $scope.getGroupData($scope.etype);
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.Delete = function () {
+        if (!baseService.isUndefinedOrNull($scope.GroupModelNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl + $scope.GroupModelNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFields(response.data.Sequence);
+                    $scope.getGroupData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.ClearGroup = function () {
+        ClearGroupFields($scope.GetGroupSequence($scope.etype));
+        return true;
+    };
+
+    function ClearGroupFields(seq) {
+        $scope.Action = 'Save';
+        $scope.GroupModelNew = Object.assign({}, $scope.GroupModelTemp);
+        $scope.GroupModelNew.Sequence = seq;
+    }
+
+    //#endregion
+
+    //#region Category
+
+    $scope.CategoryModelList = [];
+    $scope.CategorysearchBy = "UserName"; $scope.search = "";
+    $scope.CategorysearchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+
+
+    $scope.getCategoryData = function (etype) {
+        $scope.etype = etype;
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetDataList",
+            data: { column: $scope.CategorysearchBy, value: $scope.searchCategory, 'entryType': $scope.etype},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.CategoryModelList = response.data;
+            ClearCategoryFields(response.data.Sequence);
+            $scope.GetCategorySequence();
+        });
+    }
+  //  $scope.getCategoryData();
+
+    $scope.CategoryModelTemp = {
+        Id: null,
+        EntryType: null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Description: null,
+        Remarks: null,
+        Active: true
+    };
+    $scope.CategoryModelNew = Object.assign({}, $scope.CategoryModelTemp);
+
+    $scope.GetCategorySequence = function () {
+        $http.get('Commercial/Compliance/GetCategoryTypeAutoSequence?entryType=' + $scope.etype)
+            .then(function (response) {
+                $scope.CategoryModelNew.Sequence = response.data;
+            });
+    };
+
+    $scope.GetCategory = function (args) {
+
+        $scope.CategoryModelNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.SaveCategory = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.CategoryModelNewForm.$valid) {
+            $http({
+                method: 'POST',
+                url: 'Commercial/Compliance/CreateData',
+                data: { 'data': $scope.CategoryModelNew, 'entryType': $scope.etype},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearCategoryFields(response.data.Sequence);
+                    $scope.getCategoryData($scope.etype);
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.Delete = function () {
+        if (!baseService.isUndefinedOrNull($scope.CategoryModelNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl + $scope.CategoryModelNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFields(response.data.Sequence);
+                    $scope.getCategoryData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.ClearCategory = function () {
+        ClearFields($scope.GetCategorySequence($scope.etype));
+        return true;
+    };
+
+    function ClearCategoryFields(seq) {
+        $scope.Action = 'Save';
+        $scope.CategoryModelNew = Object.assign({}, $scope.CategoryModelTemp);
+        $scope.CategoryModelNew.Sequence = seq;
+    }
+
+    //#endregion
+
+    //#region SubCategory
+
+    $scope.SubCategoryModelList = [];
+    $scope.SubCategorysearchBy = "UserName"; $scope.search = "";
+    $scope.SubCategorysearchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+
+
+    $scope.getSubCategoryData = function (etype) {
+        $scope.etype = etype;
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetDataList",
+            data: { column: $scope.SubCategorysearchBy, value: $scope.searchSubCategory, 'entryType': $scope.etype},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.SubCategoryModelList = response.data;
+            ClearSubCategoryFields(response.data.Sequence);
+            $scope.GetSubCategorySequence();
+        });
+    }
+
+    $scope.SubCategoryModelTemp = {
+        Id: null,
+        EntryType:null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Description: null,
+        Remarks: null,
+        Active: true
+    };
+    $scope.SubCategoryModelNew = Object.assign({}, $scope.SubCategoryModelTemp);
+
+    $scope.GetSubCategorySequence = function () {
+        $http.get('Commercial/Compliance/GetCategoryTypeAutoSequence?entryType=' + $scope.etype)
+            .then(function (response) {
+                $scope.SubCategoryModelNew.Sequence = response.data;
+            });
+    };
+
+    $scope.GetSubCategory = function (args) {
+
+        $scope.SubCategoryModelNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.SaveSubCategory = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.SubCategoryModelNewForm.$valid) {
+            $http({
+                method: 'POST',
+                url: 'Commercial/Compliance/CreateData',
+                data: { 'data': $scope.SubCategoryModelNew, 'entryType': $scope.etype},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearSubCategoryFields(response.data.Sequence);
+                    $scope.getSubCategoryData($scope.etype);
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.Delete = function () {
+        if (!baseService.isUndefinedOrNull($scope.SubCategoryModelNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl + $scope.SubCategoryModelNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFields(response.data.Sequence);
+                    $scope.getSubCategoryData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.ClearSubCategory = function () {
+        ClearFields($scope.GetSubCategorySequence());
+        return true;
+    };
+
+    function ClearSubCategoryFields(seq) {
+        $scope.Action = 'Save';
+        $scope.SubCategoryModelNew = Object.assign({}, $scope.SubCategoryModelTemp);
+        $scope.SubCategoryModelNew.Sequence = seq;
+    }
+
+    //#endregion
 
 }
