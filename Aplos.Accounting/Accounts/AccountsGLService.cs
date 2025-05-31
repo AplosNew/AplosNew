@@ -445,8 +445,8 @@ AND BMA.Active=1";
                         LEFT JOIN [ORG].Company AS CO ON CO.COAId=TCGL.COAId
                         LEFT JOIN MST.TaxCategory TCA ON TCA.Id=TC.TaxCategoryId
 						LEFT JOIN MST.TaxCodeDetail TCD ON TCD.TaxCodeId=TC.Id AND TCD.TaxCodeYearId=TCY.Id
-                        WHERE TC.InputOrOutput='" + TaxCodeInputOutput.Input + @"'
-						AND TYP.StartDate <='" + postingDate.ToDbDate() + "' AND TYP.EndDate >='" + postingDate.ToDbDate() + "' AND CO.Id='" + companyId + @"' 
+                        WHERE --TC.InputOrOutput='" + TaxCodeInputOutput.Input + @"' AND
+						 TYP.StartDate <='" + postingDate.ToDbDate() + "' AND TYP.EndDate >='" + postingDate.ToDbDate() + "' AND CO.Id='" + companyId + @"' 
                         AND TCA.TaxCategoryType='TDS'
                         AND TCY.TaxCodeId IN (select TaxCodeId from [HKP].[ServiceMasterTDS] WHERE ServiceMasterId in (" + serviceMasterIds + @") )
                     ";

@@ -202,7 +202,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
         });
     }
-    $scope.POListDetails();
+    //$scope.POListDetails();
     $scope.PODocumentMapDataAll = function () {
 
         $http({
@@ -216,7 +216,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
         });
     }
-    $scope.PODocumentMapDataAll();
+    //$scope.PODocumentMapDataAll();
     $scope.data1 = $scope.lst;
     $scope.detailTemp = "#tabGridContents";
     //$scope.detailgrid = "detailGridData(e)";

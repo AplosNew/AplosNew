@@ -2997,30 +2997,51 @@ namespace Library.Service.Invoices
                             if (null == invoiceTaxVM.TaxCodeId)
                                 throw new CustomException("Tax code not found!");
 
+                            var taxCode = _accountsCommonService.GetTaxCode(invoiceTaxVM.TaxCodeId);
                             var taxCodeGL = _accountsCommonService.GetTaxCodeGL(invoiceTaxVM.TaxCodeId);
                             if (null == taxCodeGL)
                                 throw new CustomException("Tax code GL not found!");
 
 
                             addtionalTaxDetailId++;
-                            var invoiceTaxDetail = new AdditionalTaxDetail
+                            if (taxCode["InputOrOutput"].ToString() == "Input")
                             {
-                                GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
-                                BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
-                                ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
-                                Amount = invoiceTaxVM.TaxAmount,
-                                AdditionalTaxId = invoiceTax.Id,
-                                TaxCodeId = invoiceTaxVM.TaxCodeId,
-                                TaxCategoryId = invoiceTaxVM.TaxCategoryId,
-                                AType = "Cr",
-                                Id = MakePK(invoiceTax.Id, addtionalTaxDetailId, 3),
-                                AddedBy = voucher.AddedBy,
-                                AddedDate = voucher.AddedDate,
-                                AddedFromIP = voucher.AddedFromIP
-                            };
+                                var invoiceTaxDetail = new AdditionalTaxDetail
+                                {
+                                    GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                    BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                    ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
+                                    Amount = invoiceTaxVM.TaxAmount,
+                                    AdditionalTaxId = invoiceTax.Id,
+                                    TaxCodeId = invoiceTaxVM.TaxCodeId,
+                                    TaxCategoryId = invoiceTaxVM.TaxCategoryId,
+                                    AType = "Cr",
+                                    Id = MakePK(invoiceTax.Id, addtionalTaxDetailId, 3),
+                                    AddedBy = voucher.AddedBy,
+                                    AddedDate = voucher.AddedDate,
+                                    AddedFromIP = voucher.AddedFromIP
+                                };
                             _additionalTaxDetailRepository.Insert(invoiceTaxDetail);
-
-
+                            }
+                            else
+                            {
+                                var invoiceTaxDetail = new AdditionalTaxDetail
+                                {
+                                    GLGeneralInfoId = taxCodeGL["CreditableGLId"].ToString(),
+                                    BudgetMasterId = taxCodeGL["CreditableGLBudgetMasterId"].ToString(),
+                                    ActivityId = taxCodeGL["CreditableGLActivityId"].ToString(),
+                                    Amount = invoiceTaxVM.TaxAmount,
+                                    AdditionalTaxId = invoiceTax.Id,
+                                    TaxCodeId = invoiceTaxVM.TaxCodeId,
+                                    TaxCategoryId = invoiceTaxVM.TaxCategoryId,
+                                    AType = "Dr",
+                                    Id = MakePK(invoiceTax.Id, addtionalTaxDetailId, 3),
+                                    AddedBy = voucher.AddedBy,
+                                    AddedDate = voucher.AddedDate,
+                                    AddedFromIP = voucher.AddedFromIP
+                                };
+                                _additionalTaxDetailRepository.Insert(invoiceTaxDetail);
+                            }
                         }
                     }
 
