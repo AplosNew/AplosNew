@@ -469,6 +469,34 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
             });
     };
 
+    $scope.Grouplist = [];
+    $scope.GetGroupCbo = function () {
+        $http.get('Commercial/Compliance/GetGroupCbo')
+            .then(function (response) {
+                $scope.Grouplist = response.data;
+            });
+    };
+    $scope.GetGroupCbo();
+
+    $scope.CategoryList = [];
+    $scope.GetCategoryCbo = function () {
+        $http.get('Commercial/Compliance/GetCategoryCbo')
+            .then(function (response) {
+                $scope.CategoryList = response.data;
+            });
+    };
+    $scope.GetCategoryCbo();
+
+    $scope.SubCategoryList = [];
+    $scope.GetSubCategoryCbo = function () {
+        $http.get('Commercial/Compliance/GetSubCategoryCbo')
+            .then(function (response) {
+                $scope.SubCategoryList = response.data;
+            });
+    };
+    $scope.GetSubCategoryCbo();
+
+
     $scope.GetGroup = function (args) {
         $scope.GroupModelNew = Object.assign({}, args.data);
         $scope.Action = 'Update';

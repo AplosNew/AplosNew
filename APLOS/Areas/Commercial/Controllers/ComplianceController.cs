@@ -78,7 +78,10 @@ namespace Aplos.Areas.Commercial.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey + "";
+            string sql = @"select top 100 * from (select CM.*,G.UserName ComplianceGroup,C.UserName Category,SC.UserName SubCategory from hkp.ComplianceMaster CM
+LEFT JOIN hkp.ComplianceCategoryType G ON G.Id=CM.ComplianceGroupId
+LEFT JOIN hkp.ComplianceCategoryType C ON C.Id=CM.CategoryId
+LEFT JOIN hkp.ComplianceCategoryType SC ON SC.Id=CM.SubCategoryId) AS TEMP WHERE " + strkey + "";
 
 
 
@@ -535,22 +538,25 @@ LEFT JOIN HKP.ComplianceMaster CMR ON CMR.Id=CT.LocationId) AS TEMP WHERE " + st
             return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpPost]
-        public ActionResult Get(string Id)
+       
+        [Authorize,HttpGet]
+        public JsonResult GetGroupCbo()
         {
-            try
-            {
-                var _master = _sqlRepository.GetDataCollection("select * from hkp.DefectZone wher Id = '" + Id + "' ");
+            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName1 + " Where EntryType='Group'"), JsonRequestBehavior.AllowGet);
+        }
 
 
-                return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
+        [Authorize, HttpGet]
+        public JsonResult GetCategoryCbo()
+        {
+            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName1 + " Where EntryType='Category'"), JsonRequestBehavior.AllowGet);
+        }
 
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
 
+        [Authorize, HttpGet]
+        public JsonResult GetSubCategoryCbo()
+        {
+            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName1 + " Where EntryType='SubCategory'"), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
