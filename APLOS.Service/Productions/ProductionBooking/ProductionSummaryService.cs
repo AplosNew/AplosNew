@@ -1369,7 +1369,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                     {
                         if (dsProductionSummaryPOArticleValidation.Tables[0].Rows.Count == 0)
                         {
-                            throw new Exception("This Article is already used for same PO in another LotNumber.");
+                            //throw new Exception("This Article is already used for same PO in another LotNumber.");
                         }
                     }
                 }

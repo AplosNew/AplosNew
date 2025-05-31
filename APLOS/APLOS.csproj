@@ -5062,6 +5062,10 @@
     <Content Include="Areas\Commercial\Views\Compliance\Transaction.cshtml" />
     <Content Include="Areas\Banks\Views\_ALLBankPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\EmployeeOperationUpload.cshtml" />
+    <Content Include="Areas\Commercial\Views\Compliance\SubCategory.cshtml" />
+    <Content Include="Areas\Commercial\Views\Compliance\Compliance.cshtml" />
+    <Content Include="Areas\Commercial\Views\Compliance\Group.cshtml" />
+    <Content Include="Areas\Commercial\Views\Compliance\Category.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

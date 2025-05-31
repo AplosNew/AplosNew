@@ -515,10 +515,10 @@ Left join  MST.DesignationMaster DeM on DeM.DesignationId = EMP.GivenDesignation
             }
         }
         [HttpGet, Authorize]
-        public ActionResult GetEmpLeaveBalanceNew(string EmpsystemId, string calanderYearId,string year)
+        public ActionResult GetEmpLeaveBalanceNew(string EmpsystemId, string calanderYearId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_leaveTransactionService.LoadGrdAllocatedLvDetailsNew(identity.CompanyGroupId, identity.PlantId, EmpsystemId, calanderYearId, year), JsonRequestBehavior.AllowGet);
+            return Json(_leaveTransactionService.LoadGrdAllocatedLvDetailsNew(identity.CompanyGroupId, identity.PlantId, EmpsystemId, calanderYearId), JsonRequestBehavior.AllowGet);
         }
         #endregion -- Operations
     }

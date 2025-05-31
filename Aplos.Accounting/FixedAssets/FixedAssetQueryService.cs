@@ -3042,7 +3042,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
 									,FAC.UserName FixedAssetCategory
 									,FASC.UserName FixedAssetSubCategory
 									,CM.Qty,CM.Type,V.VoucherNo,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate
-									,CM.TotalAmount Amount
+									,CM.TotalAmount Amount,V.PostingDate VPostingDate,V.IsPark,Status= case when V.IsPark=0 then 'Posted' else 'Parked' end
 				FROM TRN.Voucher V 
 				INNER JOIN [TRN].[CapitalizationMaster] CM ON CM.VoucherId=V.Id
 				LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
@@ -3050,7 +3050,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 LEFT  JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
                 LEFT  JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
                 WHERE V.CompanyId='" + companyId + @"' AND V.Archive=0 
-                ) AS TEMP WHERE " + strkey + " order by PostingDate DESC   ";
+                ) AS TEMP WHERE " + strkey + " order by VPostingDate DESC   ";
             return _sqlRepository.GetDataCollection(sql);
         }
         public List<Dictionary<string, object>> GetAssetRegisterList(string companyGroupId, string companyId, string column, string value)

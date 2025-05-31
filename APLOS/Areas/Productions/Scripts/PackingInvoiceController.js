@@ -125,7 +125,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         IsIncentiveApplicable: false,
         InvoiceStatus: 'Active',
         PaymentToReceiveBankId: null,
-        Incoterms:null,
+        Incoterms: null,
         IncotermsValue: 0,
         AdditionalFrieghtValue: 0,
         AdditionalFrieght: null,
@@ -1320,6 +1320,8 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             $rootScope.toggle();
         }
         $scope.salesVM.TaxOptionAddiTax = 'Yes';
+
+        
     };
 
     $scope.GetSalesPackingData = function (salesId) {
@@ -2257,8 +2259,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             $scope.ModelNew.TransportAgentCode = party.Code;
             $scope.ModelNew.TransportAgentName = party.UserName;
         }
-        else
-        {
+        else {
             var party = obj.data;
             $scope.ModelNew.TransporterCHAForwarderId = party.Id;
             $scope.ModelNew.TransporterCHAForwarder = party.UserName;
@@ -2754,6 +2755,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                         }
 
                         $scope.SalesAdditionalInfoDataList = response.data;
+                        $scope.PTData();
                     }
                 },
                 function errorCallback(response) {
@@ -2761,6 +2763,24 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                 });
     };
 
+    $scope.PTData = function () {
+        $scope.paymentTermList = [];
+        $http({
+            method: "GET",
+            url: "accounts/PaymentTerm/getcustomercbo"
+        }).then(function successCallback(response) {
+            var ObjPt = {};
+            for (var i = 0; i < response.data.length; i++) {
+                if (response.data[i].Value == $scope.salesVM.PaymentTermId) {
+                    ObjPt.Value = response.data[i].Value;
+                    ObjPt.Text = response.data[i].Text;
+                    $scope.paymentTermList.push(ObjPt);
+                    ObjPt = {};
+                    break;
+                }
+            }
+        });
+    }
 
     $scope.PISVM = {//Production Inventory Sales 
         Id: null,
@@ -2818,7 +2838,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         var PLT = $window.plantId
         $http({
             method: 'GET',
-            url:  'Outsourcing/OSTransformationPO/GetAllEntity?PlantId=' + PLT
+            url: 'Outsourcing/OSTransformationPO/GetAllEntity?PlantId=' + PLT
         }).then(function successCallback(response) {
             $scope.NewEntityList = response.data;
 
@@ -2867,16 +2887,16 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     $scope.ProductionOrderSOList = [];
     $scope.GetProductionOrderSOList = function (productionOrderId) {
         $scope.tempPOSOList = [];
-            $http({
-                method: 'POST',
-                data: { 'productionOrderId': productionOrderId },
-                url: 'Productions/PackingInvoice/GetProductionOrderSOList'
-            }).then(function successCallback(response) {
-                $scope.tempPOSOList = response.data
-                for (var i = 0; i < $scope.tempPOSOList.length; i++) {
-                    $scope.ProductionOrderSOList.push($scope.tempPOSOList[i]);
-                }
-            });
+        $http({
+            method: 'POST',
+            data: { 'productionOrderId': productionOrderId },
+            url: 'Productions/PackingInvoice/GetProductionOrderSOList'
+        }).then(function successCallback(response) {
+            $scope.tempPOSOList = response.data
+            for (var i = 0; i < $scope.tempPOSOList.length; i++) {
+                $scope.ProductionOrderSOList.push($scope.tempPOSOList[i]);
+            }
+        });
     };
 
     $scope.calculateAmounts = function (data) {

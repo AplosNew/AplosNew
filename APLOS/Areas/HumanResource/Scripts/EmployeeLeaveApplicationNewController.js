@@ -90,7 +90,7 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
     $scope.YearNo = null;
     $scope.getLeaveBalance = function () {
         if (!baseService.isUndefinedOrNull($scope.YearNo)) {
-            $http.get('HumanResource/LeaveApplicationNew/GetEmpLeaveBalanceNew?EmpsystemId=' + $scope.leaveApplicationNew.EmpSystemID + '&calanderYearId=' + $scope.YearNo + '&year=' + $scope.YearsNo)
+            $http.get('HumanResource/LeaveApplicationNew/GetEmpLeaveBalanceNew?EmpsystemId=' + $scope.leaveApplicationNew.EmpSystemID + '&calanderYearId=' + $scope.YearNo)
                 .then(function (response) {
                     $scope.LeaveBalanceList = response.data;
                 });
