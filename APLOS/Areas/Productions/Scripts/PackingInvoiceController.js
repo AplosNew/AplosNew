@@ -1181,7 +1181,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         $scope.uoMList = [];
         $http({
             method: "GET",
-            url: "Productions/PackingInvoice/GetMasterOrderSalesMaterialData?salesId=" + salesId
+            url: "Productions/PackingInvoice/GetMasterOrderSalesMaterialData?salesId=" + salesId + "&PackingId=" + $scope.sqlInStatement
         }).then(function (response) {
             $scope.salesMaterialList = response.data;
             for (var i = 0; i < $scope.salesMaterialList.length; i++) {
@@ -2755,7 +2755,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                         }
 
                         $scope.SalesAdditionalInfoDataList = response.data;
-                        $scope.PTData();
+                      //  $scope.PTData();
                     }
                 },
                 function errorCallback(response) {

@@ -534,7 +534,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
             }
         }
 
-        public List<Dictionary<string, object>> GetPackingSalesMaterialData(string companyGroupId, string companyId, string plantId, string salesId)
+        public List<Dictionary<string, object>> GetPackingSalesMaterialData(string companyGroupId, string companyId, string plantId, string salesId,string PackingId)
         {
 
             try
@@ -562,6 +562,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                 ,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/NULLIF((Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id),0))*SM.TransactionAmount
 	           ,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/NULLIF((Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id),0))*SM.TransactionAmount,ISNULL(ART.HSNCodeId,MM.HSNCodeId)HSNCodeId,ISNULL(HA.Code,HM.Code)HSNCode
 			,A.PaymentTermId,A.Code PaymentTermCode,A.UserName PaymentTermName,A.BaseLineDate, A.NoOfDay,A.PaymentMode 
+,PackingId=(Select distinct PackingId from trn.PackingLineItem Where PackingId " + PackingId + @")
             FROM TRN.SalesMaterial AS SM 
             LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
             LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
