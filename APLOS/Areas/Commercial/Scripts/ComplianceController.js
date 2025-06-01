@@ -14,9 +14,16 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
     };
-
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
+    };
+
+    $scope.tab2 = 1;
+    $scope.setTab2 = function (newTab) {
+        $scope.tab2 = newTab;
+    };
+    $scope.isSet2 = function (tabNum) {
+        return $scope.tab2 === tabNum;
     };
 
     $scope.searchBy = "Code"; $scope.search = "";
@@ -321,13 +328,7 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         return false;
     }
 
-    $scope.tab = 1;
-    $scope.setTab = function (newTab) {
-        $scope.tab = newTab;
-    };
-    $scope.isSet = function (tabNum) {
-        return $scope.tab === tabNum;
-    };
+   
 
     $scope.message_detailconfirmation = null;
     $scope.removeRP = function (obj) {
@@ -446,7 +447,19 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
             $scope.GetGroupSequence();
         });
     }
-    //$scope.getGroupData();
+
+    $scope.getGrpData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetDataList",
+            data: { column: $scope.GroupsearchBy, value: $scope.searchGroup, 'entryType': $scope.etype },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.GroupModelList = response.data;
+            ClearGroupFields(response.data.Sequence);
+            $scope.GetGroupSequence();
+        });
+    }
 
     $scope.GroupModelTemp = {
         Id: null,
@@ -511,7 +524,7 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
             $http({
                 method: 'POST',
                 url: 'Commercial/Compliance/CreateData',
-                data: { 'data': $scope.GroupModelNew, 'entryType': $scope.etype},
+                data: { 'data': $scope.GroupModelNew, 'entryType': $scope.etype },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -530,11 +543,21 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         }
     };
 
-    $scope.Delete = function () {
+    $scope.message_confirmation = null;
+    $scope.removeGroup = function () {
+        if (!baseService.isUndefinedOrNull($scope.GroupModelNew.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently [ ' + $scope.GroupModelNew.UserName + ' ]';
+        angular.element(document.querySelector('#confirmDataPopUp')).modal('show');
+    }
+
+    $scope.deleteGUrl = "Commercial/Compliance/DeleteData";
+
+    $scope.DeleteGroup = function () {
         if (!baseService.isUndefinedOrNull($scope.GroupModelNew.Id)) {
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.GroupModelNew.Id,
+                url: $scope.deleteGUrl,
+                data: { 'id': $scope.GroupModelNew.Id },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -542,8 +565,8 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
-                    $scope.getGroupData();
+                    $scope.ClearGroup();
+                    $scope.getGrpData();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -577,7 +600,7 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         $http({
             method: 'POST',
             url: $scope.path + "GetDataList",
-            data: { column: $scope.CategorysearchBy, value: $scope.searchCategory, 'entryType': $scope.etype},
+            data: { column: $scope.CategorysearchBy, value: $scope.searchCategory, 'entryType': $scope.etype },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.CategoryModelList = response.data;
@@ -585,7 +608,20 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
             $scope.GetCategorySequence();
         });
     }
-  //  $scope.getCategoryData();
+
+
+    $scope.getCatData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetDataList",
+            data: { column: $scope.CategorysearchBy, value: $scope.searchCategory, 'entryType': $scope.etype },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.CategoryModelList = response.data;
+            ClearCategoryFields(response.data.Sequence);
+            $scope.GetCategorySequence();
+        });
+    }
 
     $scope.CategoryModelTemp = {
         Id: null,
@@ -623,7 +659,7 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
             $http({
                 method: 'POST',
                 url: 'Commercial/Compliance/CreateData',
-                data: { 'data': $scope.CategoryModelNew, 'entryType': $scope.etype},
+                data: { 'data': $scope.CategoryModelNew, 'entryType': $scope.etype },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -642,11 +678,18 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         }
     };
 
-    $scope.Delete = function () {
+
+    $scope.removeCategory = function () {
+        if (!baseService.isUndefinedOrNull($scope.CategoryModelNew.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently [ ' + $scope.CategoryModelNew.UserName + ' ]';
+        angular.element(document.querySelector('#confirmCatDataPopUp')).modal('show');
+    }
+    $scope.DeleteCategory = function () {
         if (!baseService.isUndefinedOrNull($scope.CategoryModelNew.Id)) {
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.CategoryModelNew.Id,
+                url: $scope.deleteGUrl,
+                data: { 'id': $scope.CategoryModelNew.Id},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -654,8 +697,8 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
-                    $scope.getCategoryData();
+                    $scope.ClearCategory();
+                    $scope.getCatData();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -689,7 +732,20 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         $http({
             method: 'POST',
             url: $scope.path + "GetDataList",
-            data: { column: $scope.SubCategorysearchBy, value: $scope.searchSubCategory, 'entryType': $scope.etype},
+            data: { column: $scope.SubCategorysearchBy, value: $scope.searchSubCategory, 'entryType': $scope.etype },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.SubCategoryModelList = response.data;
+            ClearSubCategoryFields(response.data.Sequence);
+            $scope.GetSubCategorySequence();
+        });
+    }
+
+    $scope.getSubCatData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetDataList",
+            data: { column: $scope.SubCategorysearchBy, value: $scope.searchSubCategory, 'entryType': $scope.etype },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.SubCategoryModelList = response.data;
@@ -700,7 +756,7 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
 
     $scope.SubCategoryModelTemp = {
         Id: null,
-        EntryType:null,
+        EntryType: null,
         Sequence: 0,
         Code: null,
         ShortName: null,
@@ -734,7 +790,7 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
             $http({
                 method: 'POST',
                 url: 'Commercial/Compliance/CreateData',
-                data: { 'data': $scope.SubCategoryModelNew, 'entryType': $scope.etype},
+                data: { 'data': $scope.SubCategoryModelNew, 'entryType': $scope.etype },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -753,11 +809,17 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         }
     };
 
-    $scope.Delete = function () {
+    $scope.removeSubCategory = function () {
+        if (!baseService.isUndefinedOrNull($scope.SubCategoryModelNew.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently [ ' + $scope.SubCategoryModelNew.UserName + ' ]';
+        angular.element(document.querySelector('#confirmSCDataPopUp')).modal('show');
+    }
+    $scope.DeleteSC = function () {
         if (!baseService.isUndefinedOrNull($scope.SubCategoryModelNew.Id)) {
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.SubCategoryModelNew.Id,
+                url: $scope.deleteGUrl,
+                data: { 'id': $scope.SubCategoryModelNew.Id},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -765,8 +827,8 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
-                    $scope.getSubCategoryData();
+                    $scope.ClearSubCategory();
+                    $scope.getSubCatData();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');

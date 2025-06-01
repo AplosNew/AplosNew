@@ -35,9 +35,7 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         #endregion Constructor
-
-
-     
+                    
         public ActionResult Aplos()
         {
             return View();
@@ -68,6 +66,10 @@ namespace Aplos.Areas.Commercial.Controllers
             return View();
         }
 
+        public ActionResult Audit()
+        {
+            return View();
+        }
 
 
         [HttpPost, Authorize]
@@ -82,9 +84,6 @@ namespace Aplos.Areas.Commercial.Controllers
 LEFT JOIN hkp.ComplianceCategoryType G ON G.Id=CM.ComplianceGroupId
 LEFT JOIN hkp.ComplianceCategoryType C ON C.Id=CM.CategoryId
 LEFT JOIN hkp.ComplianceCategoryType SC ON SC.Id=CM.SubCategoryId) AS TEMP WHERE " + strkey + "";
-
-
-
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -632,7 +631,7 @@ LEFT JOIN HKP.ComplianceMaster CMR ON CMR.Id=CT.LocationId) AS TEMP WHERE " + st
             }
         }
 
-        public ActionResult DeleteData(string id,string entryType)
+        public ActionResult DeleteData(string id)
         {
             
             try
@@ -646,7 +645,7 @@ LEFT JOIN HKP.ComplianceMaster CMR ON CMR.Id=CT.LocationId) AS TEMP WHERE " + st
                 con.executeQuery("delete from " + TableName1 + " where Id='" + id + "'");
                 con.CommitTransaction();
 
-                return Json(new { Error = false, Sequence = GetCategoryTypeSequence(entryType), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)
@@ -666,5 +665,26 @@ LEFT JOIN HKP.ComplianceMaster CMR ON CMR.Id=CT.LocationId) AS TEMP WHERE " + st
             return 1;
         }
         #endregion
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetComplianceDataList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (select CM.*,G.UserName ComplianceGroup,C.UserName Category,SC.UserName SubCategory 
+,RPACount=(Select Count(Id) from dbo.ComplianceResponsiblePersonAndAuditor Where EmpSystemID='"+identity.EmployeeId+ @"'AND ComplianceMasterId=CM.Id)
+from hkp.ComplianceMaster CM
+LEFT JOIN hkp.ComplianceCategoryType G ON G.Id=CM.ComplianceGroupId
+LEFT JOIN hkp.ComplianceCategoryType C ON C.Id=CM.CategoryId
+LEFT JOIN hkp.ComplianceCategoryType SC ON SC.Id=CM.SubCategoryId
+Where CM.Id IN(Select ComplianceMasterId from dbo.ComplianceResponsiblePersonAndAuditor Where EmpSystemID='" + identity.EmployeeId + @"')) AS TEMP WHERE " + strkey + "";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+
     }
 }

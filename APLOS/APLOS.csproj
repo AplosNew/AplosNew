@@ -1977,6 +1977,7 @@
     <Content Include="Areas\Attendances\Scripts\GoodWorkReportController.js" />
     <Content Include="Areas\Attendances\Scripts\GoodWorkPaymentDisburseController.js" />
     <Content Include="Areas\Attendances\Scripts\EmployeeMultipleAdvanceController.js" />
+    <Content Include="Areas\Commercial\Scripts\ComplianceAuditController.js" />
     <Content Include="Areas\Commercial\Scripts\ComplianceTransactionController.js" />
     <Content Include="Areas\Commercial\Scripts\ContractSummaryController.js" />
     <Content Include="Areas\Commercial\Scripts\LCPendingReportController.js" />
@@ -5066,6 +5067,7 @@
     <Content Include="Areas\Commercial\Views\Compliance\Compliance.cshtml" />
     <Content Include="Areas\Commercial\Views\Compliance\Group.cshtml" />
     <Content Include="Areas\Commercial\Views\Compliance\Category.cshtml" />
+    <Content Include="Areas\Commercial\Views\Compliance\Audit.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

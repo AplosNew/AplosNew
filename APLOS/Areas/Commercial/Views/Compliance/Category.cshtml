@@ -61,7 +61,7 @@
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li> <button ng-click="SaveCategory();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li><button ng-click="removeCategory();" title="Remove" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button></li>
             <li> <button ng-click="ClearCategory();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
@@ -78,10 +78,10 @@
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getCategoryData()">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="searchCategory" ng-enter="getCatData()">
                 </div>
                 <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getCategoryData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    <button type="button" ng-click="getCatData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                 </div>
             </div>
         </div>
@@ -102,4 +102,4 @@
         </div>
     </div>
 </div>
-<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmCatDataPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteCategory();"></confirm-archive-generic>
