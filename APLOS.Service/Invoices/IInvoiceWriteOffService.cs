@@ -78,6 +78,7 @@ namespace Library.Service.Invoices
         IEnumerable<VoucherDetailViewModel> banksDetailVMList, IEnumerable<BankChargeViewModel> bankChargeDetailVMList);
         void SuspensePayablePost(string invoiceGroupNo);
         string InsertAdditionalTaxPayable(VoucherViewModel voucherVM, string additionalTaxId);
+        string InsertAdditionalTaxPayableOutput(VoucherViewModel voucherVM, string additionalTaxId);
         string PostMultipleVendorPayment(VoucherViewModel voucherVM, IEnumerable<MultiplePaymentViewModel> mpSummarylist, IEnumerable<MultiplePaymentDetailViewModel> multiplePaymentDetailList
                 , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList);
         void DeleteAdjustmentNoteWriteOff(string invoiceWriteOffId, string voucherId);
