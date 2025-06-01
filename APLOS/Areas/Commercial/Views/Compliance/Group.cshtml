@@ -62,7 +62,7 @@
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li> <button ng-click="SaveGroup();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li><button ng-click="removeGroup();" title="Remove" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button></li>
             <li> <button ng-click="ClearGroup();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
@@ -79,10 +79,10 @@
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="searchGroup" ng-enter="getGroupData()">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="searchGroup" ng-enter="getGrpData()">
                 </div>
                 <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getGroupData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    <button type="button" ng-click="getGrpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                 </div>
             </div>
         </div>
@@ -103,4 +103,4 @@
         </div>
     </div>
 </div>
-<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmDataPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteGroup();"></confirm-archive-generic>

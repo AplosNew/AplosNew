@@ -1,0 +1,219 @@
+﻿<togglable name="{{title}}"></togglable>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <input type="hidden" ng-model="ModelNew.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Compliance Group<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" disabled ng-model="ModelNew.ComplianceGroupId" name="Compliance Group" ng-options="item.Value as item.Text for item in Grouplist" tabindex="7" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Category Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" disabled ng-model="ModelNew.CategoryId" name="Category Name" ng-options="item.Value as item.Text for item in CategoryList" tabindex="7" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Item Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="Item Name" disabled ng-model="ModelNew.ItemName" class="form-control" required autocomplete="off" tabindex="5" maxlength="100">
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Audit Frequency<sup>*</sup></label>
+            <div class="col-sm-4 show-message">
+                <input type="text" name="Audit Frequency" disabled ng-model="ModelNew.AuditFrequency" only-numbers class="form-control" required autocomplete="off" tabindex="5" maxlength="100">
+            </div>
+            <div class="col-sm-4 show-message">
+                <div class="select-style">
+                    <select class="form-control" disabled ng-model="ModelNew.AuditFrequencyUnit" name="AuditFrequencyUnit" ng-options="item.Value as item.Text for item in auditFrequencyUnitList" tabindex="7" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Compliance Value<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" disabled ng-model="ModelNew.ComplianceValue" name="Compliance Value" ng-options="item.Value as item.Text for item in ComplianceValueList" tabindex="7" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Scan Applicable</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" disabled ng-model="ModelNew.ScanApplicable" tabindex="10">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Code Applicable</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" disabled ng-model="ModelNew.CodeApplicable" tabindex="10">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Code" disabled ng-model="ModelNew.Code" class="form-control" required autocomplete="off" tabindex="2" maxlength="10">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">SubCategory Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" disabled ng-model="ModelNew.SubCategoryId" name="SubCategory Name" ng-options="item.Value as item.Text for item in SubCategoryList" tabindex="7" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Criticality Level<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select name="Criticality Level" disabled class="form-control" ng-model="ModelNew.CriticalityLevel" required tabindex="6">
+                        <option value=""></option>
+                        <option ng-repeat="item in CriticalityLevelList" value="{{item.Value}} ">{{item.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Location Reference<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Location Reference" disabled ng-model="ModelNew.LocationReference" class="form-control" required autocomplete="off" tabindex="8" maxlength="100">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Score Point<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select name="Score Point" class="form-control" ng-model="ModelNew.ScorePoint" required tabindex="6">
+                        <option value=""></option>
+                        <option ng-repeat="item in ScorePointList" value="{{item.Value}} ">{{item.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="10"></textarea>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-xs-12">
+        <div style="color:black;" id="GridCKP" ej-grid e-datasource="CheckPList" e-gridlines="vertical" e-allowpaging="true" e-allowsorting="true"
+             e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                <div e-column e-field="CheckPointName" e-headertext="Check Point" e-width="80"></div>
+                <div e-column e-field="CheckMark" e-template="#CheckMark" e-headertext="Check Mark" e-width="80"></div>
+            </div>
+        </div>
+        <script type="text/template" id="CheckMark">
+            <div class="select-style">
+                <select class="form-control" ng-model="data.CheckMark" name="CheckMark">
+                    <option value="">--Select--</option>
+                    <option ng-repeat="option in $parent.CheckMarkList" value="{{option.Value}}">{{option.Text}}</option>
+                </select>
+            </div>
+        </script>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getComplianceData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getComplianceData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="Main" ng-init="chkinit()" ej-grid e-datasource="ComplianceList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
+            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+            <div e-column e-field="ComplianceGroup" e-headertext="Compliance Group" e-width="5"></div>
+            <div e-column e-field="Category" e-headertext="Category Name" e-width="5"></div>
+            <div e-column e-field="SubCategory" e-headertext="SubCategory Name" e-width="5"></div>
+            <div e-column e-field="ItemName" e-headertext="ItemName" e-width="5"></div>
+            <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+        </div>
+    </div>
+</div>
+
+<ej-dialog id="CreateNewPopUp" title="RP/Auditor" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#Main"
+           e-close="onDialogClose" e-minwidth="450" e-minheight="80" e-open="enableBtn">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <div class="select-style">
+                        <select class="form-control" name="RP/Auditor" ng-model="SourceType">
+                            <option value="ResponsiblePerson">Responsible Person</option>
+                            <option value="Auditor">Auditor</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li> <button ng-click="Go();" class="btn">Go</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</ej-dialog>
