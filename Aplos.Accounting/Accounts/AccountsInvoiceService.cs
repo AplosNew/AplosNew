@@ -520,6 +520,7 @@ namespace Library.Accounting.Accounts
                 parameters.CmdText = @"SELECT  V.VoucherNo, P.Code AS PartyCode, P.UserName AS PartyName,  PP.UserName AS PartyPlantName, EI.EmployeeCode, EI.EmployeeName
                                         , C.Code AS CurrencyCode, P.Code+' - '+ PP.UserName Particulars,I.Id,I.Amount,I.WrittenOffAmount,I.VoucherId,I.SourceType,I.IsPark
                                         ,'Vendor' BeneficiaryType,I.PostingDate,I.DocDate,I.DocRefNo,V.VoucherDate,V.CurrencyId, ADT.TaxAmount AdditionalTax, ADT.VoucherId AdditionalTaxVoucherId, ADT.Id AdditionalTaxId
+                                        ,ISNULL((select TOP(1) AType from TRN.AdditionalTaxDetail where AdditionalTaxId=ADT.Id),'')JournalType
                                         ,IsTDSTaxPost=CASE WHEN ADT.VoucherId<>'' THEN 'TDSPosted' WHEN  ADT.InvoiceId IS NULL THEN '' ELSE 'TDSParked' end,V.VoucherTypeId,I.CompanyCurrencyRate
                                         ,I.PartyId,I.PartyPlantId,Null EmployeeId
                                         ,AV.VoucherNo TDSVoucherNo,ADT.VoucherId TDSVoucherId,[Status]= case when I.IsPark=1 then 'Parked' else 'Posted' end
@@ -556,6 +557,7 @@ namespace Library.Accounting.Accounts
 										SELECT  V.VoucherNo, P.Code AS PartyCode, P.UserName AS PartyName,  PP.UserName AS PartyPlantName, EI.EmployeeCode, EI.EmployeeName
                                         , C.Code AS CurrencyCode, EI.EmployeeName Particulars,I.Id,I.Amount,I.WrittenOffAmount,I.VoucherId,I.SourceType,I.IsPark
                                         ,'Employee' BeneficiaryType,I.PostingDate,I.DocDate,I.DocRefNo,V.VoucherDate,V.CurrencyId, ADT.TaxAmount AdditionalTax, ADT.VoucherId AdditionalTaxVoucherId, ADT.Id AdditionalTaxId
+                                        ,ISNULL((select TOP(1) AType from TRN.AdditionalTaxDetail where AdditionalTaxId=ADT.Id),'')JournalType
                                         ,IsAdditionalTaxPost=CASE WHEN ADT.VoucherId<>'' THEN 'Posted' WHEN  ADT.EmployeePayableId IS NULL THEN '' ELSE 'Parked' end,V.VoucherTypeId,I.CompanyCurrencyRate
                                         ,I.PartyId,I.PartyPlantId,I.EmployeeId
                                         ,case when AV.ApprovedBystatus is null then 'To Be Checked' else  AV.ApprovedBystatus end CheckStatus

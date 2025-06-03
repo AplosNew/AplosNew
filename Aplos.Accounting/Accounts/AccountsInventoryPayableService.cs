@@ -1953,7 +1953,10 @@ UNION
         {
             try
             {
-                var sql = @"SELECT  GL.AccountCode+' - '+ GL.UserName GLName,BU.UserName BudgetName,A.UserName ActivityName,0 DrAmount,ATD.Amount CrAmount,ATD.AdditionalTaxId
+                var sql = @"SELECT  GL.AccountCode+' - '+ GL.UserName GLName,BU.UserName BudgetName,A.UserName ActivityName
+							,CASE WHEN ATD.AType='Dr' THEN ATD.Amount ELSE 0 END DrAmount
+							,CASE WHEN ATD.AType='Cr' THEN ATD.Amount ELSE 0 END CrAmount
+							,ATD.AdditionalTaxId
                             ,ATD.GLGeneralInfoId, ATD.BudgetMasterId, ATD.ActivityId,TC.Id TaxCategoryId,ATD.TaxCodeId,TAC.UserName Particulars,ATD.AType
                             FROM TRN.AdditionalTaxDetail ATD 
                             JOIN TRN.AdditionalTax ATX ON ATX.Id=ATD.AdditionalTaxId
@@ -1965,7 +1968,7 @@ UNION
 							LEFT JOIN MST.TaxCategory TC ON TC.Id=TAC.TaxCategoryId
 							WHERE ATX.Id='" + additionalTaxId + @"'
 
-                            UNION
+                            UNION ALL
 							SELECT  GL.AccountCode+' - '+ GL.UserName GLName,BU.UserName BudgetName,A.UserName ActivityName,ATX.TaxAmount DrAmount,0 CrAmount,ATX.Id AdditionalTaxId
 							,IVD.GLGeneralInfoId, IVD.BudgetMasterId, IVD.ActivityId,NULL TaxCategoryId,NULL TaxCodeId,'' Particulars,'Dr' AType
                             FROM  TRN.AdditionalTax ATX 
@@ -1975,7 +1978,19 @@ UNION
                             LEFT JOIN MST.BudgetMaster BM ON BM.Id=IVD.BudgetMasterId
                             LEFT JOIN HKP.Budget BU ON BU.Id=BM.BudgetId
                             LEFT JOIN HKP.Activity A ON A.Id=IVD.ActivityId
-							WHERE ATX.Id='" + additionalTaxId + "' ";
+							WHERE ATX.Id='" + additionalTaxId + @"' AND ATX.Id IN(SELECT AdditionalTaxId FROM TRN.AdditionalTaxDetail WHERE AdditionalTaxId='" + additionalTaxId + @"' AND AType='Cr')
+	
+							UNION ALL
+							SELECT  GL.AccountCode+' - '+ GL.UserName GLName,BU.UserName BudgetName,A.UserName ActivityName,0 DrAmount,ATX.TaxAmount CrAmount,ATX.Id AdditionalTaxId
+							,IVD.GLGeneralInfoId, IVD.BudgetMasterId, IVD.ActivityId,NULL TaxCategoryId,NULL TaxCodeId,'' Particulars,'Cr' AType
+                            FROM  TRN.AdditionalTax ATX 
+							LEFT JOIN TRN.Invoice IV ON IV.Id=ATX.InvoiceId
+							LEFT JOIN TRN.InvoiceDetail IVD ON IVD.InvoiceId=IV.Id
+                            LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=IVD.GLGeneralInfoId
+                            LEFT JOIN MST.BudgetMaster BM ON BM.Id=IVD.BudgetMasterId
+                            LEFT JOIN HKP.Budget BU ON BU.Id=BM.BudgetId
+                            LEFT JOIN HKP.Activity A ON A.Id=IVD.ActivityId
+							WHERE ATX.Id='" + additionalTaxId + @"' AND ATX.Id IN(SELECT AdditionalTaxId FROM TRN.AdditionalTaxDetail WHERE AdditionalTaxId='" + additionalTaxId + @"' AND AType='Dr') ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
