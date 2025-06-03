@@ -7,7 +7,7 @@ function ComplianceAuditController(cboService, commonMessage, $scope, $rootScope
     $scope.ComplianceList = [];
     $scope.path = 'Commercial/Compliance/';
     $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'CreateTransaction';
+    $scope.saveUrl = $scope.path + 'CreateAudit';
     $scope.deleteUrl = $scope.path + 'DeleteTransaction/';
     $scope.Action = 'Save';
     $scope.searchBy = "Code"; $scope.search = "";
@@ -81,15 +81,24 @@ function ComplianceAuditController(cboService, commonMessage, $scope, $rootScope
 
 
     $scope.CheckMarkList = [
-        { 'Value': "1", 'Text': "Yes" },
-        { 'Value': "0", 'Text': "No" }
+        { 'Value': "True", 'Text': "Yes" },
+        { 'Value': "False", 'Text': "No" }
     ];
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.ModelNew.ComplianceValue = $scope.ModelNew.ComplianceValue.toString();
-        $("#CreateNewPopUp").data("ejDialog").open();
-
+        if ($scope.ModelNew.RPACount == 2) {
+            $("#CreateNewPopUp").data("ejDialog").open();
+        }
+        else {
+            $scope.GetCheckPointsList();
+            $scope.closePopup('CreateNewPopUp');
+            $scope.Action = 'Update';
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        }
 
     };
 
@@ -97,23 +106,14 @@ function ComplianceAuditController(cboService, commonMessage, $scope, $rootScope
 
     $scope.Go = function () {
         try {
-            if ($scope.ModelNew.RPACount == 2) {
-                if (baseService.isUndefinedOrNull($scope.SourceType)) {
-                    throw "Select Responsible Person or Auditor.";
-                }
-                $scope.GetCheckPointsList();
-                $scope.closePopup('CreateNewPopUp');
-                $scope.Action = 'Update';
-                if (!$rootScope.isCollapsed) {
-                    $rootScope.toggle();
-                }
-            } else {
-                $scope.GetCheckPointsList();
-                $scope.closePopup('CreateNewPopUp');
-                $scope.Action = 'Update';
-                if (!$rootScope.isCollapsed) {
-                    $rootScope.toggle();
-                }
+            if (baseService.isUndefinedOrNull($scope.SourceType)) {
+                throw "Select Responsible Person or Auditor.";
+            }
+            $scope.GetCheckPointsList();
+            $scope.closePopup('CreateNewPopUp');
+            $scope.Action = 'Update';
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
             }
         } catch (e) {
             ShowResult(e, 'failure');
@@ -137,11 +137,6 @@ function ComplianceAuditController(cboService, commonMessage, $scope, $rootScope
         }
     }
 
-    $scope.ShowpopUp = function () {
-        if (!baseService.isUndefinedOrNull($scope.SubCategoryModelNew.Id))
-            $scope.message_confirmation = 'Are you sure want to delete permanently [ ' + $scope.SubCategoryModelNew.UserName + ' ]';
-        angular.element(document.querySelector('#confirmSCDataPopUp')).modal('show');
-    }
 
     $scope.CheckPList = [];
     $scope.GetCheckPointsList = function () {
@@ -158,10 +153,23 @@ function ComplianceAuditController(cboService, commonMessage, $scope, $rootScope
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
+            $scope.ModelNew.ComplianceMasterId = $scope.ModelNew.Id;
+            $scope.ModelNew.Id = null;
+            $scope.ModelNew.EmpSystemId = null;
+            $scope.CheckList = [];
+            for (var i = 0; i < $scope.CheckPList.length; i++) {
+                var ob = {};
+                ob.Id = Math.floor(Math.random() * 9) - 10;
+                ob.CheckPointsId = $scope.CheckPList[i].Id;
+                ob.CheckMark = $scope.CheckPList[i].CheckMark;
+                $scope.CheckList.push(ob);
+                ob = {};
+            }
+
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew },
+                data: { 'data': $scope.ModelNew, 'CheckPList': $scope.CheckList, 'SourceType': $scope.SourceType},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

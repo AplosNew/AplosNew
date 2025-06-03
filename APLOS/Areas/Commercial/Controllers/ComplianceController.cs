@@ -685,6 +685,73 @@ Where CM.Id IN(Select ComplianceMasterId from dbo.ComplianceResponsiblePersonAnd
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        public JsonResult CreateAudit(Dictionary<string, object> data, List<Dictionary<string, object>> CheckPList, string SourceType)
+        {
+            string tblname = "ComplianceAudit";
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                DataSet dsMaster,dsCheckPoint,dsEmp;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                
+                con.OpenDataSetThroughAdapter("select * from TRN.ComplianceAudit where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from TRN.ComplianceAuditorMap where 1=1", out dsCheckPoint, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.ComplianceResponsiblePersonAndAuditor where ComplianceMasterId='" + data["ComplianceMasterId"] + "' AND SourceType='" + SourceType + "' AND EmpSystemId='" + identity.EmployeeId + "'", out dsEmp, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(tblname), out _Id);
+
+                    data["Id"] = _Id;
+                    data["EmpSystemId"] = identity.EmployeeId;
+
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                if (CheckPList != null)
+                {
+                    foreach (var item in CheckPList)
+                    {
+                        DataView dv = new DataView(dsCheckPoint.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["ComplianceResponsiblePersonAndAuditorId"] = dsEmp.Tables[0].Rows[0]["Id"].ToString();
+                            AddNewRow(dsCheckPoint.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsCheckPoint);
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
 
     }
 }
