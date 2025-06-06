@@ -70,10 +70,10 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetMasterOrderSalesMaterialData(string salesId)
+        public ActionResult GetMasterOrderSalesMaterialData(string salesId,string PackingId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(clsSales.GetPackingSalesMaterialData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, salesId), JsonRequestBehavior.AllowGet);
+            return Json(clsSales.GetPackingSalesMaterialData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, salesId, PackingId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

@@ -140,5 +140,9 @@ function CommercialConfig($routeProvider) {
             templateUrl: 'Commercial/Compliance/Transaction',
             controller: 'ComplianceTransactionController'
         })
-        ;
+
+        .when('/compliance-audit', {
+            templateUrl: 'Commercial/Compliance/Audit',
+            controller: 'ComplianceAuditController'
+        });
 }

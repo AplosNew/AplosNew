@@ -399,7 +399,15 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.SourceType = SourceType.VendorPayment.ToString();
             voucherVM.PaymentSource = PaymentSource.Tax.ToString();
             voucherVM.PartyType = "Vendor";
-            _invoiceWriteOffService.InsertAdditionalTaxPayable(voucherVM, additionalTaxId);
+            if(voucherVM.JournalType == "Dr")
+            {
+                _invoiceWriteOffService.InsertAdditionalTaxPayableOutput(voucherVM, additionalTaxId);
+            }
+            else
+            {
+                _invoiceWriteOffService.InsertAdditionalTaxPayable(voucherVM, additionalTaxId);
+            }
+            
             return Json(new { Message = AplosMessage.Insert });
         }
 

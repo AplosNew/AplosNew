@@ -35,9 +35,7 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         #endregion Constructor
-
-
-     
+                    
         public ActionResult Aplos()
         {
             return View();
@@ -68,6 +66,10 @@ namespace Aplos.Areas.Commercial.Controllers
             return View();
         }
 
+        public ActionResult Audit()
+        {
+            return View();
+        }
 
 
         [HttpPost, Authorize]
@@ -82,9 +84,6 @@ namespace Aplos.Areas.Commercial.Controllers
 LEFT JOIN hkp.ComplianceCategoryType G ON G.Id=CM.ComplianceGroupId
 LEFT JOIN hkp.ComplianceCategoryType C ON C.Id=CM.CategoryId
 LEFT JOIN hkp.ComplianceCategoryType SC ON SC.Id=CM.SubCategoryId) AS TEMP WHERE " + strkey + "";
-
-
-
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -632,7 +631,7 @@ LEFT JOIN HKP.ComplianceMaster CMR ON CMR.Id=CT.LocationId) AS TEMP WHERE " + st
             }
         }
 
-        public ActionResult DeleteData(string id,string entryType)
+        public ActionResult DeleteData(string id)
         {
             
             try
@@ -646,7 +645,7 @@ LEFT JOIN HKP.ComplianceMaster CMR ON CMR.Id=CT.LocationId) AS TEMP WHERE " + st
                 con.executeQuery("delete from " + TableName1 + " where Id='" + id + "'");
                 con.CommitTransaction();
 
-                return Json(new { Error = false, Sequence = GetCategoryTypeSequence(entryType), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)
@@ -666,5 +665,93 @@ LEFT JOIN HKP.ComplianceMaster CMR ON CMR.Id=CT.LocationId) AS TEMP WHERE " + st
             return 1;
         }
         #endregion
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetComplianceDataList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (select CM.*,G.UserName ComplianceGroup,C.UserName Category,SC.UserName SubCategory 
+,RPACount=(Select Count(Id) from dbo.ComplianceResponsiblePersonAndAuditor Where EmpSystemID='"+identity.EmployeeId+ @"'AND ComplianceMasterId=CM.Id)
+from hkp.ComplianceMaster CM
+LEFT JOIN hkp.ComplianceCategoryType G ON G.Id=CM.ComplianceGroupId
+LEFT JOIN hkp.ComplianceCategoryType C ON C.Id=CM.CategoryId
+LEFT JOIN hkp.ComplianceCategoryType SC ON SC.Id=CM.SubCategoryId
+Where CM.Id IN(Select ComplianceMasterId from dbo.ComplianceResponsiblePersonAndAuditor Where EmpSystemID='" + identity.EmployeeId + @"')) AS TEMP WHERE " + strkey + "";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult CreateAudit(Dictionary<string, object> data, List<Dictionary<string, object>> CheckPList, string SourceType)
+        {
+            string tblname = "ComplianceAudit";
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                DataSet dsMaster,dsCheckPoint,dsEmp;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                
+                con.OpenDataSetThroughAdapter("select * from TRN.ComplianceAudit where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from TRN.ComplianceAuditorMap where 1=1", out dsCheckPoint, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.ComplianceResponsiblePersonAndAuditor where ComplianceMasterId='" + data["ComplianceMasterId"] + "' AND SourceType='" + SourceType + "' AND EmpSystemId='" + identity.EmployeeId + "'", out dsEmp, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(tblname), out _Id);
+
+                    data["Id"] = _Id;
+                    data["EmpSystemId"] = identity.EmployeeId;
+
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                if (CheckPList != null)
+                {
+                    foreach (var item in CheckPList)
+                    {
+                        DataView dv = new DataView(dsCheckPoint.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["ComplianceResponsiblePersonAndAuditorId"] = dsEmp.Tables[0].Rows[0]["Id"].ToString();
+                            AddNewRow(dsCheckPoint.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsCheckPoint);
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+
     }
 }
