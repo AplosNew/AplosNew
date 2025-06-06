@@ -12864,7 +12864,6 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 				GROUP BY sad.ServiceAcknowledgementMasterId)SAM ON IT.ServiceAcknowledgementMasterId=SAM.ServiceAcknowledgementMasterId
                 WHERE TC.TaxCategoryType='TDS' AND ITD.AType='Cr' 
 				AND V.PostingDate between  '" + fromDate + "' AND '" + toDate + "' and V.PlantId = '" + plantId + @"' and V.IsPark=0
-                
                 ) X
                 ORDER BY X.LineItemType,X.ValueOfFixed,X.Percentage
 				";
