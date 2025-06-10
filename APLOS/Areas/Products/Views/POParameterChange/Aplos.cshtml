@@ -190,9 +190,9 @@
                                     <td>{{x.SecondCharacteristicsValue}}</td>
                                     <td>{{x.ThirdCharacteristicsValue}}</td>
                                     <td>{{x.CountryName}}</td>
-                                    <td class="text-right" style="width:200px;" ><input type="number" ng-disabled="IsToleranceUpdate" name="TransactionQty" ng-model="x.TransactionQty" ng-keyup="calculateAmount(x)" class="form-control"></td>
+                                    <td class="text-right" style="width:200px;"><input type="number" ng-disabled="IsToleranceUpdate" name="TransactionQty" ng-model="x.TransactionQty" ng-keyup="calculateAmount(x)" class="form-control"></td>
                                     <td class="text-right" style="width:50px;">{{x.TransactionUoM}}</td>
-                                    <td class="text-right" style="width:200px;"><input type="number" ng-disabled="IsToleranceUpdate" name="TransactionRate" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x)" class="form-control"></td>
+                                    <td class="text-right" style="width:200px;"><input type="number" name="TransactionRate" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x)" class="form-control"></td>  @*ng-disabled="IsToleranceUpdate"*@
                                     <td class="text-right" style="width:150px;">{{x.TrnAmount| number:2}}</td>
                                     <td class="text-right" style="width:150px;">{{x.BaseTaxAmount| number:2}}</td>
                                     <td class="text-right" style="width:150px;">{{x.TotalAmount| number:2}}</td>
