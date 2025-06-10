@@ -1563,6 +1563,10 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                 drLocal["EmploymentType"] = data.EmploymentType;
                 drLocal["ExcludeOT"] = false;
                 drLocal["isLeaveOnDOC"] = false;
+                drLocal["CTC"] = 0;
+                drLocal["Basic"] = 0;
+                drLocal["Gross"] = 0;
+                drLocal["IsGlobalEmployee"] = false;
 
                 if (!string.IsNullOrEmpty(data.RelativeSystemId))
                 {
