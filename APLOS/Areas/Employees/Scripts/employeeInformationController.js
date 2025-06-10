@@ -171,7 +171,9 @@ function employeeInformationController(addressService, fileReader, cboService, c
         ExcludeOT: false,
         IsOutSider: false,
         EmpCodeType: null,
-        CasteId: null
+        CasteId: null,
+        IsGlobalEmployee:false
+
     };
     $scope.employeeNew = Object.assign({}, $scope.model);
     $scope.employeeInformation = Object.assign({}, $scope.model);
@@ -4030,7 +4032,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.IsOTEntitled = false;
         $scope.employeeInformation.isLeaveOnDOC = false;
         $scope.employeeInformation.isLeaveOnDOJ = true;
-        GetEmpCodeGenSetting();
+        //GetEmpCodeGenSetting();
     };
 
     $scope.onBeginUpload = function (args) {

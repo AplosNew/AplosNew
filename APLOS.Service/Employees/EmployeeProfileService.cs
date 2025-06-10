@@ -508,6 +508,7 @@ namespace Library.Service.Employees
                 dblist.IsEntryComplete = entity.IsEntryComplete;
                 dblist.ResidenceGroupId = entity.ResidenceGroupId;
                 dblist.TransportGroupId = entity.TransportGroupId;
+                dblist.IsGlobalEmployee = entity.IsGlobalEmployee;
                 
                 if (!string.IsNullOrEmpty(entity.OperationMasterID))
                 {
