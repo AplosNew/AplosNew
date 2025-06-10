@@ -530,7 +530,7 @@ left join SCS.WorkCenterMaster AS wcm ON wcm.Id = MMA.WorkCenterMasterId where A
 							    	,PR.UserName PositionName,E.TelePhnNo,E.EmailId,PR.DepartmentId,PR.DivisionId,PR.SectionId,E.EmpType
 							    	,E.GivenDesignationId,E.EmployeeCategorySystemID EmployeeCategoryId,EN.UserName EntityName,D.UserName Designation
 							    	,GD.UserName GivenDesignation,LD.UserName LegalDesignation,DEPT.UserName AS Department,DV.UserName AS Division
-									,SC.UserName AS Section,E.EmployeeCode,E.EmpPicPath,E.DOJ,P.UserName Plant,SS.UserName SubSection,E.EmployeeCodeNumeric,C.UserName Company
+									,SC.UserName AS Section,E.EmployeeCode,E.EmpPicPath,E.DOJ,P.UserName Plant,SS.UserName SubSection,E.EmployeeCodeNumeric,C.UserName Company,E.IsGlobalEmployee
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
@@ -550,7 +550,7 @@ left join SCS.WorkCenterMaster AS wcm ON wcm.Id = MMA.WorkCenterMasterId where A
 							    	,PR.UserName PositionName,E.TelePhnNo,E.EmailId,PR.DepartmentId,PR.DivisionId,PR.SectionId,E.EmpType
 							    	,E.GivenDesignationId,E.EmployeeCategorySystemID EmployeeCategoryId,EN.UserName EntityName,D.UserName Designation
 							    	,GD.UserName GivenDesignation,LD.UserName LegalDesignation,DEPT.UserName AS Department,DV.UserName AS Division
-									,SC.UserName AS Section,E.EmployeeCode,E.EmpPicPath,E.DOJ,P.UserName Plant,SS.UserName SubSection,E.EmployeeCodeNumeric,C.UserName Company
+									,SC.UserName AS Section,E.EmployeeCode,E.EmpPicPath,E.DOJ,P.UserName Plant,SS.UserName SubSection,E.EmployeeCodeNumeric,C.UserName Company,E.IsGlobalEmployee
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
