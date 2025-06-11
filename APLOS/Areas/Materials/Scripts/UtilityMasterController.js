@@ -238,9 +238,9 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
     };
 
     $scope.popUpDataList = [];
-    $scope.popUp = function () {
+    $scope.popUp = function (name) {
         try {
-            $scope.$broadcast('show-errors-check-validity');
+            $scope.Name = name;
             $scope.popUpDataList = [];
             $http({
                 method: 'GET',
@@ -257,8 +257,14 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.selectdblClick = function (obj) {
         var ob = obj.data;
-        $scope.ModelNew.ResponsiblePersonId = ob.SystemId;
-        $scope.ModelNew.ResponsiblePersonName = ob.EmployeeName;
+        if ($scope.Name == 'ad') {
+            $scope.ModelNew.AdminId = ob.SystemId;
+            $scope.ModelNew.Admin = ob.EmployeeName;
+        } else {
+            $scope.ModelNew.ResponsiblePersonId = ob.SystemId;
+            $scope.ModelNew.ResponsiblePersonName = ob.EmployeeName;
+        }
+      
 
         angular.element(document.querySelector('#popUp')).modal('hide');
     };
