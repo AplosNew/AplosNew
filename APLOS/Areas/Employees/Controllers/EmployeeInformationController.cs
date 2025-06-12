@@ -127,6 +127,18 @@ namespace Aplos.Areas.Employees.Controllers
         {
             return View();
         }
+
+        [Authorize]
+        public ActionResult AplosEmp()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public ActionResult TrainingType()
+        {
+            return View();
+        }
         #endregion Pages
 
         #region EmployeeResponsiblePerson

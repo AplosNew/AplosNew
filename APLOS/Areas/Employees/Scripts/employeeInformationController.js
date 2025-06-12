@@ -4248,4 +4248,19 @@ function employeeInformationController(addressService, fileReader, cboService, c
     };
 
 
+    //#region TrainingType
+    $scope.TrainingTypes = [];
+    $scope.getTrainingTypeData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getTrainingTypeData",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.TrainingTypes = response.data;
+        });
+    }
+    //#endregion TrainingType
+
+
 }

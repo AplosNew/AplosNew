@@ -5068,6 +5068,8 @@
     <Content Include="Areas\Commercial\Views\Compliance\Group.cshtml" />
     <Content Include="Areas\Commercial\Views\Compliance\Category.cshtml" />
     <Content Include="Areas\Commercial\Views\Compliance\Audit.cshtml" />
+    <Content Include="Areas\Employees\Views\EmployeeInformation\TrainingType.cshtml" />
+    <Content Include="Areas\Employees\Views\EmployeeInformation\AplosEmp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
