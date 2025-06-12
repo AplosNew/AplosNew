@@ -68,7 +68,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
 
-                string sql = @"SELECT TOP(1000) * FROM (SELECT EI.*,PO.UserName PresThanaName,ParmPO.UserName ParmThanaName,D.UserName PresDistrictName,ParmD.UserName ParmDistrictName
+                string sql = @"SELECT TOP(500) * FROM (SELECT EI.*,PO.UserName PresThanaName,ParmPO.UserName ParmThanaName,D.UserName PresDistrictName,ParmD.UserName ParmDistrictName
                              ,C.UserName PresCountryName,ParmC.UserName ParmCountryName,ParmP.UserName ParmPostOfficeName, PerP.UserName PresPostOfficeName
                              ,PerCT.UserName PresCityName,ParCT.UserName ParmCityName,AM.CountryId
                              ,CG.[Image] CompanyGroupLogo, CNT.PhoneLength, COM.IsTINRequiredForSalaryAbove
@@ -80,7 +80,12 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
 							 ,PT.UserName PartyName,ECT.UserName EmployeeCodeType,ECT.IsOutSider
 							 ,ShiftDf.UserName ShiftDefination
 							 ,FORMAT(EI.DOJ,'dd-MMM-yyyy') DateOfJoin 
-                             ,TenureDay=DATEDIFF(day, FORMAT(EI.DOJ,'dd-MMM-yyyy'),FORMAT(GetDate(),'dd-MMM-yyyy')),REI.EmployeeCode RelativeCode,REI.EmployeeName RelativeName
+                             ,TenureDay=DATEDIFF(day, FORMAT(EI.DOJ,'dd-MMM-yyyy'),FORMAT(GetDate(),'dd-MMM-yyyy')),REI.EmployeeCode RelativeCode,REI.EmployeeName RelativeName,EC.DesignationGroup
+							 ,PolicyName=(Select LPM.PolicyName from MST.DesignationMaster DM 
+                                            LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId            
+                            left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.Id and DMC.PlantId=EI.PlantId    
+                            left join [dbo].[LeavePolicyMaster] LPM on LPM.SystemID=DMC.LeavePolicyMasterId and LPM.PlantID=EI.PlantID
+							Where DM.DesignationId=EI.GivenDesignationId)
                             FROM dbo.Employeeinformation EI
                             LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id
                             LEFT JOIN scs.PoliceStation PO ON EI.PresThanaID=PO.Id
@@ -114,8 +119,9 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                             LEFT JOIN [HKP].[LegalDesignation] LD ON LD.Id=EI.LegalDesignationId
                             LEFT JOIN [HKP].[Party] PT ON PT.Id=EI.VendorId
                              LEFT OUTER JOIN (
-                                            SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
+                                            SELECT ECT.Id, ECT.UserName, DM.DesignationId,DG.UserName DesignationGroup FROM [HKP].[EmployeeCategory] ECT
 				                            LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
+                                            LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
 				                            )EC ON EC.DesignationId=EI.GivenDesignationId
                             LEFT OUTER JOIN [ORG].[Unit] AS U ON U.ID = E.UnitID
                             LEFT OUTER JOIN [ORG].Division AS Dv ON Dv.ID = PR.DivisionID
@@ -1987,7 +1993,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                 string CmdText = @"SELECT CAST (0 AS bit) Flag,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,SE.UserName Section,PR.SectionId,SuS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
-                                        EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DeM.UserName DesignationGroup,
+                                        EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DG.UserName DesignationGroup,
                                         EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric,EJ.JobLcSystemID,FORMAT(EJ.EffectiveDate,'dd-MMM-yyyy')EffectiveDate
                                         ,C.UserName Company,AM.Address1,EMP.PresentAddress1,EMP.CellPhnNo,EC.UserName EmployeeCategory,LPM.PolicyName
                                         FROM EmployeeInformation EMP
@@ -2006,7 +2012,8 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
 										Left join  MST.DesignationMaster DeM on DeM.Id = DML.DesignationMasterId
 										left join HKP.Designation DeG on DeG.Id=DeM.DesignationId
                                         left join [MST].[DesignationMaster] DM on DM.DesignationId=EMP.GivenDesignationId
-										left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.Id and DMC.PlantId=emp.PlantId                
+										left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.Id and DMC.PlantId=emp.PlantId    
+LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId            
 										left join [dbo].[LeavePolicyMaster] LPM on LPM.SystemID=DMC.LeavePolicyMasterId and LPM.PlantID=emp.PlantID
                                         left join [HKP].[EmployeeCategory] EC on EC.Id=DM.EmployeeCategoryId
                                         LEFT JOIN dbo.EmpDateWiseJobLocation EJ ON EJ.EmpsystemId=EMP.SystemId

@@ -46,14 +46,14 @@
         <div class="form-group">
             <label class="col-sm-4 control-label">Employee DOJ :</label>
             <div class="col-sm-8">
-                <label>{{leaveApplicationNew.DOJ}}</label>
+                <label>{{leaveApplicationNew.DOJ|dateFiltering}}</label>
             </div>
         </div>
 
         <div class="form-group">
             <label class="col-sm-4 control-label">Employee DOC :</label>
             <div class="col-sm-8">
-                <label>{{leaveApplicationNew.DOC}}</label>
+                <label>{{leaveApplicationNew.DOC|dateFiltering}}</label>
             </div>
         </div>
         <div class="form-group">
@@ -68,11 +68,11 @@
             <div class="col-sm-8">
                 <input ej-dropdownlist e-enablefiltersearch="true" e-name="$index" e-datasource="empList" e-value="leaveApplicationNew.ApprovalPerson" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
                 @*<div class="select-style">
-                    <select id="ID" class="form-control" ng-model="leaveApplicationNew.ApprovalPerson" name="Approval Person">
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in empList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>*@
+                        <select id="ID" class="form-control" ng-model="leaveApplicationNew.ApprovalPerson" name="Approval Person">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in empList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>*@
             </div>
         </div>
 
@@ -278,20 +278,43 @@
                 <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="content-container-fluid" style="color:black;">
-                    <div style="color:black;" id="Grid" ej-grid e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
-                        <div e-columns>
-                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
-                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
-                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
-                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="searchBy">
+                                        <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getEmpData()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="getEmpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
                         </div>
                     </div>
+
+                </div>
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="Grid" ej-grid e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                                <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                                <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <i>**Showing top 500 records</i>
                 </div>
             </div>
             <div class="modal-footer common-btn">
