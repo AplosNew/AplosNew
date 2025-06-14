@@ -373,7 +373,8 @@
             <div e-column e-type="numeric" e-format="{0:0.00}" e-field="NegotiationValue" e-headertext="Negotiation Amount" e-width="80"></div>
             <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TaxAmount" e-headertext="Tax Amount" e-width="80"></div>
             <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ReceivableAmount" e-headertext="Receivable Amount" e-width="80"></div>
-            <div e-column e-template="#ShowActionButtonsassigned" e-headertext="PDF&Excel" e-width="90"></div>
+            <div e-column e-field="PostingStatus" e-headertext="Posting Status" e-width="40"></div>
+            <div e-column e-template="#ShowActionButtonsassigned" e-headertext="PDF&Excel" e-width="150"></div>
 
         </div>
     </div>
@@ -391,20 +392,11 @@
                         <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-pdf-o"></i></button>
                     </div>
                 </li>
-
+                <li ng-show="data.PostingStatus=='Parked'">
+                    <a class="btn btn-action" ng-click="$parent.confirmDelete(this);" title="Delete" href=""><i class=""></i>Delete</a>
+                </li>
             </ul>
-            @*<ul class="list-inline text-left small">
-                <li>
-                    <button ng-click="$parent.onClickReportDownloadWord(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
-                        <i class="glyphicon glyphicon-minus-sign" style="color:orangered;"></i>
-                    </button>
-                </li>
-                <li>
-                    <button ng-click="$parent.onClickReportDownloadExcel(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
-                        <i class="glyphicon glyphicon-play" style="color:{{data.HasBOQ==true?'#00ff00':'orange'}}"></i>
-                    </button> 
-                </li>
-            </ul>*@
+            
         </div>
     </script>
 </div>
@@ -464,7 +456,25 @@
         </div>
     </div>
 </div>
-
+<div class="modal fade site-modal in" id="confirmDeletePopUp_Remarks" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:600px">
+        <div class="modal-content" ng-form name="confirmDeletePopUp_RemarksForm">
+            <div class="modal-header">Are you sure to Delete?</div>
+            <div class="modal-body">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-2 control-label">Remarks<sup>*</sup></label>
+                    <div class="col-sm-10 show-message">
+                        <textarea rows="4" type="text" maxlength="500" name="DeletedRemarks" tabindex="8" class="form-control" ng-model="deletedRemarks" required></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="closeconfirmDeletePopUp_Remarks()">No</button>
+                <button type="button" class="btn btn-default" ng-click="delete()">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 @*@Html.Partial("~/Areas/FixedAssets/Views/_FixedAssetRegisterPopUp.cshtml")
