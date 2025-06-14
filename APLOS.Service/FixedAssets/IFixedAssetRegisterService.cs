@@ -126,6 +126,7 @@ namespace Library.Service.FixedAssets
         void DeleteCapitalizeAssetRegisterDisposed(string fixedAssetRegisterDisposedId);
         void DeleteDepreciationProcess(string assetDepreciationId);
         void DeleteDepreciationProcessPost(string voucherId, string deletedRemarks);
+        void DeleteCapitalizationAssetDisposedPost(string voucherId, string deletedRemarks);
         IEnumerable<object> GetCapitalizeAssetRegisterApproveByCbo();
     }
 }

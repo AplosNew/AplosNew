@@ -414,6 +414,11 @@ namespace Aplos.Areas.Accounts.Controllers
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
                 }
+                if (sourceType == SourceType.FixedAssetDisposeJournal.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                }
                 if (sourceType == SourceType.ServicePayable.ToString())
                 {
                     ConnectionManager.DAL.ConManager objCon1;
