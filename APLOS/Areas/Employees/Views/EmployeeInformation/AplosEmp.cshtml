@@ -175,7 +175,7 @@
                         <div class="select-style">
                             <select class="form-control" ng-model="employeeInformation.EntryLevel" name="EntryLevel" ng-disabled="employeeInformation.IsApproved">
                                 <option value="">--Select--</option>
-                                <option value="Bank">Trainee</option>
+                                <option value="Trainee">Trainee</option>
                                 <option value="NonTrainee">Non-Trainee</option>
                             </select>
                         </div>
@@ -189,9 +189,9 @@
                         <input type="hidden" name="Budget Code" ng-model="employeeInformation.BudgetCode" class="form-control" required>
                         <input type="text" name="Code" ng-model="employeeInformation.Code" class="form-control" readonly required>
                         @*<span class="input-group-btn">
-                                <button ng-click="popUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
-                                <button ng-click="clearCode()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                            </span>*@
+                    <button ng-click="popUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                    <button ng-click="clearCode()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                </span>*@
                     </div>
                 </div>
                 <div class="form-group">
@@ -252,8 +252,20 @@
                     </div>
 
                 </div>
-
-
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"></label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Training Type</label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="employeeInformation.TrainingTypeId" name="TrainingType" ng-disabled="employeeInformation.IsApproved||employeeInformation.EntryLevel=='NonTrainee'">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in TrainingTypesCbo" value="{{option.Id}}">{{option.NameOfTraining}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="common-btn" style="padding-right:18px">
                 <ul class="list-inline text-right">
