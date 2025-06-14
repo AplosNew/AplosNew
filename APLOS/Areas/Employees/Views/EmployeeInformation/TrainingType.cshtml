@@ -8,26 +8,33 @@
                 <input type="text" name="Sequence" n-decimals="2" ng-model="TrainingTypeNew.Sequence" class="form-control" maxlength="15" required tabindex="1">
             </div>
         </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Name Of Training<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Short Name" ng-model="TrainingTypeNew.NameOfTraining" class="form-control" maxlength="15" required tabindex="3">
-            </div>
-        </div>
+
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Minimum Days<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <input type="text" name="MinDays" ng-model="TrainingTypeNew.MinimumDays" class="form-control" required tabindex="5" maxlength="50">
             </div>
         </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="Responsible Person" ng-model="TrainingTypeNew.ResponsiblePerson" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="getPopUpData();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Name Of Training<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Code" ng-model="TrainingTypeNew.Code" class="form-control" required tabindex="2" maxlength="10">
+                <input type="text" name="Short Name" ng-model="TrainingTypeNew.NameOfTraining" class="form-control" maxlength="15" required tabindex="3">
             </div>
         </div>
+        
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Maximum Days<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -41,13 +48,13 @@
             </div>
         </div>
     </div>
-    @*<div class="common-btn">
+    <div class="common-btn">
         <ul class="list-inline text-right">
-            <li> <button ng-click="SaveGroup();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li><button ng-click="removeGroup();" title="Remove" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button></li>
-            <li> <button ng-click="ClearGroup();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            <li> <button ng-click="SaveTrainingType();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button ng-click="removeTT();" title="Remove" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button></li>
+            <li> <button ng-click="ClearTrainingType();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
-    </div>*@
+    </div>
 </div>
 <div class="row text-right aplos-grid-toggle">
     <div class="col-xs-12 col-sm-12 col-sm-12">
@@ -55,13 +62,13 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-3 col-md-3">
                     <div class="select-style">
-                        <select ng-model="CategorysearchBy">
-                            <option ng-repeat="option in CategorysearchByList" value="{{option.value}}">{{option.name}}</option>
+                        <select ng-model="searchTrainingTypeBy">
+                            <option ng-repeat="option in searchByTrainingTypeList" value="{{option.value}}">{{option.name}}</option>
                         </select>
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="searchCategory" ng-enter="getTrainingTypeData()">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="searchTrainingType" ng-enter="getTrainingTypeData()">
                 </div>
                 <div class="col-xs-12 col-sm-2 col-md-2">
                     <button type="button" ng-click="getTrainingTypeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
@@ -71,18 +78,71 @@
     </div>
 </div>
 <div class="table-responsive aplos-grid-toggle">
-    <div id="GridEdit" ej-grid e-datasource="TrainingTypes" e-recorddoubleclick="GetCategory" e-load="loadGridEdit"
+    <div id="GridEdit" ej-grid e-datasource="TrainingTypes" e-recorddoubleclick="GetTrainingType" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
             <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
-            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
-            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
-            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
-            <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
-            <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+            <div e-column e-field="NameOfTraining" e-headertext="NameOfTraining" e-width="5"></div>
+            <div e-column e-field="MinimumDays" e-headertext="MinimumDays" e-width="3"></div>
+            <div e-column e-field="MaximumDays" e-headertext="MaximumDays" e-width="3"></div>
+            <div e-column e-field="ResponsiblePerson" e-headertext="ResponsiblePerson" e-width="5"></div>
         </div>
     </div>
 </div>
-<confirm-archive-generic modalid="confirmCatDataPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteCategory();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmTarDataPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteTrainingType();"></confirm-archive-generic>
+
+<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="searchBy">
+                                        <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getEmpData()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="getEmpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="Grid" ej-grid e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                                <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                                <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <i>**Showing top 500 records</i>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
