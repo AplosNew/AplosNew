@@ -4266,7 +4266,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.TrainingTypesCbo = response.data;
         });
     }
-
+    $scope.getTrainingTypeData();
     $scope.ModelTemp = {
         Id: null,
         Sequence: null,

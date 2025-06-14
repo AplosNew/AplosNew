@@ -1572,6 +1572,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                 drLocal["CTC"] = 0;
                 drLocal["Basic"] = 0;
                 drLocal["Gross"] = 0;
+                drLocal["TrainingTypeId"] = DBNull.Value;
                 drLocal["IsGlobalEmployee"] = false;
 
                 if (!string.IsNullOrEmpty(data.RelativeSystemId))

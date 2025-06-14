@@ -1947,7 +1947,7 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM HKP.TrainingType"), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult GetDataList(string column, string value, string entryType)
         {
             string strkey = "1=1";
@@ -2016,7 +2016,7 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=TT.ResponsiblePersonId) AS TEM
 
             }
         }
-
+        [HttpPost, Authorize]
         public ActionResult DeleteData(string id)
         {
             try
