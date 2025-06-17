@@ -957,5 +957,11 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
                 templateUrl: 'humanresource/OTConfirmationProcess/OTApprove',
                 controller: 'otApproveController'
             })
+        .when('/manpower-report',
+            {
+                templateUrl: 'humanresource/ManpowerBudgetDashboard/Report',
+                controller: 'manpowerBudgetReportController'
+            })
+
         ;
 }

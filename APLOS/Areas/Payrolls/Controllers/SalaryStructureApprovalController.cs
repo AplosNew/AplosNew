@@ -15,6 +15,10 @@ using Library.Data;
 using Library.Service.HumanResources;
 using System;
 using System.Data;
+using Syncfusion.XlsIO;
+using Library.Security.Core;
+using Library.Service.Helpers;
+using System.IO;
 
 #endregion
 
@@ -155,9 +159,8 @@ namespace Aplos.Areas.Payrolls.Controllers
             return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
         }
 
+        
 
-
-       
         #endregion
     }
 }
