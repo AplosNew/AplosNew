@@ -440,7 +440,7 @@ namespace Library.Accounting.Accounts
             var cmdText = @"DECLARE @AssetDepreciationId varchar(50)='" + assetDepreciationId + @"'
 
                         SELECT AssetDepreciationId,AD.ProcessName, REPLACE(CONVERT(CHAR(11), AD.ProcessDate, 106),' ','-') AS ProcessDate, AssetRegisterId, AssetRegisterChildId
-	                    , CapitalizationMasterId, CapitalizationChildId, REPLACE(CONVERT(CHAR(11), CapitalizationDate, 106),' ','-') AS CapitalizationDate, ADDS.FixedAssetMasterId
+	                    ,  ADDS.CapitalizationMasterId, CapitalizationChildId, REPLACE(CONVERT(CHAR(11), CapitalizationDate, 106),' ','-') AS CapitalizationDate, ADDS.FixedAssetMasterId
 	                    , ADDS.FixedAssetItemId,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem, DepreciationDays, DepreciationType, DepreciationRate, AssetValue
 	                    , DepreciationAmount, AccumulatedDepreciationAmount, NetAssetValue, AD.Remarks,AR.UserReference
 	                    FROM [TRN].[AssetDepreciation] AD
@@ -461,7 +461,7 @@ namespace Library.Accounting.Accounts
             var cmdText = @"DECLARE @AssetDepreciationId varchar(50)='" + assetDepreciationId + @"'
 
                         SELECT AssetDepreciationId,AD.ProcessName, REPLACE(CONVERT(CHAR(11), AD.ProcessDate, 106),' ','-') AS ProcessDate, AssetRegisterId, AssetRegisterChildId
-	                    , CapitalizationMasterId, CapitalizationChildId, REPLACE(CONVERT(CHAR(11), CapitalizationDate, 106),' ','-') AS CapitalizationDate, ADDS.FixedAssetMasterId
+	                    , ADDS.CapitalizationMasterId, CapitalizationChildId, REPLACE(CONVERT(CHAR(11), CapitalizationDate, 106),' ','-') AS CapitalizationDate, ADDS.FixedAssetMasterId
 	                    , ADDS.FixedAssetItemId,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem, DepreciationDays, DepreciationType, DepreciationRate, AssetValue
 	                    , DepreciationAmount, AccumulatedDepreciationAmount, NetAssetValue, AD.Remarks,AR.UserReference
 	                    FROM [TRN].[AssetDepreciation] AD

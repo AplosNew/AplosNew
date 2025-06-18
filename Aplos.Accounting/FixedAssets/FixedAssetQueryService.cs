@@ -3449,7 +3449,7 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
 
 SELECT CapitalizationMasterId,	CapitalizationChildId,	DepreciationRules
 ,FixedAssetMasterId,FixedAssetMaster,FixedAssetItemId,FixedAssetItem,AssetRegisterId,UserReference,CapitalizationDate
-,GL,Budget,Activity,Factor,LifeTime
+,GL,Budget,Activity,Factor,LifeTime,AssetAmount +AdditionAssetAmount AssetValue
 ,(( AssetAmount +AdditionAssetAmount)-ISNULL((OpeningDepreciationAmount+AdjustmentDepreciationAmount),0)) OpeningAmount
 , (AdditionAssetAmountFTP)CapitalizedAmountFTP
 ,(( AssetAmount +AdditionAssetAmount+AdditionAssetAmountFTP)-ISNULL((OpeningDepreciationAmount+AdjustmentDepreciationAmount),0)) TotalAmount
@@ -3508,7 +3508,7 @@ FROM(SELECT ARC.CapitalizationMasterId,ARC.CapitalizationChildId,FADR.Depreciati
 UNION ALL
 SELECT CapitalizationMasterId,	CapitalizationChildId,	DepreciationRules
 ,FixedAssetMasterId,FixedAssetMaster,FixedAssetItemId,FixedAssetItem,AssetRegisterId,UserReference,CapitalizationDate
-,GL,Budget,Activity,Factor,LifeTime
+,GL,Budget,Activity,Factor,LifeTime,AssetAmount   AssetValue
 ,0 OpeningAmount, ( AssetAmount +AdditionAssetAmountFTP)CapitalizedAmountFTP, ( AssetAmount +AdditionAssetAmountFTP)TotalAmount
 ,ISNULL((DepreciationAmountFTP+AdjustmentDepreciationAmount),0)DepreciationAmount
 ,ISNULL((DisposeAmount),0)  DisposeAmount
