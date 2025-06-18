@@ -4082,5 +4082,69 @@ namespace Library.HumanResource.Dashboard
             }
         }
 
+        public IEnumerable<object> MBWisefiltersData()
+        {
+            try
+            {
+                var sql = @"Select MB.Id BudgetId,MB.Code BudgetCode,D.Id DivisionId,D.UserName Division,E.Id EntityId,E.UserName Entity,DP.Id DepartmentId,DP.UserName Department,S.Id SectionId,S.UserName Section,SS.Id SubSectionId,SS.UserName SubSection,DG.Id DesignationId,DG.UserName Designation,SD.SystemID ShiftId,SD.ShiftDefinationName ShiftName,L.Id LineId,L.UserName Line 
+from MST.ManpowerBudget MB
+LEFT JOIN ORG.Position P ON P.id=MB.PositionId
+LEFT JOIN ORG.Division D ON D.Id=P.DivisionId
+LEFT JOIN ORG.Entity E ON E.Id=MB.EntityId
+LEFT JOIN ORG.Department DP ON DP.Id=P.DepartmentId
+LEFT JOIN ORG.Section S ON S.Id=P.SectionId
+LEFT JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
+LEFT JOIN HKP.Designation DG ON DG.Id=P.DesignationId
+LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=MB.ShiftDefinationId
+LEFT JOIN ORG.Line L ON L.Id=MB.LineId
+Order by MB.Code  ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public DataTable GetMBWiseSql(Dictionary<string, string> parameters)
+        {
+            try
+            {
+                var str = @"Select distinct PMB.Id BudgetId,PMB.Code,mbd.TotalNumber Budgeted,ONR.OnRoll,PMB.Deployment,Short=CASE WHEN mbd.TotalNumber>ONR.OnRoll THEN mbd.TotalNumber-ONR.OnRoll ELSE 0 END
+,Excess=CASE WHEN mbd.TotalNumber<ONR.OnRoll THEN ONR.OnRoll-mbd.TotalNumber ELSE 0 END
+,D.UserName Division,E.UserName Entity,DP.UserName Department,S.UserName Section,SS.UserName SubSection,DG.UserName Designation,SD.ShiftDefinationName ShiftName
+,L.UserName Line,PS.UserName Process 
+FROM dbo.Employeeinformation EI
+LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+LEFT JOIN(Select SUM(TotalNumber)TotalNumber,ManpowerBudgetId,Id from MST.ManpowerBudgetDetail Group BY ManpowerBudgetId,Id) AS mbd ON mbd.ManpowerBudgetId=PMB.Id
+							  AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudgetId=PMB.Id order by EffectiveDate desc)
+LEFT JOIN (SELECT COUNT(SystemId) OnRoll,BudgetCode FROM EmployeeInformation WHERE EmployeeStatus = 'Active' and ISNULL(BudgetCode,'')<>'' GROUP BY BudgetCode) ONR ON ONR.BudgetCode=EI.BudgetCode
+LEFT JOIN ORG.Position P ON P.id=PMB.PositionId
+LEFT JOIN ORG.Division D ON D.Id=P.DivisionId
+LEFT JOIN ORG.Entity E ON E.Id=PMB.EntityId
+LEFT JOIN ORG.Department DP ON DP.Id=P.DepartmentId
+LEFT JOIN ORG.Section S ON S.Id=P.SectionId
+LEFT JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
+LEFT JOIN HKP.Designation DG ON DG.Id=P.DesignationId
+LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=PMB.ShiftDefinationId
+LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
+LEFT JOIN HKP.Process PS ON PS.Id=P.ProcessId
+WHERE EI.EmployeeStatus = 'Active' AND PMB.Id<>'' 
+AND PMB.Id in(" + parameters["BudgetId"] + @")
+AND E.Id in(" + parameters["EntityId"] + @")
+AND DP.Id in(" + parameters["DepartmentId"] + @")
+AND S.Id in(" + parameters["SectionId"] + @")
+AND SS.Id in(" + parameters["SubSectionId"] + @")
+AND DG.Id in(" + parameters["DesignationId"] + @")
+AND SD.SystemID in(" + parameters["ShiftId"] + @")
+AND L.Id in(" + parameters["LineId"] + @")";
+
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
     }
 }

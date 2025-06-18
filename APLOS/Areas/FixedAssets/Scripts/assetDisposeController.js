@@ -895,11 +895,6 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
 
     $scope.fixedAssetRegisterDisposedId = null;
     $scope.confirmDelete = function (data) {
-        if (data.data.VoucherNo != null) {
-            ShowResult("Posted data cann't delete!" + " VoucherNo: " + data.data.VoucherNo + " delete first!");
-            return false;
-            //throw "Posted data cann't Delete";
-        }
         $scope.fixedAssetRegisterDisposedId = data.data.Id;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");

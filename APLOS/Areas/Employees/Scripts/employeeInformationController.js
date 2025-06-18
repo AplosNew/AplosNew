@@ -172,7 +172,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         IsOutSider: false,
         EmpCodeType: null,
         CasteId: null,
-        IsGlobalEmployee:false
+        IsGlobalEmployee: false
 
     };
     $scope.employeeNew = Object.assign({}, $scope.model);
@@ -224,8 +224,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 //        $scope.ShowVendorCtrl();
                 //    }
                 //})
-                        angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('show');
-               
+                angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('show');
+
             }
             else {
                 throw "Select Employee Code Type.";
@@ -1903,7 +1903,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
                     $scope.GetPlantWiseHRMSSetting();
                     $scope.getData();
                     ClearEmpFields();
-                  
+
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -4246,6 +4246,154 @@ function employeeInformationController(addressService, fileReader, cboService, c
     $scope.Print = function (data) {
         location.href = "Employees/EmployeeInformation/GetPrintData?empId=" + data.data.SystemId;
     };
+
+
+    //#region TrainingType
+    $scope.ActionTrainingType = "Save";
+    $scope.searchTrainingTypeBy = "NameOfTraining"; $scope.search = "";
+    $scope.searchByTrainingTypeList = [{ value: 'Id', name: "Id" }, { value: 'NameOfTraining', name: "NameOfTraining" }, { value: 'Remarks', name: "Remarks" }];
+
+    $scope.TrainingTypes = [];
+    $scope.TrainingTypesCbo = [];
+    $scope.getTrainingTypeData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetDataList",
+            data: { column: $scope.searchTrainingTypeBy, value: $scope.searchTrainingType },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.TrainingTypes = response.data;
+            $scope.TrainingTypesCbo = response.data;
+        });
+    }
+    $scope.getTrainingTypeData();
+    $scope.ModelTemp = {
+        Id: null,
+        Sequence: null,
+        NameOfTraining: null,
+        MinimumDays: 0,
+        MaximumDays: 0,
+        Remarks: null,
+        ResponsiblePersonId: null,
+        AddedBy: null,
+        AddedDate: null,
+        AddedFromIP: null,
+        UpdatedBy: null,
+        UpdatedDate: null,
+        UpdatedFromIP: null
+
+    };
+    $scope.TrainingTypeNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.getSeqUrl = "Employees/EmployeeInformation/GetTrainingTypeAutoSequence";
+    $scope.GetSequence = function () {
+        cboService.getSequence($scope.getSeqUrl, function (data) {
+            $scope.ModelTemp.Sequence = data;
+            $scope.TrainingTypeNew.Sequence = data;
+        });
+    };
+    $scope.GetSequence();
+
+    $scope.GetTrainingType = function (args) {
+        $scope.TrainingTypeNew = Object.assign({}, args.data);
+        $scope.ActionTrainingType = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.saveUrlTrainingType = "Employees/EmployeeInformation/CreateData";
+    $scope.SaveTrainingType = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.TrainingTypeNewForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlTrainingType,
+                data: { 'data': $scope.TrainingTypeNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearTrainingTypeFields(response.data.Sequence);
+                    $scope.getTrainingTypeData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+    $scope.deleteUrlTrainingType = "Employees/EmployeeInformation/DeleteData";
+    $scope.DeleteTrainingType = function () {
+        if (!baseService.isUndefinedOrNull($scope.TrainingTypeNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrlTrainingType + $scope.TrainingTypeNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearTrainingTypeFields(response.data.Sequence);
+                    $scope.getTrainingTypeData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.ClearTrainingType = function () {
+        ClearTrainingTypeFields($scope.GetSequence());
+        return true;
+    };
+
+    function ClearTrainingTypeFields(seq) {
+        $scope.Action = 'Save';
+        $scope.TrainingTypeNew = Object.assign({}, $scope.ModelTemp);
+        $scope.TrainingTypeNew.Sequence = seq;
+    }
+
+    $scope.employee = [];
+    $scope.getPopUpData = function () {
+        $scope.employee = [];
+        $scope.getEmpData();
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
+    }
+
+    $scope.emppath = 'employees/employeeinformation/';
+    $scope.getEmpData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.emppath + "GetEmployeeDataList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.employee = response.data;
+        });
+    }
+
+    $scope.setEmpData = function (obj) {
+        
+        var data = obj.data;
+        $scope.TrainingTypeNew.ResponsiblePersonCode = data.EmployeeCode;
+        $scope.TrainingTypeNew.ResponsiblePersonId = data.SystemId;
+        $scope.TrainingTypeNew.ResponsiblePerson = data.EmployeeName;
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+
+    }
+
+    $scope.closeEmployeePopUp= function () {
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    }
+    //#endregion TrainingType
 
 
 }

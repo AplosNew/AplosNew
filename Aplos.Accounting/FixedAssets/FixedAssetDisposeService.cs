@@ -1431,6 +1431,7 @@ namespace Library.Accounting.FixedAssets
 										+ ISNULL((SELECT SUM(TaxAmount) FROM [TRN].[FixedAssetRegisterDisposedAdditionalTax] WHERE FixedAssetRegisterDisposedId=frd.Id),0) AS TaxAmount
 									,SUM(rdd.NegotiationValue)+ISNULL((SELECT SUM(Amount) FROM [TRN].[FixedAssetRegisterDisposedTax] WHERE FixedAssetRegisterDisposedId=frd.Id),0) 
 										+ ISNULL((SELECT SUM(TaxAmount) FROM [TRN].[FixedAssetRegisterDisposedAdditionalTax] WHERE FixedAssetRegisterDisposedId=frd.Id),0) AS ReceivableAmount
+                ,V.PostingDate VPostingDate,PostingStatus= case when V.IsPark=0 then 'Posted' else 'Parked' end
                 from TRN.FixedAssetRegisterDisposed frd 
 				join TRN.FixedAssetRegisterDisposedDetail rdd ON rdd.FixedAssetRegisterDisposedId=frd.Id
                 left join  TRN.AssetRegister AR on AR.Id=rdd.AssetRegisterId
@@ -1443,7 +1444,7 @@ namespace Library.Accounting.FixedAssets
 				LEFT JOIN SCS.Currency C ON C.Id =V.CurrencyId
 				WHERE V.SourceType='FixedAssetDisposeJournal'
                 group by frd.Id,frd.Status,frd.Remarks,frd.EmployeeId,ei.EmployeeName,D.UserName,DG.UserName ,c.Code,V.IsPark,c.Id,frd.DocDate
-				,P.UserName ,frd.PartyId,frd.PartyPlantId ,frd.DeliveryPartyPlantId,frd.InvoicingByAddress,frd.DeliveryByAddress,c.Code,V.VoucherNo,V.PostingDate,V.Id) AS TEMP WHERE " + strkey + " order by PostingDate desc ";
+				,P.UserName ,frd.PartyId,frd.PartyPlantId ,frd.DeliveryPartyPlantId,frd.InvoicingByAddress,frd.DeliveryByAddress,c.Code,V.VoucherNo,V.PostingDate,V.Id) AS TEMP WHERE " + strkey + " order by VPostingDate desc ";
             return _sqlRepository.GetDataCollection(sql);
         }
 

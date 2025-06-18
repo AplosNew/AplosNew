@@ -350,6 +350,13 @@ namespace Library.Service.HumanResources.Profile
                 drLocal["NumberOfKnownPerson"] = 0;
                 drLocal["PreviouslyWorkedHere"] = 0;
                 drLocal["AnyRelativeWorkedHere"] = 0;
+                drLocal["ExcludeOT"] = false;
+                drLocal["isLeaveOnDOC"] = false;
+                drLocal["CTC"] = 0;
+                drLocal["Basic"] = 0;
+                drLocal["Gross"] = 0;
+               
+                drLocal["IsGlobalEmployee"] = false;
                 ///================================================
 
 
@@ -526,6 +533,23 @@ namespace Library.Service.HumanResources.Profile
                 {
                     drLocal["EmploymentType"] = EmploymentType;
                 }
+
+                drLocal["EntryLevel"] = ep.EntryLevel;
+                if (ep.EntryLevel== "Trainee" && string.IsNullOrEmpty(ep.TrainingType))
+                {
+                    throw new Exception("Training Type is required.");
+                }
+
+                var TrainingTypeId = GetPK(ep.TrainingType);
+                if (TrainingTypeId == string.Empty)
+                {
+                    drLocal["TrainingTypeId"] = DBNull.Value;
+                }
+                else
+                {
+                    drLocal["TrainingTypeId"] = TrainingTypeId;
+                }
+
                 drLocal["UpdatedBy"] = user;
                 drLocal["DateUpdated"] = DateTime.Now;
 

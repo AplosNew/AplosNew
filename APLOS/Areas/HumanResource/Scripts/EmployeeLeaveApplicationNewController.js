@@ -216,13 +216,29 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
     $scope.employee = [];
     $scope.getPopUpData = function () {
         $scope.employee = [];
+        //$http({
+        //    method: 'GET',
+        //    url: 'HumanResource/leaveApplicationNew/getemployeelist'
+        //}).then(function successCallback(response) {
+        //    $scope.employee = response.data;
+        //});
+        $scope.getEmpData();
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
+    }
+
+    $scope.searchBy = "EmployeeCode"; $scope.search = "";
+    $scope.searchByList = [{ value: 'EmployeeCode', name: "Employee Code" }, { value: 'EmployeeName', name: "Employee Name" }, { value: 'Department', name: "Department" }, { value: 'LegalDesignation', name: "Designation" }];
+
+    $scope.emppath = 'employees/employeeinformation/';
+    $scope.getEmpData = function () {
         $http({
-            method: 'GET',
-            url: 'HumanResource/leaveApplicationNew/getemployeelist'
+            method: 'POST',
+            url: $scope.emppath + "GetEmployeeDataList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.employee = response.data;
         });
-        angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
     }
 
     $scope.LeavePolicyNames = null;
@@ -302,7 +318,7 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
         $scope.ServicePeriod = "";
         var data = obj.data;
         $scope.leaveApplicationNew.EmployeeCode = data.EmployeeCode;
-        $scope.leaveApplicationNew.EmpSystemID = data.SystemID;
+        $scope.leaveApplicationNew.EmpSystemID = data.SystemId;
         $scope.leaveApplicationNew.EmployeeName = data.EmployeeName;
         $scope.leaveApplicationNew.SectionId = data.SectionId;
         $scope.leaveApplicationNew.DOJ = data.DOJ;

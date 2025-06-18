@@ -8,7 +8,7 @@ using Syncfusion.XlsIO;
 
 namespace Library.Service.HumanResources.Profile
 {
-   public class clsTemplateDownloadProfile
+    public class clsTemplateDownloadProfile
     {//
         public void GetSalutation(out System.Data.DataSet dsRef)
         {
@@ -219,7 +219,7 @@ namespace Library.Service.HumanResources.Profile
                 objCon = null;
             }
         }//End Function 
-        public void GetBudgetCode(string plantid,out System.Data.DataSet dsRef)
+        public void GetBudgetCode(string plantid, out System.Data.DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
@@ -227,7 +227,7 @@ namespace Library.Service.HumanResources.Profile
             {
                 strSQL = @"  select b.Code+'_#'+b.id UserName from mst.ManpowerBudget b
                               inner join org.Entity en on en.id=b.EntityId
-                              where en.PlantId='"+ plantid + "' and b.active=1 order by UserName";
+                              where en.PlantId='" + plantid + "' and b.active=1 order by UserName";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
             }
@@ -241,7 +241,7 @@ namespace Library.Service.HumanResources.Profile
             }
         }//End Function 
 
-        public void GetEmployeeCodeType( out System.Data.DataSet dsRef)
+        public void GetEmployeeCodeType(out System.Data.DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
@@ -261,6 +261,26 @@ namespace Library.Service.HumanResources.Profile
             }
         }//End Function 
 
+
+        public void GetTrainingType(out System.Data.DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"SELECT g.NameOfTraining+'_#'+g.Id NameOfTraining FROM HKP.TrainingType g order by NameOfTraining";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function 
         public void GetLegalDesignation(string Plantid, out System.Data.DataSet dsRef)
         {
             string strSQL;
@@ -300,7 +320,26 @@ namespace Library.Service.HumanResources.Profile
                 throw ex;
             }
         }
-        public void CreateSource(string[] Arr, int Col,string Header, ref IWorksheet sheetSource)
+        public void CreateTrainingSource(DataSet ds, int Col, string Header, ref IWorksheet sheetSource)
+        {
+            try
+            {
+                ReportUtility ru = new ReportUtility();
+                ru.SetText(ref sheetSource, 1, Col, Header);
+                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+                {
+                    var un = ds.Tables[0].Rows[i]["NameOfTraining"].ToString();
+                    int k = i + 2;
+                    ru.SetText(ref sheetSource, k, Col, un);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void CreateSource(string[] Arr, int Col, string Header, ref IWorksheet sheetSource)
         {
             try
             {
@@ -339,6 +378,7 @@ namespace Library.Service.HumanResources.Profile
             DataSet dsCity;
             DataSet dsBudgetCode;
             DataSet dsEmployeeCodeType;
+            DataSet dsTrainingType = null;
             int maxRow = 5001;
 
             #endregion
@@ -361,6 +401,7 @@ namespace Library.Service.HumanResources.Profile
                 GetCity(out dsCity);
                 GetBudgetCode(PlantId, out dsBudgetCode);
                 GetEmployeeCodeType(out dsEmployeeCodeType);
+                GetTrainingType(out dsTrainingType);
 
                 ReportUtility ru = new ReportUtility();
 
@@ -386,7 +427,7 @@ namespace Library.Service.HumanResources.Profile
                 sheetSource = workbook.Worksheets[1];
                 xlsRow = 1;
 
-                
+
                 CreateSource(dsLegalDesignation, 1, "LegalDesignation", ref sheetSource); int LegalDesignationCol = 1;
                 CreateSource(dsCountry, 2, "Country", ref sheetSource); int CountryCol = 2;
                 CreateSource(dsState, 3, "State", ref sheetSource); int StateCol = 3;
@@ -400,7 +441,7 @@ namespace Library.Service.HumanResources.Profile
                 CreateSource(dsReligion, 10, "Religion", ref sheetSource); int ReligionCol = 10;
 
                 string[] _EmpType = { "Local", "Expatriate" };
-                CreateSource(_EmpType, 11, "EmpType", ref sheetSource);int EmpTypeCol = 11;
+                CreateSource(_EmpType, 11, "EmpType", ref sheetSource); int EmpTypeCol = 11;
                 string[] _EmploymentType = { "Permanent", "Temporary", "Contractual" };
                 CreateSource(_EmploymentType, 12, "EmploymentType", ref sheetSource); int EmploymentTypeCol = 12;
                 string[] _Gender = { "Male", "Female" };
@@ -413,6 +454,11 @@ namespace Library.Service.HumanResources.Profile
                 string[] _EmployeeCodeType = { "Internal", "Contractual" };
                 CreateSource(dsEmployeeCodeType, 16, "EmployeeCodeType", ref sheetSource);
                 int EmployeeCodeTypeCol = 16;
+
+                string[] _EntryLevel = { "Trainee", "NonTrainee" };
+                CreateSource(_EntryLevel, 17, "EntryLevel", ref sheetSource); int EntryLevelCol = 17;
+
+                CreateTrainingSource(dsTrainingType, 18, "TrainingType", ref sheetSource); int TrainingTypeCol = 18;
                 //CreateSource(_EmployeeCodeType, 16, "EmployeeCodeType", ref sheetSource);
 
 
@@ -450,7 +496,7 @@ namespace Library.Service.HumanResources.Profile
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MotherName");
                 sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@"; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MaritalStatus");
-                ru.SetList(ref sheet1, xlsRow, maxRow, xlsCol, sheetSource,CivilStatusCol, dsCivilStatus.Tables[0].Rows.Count); xlsCol += 1;
+                ru.SetList(ref sheet1, xlsRow, maxRow, xlsCol, sheetSource, CivilStatusCol, dsCivilStatus.Tables[0].Rows.Count); xlsCol += 1;
                 //ru.SetList(ref sheet1, sheetSource, 9, xlsRow, maxRow, xlsCol, dsCivilStatus); xlsCol += 1;
 
                 //ru.SetList(ref sheet1, xlsRow + 1, maxRow, xlsCol, dsCivilStatus); xlsCol += 1;
@@ -468,7 +514,7 @@ namespace Library.Service.HumanResources.Profile
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmploymentType", ExcelKnownColors.Red);
                 ru.SetList(ref sheet1, xlsRow, maxRow, xlsCol, sheetSource, EmploymentTypeCol, _EmploymentType.Length); xlsCol += 1;
-                
+
                 //ru.SetList(ref sheet1, xlsRow + 1, maxRow, xlsCol, _EmploymentType); xlsCol += 1;//
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Gender", ExcelKnownColors.Red);
@@ -500,7 +546,7 @@ namespace Library.Service.HumanResources.Profile
                 sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
                 xlsCol += 1;
 
-                sheet1.Range[xlsRow, xlsCol, maxRow,xlsCol].NumberFormat = "dd-MMM-yyyy";
+                sheet1.Range[xlsRow, xlsCol, maxRow, xlsCol].NumberFormat = "dd-MMM-yyyy";
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB", ExcelKnownColors.Red); xlsCol += 1;
 
                 sheet1.Range[xlsRow, xlsCol, maxRow, xlsCol].NumberFormat = "dd-MMM-yyyy";
@@ -560,8 +606,13 @@ namespace Library.Service.HumanResources.Profile
                 ru.SetList(ref sheet1, xlsRow, maxRow, xlsCol, sheetSource, CityCol, dsCity.Tables[0].Rows.Count); xlsCol += 1;
                 //ru.SetList(ref sheet1, sheetSource, 5, xlsRow, maxRow, xlsCol, dsCity); xlsCol += 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IsConfirmed");
-               
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IsConfirmed"); xlsCol += 1;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EntryLevel", ExcelKnownColors.Red);
+                ru.SetList(ref sheet1, xlsRow, maxRow, xlsCol, sheetSource, EntryLevelCol, _EntryLevel.Length); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TrainingType", ExcelKnownColors.Red);
+                ru.SetList(ref sheet1, xlsRow, maxRow, xlsCol, sheetSource, TrainingTypeCol, dsTrainingType.Tables[0].Rows.Count);
+
                 endXlsCol = xlsCol;
 
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);

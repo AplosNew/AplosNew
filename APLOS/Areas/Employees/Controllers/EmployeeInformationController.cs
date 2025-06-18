@@ -127,6 +127,18 @@ namespace Aplos.Areas.Employees.Controllers
         {
             return View();
         }
+
+        [Authorize]
+        public ActionResult AplosEmp()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public ActionResult TrainingType()
+        {
+            return View();
+        }
         #endregion Pages
 
         #region EmployeeResponsiblePerson
@@ -1926,5 +1938,164 @@ namespace Aplos.Areas.Employees.Controllers
 
             return View();
         }
+
+        #region TrainingType
+
+        [Authorize, HttpGet]
+        public JsonResult GetTrainingTypeCbo()
+        {
+            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM HKP.TrainingType"), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetDataList(string column, string value, string entryType)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (SELECT TT.*,E.EmployeeName ResponsiblePerson FROM [HKP].[TrainingType] TT
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=TT.ResponsiblePersonId) AS TEMP WHERE " + strkey + " order by sequence";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetTrainingTypeAutoSequence()
+        {
+            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost,Authorize]
+        public JsonResult CreateData(Dictionary<string, object> data)
+        {
+            try
+            {
+                string smg = "";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from [HKP].[TrainingType] where NameOfTraining='" + data["NameOfTraining"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Name Of Training already exists!!!");
+
+
+                con.OpenDataSetThroughAdapter("select * from [HKP].[TrainingType] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("TrainingType", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                    smg = AplosMessage.Insert;
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                    smg = AplosMessage.Updated;
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = smg }) ;
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+        [HttpPost, Authorize]
+        public ActionResult DeleteData(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [HKP].[TrainingType] where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+        private double GetSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable(@"SELECT  isnull(Max(Sequence),0) AS Sequence FROM [HKP].[TrainingType]");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+
+
+        #endregion
+
     }
 }

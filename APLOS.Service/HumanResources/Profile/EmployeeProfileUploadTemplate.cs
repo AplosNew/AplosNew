@@ -57,6 +57,8 @@ namespace Library.Service.HumanResources.Profile
         public string State_Division { get; set; }
         public string District { get; set; }
         public string City { get; set; }
+        public string TrainingType { get; set; }
+        public string EntryLevel { get; set; }
         public string IsConfirmed { get; set; }
 
         //public string Remarks { get; set; }

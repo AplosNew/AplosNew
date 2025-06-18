@@ -90,7 +90,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         EntryLegDays: null,
         Remarks: null,
         Active: true,
-        MultiplyingFactor:0
+        MultiplyingFactor: 0
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -222,12 +222,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
     $scope.closeEmployeePopUp = function () {
         if ($scope.employeeIndex !== -1) {
             var employee = $scope.employeeList[$scope.employeeIndex];
-
-            if ($scope.Name == 'mo') {
-                $scope.ModelNew.ResponsiblePersonId = employee.SystemId;
-                $scope.ModelNew.ResponsiblePersonName = employee.EmployeeName;
-            }
-            else if ($scope.Name == 'ad') {
+            if ($scope.Name == 'ad') {
                 $scope.ModelNew.AdminId = employee.SystemId;
                 $scope.ModelNew.Admin = employee.EmployeeName;
             }
@@ -242,8 +237,44 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         $scope.selectedEmployee = null;
     };
 
-    $scope.Get = function (args) {
+    $scope.popUpDataList = [];
+    $scope.popUp = function (name) {
+        try {
+            $scope.Name = name;
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'Materials/UtilityMaster/getallemployeedata'
 
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+            angular.element(document.querySelector('#popUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.selectdblClick = function (obj) {
+        var ob = obj.data;
+        if ($scope.Name == 'ad') {
+            $scope.ModelNew.AdminId = ob.SystemId;
+            $scope.ModelNew.Admin = ob.EmployeeName;
+        } else {
+            $scope.ModelNew.ResponsiblePersonId = ob.SystemId;
+            $scope.ModelNew.ResponsiblePersonName = ob.EmployeeName;
+        }
+      
+
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    };
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    };
+
+
+    $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.getUtilityGridData(args.data.Id);
         $scope.Action = 'Update';
@@ -564,21 +595,21 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
     $scope.UtilityCategoryList = [];
     $scope.GetUtilityCategoryList = function () {
         $http({
-            method:'POST',
+            method: 'POST',
             url: $scope.path + 'GetUtilityCategoryList',
-            dataType:'JSON'
+            dataType: 'JSON'
         })
             .then(function successCallback(response) {
                 $scope.UtilityCategoryList = response.data;
             })
     }
- //   $scope.GetUtilityCategoryList();
+    //   $scope.GetUtilityCategoryList();
 
     $scope.UtilityCategoryTemp = {
         Id: null,
         CategoryName: null,
         UOMId: null,
-        Remarks:null
+        Remarks: null
     }
     $scope.UtilityCategoryModelNew = Object.assign({}, $scope.UtilityCategoryTemp);
 
@@ -586,8 +617,8 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         $http({
             method: 'POST',
             url: $scope.path + 'SaveUtilityCategory',
-            data: { 'data': $scope.UtilityCategoryModelNew},
-            dataType:'JSON'
+            data: { 'data': $scope.UtilityCategoryModelNew },
+            dataType: 'JSON'
         })
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -595,7 +626,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
                     $scope.ClearUtilityCategory();
                 }
                 else {
-                    ShowResult(response.data.Message, 'success'); 
+                    ShowResult(response.data.Message, 'success');
                     $scope.GetUtilityCategoryList();
                 }
             })
@@ -611,7 +642,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                
+
             }
         }, function () {
             ShowResult(commonMessage.NetworkError, 'failure');
@@ -633,7 +664,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
             UOMId: null,
             Remarks: null
         };
-        
+
         $scope.UtilityCategoryModelNew = Object.assign({}, $scope.UtilityCategoryTemp);
     }
     //  #endregion UtilityCategory

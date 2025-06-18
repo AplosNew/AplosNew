@@ -1987,6 +1987,7 @@
     <Content Include="Areas\FixedAssets\Scripts\assetDisposeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\assetDisposePostController.js" />
     <Content Include="Areas\HumanResource\Scripts\LeaveTransectionController.js" />
+    <Content Include="Areas\HumanResource\Scripts\manpowerBudgetReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\otApproveController.js" />
     <Content Include="Areas\Materials\Scripts\BarcodeGeneratorSettingController.js" />
     <Content Include="Areas\Materials\Scripts\FabricGroupingController.js" />
@@ -5068,6 +5069,9 @@
     <Content Include="Areas\Commercial\Views\Compliance\Group.cshtml" />
     <Content Include="Areas\Commercial\Views\Compliance\Category.cshtml" />
     <Content Include="Areas\Commercial\Views\Compliance\Audit.cshtml" />
+    <Content Include="Areas\Employees\Views\EmployeeInformation\TrainingType.cshtml" />
+    <Content Include="Areas\Employees\Views\EmployeeInformation\AplosEmp.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ManpowerBudgetDashboard\Report.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

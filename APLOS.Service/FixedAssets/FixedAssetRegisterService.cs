@@ -5308,6 +5308,49 @@ GROUP BY FAR.FABudgetMasterId
             }
         }
 
+        public void DeleteCapitalizationAssetDisposedPost(string voucherId, string deletedRemarks)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherService.FindVoucher(voucherId);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.CheckingFiscalYearClose(voucher);
+                _accountsCommonService.InsertVoucherLogDeleted(voucherId, voucher.VoucherNo, "", "", "", "", "", "", "", "", "", "", "", deletedRemarks);
+
+                var inDirect = new System.Text.StringBuilder();
+                var inDirectsql = "";
+
+                inDirectsql = @"UPDATE [TRN].[FixedAssetRegisterDisposed]  SET DisposedVoucherId=NULL WHERE DisposedVoucherId in('" + voucherId + @"')
+	                            DELETE from trn.VoucherDetailCurrency where VoucherId in('" + voucherId + @"')
+	                            DELETE from trn.VoucherDetail where VoucherId in('" + voucherId + @"')
+                                DELETE from TRN.InvoiceDetail where  InvoiceId in( select Id from TRN.Invoice where VoucherId in('" + voucherId + @"') )							
+								DELETE from TRN.Invoice where VoucherId in('" + voucherId + @"')
+	                            DELETE from trn.Voucher where Id in('" + voucherId + @"') ";
+                inDirect.Append(inDirectsql);
+                _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
         public string EditFixedAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister)
         {
             var flag = false;

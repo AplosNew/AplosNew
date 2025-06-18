@@ -530,7 +530,8 @@ namespace Library.Service.HumanResources
                        FROM dbo.Employeeinformation EI                             
 							  LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
                               LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
-                              LEFT JOIN(Select SUM(TotalNumber)TotalNumber,ManpowerBudgetId from MST.ManpowerBudgetDetail Group BY ManpowerBudgetId) AS mbd ON mbd.ManpowerBudgetId=PMB.Id
+                              LEFT JOIN(Select SUM(TotalNumber)TotalNumber,ManpowerBudgetId,Id from MST.ManpowerBudgetDetail Group BY ManpowerBudgetId,Id) AS mbd ON mbd.ManpowerBudgetId=PMB.Id
+							  AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudgetId=PMB.Id order by EffectiveDate desc)
                               LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                               LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 							  LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id

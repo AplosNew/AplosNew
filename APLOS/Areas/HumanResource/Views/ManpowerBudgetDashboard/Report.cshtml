@@ -1,0 +1,51 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{title}}
+</h3>
+<div class="row">
+
+    <div class="col-xs-12">
+        <div id="mbfilters">
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="GetMBWiseView();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
+                <li> <button ng-click="MBWiseReportExcel();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down"></i> Export to Excel</button></li>
+            </ul>
+        </div>
+    </div>
+
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Manpower Budget Data</span></legend>
+        <div id="MB">
+            <div class="content-container-fluid" style="color:black;" ng-show="MBWiseList.length>0">
+
+                <div style="color:black;" id="GridMB" ej-grid e-datasource="MBWiseList"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true"
+                     e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
+
+                    <div e-columns>
+                        <div e-column e-type="string" e-field="Division" e-headertext="Division" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="50"></div>
+                        <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="120"></div>
+                        <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="100"></div>
+                        <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="120"></div>
+                        <div e-column e-type="string" e-field="ShiftName" e-headertext="ShiftName" e-width="120"></div>
+                        <div e-column e-type="string" e-field="Line" e-headertext="Line" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Code" e-headertext="Budget Code" e-width="80" textAlign='Left'></div>
+                        <div e-column e-type="string" e-field="Budgeted" e-headertext="Budgeted" e-width="80" textAlign='Left'></div>
+                        <div e-column e-type="string" e-field="OnRoll" e-headertext="OnRoll" e-width="80" textAlign='Left'></div>
+                        <div e-column e-type="string" e-field="Deployment" e-headertext="Deployment" e-width="80" textAlign='Left'></div>
+                        <div e-column e-type="string" e-field="Short" e-headertext="Short" e-width="80" textAlign='Left'></div>
+                        <div e-column e-type="string" e-field="Excess" e-headertext="Excess" e-width="80" textAlign='Left'></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </fieldset>
+</div>

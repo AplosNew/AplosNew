@@ -255,6 +255,8 @@ namespace Library.Service.Employees
                 dblist.NumberOfKnownPerson = entity.NumberOfKnownPerson;
                 dblist.ApplyingAsFresher = entity.ApplyingAsFresher;
                 dblist.EmployeeNameLocal = entity.EmployeeNameLocal;
+                dblist.EntryLevel = entity.EntryLevel;
+                dblist.TrainingTypeId = entity.TrainingTypeId;
 
 
                 //var emp = PlantWiseDOJ(dblist.PlantID);
