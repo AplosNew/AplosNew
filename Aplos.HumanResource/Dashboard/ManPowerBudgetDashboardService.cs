@@ -4110,7 +4110,7 @@ Order by MB.Code  ";
         {
             try
             {
-                var str = @"Select distinct PMB.Id BudgetId,PMB.Code,mbd.TotalNumber Budgeted,ONR.OnRoll,PMB.Deployment,Short=CASE WHEN mbd.TotalNumber>ONR.OnRoll THEN mbd.TotalNumber-ONR.OnRoll ELSE 0 END
+                var str = @"Select distinct PMB.Id BudgetId,PMB.Code,ISNULL(mbd.TotalNumber,0) Budgeted,ONR.OnRoll,PMB.Deployment,Short=CASE WHEN mbd.TotalNumber>ONR.OnRoll THEN mbd.TotalNumber-ONR.OnRoll ELSE 0 END
 ,Excess=CASE WHEN mbd.TotalNumber<ONR.OnRoll THEN ONR.OnRoll-mbd.TotalNumber ELSE 0 END
 ,D.UserName Division,E.UserName Entity,DP.UserName Department,S.UserName Section,SS.UserName SubSection,DG.UserName Designation,SD.ShiftDefinationName ShiftName
 ,L.UserName Line,PS.UserName Process 

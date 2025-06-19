@@ -2411,11 +2411,16 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             try
             {
+                int count = 0;
                 ConnectionManager.DAL.ConManager objCon;
-                DataSet dsChild;
+                DataSet dsChild, dsId;
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[SalesAdditionalInfo] where  LineItemId='" + lineId + "'", out dsChild, false, "1");
-                int count = 0;
+                objCon.OpenDataSetThroughAdapter("SELECT Count(Id)IdC FROM [dbo].[SalesAdditionalInfo] where  LineItemId='" + lineId + "'", out dsId, false, "1");
+                if (dsId.Tables[0].Rows.Count > 0)
+                {
+                    count = Convert.ToInt32(dsId.Tables[0].Rows[0]["IdC"].ToString());
+                }
                 if (data != null)
                 {
                     foreach (var item in data)
@@ -2455,11 +2460,16 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             try
             {
+                int count = 0;
                 ConnectionManager.DAL.ConManager objCon;
-                DataSet dsChild;
+                DataSet dsChild,dsId;
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[SalesAdditionalInfo] where  SalesOrderId='" + SOId + "'", out dsChild, false, "1");
-                int count = 0;
+                objCon.OpenDataSetThroughAdapter("SELECT Count(Id)IdC FROM [dbo].[SalesAdditionalInfo] where  SalesOrderId='" + SOId + "'", out dsId, false, "1");
+                if (dsId.Tables[0].Rows.Count>0)
+                {
+                    count =Convert.ToInt32(dsId.Tables[0].Rows[0]["IdC"].ToString());
+                }
                 if (data != null)
                 {
                     foreach (var item in data)

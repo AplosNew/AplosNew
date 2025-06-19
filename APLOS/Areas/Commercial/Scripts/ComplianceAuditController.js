@@ -87,12 +87,13 @@ function ComplianceAuditController(cboService, commonMessage, $scope, $rootScope
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.ModelNew.ComplianceMasterId = $scope.ModelNew.Id;
         $scope.ModelNew.ComplianceValue = $scope.ModelNew.ComplianceValue.toString();
         if ($scope.ModelNew.RPACount == 2) {
             $("#CreateNewPopUp").data("ejDialog").open();
         }
         else {
-            $scope.GetCheckPointsList();
+            $scope.GetComplianceAuditDataList();
             $scope.closePopup('CreateNewPopUp');
             $scope.Action = 'Update';
             if (!$rootScope.isCollapsed) {
@@ -109,7 +110,8 @@ function ComplianceAuditController(cboService, commonMessage, $scope, $rootScope
             if (baseService.isUndefinedOrNull($scope.SourceType)) {
                 throw "Select Responsible Person or Auditor.";
             }
-            $scope.GetCheckPointsList();
+            $scope.GetComplianceAuditDataList();
+           
             $scope.closePopup('CreateNewPopUp');
             $scope.Action = 'Update';
             if (!$rootScope.isCollapsed) {
@@ -137,30 +139,36 @@ function ComplianceAuditController(cboService, commonMessage, $scope, $rootScope
         }
     }
 
+    $scope.GetComplianceAuditDataList = function () {
+        $http.get('Commercial/Compliance/GetComplianceAuditDataList?masterId=' + $scope.ModelNew.ComplianceMasterId)
+            .then(function (response) {
+                if (response.data.length > 0) {
+                    $scope.ModelNew = Object.assign({}, response.data[0]);
+                    $scope.ModelNew.ComplianceValue = $scope.ModelNew.ComplianceValue.toString();
+                }
+                $scope.GetCheckPointsList();
+            });
+    }
 
     $scope.CheckPList = [];
     $scope.GetCheckPointsList = function () {
         $scope.CheckPList = [];
-        $http.get('Commercial/Compliance/GetComplianceCheckPointsData?masterId=' + $scope.ModelNew.Id)
+        $http.get('Commercial/Compliance/GetComplianceCheckPointsData?masterId=' + $scope.ModelNew.ComplianceMasterId)
             .then(function (response) {
                 $scope.CheckPList = response.data;
-                for (var i = 0; i < $scope.CheckPList.length; i++) {
-                    $scope.CheckPList[i].CheckMark = null;
-                }
             });
     }
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
-            $scope.ModelNew.ComplianceMasterId = $scope.ModelNew.Id;
-            $scope.ModelNew.Id = null;
+           
             $scope.ModelNew.EmpSystemId = null;
             $scope.CheckList = [];
             for (var i = 0; i < $scope.CheckPList.length; i++) {
                 var ob = {};
-                ob.Id = Math.floor(Math.random() * 9) - 10;
-                ob.CheckPointsId = $scope.CheckPList[i].Id;
+                ob.Id = $scope.CheckPList[i].Id == null ? Math.floor(Math.random() * 9) - 10 : $scope.CheckPList[i].Id;
+                ob.CheckPointsId = $scope.CheckPList[i].CheckPointsId;
                 ob.CheckMark = $scope.CheckPList[i].CheckMark;
                 $scope.CheckList.push(ob);
                 ob = {};
@@ -169,7 +177,7 @@ function ComplianceAuditController(cboService, commonMessage, $scope, $rootScope
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew, 'CheckPList': $scope.CheckList, 'SourceType': $scope.SourceType},
+                data: { 'data': $scope.ModelNew, 'CheckPList': $scope.CheckList, 'SourceType': $scope.SourceType },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -187,6 +195,14 @@ function ComplianceAuditController(cboService, commonMessage, $scope, $rootScope
 
         }
     };
+
+    $scope.Clear = function () {
+        $scope.ModelNew = {};
+        $scope.CheckPList = [];
+        $scope.CheckList = [];
+        
+        
+    }
 
 
 }
