@@ -377,7 +377,10 @@ LEFT JOIN hkp.ComplianceCategoryType SC ON SC.Id=CM.SubCategoryId) AS TEMP WHERE
         [Authorize, HttpGet]
         public JsonResult GetComplianceCheckPointsData(string masterId)
         {
-            return Json(_sqlRepository.GetDataCollection(@"SELECT * FROM dbo.ComplianceCheckPoints  Where ComplianceMasterId='" + masterId + "'"), JsonRequestBehavior.AllowGet);
+            string sql = @"SELECT M.Id,CP.Id CheckPointsId,CP.ComplianceMasterId,CP.CheckPointName,CheckMark=CASE WHEN M.CheckMark=1 THEN 'True' WHEN M.CheckMark=0 THEN 'False' ELSE '' END FROM dbo.ComplianceCheckPoints CP
+LEFT JOIN [TRN].[ComplianceAuditorMap] M ON  CP.Id=M.CheckPointsId
+Where CP.ComplianceMasterId='" + masterId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize,HttpPost]
@@ -682,6 +685,20 @@ LEFT JOIN hkp.ComplianceCategoryType G ON G.Id=CM.ComplianceGroupId
 LEFT JOIN hkp.ComplianceCategoryType C ON C.Id=CM.CategoryId
 LEFT JOIN hkp.ComplianceCategoryType SC ON SC.Id=CM.SubCategoryId
 Where CM.Id IN(Select ComplianceMasterId from dbo.ComplianceResponsiblePersonAndAuditor Where EmpSystemID='" + identity.EmployeeId + @"')) AS TEMP WHERE " + strkey + "";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetComplianceAuditDataList(string masterId)
+        {
+           
+            string sql = @"select CA.Id,CA.ScorePoint,CA.Remark,CM.ComplianceGroupId,CM.Code,CM.CategoryId,CM.SubCategoryId,CM.ItemName,CM.CriticalityLevel,CM.ComplianceValue,CM.Remarks,CM.LocationReference,CM.ScanApplicable,CM.CodeApplicable,G.UserName ComplianceGroup,C.UserName Category,SC.UserName SubCategory,CA.ComplianceMasterId,CM.AuditFrequency,CM.AuditFrequencyUnit 
+from TRN.ComplianceAudit CA
+LEFT JOIN hkp.ComplianceMaster CM ON CM.Id=CA.ComplianceMasterId
+LEFT JOIN hkp.ComplianceCategoryType G ON G.Id=CM.ComplianceGroupId
+LEFT JOIN hkp.ComplianceCategoryType C ON C.Id=CM.CategoryId
+LEFT JOIN hkp.ComplianceCategoryType SC ON SC.Id=CM.SubCategoryId
+Where CM.Id='" + masterId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
