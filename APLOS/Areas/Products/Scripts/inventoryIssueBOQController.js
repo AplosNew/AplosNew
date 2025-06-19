@@ -690,7 +690,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
     function qtyValidation(list) {
         for (var i = 0; i < baseService.arrayLength(list); i++) {
             if (list[i].RequisitionQty>0) {
-                if (parseFloat(list[i].RequisitionQty) > parseFloat(list[i].StockQty)) throw 'Requisition Qty can\'t greater than stock qty.';
+                if (parseFloat(list[i].RequisitionQty) > parseFloat(list[i].BalanceStock)) throw 'Requisition Qty can\'t greater than stock qty.';
             }
         }
     }
