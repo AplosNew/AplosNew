@@ -91,7 +91,7 @@ namespace Aplos.Areas.Materials.Controllers
 select format(UT.Date,'yyyy-MM-dd') TransactionDate, UT.UtilityMasterId , UM.UserName UtilityMasterName,isnull(UMSS.Id,'') InputSouceId,isnull(UMSS.UserName,'') InputSouceName,   isnull(UT.MultiplyingFactor,0)*UT.Quantity TransactionQuantity , isnull(UMS.Reading,0) SumOfChild
 ,(isnull(UT.MultiplyingFactor,0)*UT.Quantity) - isnull(UMS.Reading,0) NetQty , UG.UserName UtilityGroup
 ,Rate = isnull((select Top 1 Rate from UtilityDetail where EffectiveDate Between @Fromdate and @Todate and UtilityMasterId = UM.Id Order by AddedDate desc),0)
-,Um.UtilityCategory,UM.UtilitySubCategory , UOM.UserName UOM , UT.Quantity , UT.MultiplyingFactor , UT.Remarks ,UT.Id , ET.UserName Entity
+,Um.UtilityCategory,UM.UtilitySubCategory , UOM.UserName UOM , UT.Quantity , UT.MultiplyingFactor , UT.Remarks ,UT.Id , ET.UserName Entity,UT.LastReading,UT.Reading CurrentReading 
 from UtilityTransaction UT
 left join (select format(UT.Date,'yyyy-MM-dd') [Date], UT.InPutSourceId , UMSS.UserName InputSouce, sum(isnull(UT.MultiplyingFactor,0)*UT.Quantity) Reading 
 			from UtilityTransaction UT 
@@ -211,52 +211,16 @@ left join (select format(UT.Date,'yyyy-MM-dd') [Date], UT.InPutSourceId , UMSS.U
                 int ColMultiplyingFactor = COL;
                 COL++;
 
-                /*sheet[ROW, COL].Text = "Final Quantity";
+                sheet[ROW, COL].Text = "Last Reading";
                 sheet[ROW, COL].ColumnWidth = 12;
-                int ColFinalQuantity = COL;
+                int ColLastReading = COL;
                 COL++;
 
                
-                sheet[ROW, COL].Text = "EffectiveDate";
+                sheet[ROW, COL].Text = "Current Reading";
                 sheet[ROW, COL].ColumnWidth = 10;
-                int ColEffectiveDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Rate";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColRate = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Amount";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColAmount = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "EntryLegDays";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColEntryLegDays = COL;
-                COL++;
-
-
-
-                sheet[ROW, COL].Text = "ResponsiblePerson";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColResponsiblePerson = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Admin";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColAdmin = COL;
-                COL++;
-
-               
-                sheet[ROW, COL].Text = "Status";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColStatus = COL;
-                COL++; 
-
-                sheet[ROW, COL].Text = "Remarks";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int ColRemarks = COL; */
+                int ColCurrentReading = COL;
+                
 
                 #endregion columns
                 int endCol = COL;
@@ -288,38 +252,18 @@ left join (select format(UT.Date,'yyyy-MM-dd') [Date], UT.InPutSourceId , UMSS.U
                     sheet[ROW, ColCategory].Text = data[i]["UtilityCategory"].ToString();
                     sheet[ROW, ColSunCategory].Text = data[i]["UtilitySubCategory"].ToString();
                     sheet[ROW, ColUOM].Text = data[i]["UOM"].ToString();
-                    /* sheet[ROW, ColSubGroup].Text = data[i]["SubGroup"].ToString();*/
                     sheet[ROW, ColQuantity].Number = clsStaticInfo.dbl(data[i]["Quantity"].ToString());
                     sheet[ROW, ColQuantity].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                   /* sheet[ROW, ColFinalQuantity].Number = clsStaticInfo.dbl(data[i]["FinalQuantity"].ToString());
-                    sheet[ROW, ColFinalQuantity].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);*/
 
                     sheet[ROW, ColMultiplyingFactor].Number = clsStaticInfo.dbl(data[i]["MultiplyingFactor"].ToString());
                     sheet[ROW, ColMultiplyingFactor].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    
-                    //if (reading == 0)
-                    //{
-                    //    reading= clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString());
-                    //    sheet[ROW, ColReading].Number = reading;
-                    //}
-                    //else
-                    //{
-                    //    reading = clsStaticInfo.dbl(reading) + clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString()); 
-                    //    sheet[ROW, ColReading].Number = reading;
-                    //}
-                                       
-                  /*  sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data[i]["Amount"].ToString());
-                    sheet[ROW, ColAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);*/
-                  /*  sheet[ROW, ColEntity].Text = data[i]["Entity"].ToString();*/
-                   
-                   /* sheet[ROW, ColEffectiveDate].Text = data[i]["EffectiveDate"].ToString();*/
-                    
-                   /* sheet[ROW, ColPartyName].Text = data[i]["PartyName"].ToString();*/
-                   /* sheet[ROW, ColResponsiblePerson].Text = data[i]["ResponsiblePerson"].ToString();
-                    sheet[ROW, ColAdmin].Text = data[i]["Admin"].ToString();
-                    sheet[ROW, ColEntryLegDays].Text = data[i]["EntryLegDays"].ToString();
-                    sheet[ROW, ColStatus].Text = data[i]["Status"].ToString();*/
-                   /* sheet[ROW, ColRemarks].Text = data[i]["Remarks"].ToString();*/
+
+                    sheet[ROW, ColLastReading].Number = clsStaticInfo.dbl(data[i]["LastReading"].ToString());
+                    sheet[ROW, ColLastReading].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColCurrentReading].Number = clsStaticInfo.dbl(data[i]["CurrentReading"].ToString());
+                    sheet[ROW, ColCurrentReading].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;

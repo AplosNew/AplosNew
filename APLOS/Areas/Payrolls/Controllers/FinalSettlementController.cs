@@ -2092,7 +2092,7 @@ LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
 WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
 Where GD.GWPaymentAdviseId IS NULL-- IN(select PaymentAdviseId from [dbo].[GoodWorkPaymentAdviseDetail] Where PaymentAdviseId in (select Id from [dbo].[GoodWorkPaymentAdvise] Where EmpSystemId ='" + empId + @"') and DisbursementVoucherId IS NULL)
 AND GD.EmpSystemId='" + empId + @"' 
-AND GD.EmpSystemID NOT IN(Select EmployeeId from dbo.ExceptionGoodWorkEmployee) AND GD.AdditionalOT<>0 AND ISNULL(PastOTDisbursed,0)=0
+AND GD.EmpSystemID NOT IN(Select EmployeeId from dbo.ExceptionGoodWorkEmployee) AND GD.AdditionalOT<>0 AND ISNULL(PastOTDisbursed,0)=0 AND IsOTEntitled=1
 Group By OLS.OTreductionFactor,B.Basic
  ) AS varchar(100))
 
