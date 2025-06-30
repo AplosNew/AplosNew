@@ -179,11 +179,10 @@ namespace Aplos.Areas.Materials.Controllers
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"Select TOP(1)* from (select LastReading=(select LastReading=(select top(1) Reading from UtilityTransaction Where UtilityMasterId ='" + utilityMasterId + @"' order by Date desc))
-									, LastReadingDate=(select top(1) FORMAT([Date],'dd-MMM-yyyy') from UtilityTransaction Where UtilityMasterId='" + utilityMasterId +@"' order by Date desc)
-                                    , LastReadingTime=(select top(1) CONVERT(varchar(5),[AddedDate],108) from UtilityTransaction Where UtilityMasterId = '" + utilityMasterId + @"' order by Date desc)
-                                    , MultiplyingFactor = (select top(1)  MultiplyingFactor from UtilityMaster where UtilityMasterId = '"+ utilityMasterId + @"' order by Date desc)
-
+            string sql = @"Select TOP(1)* from (select LastReading=(select LastReading=(select top(1) Reading from UtilityTransaction Where UtilityMasterId ='" + utilityMasterId + @"' order by AddedDate desc))
+									, LastReadingDate=(select top(1) FORMAT([Date],'dd-MMM-yyyy') from UtilityTransaction Where UtilityMasterId='" + utilityMasterId + @"' order by AddedDate desc)
+                                    , LastReadingTime=(select top(1) CONVERT(varchar(5),[AddedDate],108) from UtilityTransaction Where UtilityMasterId = '" + utilityMasterId + @"' order by AddedDate desc)
+                                    , MultiplyingFactor = (select top(1)  MultiplyingFactor from UtilityMaster where UtilityMasterId = '" + utilityMasterId + @"' order by AddedDate desc)
                                     from UtilityTransaction
                                     Where UtilityMasterId='" + utilityMasterId + "')A";
 
