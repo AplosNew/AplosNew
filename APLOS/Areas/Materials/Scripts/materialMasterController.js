@@ -1499,7 +1499,8 @@ function MaterialMasterController(fileReader, commonMessage, $scope, $rootScope,
         { Value: " ", Text: "Space()" },
         { Value: "/", Text: "Slash(/)" },
         { Value: "-", Text: "Hyphen(-)" },
-        { Value: ":", Text: "Colon(:)" }
+        { Value: ":", Text: "Colon(:)" },
+        { Value: "x", Text: "Multiply" }
     ];
 
     $scope.materialAttributeMasters = [];
