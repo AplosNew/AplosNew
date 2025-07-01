@@ -695,9 +695,16 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         $scope.srtName = "";
         var finalCon = "";
         var fcon = "";
+        var tempList = [];
         for (var i = 0; i < $scope.attributeList.length; i++) {
+            if (!baseService.isUndefinedOrNull($scope.attributeList[i].MaterialAttributeValueFreeText)) {
+                tempList.push($scope.attributeList[i]);
+            }
+        }
 
-            finalCon = (baseService.isUndefinedOrNull($scope.attributeList[i].MaterialAttributeValueFreeText) == true ? "" : $scope.attributeList[i].MaterialAttributeValueFreeText) + (baseService.isUndefinedOrNull($scope.attributeList[i].JoiningParameter) == true ? "" : $scope.attributeList[i].JoiningParameter);
+        for (var i = 0; i < tempList.length; i++) {
+
+            finalCon = (baseService.isUndefinedOrNull(tempList[i].MaterialAttributeValueFreeText) == true ? "" : tempList[i].MaterialAttributeValueFreeText) + (baseService.isUndefinedOrNull(tempList[i].JoiningParameter) == true ? "" : tempList[i].JoiningParameter);
             $scope.stndName = $scope.stndName + (finalCon == null ? "" : finalCon);
             $scope.srtName = $scope.srtName + (finalCon == null ? "" : finalCon);
             un = un + (finalCon == null ? "" : finalCon);

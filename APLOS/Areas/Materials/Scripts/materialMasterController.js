@@ -1500,7 +1500,7 @@ function MaterialMasterController(fileReader, commonMessage, $scope, $rootScope,
         { Value: "/", Text: "Slash(/)" },
         { Value: "-", Text: "Hyphen(-)" },
         { Value: ":", Text: "Colon(:)" },
-        { Value: "x", Text: "Multiply" }
+        { Value: "x", Text: "Multiply(x)" }
     ];
 
     $scope.materialAttributeMasters = [];
