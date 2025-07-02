@@ -32,6 +32,7 @@ function ExportDBController(addressService, $window, cboService, commonMessage, 
         Paymentreceiveddate: null,
         Bankrefno: null,
         Bankpayreceiveamount: null,
+        BRC: null,
     };
     $scope.JobWorkItem = Object.assign({}, $scope.JobWorkItemModelTemp);
 
@@ -167,6 +168,7 @@ function ExportDBController(addressService, $window, cboService, commonMessage, 
                 $scope.JobWorkItem.Paymentreceiveddate = response.data[0].Paymentreceiveddate;
                 $scope.JobWorkItem.Bankrefno = response.data[0].Bankrefno;
                 $scope.JobWorkItem.Bankpayreceiveamount = response.data[0].Bankpayreceiveamount;
+                $scope.JobWorkItem.BRC = response.data[0].BRC;
 
                 
 

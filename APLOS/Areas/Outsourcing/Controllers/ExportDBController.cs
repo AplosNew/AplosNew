@@ -56,8 +56,9 @@ namespace Aplos.Areas.Outsourcing.Controllers
 					,(Select UserName from HKP.Party where Id = Sa.PartyId ) Customer
 					,(Select InWordNumber from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) InWordNumber
 					,(Select Paymentreceiveddate from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) Paymentreceiveddate
-					,(Select Bankrefno from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) Bankrefno
+					,case when(Select InvoiceNo from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) = Sa.Id then (Select Bankrefno from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) else (select BankDocRef from [dbo].[PostSalesInvoice] where SalesId = SA.Id) end  Bankrefno
 					,(Select Bankpayreceiveamount from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) Bankpayreceiveamount
+                    ,(Select BRC from [TRN].[ExportDB]  where InvoiceNo = Sa.Id) BRC
                     from trn.Sales Sa
                     where  Sa.InvoiceDate >= '2023-04-01' and  Sa.CurrencyId = 12  order by Sa.InvoiceDate Desc ";
 
@@ -90,10 +91,11 @@ namespace Aplos.Areas.Outsourcing.Controllers
 , Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select InsuranceDoller from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end InsuranceDoller
 , Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select Fright from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end Fright
 , Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select FrightDoller from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end FrightDoller
-, Case when (Select InWordNumber from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select InWordNumber from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end InWordNumber
-, Case when (Select Paymentreceiveddate from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select Paymentreceiveddate from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end Paymentreceiveddate
-, Case when (Select Bankrefno from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select Bankrefno from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end Bankrefno
-, Case when (Select Bankpayreceiveamount from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select Bankpayreceiveamount from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end Bankpayreceiveamount
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select InWordNumber from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end InWordNumber
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select Paymentreceiveddate from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end Paymentreceiveddate
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select Bankrefno from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else PSI.BankDocRef end Bankrefno
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select Bankpayreceiveamount from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end Bankpayreceiveamount
+, Case when (Select InvoiceNo from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) = Sa.Id  then (Select BRC from [TRN].[ExportDB] EDB where Sa.Id = EDB.InvoiceNo) else null end BRC
 ,PT.UserName Customer
 from TRN.Sales Sa
                         left join [dbo].[PostSalesInvoice] PSI on PSI.SalesId = Sa.Id
@@ -184,6 +186,7 @@ from TRN.Sales Sa
                     dr["Paymentreceiveddate"] = saveData["Paymentreceiveddate"];
                     dr["Bankrefno"] = saveData["Bankrefno"];
                     dr["Bankpayreceiveamount"] = saveData["Bankpayreceiveamount"];
+                    dr["BRC"] = saveData["BRC"];
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = System.DateTime.Now.ToString();
                     dr["AddedFromIP"] = identity.IPAddress;
@@ -223,6 +226,7 @@ from TRN.Sales Sa
                     dr["Paymentreceiveddate"] = saveData["Paymentreceiveddate"];
                     dr["Bankrefno"] = saveData["Bankrefno"];
                     dr["Bankpayreceiveamount"] = saveData["Bankpayreceiveamount"];
+                    dr["BRC"] = saveData["BRC"];
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = System.DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
