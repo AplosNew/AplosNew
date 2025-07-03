@@ -108,13 +108,34 @@
 
 <confirm-archive-generic modalid="confirmUtilityDetailsRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeUtilityDetailsRow();"></confirm-archive-generic>
 
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="table-responsive aplos-grid-toggle">
     <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
             @*<div e-column e-field="Id" e-headertext="Id" e-width="3" e-isprimarykey="true"></div>*@
-            <div e-column e-field="Date" e-headertext="Date" e-width="3"></div>
+            <div e-column e-field="ReadingDate" e-headertext="Date" e-width="3"></div>
             <div e-column e-field="UtilityMaster" e-headertext="Utility Master" e-width="5"></div>
             <div e-column e-field="UoM" e-headertext="UoM" e-width="5"></div>
             <div e-column e-field="Quantity" e-headertext="Quantity" e-width="4"></div>

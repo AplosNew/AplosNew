@@ -396,7 +396,7 @@ namespace Library.HumanResource.Dashboard
 
         #region DetailDrillDownOfManpowerBudget
 
-        public IEnumerable<object> DetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string status, string EmplyeeTypeOrCategoryId,string companyGroupId)
+        public IEnumerable<object> DetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string status, string EmplyeeTypeOrCategoryId, string companyGroupId)
         {
             var EmployeeCategory = string.Empty;
             var shortExcess = string.Empty;
@@ -723,7 +723,7 @@ namespace Library.HumanResource.Dashboard
                 //                         ON m.id = b.ManpowerBudgetId and b.CgId = m.CompanyGroupId and B.cid = m.CompanyId and B.IsDirect = m.IsDirect   " + cListFinish + @"
                 //                         ) ede  GROUP BY CompanyId,UserName,UId,Sequence,IsDirect " + cListextF + @"" + cListextIdF + @" ORDER BY Sequence";
 
-                var sql = @"SELECT  CompanyGroupId,GroupName,CompanyId,UserName,UId,Case when  ISNULL(IsDirect,0) = 0 then 'Indirect' else 'Direct' end AS  IsDirect, ISNULL(SUM(TotalNumber),0) ProposedManpowerBudget, ISNULL(SUM(TotalManpower),0) TotalManpower , sum(short) Short,sum(Excess) Excess
+                var sql = @"SELECT  CompanyGroupId,GroupName,CompanyId,UserName,UId,Sequence,Case when  ISNULL(IsDirect,0) = 0 then 'Indirect' else 'Direct' end AS  IsDirect, ISNULL(SUM(TotalNumber),0) ProposedManpowerBudget, ISNULL(SUM(TotalManpower),0) TotalManpower , sum(short) Short,sum(Excess) Excess
                                 ,ISNULL(SUM(TotalSalary),0) OnRoleSalaryC
                                 --,ISNULL((SUM(MaxSal)+SUM(MinSal))/2,0) ProposedSalaryC
                                 ,sum(BudgetedSalary) ProposedSalaryC
@@ -741,7 +741,7 @@ namespace Library.HumanResource.Dashboard
                                                                   " + cListextIdM + @" -- Plant Id & division Id
                                             ,m.UId
                                           ,m.UserName
-                                          --,m.Sequence
+                                          ,m.Sequence
                                 								  
                                 	From
                                 	(
@@ -750,7 +750,7 @@ namespace Library.HumanResource.Dashboard
                                                                     " + cListextIdR + @"
                                                                     " + cList + @" UserName
                                                                     " + cListId + @" UId
-                                                                   -- " + cListSequence + @" Sequence
+                                                                    " + cListSequence + @" Sequence
                                 	FROM [MST].[ManpowerBudget]  MB
                                 	LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
                                 	LEFT OUTER JOIN [ORG].[Company] AS C ON C.Id = E.CompanyId
@@ -764,11 +764,11 @@ namespace Library.HumanResource.Dashboard
                                 	) M
                                 	Left Outer Join
                                 	(
-                                		SELECT BudgetCode,COUNT(SystemId) TotalManpower,SUM(TotalSalary) TotalSalary,PlantId
+                                		SELECT BudgetCode,COUNT(SystemId) TotalManpower,SUM(TotalSalary) TotalSalary
                                 		FROM [dbo].[EmployeeInformation]  
                                 		WHERE EmployeeStatus = 'Active' and ISNULL(BudgetCode,'')<>'' AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') AND GroupID = '" + companyGroupId + @"' 
                                 		group by BudgetCode
-                                	) EmpInfo on M.Id=EmpInfo.BudgetCode AND M.UId=EmpInfo.PlantId
+                                	) EmpInfo on M.Id=EmpInfo.BudgetCode
                                 	Left Outer Join
                                 	(
                                 		Select MBA.ManpowerBudgetId,MBA.MinimumSalary,MBA.MaximumSalary,MBA.EffectiveDate from 
@@ -790,7 +790,7 @@ namespace Library.HumanResource.Dashboard
                                 		) x
                                 		Where x.RNK=1
                                 	) B on M.Id=B.ManpowerBudgetId
-                                ) EDE GROUP BY GroupName,CompanyId,UserName,UId,IsDirect,CompanyGroupId ORDER BY UserName";
+                                ) EDE GROUP BY GroupName,CompanyId,UserName,UId,Sequence,IsDirect,CompanyGroupId ORDER BY UserName";
 
                 DataTable dt = _sqlRepository.GetDataTable(sql);
                 DataTable dtTemp = dt.Clone();
@@ -800,7 +800,7 @@ namespace Library.HumanResource.Dashboard
                     {
                         CompanyId = x["CompanyId"],
                         UId = x["UId"],
-                        //Sequence = x["Sequence"],
+                        Sequence = x["Sequence"],
 
                         UserName = x["UserName"],
                         //CompanyGroupId = x["CompanyGroupId"],
@@ -811,7 +811,7 @@ namespace Library.HumanResource.Dashboard
                 {
                     DataRow row = dt.NewRow();
                     row["IsDirect"] = "General";
-                    row["UId"] = x.Key.UId;//row["Sequence"] = x.Key.Sequence;
+                    row["UId"] = x.Key.UId; row["Sequence"] = x.Key.Sequence;
                     row["CompanyId"] = x.Key.CompanyId; row["UserName"] = x.Key.UserName; //row["CompanyGroupId"] = x.Key.CompanyGroupId;
                     row["ProposedManpowerBudget"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["ProposedManpowerBudget"]));
                     row["TotalManpower"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["TotalManpower"])); row["Short"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["Short"]));
