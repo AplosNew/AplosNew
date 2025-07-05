@@ -245,7 +245,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.GetCompanyCboList = function () {
         try {
-           
+
             $http({
                 method: 'Get',
                 url: 'OrderManagements/masterorder/GetCompanyCboList'
@@ -817,101 +817,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.RemarksControlmodel = { Id: null, MasterOrderId: null, RemarkControlId: null, RemarksControl: null, UserRemarks: null };
     }
 
-    // #region
-    //$scope.partySearchByList = [
-    //    {
-    //        'name': $scope.partyType + ' Code',
-    //        'value': 'Code'
-    //    },
-    //    {
-    //        'name': $scope.partyType + ' Name',
-    //        'value': 'PartyName'
-    //    },
-    //    {
-    //        'name': 'Account Group',
-    //        'value': 'PartyAccountGroupName'
-    //    },
-    //    {
-    //        'name': 'Country',
-    //        'value': 'CountryName'
-    //    },
-    //    {
-    //        'name': 'State',
-    //        'value': 'StateName'
-    //    },
-    //    {
-    //        'name': 'Currency',
-    //        'value': 'CurrencyCode'
-    //    }
-    //];
-    //$scope.partyParameters = {
-    //    limit: 10
-    //    , offset: 0
-    //    , order: 'ASC'
-    //    , sort: 'PartyName, PartyAccountGroupName'
-    //    , searchBy: 'PartyName'
-    //    , pageSize: 10
-    //    , total_count: 0
-    //    , search: null
-    //    , serverPagination: true
-    //};
-    //$scope.showPartyPopUp = function () {
-    //    if (baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
-    //        ShowResult('Select Company', 'failure');
-    //        return false;
-    //    }
-    //    if (baseService.isUndefinedOrNull($scope.fileNew.PlantId)) {
-    //        ShowResult('Select Plant', 'failure');
-    //        return false;
-    //    }
-    //    baseService.setCurrentPage('partyList');
-    //    $scope.getPartyList = function (pageno) {
-    //        $scope.partyUrl = $scope.path + 'GetCompanyPartyDataList?companyId=' + $scope.fileNew.CompanyId + '&plantId=' + $scope.fileNew.PlantId + '&partyType=' + $scope.partyType;
-    //        baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
-    //            .then(function (result) {
-    //                $scope.partyList = result.Rows;
-    //                $scope.partyParameters.total_count = result.Total;
-    //            }, function () {
-    //                ShowResult(commonMessage.NetworkError, 'failure');
-    //            }).finally(function () {
-    //            });
-    //    };
-    //    angular.element(document.querySelector('#partyPopUp')).modal('show');
-    //    $scope.getPartyList();
-    //};
-
-    //$scope.selectPartyPopUpRow = function (index, id) {
-    //    $scope.partyIndex = index;
-    //    $scope.selectedParty = id;
-    //};
-
-    //$scope.selectCustomerPopUp = function (index, id) {
-    //    $scope.partyIndex = index;
-    //    $scope.selectedCustomer = id;
-    //};
-
-    //$scope.closePartyPopUp = function (x) {
-    //    var party = x.data;
-    //    $scope.fileNew.PartyCode = party.Code;
-    //    $scope.fileNew.CustomerName = party.UserName;
-    //    $scope.fileNew.PartyId = party.Id;
-    //    $scope.fileNew.CurrencyId = party.CurrencyId;
-    //    $scope.fileNew.PartyAccountGroupId = party.PartyAccountGroupId;
-
-    //    $scope.fileNew.IsPaymentTermChangeable = '';
-    //    $scope.fileNew.PaymentTermId = '';
-
-    //    $scope.fileNew.PaymentTermId = party.PaymentTermId;
-    //    $scope.fileNew.IsPaymentTermChangeable = party.IsPaymentTermChangeable;
-
-    //    $scope.changePaymentTerm($scope.fileNew.PaymentTermId);
-    //    $scope.personList = [];
-    //    getPartyPlantList();
-    //    //GetDepartmentPersonCbo();
-    //    $scope.hidePartyPopUp();
-    //};
-
-    // #endregion
 
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
 
@@ -3490,177 +3395,165 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     }
 
     $scope.charSave = function (charLength) {
-        //if (baseService.arrayLength($scope.characteristicsList) > 2 || baseService.arrayLength($scope.characteristicsList) === 1) {
-        //    var data = $filter('filter')($scope.skuList, { Flag: '1st' }, true);
-        //    var qty = 0;
-        //    if (baseService.arrayLength($scope.characteristicsList) > 2) qty = parseFloat($filter('sumByKey')($scope.skuList, 'Qty', true));
-        //    if (baseService.arrayLength($scope.characteristicsList) === 1) qty = $scope.char1.Qty;
-        //    if (baseService.arrayLength(data) === 0) {
-        //        $scope.skuList.unshift({
-        //            Id: $scope.char1.FirstCharacteristicsId
-        //            , SalesOrderId: $scope.salesOrderId
-        //            , FirstCharacteristicsId: null
-        //            , SecondCharacteristicsId: null
-        //            , CharacteristicsId: $scope.char1.Id
-        //            , CharacteristicsValueId: $scope.char1.CharacteristicsValueId
-        //            , Sequence: 1
-        //            , ValueFreeText: $scope.char1.ValueFreeText
-        //            , Qty: qty
-        //            , Flag: '1st'
-        //            , childList: []
-        //        });
-        //    }
-        //    else if (baseService.arrayLength(data) === 1) {
-        //        for (var i = 0; i < baseService.arrayLength($scope.skuList); i++) {
-        //            if ($scope.skuList[i].CharacteristicsId === $scope.char1.Id) {
-        //                $scope.skuList[i].CharacteristicsValueId = $scope.char1.CharacteristicsValueId;
-        //                $scope.skuList[i].ValueFreeText = $scope.char1.ValueFreeText;
-        //                $scope.skuList[i].Qty = qty;
-        //            }
-        //        }
-        //    }
-        //}
+        try {
 
-        if (charLength == 1) {
-            var totlQty = 0;
-            for (var i = 0; i < baseService.arrayLength($scope.firstSKUList); i++) {
-                if (($scope.firstSKUList[i].ValueFreeText == null || $scope.firstSKUList[i].ValueFreeText == "") && $scope.firstSKUList[i].CharacteristicsValueId == null) {
-                    ShowResult("SKU item can't be blank", 'failure', 'firstPopup');
-                    return false;
+            const seenIds = new Set();
+            const duplicateObjects = [];
+
+            for (const item of $scope.skuList) {
+                if (seenIds.has(item.CharacteristicsValueId)) {
+                    duplicateObjects.push(item);
+                } else {
+                    seenIds.add(item.CharacteristicsValueId);
                 }
-                $scope.firstSKUList[i].IsQtyZero = $scope.firstSKUList[i].Qty <= 0;
-                if ($scope.firstSKUList[i].IsQtyZero) {
-                    ShowResult("SKU quantity can't be zero", 'failure', 'firstPopup');
-                    return false;
-                }
-                totlQty = totlQty + $scope.firstSKUList[i].Qty;
-            }
-            if (totlQty > $scope.soItemCurentSkuQty) {
-                ShowResult("Sum of SKU quantity can't be greater than " + $scope.soItemCurentSkuQty, 'failure', 'firstPopup');
-                return false;
             }
 
-            if (!$scope.IsSkuFormIsValid) {
-                ShowResult("Duplicate data", 'failure', 'firstPopup');
-                return false;
+            if (duplicateObjects.length > 0) {
+                var CvName = $.grep($scope.char1ValueList, function (item) { return item.Value === duplicateObjects[0].CharacteristicsValueId; })[0];
+                throw "Duplicate data " + CvName.Text + "";
             }
 
-            $scope.skuList = $scope.firstSKUList;
 
-        }
-        else {
-            if ($scope.skuList.length == 1) {
-                for (var i = 0; i < $scope.skuList[0].childList.length; i++) {
-                    if ($scope.skuList[0].childList[i].Qty <= 0) {
-                        ShowResult("SKU quantity can't be zero", 'failure', 'fourthPopup');
+            if (charLength == 1) {
+                var totlQty = 0;
+                for (var i = 0; i < baseService.arrayLength($scope.firstSKUList); i++) {
+                    if (($scope.firstSKUList[i].ValueFreeText == null || $scope.firstSKUList[i].ValueFreeText == "") && $scope.firstSKUList[i].CharacteristicsValueId == null) {
+                        ShowResult("SKU item can't be blank", 'failure', 'firstPopup');
                         return false;
                     }
-                }
-            }
-
-            if ($scope.skuList.length >= 1) {
-
-                for (var j = 0; j < $scope.skuList.length; j++) {
-
-                    var skuPar = $scope.skuList[j];
-                    if ((skuPar.ValueFreeText == null || skuPar.ValueFreeText == "") && skuPar.CharacteristicsValueId == null) {
-                        ShowResult("SKU item can't be blank", 'failure', 'fourthPopup');
+                    $scope.firstSKUList[i].IsQtyZero = $scope.firstSKUList[i].Qty <= 0;
+                    if ($scope.firstSKUList[i].IsQtyZero) {
+                        ShowResult("SKU quantity can't be zero", 'failure', 'firstPopup');
                         return false;
                     }
-                    if ($scope.skuList[j].childList.length > 1 && j == 0) {
-                        for (var i = 0; i < $scope.skuList[j].childList.length; i++) {
-                            var skuChild = $scope.skuList[j].childList[i];
-                            if ((skuChild.ValueFreeText == null || skuChild.ValueFreeText == "") && skuChild.CharacteristicsValueId == null) {
-                                ShowResult("SKU item can't be blank", 'failure', 'fourthPopup');
-                                return false;
-                            }
+                    totlQty = totlQty + $scope.firstSKUList[i].Qty;
+                }
+                if (totlQty > $scope.soItemCurentSkuQty) {
+                    throw "Sum of SKU quantity can't be greater than " + $scope.soItemCurentSkuQty;
+                    return false;
+                }
 
+                if (!$scope.IsSkuFormIsValid) {
+                    throw"Duplicate data";
+                    return false;
+                }
+
+                $scope.skuList = $scope.firstSKUList;
+
+            }
+            else {
+                if ($scope.skuList.length == 1) {
+                    for (var i = 0; i < $scope.skuList[0].childList.length; i++) {
+                        if ($scope.skuList[0].childList[i].Qty <= 0) {
+                            throw "SKU quantity can't be zero";
+                            return false;
                         }
                     }
                 }
-            }
 
+                if ($scope.skuList.length >= 1) {
 
+                    for (var j = 0; j < $scope.skuList.length; j++) {
 
-            if (baseService.arrayLength($scope.skuList) > 0) {
-                $scope.verifySkuMatrix();
-                if (!$scope.IsSkuColumnIsValid || !$scope.IsSkuRowIsValid) {
-                    ShowResult("Duplicate data", 'failure', 'fourthPopup');
-                    return false;
+                        var skuPar = $scope.skuList[j];
+                        if ((skuPar.ValueFreeText == null || skuPar.ValueFreeText == "") && skuPar.CharacteristicsValueId == null) {
+                            ShowResult("SKU item can't be blank", 'failure', 'fourthPopup');
+                            return false;
+                        }
+                        if ($scope.skuList[j].childList.length > 1 && j == 0) {
+                            for (var i = 0; i < $scope.skuList[j].childList.length; i++) {
+                                var skuChild = $scope.skuList[j].childList[i];
+                                if ((skuChild.ValueFreeText == null || skuChild.ValueFreeText == "") && skuChild.CharacteristicsValueId == null) {
+                                    ShowResult("SKU item can't be blank", 'failure', 'fourthPopup');
+                                    return false;
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+                if (baseService.arrayLength($scope.skuList) > 0) {
+                    $scope.verifySkuMatrix();
+                    if (!$scope.IsSkuColumnIsValid || !$scope.IsSkuRowIsValid) {
+                        ShowResult("Duplicate data", 'failure', 'fourthPopup');
+                        return false;
+                    }
                 }
             }
 
-        }
-
-        for (var j = 0; j < $scope.skuList.length; j++) {
-            if (baseService.arrayLength($scope.skuList[j].childList) > 0) {
-                $scope.skuList[j].Qty = 0;
-                for (var i = 0; i < $scope.skuList[j].childList.length; i++) {
-                    $scope.skuList[j].Qty += $scope.skuList[j].childList[i].Qty;
+            for (var j = 0; j < $scope.skuList.length; j++) {
+                if (baseService.arrayLength($scope.skuList[j].childList) > 0) {
+                    $scope.skuList[j].Qty = 0;
+                    for (var i = 0; i < $scope.skuList[j].childList.length; i++) {
+                        $scope.skuList[j].Qty += $scope.skuList[j].childList[i].Qty;
+                    }
                 }
             }
-        }
 
 
-        $http({
-            method: 'POST'
-            , url: $scope.path + 'CreateCharacteristics'
-            , data: {
-                'entities': $scope.skuList
-                , 'listLength': charLength
-                , 'soId': $scope.salesOrderId
-            }
-            , dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                if (baseService.arrayLength($scope.characteristicsList) == 1) {
-                    ShowResult(response.data.Message, 'failure', 'firstPopup');
+            $http({
+                method: 'POST'
+                , url: $scope.path + 'CreateCharacteristics'
+                , data: {
+                    'entities': $scope.skuList
+                    , 'listLength': charLength
+                    , 'soId': $scope.salesOrderId
+                }
+                , dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    if (baseService.arrayLength($scope.characteristicsList) == 1) {
+                        ShowResult(response.data.Message, 'failure', 'firstPopup');
+                    }
+                    else {
+                        $scope.closeCharPopUp();
+                        showCharMessage(response.data.Message, 'failure');
+                    }
                 }
                 else {
-                    $scope.closeCharPopUp();
-                    showCharMessage(response.data.Message, 'failure');
-                }
-            }
-            else {
-                if (baseService.arrayLength($scope.characteristicsList) === 1) {
-                    getFirstSkuList($scope.salesOrderId);
-                    $scope.char1.FirstCharacteristicsId = null;
-                    $scope.char1.CharacteristicsValueId = null;
-                    $scope.char1.ValueFreeText = null;
-                    $scope.char1.CharacteristicsValueName = null;
-                    $scope.char1.Qty = null;
-                    if (baseService.arrayLength($scope.firstSKUList) === 1) {
-                        for (var i = 0; i < baseService.arrayLength($scope.salesOrderList); i++) {
-                            if ($scope.salesOrderId === $scope.salesOrderList[i].Id) {
-                                $scope.salesOrderList[i].hasFirst = 1;
+                    if (baseService.arrayLength($scope.characteristicsList) === 1) {
+                        getFirstSkuList($scope.salesOrderId);
+                        $scope.char1.FirstCharacteristicsId = null;
+                        $scope.char1.CharacteristicsValueId = null;
+                        $scope.char1.ValueFreeText = null;
+                        $scope.char1.CharacteristicsValueName = null;
+                        $scope.char1.Qty = null;
+                        if (baseService.arrayLength($scope.firstSKUList) === 1) {
+                            for (var i = 0; i < baseService.arrayLength($scope.salesOrderList); i++) {
+                                if ($scope.salesOrderId === $scope.salesOrderList[i].Id) {
+                                    $scope.salesOrderList[i].hasFirst = 1;
+                                    break;
+                                }
+                            }
+                        }
+                        showCharMessage(response.data.Message, 'success');
+                        $scope.getSalesOrder($scope.masterItemId, $scope.materialMasterId, $scope.mName, $scope.BuyerReferenceNo);
+                    }
+                    else {
+                        angular.element(document.querySelector('#firstPopup')).modal('hide');
+                        angular.element(document.querySelector('#secondPopup')).modal('hide');
+                        angular.element(document.querySelector('#thirdPopup')).modal('hide');
+                        for (var t = 0; t < baseService.arrayLength($scope.salesOrderList); t++) {
+                            if ($scope.salesOrderId === $scope.salesOrderList[t].Id) {
+                                $scope.salesOrderList[t].hasFirst = 1;
                                 break;
                             }
                         }
+                        $scope.salesOrderId = null;
+                        $scope.skuList = [];
+                        $scope.closeCharPopUp();
+                        showCharMessage(response.data.Message, 'success');
+                        //$scope.getSalesOrder($scope.masterItemId, $scope.materialMasterId, $scope.mName, $scope.BuyerReferenceNo);
                     }
-                    showCharMessage(response.data.Message, 'success');
-                    $scope.getSalesOrder($scope.masterItemId, $scope.materialMasterId, $scope.mName, $scope.BuyerReferenceNo);
-                }
-                else {
-                    angular.element(document.querySelector('#firstPopup')).modal('hide');
-                    angular.element(document.querySelector('#secondPopup')).modal('hide');
-                    angular.element(document.querySelector('#thirdPopup')).modal('hide');
-                    for (var t = 0; t < baseService.arrayLength($scope.salesOrderList); t++) {
-                        if ($scope.salesOrderId === $scope.salesOrderList[t].Id) {
-                            $scope.salesOrderList[t].hasFirst = 1;
-                            break;
-                        }
-                    }
-                    $scope.salesOrderId = null;
-                    $scope.skuList = [];
-                    $scope.closeCharPopUp();
-                    showCharMessage(response.data.Message, 'success');
-                    //$scope.getSalesOrder($scope.masterItemId, $scope.materialMasterId, $scope.mName, $scope.BuyerReferenceNo);
-                }
 
-            }
-        }), function errorCallBack(response) {
-            showCharMessage(response.data.Message, 'failure');
-        };
+                }
+            }), function errorCallBack(response) {
+                showCharMessage(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'failure', 'fourthPopup');
+        }
     };
 
     function showCharMessage(message, state) {
@@ -5867,42 +5760,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         });
     }
 
-    //$scope.ModelSku = {
-    //    Id: null,
-    //    PackingTypeId: $scope.PackingTypeId,
-    //    FGFirstCharacteristicsId: null,
-    //    FirstCharacteristics: null,
-    //    FGSecondCharacteristicsId: null,
-    //    SecondCharacteristics: null,
-    //    Quantity: null,
-    //    Plan: null
-    //};
-    //$scope.ModelSKUDNew = Object.assign({}, $scope.ModelSku);
-
-    //$scope.ClearSKUD = function () {
-    //    $scope.ModelSKUDNew = Object.assign({}, $scope.ModelSku);
-    //    $scope.ModelSKUDNew.PackingTypeId = $scope.PackingTypeId;
-    //}
-
-    //$scope.sku1List = [];
-    //$scope.sku1 = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'OrderManagements/MasterOrder/GetSKU1List?SOId=' + $scope.sqlInStatement
-    //    }).then(function successCallback(response) {
-    //        $scope.sku1List = response.data;
-    //    })
-    //};
-
-    //$scope.sku2List = [];
-    //$scope.sku2 = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'OrderManagements/MasterOrder/GetSKU2List?SOId=' + $scope.sqlInStatement
-    //    }).then(function successCallback(response) {
-    //        $scope.sku2List = response.data;
-    //    })
-    //};
     $scope.PackingTypeId = null;
     $scope.SaveSKUDetail = function () {
         try {

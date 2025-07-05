@@ -128,7 +128,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="User Name" ng-model="ModelNew.UserName"  ng-keyup="CheckSpecialCharecter();" class="form-control" required tabindex="5" maxlength="50">
+                        <input type="text" name="User Name" ng-model="ModelNew.UserName" ng-keyup="CheckSpecialCharecter();" class="form-control" required tabindex="5" maxlength="50">
                     </div>
                 </div>
                 <div class="form-group">
@@ -167,7 +167,7 @@
                             </label>
                         </div>
                     </div>
-                    
+
                 </div>
             </div>
             <div class="common-btn">
@@ -177,7 +177,7 @@
                 </ul>
             </div>
         </div>
-        
+
         <div class="table-responsive aplos-grid-toggle">
             <div id="GridPG" ej-grid e-datasource="PGModelList" e-recorddoubleclick="GetProductionGrouping" e-load="loadGridEdit"
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -306,19 +306,19 @@
                             <div class="col-sm-3">
                                 <input type="text" ng-model="articleNew.ShortName" class="form-control" maxlength="200">
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-sm-4">
                                 <input type="text" ng-model="articleNew.StandardName" class="form-control" maxlength="200">
                             </div>
-                            <div class="col-sm-2">
+                            <div class="col-sm-3">
                                 <input type="text" ng-model="articleNew.UserName" disabled class="form-control" maxlength="200" style="width: 180px;">
                             </div>
-                            <div class="form-group">
+                            @*<div class="form-group">
                                 <div class="col-sm-2">
                                     <ul class="list-inline text-right">
                                         <li><button ng-click="Generate();" class="btn" style="margin-top: -23px; background: #3e445a; color:#fff !important"><i class=""></i> Generate</button></li>
                                     </ul>
                                 </div>
-                            </div>
+                            </div>*@
                         </div>
                     </div>
                     <div class="col-xs-12 form-element-ctrl form-horizontal" style="padding-left:0px;">
@@ -335,16 +335,16 @@
                                 </div>
                             </div>
                             @*<div class="form-group">
-                    <label class="col-sm-8 control-label">Active</label>
-                    <div class="col-sm-4">
-                        <div class="checkbox-site">
-                            <label class="control-label">
-                                <input type="checkbox" ng-model="articleNew.Active" tabindex="8">
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>*@
+                                    <label class="col-sm-8 control-label">Active</label>
+                                    <div class="col-sm-4">
+                                        <div class="checkbox-site">
+                                            <label class="control-label">
+                                                <input type="checkbox" ng-model="articleNew.Active" tabindex="8">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>*@
                         </div>
                         <div class="col-md-2 form-element-ctrl form-horizontal" style="padding-left:0px;">
                             <div class="form-group">
@@ -359,15 +359,15 @@
                                 </div>
                             </div>
                             @*<div class="form-group">
-                    <label class="col-sm-5 control-label" title="Production Grouping">PrO Grouping<sup>*</sup></label>
-                    <div class="col-sm-7">
-                        <div class="select-style">
-                            <select name="Production Grouping" class="form-control" ng-model="articleNew.ProductionGroupingId" ng-options="item.Value as item.Text for item in ProductionGroupingCboList" tabindex="6">
-                                <option value="">--Select--</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>*@
+                                    <label class="col-sm-5 control-label" title="Production Grouping">PrO Grouping<sup>*</sup></label>
+                                    <div class="col-sm-7">
+                                        <div class="select-style">
+                                            <select name="Production Grouping" class="form-control" ng-model="articleNew.ProductionGroupingId" ng-options="item.Value as item.Text for item in ProductionGroupingCboList" tabindex="6">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>*@
 
                         </div>
                         <div class="col-md-4 form-element-ctrl form-horizontal" style="padding-left:0px;">
@@ -383,16 +383,16 @@
                                 </div>
                             </div>
                             @*<div class="form-group">
-                    <label class="col-sm-4 control-label">Process Set<sup>*</sup></label>
-                    <div class="col-sm-8">
-                        <div class="input-group">
-                            <input type="text" name="Process Set" ng-model="articleNew.ProcessSet" class="form-control" readonly>
-                            <span class="input-group-btn">
-                                <button ng-click="processSetPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
-                            </span>
-                        </div>
-                    </div>
-                </div>*@
+                                    <label class="col-sm-4 control-label">Process Set<sup>*</sup></label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <input type="text" name="Process Set" ng-model="articleNew.ProcessSet" class="form-control" readonly>
+                                            <span class="input-group-btn">
+                                                <button ng-click="processSetPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>*@
                         </div>
                         <div class="col-md-4 form-element-ctrl form-horizontal" style="padding-left:0px;">
                             <div class="form-group">
@@ -404,7 +404,7 @@
                         </div>
 
 
-                        
+
                     </div>
                     <div class="col-xs-12 form-element-ctrl form-horizontal" style="padding-left:0px;">
                         <div class="col-md-3 form-element-ctrl form-horizontal" style="padding-left:0px;">
@@ -499,45 +499,46 @@
                         </div>
                     </div>
                 </div>
-                    <div class="col-xs-12 col-sm-12 col-md-12" ng-show="attributeList.length>0">
-                        <div class="table-responsive modal-table">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Material Attribute</th>
-                                        <th>Material Attribute Value</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="x in attributeList">
-                                        <td> {{x.MaterialAttributeName}}</td>
-                                        <td>
-                                            <div class="col-sm-10">
-                                                <div class="input-group" style="margin-top:-2px;">
-                                                    <input type="text" ng-model="x.MaterialAttributeValueFreeText" class="form-control" ng-keyup="idNullByFreeText(x.MaterialAttributeId, $index)" ng-disabled="x.FlagDisable" ng-required="x.IsMandatory" maxlength="50">
-                                                    <span class="input-group-btn">
-                                                        <button ng-click="valuePoUp(x, $index)" ng-disabled="!x.IsPreDefinedField" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                        <button ng-click="materialAttributeValueClear($index)" class="btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                                    </span>
-                                                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12" ng-show="attributeList.length>0">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Material Attribute</th>
+                                    <th>Material Attribute Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in attributeList">
+                                    <td> {{x.MaterialAttributeName}}</td>
+                                    <td>
+                                        <div class="col-sm-10">
+                                            <div class="input-group" style="margin-top:-2px;">
+                                                <input type="text" ng-model="x.MaterialAttributeValueFreeText" class="form-control" ng-keyup="idNullByFreeText(x.MaterialAttributeId, $index)" ng-disabled="x.FlagDisable" ng-required="x.IsMandatory" maxlength="50">
+                                                <span class="input-group-btn">
+                                                    <button ng-click="valuePoUp(x, $index)" ng-disabled="!x.IsPreDefinedField" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="materialAttributeValueClear($index)" class="btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                </span>
                                             </div>
-                                            <p class="msg-error" ng-show="IsMandatoryButNull(x.IsMandatory, x.MaterialAttributeValueFreeText)">
-                                                value is required.
-                                            </p>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="clearfix common-btn" style="padding-right: 15px;">
-                        <ul class="list-inline text-right">
-                            <li> <button ng-show="index==-1" ng-click="AddArticle();" class="btn"><i class=""></i> Add</button></li>
-                            <li> <button ng-hide="index==-1" ng-click="updateArticle();" class="btn"><i class=""></i> Update</button></li>
-                            <li> <button type="button" class="btn btn-default" ng-click="CloseArticlePopUp();">Close</button></li>
-                        </ul>
+                                        </div>
+                                        <p class="msg-error" ng-show="IsMandatoryButNull(x.IsMandatory, x.MaterialAttributeValueFreeText)">
+                                            value is required.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+                <div class="clearfix common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="Generate();" class="btn"><i class=""></i> Generate</button></li>
+                        <li> <button ng-show="index==-1" ng-click="AddArticle();" class="btn"><i class=""></i> Add</button></li>
+                        <li> <button ng-hide="index==-1" ng-click="updateArticle();" class="btn"><i class=""></i> Update</button></li>
+                        <li> <button type="button" class="btn btn-default" ng-click="CloseArticlePopUp();">Close</button></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -590,7 +591,7 @@
                         <div class="clearfix"></div>
                     </div>
                 </div>
-               
+
             </div>
 
         </div>
