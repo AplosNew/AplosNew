@@ -787,7 +787,7 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         reDirectToRequiredTab();
-        if ($scope.formTab1.$valid && $scope.formTab2.$valid) {
+        if ($scope.formTabC.$valid && $scope.formTab1.$valid && $scope.formTab2.$valid) {
             angular.copy($scope.manPowerbudgetmasterNew, $scope.manPowerbudgetmaster);
             if ($scope.Action === 'Save') {
                 $http({

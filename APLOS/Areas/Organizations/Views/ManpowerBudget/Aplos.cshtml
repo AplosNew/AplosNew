@@ -1,9 +1,9 @@
 ﻿<togglable name="Manpower Budget"></togglable>
 <div id="manPowerbudgetmasterNew" name="manPowerbudgetmasterNewForm" class="form-horizontal">
-    <div class="col-xs-12 col-sm-12 col-md-12">
-        <div class="form-group form-element-ctrl">
+    <div class="col-xs-12 col-sm-12 col-md-12" ng-form name="formTabC">
+        <div class="form-group form-element-ctrl"show-errors>
             <label class="col-sm-2 col-md-2 control-label">Company<sup>*</sup></label>
-            <div class="col-sm-4 col-md-4">
+            <div class="col-sm-4 col-md-4 show-message">
                 <div class="select-style">
                     <select class="form-control" ng-model="manPowerbudgetmasterNew.CompanyId" required name="Company"
                             ng-change="getCboEntityAndPositionRelationshipByCompanyGroupAndCompany(manPowerbudgetmasterNew.CompanyId); getEntityCbo(manPowerbudgetmasterNew.CompanyId); getData();getEntity();
@@ -34,21 +34,20 @@
                     <div class="row" ng-form name="formTab1">
                         <input type="hidden" ng-model="manPowerbudgetmasterNew.Id">
                         <div class="col-xs-12 col-sm-6 col-md-6">
-                            <div class="form-group">
-                                <label class="col-sm-1 control-label">Entity<sup>*</sup></label><label class="col-sm-3 control-label"><span ng-show="msg.length>0">({{msg}})</span> </label>
-                                <div class="col-sm-5 pdr3" style="Width:260px;">
-                                    <input type="hidden" ng-model="manPowerbudgetmasterNew.EntityId" class="form-control" disabled required>
-                                    <input type="text" name="Entity" ng-model="manPowerbudgetmasterNew.EntityName" class="form-control" disabled required>
-                                </div>
-                                <div class="pdl3">
-                                    <button name="submit" class="btn single-small-btn" ng-click="entityPopUp(manPowerbudgetmasterNew.CompanyId)" tabindex="1">
-                                        <i class="cr-icon glyphicon glyphicon-search"></i>
-                                    </button>
-                                    <button class="btn single-small-btn" ng-click="clearEntity()">
-                                        <i class="cr-icon glyphicon glyphicon-refresh"></i>
-                                    </button>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="input-group">
+                                        <input type="text" name="Entity" ng-model="manPowerbudgetmasterNew.EntityId" required class="form-control" readonly>
+                                        <input type="text" name="Entity" ng-model="manPowerbudgetmasterNew.EntityName" required class="form-control" style="display: none;">
+                                        <span class="input-group-btn">
+                                            <button name="submit" ng-click="entityPopUp(manPowerbudgetmasterNew.CompanyId);" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                            <button class="btn single-small-btn" ng-click="clearEntity()"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
+
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group" show-errors>
@@ -74,21 +73,21 @@
                         </div>
                         <div class="clearfix" style="padding-bottom:10px;"></div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
+                           
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Position<sup>*</sup></label>
-                                <div class="col-sm-5 show-message pdr3" style="Width:260px;">
-                                    <input type="hidden" ng-model="manPowerbudgetmasterNew.PositionId" class="form-control" disabled required>
-                                    <input type="text" name="Position" ng-model="manPowerbudgetmasterNew.PositionName" class="form-control" disabled required>
-                                </div>
-                                <div class="pdl3">
-                                    <button name="submit" class="btn single-small-btn" ng-click="positionPopUp(manPowerbudgetmasterNew.EntityId)" tabindex="3">
-                                        <i class="cr-icon glyphicon glyphicon-search"></i>
-                                    </button>
-                                    <button class="btn single-small-btn" ng-click="clearPosition()">
-                                        <i class="cr-icon glyphicon glyphicon-refresh"></i>
-                                    </button>
+                                <div class="col-sm-8 show-message">
+                                    <div class="input-group">
+                                        <input type="text" name="Position" ng-model="manPowerbudgetmasterNew.PositionId" required class="form-control" readonly>
+                                        <input type="text" name="Position" ng-model="manPowerbudgetmasterNew.PositionName" required class="form-control" style="display: none;">
+                                        <span class="input-group-btn">
+                                            <button name="submit" ng-click="positionPopUp(manPowerbudgetmasterNew.EntityId);" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                            <button class="btn single-small-btn" ng-click="clearPosition()"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
+
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group">
@@ -156,40 +155,37 @@
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label" title="Reporting Office(RO)">RO Budget Code</label>
-                                <div class="col-sm-5 pdr3" style="Width:260px;">
-                                    <input type="text" ng-model="manPowerbudgetmasterNew.ROBudgetCodeCode" class="form-control" disabled>
-                                    <input type="text" hidden ng-model="manPowerbudgetmasterNew.ROBudgetCode" class="form-control" disabled>
-                                </div>
-                                <div class="pdl3">
-                                    <button name="submit" class="btn single-small-btn" ng-click="employeeProfilePopUp('ROBudgetCode')" tabindex="9">
-                                        <i class="cr-icon glyphicon glyphicon-search"></i>
-                                    </button>
-                                    <button class="btn single-small-btn" ng-click="employeeProfileClear('ROBudgetCode')">
-                                        <i class="cr-icon glyphicon glyphicon-refresh"></i>
-                                    </button>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <input type="text" name="RO Budget Code" ng-model="manPowerbudgetmasterNew.ROBudgetCodeCode" class="form-control" readonly>
+                                        <input type="text" name="RO Budget Code" ng-model="manPowerbudgetmasterNew.ROBudgetCode" class="form-control" style="display: none;">
+                                        <span class="input-group-btn">
+                                            <button name="submit" ng-click="employeeProfilePopUp('ROBudgetCode');" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                            <button class="btn single-small-btn" ng-click="employeeProfileClear('ROBudgetCode')"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label" title="Personal Relation(PR)">PR Budget Code</label>
-                                <div class="col-sm-5 pdr3" style="Width:260px;">
-                                    <input type="text" hidden ng-model="manPowerbudgetmasterNew.PRBudgetCode" class="form-control" disabled>
-                                    <input type="text" ng-model="manPowerbudgetmasterNew.PRBudgetCodeCode" class="form-control" disabled>
-                                </div>
-                                <div class="pdl3">
-                                    <button name="submit" class="btn single-small-btn" ng-click="employeeProfilePopUp('PRBudgetCode')" tabindex="11">
-                                        <i class="cr-icon glyphicon glyphicon-search"></i>
-                                    </button>
-                                    <button class="btn single-small-btn" ng-click="employeeProfileClear('PRBudgetCode')">
-                                        <i class="cr-icon glyphicon glyphicon-refresh"></i>
-                                    </button>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <input type="text" name="PR Budget Code" ng-model="manPowerbudgetmasterNew.PRBudgetCode" class="form-control" readonly>
+                                        <input type="text" name="PR Budget Code" ng-model="manPowerbudgetmasterNew.PRBudgetCodeCode" class="form-control" style="display: none;">
+                                        <span class="input-group-btn">
+                                            <button name="submit" ng-click="employeeProfilePopUp('PRBudgetCode');" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                            <button class="btn single-small-btn" ng-click="employeeProfileClear('PRBudgetCode')"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
+
                             <div class="form-group">
                                 <label class="col-sm-4 control-label" title="Reporting Office(RO)">Responsible Person</label>
                                 <div class="col-sm-8">
                                     <div class="input-group">
-                                        <input type="text" name="Vendor" ng-model="manPowerbudgetmasterNew.Responsible" class="form-control" readonly>
-                                        <input type="text" name="Vendor" ng-model="manPowerbudgetmasterNew.ResponsiblePerson" class="form-control" style="display: none;">
+                                        <input type="text" name="Responsible Person" ng-model="manPowerbudgetmasterNew.Responsible" class="form-control" readonly>
+                                        <input type="text" name="Responsible Person" ng-model="manPowerbudgetmasterNew.ResponsiblePerson" class="form-control" style="display: none;">
                                         <span class="input-group-btn">
                                             <button name="submit" ng-click="ShowEmployeeListPopUp();" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                         </span>
@@ -253,10 +249,10 @@
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Accounts Group</label>
+                                <label class="col-sm-4 control-label">Accounts Group<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select name="AccountsGroup" ng-model="manPowerbudgetmasterNew.AccountsGroupId" class="col-sm-3 form-control" required title="Account Group use for Salary Payable GL Groupping"
+                                        <select name="Accounts Group" ng-model="manPowerbudgetmasterNew.AccountsGroupId" class="col-sm-3 form-control" required title="Account Group use for Salary Payable GL Groupping"
                                                 ng-options="item.Value as item.Text for item in accountsGroupList">
                                             <option></option>
                                         </select>
@@ -304,16 +300,16 @@
                                 </div>
                             </div>
                             @*<div class="form-group">
-                        <label class="col-sm-4 control-label">Cost Center</label>
-                        <div class="col-sm-8">
-                            <div class="select-style">
-                                <select name="CostCenter" ng-model="manPowerbudgetmasterNew.CostCenterId" class="col-sm-3 form-control"
-                                        ng-options="item.Value as item.Text for item in CostCenterList">
-                                    <option></option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>*@
+                                    <label class="col-sm-4 control-label">Cost Center</label>
+                                    <div class="col-sm-8">
+                                        <div class="select-style">
+                                            <select name="CostCenter" ng-model="manPowerbudgetmasterNew.CostCenterId" class="col-sm-3 form-control"
+                                                    ng-options="item.Value as item.Text for item in CostCenterList">
+                                                <option></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>*@
 
 
                         </div>
