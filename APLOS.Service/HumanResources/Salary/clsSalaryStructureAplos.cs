@@ -13334,6 +13334,26 @@ public class clsSalaryStructureAplos
         }
     }//End Function 
 
+    public static double EvaluateUpto2Decimal(string expression)
+    {
+        try
+        {
+            double result = (double)new System.Xml.XPath.XPathDocument
+            (new StringReader("<r/>")).CreateNavigator().Evaluate
+            (string.Format("number({0})", new
+            System.Text.RegularExpressions.Regex(@"([\+\-\*])")
+            .Replace(expression, " ${1} ")
+            .Replace("/", " div ")
+            .Replace("%", " mod ")));
+
+            return Math.Round(result, 2); // Round to 2 decimal places
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+
 
     #endregion
 

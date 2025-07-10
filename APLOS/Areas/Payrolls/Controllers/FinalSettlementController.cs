@@ -1991,6 +1991,68 @@ WHERE E.EmployeeStatus='Active' AND A.ActionStatus='FullAndFinalApproveBy'";
             }
         }//End 
 
+
+        [HttpPost]
+        public JsonResult ApproveFNF(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster = null;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlementMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                #region data master
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    data["IsApproved"] = true;
+                    data["ApproveDateTime"] = DateTime.Now;
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+                #endregion data update
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void DeleteCurrentData(string empIds)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM [dbo].[EmployeeFullAndFinalSettlementItem] WHERE EmpSystemId IN(" + empIds + ")";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
+
         public DataTable GetDataTable(string empId)
         {
             try
@@ -2014,7 +2076,7 @@ FROM TRN.EmployeeSubsequentTransaction AS AD
 LEFT JOIN TRN.Voucher V ON V.Id=AD.VoucherId
 WHERE    AD.EmployeeId<>''  AND AD.JournalType in('Salary') AND V.IsPark=0
 AND AD.SourceType in ('EmployeeAdvance', 'InterTransaction') AND AD.EmployeeId='" + empId + @"'
-GROUP BY AD.EmployeeId) AS decimal(18,0))) AS varchar(100))
+GROUP BY AD.EmployeeId) AS decimal(18,2))) AS varchar(100))
 			
 WHEN OL.UserName='AdvanceLoan' THEN CAST((
 			 cast((SELECT SUM(AD.Amount)-ISNULL(SUM(AWD.Amount),0) Balance
@@ -2022,14 +2084,14 @@ FROM TRN.Advance AS AD
 LEFT JOIN (select AdvanceId,Sum(Amount) Amount from TRN.AdvanceWriteOffDetail group by AdvanceId) AWD ON AWD.AdvanceId=AD.Id
 WHERE    AD.EmployeeId<>'' AND AD.IsPark=0 AND AD.IsWrittenOff=0
 AND AD.SourceType in ('EmployeeAdvance') AND AD.EmployeeId='" + empId + @"' and AD.JournalType='General'
-GROUP BY AD.EmployeeId) AS decimal(18,0))) AS varchar(100))
+GROUP BY AD.EmployeeId) AS decimal(18,2))) AS varchar(100))
 	
 WHEN OL.UserName='ExpensesPayable' THEN CAST((
 			 cast((SELECT ISNULL(SUM(AD.Amount)-SUM(AD.WrittenOffAmount),0) AS Balance
 FROM trn.EmployeePayable AS AD
  WHERE AD.Archive=0 AND AD.IsPark=0 AND AD.IsWrittenOff=0 AND AD.IsWrittenOff=0
  AND AD.SourceType IN ('EmployeePayable')
- AND AD.EmployeeId='" + empId + @"' AND (AD.Amount-AD.WrittenOffAmount)>0) AS decimal(18,0))) AS varchar(100))
+ AND AD.EmployeeId='" + empId + @"' AND (AD.Amount-AD.WrittenOffAmount)>0) AS decimal(18,2))) AS varchar(100))
 	
 
 WHEN OL.UserName='UnPaidSalary' THEN CAST((
@@ -2144,67 +2206,6 @@ ORDER BY OL.Sequence";
         }
 
         [HttpPost]
-        public JsonResult ApproveFNF(Dictionary<string, object> data)
-        {
-            try
-            {
-                DataSet dsMaster = null;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlementMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                #region data master
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                {
-                    data["IsApproved"] = true;
-                    data["ApproveDateTime"] = DateTime.Now;
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
-                #endregion data update
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public void DeleteCurrentData(string empIds)
-        {
-            string strSQL;
-            ConnectionManager.DAL.ConManager objCon = null;
-            try
-            {
-                strSQL = "DELETE FROM [dbo].[EmployeeFullAndFinalSettlementItem] WHERE EmpSystemId IN(" + empIds + ")";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenConnection("1");
-                objCon.BeginTransaction();
-                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
-                objCon.CommitTransaction();
-            }
-            catch (Exception ex)
-            {
-                try
-                {
-                    objCon.RollBack();
-                    objCon.CloseConnection();
-                    throw (ex);
-                }
-                catch (Exception)
-                {
-                    throw ex;
-                }
-            }
-            finally
-            {
-
-                objCon = null;
-            }
-        }//End of function
-
-        [HttpPost]
         public JsonResult Process(Dictionary<string, object> data, List<Dictionary<string, object>> datalist)
         {
             try
@@ -2260,7 +2261,7 @@ ORDER BY OL.Sequence";
                 con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlement where FinalSettlementId='" + data["Id"] + "'", out dsFNFEmpMaster, false, "1");
                 con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeFullAndFinalSettlementItem] where FinalSettlementId='" + data["Id"] + "'", out dsEmpID, false, "1");
                 int empcount = Convert.ToInt32(dsEmpID.Tables[0].Rows[0]["countId"].ToString());
-                
+
                 foreach (var item in datalist)
                 {
                     empIds += ",'" + item["EmpSystemId"].ToString() + "' ";
@@ -2315,7 +2316,7 @@ ORDER BY OL.Sequence";
 
                     }
                 }
-               
+
 
                 foreach (var item in datalist)
                 {
@@ -2326,7 +2327,7 @@ ORDER BY OL.Sequence";
                     dtValue.TableName = "TempTable";
                     dtValue.Columns.Add("EmployeeSeperationItemId");
                     dtValue.Columns.Add("Value");
-                    string sFormulaResult = null;
+                    double sFormulaResult = 0.00;
 
                     DataView empdv = new DataView(dsFNFEmpMaster.Tables[0]);
                     empdv.RowFilter = "EmpSystemId='" + item["EmpSystemId"] + "'";
@@ -2378,12 +2379,13 @@ ORDER BY OL.Sequence";
                         if (!string.IsNullOrEmpty(dtData.Rows[i]["FormulaId"].ToString()) && dtData.Rows[i]["Formula"].ToString() != "SeparationDate - ResignDate")
                         {
                             ReLoadFormulaWithValue(dtData.Rows[i]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
-                            sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("###0");
+                            //sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("###0");
+                            sFormulaResult = clsSalaryStructureAplos.EvaluateUpto2Decimal(_formulaValue);
                             if (dtData.Rows[i]["Formula"].ToString() == "NoticePeriod - ServedNoticePeriod")
                             {
-                                if (Convert.ToInt32(sFormulaResult.ToString()) < 0)
+                                if (Convert.ToInt32(sFormulaResult) < 0)
                                 {
-                                    sFormulaResult = "0";
+                                    sFormulaResult = 0;
                                 }
                             }
                             DataRow dtValueRow = dtValue.NewRow();
@@ -2444,7 +2446,7 @@ ORDER BY OL.Sequence";
 
                 }
 
-               string gwsql = @"Select * from dbo.GoodWorkDetail Where GWPaymentAdviseId IS NULL AND EmpSystemId IN(" + empIds + ")  AND Minute<>0";
+                string gwsql = @"Select * from dbo.GoodWorkDetail Where GWPaymentAdviseId IS NULL AND EmpSystemId IN(" + empIds + ")  AND Minute<>0";
                 con.OpenDataSetThroughAdapter(gwsql, out dsEmpGW, false, "1");
 
 
@@ -2467,7 +2469,7 @@ ORDER BY OL.Sequence";
                     }
                 }
 
-               
+
                 string atsql = @"Select * from dbo.AttdnProcessData Where GWPaymentAdviseId IS NULL AND EmpSystemId IN (" + empIds + ") AND EmpSystemID NOT IN(Select EmployeeId from dbo.ExceptionGoodWorkEmployee) AND AdditionalOT<>0 AND ISNULL(PastOTDisbursed,0)=0 AND DayStatus NOT  IN ('A') AND IsOTEntitled=1 ";
                 con.OpenDataSetThroughAdapter(atsql, out dsEmpAT, false, "1");
 
@@ -2741,7 +2743,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON vd.ActivityId= A.Id
                 LEFT JOIN[MST].[BudgetMasterActivity] AS BMA ON BMA.BudgetMasterId= BM.Id AND BMA.ActivityId= A.Id
-				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
+				WHERE  E.VoucherId IS NULL AND ISNULL(CAST(EI.Value AS decimal(18,2)),0)<>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
                 Union All
 				SELECT TOP 1 A.* FROM (SELECT  'Bonus' AS OtherName, 'Dr' AS TrnType
@@ -2760,7 +2762,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON vd.ActivityId= A.Id
                 LEFT JOIN[MST].[BudgetMasterActivity] AS BMA ON BMA.BudgetMasterId= BM.Id AND BMA.ActivityId= A.Id
-				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @") )A
+				WHERE  E.VoucherId IS NULL AND ISNULL(CAST(EI.Value AS decimal(18,2)),0)<>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @") )A
 
                 Union All
 				SELECT  'LeaveEncashment' AS OtherName, 'Dr' AS TrnType
@@ -2777,7 +2779,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
 				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON BMA.ActivityId= A.Id
-				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
+				WHERE  E.VoucherId IS NULL AND ISNULL(CAST(EI.Value AS decimal(18,2)),0)<>0 AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
                 
                 Union All
 				SELECT  'ExpensesPayable' AS OtherName, 'Dr' AS TrnType
@@ -2797,7 +2799,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON EP.ActivityId= A.Id
                 LEFT JOIN[MST].[BudgetMasterActivity] AS BMA ON BMA.BudgetMasterId= BM.Id AND BMA.ActivityId= A.Id
-				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
+				WHERE  E.VoucherId IS NULL AND ISNULL(CAST(EI.Value AS decimal(18,2)),0)<>0 AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
                 Union All
 				SELECT  'GoodWork' AS OtherName, 'Dr' AS TrnType
@@ -2814,7 +2816,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
 				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON BMA.ActivityId= A.Id
-				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
+				WHERE  E.VoucherId IS NULL AND ISNULL(CAST(EI.Value AS decimal(18,2)),0)<>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
 				Union All
 				SELECT  'OverTime' AS OtherName, 'Dr' AS TrnType
@@ -2831,7 +2833,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
 				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON BMA.ActivityId= A.Id
-				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
+				WHERE  E.VoucherId IS NULL AND ISNULL(CAST(EI.Value AS decimal(18,2)),0)<>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 				Union All
 				SELECT  'AdvanceLoan' AS OtherName, 'Cr' AS TrnType
                 , 0 DrAmount 
@@ -2850,7 +2852,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON EP.ActivityId= A.Id
                 LEFT JOIN[MST].[BudgetMasterActivity] AS BMA ON BMA.BudgetMasterId= BM.Id AND BMA.ActivityId= A.Id
-				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
+				WHERE  E.VoucherId IS NULL AND ISNULL(CAST(EI.Value AS decimal(18,2)),0)<>0 AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
 				Union All
 				SELECT  'AdvanceSalary' AS OtherName, 'Cr' AS TrnType
@@ -2870,7 +2872,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON EP.ActivityId= A.Id
                 LEFT JOIN[MST].[BudgetMasterActivity] AS BMA ON BMA.BudgetMasterId= BM.Id AND BMA.ActivityId= A.Id
-				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
+				WHERE  E.VoucherId IS NULL AND ISNULL(CAST(EI.Value AS decimal(18,2)),0)<>0 AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
                 Union All
 				SELECT  'NetPay' AS OtherName, 'Cr' AS TrnType
@@ -2904,7 +2906,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
 				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON BMA.ActivityId= A.Id
-				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
+				WHERE  E.VoucherId IS NULL AND ISNULL(CAST(EI.Value AS decimal(18,2)),0)<>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
                 Union All
 				SELECT  'Bank/Cash' AS OtherName, 'Cr' AS TrnType
@@ -2915,7 +2917,7 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
                 , '" + voucherVM.GLGeneralInfoName + @"' GLName , '" + voucherVM.BudgetName + @"' BudgetName,'" + voucherVM.ActivityName + @"' ActivityName , Convert(bit, 'True') Active 
 				FROM EmployeeFullAndFinalSettlement  E
 				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='NetPayable'
-				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
+				WHERE  E.VoucherId IS NULL AND ISNULL(CAST(EI.Value AS decimal(18,2)),0)<>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
                 )X
                 GROUP BY
@@ -3133,7 +3135,7 @@ Order By ESI.Sequence";
                     sheet[ROW, colIN].Text = dtOrder.Rows[i]["ItemName"].ToString();
                     if (!string.IsNullOrEmpty(dtOrder.Rows[i]["Remarks"].ToString()))
                     {
-                        sheet[ROW, colPackingType].Text = dtOrder.Rows[i]["Value"].ToString() + " - " + dtOrder.Rows[i]["Remarks"].ToString(); 
+                        sheet[ROW, colPackingType].Text = dtOrder.Rows[i]["Value"].ToString() + " - " + dtOrder.Rows[i]["Remarks"].ToString();
                     }
                     else
                     {
@@ -3185,7 +3187,7 @@ Order By ESI.Sequence";
                 sheet.Range[ROW, COL, ROW, COL + 2].Text = "from " + dtOrder.Rows[0]["Company"].ToString() + " and have no other claim, whatsoever, against the company.";
                 sheet.Range[ROW, COL, ROW, COL + 2].Merge();
                 ROW++;
-               
+
                 ROW++;
                 ROW++;
                 ROW++;
@@ -3223,7 +3225,7 @@ Order By ESI.Sequence";
                 throw ex;
             }
         }
-       
+
         [HttpPost, Authorize]
         public ActionResult GetFNFReport(string reportFileName, string fromDate, string toDate)
         {
@@ -3255,7 +3257,7 @@ Order By ESI.Sequence";
                 workbook.Worksheets[0].Name = "Data";
                 sheet = workbook.Worksheets[0];
                 DataTable dtOrder = null;
-               
+
                 string sql = @"Select M.Id DocRefNo,EI.EmployeeCode,EI.EmployeeName,DP.UserName Department,S.UserName Section,SS.UserName SubSection,LD.UserName LegalDesignation,FORMAT(M.AddedDate,'dd-MMM-yyyy') EntryDate,M.AddedBy EntryBy,FORMAT(M.ApproveDateTime,'dd-MMM-yyyy') ApprovalDate
 ,AE.EmployeeName ApprovalBy,E.VoucherId,V.VoucherNo,FORMAT(V.PostedDate,'dd-MMM-yyyy')PostedDate,V.PostedBy,V.Narration,IT.Value NetPayable,EI.PaymentMode,BN.UserName PaymentBank,EB.BankAccNo AccountNumber,SPD.IFSCCode
 from dbo.EmployeeFullAndFinalSettlementMaster M
@@ -3275,7 +3277,7 @@ LEFT JOIN HKP.Bank BN ON BN.Id=EB.BankSystemID
 LEFT JOIN dbo.SalaryProcessLogDetail SPD ON SPD.EmpSystemId=E.EmpSystemId
 AND SPD.Id=(Select top(1)Id from dbo.SalaryProcessLogDetail where EmpSystemId=SPD.EmpSystemId Order  By AddedDate DeSC)
 
-where M.AddedDate between '" + fromDate+@"' AND '"+toDate+"'";
+where M.AddedDate between '" + fromDate + @"' AND '" + toDate + "'";
                 dtOrder = _sqlRepository.GetDataTable(sql);
 
 
@@ -3286,7 +3288,7 @@ where M.AddedDate between '" + fromDate+@"' AND '"+toDate+"'";
                 ReportUtility reportUtility = new ReportUtility();
 
                 int ROW = 6; int COL = 1;
-                
+
                 #region ColumnsHeader
 
                 sheet[ROW, COL].Text = "Sr. No."; int colSL = COL; COL++;
@@ -3339,7 +3341,7 @@ where M.AddedDate between '" + fromDate+@"' AND '"+toDate+"'";
                 #region DataPlot
                 for (int i = 0; i < dtOrder.Rows.Count; i++)
                 {
-                                        cnt++;
+                    cnt++;
                     sheet[ROW, colSL].Number = Library.Service.Extension.clsStaticInfo.dbl(cnt.ToString());
                     sheet[ROW, colD].Text = dtOrder.Rows[i]["DocRefNo"].ToString();
                     sheet[ROW, colEC].Text = dtOrder.Rows[i]["EmployeeCode"].ToString();
@@ -3356,7 +3358,7 @@ where M.AddedDate between '" + fromDate+@"' AND '"+toDate+"'";
                     sheet[ROW, colPD].Text = dtOrder.Rows[i]["PostedDate"].ToString();
                     sheet[ROW, colPB].Text = dtOrder.Rows[i]["PostedBy"].ToString();
                     sheet[ROW, colN].Text = dtOrder.Rows[i]["Narration"].ToString();
-                    sheet[ROW, colNP].Number =clsStaticInfo.dbl(dtOrder.Rows[i]["NetPayable"].ToString());
+                    sheet[ROW, colNP].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["NetPayable"].ToString());
                     sheet[ROW, colPM].Text = dtOrder.Rows[i]["PaymentMode"].ToString();
                     sheet[ROW, colBN].Text = dtOrder.Rows[i]["PaymentBank"].ToString();
                     sheet[ROW, colAC].Text = dtOrder.Rows[i]["AccountNumber"].ToString();
@@ -3373,7 +3375,7 @@ where M.AddedDate between '" + fromDate+@"' AND '"+toDate+"'";
                 #endregion
                 int edCRow = ROW;
 
-              
+
                 #region ReportHeader
                 //sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -3409,13 +3411,13 @@ where M.AddedDate between '" + fromDate+@"' AND '"+toDate+"'";
             }
         }
 
-        [HttpGet,Authorize]
+        [HttpGet, Authorize]
         public ActionResult EmployeeSattlementReport(string empSystemId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                _AttendanceManagementService.EmployeeSattlementReport(empSystemId,identity.PlantId);
+                _AttendanceManagementService.EmployeeSattlementReport(empSystemId, identity.PlantId);
 
             }
             catch (Exception ex)
@@ -3426,7 +3428,7 @@ where M.AddedDate between '" + fromDate+@"' AND '"+toDate+"'";
             return View();
         }
 
-       
+
 
         #endregion
 
