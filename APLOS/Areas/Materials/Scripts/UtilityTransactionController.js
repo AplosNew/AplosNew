@@ -151,17 +151,17 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         $scope.ModelNew.Quantity = $scope.ModelNew.Reading - $scope.ModelNew.LastReading;
     }
 
-    //$scope.GetCalculatedValue = function () {
-    //    //$http({
-    //    //    method: 'GET',
-    //    //    url: 'Materials/UtilityTransaction/GetCalculatedValue?utilityMasterId=' + $scope.ModelNew.UtilityMasterId
-    //    //}).then(function successCallback(response) {
-    //    //    /*$scope.ModelNew.MultiplyingFactor = response.data[0].MultiplyingFactor;*/
-    //    //    $scope.CalculatedValue = parseFloat($scope.ModelNew.Quantity * $scope.ModelNew.MultiplyingFactor).toFixed(4);
-    //    //});
-    //    $scope.CalculatedValue = parseFloat($scope.ModelNew.Quantity * $scope.ModelNew.MultiplyingFactor).toFixed(4);
+    $scope.GetCalculatedValue = function () {
+        //$http({
+        //    method: 'GET',
+        //    url: 'Materials/UtilityTransaction/GetCalculatedValue?utilityMasterId=' + $scope.ModelNew.UtilityMasterId
+        //}).then(function successCallback(response) {
+        //    /*$scope.ModelNew.MultiplyingFactor = response.data[0].MultiplyingFactor;*/
+        //    $scope.CalculatedValue = parseFloat($scope.ModelNew.Quantity * $scope.ModelNew.MultiplyingFactor).toFixed(4);
+        //});
+        $scope.CalculatedValue = parseFloat($scope.ModelNew.Quantity * $scope.ModelNew.MultiplyingFactor).toFixed(4);
 
-    //}
+    }
 
     $scope.GetLastReading = function () {
         $http({
