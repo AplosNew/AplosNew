@@ -214,7 +214,8 @@ order by HMC.ManpowerBudgetId DESC";
 							from dbo.EmployeeInformation ei
                             LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = ei.BudgetCode
                             LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
-                            left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+                            LEFT JOIN(Select SUM(TotalNumber)TotalNumber,ManpowerBudgetId,Id from MST.ManpowerBudgetDetail Group BY ManpowerBudgetId,Id) AS mbd ON mbd.ManpowerBudgetId=MBGT.Id
+AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudgetId=MBGT.Id order by EffectiveDate desc)
                             left join ORG.Entity UN on UN.Id = MBGT.EntityId
                             left join ORG.Department DP on DP.ID = POS.DepartmentId
                             left join ORG.Section SC on SC.Id = POS.SectionId
@@ -229,7 +230,7 @@ order by HMC.ManpowerBudgetId DESC";
                             left join ResidenceGroup RG on RG.Id = ei.ResidenceGroupId
                             left join TransportGroup TG on TG.Id = ei.TransportGroupId 
 							--left join TRN.HRReportMasterResponsiblePerson HRP on HRP.EmpSystemId = ei.SystemId
-                            where ei.EmployeeStatus = 'Active' and ei.SystemId not in (select EmpSystemId from TRN.HRReportMasterResponsiblePerson where HRReportMasterId = '"+ headerid + "')";
+                            where ei.EmployeeStatus = 'Active' and ei.SystemId not in (select EmpSystemId from TRN.HRReportMasterResponsiblePerson where HRReportMasterId = '" + headerid + "')";
                 return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

@@ -111,6 +111,13 @@ namespace Library.HumanResource.Dashboard
 										SELECT CASE WHEN ISNULL(m.id,'')='' THEN 'NOLine' else 'Line' END AS HasLine FROM (select 'HasLine' AS Line) AS K
 										LEFT OUTER JOIN ( select * from MST.ManpowerBudget where ISNULL(LineId,'') <>'' ) AS M ON 1=1										
 										) AS AC ON AC.HasLine=LN.StandardName
+                                        
+                                        UNION
+ 										     SELECT EN.* FROM (SELECT 'Entity' StandardName, 'Entity'  ColumnName,'ZA' RType, 2 Sequence) AS EN
+											 INNER JOIN (
+										SELECT CASE WHEN ISNULL(m.id,'')='' THEN 'NOEntity' else 'Entity' END AS HasEntity FROM (select 'HasEntity' AS Entity) AS K
+										LEFT OUTER JOIN ( select * from MST.ManpowerBudget where ISNULL(EntityId,'') <>'' ) AS M ON 1=1										
+										) AS AC ON AC.HasEntity=EN.StandardName
 										   ORDER BY StandardName,Sequence";
                 DataTable dt = _sqlRepository.GetDataTable(strSQL);
                 string id = "";
@@ -3673,7 +3680,7 @@ ISNULL(OnRoleEmployee.ColumnName,'N/A') ColumnName, ISNULL(OnRoleEmployee.UId,''
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
             }
         }
-        public IEnumerable<object> DrillDownAttnStatus(IEnumerable<ChartColumnList> ChartColumnList, int seq, string companyGroupId, string hrDate, string EmplyeeTypeOrCategoryId)
+        public IEnumerable<object> _DrillDownAttnStatus(IEnumerable<ChartColumnList> ChartColumnList, int seq, string companyGroupId, string hrDate, string EmplyeeTypeOrCategoryId)
         {
             try
             {
@@ -4368,6 +4375,750 @@ LEFT OUTER JOIN
                                  ) B
                                  ON m.id = b.ManpowerBudgetId and b.CgId = m.CompanyGroupId and B.cid = m.CompanyId   " + cListFinish + @"
                                  ) ede  GROUP BY IsDirect,CompanyGroupId, CompanyId,ColumnName,UId,Sequence " + cListextF + @"" + cListextIdF + @" ORDER BY Sequence";
+
+                DataTable dt = _sqlRepository.GetDataTable(sql);
+
+                DataTable dtTemp = dt.Clone();
+                if (dt.Rows.Count > 0)
+                {
+                    dtTemp = dt.AsEnumerable().GroupBy(x => new
+                    {
+                        CompanyId = x["CompanyId"],
+                        UId = x["UId"],
+                        ColumnName = x["ColumnName"],
+                        //GroupName = x["GroupName"],
+                        CompanyGroupId = x["CompanyGroupId"],
+                        IsDirect = "General"
+
+                    })
+                .Select(x =>
+                {
+                    DataRow row = dt.NewRow();
+                    row["IsDirect"] = "General";
+                    row["UId"] = x.Key.UId; row["ColumnName"] = x.Key.ColumnName; row["CompanyId"] = x.Key.CompanyId; row["CompanyGroupId"] = x.Key.CompanyGroupId;
+                    row["totalEarlyOutEmployee"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["totalEarlyOutEmployee"]));
+                    row["totalLateInEmployee"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["totalLateInEmployee"]));
+                    row["totalLounchOutEmployee"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["totalLounchOutEmployee"]));
+                    row["ProposedManpowerBudget"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["ProposedManpowerBudget"]));
+                    row["OnRoleEmployee"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["OnRoleEmployee"])); row["totalPresentEmployee"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["totalPresentEmployee"]));
+                    row["totalAbsentEmployee"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["totalAbsentEmployee"])); row["totalLateEmployee"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["totalLateEmployee"]));
+                    row["totalLeaveEmployee"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["totalLeaveEmployee"])); row["totalWeekoffEmployee"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["totalWeekoffEmployee"]));
+                    row["ShiftNotAssignedEmployee"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["ShiftNotAssignedEmployee"])); row["totalAttdnNotProcessedToday"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["totalAttdnNotProcessedToday"]));
+                    row["totalShiftNotAssignAsofToday"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["totalShiftNotAssignAsofToday"])); row["totalLongAbsentismEmployee"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["totalLongAbsentismEmployee"]));
+                    return row;
+                }
+                                      ).CopyToDataTable();
+                }
+
+
+                dt.Merge(dtTemp);
+
+
+                return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dt);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
+        public IEnumerable<object> DrillDownAttnStatus(IEnumerable<ChartColumnList> ChartColumnList, int seq, string companyGroupId, string hrDate, string EmplyeeTypeOrCategoryId)
+        {
+            try
+            {
+                var EmployeeCategory = string.Empty;
+                if (EmplyeeTypeOrCategoryId == null || EmplyeeTypeOrCategoryId == "")
+                {
+                    EmployeeCategory = "";
+                }
+                else
+                {
+                    EmployeeCategory = @"AND Empc.Id = '" + EmplyeeTypeOrCategoryId + @"'";
+                }
+                var cList = string.Empty;
+                var cListId = string.Empty;
+                var join = string.Empty;
+                var wc = string.Empty;
+                var cListextG = string.Empty;
+                var cListextIdG = string.Empty;
+
+                string wcem = "";
+                string wcm = "";
+                string wcExt = "";
+                string cListext = "";
+                string cListextId = "";
+                string cListextIdR = "";
+                string cListEmpG = "";
+                string cListEmp = "";
+                string cListextM = "";
+                string cListextMSequence = "";
+                string cListextIdM = "";
+                string cListextF = "";
+                string cListextIdF = "";
+                string cListFinish = "";
+                string cListSequence = "";
+
+
+                seq += 1;
+                foreach (var item in ChartColumnList)
+                {
+                    if (item.Sequence != -2 && item.Sequence != -1)
+                    {
+                        if (item.Sequence <= seq)
+                        {
+                            if (item.RType == "Entity")
+                            {
+                                cList = "," + item.StandardName + ".UserName";
+                                cListId = "," + item.StandardName + ".Id";
+                                cListSequence = "," + item.StandardName + ".Sequence";
+
+                                if (item.StandardName == "EmployeeGroup")
+                                {
+                                    join += "LEFT JOIN [HKP].[" + item.StandardName + "] ON " + item.StandardName + ".Id = ENT." + item.StandardName + "Id\n";
+                                }
+                                else
+                                {
+                                    join += "LEFT JOIN [ORG].[" + item.StandardName + "] ON " + item.StandardName + ".Id = ENT." + item.StandardName + "Id\n";
+                                }
+                            }
+                            if (item.RType == "Position")
+                            {
+                                cListId = "," + item.StandardName + ".Id";
+                                cListSequence = "," + item.StandardName + ".Sequence";
+                                cList = "," + item.StandardName + ".UserName"; cListId = "," + item.StandardName + ".Id";
+                                join += "LEFT JOIN [ORG].[" + item.StandardName + "] ON " + item.StandardName + ".Id = POS." + item.StandardName + "Id\n";
+                            }
+                            if (item.RType == "ZA")
+                            {
+                                cListId = "," + item.StandardName + ".Id";
+                                cListSequence = "," + item.StandardName + ".Sequence";
+                                cList = "," + item.StandardName + ".UserName"; cListId = "," + item.StandardName + ".Id";
+                                join += "LEFT JOIN [ORG].[" + item.StandardName + "] ON " + item.StandardName + ".Id = MB." + item.StandardName + "Id\n";
+                            }
+                            if (item.RType == "Z")
+                            {
+                                cListId = "," + item.StandardName + "Defination.SystemId";
+                                cListSequence = "," + item.StandardName + "Defination.SequenceNo";
+                                cList = "," + item.StandardName + "Defination.UserName"; cListId = "," + item.StandardName + "Defination.SystemId";
+                                join += "LEFT JOIN [" + item.StandardName + "Defination] ON " + item.StandardName + "Defination.SystemId = MB." + item.StandardName + "DefinationId\n";
+                            }
+                        }
+                    }
+                    if (item.Sequence != -2)
+                    {
+                        if (item.Sequence == -1)
+                        {
+                            wc = "  AND C.Id ='" + item.Id + "'";
+                        }
+                        else
+                        {
+                            if (item.Sequence < seq)
+                            {
+                                if (item.RType == "Z")
+                                {
+                                    wc += " AND ISNULL(" + item.StandardName + "Defination.SystemId,'')='" + item.Text + "'";
+                                    wcem += " and ISNULL(" + item.StandardName + "Defination.SystemID,'')='" + item.Text + "'";
+                                    wcm = " and ISNULL(" + item.StandardName + "DefinationId,'')='" + item.Text + "'";
+                                    wcExt += " and ISNULL(" + item.StandardName + "DefinationId,'')='" + item.Text + "'";
+                                    cListext += "," + item.StandardName + "Defination.UserName  " + item.StandardName + "DefinationName";
+                                    cListextId += "," + item.StandardName + "Defination.SystemID  " + item.StandardName + "DefinationId";
+                                    cListextIdR += "," + item.StandardName + "Defination.SystemID  " + item.StandardName + "DefinationId";
+                                    cListEmpG += "," + item.StandardName + "Defination.SystemID  ";
+                                    cListEmp += " and e." + item.StandardName + "DefinationId = m." + item.StandardName + "DefinationId";
+                                    cListextM += ",m." + item.StandardName + "DefinationName";
+                                    cListextMSequence += ",m.Sequence";
+                                    cListextIdM += ",m." + item.StandardName + "DefinationId";
+                                    cListextF = "," + item.StandardName + "DefinationName";
+                                    cListextIdF = "," + item.StandardName + "DefinationId";
+                                    cListFinish += " and B." + item.StandardName + "DefinationId = m." + item.StandardName + "DefinationId";
+
+                                }
+                                else
+                                {
+                                    wc += " AND " + item.StandardName + ".Id='" + item.Text + "'";
+                                    wcem += " and " + item.StandardName + ".Id='" + item.Text + "'";
+                                    wcm = " and " + item.StandardName + "Id='" + item.Text + "'";
+                                    wcExt += " and " + item.StandardName + "Id='" + item.Text + "'";
+                                    cListext += "," + item.StandardName + ".UserName  " + item.StandardName + "Name";
+                                    cListextId += "," + item.StandardName + ".Id  " + item.StandardName + "Id";
+                                    cListextIdR += "," + item.StandardName + ".Id  " + item.StandardName + "Id";
+                                    cListEmpG += "," + item.StandardName + ".Id  ";
+                                    cListEmp += " and e." + item.StandardName + "Id = m." + item.StandardName + "Id";
+                                    cListextM += ",m." + item.StandardName + "Name";
+                                    cListextMSequence += ",m.Sequence";
+                                    cListextIdM += ",m." + item.StandardName + "Id";
+                                    cListextF = "," + item.StandardName + "Name";
+                                    cListextIdF = "," + item.StandardName + "Id";
+                                    cListFinish += " and B." + item.StandardName + "Id = m." + item.StandardName + "Id";
+
+                                }
+                            }
+                        }
+                    }
+                }
+                var sql = @"SELECT
+                                IsDirect,CompanyGroupId,CompanyId,ISNULL(ColumnName,'N/A') ColumnName,UId" + cListextF + @"" + cListextIdF + @"
+                               ,ISNULL(sum(TotalNumber),0) ProposedManpowerBudget ,ISNULL(SUM(TotalManpower),0) OnRoleEmployee
+                                ,ISNULL(sum(TotalSalary),0) OnRoleSalaryC
+                                 ,SUM(short) Short,SUM(Excess) Excess
+                               ,ISNULL(SUM(totalPresentEmployee),0) totalPresentEmployee,ISNULL(SUM(totalAbsentEmployee),0) totalAbsentEmployee
+								,ISNULL(SUM(totalLateEmployee),0) totalLateEmployee,ISNULL(SUM(totalLeaveEmployee),0) totalLeaveEmployee
+								,ISNULL(SUM(totalWeekoffEmployee),0) totalWeekoffEmployee,ISNULL(SUM(ShiftNotAssignedEmployee),0) ShiftNotAssignedEmployee
+                                ,SUM(totalEarlyOutEmployee) totalEarlyOutEmployee, SUM(totalLounchOutEmployee) totalLounchOutEmployee,SUM(totalLateInEmployee) totalLateInEmployee
+								,ISNULL(SUM(totalAttdnNotProcessedToday),0) totalAttdnNotProcessedToday,ISNULL(SUM(totalShiftNotAssignAsofToday),0) totalShiftNotAssignAsofToday
+								,ISNULL(SUM(totalLongAbsentismEmployee),0) totalLongAbsentismEmployee
+                                FROM
+                                 (
+                                 SELECT m.Id
+                                 ,b.TotalNumber
+                                 ,m.CompanyId
+                                 ,m.CompanyGroupId
+                                    ,Case when  ISNULL(m.IsDirect,0) = 0 then 'Indirect' else 'Direct' end AS  IsDirect
+                                  " + cListextM + @" 
+                                  " + cListextIdM + @"
+                                    
+
+                                  ,m.UId
+                                  ,m.ColumnName
+                                  
+                                  ,e.TotalSalary
+                                  ,e.TotalManpower
+                                   
+                                  ,Short = CASE
+                                  WHEN ISNULL(TotalNumber,0) - ISNULL(TotalManpower,0) > 0
+                                  THEN ISNULL(TotalNumber,0) - ISNULL(TotalManpower,0)
+                                  ELSE 0
+                                  END
+                                  ,Excess = CASE
+                                  WHEN ISNULL(TotalManpower,0) - ISNULL(TotalNumber,0) > 0
+                                  THEN ISNULL(TotalManpower,0) - ISNULL(TotalNumber,0)
+                                  ELSE 0 END
+
+                                ,ISNULL(totalEarlyOutEmployee,0) totalEarlyOutEmployee
+                                ,ISNULL(totalLounchOutEmployee,0) totalLounchOutEmployee
+                                ,ISNULL(totalLateInEmployee,0) totalLateInEmployee
+
+                                ,ISNULL(PresentEmployee.totalPresentEmployee,0) totalPresentEmployee
+								,ISNULL(AbsentEmployee.totalAbsentEmployee,0) totalAbsentEmployee
+								,ISNULL(LateEmployee.totalLateEmployee,0) totalLateEmployee
+								,ISNULL(LeaveEmployee.totalLeaveEmployee,0) totalLeaveEmployee
+								,ISNULL(WeekOffEmployee.totalWeekoffEmployee,'')totalWeekoffEmployee
+								,ISNULL(ShiftNotAssignedEmployee.totalShiftNotAssignedEmployee,0) ShiftNotAssignedEmployee
+								,ISNULL(AttdnNotProcessedToday.totalAttdnNotProcessedToday,0) totalAttdnNotProcessedToday
+								,ISNULL(ShiftNotAssignAsofToday.totalShiftNotAssignAsofToday,0) totalShiftNotAssignAsofToday
+                                 ,ISNULL(LONGABSENTISM.totalLongAbsentEmployee,0) totalLongAbsentismEmployee
+                                  FROM
+                                  ----------------------1 bc-------------------------------c-------
+                                  (SELECT
+                                    MB.Code
+                                    ,MB.Id
+                                    ,MB.CompanyGroupId
+                                    ,c.Id AS CompanyId
+                                    ,c.UserName AS CName
+                                    ,POS.IsDirect
+
+                                    " + cListext + @"
+                                    " + cListextIdR + @"
+                                   
+                                   	" + cList + @" AS ColumnName
+										" + cListId + @" AS UId
+                                    
+
+                                    FROM [MST].[ManpowerBudget]  MB
+                                    LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
+                                   LEFT OUTER JOIN [ORG].[Company] AS c on c.Id = MB.CompanyId AND c.CompanyGroupId = cg.Id
+                                    LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
+                                    LEFT OUTER JOIN [ORG].[Position] AS POS ON POS.Id = MB.PositionId
+
+									LEFT JOIN [HKP].Designation GDes ON GDes.Id = POS.DesignationId
+								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = GDes.Id
+								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+
+                                    " + join + @"
+                                    WHERE Cg.Id = '" + companyGroupId + @"'  " + wc + @" " + EmployeeCategory + @" AND MB.Active = 1
+                                    )  m
+                                -----------------------2e--------------------------------
+                                   LEFT OUTER JOIN
+                                   (SELECT COUNT(em.SystemID) TotalManpower,BudgetCode,POS.IsDirect,em.CompanyId,em.GroupID CompanyGroupId	" + cList + @" AS ColumnName
+										" + cListId + @" AS UId,sum(TotalSalary) TotalSalary
+                                   FROM [dbo].[EmployeeInformation]  em
+                                    LEFT outer join [MST].[ManpowerBudget] AS MB  on  MB.Id = em.BudgetCode
+                                      LEFT outer JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = em.GroupId
+                                  LEFT outer JOIN [ORG].[Company] AS C ON C.Id = em.CompanyId  AND c.CompanyGroupId = cg.Id
+                                  LEFT outer JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
+                                  LEFT outer JOIN [ORG].[Position] AS POS ON POS.Id = MB.PositionId
+
+									LEFT JOIN [HKP].Designation GDes ON GDes.Id = EM.LegalDesignationId
+								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = EM.LegalDesignationId
+								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+
+                                     " + join + @"
+                                   WHERE  (em.EmployeeStatus != 'Separated' OR CONVERT(DATE,em.DOS) >= CONVERT(DATE,'" + hrDate + @"')) " + EmployeeCategory + @" 
+                                                AND CONVERT(DATE, em.DOJ) <= CONVERT(DATE, '" + hrDate + @"')
+
+                                    AND  em.GroupID  = '" + companyGroupId + @"' " + wcem + @" " + EmployeeCategory + @"
+                                   GROUP BY BudgetCode,em.GroupID,em.CompanyId,POS.IsDirect  " + cListId + @" " + cList + @"
+                                ) e on m.Id=e.BudgetCode and e.CompanyGroupId = m.CompanyGroupId and e.CompanyId = m.CompanyId  AND  ISNULL(m.UId,'') = ISNULL(e.UId,'')
+                                LEFT OUTER JOIN
+							  ( SELECT POS.IsDirect,COUNT(E.SystemId) totalPresentEmployee,cg.Id CompanyGroupId,cg.UserName GroupName,
+								C.Id AS CompanyId,C.UserName CompanyName,MB.Id BudgetCode
+									" + cList + @" AS ColumnName
+										" + cListId + @" AS UId
+								FROM  ORG.CompanyGroup CG
+								LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
+
+								LEFT OUTER JOIN  (--*
+													SELECT * FROM EmployeeInformation
+													WHERE SystemId IN (--**
+																SELECT DISTINCT EmpSystemID FROM AttdnProcessData  APD
+																	LEFT JOIN DayType DT ON APD.DayStatus = DT.DayType
+																	WHERE DT.Category = 'Present' AND  CONVERT(DATE,WorkDate) = CONVERT(DATE,'" + hrDate + @"')
+																)--**
+													)--*
+								E ON e.GroupID = CG.Id and c.Id=E.CompanyId
+
+								 LEFT JOIN HKP.LegalDesignation GDes ON GDes.Id = E.LegalDesignationId
+                                    LEFT JOIN  Mst.DesignationMasterLegalDesignation DesM ON DesM.LegalDesignationId =  GDes.Id 
+								    LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = DesM.LegalDesignationId
+                                    LEFT JOIN[HKP].EmployeeCategory EmpC ON EmpC.Id = DM.EmployeeCategoryId
+	                            LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.CompanyId = c.Id
+								INNER JOIN [MST].[ManpowerBudget] AS MB  on  ENT.Id = MB.EntityId  and MB.Id = E.BudgetCode  
+								LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+
+										" + join + @"
+								WHERE
+							       e.GroupID = '" + companyGroupId + @"' " + wc + @" and  (e.EmployeeStatus != 'Separated' OR CONVERT(DATE,e.DOS) >= CONVERT(DATE,'" + hrDate + @"')) " + EmployeeCategory + @" 
+                                                AND CONVERT(DATE, e.DOJ) <= CONVERT(DATE, '" + hrDate + @"')" + EmployeeCategory + @"
+							    GROUP BY C.UserName,cg.UserName,C.Id,cg.Id,POS.IsDirect,MB.Id,cg.UserName" + cList + @" " + cListId + @")
+								PresentEmployee ON PresentEmployee.BudgetCode = m.Id  and PresentEmployee.CompanyGroupId = e.CompanyGroupId AND PresentEmployee.CompanyId = e.CompanyId AND PresentEmployee.IsDirect = e.IsDirect AND  ISNULL(PresentEmployee.UId,'') = ISNULL(e.UId,'')
+
+								LEFT OUTER JOIN
+
+								 (SELECT POS.IsDirect,COUNT(E.SystemId) totalAbsentEmployee,cg.Id CompanyGroupId,cg.UserName GroupName,MB.Id BudgetCode,
+								C.Id AS CompanyId,C.UserName CompanyName
+								" + cList + @" AS ColumnName
+										" + cListId + @" AS UId
+								FROM  ORG.CompanyGroup CG
+								LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
+
+								LEFT OUTER JOIN  (--*
+													SELECT * FROM EmployeeInformation
+													WHERE SystemId IN (--**
+																		SELECT DISTINCT EmpSystemID FROM AttdnProcessData  APD
+																				LEFT JOIN DayType DT ON APD.DayStatus = DT.DayType
+																			WHERE DT.Category = 'Absent' AND  CONVERT(DATE,WorkDate) = CONVERT(DATE,'" + hrDate + @"')
+																		)--**
+													)--*
+								E ON e.GroupID = CG.Id and c.Id=E.CompanyId
+
+									 LEFT JOIN HKP.LegalDesignation GDes ON GDes.Id = E.LegalDesignationId
+                                    LEFT JOIN  Mst.DesignationMasterLegalDesignation DesM ON DesM.LegalDesignationId =  GDes.Id 
+								    LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = DesM.LegalDesignationId
+                                    LEFT JOIN[HKP].EmployeeCategory EmpC ON EmpC.Id = DM.EmployeeCategoryId
+	                                LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.CompanyId = c.Id
+								INNER JOIN [MST].[ManpowerBudget] AS MB  on  ENT.Id = MB.EntityId  and MB.Id = E.BudgetCode  
+								LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+								 -- LEFT outer join [MST].[ManpowerBudget] AS MB  on  MB.Id = E.BudgetCode
+								--LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.Id = MB.EntityId
+								--LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+								" + join + @"
+
+								WHERE
+							       e.GroupID = '" + companyGroupId + @"'  " + wc + @"  AND E.EmployeeStatus = 'Active' " + EmployeeCategory + @"
+							    GROUP BY C.UserName,cg.UserName,C.Id,cg.Id,POS.IsDirect,MB.Id,cg.UserName" + cList + @" " + cListId + @")
+								AbsentEmployee
+								ON
+								AbsentEmployee.BudgetCode = m.Id  and e.CompanyGroupId = AbsentEmployee.CompanyGroupId AND e.CompanyId = AbsentEmployee.CompanyId AND e.IsDirect = AbsentEmployee.IsDirect AND  ISNULL(e.UId,'') = ISNULL(AbsentEmployee.UId,'')
+
+								LEFT OUTER JOIN
+
+								(SELECT POS.IsDirect,COUNT(E.SystemId) totalLateEmployee,cg.Id CompanyGroupId,cg.UserName GroupName,MB.Id BudgetCode,
+								C.Id AS CompanyId,C.UserName CompanyName
+									" + cList + @" AS ColumnName
+										" + cListId + @" AS UId
+								FROM  ORG.CompanyGroup CG
+								LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
+                   				LEFT OUTER JOIN  (--*
+														SELECT * FROM EmployeeInformation
+														WHERE SystemId IN (--**
+														SELECT DISTINCT EmpSystemID FROM AttdnProcessData  APD
+															LEFT JOIN DayType DT ON APD.DayStatus = DT.DayType
+															WHERE DT.Category = 'Late' AND CONVERT(DATE,WorkDate) = CONVERT(DATE,'" + hrDate + @"')
+														)--**
+													)--*
+								E ON e.GroupID = CG.Id and c.Id=E.CompanyId
+
+								LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
+								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
+								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+
+								 -- LEFT outer join [MST].[ManpowerBudget] AS MB  on  MB.Id = E.BudgetCode
+								--LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.Id = MB.EntityId
+								--LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+                            	LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.CompanyId = c.Id
+								INNER JOIN [MST].[ManpowerBudget] AS MB  on  ENT.Id = MB.EntityId  and MB.Id = E.BudgetCode  
+								LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+											" + join + @"
+								WHERE
+							    e.GroupID = '" + companyGroupId + @"' " + wc + @"   AND (E.EmployeeStatus != 'Separated' OR CONVERT(DATE,E.DOS) >= CONVERT(DATE,'" + hrDate + @"'))  " + EmployeeCategory + @"
+							    GROUP BY C.UserName,cg.UserName,C.Id,cg.Id,POS.IsDirect,MB.Id,cg.UserName " + cList + @" " + cListId + @") LateEmployee
+                                ON LateEmployee.BudgetCode = m.Id  and e.CompanyGroupId = LateEmployee.CompanyGroupId AND e.CompanyId = LateEmployee.CompanyId AND e.IsDirect = LateEmployee.IsDirect AND  ISNULL(e.UId,'') = ISNULL(LateEmployee.UId,'')
+								LEFT OUTER JOIN
+								(SELECT POS.IsDirect,COUNT(E.SystemId) totalLeaveEmployee,cg.Id CompanyGroupId,cg.UserName GroupName,MB.Id BudgetCode,
+								C.Id AS CompanyId,C.UserName CompanyName
+									" + cList + @" AS ColumnName
+										" + cListId + @" AS UId
+								FROM  ORG.CompanyGroup CG
+								LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
+								LEFT OUTER JOIN  (--*
+													SELECT * FROM EmployeeInformation
+													WHERE SystemId IN (--**
+																SELECT DISTINCT EmpSystemID FROM AttdnProcessData  APD
+																		LEFT JOIN DayType DT ON APD.DayStatus = DT.DayType
+																	WHERE DT.Category = 'Leave' AND CONVERT(DATE,WorkDate) = CONVERT(DATE,'" + hrDate + @"')
+																)--**
+													)--*
+								E ON e.GroupID = CG.Id and c.Id=E.CompanyId
+
+									 LEFT JOIN HKP.LegalDesignation GDes ON GDes.Id = E.LegalDesignationId
+                                    LEFT JOIN  Mst.DesignationMasterLegalDesignation DesM ON DesM.LegalDesignationId =  GDes.Id 
+								    LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = DesM.LegalDesignationId
+                                    LEFT JOIN[HKP].EmployeeCategory EmpC ON EmpC.Id = DM.EmployeeCategoryId
+
+									LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.CompanyId = c.Id
+								INNER JOIN [MST].[ManpowerBudget] AS MB  on  ENT.Id = MB.EntityId  and MB.Id = E.BudgetCode  
+								LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+                                --LEFT outer join [MST].[ManpowerBudget] AS MB  on  MB.Id = E.BudgetCode
+								--LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.Id = MB.EntityId
+								--LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+										" + join + @"
+								WHERE
+
+							       e.GroupID = '" + companyGroupId + @"'   " + wc + @"   AND (E.EmployeeStatus != 'Separated' OR CONVERT(DATE,E.DOS) >= CONVERT(DATE,'" + hrDate + @"'))" + EmployeeCategory + @"
+
+							    GROUP BY C.UserName,cg.UserName,C.Id,cg.Id,POS.IsDirect,MB.Id,cg.UserName " + cList + @" " + cListId + @") LeaveEmployee 
+                                ON LeaveEmployee.BudgetCode = m.Id  and e.CompanyGroupId = LeaveEmployee.CompanyGroupId AND e.CompanyId = LeaveEmployee.CompanyId AND e.IsDirect = LeaveEmployee.IsDirect AND  ISNULL(e.UId,'') = ISNULL(LeaveEmployee.UId,'')
+								LEFT OUTER JOIN
+								    (SELECT POS.IsDirect, COUNT(E.SystemId) totalWeekoffEmployee,cg.Id CompanyGroupId,cg.UserName GroupName,MB.Id BudgetCode,
+									C.Id AS CompanyId,C.UserName CompanyName
+									" + cList + @" AS ColumnName
+										" + cListId + @" AS UId
+									FROM  ORG.CompanyGroup CG
+									LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
+
+									LEFT OUTER JOIN  (--*
+														SELECT * FROM EmployeeInformation
+														WHERE SystemId IN (--**
+																			SELECT DISTINCT EmpSystemID FROM AttdnProcessData  APD
+																				LEFT JOIN DayType DT ON APD.DayStatus = DT.DayType
+																			WHERE DT.Category IN ('Holiday','Weekend') AND CONVERT(DATE,WorkDate) = CONVERT(DATE,'" + hrDate + @"')
+																		)--**
+														)--*
+									E ON e.GroupID = CG.Id and c.Id=E.CompanyId
+
+								 LEFT JOIN HKP.LegalDesignation GDes ON GDes.Id = E.LegalDesignationId
+                                    LEFT JOIN  Mst.DesignationMasterLegalDesignation DesM ON DesM.LegalDesignationId =  GDes.Id 
+								    LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = DesM.LegalDesignationId
+                                    LEFT JOIN[HKP].EmployeeCategory EmpC ON EmpC.Id = DM.EmployeeCategoryId
+
+	                            LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.CompanyId = c.Id
+								INNER JOIN [MST].[ManpowerBudget] AS MB  on  ENT.Id = MB.EntityId  and MB.Id = E.BudgetCode  
+								LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+									--  LEFT outer join [MST].[ManpowerBudget] AS MB  on  MB.Id = E.BudgetCode
+									--LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.Id = MB.EntityId
+									--LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+									
+                                    " + join + @"
+									WHERE
+									    e.GroupID = '" + companyGroupId + @"'   " + wc + @"   AND (E.EmployeeStatus != 'Separated' OR CONVERT(DATE,E.DOS) >= CONVERT(DATE,'" + hrDate + @"')) " + EmployeeCategory + @"
+									GROUP BY C.UserName,cg.UserName,POS.IsDirect,C.Id,cg.Id,MB.Id,cg.UserName" + cList + @" " + cListId + @")
+									WeekOffEmployee
+									ON
+									WeekOffEmployee.BudgetCode = m.Id  and e.CompanyGroupId = WeekOffEmployee.CompanyGroupId AND e.CompanyId = WeekOffEmployee.CompanyId AND e.IsDirect = WeekOffEmployee.IsDirect AND  ISNULL(e.UId,'') = ISNULL(WeekOffEmployee.UId,'')
+---LateIn----
+	LEFT OUTER JOIN
+
+								(SELECT POS.IsDirect,COUNT(E.SystemId) totalLateInEmployee,cg.Id CompanyGroupId,cg.UserName GroupName,MB.Id BudgetCode,
+								C.Id AS CompanyId,C.UserName CompanyName
+									" + cList + @" AS ColumnName
+										" + cListId + @" AS UId
+								FROM  ORG.CompanyGroup CG
+								LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
+                   				 LEFT OUTER JOIN  (--*
+                                SELECT * FROM EmployeeInformation
+                                WHERE SystemId IN(--**
+                                 SELECT DISTINCT EmpSystemID FROM AttendanceInfoExtra   AIE
+                                    WHERE AIE.InfoType = 'LATEIN'  AND CONVERT(DATE, WorkDate) = CONVERT(DATE, '" + hrDate + @"')
+								)--**
+								)--*
+                                E ON e.GroupID = CG.Id AND c.Id = E.CompanyId
+
+								 LEFT JOIN HKP.LegalDesignation GDes ON GDes.Id = E.LegalDesignationId
+                                    LEFT JOIN  Mst.DesignationMasterLegalDesignation DesM ON DesM.LegalDesignationId =  GDes.Id 
+								    LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = DesM.LegalDesignationId
+                                    LEFT JOIN[HKP].EmployeeCategory EmpC ON EmpC.Id = DM.EmployeeCategoryId
+
+								 -- LEFT outer join [MST].[ManpowerBudget] AS MB  on  MB.Id = E.BudgetCode
+								--LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.Id = MB.EntityId
+								--LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+                            	LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.CompanyId = c.Id
+								INNER JOIN [MST].[ManpowerBudget] AS MB  on  ENT.Id = MB.EntityId  and MB.Id = E.BudgetCode  
+								LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+											" + join + @"
+								WHERE
+							    e.GroupID = '" + companyGroupId + @"' " + wc + @"   AND (E.EmployeeStatus != 'Separated' OR CONVERT(DATE,E.DOS) >= CONVERT(DATE,'" + hrDate + @"'))  " + EmployeeCategory + @"
+							    GROUP BY C.UserName,cg.UserName,C.Id,cg.Id,POS.IsDirect,MB.Id,cg.UserName " + cList + @" " + cListId + @") LATEINEmployee
+                                ON LATEINEmployee.BudgetCode = m.Id  and e.CompanyGroupId = LATEINEmployee.CompanyGroupId AND e.CompanyId = LATEINEmployee.CompanyId AND e.IsDirect = LATEINEmployee.IsDirect AND  ISNULL(e.UId,'') = ISNULL(LATEINEmployee.UId,'')
+								
+---LateIn End----
+---EARLYOUT---
+LEFT OUTER JOIN
+
+								(SELECT POS.IsDirect,COUNT(E.SystemId) totalEarlyOutEmployee,cg.Id CompanyGroupId,cg.UserName GroupName,MB.Id BudgetCode,
+								C.Id AS CompanyId,C.UserName CompanyName
+									" + cList + @" AS ColumnName
+										" + cListId + @" AS UId
+								FROM  ORG.CompanyGroup CG
+								LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
+                   				 LEFT OUTER JOIN  (--*
+                                SELECT * FROM EmployeeInformation
+                                WHERE SystemId IN(--**
+                                 SELECT DISTINCT EmpSystemID FROM AttendanceInfoExtra   AIE
+                                    WHERE AIE.InfoType = 'EARLYOUT'  AND CONVERT(DATE, WorkDate) = CONVERT(DATE, '" + hrDate + @"')
+								)--**
+								)--*
+                                E ON e.GroupID = CG.Id AND c.Id = E.CompanyId
+
+								 LEFT JOIN HKP.LegalDesignation GDes ON GDes.Id = E.LegalDesignationId
+                                    LEFT JOIN  Mst.DesignationMasterLegalDesignation DesM ON DesM.LegalDesignationId =  GDes.Id 
+								    LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = DesM.LegalDesignationId
+                                    LEFT JOIN[HKP].EmployeeCategory EmpC ON EmpC.Id = DM.EmployeeCategoryId
+
+								 -- LEFT outer join [MST].[ManpowerBudget] AS MB  on  MB.Id = E.BudgetCode
+								--LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.Id = MB.EntityId
+								--LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+                            	LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.CompanyId = c.Id
+								INNER JOIN [MST].[ManpowerBudget] AS MB  on  ENT.Id = MB.EntityId  and MB.Id = E.BudgetCode  
+								LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+											" + join + @"
+								WHERE
+							    e.GroupID = '" + companyGroupId + @"' " + wc + @"   AND (E.EmployeeStatus != 'Separated' OR CONVERT(DATE,E.DOS) >= CONVERT(DATE,'" + hrDate + @"'))  " + EmployeeCategory + @"
+							    GROUP BY C.UserName,cg.UserName,C.Id,cg.Id,POS.IsDirect,MB.Id,cg.UserName " + cList + @" " + cListId + @") EARLYOUTEmployee
+                                ON EARLYOUTEmployee.BudgetCode = m.Id  and e.CompanyGroupId = EARLYOUTEmployee.CompanyGroupId AND e.CompanyId = EARLYOUTEmployee.CompanyId AND e.IsDirect = EARLYOUTEmployee.IsDirect AND  ISNULL(e.UId,'') = ISNULL(EARLYOUTEmployee.UId,'')
+			
+---EARLYOUT End---
+
+---LUNCHOUT---
+LEFT OUTER JOIN
+
+								(SELECT POS.IsDirect,COUNT(E.SystemId) totalLounchOutEmployee,cg.Id CompanyGroupId,cg.UserName GroupName,MB.Id BudgetCode,
+								C.Id AS CompanyId,C.UserName CompanyName
+									" + cList + @" AS ColumnName
+										" + cListId + @" AS UId
+								FROM  ORG.CompanyGroup CG
+								LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
+                   				 LEFT OUTER JOIN  (--*
+                                SELECT * FROM EmployeeInformation
+                                WHERE SystemId IN(--**
+                                 SELECT DISTINCT EmpSystemID FROM AttendanceInfoExtra   AIE
+                                    WHERE AIE.InfoType = 'LUNCHOUT'  AND CONVERT(DATE, WorkDate) = CONVERT(DATE, '" + hrDate + @"')  and ISNULL(OutTime,'')<>'' and  ISNULL(InTime,'')= ''
+								)--**
+								)--*
+                                E ON e.GroupID = CG.Id AND c.Id = E.CompanyId
+
+								 LEFT JOIN HKP.LegalDesignation GDes ON GDes.Id = E.LegalDesignationId
+                                    LEFT JOIN  Mst.DesignationMasterLegalDesignation DesM ON DesM.LegalDesignationId =  GDes.Id 
+								    LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = DesM.LegalDesignationId
+                                    LEFT JOIN[HKP].EmployeeCategory EmpC ON EmpC.Id = DM.EmployeeCategoryId
+
+								 -- LEFT outer join [MST].[ManpowerBudget] AS MB  on  MB.Id = E.BudgetCode
+								--LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.Id = MB.EntityId
+								--LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+                            	LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.CompanyId = c.Id
+								INNER JOIN [MST].[ManpowerBudget] AS MB  on  ENT.Id = MB.EntityId  and MB.Id = E.BudgetCode  
+								LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+											" + join + @"
+								WHERE
+							    e.GroupID = '" + companyGroupId + @"' " + wc + @"   AND (E.EmployeeStatus != 'Separated' OR CONVERT(DATE,E.DOS) >= CONVERT(DATE,'" + hrDate + @"'))  " + EmployeeCategory + @"
+							    GROUP BY C.UserName,cg.UserName,C.Id,cg.Id,POS.IsDirect,MB.Id,cg.UserName " + cList + @" " + cListId + @") LounchOutEmployee
+                                ON LounchOutEmployee.BudgetCode = m.Id  and e.CompanyGroupId = LounchOutEmployee.CompanyGroupId AND e.CompanyId = LounchOutEmployee.CompanyId AND e.IsDirect = LounchOutEmployee.IsDirect AND  ISNULL(e.UId,'') = ISNULL(LounchOutEmployee.UId,'')
+			
+---LUNCHOUT End---
+
+
+								LEFT OUTER JOIN
+								(SELECT POS.IsDirect, COUNT(E.SystemId) totalShiftNotAssignedEmployee,cg.Id CompanyGroupId,cg.UserName GroupName,MB.Id BudgetCode,
+									C.Id AS CompanyId,C.UserName CompanyName
+									" + cList + @" AS ColumnName
+										" + cListId + @" AS UId
+								FROM  ORG.CompanyGroup CG
+								LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
+								LEFT OUTER JOIN  (--*
+													SELECT * FROM EmployeeInformation
+													WHERE SystemId NOT IN (--**
+																		SELECT DISTINCT EmpSystemID FROM EmployeeShiftAssign
+																		)--**
+													)--*
+								E ON e.GroupID = CG.Id and c.Id=E.CompanyId
+
+									 LEFT JOIN HKP.LegalDesignation GDes ON GDes.Id = E.LegalDesignationId
+                                    LEFT JOIN  Mst.DesignationMasterLegalDesignation DesM ON DesM.LegalDesignationId =  GDes.Id 
+								    LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = DesM.LegalDesignationId
+                                    LEFT JOIN[HKP].EmployeeCategory EmpC ON EmpC.Id = DM.EmployeeCategoryId
+	                              LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.CompanyId = c.Id
+								INNER JOIN [MST].[ManpowerBudget] AS MB  on  ENT.Id = MB.EntityId  and MB.Id = E.BudgetCode  
+								LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+								--LEFT outer join [MST].[ManpowerBudget] AS MB  on  MB.Id = E.BudgetCode
+								--LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.Id = MB.EntityId
+								--LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+										" + join + @"
+								WHERE
+							       e.GroupID = '" + companyGroupId + @"'   " + wc + @"   AND (E.EmployeeStatus != 'Separated' OR CONVERT(DATE,E.DOS) >= CONVERT(DATE,'" + hrDate + @"')) " + EmployeeCategory + @"
+							    GROUP BY C.UserName,cg.UserName,POS.IsDirect,C.Id,cg.Id,MB.Id,cg.UserName " + cList + @" " + cListId + @")
+								ShiftNotAssignedEmployee ON
+								ShiftNotAssignedEmployee.BudgetCode = m.Id  and e.CompanyGroupId = ShiftNotAssignedEmployee.CompanyGroupId AND e.CompanyId = ShiftNotAssignedEmployee.CompanyId AND e.IsDirect = ShiftNotAssignedEmployee.IsDirect AND  ISNULL(e.UId,'') = ISNULL(ShiftNotAssignedEmployee.UId,'')
+                                    LEFT OUTER JOIN
+									(
+									 SELECT POS.IsDirect, count(E.SystemID) totalAttdnNotProcessedToday,cg.Id CompanyGroupId,cg.UserName GroupName,MB.Id BudgetCode,
+									C.Id AS CompanyId,C.UserName CompanyName
+									" + cList + @" AS ColumnName
+										" + cListId + @" AS UId
+										FROM  ORG.CompanyGroup CG
+											LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
+											INNER JOIN EmployeeInformation E ON E.GroupID = CG.Id   and c.Id=E.CompanyId
+
+											Inner JOIN(--*
+															   SELECT TOP 1 WITH TIES *
+																FROM EmployeeShiftAssign
+																WHERE EffectiveDate <= GETDATE() and
+																EmpSystemID NOT IN(--**
+																							SELECT DISTINCT EmpSystemID FROM AttdnProcessData
+																							WHERE  CONVERT(DATE, WorkDate) =  CONVERT(DATE, '" + hrDate + @"')
+																					)
+																ORDER BY ROW_NUMBER() OVER(PARTITION BY EmpSystemID ORDER BY EffectiveDate DESC)
+															  )-- *
+														ESA
+											ON E.SystemId = ESA.EmpSystemID
+
+									 LEFT JOIN HKP.LegalDesignation GDes ON GDes.Id = E.LegalDesignationId
+                                    LEFT JOIN  Mst.DesignationMasterLegalDesignation DesM ON DesM.LegalDesignationId =  GDes.Id 
+								    LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = DesM.LegalDesignationId
+                                    LEFT JOIN[HKP].EmployeeCategory EmpC ON EmpC.Id = DM.EmployeeCategoryId
+	                            LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.CompanyId = c.Id
+								INNER JOIN [MST].[ManpowerBudget] AS MB  on  ENT.Id = MB.EntityId  and MB.Id = E.BudgetCode  
+								LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+								    --LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on  MB.Id = E.BudgetCode
+									--LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.Id = MB.EntityId
+									--LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+									" + join + @"
+
+									WHERE
+									  e.GroupID = '" + companyGroupId + @"'   " + wc + @"   AND (E.EmployeeStatus != 'Separated' OR CONVERT(DATE,E.DOS) >= CONVERT(DATE,'" + hrDate + @"'))" + EmployeeCategory + @"
+                                            AND CONVERT(DATE,E.DOJ) <= CONVERT(DATE,'" + hrDate + @"')
+							    GROUP BY C.UserName,cg.UserName,POS.IsDirect,C.Id,cg.Id,MB.Id ,cg.UserName " + cList + @" " + cListId + @") 
+                                AttdnNotProcessedToday ON AttdnNotProcessedToday.BudgetCode = m.Id  and e.CompanyGroupId = AttdnNotProcessedToday.CompanyGroupId AND e.CompanyId = AttdnNotProcessedToday.CompanyId AND e.IsDirect = AttdnNotProcessedToday.IsDirect  AND  ISNULL(e.UId,'') = ISNULL(AttdnNotProcessedToday.UId,'')
+									LEFT OUTER JOIN
+									(
+									SELECT POS.IsDirect,COUNT(ESA.SystemID) totalShiftNotAssignAsofToday,cg.Id CompanyGroupId,cg.UserName GroupName,MB.Id BudgetCode,
+									C.Id AS CompanyId,C.UserName CompanyName
+									" + cList + @" AS ColumnName
+										" + cListId + @" AS UId
+									FROM  ORG.CompanyGroup CG
+									LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
+									LEFT OUTER JOIN EmployeeInformation E ON E.GroupID = CG.Id   and c.Id=E.CompanyId
+									LEFT OUTER JOIN  (--*
+														SELECT SystemID FROM EmployeeInformation EI
+															WHERE EI.SystemID NOT IN (--**
+																  SELECT DISTINCT EmpSystemID FROM EmpDateWiseShiftAssign
+																	WHERE  CONVERT(DATE,WorkDate) = CONVERT(DATE,'" + hrDate + @"')
+													)--**
+									)--*
+									ESA
+									ON E.SystemId = ESA.SystemId
+
+								    LEFT JOIN HKP.LegalDesignation GDes ON GDes.Id = E.LegalDesignationId
+                                    LEFT JOIN  Mst.DesignationMasterLegalDesignation DesM ON DesM.LegalDesignationId =  GDes.Id 
+								    LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = DesM.LegalDesignationId
+                                    LEFT JOIN[HKP].EmployeeCategory EmpC ON EmpC.Id = DM.EmployeeCategoryId
+
+								   -- LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on  MB.Id = E.BudgetCode
+								--	LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.Id = MB.EntityId
+								--	LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+	                            LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.CompanyId = c.Id
+								INNER JOIN [MST].[ManpowerBudget] AS MB  on  ENT.Id = MB.EntityId  and MB.Id = E.BudgetCode  
+								LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+										" + join + @"
+
+									WHERE
+
+									 e.GroupID = '" + companyGroupId + @"'   " + wc + @"   AND (E.EmployeeStatus != 'Separated' OR CONVERT(DATE,E.DOS) >= CONVERT(DATE,'" + hrDate + @"')) " + EmployeeCategory + @"
+                                      AND CONVERT(DATE,E.DOJ) <= CONVERT(DATE,'" + hrDate + @"')
+							    GROUP BY C.UserName,cg.UserName,C.Id,cg.Id,cg.UserName,MB.Id,POS.IsDirect " + cList + @" " + cListId + @") ShiftNotAssignAsofToday
+                    ON ShiftNotAssignAsofToday.BudgetCode = m.Id  and e.CompanyGroupId = ShiftNotAssignAsofToday.CompanyGroupId AND e.CompanyId = ShiftNotAssignAsofToday.CompanyId AND e.IsDirect = ShiftNotAssignAsofToday.IsDirect  AND  ISNULL(e.UId,'') = ISNULL(ShiftNotAssignAsofToday.UId,'')
+	                            LEFT JOIN
+								(
+								SELECT POS.IsDirect, COUNT(E.SystemId) totalLongAbsentEmployee,cg.Id CompanyGroupId,cg.UserName GroupName,MB.Id BudgetCode,
+								C.Id AS CompanyId,C.UserName CompanyName
+									" + cList + @" AS ColumnName
+										" + cListId + @" AS UId
+								FROM  ORG.CompanyGroup CG
+								LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
+
+								LEFT OUTER JOIN  EmployeeInformation
+								E ON e.GroupID = CG.Id and c.Id=E.CompanyId
+
+								 LEFT JOIN HKP.LegalDesignation GDes ON GDes.Id = E.LegalDesignationId
+                                    LEFT JOIN  Mst.DesignationMasterLegalDesignation DesM ON DesM.LegalDesignationId =  GDes.Id 
+								    LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = DesM.LegalDesignationId
+                                    LEFT JOIN[HKP].EmployeeCategory EmpC ON EmpC.Id = DM.EmployeeCategoryId
+	                            
+                                LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.CompanyId = c.Id
+								INNER JOIN [MST].[ManpowerBudget] AS MB  on  ENT.Id = MB.EntityId  and MB.Id = E.BudgetCode  
+								LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+								 -- LEFT outer join [MST].[ManpowerBudget] AS MB  on  MB.Id = E.BudgetCode
+								--LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.Id = MB.EntityId
+								--LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
+                                                " + join + @"
+								WHERE
+							       e.GroupID = '" + companyGroupId + @"'   " + wc + @" AND E.EmployeeCurrentStatus = 'LONG ABSENTEEISM' AND (E.EmployeeStatus != 'Separated'  OR E.DOS >= '" + hrDate + @"') 
+							    GROUP BY C.UserName,POS.IsDirect,cg.UserName,C.Id,MB.Id,cg.Id,cg.UserName " + cList + @" " + cListId + @")
+								LONGABSENTISM ON   LONGABSENTISM.BudgetCode = m.Id AND e.CompanyGroupId = LONGABSENTISM.CompanyGroupId AND e.CompanyId = LONGABSENTISM.CompanyId AND e.IsDirect = LONGABSENTISM.IsDirect AND  ISNULL(e.UId,'') = ISNULL(LONGABSENTISM.UId,'')
+                                
+
+                                 -------------------------3b--------------------------------------------------------
+                                  LEFT OUTER JOIN
+                                (
+                                SELECT MBD.TotalNumber, ManpowerBudgetId,Cg.Id as CgId, C.Id as cid   " + cListextIdR + @"
+
+                                FROM
+
+                                (SELECT TOP 1 WITH TIES TotalNumber,ManpowerBudgetId,EffectiveDate
+									FROM [MST].[ManpowerBudgetDetail]
+									WHERE CONVERT(DATE,EffectiveDate) <= CONVERT(DATE,'" + hrDate + @"')
+									ORDER BY ROW_NUMBER() OVER(PARTITION BY ManpowerBudgetId ORDER BY EffectiveDate DESC)
+                                 ) MBD
+
+                                  LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on  Mb.Id = MBD.ManpowerBudgetId
+
+                                  LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
+
+                                  LEFT OUTER JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id and mb.CompanyId= c.Id
+                                  LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
+
+                                  LEFT OUTER JOIN [ORG].[Position] AS POS ON POS.Id = MB.PositionId
+
+										LEFT JOIN [HKP].Designation GDes ON GDes.Id = POS.DesignationId
+								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = GDes.Id
+								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+
+                                   " + join + @"
+
+                                 WHERE CG.Id = '" + companyGroupId + @"' " + wc + @"  " + EmployeeCategory + @" AND TotalNumber > 0
+                                 ) B
+                                 ON m.id = b.ManpowerBudgetId and b.CgId = m.CompanyGroupId and B.cid = m.CompanyId   " + cListFinish + @"
+                                 ) ede  GROUP BY IsDirect,CompanyGroupId, CompanyId,ColumnName,UId " + cListextF + @"" + cListextIdF + @"";
 
                 DataTable dt = _sqlRepository.GetDataTable(sql);
 

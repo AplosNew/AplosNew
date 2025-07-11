@@ -27,17 +27,21 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         LastReadingTime: null,
         MultiplyingFactor: null,
         Remarks: null,
-        UoM:null,
+        UoM: null,
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.searchBy = "UtilityMaster"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Date', name: "Date" }, { value: 'UtilityMaster', name: "UtilityMaster" }, { value: 'Remarks', name: "Remarks" }];
+
 
     $scope.getData = function () {
         $http({
             method: 'POST',
             url: $scope.path + "GetList",
+            data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-
             $scope.ModelList = response.data;
         });
     }
@@ -79,10 +83,10 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     ];
 
     $scope.searchByUtility = "UtilityMaster"; $scope.searchUtility = "";
-    
+
     $scope.valueData = '';
     $scope.utilityMasterList = [];
- 
+
     $scope.getUtilityTransactionPopUpData = function () {
         $scope.UtilityUrl = 'Materials/UtilityTransaction/GetUtilityMasterList';
         $http({
@@ -108,7 +112,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         $scope.ModelNew.MultiplyingFactor = obj.data.MultiplyingFactor;
         $scope.ModelNew.UoMId = obj.data.UoMId;
         $scope.ModelNew.UoM = obj.data.UoM;
-        $scope.ModelNew.InPutSourceId = obj.data.InPutSourceId;
+        $scope.ModelNew.InputSourceId = obj.data.InPutSourceId;
 
         $scope.GetEditReadingList();
         $scope.GetUoMAndReadingApplicable();
@@ -116,7 +120,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         $scope.searchUtility = '';
     }
 
-     
+
     $scope.UoMName = null;
     $scope.GetUoMAndReadingApplicable = function () {
         for (var i = 0; i < $scope.utilityMasterList.length; i++) {
@@ -125,7 +129,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
             }
         }
     }
-     
+
     $scope.GetEditReadingList = function () {
         $scope.ModelNew.LastReading = 0;
         $scope.ModelNew.LastReadingDate = null;
@@ -148,20 +152,36 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.GetCalculatedValue = function () {
+        //$http({
+        //    method: 'GET',
+        //    url: 'Materials/UtilityTransaction/GetCalculatedValue?utilityMasterId=' + $scope.ModelNew.UtilityMasterId
+        //}).then(function successCallback(response) {
+        //    /*$scope.ModelNew.MultiplyingFactor = response.data[0].MultiplyingFactor;*/
+        //    $scope.CalculatedValue = parseFloat($scope.ModelNew.Quantity * $scope.ModelNew.MultiplyingFactor).toFixed(4);
+        //});
+        $scope.CalculatedValue = parseFloat($scope.ModelNew.Quantity * $scope.ModelNew.MultiplyingFactor).toFixed(4);
+
+    }
+
+    $scope.GetLastReading = function () {
         $http({
             method: 'GET',
-            url: 'Materials/UtilityTransaction/GetCalculatedValue?utilityMasterId=' + $scope.ModelNew.UtilityMasterId
+            url: 'Materials/UtilityTransaction/GetLastReading?utilityMasterId=' + $scope.ModelNew.UtilityMasterId + '&readingDate=' + $scope.ModelNew.ReadingDate
         }).then(function successCallback(response) {
-            /*$scope.ModelNew.MultiplyingFactor = response.data[0].MultiplyingFactor;*/
-            $scope.CalculatedValue = parseFloat($scope.ModelNew.Quantity * $scope.ModelNew.MultiplyingFactor).toFixed(4);
+            if (response.data.length > 0) {
+                $scope.ModelNew.LastReading = response.data[0].Reading;
+            }
         });
     }
 
 
+
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.ModelNew.Date = $filter('dateFiltering')(new Date($scope.ModelNew.Date), 'dd-MM-yyyy');
+        $scope.CalculatedValue = parseFloat($scope.ModelNew.Quantity * $scope.ModelNew.MultiplyingFactor).toFixed(4);
         $scope.GetUoMAndReadingApplicable();
-        $scope.GetCalculatedValue();
+        $scope.GetLastReading();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();

@@ -561,7 +561,7 @@ LEFT JOIN HKP.ComplianceMaster CMR ON CMR.Id=CT.LocationId) AS TEMP WHERE " + st
             return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName1 + " Where EntryType='SubCategory'"), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult GetDataList(string column, string value,string entryType)
         {
             string strkey = "1=1";
@@ -582,7 +582,7 @@ LEFT JOIN HKP.ComplianceMaster CMR ON CMR.Id=CT.LocationId) AS TEMP WHERE " + st
             return Json(GetCategoryTypeSequence(entryType), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult CreateData(Dictionary<string, object> data, string entryType)
         {
             try
@@ -634,6 +634,7 @@ LEFT JOIN HKP.ComplianceMaster CMR ON CMR.Id=CT.LocationId) AS TEMP WHERE " + st
             }
         }
 
+        [HttpPost, Authorize]
         public ActionResult DeleteData(string id)
         {
             

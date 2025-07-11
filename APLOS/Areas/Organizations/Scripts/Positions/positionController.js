@@ -66,7 +66,7 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
         PhysicalVarification: false,
         UserReportGroup: null,
         ProcessId: null,
-        GoodWorkPositionCodeId:null,
+        GoodWorkPositionCodeId: null,
         GoodWorkPositionCode: null
     };
 
@@ -481,6 +481,33 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
                         '</div>' +
                         '</div>' +
                         '<div class="form-group">' +
+                        '<label class="col-sm-4 control-label">Position Category</label>' +
+                        '<div class="col-sm-8">' +
+                        '<input tabindex="7" maxlength="100" type="text" ng-model="companyStructureSetup.PositionCategory" class="form-control">' +
+                        '</div>' +
+                        '</div>' +
+
+                        '<div class="form-group">' +
+                        '<label class="col-sm-4 control-label">Is Machine</label>' +
+                        '<div class="col-sm-8">' +
+                        '<div class="checkbox-site">' +
+                        '<label>' +
+                        '<input type="checkbox" ng-model="companyStructureSetup.IsMachine" tabindex="10">' +
+                        '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>' +
+                        '</label>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+
+
+                        '<div class="form-group">' +
+                        '<label class="col-sm-4 control-label">Machine Name</label>' +
+                        '<div class="col-sm-8">' +
+                        '<input tabindex="7" maxlength="100" type="text" ng-model="companyStructureSetup.MachineName" class="form-control">' +
+                        '</div>' +
+                        '</div>' +
+
+                        '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Direct Manpower</label>' +
                         '<div class="col-sm-2">' +
                         '<div class="checkbox-site">' +
@@ -511,6 +538,7 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
                         '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label>' +
                         '</div>' +
                         '</div>' +
+
                         '</div>';
 
                     $scope.right +=
@@ -582,9 +610,21 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
                         '<label class="col-sm-4 control-label">Good Work Position Code</label>' +
                         '<div class="col-sm-8">' +
                         '<div class="input-group">' +
-                        '<input type="text" name="Process" ng-model="companyStructureSetup.GoodWorkPositionCode" class="form-control" readonly>' +
+                        '<input type="text" name="Good Work Position Code" ng-model="companyStructureSetup.GoodWorkPositionCode" class="form-control" readonly>' +
                         '<span class="input-group-btn">' +
                         '<button name="submit" ng-click="GWPositionCodePopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>' +
+                        '</span>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+
+                        '<div class="form-group">' +
+                        '<label class="col-sm-4 control-label" title="Responsible Person Position Code">Responsible Person Position Code</label>' +
+                        '<div class="col-sm-8">' +
+                        '<div class="input-group">' +
+                        '<input type="text" name="Good Work Position Code" ng-model="companyStructureSetup.ResponsiblePersonPositionCode" class="form-control" readonly>' +
+                        '<span class="input-group-btn">' +
+                        '<button name="submit" ng-click="RPPositionCodePopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>' +
                         '</span>' +
                         '</div>' +
                         '</div>' +
@@ -736,8 +776,8 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
         serverPagination: true
     };
 
-
     $scope.GWPositionCodePopUp = function () {
+        $scope.name == "GW";
         $scope.GWPCPopUpUrl = 'Organizations/Position/getlist';
         $scope.getGWPCData = function (pageno) {
             baseService.paginationBase($scope.GWPCPopUpUrl, pageno, $scope.GWPCPopUpParameters)
@@ -758,10 +798,35 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
     };
 
     $scope.GWPCAdd = function (data) {
-        $scope.companyStructureSetup.GoodWorkPositionCode = data.Code;
-        $scope.companyStructureSetup.GoodWorkPositionCodeId = data.Id;
+        if ($scope.name == "GW") {
+            $scope.companyStructureSetup.GoodWorkPositionCode = data.Code;
+            $scope.companyStructureSetup.GoodWorkPositionCodeId = data.Id;
+        } else {
+            $scope.companyStructureSetup.ResponsiblePersonPositionCode = data.Code;
+            $scope.companyStructureSetup.ResponsiblePersonPositionCodeId = data.Id;
+        }
+        $scope.name == "";
         angular.element(document.querySelector('#GWPCPopUp')).modal('hide');
     };
+
+    $scope.RPPositionCodePopUp = function () {
+        $scope.name == "RP";
+        $scope.GWPCPopUpUrl = 'Organizations/Position/getlist';
+        $scope.getGWPCData = function (pageno) {
+            baseService.paginationBase($scope.GWPCPopUpUrl, pageno, $scope.GWPCPopUpParameters)
+                .then(function (result) {
+                    $scope.GWPCPopUpDataList = result.Rows;
+                    $scope.GWPCPopUpParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure', 'GWPCPopUp');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#GWPCPopUp')).modal('show');
+        $scope.getGWPCData();
+    };
+
+
 
     // #endregion
 

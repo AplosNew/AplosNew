@@ -1021,7 +1021,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
     // #region Detail Pop
     $scope.details = function (data) {
         $scope.masterId = data.data.Id;
-        $scope.entityId = data.data.entityId;
+        $scope.entityId = data.data.EntityId;
         $scope.ProcessId = data.data.ProcessId;
         $scope.tempList = [];
         $scope.effectiveDateList = [];
@@ -1136,7 +1136,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
         };
         angular.element(document.querySelector('#manpowerBudgetPopUp')).modal('hide');
     };
-    $scope.manpowerBudgetAdd = function (data) {
+    $scope.manpowerBudgetAdd = function () {
         if (baseService.isUndefinedOrNull($scope.budgetCodeModel.ManpowerBudgetId))
             return ShowResult('Please select manpower budget.', 'failure', 'detailPopUp');
         if (baseService.isUndefinedOrNull($scope.budgetCodeModel.NoOfResource) || parseInt($scope.budgetCodeModel.NoOfResource) === 0)

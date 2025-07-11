@@ -396,7 +396,7 @@ namespace Library.HumanResource.Dashboard
 
         #region DetailDrillDownOfManpowerBudget
 
-        public IEnumerable<object> DetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string status, string EmplyeeTypeOrCategoryId,string companyGroupId)
+        public IEnumerable<object> DetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string status, string EmplyeeTypeOrCategoryId, string companyGroupId)
         {
             var EmployeeCategory = string.Empty;
             var shortExcess = string.Empty;
@@ -766,7 +766,7 @@ namespace Library.HumanResource.Dashboard
                                 	(
                                 		SELECT BudgetCode,COUNT(SystemId) TotalManpower,SUM(TotalSalary) TotalSalary
                                 		FROM [dbo].[EmployeeInformation]  
-                                		WHERE EmployeeStatus = 'Active' and ISNULL(BudgetCode,'')<>'' AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') AND GroupID = '"+ companyGroupId + @"' 
+                                		WHERE EmployeeStatus = 'Active' and ISNULL(BudgetCode,'')<>'' AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') AND GroupID = '" + companyGroupId + @"' 
                                 		group by BudgetCode
                                 	) EmpInfo on M.Id=EmpInfo.BudgetCode
                                 	Left Outer Join
@@ -811,7 +811,7 @@ namespace Library.HumanResource.Dashboard
                 {
                     DataRow row = dt.NewRow();
                     row["IsDirect"] = "General";
-                    row["UId"] = x.Key.UId;row["Sequence"] = x.Key.Sequence;
+                    row["UId"] = x.Key.UId; row["Sequence"] = x.Key.Sequence;
                     row["CompanyId"] = x.Key.CompanyId; row["UserName"] = x.Key.UserName; //row["CompanyGroupId"] = x.Key.CompanyGroupId;
                     row["ProposedManpowerBudget"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["ProposedManpowerBudget"]));
                     row["TotalManpower"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["TotalManpower"])); row["Short"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["Short"]));
@@ -4097,7 +4097,8 @@ LEFT JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
 LEFT JOIN HKP.Designation DG ON DG.Id=P.DesignationId
 LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=MB.ShiftDefinationId
 LEFT JOIN ORG.Line L ON L.Id=MB.LineId
-Order by MB.Code  ";
+WHERE MB.Active = 1
+Order by MB.Code";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception e)
@@ -4110,27 +4111,29 @@ Order by MB.Code  ";
         {
             try
             {
-                var str = @"Select distinct PMB.Id BudgetId,PMB.Code,ISNULL(mbd.TotalNumber,0) Budgeted,ONR.OnRoll,PMB.Deployment,Short=CASE WHEN mbd.TotalNumber>ONR.OnRoll THEN mbd.TotalNumber-ONR.OnRoll ELSE 0 END
-,Excess=CASE WHEN mbd.TotalNumber<ONR.OnRoll THEN ONR.OnRoll-mbd.TotalNumber ELSE 0 END
+                var str = @"Select M.Id BudgetId,M.Code,ISNULL(mbd.TotalNumber,0) Budgeted,ISNULL(EmpInfo.OnRoll,0)OnRoll,M.Deployment,Short=CASE WHEN mbd.TotalNumber>ISNULL(EmpInfo.OnRoll,0) THEN mbd.TotalNumber-ISNULL(EmpInfo.OnRoll,0) ELSE 0 END
+,Excess=CASE WHEN mbd.TotalNumber<ISNULL(EmpInfo.OnRoll,0) THEN ISNULL(EmpInfo.OnRoll,0)-mbd.TotalNumber ELSE 0 END
 ,D.UserName Division,E.UserName Entity,DP.UserName Department,S.UserName Section,SS.UserName SubSection,DG.UserName Designation,SD.ShiftDefinationName ShiftName
 ,L.UserName Line,PS.UserName Process 
-FROM dbo.Employeeinformation EI
-LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
-LEFT JOIN(Select SUM(TotalNumber)TotalNumber,ManpowerBudgetId,Id from MST.ManpowerBudgetDetail Group BY ManpowerBudgetId,Id) AS mbd ON mbd.ManpowerBudgetId=PMB.Id
-							  AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudgetId=PMB.Id order by EffectiveDate desc)
-LEFT JOIN (SELECT COUNT(SystemId) OnRoll,BudgetCode FROM EmployeeInformation WHERE EmployeeStatus = 'Active' and ISNULL(BudgetCode,'')<>'' GROUP BY BudgetCode) ONR ON ONR.BudgetCode=EI.BudgetCode
-LEFT JOIN ORG.Position P ON P.id=PMB.PositionId
+From
+(SELECT MB.Code,MB.Id,MB.Deployment,MB.PositionId,MB.EntityId,MB.ShiftDefinationId,MB.LineId FROM [MST].[ManpowerBudget]  MB  WHERE MB.Active = 1) M
+Left Outer Join
+(
+SELECT BudgetCode,COUNT(SystemId) OnRoll FROM [dbo].[EmployeeInformation]  WHERE EmployeeStatus = 'Active' and ISNULL(BudgetCode,'')<>''group by BudgetCode
+) EmpInfo on M.Id=EmpInfo.BudgetCode
+LEFT JOIN(Select SUM(TotalNumber)TotalNumber,ManpowerBudgetId,Id from MST.ManpowerBudgetDetail Group BY ManpowerBudgetId,Id) AS mbd ON mbd.ManpowerBudgetId=M.Id
+AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudgetId=M.Id order by EffectiveDate desc)
+LEFT JOIN ORG.Position P ON P.id=M.PositionId
 LEFT JOIN ORG.Division D ON D.Id=P.DivisionId
-LEFT JOIN ORG.Entity E ON E.Id=PMB.EntityId
+LEFT JOIN ORG.Entity E ON E.Id=M.EntityId
 LEFT JOIN ORG.Department DP ON DP.Id=P.DepartmentId
 LEFT JOIN ORG.Section S ON S.Id=P.SectionId
 LEFT JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
 LEFT JOIN HKP.Designation DG ON DG.Id=P.DesignationId
-LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=PMB.ShiftDefinationId
-LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
+LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftDefinationId
+LEFT JOIN ORG.Line L ON L.Id=M.LineId
 LEFT JOIN HKP.Process PS ON PS.Id=P.ProcessId
-WHERE EI.EmployeeStatus = 'Active' AND PMB.Id<>'' 
-AND PMB.Id in(" + parameters["BudgetId"] + @")
+WHERE M.Id in(" + parameters["BudgetId"] + @")
 AND E.Id in(" + parameters["EntityId"] + @")
 AND DP.Id in(" + parameters["DepartmentId"] + @")
 AND S.Id in(" + parameters["SectionId"] + @")
