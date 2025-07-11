@@ -714,6 +714,27 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 		//$scope.getToCurrencyRate();
 	}
 
+	$scope.GRNBoqList = [];
+	$scope.GetGRNBoqList = function () {
+		$http({
+			method: "POST",
+			dataType: 'JSON',
+			url: 'Products/GoodsReceiveNote/GetGRNBOQListForPurchaseReturn',
+			data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
+		}).then(function successCallback(response) {
+			$scope.GRNBoqList = response.data;
+		});
+	};
+
+	$scope.GetGRNBoqPopUp = function () {
+		$scope.GetGRNBoqList();
+
+		angular.element(document.querySelector('#GRNBoqPopUp')).modal('show');
+
+	};
+	$scope.GRNBoqPOPopUpClose = function () {
+		angular.element(document.querySelector('#GRNBoqPopUp')).modal('hide');
+	};
 	$scope.tabType = "ForChecking";
 	$scope.GriddataMaster = [];
 	$scope.getalldataMaster = function () {

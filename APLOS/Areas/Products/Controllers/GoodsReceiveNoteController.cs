@@ -3081,7 +3081,7 @@ UNION ALL
 									, IR.IsApproved, IR.IsPaymentHold,isnull(IR.POID,'') POID,IR.CheckedByStatus,IR.AuthorizedByStatus
                                     ,isnull(IR.GateEntryNo,0) GateEntryNo
 									,isnull(PWG.UserName ,'') GateName, IR.NoteForAccounts
-                                    ,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END
+                                    ,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END,IR.GRNType
                         FROM [TRN].[InventoryReceive] AS IR left JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						--left join trn.POGGRNMap map on map.GRNId=ir.id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
@@ -3120,7 +3120,7 @@ UNION ALL
 									, IR.IsApproved, IR.IsPaymentHold,isnull(IR.POID,'') POID,IR.CheckedByStatus,IR.AuthorizedByStatus
                                     ,isnull(IR.GateEntryNo,0) GateEntryNo
 									,isnull(PWG.UserName ,'') GateName, IR.NoteForAccounts
-                                    ,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END
+                                    ,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END,IR.GRNType
                         FROM [TRN].[InventoryReceive] AS IR left JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						--left join trn.POGGRNMap map on map.GRNId=ir.id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
@@ -3144,6 +3144,48 @@ UNION ALL
 						Left join dbo.PlantWiseGate PWG on PWG.id=GE.PlantWiseGateId
 						WHERE   IR.GRNType<>'FG' AND IR.PlantId='" + identity.PlantId + @"' AND (CheckedByStatus='Reject' OR AuthorizedByStatus='Reject') AND ir.IsApproved=0
                         ) AS TEMP WHERE " + strkey + " Order by GRNDate  DESC";
+                var res = _sqlRepository.GetDataCollection(Sql);
+                var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+
+                //return Json(_sqlRepository.GetDataCollection(Sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult GetGRNBOQListForPurchaseReturn(string column, string value,string InventoryreceiveDetailId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var Sql = @"select GRNBOQ.Id, IM.MaterialMasterId, MM.UserName MaterialName
+                                        , IM.ArticleId, MMA.StandardName ArticleName
+                                        , IM.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
+                                        , IM.FirstCharacteristicsValueId, FCV.UserName AS FirstCharacteristicsValue
+                                        , IM.SecondCharacteristicsId, SC.UserName AS SecondCharacteristics
+                                        , IM.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue 
+										, GRNBOQ.InventoryreceiveDetailId,GRNBOQ.BOQDetailId,GRNBOQ.TransactionQty BOQQty,TUoM.UserName TUOM,GRNBOQ.ReturnQty
+										FROM [TRN].[GRNPORequisitionAllocation] GRNBOQ
+										LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=GRNBOQ.InventoryReceiveDetailId
+										LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+										LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
+										LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=IM.ArticleId
+										LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
+										LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
+										LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
+										LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
+										LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON GRNBOQ.TransactionUoMId=TUoM.Id
+										WHERE GRNBOQ.InventoryreceiveDetailId='"+ InventoryreceiveDetailId + "'";
                 var res = _sqlRepository.GetDataCollection(Sql);
                 var jsondata = Json(res, JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
