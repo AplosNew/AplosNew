@@ -103,6 +103,9 @@ namespace Library.HumanResource.PlantWiseHRMS
                     data["DateAdded"] = System.DateTime.Now.ToString();
                     data["UpdatedBy"] = identity.Name;
                     data["DateUpdated"] = System.DateTime.Now.ToString();
+                    data["RoundDayINFinalSettlement"] = false;
+                    data["IsTransportGroupMandatory"] = false;
+                    data["IsResidenceGroupMandatory"] = false;
                     if (Convert.ToBoolean(data["IsOTOverHalfDay"]) == true)
                     {
                         data["IsOTOverHalfDay"] = false;
@@ -118,6 +121,9 @@ namespace Library.HumanResource.PlantWiseHRMS
                     _Id = data["SystemID"].ToString();
                     data["UpdatedBy"] = identity.Name;
                     data["DateUpdated"] = System.DateTime.Now.ToString();
+                    data["IsTransportGroupMandatory"] = false;
+                    data["IsResidenceGroupMandatory"] = false;
+                    data["RoundDayINFinalSettlement"] = false;
                     if (Convert.ToBoolean(data["IsOTOverHalfDay"]) == true)
                     {
                         data["IsOTOverHalfDay"] = false;
