@@ -6,7 +6,11 @@
         OutboundInvoice,
         BothInOutboundInvoice,
         Order,
-        Contract
+        Contract,
+        Asset,
+        Process,
+        WorkCenter,
+        Department
     }
 
     public enum ValueOfDistributionEnum
