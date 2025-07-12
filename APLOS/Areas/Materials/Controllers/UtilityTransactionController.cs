@@ -276,9 +276,6 @@ namespace Aplos.Areas.Materials.Controllers
                 }
             }
 
-
-
-
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;

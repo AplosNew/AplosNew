@@ -175,7 +175,10 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 }
 
                     
-                return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+                var data = _sqlRepository.GetDataCollection(str);
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
             }
             catch(Exception ex)
             {
