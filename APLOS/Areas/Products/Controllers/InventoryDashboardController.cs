@@ -96,7 +96,9 @@ namespace Aplos.Areas.Products.Controllers
 		public ActionResult DelayList(string companyGroupId, string companyId, string factDate, string fromDate, string toDate, string groupName, string queryString, string queryStringProcess)
 		{
 			CustomIdentity identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryDashboardService.ExpenseList(identity.CompanyGroupId, identity.CompanyId, factDate, fromDate, toDate, groupName, queryString, queryStringProcess), JsonRequestBehavior.AllowGet);
+			JsonResult json = Json(_inventoryDashboardService.ExpenseList(identity.CompanyGroupId, identity.CompanyId, factDate, fromDate, toDate, groupName, queryString, queryStringProcess), JsonRequestBehavior.AllowGet);
+			json.MaxJsonLength = int.MaxValue;
+			return json;
 		}
 		[HttpPost, Authorize]//ExpenseListGraph 
 		public ActionResult DelayListGraph(string companyGroupId, string companyId, string factDate, string fromDate, string toDate, string groupName, string queryString, string queryStringProcess)
