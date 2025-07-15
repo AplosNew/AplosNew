@@ -3160,14 +3160,10 @@ UNION ALL
         }
 
         [Authorize, HttpPost]
-        public JsonResult GetGRNBOQListForPurchaseReturn(string column, string value,string InventoryreceiveDetailId)
+        public JsonResult GetGRNBOQListForPurchaseReturn( string InventoryreceiveDetailId)
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string strkey = "1=1";
-                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                    strkey = column + " like '%" + value + "%'";
                 var Sql = @"select GRNBOQ.Id, IM.MaterialMasterId, MM.UserName MaterialName
                                         , IM.ArticleId, MMA.StandardName ArticleName
                                         , IM.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics

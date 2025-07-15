@@ -132,27 +132,7 @@
             <div class="modal-content">
                 <div class="modal-header">GRN BOQ List<button type="button" class="close" ng-click="GRNBoqPOPopUpClose();">&times;</button></div>
                 <div class="modal-body form-elements form-horizontal">
-                    @*<div class="row text-right">
-                        <div class="col-xs-12 col-sm-12 col-sm-12">
-                            <div class="search-form">
-                                <div class="row">
-                                    <div class="col-xs-12 col-sm-3 col-md-3">
-                                        <div class="select-style">
-                                            <select ng-model="searchByPostedGRN">
-                                                <option ng-repeat="option in searchByPostedGRNList" value="{{option.value}}">{{option.name}}</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-7 col-md-7">
-                                        <input type="text" class="form-control" placeholder="Search" ng-model="searchGRN" ng-enter="ApprovedGRNListFordisplay();">
-                                    </div>
-                                    <div class="col-xs-12 col-sm-2 col-md-2">
-                                        <button type="button" ng-click="ApprovedGRNListFordisplay()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>*@
+
                     <div class="col-lg-12">
 
                         <div class="content-container-fluid" style="color:black;">
@@ -164,38 +144,31 @@
                                  e-detailstemplate="detailTemp"
                                  e-detailsdatabound="detailgrid">
                                 <div e-columns>
+                                    <div e-column e-field="BOQDetailId" e-headertext="BOQ" e-width="150"></div>
+                                    <div e-column e-field="InventoryreceiveDetailId" e-headertext="GRN ROwId" e-width="150"></div>
                                     <div e-column e-field="MaterialName" e-headertext="MaterialName" e-width="150"></div>
-                                    <div e-column e-field="IsOpeningBalance" e-headertext="IsOpeningBalance" e-width="100"></div>
-                                    <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="100"></div>
-                                    <div e-column e-field="PartyName" e-headertext="Vendor" e-width="200"></div>
-                                    <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="100"></div>
-                                    <div e-column e-field="Id" e-headertext="GRN No" e-width="100"></div>
-                                    <div e-column e-field="GRNDate1" e-headertext="GRN Date" e-width="100"></div>
-                                    <div e-column e-field="POID" e-headertext="PONo" e-width="100"></div>
-                                    <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="100"></div>
-                                    <div e-column e-field="DocDate" e-headertext="Doc Date" e-width="100"></div>
-                                    <div e-column e-field="TransactionQty" e-headertext="Qty" e-width="100"></div>
-                                    <div e-column e-field="TransactionAmount" e-headertext="Total Material Tran Amount" e-width="150"></div>
-                                    <div e-column e-field="BaseAmount" e-headertext="Total Material Books Currency Amount" e-width="150"></div>
-                                    <div e-column e-field="GRNType" e-headertext="GRNType" e-width="60"></div>
+                                    <div e-column e-field="ArticleName" e-headertext="ArticleName" e-width="150"></div>
+                                    <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="100"></div>
+                                    <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="100"></div>
+                                    <div e-column e-field="BOQQty" e-headertext="Qty" e-width="100"></div>
+                                    <div e-column e-field="TUOM" e-headertext="UOM" e-width="60"></div>
+                                    <div e-column e-template="#CurrentReturnQty" e-field="ReturnQty" e-textalign="right" e-headertext="Return Qty" e-width="80"></div>
                                 </div>
 
                             </div>
 
                         </div>
-                        <script id="tabGridContents" type="text/x-jsrender">
-                            <div class="tabcontrol" id="Test">
-                                <ul>
-                                    <li><a href="#gridTab{{:Id}}">Material Details</a></li>
-                                </ul>
-                                <div id="gridTab{{:Id}}">
-                                    <div id="detailGrid"></div>
-                                </div>
-
-                            </div>
+                        <script type="text/template" id="CurrentReturnQty">
+                            <input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateBaseQty(data);" width="200" ng-model="data.ReturnQty">
                         </script>
                     </div>
                     <div class="clearfix"></div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li><button ng-click="addToBOQList();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Submit</button></li>
+                            <li><button ng-click="GRNBoqPOPopUpClose();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -585,7 +558,7 @@
                                     <div class="input-group">
                                         <input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount1(x,$index);" ng-disabled="productNew.GRNType=='GRNBYBOQ'" width="200" ng-model="x.TransactionQty">
                                         <span class="input-group-btn" ng-show="productNew.GRNType=='GRNBYBOQ'">
-                                            <button name="submit" ng-click="GetGRNBoqPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                            <button name="submit" ng-click="GetGRNBoqPopUp(x.InventoryReceiveDetailId)" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                         </span>
                                     </div>
                                 </td>  @*ng-keyup="calculateAmount(x);"*@
