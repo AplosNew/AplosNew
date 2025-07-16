@@ -17,7 +17,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
     $scope.deleteUrl = $scope.path + 'delete/';
 
     $scope.searchBy = "EmployeeCode"; $scope.search = "";
-    $scope.searchByList = [{ value: 'EmployeeCode', name: "Employee Code" }, { value: 'EmployeeName', name: "Employee Name" }, { value: 'Department', name: "Department" }, { value: 'LegalDesignation', name: "Designation" }];
+    $scope.searchByList = [{ value: 'SystemId', name: "SystemId" }, { value: 'EmployeeCode', name: "Employee Code" }, { value: 'EmployeeName', name: "Employee Name" }, { value: 'Department', name: "Department" }, { value: 'LegalDesignation', name: "Designation" }];
 
 
     $scope.getData = function () {
