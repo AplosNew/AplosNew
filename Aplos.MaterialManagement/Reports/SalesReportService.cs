@@ -9300,7 +9300,7 @@ AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.Sa
 	,ISNULL(HSNC.Code,MHSN.Code) HSNCode
 	,Plant.GSTIN
 	,Plant.VATResistrationNo AS PlantPANNo
-	,DPARTYPL.GSTIN ShipGSTIN
+	,DPARTYPL.GSTIN ShipGSTIN,DPARTYPL.VATResistrationNo ShipPANNo
 	,INVPARTYPL.GSTIN BillGSTIN
 	,IR.DocRefNo
 	,IR.InvoiceNo
@@ -9483,7 +9483,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
             string strSQL;
             try
             {
-                strSQL = @" SELECT IR.Id CustomerNo, IRD.Id SalesMaterialId
+                strSQL = @"SELECT IR.Id CustomerNo, IRD.Id SalesMaterialId
                                  , IR.CompanyGroupId
                                 ,IR.CompanyId,CRNC.Code
 								,Customer=case when CP.PartyPlantNo>1 and p.UserName!=INVPARTYPL.UserName  then p.UserName + ' ( '+ INVPARTYPL.UserName + ' )' else p.UserName end
@@ -9496,7 +9496,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                                 , ISNULL(HSNC.Code,MHSN.Code) HSNCode
                                  , Plant.GSTIN
 								,Plant.VATResistrationNo as PlantPANNo
-                                ,DPARTYPL.GSTIN ShipGSTIN
+                                ,DPARTYPL.GSTIN ShipGSTIN,DPARTYPL.VATResistrationNo ShipPANNo
                                 , INVPARTYPL.GSTIN BillGSTIN
                                  , IR.DocRefNo
 	                            ,IR.InvoiceNo
