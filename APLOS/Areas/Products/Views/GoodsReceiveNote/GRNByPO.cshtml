@@ -1128,9 +1128,11 @@
                                         </label>
                                     </div>
                                 </td>
-
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.AlternativeQty"></td>
-                                <td class="text-right">{{x.AlternativeUOM}}</td>
+                                <td>
+                                    @*<select class="form-control"  ng-model="x.AlternativeUOM" ng-options="item.Value as item.Text for item in alternativeUOMList| filter:{ MaterialMasterId: x.MaterialMasterId }:true"></select>*@
+                                </td>
+                                @*<td class="text-right">{{x.AlternativeUOM}}</td>*@
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);" width="200" ng-model="x.ShortageQty" ng-disabled="false"></td>  @*ng-keyup="calculateAmount(x);"*@
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);" width="500" ng-model="x.RejectionQty" ng-disabled=""></td>  @* x.enableid ng-keyup="calculateAmount(x);"*@
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.ApprovedQty" ng-disabled="true"></td>  @*ng-keyup="calculateAmount(x);"*@
@@ -1162,13 +1164,13 @@
                                 <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Type" ng-disabled="false"></td>
                                 <td>
                                     <ul class="list-inline action-list">
-                                        <li><button ng-click="CopyRow($index,x)" class="btn btn-action tooltip-here"   data-placement="top" id="MEdit" title="Copy Row">Copy</button></li>
+                                        <li><button ng-click="CopyRow($index,x)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="Copy Row">Copy</button></li>
                                         <li>
-                                            <button ng-click="removeCopyRow($index)" data-toggle="modal"  class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                            <button ng-click="removeCopyRow($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
                                         </li>
                                     </ul>
                                 </td>
-                                
+
                             </tr>
                             <tr ng-show="inventoryMaterialListPO.length">
                                 <td></td>
