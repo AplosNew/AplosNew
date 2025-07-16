@@ -13117,8 +13117,11 @@ LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
                                 select s.Id, s.UserName, s.RType, s.Sequence, s.CompanyId,'P'  from[ORG].[StructureRelationship] s
                                 where s.Active= 1 and s.Archive= 0 and s.RType= 'Position' ";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(strSQL, out dsRef);
             }
             catch (Exception ex)
             {
@@ -13141,8 +13144,8 @@ LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
 	                            FROM EmpDateWiseShiftAssign ES
 	                            LEFT JOIN ShiftDefination S ON S.SystemID = ES.ShiftSystemID
 	                            WHERE ES.WorkDate =FORMAT(GETDATE(), 'dd-MMM-yyyy')";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(strSQL, out dsRef);
                 Data = new Dictionary<string, DataRow>();
                 for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
                 {
@@ -13189,8 +13192,8 @@ LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
                                 left join EmployeeInformation E on x.EmpSystemID=E.SystemId
 	                             WHERE ES.EffectiveDate <= FORMAT(GETDATE(), 'dd-MMM-yyyy') AND e.EmployeeStatus='Active'
 	                            GROUP BY FixSystemID, RosterStartShiftID, es.EmpSystemId, ES.FixSystemID, B.ShiftDefinationDescription, A.ShiftDefinationDescription, ShiftRosterDescription";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(strSQL, out dsRef);
 
                 Data = new Dictionary<string, DataRow>();
                 for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
@@ -13234,8 +13237,8 @@ LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
 								left join EmployeeInformation E on WOF.EmpSystemID=E.SystemId 
 	                            WHERE WOF.EffectiveDate <= FORMAT(GETDATE(), 'dd-MMM-yyyy') AND e.EmployeeStatus='Active'
 	                            GROUP BY WOF.EmpSystemId, WOF.EffectiveDate, WOF.AlignWithCC,WOF.FstOffDay";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(strSQL, out dsRef);
                 Data = new Dictionary<string, DataRow>();
                 for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
                 {
@@ -13281,8 +13284,8 @@ LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
 	                            LEFT JOIN MST.LegalSalaryStructureValue SV ON SV.LegalSalaryStructureId = SS.Id
                                 Where E.EmployeeStatus='Active'
 	                            GROUP BY E.SystemId";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(strSQL, out dsRef);
                 Data = new Dictionary<string, DataRow>();
                 for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
                 {
@@ -13337,8 +13340,8 @@ LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
 		                            GROUP BY EmpInfoSystemID
 		                            ) m ON mm.EffectiveDate = m.EffectiveDate AND m.EmpInfoSystemID = mm.EmpInfoSystemID
 	                            WHERE SalaryHeadEnum = 'OT' AND IsEligible = 1";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(strSQL, out dsRef);
                 Data = new Dictionary<string, DataRow>();
                 for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
                 {
@@ -13392,8 +13395,8 @@ LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
 		                            GROUP BY EmpInfoSystemID
 		                            ) m ON mm.EffectiveDate = m.EffectiveDate AND m.EmpInfoSystemID = mm.EmpInfoSystemID
 	                            WHERE SalaryHeadEnum = 'BonusRetain' AND IsEligible = 1";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(strSQL, out dsRef);
                 Data = new Dictionary<string, DataRow>();
                 for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
                 {
@@ -13461,8 +13464,8 @@ LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode=PMB.Id
 		                            FROM SalaryInfoBack
 		                            ) AS sidBasicA ON sidBasicA.SalaryID = sidmA.SystemID
 	                            INNER JOIN dbo.SalaryHead SH ON SH.SalaryHeadID = sidBasicA.SalaryHeadID AND Sh.HeadCategory = 'GROSS'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(strSQL, out dsRef);
                 Data = new Dictionary<string, DataRow>();
                 for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
                 {

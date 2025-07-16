@@ -1440,8 +1440,8 @@ namespace Aplos.Areas.Employees.Controllers
             string plant = string.Empty;
             string CS = string.Empty;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
+            //ConnectionManager.DAL.ConManager objCon;
             try
             {
                 if (IsCheck == true)
@@ -1660,8 +1660,11 @@ LEFT JOIN (SELECT R.EmpSystemID,B.EmployeeCode RefEmpCode,R.Ref1Name,R.Ref1CellP
                             WHERE E.EmpType <> 'Guest'  " + wc + @" " + CS + @" " + plant + @"
                             ORDER BY ISNULL(e.EmployeeCodePreFix,''), e.EmployeeCodeNumeric";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(strSQL, out dsRef);
 
             }
             catch (Exception ex)
@@ -1670,7 +1673,7 @@ LEFT JOIN (SELECT R.EmpSystemID,B.EmployeeCode RefEmpCode,R.Ref1Name,R.Ref1CellP
             }
             finally
             {
-                objCon = null;
+                //con = null;
             }
         }//End Function
         #endregion--------------------------------------------Xls Report End----------------------------------------------------
