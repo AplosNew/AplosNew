@@ -1160,7 +1160,7 @@ namespace Library.MaterialManagement.Inventory
                                     decimal RemainingGRNQty = Convert.ToDecimal((item.BaseQty - (item.BaseIssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty + item.InventoryTransferQty)) + item.IssueReturnQty);
                                     decimal IssueDeduactionQty = 0;
                                     decimal RemainingQty = Convert.ToDecimal(_issueHistoryRepository.SqlQuery<decimal>(@"Select BaseQty-ISNULL(IIH.IssueQty,0) BalanceQty from TRN.InventoryReceiveDetail ird 
-                                                        left join (select SUM(Qty) IssueQty,InventoryReceiveDetailId from  trn.InventoryIssueHistory Group By InventoryReceiveDetailId) iih on iih.InventoryReceiveDetailId=ird.Id where ird.Id in ('"+ item.InventoryReceiveDetailId + @"')").FirstOrDefault());
+                                                        left join (select SUM(Qty)-SUM(ISNULL(IssueReturnQty,0)) IssueQty,InventoryReceiveDetailId from  trn.InventoryIssueHistory Group By InventoryReceiveDetailId) iih on iih.InventoryReceiveDetailId=ird.Id where ird.Id in ('" + item.InventoryReceiveDetailId + @"')").FirstOrDefault());
                                     if (RemainingQty < 0 || RemainingQty==0)
                                     {
                                         throw new CustomException("There is no available stock for Issue!!!.");

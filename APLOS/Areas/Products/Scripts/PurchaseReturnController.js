@@ -715,19 +715,18 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 	}
 
 	$scope.GRNBoqList = [];
-	$scope.GetGRNBoqList = function () {
+	$scope.GetGRNBoqList = function (grnRowId) {
 		$http({
 			method: "POST",
 			dataType: 'JSON',
-			url: 'Products/GoodsReceiveNote/GetGRNBOQListForPurchaseReturn',
-			data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
+			url: 'Products/GoodsReceiveNote/GetGRNBOQListForPurchaseReturn?InventoryreceiveDetailId=' + grnRowId,
 		}).then(function successCallback(response) {
 			$scope.GRNBoqList = response.data;
 		});
 	};
-
-	$scope.GetGRNBoqPopUp = function () {
-		$scope.GetGRNBoqList();
+	 
+	$scope.GetGRNBoqPopUp = function (grnRowId ) {
+		$scope.GetGRNBoqList(grnRowId);
 
 		angular.element(document.querySelector('#GRNBoqPopUp')).modal('show');
 
@@ -735,6 +734,20 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 	$scope.GRNBoqPOPopUpClose = function () {
 		angular.element(document.querySelector('#GRNBoqPopUp')).modal('hide');
 	};
+	$scope.SelectedGRNBoqList = [];
+    $scope.addToBOQList = function (dataList) {
+		for (var i = 0; i < dataList.length; i++) {
+			if (dataList[i].ReturnQty > 0) {
+				var getRow = $filter("filter")($scope.SelectedGRNBoqList, { "InventoryreceiveDetailId": data.InventoryreceiveDetailId, "BOQDetailId": data.BOQDetailId });
+				if (!baseService.isUndefinedOrNull(getRow) && getRow.length > 0 && getRow[0].InventoryreceiveDetailId === data.InventoryreceiveDetailId && getRow[0].BOQDetailId === data.BOQDetailId) {
+					ShowResult("This BOQ Item have already added!", "failure", "GRNBoqPopUp");
+				}
+				else {
+					$scope.SelectedGRNBoqList.splice(0, 0, dataList[i]);
+				}
+            }
+        }
+    }
 	$scope.tabType = "ForChecking";
 	$scope.GriddataMaster = [];
 	$scope.getalldataMaster = function () {
