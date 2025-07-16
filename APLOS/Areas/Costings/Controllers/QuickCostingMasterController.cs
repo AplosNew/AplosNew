@@ -2891,7 +2891,7 @@ namespace Aplos.Areas.Costings.Controllers
                                         LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
-                                        WHERE  EMP.EmployeeStatus='Active' AND DEG.UserName not in ('Helper','Office Boy','Operator','Technician','Cleaner')
+                                        WHERE  EMP.EmployeeStatus='Active' AND DEG.UserName not in ('Helper','Office Boy','Operator','Technician','Cleaner') AND EC.UserName IN('Staff')
                                         ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
                 var json =  Json(_sqlRepository.GetDataCollection(CmdText, null), JsonRequestBehavior.AllowGet);
                 json.MaxJsonLength = int.MaxValue;
