@@ -2893,7 +2893,6 @@ namespace Aplos.Areas.Costings.Controllers
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
                                         WHERE  EMP.EmployeeStatus='Active' AND DEG.UserName not in ('Helper','Office Boy','Operator','Technician','Cleaner')
                                         ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
-
                 var json =  Json(_sqlRepository.GetDataCollection(CmdText, null), JsonRequestBehavior.AllowGet);
                 json.MaxJsonLength = int.MaxValue;
                 return json;
