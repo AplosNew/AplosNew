@@ -312,7 +312,7 @@ namespace Library.OrderManagement.Costing
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 1000 * from (
+            string sql = @"select top 250 * from (
                                   SELECT cost.Id, cost.Remarks,ei.EmployeeName,p.UserName AS CustomerName,COST.CustomerId,
                                     ei.SystemId AS EmployeeSystemId,cost.UserName,FORMAT(cost.AddedDate,'dd-MMM-yyyy') BOMCreationDate,cost.AddedDate,
                                     ItemList=STUFF((SELECT distinct ','+  XCI.UserName
@@ -321,29 +321,29 @@ namespace Library.OrderManagement.Costing
                                      INNER JOIN hkp.CostingItem AS Xci ON Xci.Id=Xd.CostingItemId
 			                         where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                     
-                                    ,SalesOrderId=STUFF((SELECT distinct ','+  XITM.Id
-                                    from trn.SalesOrder AS XITM
-                                    where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                    --,SalesOrderId=STUFF((SELECT distinct ','+  XITM.Id
+                                    --from trn.SalesOrder AS XITM
+                                    --where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
                                     ,Description=STUFF((SELECT distinct ','+  XITM.Description
                                     from trn.SalesOrder AS XITM
                                     where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-                                    ,BuyerItemNo=STUFF((SELECT distinct ','+  moi.BuyerReferenceNo
-                                    from trn.SalesOrder AS XITM
-                                    JOIN trn.MasterOrderItem AS moi ON moi.Id=XITM.MasterOrderItemId
-                                    where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                    --,BuyerItemNo=STUFF((SELECT distinct ','+  moi.BuyerReferenceNo
+                                    --from trn.SalesOrder AS XITM
+                                    --JOIN trn.MasterOrderItem AS moi ON moi.Id=XITM.MasterOrderItemId
+                                    --where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-                                    ,OwnItemNo=STUFF((SELECT distinct ','+  moi.OwnReferenceNo
-                                    from trn.SalesOrder AS XITM
-                                    JOIN trn.MasterOrderItem AS moi ON moi.Id=XITM.MasterOrderItemId
-                                    where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                    --,OwnItemNo=STUFF((SELECT distinct ','+  moi.OwnReferenceNo
+                                    --from trn.SalesOrder AS XITM
+                                    --JOIN trn.MasterOrderItem AS moi ON moi.Id=XITM.MasterOrderItemId
+                                    --where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
 
-                                    ,MasterOrderId=STUFF((SELECT distinct ','+  moi.MasterOrderId
-                                    from trn.SalesOrder AS XITM
-                                    JOIN trn.MasterOrderItem AS moi ON moi.Id=XITM.MasterOrderItemId
-                                    where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                    --,MasterOrderId=STUFF((SELECT distinct ','+  moi.MasterOrderId
+                                    --from trn.SalesOrder AS XITM
+                                    --JOIN trn.MasterOrderItem AS moi ON moi.Id=XITM.MasterOrderItemId
+                                    --where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
                                     ,OwnOrderNo=STUFF((SELECT distinct ','+  mo.OwnReferenceNo
                                     from trn.SalesOrder AS XITM
@@ -351,11 +351,11 @@ namespace Library.OrderManagement.Costing
                                     JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
                                     where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-                                    ,BuyerOrderNo=STUFF((SELECT distinct ','+  mo.BuyerReferenceNo
-                                    from trn.SalesOrder AS XITM
-                                    JOIN trn.MasterOrderItem AS moi ON moi.Id=XITM.MasterOrderItemId
-                                    JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
-                                    where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                    --,BuyerOrderNo=STUFF((SELECT distinct ','+  mo.BuyerReferenceNo
+                                    --from trn.SalesOrder AS XITM
+                                    --JOIN trn.MasterOrderItem AS moi ON moi.Id=XITM.MasterOrderItemId
+                                    --JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
+                                    --where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
                                      FROM CostingBOQMaster AS cost
                                     LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=cost.EmployeeSystemId

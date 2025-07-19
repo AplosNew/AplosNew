@@ -689,7 +689,8 @@ namespace Aplos.Areas.Products.Controllers
 
         #region purchase-return
         [HttpPost]
-        public JsonResult CreatePurchaseReturn(PurchaseReturn entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<PurchaseReturnTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesList, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<PurchaseReturnTax> ServicetaxCategoryList)
+        public JsonResult CreatePurchaseReturn(PurchaseReturn entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<PurchaseReturnTax> receiveTaxList, IEnumerable<GRNPORequisitionAllocation> grnBoqList
+            , IEnumerable<InventoryMaterialViewModel> chargesList, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<PurchaseReturnTax> ServicetaxCategoryList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             entity.CompanyGroupId = identity.CompanyGroupId;
@@ -761,7 +762,7 @@ namespace Aplos.Areas.Products.Controllers
 
                 }
             }
-            _inventoryDetailService.InsertOrUpdateGraphForPurchaseReturn(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, chargesList, ServicetaxCategoryList);
+            _inventoryDetailService.InsertOrUpdateGraphForPurchaseReturn(entity, entityMatAndImat, receiveTaxList, grnBoqList, entity.Id, entity.MaterialStorageId, GRNType, chargesList, ServicetaxCategoryList);
 
             return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
         }

@@ -6321,7 +6321,8 @@ LEFT JOIN (SELECT  A.InvoiceId, B.UserName TaxCategoryName,B.Code
                             , '' AS TransactionQty
                             , (IRD.TransactionQty+(IRD.TransactionQty*(case when IRD.Tolerance<>0 then IRD.Tolerance else IR.Tolerance end)/100)-ISNULL(GRND.GRNRcvQty,0)+ISNULL(GRND.PurchaseReturnQty,0)) As Balance
                             ,ISNULL(IRD.QtyStatus,0) QtyStatus
-                            , IRD.TransactionUoMId, TUoM.UserName AS TransactionUoM,AUOM.AlternativeUOM, IRD.TransactionRate, CU.Code AS CurrencyName, IR.ToCurrencyRate
+                            , IRD.TransactionUoMId, TUoM.UserName AS TransactionUoM--,AUOM.AlternativeUOM
+                            , IRD.TransactionRate, CU.Code AS CurrencyName, IR.ToCurrencyRate
                             ,IRD.TransactionAmount
                             ,0 AS TrnAmount  
                             ,0 AS BaseTaxAmount
@@ -6359,9 +6360,9 @@ LEFT JOIN (SELECT  A.InvoiceId, B.UserName TaxCategoryName,B.Code
                         LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId=TCV.Id
                        -- JOIN [TRN].[PurchaseOrderDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
-                        LEFT JOIN (SELECT   MAUOM.*,UOM.UserName AlternativeUOM 
-								FROM mst.MaterialMasterAlternativeUOM MAUOM 
-								JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=MAUOM.AlternativeUOMId) AUOM ON AUOM.MaterialMasterId=MM.Id
+                        --LEFT JOIN (SELECT   MAUOM.*,UOM.UserName AlternativeUOM 
+						--		FROM mst.MaterialMasterAlternativeUOM MAUOM 
+						--		JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=MAUOM.AlternativeUOMId) AUOM ON AUOM.MaterialMasterId=MM.Id
                         LEFT JOIN [TRN].[PurchaseOrder] AS IR ON IRD.InventoryReceiveId=IR.Id
                         LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
                         LEFT join [trn].MaterialRequsitionDetails MRD on MRD.Id=IRD.RequisitionDetailId
@@ -6393,7 +6394,8 @@ LEFT JOIN (SELECT  A.InvoiceId, B.UserName TaxCategoryName,B.Code
                             , '' AS TransactionQty
                             , (IRD.TransactionQty+(IRD.TransactionQty*(case when IRD.Tolerance<>0 then IRD.Tolerance else IR.Tolerance end)/100)-ISNULL(GRND.GRNRcvQty,0)+ISNULL(GRND.PurchaseReturnQty,0)) As Balance
                             ,ISNULL(IRD.QtyStatus,0) QtyStatus
-                            , IRD.TransactionUoMId, TUoM.UserName AS TransactionUoM,AUOM.AlternativeUOM, IRD.TransactionRate, CU.Code AS CurrencyName, IR.ToCurrencyRate
+                            , IRD.TransactionUoMId, TUoM.UserName AS TransactionUoM--,AUOM.AlternativeUOM
+                            , IRD.TransactionRate, CU.Code AS CurrencyName, IR.ToCurrencyRate
                             ,IRD.TransactionAmount
                             ,0 AS TrnAmount  
                             ,0 AS BaseTaxAmount
@@ -6431,9 +6433,9 @@ LEFT JOIN (SELECT  A.InvoiceId, B.UserName TaxCategoryName,B.Code
                         LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId=TCV.Id
                        -- JOIN [TRN].[PurchaseOrderDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
-                        LEFT JOIN (SELECT   MAUOM.*,UOM.UserName AlternativeUOM 
-								FROM mst.MaterialMasterAlternativeUOM MAUOM 
-								JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=MAUOM.AlternativeUOMId) AUOM ON AUOM.MaterialMasterId=MM.Id
+                        --LEFT JOIN (SELECT   MAUOM.*,UOM.UserName AlternativeUOM 
+						--		FROM mst.MaterialMasterAlternativeUOM MAUOM 
+						--		JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=MAUOM.AlternativeUOMId) AUOM ON AUOM.MaterialMasterId=MM.Id
                         LEFT JOIN [TRN].[PurchaseOrder] AS IR ON IRD.InventoryReceiveId=IR.Id
                         LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
                         LEFT join [trn].MaterialRequsitionDetails MRD on MRD.Id=IRD.RequisitionDetailId

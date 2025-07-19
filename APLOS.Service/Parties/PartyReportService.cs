@@ -1391,39 +1391,7 @@ namespace Library.Service.Parties
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        //private List<Dictionary<string, object>> GetPartyClosingBalance(string companyGroupId, string companyId, string plantId, string partyId, string partyPlantId, string toDate)
-        //{
-        //    var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
-        //                SELECT SUM(DrAmount) - SUM(CrAmount) AS OB, CompanyCurrencyId, SUM(CompanyCurrencyDrAmount)-SUM(CompanyCurrencyCrAmount) AS CompanyCurrencyOB FROM (
-        //                SELECT SUM(VD.DrAmount) AS DrAmount, SUM(VD.CrAmount) AS CrAmount
-        //                , CC.CompanyCurrencyId, SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount
-        //                FROM [TRN].[Voucher] AS V
-        //                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
-        //                LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
-        //                 FROM [TRN].[VoucherDetailCurrency] AS VDC
-        //                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-        //                 WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
-        //                ) AS CC ON CC.VoucherDetailId=VD.Id
-        //                WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId=@companyId AND V.PlantId='" + plantId + "' AND VD.PartyId='" + partyId + "' AND V.PostingDate < '" + toDate.ToDbDate() + "'";
-        //    if (!string.IsNullOrEmpty(partyPlantId))
-        //        sql += " AND VD.PartyPlantId='" + partyPlantId + "'";
-        //    sql += @" GROUP BY CC.CompanyCurrencyId
-        //            UNION
-        //            SELECT SUM(VD.DrAmount) AS DrAmount, SUM(VD.CrAmount) AS CrAmount, CC.CompanyCurrencyId, SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount
-        //            FROM [TRN].[Voucher] AS V
-        //            LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
-        //            LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
-        //             FROM [TRN].[VoucherDetailCurrency] AS VDC
-        //             JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-        //             WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
-        //            ) AS CC ON CC.VoucherDetailId=VD.Id
-        //            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId=@companyId AND V.PlantId='" + plantId + "' AND VD.PartyId='" + partyId + "' AND V.PostingDate ='" + toDate.ToDbDate() + "' AND V.SourceType='OpeningBalance'";
-        //    if (!string.IsNullOrEmpty(partyPlantId))
-        //        sql += " AND VD.PartyPlantId='" + partyPlantId + "'";
-        //    sql += " GROUP BY CC.CompanyCurrencyId) AS X GROUP BY X.CompanyCurrencyId";
-        //    return _sqlRepository.GetDataCollection(sql);
-        //}
-
+        
         private DataTable GetPartyPlantLedger(string companyGroupId, string companyId, string plantId, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId, string partyType)
         {
             string tempPartyType = null;
@@ -1617,7 +1585,6 @@ namespace Library.Service.Parties
                 var obValParty = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, partyType.ToString());
                 var clValParty = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, toDate, partyType.ToString());
 
-
                 if (ledgerData.Rows.Count > 0)
                 {
                     var dt = ledgerData.AsEnumerable().OrderBy(r => r["GLGeneralInfoId"])
@@ -1663,15 +1630,15 @@ namespace Library.Service.Parties
                         var obVal = GetPartyOpeningBalanceGroupByGL(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, dt.Rows[j]["GLGeneralInfoId"].ToString(), partyType.ToString()).Select().FirstOrDefault();
                         if (obVal != null)
                         {
-                            var ob = Convert.ToDouble(obVal["OB"]); ;
-                            reportUtility.SetText(ref sheet, row, colCredit, ob, true);
+                            var ob = Convert.ToDouble(obVal["OB"]); 
+                            reportUtility.SetText(ref sheet, row, colBalance, ob, true);
                             sheet.Range[row, colBalance].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
-                            sheet.Range[row, colCredit].Formula = "IF(" + reportUtility.GetColumnNameForXls(colCredit) + row + ">= 0, \"  Dr\", \"  Cr\")";
+                            sheet.Range[row, colCrDr].Formula = "IF(" + reportUtility.GetColumnNameForXls(colBalance) + row + ">= 0, \"  Dr\", \"  Cr\")";
 
                             if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyId != cashCurrencyId)
                             {
-                                reportUtility.SetText(ref sheet, row,colCredit2 , ob, true);
-                                sheet.Range[row, colBalance2].Formula = "IF(" + reportUtility.GetColumnNameForXls(colCredit2) + row + ">= 0, \"  Dr\", \"  Cr\")";
+                                reportUtility.SetText(ref sheet, row, colBalance2, ob, true);
+                                sheet.Range[row, colCrDr].Formula = "IF(" + reportUtility.GetColumnNameForXls(colBalance2) + row + ">= 0, \"  Dr\", \"  Cr\")";
                             }
 
                             isOB = false;

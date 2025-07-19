@@ -24,7 +24,7 @@ namespace Library.MaterialManagement.Inventory
         void InsertFOCMaterial(InventoryMaterialViewModel itemDetail, IEnumerable<InventoryReceiveTax> taxCategoryList);
         void Delete(string receiveDetailId);
         void JWDelete(string receiveDetailId);
-        void InsertOrUpdateGraphForPurchaseReturn(PurchaseReturn entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<PurchaseReturnTax> taxCategoryList, string id, string MaterialStorageId, string GRNType,IEnumerable<InventoryMaterialViewModel> chargesList, IEnumerable<PurchaseReturnTax> ServicetaxCategoryList); 
+        void InsertOrUpdateGraphForPurchaseReturn(PurchaseReturn entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<PurchaseReturnTax> taxCategoryList, IEnumerable<GRNPORequisitionAllocation> grnBoqList, string id, string MaterialStorageId, string GRNType,IEnumerable<InventoryMaterialViewModel> chargesList, IEnumerable<PurchaseReturnTax> ServicetaxCategoryList); 
         void DeletePurchaseReturnRow1(string PurchaseReturnDetailId, string inventoryReceiveDetailId, string InventoryMaterial, decimal Trasantionqty);
         IEnumerable<object> GetCheckedByAndApprovedBY(string CheckedBy, string ApprovedBy);
         IEnumerable<object> GetProductionRecipeMaterialList(string productionOrderId);

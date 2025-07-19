@@ -4445,7 +4445,7 @@ namespace Library.MaterialManagement.Inventory
 
 
         #region Purchase Return
-        public void InsertOrUpdateGraphForPurchaseReturn(PurchaseReturn entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<PurchaseReturnTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> chargesList, IEnumerable<PurchaseReturnTax> ServicetaxCategoryList)
+        public void InsertOrUpdateGraphForPurchaseReturn(PurchaseReturn entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<PurchaseReturnTax> taxCategoryList, IEnumerable<GRNPORequisitionAllocation> grnBoqList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> chargesList, IEnumerable<PurchaseReturnTax> ServicetaxCategoryList)
         {
             var flag = false;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -4700,7 +4700,14 @@ namespace Library.MaterialManagement.Inventory
 
                         }
                     }
-
+                    if (grnBoqList.IsNotNull())
+                    {
+                        foreach (var grnboq in grnBoqList.Where(r=>r.InventoryReceiveDetailId== itemDetail.InventoryReceiveDetailId))
+                        {
+                            AuditService.UpdatedLog(grnboq);
+                            _gRNPOAllocationRepository.Update(grnboq);
+                        }
+                    }
                     if (taxCategoryList.IsNotNull())
                     {
                         if (string.IsNullOrEmpty(itemDetail.Id))

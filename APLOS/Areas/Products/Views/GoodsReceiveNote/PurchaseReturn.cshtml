@@ -558,7 +558,7 @@
                                     <div class="input-group">
                                         <input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount1(x,$index);" ng-disabled="productNew.GRNType=='GRNBYBOQ'" width="200" ng-model="x.TransactionQty">
                                         <span class="input-group-btn" ng-show="productNew.GRNType=='GRNBYBOQ'">
-                                            <button name="submit" ng-click="GetGRNBoqPopUp(x.InventoryReceiveDetailId)" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                            <button name="submit" ng-click="GetGRNBoqPopUp(x.InventoryReceiveDetailId,$index)" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                         </span>
                                     </div>
                                 </td>  @*ng-keyup="calculateAmount(x);"*@
