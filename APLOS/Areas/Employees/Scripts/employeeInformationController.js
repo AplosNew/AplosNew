@@ -2055,6 +2055,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 //if (baseService.isUndefinedOrNull($scope.employeeInformation.SpouseName)) {
                 //    throw "Spouse Name is required.";
                 //}
+            } else {
+                $scope.employeeInformation.NoOfChildren = 0;
             }
 
             //if (!baseService.isUndefinedOrNull($scope.employeeInformation.SpouseNationalID)) {
