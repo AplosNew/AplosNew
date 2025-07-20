@@ -619,6 +619,12 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 
                             ShowResult(response.data.Message, 'success');
                             $scope.Action = "Update";
+                            $scope.inventoryMaterialList = [];
+                            $scope.inventoryMaterialListPOnew = [];
+                            $scope.POMaterialTaxList = [];
+                            $scope.SelectedGRNBoqList = [];
+                            $scope.chargesList = [];
+                            $scope.ServiceTaxList=[];
                             $scope.setTabGRNList(1);
                             $scope.getalldataMaster();
                             $scope.PurchaserReturnListDetails();
@@ -740,8 +746,8 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
     $scope.addToBOQList = function () {
         for (var i = 0; i < $scope.GRNBoqList.length; i++) {
             if ($scope.GRNBoqList[i].ReturnQty > 0) {
-                var getRow = $filter("filter")($scope.SelectedGRNBoqList, { "InventoryreceiveDetailId": $scope.GRNBoqList[i].InventoryreceiveDetailId, "BOQDetailId": $scope.GRNBoqList[i].BOQDetailId });
-                if (!baseService.isUndefinedOrNull(getRow) && getRow.length > 0 && getRow[0].InventoryreceiveDetailId === $scope.GRNBoqList[i].InventoryreceiveDetailId && getRow[0].BOQDetailId === $scope.GRNBoqList[i].BOQDetailId) {
+                var getRow = $filter("filter")($scope.SelectedGRNBoqList, { "InventoryReceiveDetailId": $scope.GRNBoqList[i].InventoryReceiveDetailId, "BOQDetailId": $scope.GRNBoqList[i].BOQDetailId });
+                if (!baseService.isUndefinedOrNull(getRow) && getRow.length > 0 && getRow[0].InventoryReceiveDetailId === $scope.GRNBoqList[i].InventoryReceiveDetailId && getRow[0].BOQDetailId === $scope.GRNBoqList[i].BOQDetailId) {
                     ShowResult("This BOQ Item have already added!", "failure", "GRNBoqPopUp");
                 }
                 else {
@@ -749,12 +755,13 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
                 }
             }
         }
-        var tempReturnQty = parseFloat($filter("sumByKey")($filter("filter")($scope.SelectedGRNBoqList, { InventoryreceiveDetailId: $scope.TempGrnRowId }), "ReturnQty")).toFixed(2);
+        var tempReturnQty = parseFloat($filter("sumByKey")($filter("filter")($scope.SelectedGRNBoqList, { InventoryReceiveDetailId: $scope.TempGrnRowId }), "ReturnQty")).toFixed(2);
         for (var j = 0; j < $scope.inventoryMaterialList.length; j++) {
             if ($scope.inventoryMaterialList[j].InventoryReceiveDetailId === $scope.TempGrnRowId) {
                 $scope.inventoryMaterialList[j].TransactionQty = parseFloat(tempReturnQty).toFixed(2);
             }
         }
+        //TODO:taxamount calculation
         angular.element(document.querySelector('#GRNBoqPopUp')).modal('hide');
         $scope.TempIndex = null;
         $scope.TempGrnRowId = null;

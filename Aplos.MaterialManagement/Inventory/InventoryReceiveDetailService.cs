@@ -4494,7 +4494,6 @@ namespace Library.MaterialManagement.Inventory
                     if (itemDetail.IsNotNull())
                     {
 
-
                         var materialData = _inventoryMaterialMasterService.GetInventoryMaterialByUpToSku(itemDetail);
                         if (materialData.IsNotNull()) itemDetail.InventoryMaterialId = materialData.Id;
                         ///TODO : Get total qyt and amount by country and issue qty
@@ -4503,88 +4502,15 @@ namespace Library.MaterialManagement.Inventory
                         var ShortageQty = Query(t => t.InventoryMaterialId == itemDetail.InventoryMaterialId && t.Id != itemDetail.Id).Select(t => t.ShortageQty).Sum();
                         var RejectionQty = Query(t => t.InventoryMaterialId == itemDetail.InventoryMaterialId && t.Id != itemDetail.Id).Select(t => t.RejectionQty).Sum();
                         var ApprovedQty = Query(t => t.InventoryMaterialId == itemDetail.InventoryMaterialId && t.Id != itemDetail.Id).Select(t => t.ApprovedQty).Sum();
-
-
                         var totalAmount = Query(t => t.InventoryMaterialId == itemDetail.InventoryMaterialId && t.Id != itemDetail.Id).Select(t => t.TotalMaterialTranAmount).Sum();
-
                         var materialMasterIds = new string[] { itemDetail.MaterialMasterId };
                         var altUomIds = new string[] { itemDetail.TransactionUoMId };
-                        var baseUoMFactorList = _materialMasterService.GetBaseUoMConvertionFactorByMaterialMaster(materialMasterIds, altUomIds);
 
-                        if (itemDetail.BaseUOMId != itemDetail.TransactionUoMId && itemDetail.CurrencyId != itemDetail.BaseCurrencyId
-                             && (baseUoMFactorList != null && baseUoMFactorList.Count() > 0))
-                        {
+                       
 
-                            itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
-                            itemDetail.BaseQty = Convert.ToDecimal(itemDetail.TransactionQty * itemDetail.BaseUoMFactor);
-                            itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount;
-                            itemDetail.ChargesTranAmount = itemDetail.ServiceCharge; //itemDetail.TrnAmount * ratio;
-                            itemDetail.ChargesTaxTranAmount = itemDetail.ServiceTax;//itemDetail.TrnAmount * ratioServiceTax;
-                            if (itemDetail.TotalTaxAmount == null)
-                                itemDetail.TotalTaxAmount = itemDetail.BaseTaxAmount;
-                            itemDetail.TotalMaterialTranAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) :
-                              Convert.ToDecimal(itemDetail.ChargesTranAmount);
-                            itemDetail.TotalMaterialBooksCurrencyAmount = itemDetail.TrnAmount * itemDetail.ToCurrencyRate;
-
-                            itemDetail.TotalMaterialBooksCurrencyAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate) :
-                                     Convert.ToDecimal(itemDetail.ChargesTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate);
-                            itemDetail.TrnCurrencyBaseRate = itemDetail.TotalMaterialTranAmount / itemDetail.BaseQty;
-                            itemDetail.BooksCurrencyBaseRate = itemDetail.TotalMaterialBooksCurrencyAmount / itemDetail.BaseQty;
-
-                        }
-                        else if (itemDetail.BaseUOMId == itemDetail.TransactionUoMId && itemDetail.CurrencyId != itemDetail.BaseCurrencyId)
-                        {
-
-
-                            //added date 22-10-2019
-                            itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
-                            itemDetail.BaseQty = Convert.ToDecimal(itemDetail.TransactionQty * itemDetail.BaseUoMFactor);
-                            //itemDetail.TotalMaterialTranAmount = itemDetail.TransactionAmount;
-                            itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount;
-                            itemDetail.ChargesTranAmount = itemDetail.ServiceCharge; //itemDetail.TrnAmount * ratio;
-                            itemDetail.ChargesTaxTranAmount = itemDetail.ServiceTax;//itemDetail.TrnAmount * ratioServiceTax;
-                            if (itemDetail.TotalTaxAmount == null)
-                                itemDetail.TotalTaxAmount = itemDetail.BaseTaxAmount;
-                            itemDetail.TotalMaterialTranAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) :
-                              Convert.ToDecimal(itemDetail.ChargesTranAmount);
-                            itemDetail.TotalMaterialBooksCurrencyAmount = itemDetail.TrnAmount * itemDetail.ToCurrencyRate;
-
-                            itemDetail.TotalMaterialBooksCurrencyAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate) :
-                                     Convert.ToDecimal(itemDetail.ChargesTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate);
-                            itemDetail.TrnCurrencyBaseRate = itemDetail.TotalMaterialTranAmount / itemDetail.BaseQty;
-                            itemDetail.BooksCurrencyBaseRate = itemDetail.TotalMaterialBooksCurrencyAmount / itemDetail.BaseQty;
-
-
-                        }
-                        else if (itemDetail.BaseUOMId != itemDetail.TransactionUoMId && itemDetail.CurrencyId == itemDetail.BaseCurrencyId
-                            && (baseUoMFactorList != null && baseUoMFactorList.Count() > 0))
-                        {
-
-                            //AddedDate
-                            itemDetail.BaseUoMFactor = 1;
                             itemDetail.BaseQty = itemDetail.TransactionQty;
-                            itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount;
-                            itemDetail.ChargesTranAmount = itemDetail.ServiceCharge; //itemDetail.TrnAmount * ratio;
-                            itemDetail.ChargesTaxTranAmount = itemDetail.ServiceTax;//itemDetail.TrnAmount * ratioServiceTax;
-                            if (itemDetail.TotalTaxAmount == null)
-                                itemDetail.TotalTaxAmount = itemDetail.BaseTaxAmount;
-                            itemDetail.TotalMaterialTranAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) :
-                              Convert.ToDecimal(itemDetail.ChargesTranAmount);
-                            itemDetail.TotalMaterialBooksCurrencyAmount = itemDetail.TrnAmount * itemDetail.ToCurrencyRate;
-                            //itemDetail.ChargesTranAmount = itemDetail.MaterialTranAmount * ratio;
-                            itemDetail.TotalMaterialBooksCurrencyAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate) :
-                                     Convert.ToDecimal(itemDetail.ChargesTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate);
-                            itemDetail.TrnCurrencyBaseRate = itemDetail.TotalMaterialTranAmount / itemDetail.BaseQty;
-                            itemDetail.BooksCurrencyBaseRate = itemDetail.TotalMaterialBooksCurrencyAmount / itemDetail.BaseQty;
-
-
-                        }
-                        else
-                        {
-
-                            itemDetail.BaseUoMFactor = 1;
-                            itemDetail.BaseQty = itemDetail.TransactionQty;
-                            itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount;
+                            itemDetail.TrnAmount = itemDetail.TransactionQty * itemDetail.BaseUoMFactor;
+                            itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount * itemDetail.BaseUoMFactor;
                             itemDetail.ChargesTranAmount = itemDetail.ServiceCharge; //itemDetail.TrnAmount * ratio;
                             itemDetail.ChargesTaxTranAmount = itemDetail.ServiceTax;//itemDetail.TrnAmount * ratioServiceTax;
                             if (itemDetail.TotalTaxAmount == null)
@@ -4601,7 +4527,7 @@ namespace Library.MaterialManagement.Inventory
                             itemDetail.TrnCurrencyBaseRate = itemDetail.TotalMaterialTranAmount / itemDetail.BaseQty;
                             itemDetail.BooksCurrencyBaseRate = itemDetail.TotalMaterialBooksCurrencyAmount / itemDetail.BaseQty;
 
-                        }
+                        
 
                         var NewId = entity.Id + "-";
                         if (entity.GRNType == "Save")

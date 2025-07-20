@@ -3165,13 +3165,14 @@ UNION ALL
         {
             try
             {
-                var Sql = @"select GRNBOQ.Id, IM.MaterialMasterId, MM.UserName MaterialName
+                var Sql = @"select   IM.MaterialMasterId, MM.UserName MaterialName
                                         , IM.ArticleId, MMA.StandardName ArticleName
                                         , IM.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
                                         , IM.FirstCharacteristicsValueId, FCV.UserName AS FirstCharacteristicsValue
                                         , IM.SecondCharacteristicsId, SC.UserName AS SecondCharacteristics
                                         , IM.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue 
-										, GRNBOQ.InventoryreceiveDetailId,GRNBOQ.BOQDetailId,GRNBOQ.TransactionQty BOQQty,TUoM.UserName TUOM,GRNBOQ.ReturnQty
+										, GRNBOQ.TransactionQty BOQQty,TUoM.UserName TUOM 
+                                        , GRNBOQ.*
 										FROM [TRN].[GRNPORequisitionAllocation] GRNBOQ
 										LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=GRNBOQ.InventoryReceiveDetailId
 										LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
@@ -3182,7 +3183,7 @@ UNION ALL
 										LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
 										LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 										LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON GRNBOQ.TransactionUoMId=TUoM.Id
-										WHERE GRNBOQ.InventoryreceiveDetailId='"+ InventoryreceiveDetailId + "'";
+										WHERE GRNBOQ.InventoryreceiveDetailId='" + InventoryreceiveDetailId + "'";
                 var res = _sqlRepository.GetDataCollection(Sql);
                 var jsondata = Json(res, JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
@@ -3257,7 +3258,7 @@ UNION ALL
                                         --, IRD.TotalMaterialTranAmount
                                         --, IRD.TotalMaterialBooksCurrencyAmount AS TotalMaterialBaseAmount
                                         , 0 TotalMaterialTranAmount
-                                        , 0  AS TotalMaterialBaseAmount
+                                        , 0  AS TotalMaterialBaseAmount,IRD.BaseUoMFactor
                                         ,IRD.InventoryMaterialId
                                         ,IRD.PurchaseDocumentAcceptanceDetailId
 										,IRD.PurchaseDocumentAcceptanceId
