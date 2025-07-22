@@ -32,6 +32,7 @@ namespace Library.Model.Products
         
         public decimal RejectQty { get; set; }
         public decimal RejectBaseQty { get; set; }
+        public decimal? ReturnQty { get; set; }
         public string SalesOrderId { get; set; }
         public string BOQDetailId { get; set; }
         //public bool AutoAllocate { get; set; } 
