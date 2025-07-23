@@ -152,6 +152,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 int iDepart = 0;
                 int iSec = 0;
                 int iDesig = 0;
+                int iBasic = 0;
                 int iTotal = 0;
                 int iLine = 0;
                 int iType = 0;
@@ -219,6 +220,13 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iDesig].ColumnWidth = 15;
                 sheet1.Range[xlsRow, iDesig].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, iDesig].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                xlsCol += 1;
+                iBasic = xlsCol;
+                sheet1.Range[xlsRow, iBasic].Text = "Basic";
+                sheet1.Range[xlsRow, iBasic].ColumnWidth = 15;
+                sheet1.Range[xlsRow, iBasic].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, iBasic].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                 xlsCol += 1;
                 iType = xlsCol;
@@ -302,6 +310,10 @@ namespace Aplos.Areas.Attendances.Controllers
                     sheet1.Range[xlsRow, iDesig].Text = dtEmp.Rows[i]["LegalDG"].ToString().Trim();
                     sheet1.Range[xlsRow, iDesig].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet1.Range[xlsRow, iDesig].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    sheet1.Range[xlsRow, iBasic].Text = dtEmp.Rows[i]["Basic"].ToString().Trim();
+                    sheet1.Range[xlsRow, iBasic].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, iBasic].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                     sheet1.Range[xlsRow, iType].Text = dtEmp.Rows[i]["EmployeeCodeType"].ToString().Trim();
                     sheet1.Range[xlsRow, iType].HorizontalAlignment = ExcelHAlign.HAlignLeft;

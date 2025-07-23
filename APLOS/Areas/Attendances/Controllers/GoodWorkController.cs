@@ -718,6 +718,7 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
                 sheet[ROW, COL].Text = "Section"; sheet[ROW, COL].ColumnWidth = 12; int ColSection = COL; COL++;
                 sheet[ROW, COL].Text = "Department"; sheet[ROW, COL].ColumnWidth = 20; int ColDepartment = COL; COL++;
                 sheet[ROW, COL].Text = "Work Date"; sheet[ROW, COL].ColumnWidth = 8; int ColWorkDate = COL; COL++;
+                sheet[ROW, COL].Text = "Basic"; sheet[ROW, COL].ColumnWidth = 6; int ColBasic = COL; COL++;
                 sheet[ROW, COL].Text = "Over Time"; sheet[ROW, COL].ColumnWidth = 10; int ColOverTime = COL; COL++;
                 sheet[ROW, COL].Text = "Over Stay"; sheet[ROW, COL].ColumnWidth = 10; int ColOverStay = COL; COL++;
                 sheet[ROW, COL].Text = "Day Status"; sheet[ROW, COL].ColumnWidth = 10; int ColDayStatus = COL;
@@ -750,6 +751,7 @@ WHERE SD.SystemId IN(select distinct p.ShiftSystemId from  AttdnProcessData p Wh
                     sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
                     sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
                     sheet[ROW, ColWorkDate].Text = data.Rows[i]["WorkDate"].ToString();
+                    sheet[ROW, ColBasic].Number = clsStaticInfo.dbl(data.Rows[i]["Basic"].ToString());
                     sheet[ROW, ColOverTime].Number = clsStaticInfo.dbl(data.Rows[i]["OverTime"].ToString());
                     sheet[ROW, ColOverTime].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet[ROW, ColOverStay].Number = clsStaticInfo.dbl(data.Rows[i]["OverStay"].ToString());
@@ -887,10 +889,16 @@ Order By GW.WorkDate";
                 var sql = @"select EI.EmployeeCode,EI.EmployeeName,GWS.UserName GoodWorkGroupName,R.EmployeeName ResponsiblePersonName,EN.UserName Entity
 ,FORMAT(GW.AddedDate,'dd-MMM-yyyy')GoodWorkEntryDate,GW.CheckedStatus,GW.ApprovedStatus,FORMAT(GPA.AddedDate,'dd-MMM-yyyy')PaymentCreationDate
 ,GPAP.EmployeeName PaymentApprovedBy,EC.UserName EmployeeCategory,D.UserName LegalDesignation,S.UserName Section,DEPT.UserName Department
-,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,GWD.Minute OverTime,APD.OverStay,APD.DayStatus
+,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,GWD.Minute OverTime,APD.OverStay,APD.DayStatus,BS.Basic
 from GoodWork GW 
 left join GoodworkDetail GWD on GW.Id=GWD.GoodWorkId
 left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId 
+									LEFT JOIN (
+									SELECT SID.DefineAmount Basic,M.EmpInfoSystemID
+FROM SalaryInfoDefine SID 
+LEFT JOIN dbo.SalaryInfoDefineMaster M ON M.SystemID=SID.SalaryID
+LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+WHERE SH.HeadCategory='Basic')BS ON BS.EmpInfoSystemID=EI.SystemId
 LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
 LEFT JOIN ORG.Section S ON S.Id=pr.SectionId
