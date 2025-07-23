@@ -2297,7 +2297,7 @@ namespace Library.Service.TaskScheduler
                                       LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
                                     ) AS LI ON li.Id=t.MasterOrderItemId
                                     LEFT OUTER JOIN (
-                                     SELECT SO.Id, CONCAT(  'SO Id:',so.Id,
+                                     SELECT SO.Id, CONCAT( 'LineItem#',SO.LineItemReference, ' SO Id:',so.Id,
 	                                    CASE WHEN ISNULL(cp.PONumber,'')<>'' THEN CONCAT(', PO#',cp.PONumber,format(cp.PODate,'dd-MMM-yyyy'),' ') ELSE '' END,
 	                                    ', Del. Date ',format(so.DeliveryDate,'dd-MMM-yyyy'), ', Buyer Item#',moi.BuyerReferenceNo, ', Master Order#',mo.Id,'(',b.UserName,')',', SO Desc:',so.[Description]) AS SODesc
                                       FROM trn.MasterOrder AS mo	
