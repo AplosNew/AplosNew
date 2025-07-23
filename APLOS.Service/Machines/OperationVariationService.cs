@@ -27,6 +27,7 @@ namespace Library.Service.Machines
         private readonly IRepositoryAsync<OperationVariationAttributeValue> _valueRepository;
         private readonly IRepositoryAsync<OperationAttribute> _attributeRepository;
         private readonly IRepositoryAsync<OperationVariationSizeGroup> _operationVariationSizeGroupRepository;
+        private readonly IRepositoryAsync<OperationVariationProductMaster> _operationVariationProductMasterRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
 
@@ -35,6 +36,7 @@ namespace Library.Service.Machines
             , IRepositoryAsync<OperationVariationAttributeValue> valueRepository
             , IRepositoryAsync<OperationAttribute> attributeRepository
             , IRepositoryAsync<OperationVariationSizeGroup> operationVariationSizeGroupRepository
+            , IRepositoryAsync<OperationVariationProductMaster> operationVariationProductMasterRepository
             , IPKGeneratorService pkGeneratorService
             , IUnitOfWork unitOfWork
             , ISqlRepository sqlRepository
@@ -43,6 +45,7 @@ namespace Library.Service.Machines
             _attributeRepository = attributeRepository;
             _valueRepository = valueRepository;
             _operationVariationSizeGroupRepository = operationVariationSizeGroupRepository;
+            _operationVariationProductMasterRepository = operationVariationProductMasterRepository;
             _unitOfWork = unitOfWork;
             _sqlRepository = sqlRepository;
         }
@@ -133,7 +136,7 @@ namespace Library.Service.Machines
             return _sqlRepository.GetDifferentGridData(parameters);
         }
 
-        public void InsertGraph(OperationVariation entity, IEnumerable<OperationVariationAttributeValue> valueList, IEnumerable<OperationVariationSizeGroup> operationVariationSizeGroupDataList)
+        public void InsertGraph(OperationVariation entity, IEnumerable<OperationVariationAttributeValue> valueList, IEnumerable<OperationVariationSizeGroup> operationVariationSizeGroupDataList, IEnumerable<OperationVariationProductMaster> operationVariationPMDataList)
         {
             var flag = false;
             try
@@ -147,7 +150,7 @@ namespace Library.Service.Machines
                 entity.Id = GetAutoNumber(nameof(OperationVariation), PKGeneratorEnum.Auto, entity.CompanyGroupId, DateTime.Now);
                 base.InsertGraph(entity);
 
-                InsertUpdateOrDeleteValue(entity, valueList, operationVariationSizeGroupDataList);
+                InsertUpdateOrDeleteValue(entity, valueList, operationVariationSizeGroupDataList, operationVariationPMDataList);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -198,7 +201,7 @@ namespace Library.Service.Machines
             }
         }
 
-        public void UpdateGraph(OperationVariation entity, IEnumerable<OperationVariationAttributeValue> valueList, IEnumerable<OperationVariationSizeGroup> operationVariationSizeGroupDataList)
+        public void UpdateGraph(OperationVariation entity, IEnumerable<OperationVariationAttributeValue> valueList, IEnumerable<OperationVariationSizeGroup> operationVariationSizeGroupDataList, IEnumerable<OperationVariationProductMaster> operationVariationPMDataList)
         {
             var flag = false;
             try
@@ -207,7 +210,7 @@ namespace Library.Service.Machines
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 base.UpdateGraph(entity);
-                InsertUpdateOrDeleteValue(entity, valueList, operationVariationSizeGroupDataList);
+                InsertUpdateOrDeleteValue(entity, valueList, operationVariationSizeGroupDataList, operationVariationPMDataList);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -369,7 +372,7 @@ namespace Library.Service.Machines
 
         #region Attribute Value
 
-        private void InsertUpdateOrDeleteValue(OperationVariation operationVariation, IEnumerable<OperationVariationAttributeValue> valueList, IEnumerable<OperationVariationSizeGroup> operationVariationSizeGroupDataList)
+        private void InsertUpdateOrDeleteValue(OperationVariation operationVariation, IEnumerable<OperationVariationAttributeValue> valueList, IEnumerable<OperationVariationSizeGroup> operationVariationSizeGroupDataList, IEnumerable<OperationVariationProductMaster> operationVariationPMDataList)
         {
             try
             {
@@ -426,6 +429,30 @@ namespace Library.Service.Machines
 
                             AuditService.UpdatedLog(item);
                             _operationVariationSizeGroupRepository.Update(item);
+
+                        }
+                    }
+                }
+
+                if (operationVariationPMDataList != null)
+                {
+                    foreach (var item in operationVariationPMDataList)
+                    {
+                        if (string.IsNullOrEmpty(item.Id))//Insert
+                        {
+
+                            item.Id = GetAutoNumber(nameof(OperationVariationProductMaster), PKGeneratorEnum.Auto, null, DateTime.Now);
+                            item.OperationVariationId = operationVariation.Id;
+                            AuditService.AddedLog(item);
+                            _operationVariationProductMasterRepository.Insert(item);
+
+                        }
+                        else
+                        {
+                            //Edit
+
+                            AuditService.UpdatedLog(item);
+                            _operationVariationProductMasterRepository.Update(item);
 
                         }
                     }

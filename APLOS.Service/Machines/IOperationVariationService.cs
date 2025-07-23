@@ -24,9 +24,9 @@ namespace Library.Service.Machines
 
         GridModel GetMachineListByOperation(GridParameter parameters, string companyGroupId, string operationId);
 
-        void InsertGraph(OperationVariation entity, IEnumerable<OperationVariationAttributeValue> valueList, IEnumerable<OperationVariationSizeGroup> operationVariationSizeGroupDataList);
+        void InsertGraph(OperationVariation entity, IEnumerable<OperationVariationAttributeValue> valueList, IEnumerable<OperationVariationSizeGroup> operationVariationSizeGroupDataList, IEnumerable<OperationVariationProductMaster> operationVariationPMDataList);
 
-        void UpdateGraph(OperationVariation entity, IEnumerable<OperationVariationAttributeValue> valueList, IEnumerable<OperationVariationSizeGroup> operationVariationSizeGroupDataList);
+        void UpdateGraph(OperationVariation entity, IEnumerable<OperationVariationAttributeValue> valueList, IEnumerable<OperationVariationSizeGroup> operationVariationSizeGroupDataList, IEnumerable<OperationVariationProductMaster> operationVariationPMDataList);
 
         void DeleteGraph(string id);
 

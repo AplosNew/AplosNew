@@ -46,12 +46,49 @@ namespace Aplos.Areas.Machines.Controllers
         #endregion -- Pages
 
         #region -- OperationVariation
+        [HttpPost, Authorize]
+        public ActionResult GetProductMasterList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (SELECT Flag=CAST(0 as bit),PM.Id ProductMasterId,PM.Sequence,PM.Code,PM.ShortName,PM.StandardName,PM.UserName, PC.UserName AS ProductCategoryName, PSC.UserName AS ProductSubCategoryName, P.UserName AS ProductName, PR.UserName BaseProcess, UOMB.UserName AS BaseUom,PM.Active 
+                                        FROM MST.[ProductMaster] AS PM 
+                                        LEFT OUTER JOIN HKP.[ProductCategory] AS PC ON PC.Id = PM.ProductCategoryId
+                                        LEFT OUTER JOIN HKP.[ProductSubCategory] AS PSC ON PSC.Id = PM.ProductSubCategoryId
+                                        LEFT OUTER JOIN HKP.[Product] AS P ON P.Id = PM.ProductId
+                                        LEFT OUTER JOIN HKP.[Process] AS PR ON PR.Id = PM.BaseProcessId
+                                        LEFT JOIN [SCS].[UnitOfMeasurement] AS UOMB ON PM.BaseUOMId = UOMB.Id
+                                        WHERE PM.CompanyGroupId = '" + identity.CompanyGroupId + "' AND PM.Archive = 0) AS TEMP WHERE " + strkey + " order by sequence";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+
         [HttpGet, Authorize]
         public ActionResult GetOperationVariationSizeGroup(string operationVariationId)
         {
             string sql = @"SELECT O.*,S.Sequence,S.Code,S.ShortName,S.StandardName,S.UserName FROM dbo.OperationVariationSizeGroup O
                             LEFT JOIN HKP.SizeGroup S ON  S.Id=O.SizeGroupId
                             WHERE O.OperationVariationId='"+ operationVariationId + "' ORDER BY S.Sequence";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetOperationVariationPM(string operationVariationId)
+        {
+            string sql = @"SELECT OP.*,PM.Sequence,PM.Code,PM.ShortName,PM.StandardName,PM.UserName, PC.UserName AS ProductCategoryName, PSC.UserName AS ProductSubCategoryName, P.UserName AS ProductName, PR.UserName BaseProcess, UOMB.UserName AS BaseUom,PM.Active 
+                                        FROM dbo.OperationVariationProductMaster OP
+										LEFT JOIN MST.[ProductMaster] AS PM ON PM.Id=OP.ProductMasterId
+                                        LEFT OUTER JOIN HKP.[ProductCategory] AS PC ON PC.Id = PM.ProductCategoryId
+                                        LEFT OUTER JOIN HKP.[ProductSubCategory] AS PSC ON PSC.Id = PM.ProductSubCategoryId
+                                        LEFT OUTER JOIN HKP.[Product] AS P ON P.Id = PM.ProductId
+                                        LEFT OUTER JOIN HKP.[Process] AS PR ON PR.Id = PM.BaseProcessId
+                                        LEFT JOIN [SCS].[UnitOfMeasurement] AS UOMB ON PM.BaseUOMId = UOMB.Id
+                            WHERE OP.OperationVariationId='" + operationVariationId + "' ORDER BY PM.Sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -125,18 +162,18 @@ namespace Aplos.Areas.Machines.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(OperationVariation operationVariation, IEnumerable<OperationVariationAttributeValue> valueList, IEnumerable<OperationVariationSizeGroup> operationVariationSizeGroupDataList)
+        public JsonResult Create(OperationVariation operationVariation, IEnumerable<OperationVariationAttributeValue> valueList, IEnumerable<OperationVariationSizeGroup> operationVariationSizeGroupDataList, IEnumerable<OperationVariationProductMaster> operationVariationPMDataList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             operationVariation.CompanyGroupId = identity.CompanyGroupId;
-            _operationVariationService.InsertGraph(operationVariation, valueList, operationVariationSizeGroupDataList);
+            _operationVariationService.InsertGraph(operationVariation, valueList, operationVariationSizeGroupDataList, operationVariationPMDataList);
             return Json(new { OperationVariation = operationVariation, Sequence = _operationVariationService.GetAutoSequence(operationVariation.CompanyGroupId, operationVariation.OperationId), Message = AplosMessage.Insert });
         }
 
         [HttpPost]
-        public JsonResult Edit(OperationVariation operationVariation, IEnumerable<OperationVariationAttributeValue> valueList, IEnumerable<OperationVariationSizeGroup> operationVariationSizeGroupDataList)
+        public JsonResult Edit(OperationVariation operationVariation, IEnumerable<OperationVariationAttributeValue> valueList, IEnumerable<OperationVariationSizeGroup> operationVariationSizeGroupDataList, IEnumerable<OperationVariationProductMaster> operationVariationPMDataList)
         {
-            _operationVariationService.UpdateGraph(operationVariation, valueList, operationVariationSizeGroupDataList);
+            _operationVariationService.UpdateGraph(operationVariation, valueList, operationVariationSizeGroupDataList, operationVariationPMDataList);
             return Json(new { Sequence = _operationVariationService.GetAutoSequence(operationVariation.CompanyGroupId, operationVariation.OperationId), Message = AplosMessage.Updated });
         }
 
