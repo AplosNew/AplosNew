@@ -125,7 +125,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 dvOT.Table = dsOT.Tables[0];
                 var ListOT = dsOT.Tables[0].ToList<OTReport>();
                 DataView dvEmp = new DataView(dsOT.Tables[0]);
-                DataTable dtEmp = dvEmp.ToTable(true, "EmployeeCode", "EmployeeName", "Plant" ,"DOJ", "Unit", "Department", "Section", "Designation", "GivenDesignation", "LegalDG", "EmployeeCodeType");
+                DataTable dtEmp = dvEmp.ToTable(true, "EmployeeCode", "EmployeeName", "Plant" ,"DOJ", "Unit", "Department", "Section", "Designation", "GivenDesignation", "LegalDG", "EmployeeCodeType","Basic");
                 objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
 
                 objRpt.SelectedPlant(identity.PlantId, out dsFactory);
