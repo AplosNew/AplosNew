@@ -759,6 +759,15 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
         for (var j = 0; j < $scope.inventoryMaterialList.length; j++) {
             if ($scope.inventoryMaterialList[j].InventoryReceiveDetailId === $scope.TempGrnRowId) {
                 $scope.inventoryMaterialList[j].TransactionQty = parseFloat(tempReturnQty).toFixed(2);
+                var tempGRNTaxAmount = 0;
+                for (var k = 0; k < $scope.inventoryMaterialList[j].POMaterialTaxList.length; k++) {
+                    if ($scope.inventoryMaterialList[j].POMaterialTaxList[k].InventoryReceiveDetailId == $scope.inventoryMaterialList[j].InventoryReceiveDetailId) {
+                        var tmpTaxAmount = ($scope.inventoryMaterialList[j].POMaterialTaxList[k].TaxAmount / $scope.inventoryMaterialList[j].GRNReceived) * $scope.inventoryMaterialList[j].TransactionQty
+                        $scope.inventoryMaterialList[j].POMaterialTaxList[k].TaxAmount = parseFloat(tmpTaxAmount).toFixed(2);
+                        tempGRNTaxAmount += Math.round((tmpTaxAmount) * 100 + Number.EPSILON) / 100;
+                    }
+                    $scope.inventoryMaterialList[j].BaseTaxAmount = Math.round((tempGRNTaxAmount) * 100 + Number.EPSILON) / 100;
+                }
             }
         }
         //TODO:taxamount calculation

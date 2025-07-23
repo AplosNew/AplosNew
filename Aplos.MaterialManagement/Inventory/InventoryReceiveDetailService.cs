@@ -4308,11 +4308,22 @@ namespace Library.MaterialManagement.Inventory
                             _gRNPOAllocationRepository.Delete(item);
                         }
                     }
-                    var grnRectionDe = _gRNRejectionDetailsRepository.SqlQuery<string>(@"SELECT Id From [TRN].[GRNRejectionDetails] WHERE GRNDeailsId='" + receiveDetailId + "'").First();
-                    _gRNRejectionDetailsRepository.Delete(grnRectionDe);
+                    ConnectionManager.DAL.ConManager objCon1;
+                    DataSet dsMasterGRNRejectionDetail = null;
+
+                    string grnRectionDe = @"SELECT Id From [TRN].[GRNRejectionDetails] WHERE GRNDeailsId='" + receiveDetailId + "'";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(grnRectionDe, out dsMasterGRNRejectionDetail, false, "1");
+                    if (dsMasterGRNRejectionDetail.Tables[0].Rows.Count > 0)
+                    {
+                        var rdBuilderGRNRej = new System.Text.StringBuilder();
+                        var grnRejectionDetailSql = @"DELETE [TRN].[GRNRejectionDetails] WHERE GRNDeailsId ='" + receiveDetailId + "'";
+                        rdBuilderGRNRej.Append(grnRejectionDetailSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilderGRNRej.ToString());
+                    }
                     base.DeleteGraph(data);
 
-                    ConnectionManager.DAL.ConManager objCon1;
+                    
                     DataSet dsMaster1 = null;
                     DataSet dsMaster2 = null;
                     string setOffsql = @"SELECT * from trn.GRNPORequisitionMap where InventoryReceiveDetailId = '" + receiveDetailId + "'";
@@ -4506,11 +4517,9 @@ namespace Library.MaterialManagement.Inventory
                         var materialMasterIds = new string[] { itemDetail.MaterialMasterId };
                         var altUomIds = new string[] { itemDetail.TransactionUoMId };
 
-                       
-
                             itemDetail.BaseQty = itemDetail.TransactionQty;
-                            itemDetail.TrnAmount = itemDetail.TransactionQty * itemDetail.BaseUoMFactor;
-                            itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount * itemDetail.BaseUoMFactor;
+                            itemDetail.TrnAmount = itemDetail.TransactionQty*itemDetail.MaterialTranRate * itemDetail.BaseUoMFactor;
+                            itemDetail.TotalMaterialTranAmount = itemDetail.TransactionQty * itemDetail.MaterialTranRate * itemDetail.BaseUoMFactor;
                             itemDetail.ChargesTranAmount = itemDetail.ServiceCharge; //itemDetail.TrnAmount * ratio;
                             itemDetail.ChargesTaxTranAmount = itemDetail.ServiceTax;//itemDetail.TrnAmount * ratioServiceTax;
                             if (itemDetail.TotalTaxAmount == null)
