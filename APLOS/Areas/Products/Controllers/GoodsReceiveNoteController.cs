@@ -3255,7 +3255,7 @@ UNION ALL
                                         --, ((((ISNULl(IRD.TransactionQty,0)-ISNULL(IRD.BaseIssueQty,0))-Isnull(IRD.PurchaseReturnQty,0))+Isnull(IRD.IssueReturnQty,0))-Isnull(IRD.ReductionByAdjustmentQty,0)) TransactionQty
                                         , IRD.TransactionUoMId
                                         , IRD.BaseUOMId   
-                                        --, IRD.TotalMaterialTranAmount
+                                        , IRD.MaterialTranRate
                                         --, IRD.TotalMaterialBooksCurrencyAmount AS TotalMaterialBaseAmount
                                         , 0 TotalMaterialTranAmount
                                         , 0  AS TotalMaterialBaseAmount,IRD.BaseUoMFactor

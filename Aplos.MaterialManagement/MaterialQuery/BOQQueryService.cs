@@ -280,7 +280,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 							LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=POD.InventoryReceiveId
 							LEFT JOIN SCS.Currency CU ON CU.Id=PO.CurrencyId
                             LEFT JOIN dbo.Contract C on C.Id=so.ContractId
-							WHERE boq.MaterialMasterId IN (" + MaterialIds + ") AND boq.ArticleId IN (" + ArticleIds + @")
+							WHERE boq.MaterialMasterId IN (" + MaterialIds + ") AND boq.ArticleId IN (" + ArticleIds + @")  AND PO.IsClosed=0
                             AND ISNULL(boq.OwnReferenceNo,'') in (" + OwnReferenceNo + ") AND ISNULL(boq.RMCustomerSpec,'') IN (" + CustomerRefNos + @")
 							AND ISNULL(boq.RMVendorSpec,'') IN (" + VendorRefNos + @") AND  PO.PartyId='" + PartyId + @"' AND POD.InventoryReceiveId<>''";
 
