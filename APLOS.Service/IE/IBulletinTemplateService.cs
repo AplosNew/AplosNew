@@ -19,7 +19,7 @@ namespace Library.Service.IEnumerable
         void DeleteOperation(string id);
         GridModel GetCbo(string processId);
         IEnumerable<object> GetProcessQtyAndNoWSData(string processId, string productMasterId);
-        IEnumerable<object> GetOperationData(string companyGroupId, string processId, string bulletinTemplateId);
+        IEnumerable<object> GetOperationData(string companyGroupId, string processId, string bulletinTemplateId, string productMasterId);
         IEnumerable<object> GetBulletinOperation(string bulletinTemplateMasterId);
         void InsertOrUpdateOperation(IEnumerable<BulletinTemplateDetail> entities, string bulletinTemplateMasterId);
         decimal GetAutoSequence();
