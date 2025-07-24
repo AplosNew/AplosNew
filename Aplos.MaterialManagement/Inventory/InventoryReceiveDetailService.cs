@@ -4516,7 +4516,6 @@ namespace Library.MaterialManagement.Inventory
                         var totalAmount = Query(t => t.InventoryMaterialId == itemDetail.InventoryMaterialId && t.Id != itemDetail.Id).Select(t => t.TotalMaterialTranAmount).Sum();
                         var materialMasterIds = new string[] { itemDetail.MaterialMasterId };
                         var altUomIds = new string[] { itemDetail.TransactionUoMId };
-
                             itemDetail.BaseQty = itemDetail.TransactionQty;
                             itemDetail.TrnAmount = itemDetail.TransactionQty*itemDetail.MaterialTranRate * itemDetail.BaseUoMFactor;
                             itemDetail.TotalMaterialTranAmount = itemDetail.TransactionQty * itemDetail.MaterialTranRate * itemDetail.BaseUoMFactor;
@@ -4536,12 +4535,9 @@ namespace Library.MaterialManagement.Inventory
                             itemDetail.TrnCurrencyBaseRate = itemDetail.TotalMaterialTranAmount / itemDetail.BaseQty;
                             itemDetail.BooksCurrencyBaseRate = itemDetail.TotalMaterialBooksCurrencyAmount / itemDetail.BaseQty;
 
-                        
-
                         var NewId = entity.Id + "-";
                         if (entity.GRNType == "Save")
                         {
-
                             currentId1++;
                             grndId = NewId + currentId1;
                             itemDetail.Id = "";
@@ -4551,7 +4547,6 @@ namespace Library.MaterialManagement.Inventory
                             grndId = itemDetail.InventoryReceiveDetailId;
                             itemDetail.Id = grndId;
                             itemDetail.InventoryReceiveDetailId = itemDetail.InventoryServiceId;
-
                         }
 
                         var receiveDetail = new PurchaseReturnDetail
@@ -4596,13 +4591,10 @@ namespace Library.MaterialManagement.Inventory
                             {
                                 AuditService.AddedLog(receiveDetail);
                                 _PurchaseReturnDetailRepository.Insert(receiveDetail);
-
                                 var invMaterial = _PurchaseReturnDetailRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + itemDetail.InventoryMaterialId + "'").FirstOrDefault();
                                 var invMaterialRcv = _PurchaseReturnDetailRepository.SqlQuery<InventoryReceiveDetail>(@"SELECT * FROM [TRN].[InventoryReceiveDetail] WHERE Id='" + itemDetail.InventoryReceiveDetailId + "'").FirstOrDefault();
                                 builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET PurchaseReturnQty='" + Convert.ToDecimal(invMaterialRcv.PurchaseReturnQty + itemDetail.TransactionQty) + @"' WHERE Id = '" + itemDetail.InventoryReceiveDetailId + "'";
-
                                 rdBuilder.Append(builderSql);
-
                                 builderSql = @"UPDATE [TRN].[InventoryMaterial] SET TotalQty='" + Convert.ToDecimal(invMaterial.TotalQty - itemDetail.TransactionQty) + "' WHERE Id='" + itemDetail.InventoryMaterialId + "'";
                                 rdBuilder.Append(builderSql);
                             }
@@ -4613,13 +4605,10 @@ namespace Library.MaterialManagement.Inventory
 
                                 var invMaterial = _PurchaseReturnDetailRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + itemDetail.InventoryMaterialId + "'").FirstOrDefault();
                                 var invMaterialRcv = _PurchaseReturnDetailRepository.SqlQuery<InventoryReceiveDetail>(@"SELECT * FROM [TRN].[InventoryReceiveDetail] WHERE Id='" + itemDetail.InventoryReceiveDetailId + "'").FirstOrDefault();
-
                                 var invMaterialRcv1 = _PurchaseReturnDetailRepository.SqlQuery<PurchaseReturnDetail>(@"SELECT * FROM [TRN].[PurchaseReturnDetail] WHERE Id='" + itemDetail.Id + "'").FirstOrDefault();
                                 builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET PurchaseReturnQty='" + Convert.ToDecimal((invMaterialRcv.PurchaseReturnQty - itemDetail.oldReturnQty) + itemDetail.TransactionQty) + @"' WHERE Id = '" + itemDetail.InventoryServiceId + "'";
-
                                 rdBuilder.Append(builderSql);
                                 var invRcved = _receiveDetailRepository.SqlQuery<InventoryReceiveDetail>(@"SELECT * FROM [TRN].[InventoryReceiveDetail] WHERE Id='" + itemDetail.InventoryServiceId + "'").FirstOrDefault();
-
                                 builderSql = @"UPDATE [TRN].[InventoryMaterial] SET TotalQty='" + Convert.ToDecimal((invMaterial.TotalQty + itemDetail.oldReturnQty) - itemDetail.TransactionQty) + "' WHERE Id='" + itemDetail.InventoryMaterialId + "'";
                                 rdBuilder.Append(builderSql);
                             }

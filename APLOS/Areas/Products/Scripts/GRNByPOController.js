@@ -631,7 +631,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                                         $scope.setTabGRNList(1);
                                         $scope.getDataList();
                                         $scope.GRNListDetails();
-
+                                        $scope.rowIdentityNo = 0;
                                         $scope.productId = response.data.entity.Id;
                                         $scope.productNew.Id = response.data.entity.Id;
                                         $scope.productNew.msgForAllocationNeed = response.data.entity.msgForAllocationNeed;
@@ -1196,6 +1196,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.id = null;
+                    $scope.rowIdentityNo = 0;
                     getInventoryMaterialList($scope.productNew.Id);
                     $scope.getDataList();
                 }
@@ -3129,6 +3130,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
         ClearFields();
         $scope.productId = Id;
+        $scope.rowIdentityNo = 0;
         $scope.Action = 'Save';
         $scope.ActionForEdit = 'Update';
         $scope.POId1 = x.data.POID;
