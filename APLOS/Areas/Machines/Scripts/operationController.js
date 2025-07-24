@@ -804,8 +804,8 @@ function OperationController(cboService, commonMessage, $scope, $rootScope, base
         $scope.getSkillData();
     };
     $scope.selectSkill = function (data) {
-        $scope.operationNew.ArticleId = null;
-        $scope.operationNew.ArticleName = null;
+        //$scope.operationNew.ArticleId = null;
+        //$scope.operationNew.ArticleName = null;
         $scope.operationNew.SkillId = data.SkillId;
         $scope.operationNew.SkillName = data.UserName;
         $scope.operationNew.MachineAllowance = 0;
