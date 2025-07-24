@@ -149,8 +149,14 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"' ) " + filters + 
                                     (SELECT E.EmployeeCode, E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ,
                                             D.UserName Designation,ISNULL( LG.UserName, '') LegalDG, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
                                             S.UserName Section, SB.UserName SubSection, L.UserName Line
-                                            ,ot.WorkDate , ot.ProcessedOT as TotalOTHr ,DD.UserName GivenDesignation,hr.OTConsiderOn,E.EmployeeCodeNumeric,E.PlantId , PL.UserName as Plant, ECT.UserName as EmployeeCodeType
+                                            ,ot.WorkDate , ot.ProcessedOT as TotalOTHr ,DD.UserName GivenDesignation,hr.OTConsiderOn,E.EmployeeCodeNumeric,E.PlantId , PL.UserName as Plant, ECT.UserName as EmployeeCodeType,BS.Basic
                                     FROM dbo.EmployeeInformation E
+LEFT JOIN (
+									SELECT SID.DefineAmount Basic,M.EmpInfoSystemID
+FROM SalaryInfoDefine SID 
+LEFT JOIN dbo.SalaryInfoDefineMaster M ON M.SystemID=SID.SalaryID
+LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+WHERE SH.HeadCategory='Basic')BS ON BS.EmpInfoSystemID=E.SystemId
 LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
                             LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
 LEFT OUTER JOIN ORG.Entity EN ON mb.EntityId=EN.Id
@@ -179,7 +185,7 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"' ) " + filters + 
               
                 strSql = strSql + @") A
                         GROUP BY A.EmployeeCodeType,A.EmployeeCode, A.EmployeeName, A.DOJ, A.Designation,A.LegalDG, A.Unit, A.Division, A.Department,
-		                            A.Section, A.SubSection, A.Line, A.WorkDate, A.TotalOTHr,A.GivenDesignation,OTConsiderOn,A.EmployeeCodeNumeric, A.PlantId , A.Plant
+		                            A.Section, A.SubSection, A.Line, A.WorkDate, A.TotalOTHr,A.GivenDesignation,OTConsiderOn,A.EmployeeCodeNumeric, A.PlantId , A.Plant,A.Basic
                         ORDER BY A.Unit, A.EmployeeCodeNumeric, A.Section, A.SubSection";
 
                 //objCon = new ConnectionManager.DAL.ConManager("1");

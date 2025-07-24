@@ -346,6 +346,7 @@
     <Compile Include="Configurations\IssueTracker\IssueTransactionDocumentsConfiguration.cs" />
     <Compile Include="Configurations\IssueTracker\IssueTransactionConfiguration.cs" />
     <Compile Include="Configurations\IssueTracker\IssueUpdateAuditConfiguration.cs" />
+    <Compile Include="Configurations\Machines\OperationVariationProductMasterConfiguration.cs" />
     <Compile Include="Configurations\Machines\OperationVariationSizeGroupConfiguration.cs" />
     <Compile Include="Configurations\Machines\ProductionSystemConfiguration.cs" />
     <Compile Include="Configurations\Machines\StitchCodeConfiguration.cs" />
@@ -771,6 +772,7 @@
     <Compile Include="IssueTracker\IssueTransactionDocuments.cs" />
     <Compile Include="IssueTracker\LogInUeserViewModel.cs" />
     <Compile Include="IssueTracker\SubAssetType.cs" />
+    <Compile Include="Machines\OperationVariationProductMaster.cs" />
     <Compile Include="Machines\OperationVariationSizeGroup.cs" />
     <Compile Include="Machines\ProductionSystem.cs" />
     <Compile Include="Machines\StitchCode.cs" />
