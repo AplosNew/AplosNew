@@ -737,14 +737,14 @@ namespace Library.MaterialManagement.Inventory
                         {
                             if (taxCategoryList.IsNotNull())
                             {
-                                var tempIdentitylist = entityMat.ToList();
-                                if (tempIdentitylist.Count == 1)
-                                {
-                                    foreach (var rowIDNO in taxCategoryList)
-                                    {
-                                        rowIDNO.RowIdentityNo = 1;
-                                    }
-                                }
+                                //var tempIdentitylist = entityMat.ToList();
+                                //if (tempIdentitylist.Count == 1)
+                                //{
+                                //    foreach (var rowIDNO in taxCategoryList)
+                                //    {
+                                //        rowIDNO.RowIdentityNo = 1;
+                                //    }
+                                //}
 
                                 var currentId = 0;
                                 foreach (var item in taxCategoryList)
