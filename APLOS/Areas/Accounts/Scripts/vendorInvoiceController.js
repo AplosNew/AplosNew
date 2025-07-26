@@ -3246,4 +3246,38 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         });
         return true;
     };
+
+    $scope.onClickTDSDeletePopUp = function (x) {
+        var data = x;
+        $scope.AdditionalTaxId = data.AdditionalTaxId;
+        $scope.TDSTaxVoucherId = data.TDSTaxVoucherId;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector('#confirmTDSDeletePopUp')).modal('show');
+    };
+    $scope.deleteAdditionalTax = function (additionalTaxId, tDSTaxVoucherId) {
+        $http({
+            method: "POST",
+            url: 'accounts/InvoicePost/DeleteTDSServicePayable',
+            data: {
+                "additionalTaxId": additionalTaxId, "voucherId": tDSTaxVoucherId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                $scope.AdditionalTaxId = null;
+                $scope.VoucherId = null;
+                $scope.TDSTaxVoucherId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    }
+
 }
