@@ -125,7 +125,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 dvOT.Table = dsOT.Tables[0];
                 var ListOT = dsOT.Tables[0].ToList<OTReport>();
                 DataView dvEmp = new DataView(dsOT.Tables[0]);
-                DataTable dtEmp = dvEmp.ToTable(true, "EmployeeCode", "EmployeeName", "Plant" ,"DOJ", "Unit", "Department", "Section", "Designation", "GivenDesignation", "LegalDG", "EmployeeCodeType","Basic");
+                DataTable dtEmp = dvEmp.ToTable(true, "EmployeeCode", "EmployeeName", "Plant" ,"DOJ", "Unit", "Department", "Section", "Designation", "GivenDesignation", "LegalDG", "EmployeeCodeType","Basic", "GWPaymentAdviseId");
                 objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
 
                 objRpt.SelectedPlant(identity.PlantId, out dsFactory);
@@ -153,6 +153,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 int iSec = 0;
                 int iDesig = 0;
                 int iBasic = 0;
+                int iGWPaymentAdviseId = 0;
                 int iTotal = 0;
                 int iLine = 0;
                 int iType = 0;
@@ -227,6 +228,13 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iBasic].ColumnWidth = 15;
                 sheet1.Range[xlsRow, iBasic].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, iBasic].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                xlsCol += 1;
+                iGWPaymentAdviseId = xlsCol;
+                sheet1.Range[xlsRow, iGWPaymentAdviseId].Text = "GWPaymentAdviseId";
+                sheet1.Range[xlsRow, iGWPaymentAdviseId].ColumnWidth = 15;
+                sheet1.Range[xlsRow, iGWPaymentAdviseId].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, iGWPaymentAdviseId].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                 xlsCol += 1;
                 iType = xlsCol;
@@ -314,6 +322,10 @@ namespace Aplos.Areas.Attendances.Controllers
                     sheet1.Range[xlsRow, iBasic].Text = dtEmp.Rows[i]["Basic"].ToString().Trim();
                     sheet1.Range[xlsRow, iBasic].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet1.Range[xlsRow, iBasic].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    sheet1.Range[xlsRow, iGWPaymentAdviseId].Text = dtEmp.Rows[i]["GWPaymentAdviseId"].ToString().Trim();
+                    sheet1.Range[xlsRow, iGWPaymentAdviseId].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, iGWPaymentAdviseId].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                     sheet1.Range[xlsRow, iType].Text = dtEmp.Rows[i]["EmployeeCodeType"].ToString().Trim();
                     sheet1.Range[xlsRow, iType].HorizontalAlignment = ExcelHAlign.HAlignLeft;

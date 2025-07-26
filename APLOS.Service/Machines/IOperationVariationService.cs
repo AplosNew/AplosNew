@@ -15,6 +15,7 @@ namespace Library.Service.Machines
     {
         void UpdateOperationVaiationCode(OperationVariation entity);
         void DeleteOperationVariationSizeGroup(string id);
+        void DeleteOperationVariationPM(string id);
         object GetOperationUtilityData(string operationId, string articleId, string skillId);
         IEnumerable<object> GetCbo(string operationId);
 

@@ -72,6 +72,17 @@
                                 <textarea class="form-control" rows="2" ng-model="operationVariationNew.Remarks" maxlength="250" tabindex="8"></textarea>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Is Special Operation</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label class="control-label">
+                                        <input type="checkbox" ng-model="operationVariationNew.isSpecialOperation">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group" show-errors>
@@ -122,17 +133,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Is Special Operation</label>
-                            <div class="col-sm-8">
-                                <div class="checkbox-site">
-                                    <label class="control-label">
-                                        <input type="checkbox" ng-model="operationVariationNew.isSpecialOperation">
-                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -412,7 +413,7 @@
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 <li>
-                                                    <button ng-click="removeRowModal($index,x)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                    <button ng-click="removePMRowModal($index,x)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
                                                 </li>
                                             </ul>
                                         </td>
@@ -870,6 +871,7 @@
 
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="confirmOPSZPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteSizeGroup()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPMPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeletePM()"></confirm-archive-generic>
 
 <div class="modal fade site-modal in" id="MainOperationPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">

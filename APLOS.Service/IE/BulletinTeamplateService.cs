@@ -671,7 +671,7 @@ namespace Library.Service.IEnumerable
             }
         }
 
-        public IEnumerable<object> GetOperationData(string companyGroupId, string processId, string bulletinTemplateId)
+        public IEnumerable<object> GetOperationData(string companyGroupId, string processId, string bulletinTemplateId, string productMasterId)
         {
             try
             {
@@ -706,7 +706,7 @@ namespace Library.Service.IEnumerable
                            LEFT JOIN [HKP].[OperationCategory] OCT ON OCT.Id = O.OperationCategoryId
                            LEFT JOIN [HKP].[StitchCode] SC ON SC.Id = A.StitchCodeId
 						   INNER JOIN (Select * from [MST].[OperationProcess] WHERE ProcessId='" + processId + @"')OP ON OP.OperationId=OV.OperationId
-                           WHERE OV.CompanyGroupId = '" + companyGroupId + @"' 
+                           WHERE OV.CompanyGroupId = '" + companyGroupId + @"' AND OV.Id IN(Select OperationVariationId FROM dbo.OperationVariationProductMaster Where ProductMasterId='"+ productMasterId + @"')
                            --AND OV.Id NOT IN (SELECT BTD.OperationVariationId FROM [MST].[BulletinTemplateDetail] BTD
 					       --LEFT JOIN [MST].[BulletinTemplateMaster] BTM ON BTM.Id=BTD.BulletinTemplateMasterId
 					       --Where BTM.BulletinTemplateId='" + bulletinTemplateId + @"') 

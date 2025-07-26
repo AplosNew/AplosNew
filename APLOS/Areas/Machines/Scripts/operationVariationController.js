@@ -103,7 +103,7 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
     $scope.GetOperationData = function () {
         $http({
             method: 'GET',
-            url: 'Machines/OperationVariation/GetOperationData'
+            url: 'Machines/OperationVariation/GetOperationDataList'
         }).then(function successCallback(response) {
             $scope.operationList = response.data;
         });
@@ -245,7 +245,6 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
         $scope.operationVariationNew.Id = null;
         ClearAll($scope.GetSequence());
         $scope.operationVariationPMDataList = [];
-        ClearFields();
         return true;
     };
 
@@ -253,6 +252,7 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
         $scope.attributeList = [];
         $scope.valueList = [];
         $scope.operationVariationSizeGroupDataList = [];
+        $scope.operationVariationPMDataList = [];
         $scope.Action = "Save";
         $scope.operationVariation = {};
         $scope.operationVariationNew = {

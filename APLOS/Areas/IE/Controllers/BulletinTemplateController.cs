@@ -87,10 +87,10 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetOperationData(string processId, string bulletinTemplateId)
+        public ActionResult GetOperationData(string processId, string bulletinTemplateId, string productMasterId)
         {
             CustomIdentity identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_bulletinTemplateService.GetOperationData(identity.CompanyGroupId, processId, bulletinTemplateId), JsonRequestBehavior.AllowGet);
+            return Json(_bulletinTemplateService.GetOperationData(identity.CompanyGroupId, processId, bulletinTemplateId, productMasterId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

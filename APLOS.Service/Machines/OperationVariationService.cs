@@ -299,6 +299,32 @@ namespace Library.Service.Machines
             }
         }
 
+        public void DeleteOperationVariationPM(string id)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var data = _operationVariationProductMasterRepository.Find(id);
+                _operationVariationProductMasterRepository.Delete(data);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (flag)
+                {
+                    _unitOfWork.Rollback();
+                }
+            }
+        }
+
         private void Check(OperationVariation entity)
         {
             CheckUniqueColumn(UniqueColumnName.Code, entity.Code, t => t.Id != entity.Id && t.Code == entity.Code && !t.Archive && t.CompanyGroupId == entity.CompanyGroupId);

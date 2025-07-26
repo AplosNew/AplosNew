@@ -122,6 +122,35 @@ namespace Aplos.Areas.Machines.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetOperationDataList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT O.Id
+	                    , Process=STUFF((SELECT DISTINCT ',' + P.UserName FROM [MST].[OperationProcess] AS OPMT
+					                    LEFT JOIN HKP.[Process] AS P ON OPMT.ProcessId=P.Id
+					                    WHERE OPMT.OperationId=O.Id
+					                    GROUP BY P.UserName
+					                    FOR XML PATH ('')
+					                    ),1,1,'')
+, ProsessIds=(SELECT STUFF((SELECT DISTINCT ',' +  ProcessId FROM [MST].[OperationProcess] WHERE OperationId=O.Id FOR XML PATH('')),1,1,''))
+                        , O.CompanyGroupId, O.OperationTypeId, ot.UserName AS OperationTypeCode, O.OperationCategoryId, oc.UserName AS OperationCategoryName
+                        , O.OperationActivityId, OA.UserName AS OperationActivityName, O.[Sequence], O.Code, O.ShortName
+                        , O.StandardName, O.UserName, O.Remarks, IsMachineRequired = CASE WHEN O.IsMachineRequired='M' THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, O.Active, O.Archive                       
+                        , O.BasicProcessTime, O.AssociateProcessTime, O.PersonalAllowance, O.MachineAllowance
+	                    , ART.MaterialMasterId, O.ArticleId, ART.StandardName AS ArticleName, O.SkillId, SK.UserName AS SkillName
+	                    , O.OperationLength, O.Frequency, O.ProductionSystemId, O.SPI,O.AdditionalAllowance
+, OperationVariation=(SELECT STUFF((SELECT DISTINCT ',' +  OV.Code FROM [MST].[OperationVariation] OV WHERE OperationId=O.Id FOR XML PATH('')),1,1,''))
+                        FROM MST.[Operation] as O 				
+                    LEFT JOIN HKP.[OperationType] as ot ON O.OperationTypeId = ot.Id
+                    LEFT JOIN HKP.[OperationCategory] as oc ON O.OperationCategoryId = oc.Id
+                    LEFT JOIN HKP.[OperationActivity] AS OA ON O.OperationActivityId=OA.Id
+                    LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON O.ArticleId=ART.Id
+                    LEFT JOIN [HKP].[Skill] AS SK ON O.SkillId=SK.Id
+                    WHERE O.CompanyGroupId = '" + identity.CompanyGroupId + "' AND O.Archive = 0 Order by O.UserName";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpGet]
         public JsonResult GetCbo(string operationId)
         {
@@ -189,6 +218,13 @@ namespace Aplos.Areas.Machines.Controllers
         {
             _operationVariationService.DeleteOperationVariationSizeGroup(id);
             return Json(new {Message = AplosMessage.Deleted });
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult DeleteOperationVariationPM(string id)
+        {
+            _operationVariationService.DeleteOperationVariationPM(id);
+            return Json(new { Message = AplosMessage.Deleted });
         }
         #endregion -- OperationVariation
 

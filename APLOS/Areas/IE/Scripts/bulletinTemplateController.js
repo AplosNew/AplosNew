@@ -747,7 +747,7 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
         $scope.searchdata = [];
         $http({
             method: 'GET',
-            url: 'ie/bulletintemplate/getoperationdata?processId=' + $scope.ProcessId + '&bulletinTemplateId=' + $scope.bulletinTemplateNew.Id
+            url: 'ie/bulletintemplate/getoperationdata?processId=' + $scope.ProcessId + '&bulletinTemplateId=' + $scope.bulletinTemplateNew.Id +'&productMasterId='+$scope.bulletinTemplateNew.ProductMasterId
         }).then(function successCallback(response) {
             $scope.searchdata = response.data;
         });
