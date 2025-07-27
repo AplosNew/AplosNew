@@ -15,9 +15,10 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $controller("employeeBaseController", { $scope: $scope, $http: $http });
 
-    $scope.searchByList = [
+    $scope.searchByIssue = "IssueNo"; $scope.searchIssue = "";
+    $scope.searchByIssueList = [
         {
-            value: 'Id'
+            value: 'IssueNo'
             , name: 'Issue No'
         },
         {
@@ -29,20 +30,21 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
             , name: 'Issue Date'
         }
     ];
-    baseService.init($scope.getListUrl, null, null, 'DESC', 'Id', 'Id');
-    $scope.getData = function (pageno) {
-        //debugger;
-        baseService.pagination(pageno)
-            .then(function (result) {
-                $scope.issueList = [];
-                $scope.issueList = result.Rows;
+    baseService.init($scope.getListUrl, null, null, 'DESC', 'IssueDate', 'IssueNo');
 
-            }, function () {
-                ShowResult(commonMessage.NetworkError, 'failure');
-            }).finally(function () {
-            });
+    $scope.GridInventoryIssuedata = [];
+    $scope.getdataInventoryIssue = function () {
+        $http({
+            method: 'POST',
+            url: 'Products/InventoryIssue/GetDataByInventoryIssue',
+            data: { column: $scope.searchByIssue, value: $scope.searchIssue },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.GridInventoryIssuedata = response.data;
+        });
     };
-    //$scope.getData();
+    $scope.getdataInventoryIssue();
+
 
     $http({
         method: 'GET',
@@ -145,21 +147,6 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
     };
 
 
-    $scope.GridInventoryIssuedata = [];
-    $scope.getdataInventoryIssue = function () {
-        //debugger;
-        $http({
-            method: "GET",
-            dataType: 'JSON',
-            //url: $scope.getSearchListUrl,
-            url: 'Products/InventoryIssue/GetInventoryIssueBOQ',
-        }).then(function successCallback(response) {
-            $scope.GridInventoryIssuedata = response.data;
-            //entrydata = copy(searchdata);
-        });
-
-    };
-    $scope.getdataInventoryIssue();
 
 
     $scope.AllTabPrint = function (z) {

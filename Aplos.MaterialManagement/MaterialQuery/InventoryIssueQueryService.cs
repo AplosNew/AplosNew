@@ -3337,30 +3337,23 @@ namespace Aplos.MaterialManagement.MaterialQuery
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
 			}
 		}
-		public IEnumerable<object> GetDataByInventoryIssue(string plantId)
+		public IEnumerable<object> GetDataByInventoryIssue(string column, string value, string plantId)
 		{
 			try
 			{
-
-				var sql = @"SELECT * FROM (
-                            SELECT II.Id,II.IssueDate IssueDate1,E.UserName AS Entity 
-							,isnull(II.IssueType,'') issuetype
-							,  II.CompanyGroupId
-							, II.CompanyId, II.PlantId
-							, II.EntityId, II.MaterialStorageId
-							,FORMAT(II.IssueDate, 'dd-MMM-yyyy') IssueDate
-							
-							, MS.UserName AS MaterialStorage 
+				string strkey = "1=1";
+				if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+					strkey = column + " like '%" + value + "%'";
+				var sql = @" select top 100 * from (
+                            SELECT  II.Id,II.IssueDate IssueDate1,E.UserName AS Entity 
+							,isnull(II.IssueType,'') issuetype ,  II.CompanyGroupId , II.CompanyId, II.PlantId , II.EntityId, II.MaterialStorageId
+							,FORMAT(II.IssueDate, 'dd-MMM-yyyy') IssueDate , MS.UserName AS MaterialStorage 
 							,EI.EmployeeCode + ' - ' + EI.EmployeeName EmployeeName
-							,IIH.Qty
-							,IIh.TotalAmount Amount
-							,II.Remarks,II.Id AS IssueId
-							,II.OrderRefNo
-							,IIH.CountryId,IIH.CountryName
+							,IIH.Qty ,IIh.TotalAmount Amount ,II.Remarks,II.Id AS IssueId ,II.OrderRefNo ,IIH.CountryId,IIH.CountryName
 							,II.ContractId,II.ProductionOrderId,Con.ContractNo
                             ,IsNULL(V.VoucherNo,'') VoucherNo ,IsPark=case when II.VoucherId<>'' then 0 else 1 end
 							FROM [TRN].[InventoryIssue] AS II
-							left join (
+							LEFT JOIN (
 									SELECT IID.InventoryIssueId,IID.IsAsset,C.UserName CountryName,C.Id CountryId,SUM(IIH.Qty) Qty, SUM(IIH.TotalAmount) TotalAmount
 									FROM trn.InventoryIssueHistory IIH 
 									JOIN TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
@@ -3369,15 +3362,14 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									WHERE IID.IsAsset= 0
 									GROUP BY IID.InventoryIssueId,IID.IsAsset,C.UserName,C.Id
 									) IIH ON IIH.InventoryIssueId=II.Id
-							left JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
-							left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
-							Left JOIN [ORG].[Entity] E On E.id= II.EntityId
-							
-							left join dbo.Contract Con On Con.Id=II.ContractId
+							LEFT JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
+							LEFT JOIN dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
+							LEFT JOIN [ORG].[Entity] E On E.id= II.EntityId
+							LEFT JOIN dbo.Contract Con On Con.Id=II.ContractId
                             LEFT JOIN TRN.Voucher V ON V.Id=II.VoucherId
 						WHERE II.PlantId= '" + plantId + @"'
-						AND IIH.IsAsset= 0)X
-						Order BY 2 DESC";
+						AND IIH.IsAsset= 0 
+						) AS TEMP WHERE " + strkey + " ORDER BY  IssueDate DESC";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)

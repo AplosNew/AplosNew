@@ -150,7 +150,7 @@
     <div class="col-xs-12 col-sm-6 col-md-6">
         <ul class="common-btn list-inline text-left">
             <li><button ng-click="SearchMaterialPopup();" class="btn" ng-disabled="detailList.length">Search Material</button></li>
-            <li><button ng-click="SearchPopup();"  class="btn" ng-disabled="detailList.length">Search PO</button></li>
+            <li><button ng-click="SearchPopup();" class="btn" ng-disabled="detailList.length">Search PO</button></li>
         </ul>
     </div>
     <div class="clearfix"></div>
@@ -225,55 +225,70 @@
 </div>
 
 <div class="aplos-grid-toggle">
-
-    <fieldset class="scheduler-border">
-        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-        <div>
-            <div id='Grid'></div>
-            <div class="content-container-fluid" style="color:black;">
-                @*e-allowselection="true"*@
-                <div style="color:black;" id="GridIIssue" ej-grid e-datasource="GridInventoryIssuedata"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
-                     e-recorddoubleclick="GetDataList" e-filtersettings-filterType="excel"
-                     e-enabletouch="true" e-allowselection="true"
-                     e-detailstemplate="detailTemp"
-                     e-detailsdatabound="detailgrid">
-                    <div e-columns>
-                        <div e-column e-field="Id" e-headertext="Issue No" e-width="80"></div>
-                        <div e-column e-field="issuetype" e-headertext="Issue Type" e-width="80"></div>
-                        <div e-column e-field="Entity" e-headertext="Entity Name" e-width="80"></div>
-                        <div e-column e-field="OrderRefNo" e-headertext="OrderRefNo" e-width="80"></div>
-                        <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
-                        <div e-column e-field="ProductionOrderId" e-headertext="ProductionOrderId" e-width="80"></div>
-                        <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="80"></div>
-                        <div e-column e-field="MaterialStorage" e-headertext="Storage Location" e-width="80"></div>
-                        <div e-column e-field="IssueDate" e-headertext="Issue Date" e-width="80"></div>
-                        <div e-column e-field="Qty" e-headertext="Qty" e-width="50"></div>
-                        <div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>
-                        <div e-column e-headertext="Actions" e-width="50">
-                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GridIIssue');" style="margin: -6px;"></i></button>
-                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="searchByIssue">
+                                <option ng-repeat="option in searchByIssueList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
                         </div>
-
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="searchIssue" ng-enter="getdataInventoryIssue();">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getdataInventoryIssue()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div id='Grid'></div>
+        <div class="content-container-fluid" style="color:black;">
+            @*e-allowselection="true"*@
+            <div style="color:black;" id="GridIIssue" ej-grid e-datasource="GridInventoryIssuedata"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                 e-recorddoubleclick="GetDataList" e-filtersettings-filterType="excel"
+                 e-enabletouch="true" e-allowselection="true"
+                 e-detailstemplate="detailTemp"
+                 e-detailsdatabound="detailgrid">
+                <div e-columns>
+                    <div e-column e-field="Id" e-headertext="Issue No" e-width="80"></div>
+                    <div e-column e-field="issuetype" e-headertext="Issue Type" e-width="80"></div>
+                    <div e-column e-field="Entity" e-headertext="Entity Name" e-width="80"></div>
+                    <div e-column e-field="OrderRefNo" e-headertext="OrderRefNo" e-width="80"></div>
+                    <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
+                    <div e-column e-field="ProductionOrderId" e-headertext="ProductionOrderId" e-width="80"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="80"></div>
+                    <div e-column e-field="MaterialStorage" e-headertext="Storage Location" e-width="80"></div>
+                    <div e-column e-field="IssueDate" e-headertext="Issue Date" e-width="80"></div>
+                    <div e-column e-field="Qty" e-headertext="Qty" e-width="50"></div>
+                    <div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>
+                    <div e-column e-headertext="Actions" e-width="50">
+                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GridIIssue');" style="margin: -6px;"></i></button>
+                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
                     </div>
 
                 </div>
 
             </div>
-            <script id="tabGridContents" type="text/x-jsrender">
-                <div class="tabcontrol" id="Test">
-                    <ul>
-                        <li><a href="#gridTab{{:Id}}">Material Issue Details</a></li>
-                    </ul>
-                    <div id="gridTab{{:Id}}">
-                        <div id="detailGrid"></div>
-                    </div>
-                </div>
-            </script>
+
         </div>
-    </fieldset>
-
-
+        <script id="tabGridContents" type="text/x-jsrender">
+            <div class="tabcontrol" id="Test">
+                <ul>
+                    <li><a href="#gridTab{{:Id}}">Material Issue Details</a></li>
+                </ul>
+                <div id="gridTab{{:Id}}">
+                    <div id="detailGrid"></div>
+                </div>
+            </div>
+        </script>
+    </div>
 </div>
 
 
@@ -751,7 +766,7 @@
     <fieldset class="scheduler-border form-group form-elements">
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div style="color:black;" id="GriddataSelecteds" ej-grid e-datasource="PopUpList"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"  e-templaterefresh="refreshPOTemplate"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-templaterefresh="refreshPOTemplate"
                  e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                 <div e-columns>
                     @*<div e-column e-template="#select" e-headertext="Select" e-width="40"></div>*@

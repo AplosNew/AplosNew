@@ -67,16 +67,15 @@ namespace Aplos.Areas.Products.Controllers
         }
 
 
-        [HttpGet]
-        public JsonResult GetDataByInventoryIssue()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
-            var jsondata = Json(inventoryIssueQueryService.GetDataByInventoryIssue(identity.PlantId), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
-            //return Json(_inventoryIssueService.GetDataByInventoryIssue(identity.PlantId), JsonRequestBehavior.AllowGet);
-        }
+        //[HttpGet]
+        //public JsonResult GetDataByInventoryIssue()
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+        //    var jsondata = Json(inventoryIssueQueryService.GetDataByInventoryIssue(identity.PlantId), JsonRequestBehavior.AllowGet);
+        //    jsondata.MaxJsonLength = int.MaxValue;
+        //    return jsondata;
+        //}
 
 
         [HttpGet]

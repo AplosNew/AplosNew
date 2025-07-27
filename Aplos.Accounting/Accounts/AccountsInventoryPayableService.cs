@@ -4503,9 +4503,9 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
             try
             {
                 parameters.CmdText =
-						@"SELECT  V.VoucherNo,II.VoucherId,V.VoucherDate,IID.PolicyAmount,IID.TransactionQty,II.Id IssueNo,II.IssueDate,MS.UserName MaterialStorageName
+						@"SELECT  Top(100)  V.VoucherNo,II.VoucherId,V.VoucherDate,IID.PolicyAmount,IID.TransactionQty,II.Id IssueNo,II.IssueDate,MS.UserName MaterialStorageName
 						,ii.OrderRefNo, IsOrderSpecificy=  CASE WHEN ii.OrderRefNo <> '' THEN 1 ELSE 0 END,II.[Types]
-						,SourceNo=II.JWContractId,JW.ContractId,LC.LCRef,Customer=P.Code+' '+P.UserName ,V.IsPark
+						,SourceNo=II.JWContractId,JW.ContractId,LC.LCRef,Customer=P.Code+' '+P.UserName ,V.IsPark,EI.EmployeeName
                         FROM TRN.InventoryIssue II 
                         LEFT JOIN TRN.Voucher V ON V.Id=II.VoucherId
                         LEFT JOIN (SELECT II.VoucherId,II.IssueDate,II.Id,SUM(TransactionQty) TransactionQty,SUM(PolicyAmount) PolicyAmount 
@@ -4516,7 +4516,8 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						LEFT join dbo.[Contract] CN ON CN.Id=JW.ContractId
 						LEFT JOIN dbo.MasterLC LC ON LC.Id=CN.MasterLCId
 						LEFT JOIN HKP.Party P ON P.Id=LC.CustomerId
-                        Where V.Archive=0 AND V.SourceType='" + SourceType.IssueJournal + @"' AND V.PlantId= '" + plantId + "'";
+						left join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                        Where V.Archive=0 AND V.SourceType='" + SourceType.IssueJournal + @"' AND V.PlantId= '" + plantId + "' Order By II.AddedDate Desc";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
