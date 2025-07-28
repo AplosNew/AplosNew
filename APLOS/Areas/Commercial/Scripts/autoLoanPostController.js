@@ -54,7 +54,8 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
         ProfitAmount: "",
         TransactionType: "LoanTaken",
         IsSchedule: false,
-        IsLoanSetOff: false
+        IsLoanSetOff: false,
+        CompanyCurrencyRate:null
     };
 
     $scope.AutoLoanPostableDataList = [];
@@ -106,6 +107,8 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
         invoiceAmount = autoLoandata.BankBookAmount;
         $scope.voucher.InvoiceId = autoLoandata.InvoiceId;
         $scope.voucher.InvoiceDetailId = autoLoandata.InvoiceDetailId;
+        $scope.voucher.AdjustmentNoteId = autoLoandata.AdjustmentNoteId;
+        $scope.voucher.AdjustmentNoteDetailId = autoLoandata.AdjustmentNoteDetailId;
         $scope.voucher.LoanAgainstAcceptanceId = autoLoandata.LoanAgainstAcceptanceId;
         $scope.voucher.PurchaseDocAcceptanceId = autoLoandata.PurchaseDocAcceptanceId;
         $scope.voucher.PurchaseLCNo = autoLoandata.PurchaseLCNo;
