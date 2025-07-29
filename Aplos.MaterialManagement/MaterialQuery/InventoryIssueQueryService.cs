@@ -3345,7 +3345,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
 					strkey = column + " like '%" + value + "%'";
 				var sql = @" select top 100 * from (
-                            SELECT  II.Id,II.IssueDate IssueDate1,E.UserName AS Entity 
+                            SELECT  II.Id,II.Id IssueNo,II.IssueDate IssueDate1,E.UserName AS Entity 
 							,isnull(II.IssueType,'') issuetype ,  II.CompanyGroupId , II.CompanyId, II.PlantId , II.EntityId, II.MaterialStorageId
 							,FORMAT(II.IssueDate, 'dd-MMM-yyyy') IssueDate , MS.UserName AS MaterialStorage 
 							,EI.EmployeeCode + ' - ' + EI.EmployeeName EmployeeName

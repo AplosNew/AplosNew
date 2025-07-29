@@ -16,20 +16,7 @@ function POWiseMaterialIssueController($window, cboService, commonMessage, $scop
 	$controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 	$controller("employeeBaseController", { $scope: $scope, $http: $http });
 
-	$scope.searchByList = [
-		{
-			value: 'Id'
-			, name: 'Issue No'
-		},
-		{
-			value: 'MaterialStorage'
-			, name: 'Storage Location'
-		},
-		{
-			value: 'IssueDate'
-			, name: 'Issue Date'
-		}
-	];
+	
 	baseService.init($scope.getListUrl, null, null, 'DESC', 'Id', 'Id');
 	$scope.getData = function (pageno) {
 		//debugger;
@@ -43,7 +30,37 @@ function POWiseMaterialIssueController($window, cboService, commonMessage, $scop
 			}).finally(function () {
 			});
 	};
-	//$scope.getData();
+	$scope.searchByIssue = "IssueNo"; $scope.searchIssue = "";
+	$scope.searchByIssueList = [
+		{
+			value: 'IssueNo'
+			, name: 'Issue No'
+		},
+		{
+			value: 'MaterialStorage'
+			, name: 'Storage Location'
+		},
+		{
+			value: 'IssueDate'
+			, name: 'Issue Date'
+		}
+	];
+
+
+	baseService.init($scope.getListUrl, null, null, 'DESC', 'IssueDate', 'IssueNo');
+
+	$scope.GridInventoryIssuedata = [];
+	$scope.getdataInventoryIssue = function () {
+		$http({
+			method: 'POST',
+			url: 'Products/InventoryIssue/GetDataByInventoryIssue',
+			data: { column: $scope.searchByIssue, value: $scope.searchIssue },
+			dataType: 'JSON',
+		}).then(function successCallback(response) {
+			$scope.GridInventoryIssuedata = response.data;
+		});
+	};
+	$scope.getdataInventoryIssue();
 
 	$http({
 		method: 'GET',
@@ -125,21 +142,6 @@ function POWiseMaterialIssueController($window, cboService, commonMessage, $scop
 
 
 
-	$scope.GridInventoryIssuedata = [];
-	$scope.getdataInventoryIssue = function () {
-		//debugger;
-		$http({
-			method: "GET",
-			dataType: 'JSON',
-			//url: $scope.getSearchListUrl,
-			url: 'Products/InventoryIssue/GetDataByInventoryIssue',
-		}).then(function successCallback(response) {
-			$scope.GridInventoryIssuedata = response.data;
-			//entrydata = copy(searchdata);
-		});
-
-	};
-	$scope.getdataInventoryIssue();
 
 
 	$scope.AllTabPrint = function (z) {

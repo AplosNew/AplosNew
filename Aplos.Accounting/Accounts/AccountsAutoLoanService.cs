@@ -328,7 +328,7 @@ UNION ALL
 				sql = @"SELECT LAA.Id LoanAgainstAcceptanceId,LAA.CurrencyId, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
 						,GLGeneralInfoId=case when IVD.GLGeneralInfoId<>'' then IVD.GLGeneralInfoId else AJD.GLGeneralInfoId end
 						,BudgetMasterId=case when IVD.BudgetMasterId<>'' then IVD.BudgetMasterId else AJD.BudgetMasterId end
-						,BudgetMasterId=case when IVD.ActivityId<>'' then IVD.ActivityId else AJD.ActivityId end
+						,ActivityId=case when IVD.ActivityId<>'' then IVD.ActivityId else AJD.ActivityId end
 						 ,IVD.InvoiceId,IVD.Id InvoiceDetailId,LAAD.Amount
 						,CompanyCurrencyRate=1--CompanyCurrencyRate=case when IV.CompanyCurrencyRate>0 then IV.CompanyCurrencyRate else 1.00 end
 						,BM.AccountTitle ,LAAD.AdjustmentNoteId,LAAD.AdjustmentNoteDetailId
