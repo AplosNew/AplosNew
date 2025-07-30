@@ -246,7 +246,7 @@
                     <th>Voucher Date</th>
                     <th>Storage Location</th>
                     <th>Issue Date</th>
-                    <th>OrderRefNo</th>
+                    <th>Employee</th>
                     <th>Types</th>
                     <th>SourceNo</th>
                     <th>Contract</th>
@@ -264,7 +264,7 @@
                     <td>{{x.VoucherDate | dateFiltering}}</td>
                     <td>{{x.MaterialStorageName}}</td>
                     <td>{{x.IssueDate| dateFiltering}}</td>
-                    <td>{{x.OrderRefNo}}</td>
+                    <td>{{x.EmployeeName}}</td>
                     <td>{{x.Types}}</td>
                     <td>{{x.SourceNo}}</td>
                     <td>{{x.ContractId}}</td>
@@ -277,7 +277,8 @@
                             <li><a class="btn btn-action" href="Accounts/InventoryPayable/IssueJournalReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&inventoryIssueId={{x.IssueNo}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                             <li><a class="btn btn-action" href="Accounts/InventoryPayable/IssueJournalReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&inventoryIssueId={{x.IssueNo}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                             <li><a class="btn btn-action" ng-click="issueReportDownload(x)"><i class="glyphicon glyphicon-print"></i></a></li>
-                            <li><a ng-show="x.IsPark" class="btn btn-action" ng-click="confirmDelete(x.IssueNo,x.VoucherId);" href=""><i class="glyphicon glyphicon-trash"></i></a></li>
+                            <li><a class="btn btn-action" ng-click="downloadIssueExcel(x)" title="Issue Excel Report" ><i class="glyphicon glyphicon-print"></i></a></li>
+                            <li><a ng-show="x.IsPark" class="btn btn-action"  ng-click="confirmDelete(x.IssueNo,x.VoucherId);" href=""><i class="glyphicon glyphicon-trash"></i></a></li>
                         </ul>
                     </td>
                 </tr>

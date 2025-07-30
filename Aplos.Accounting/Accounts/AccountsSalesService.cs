@@ -265,11 +265,11 @@ namespace Library.Accounting.Accounts
                         select top 300 * from ( SELECT S.Id,S.Id AS SalesId, S.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, S.CurrencyId, C.Code AS CurrencyCode, S.DocRefNo, ISNULL(SM.Amount,0) + ISNULL(SS.Amount,0) AS Amount,
 									Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') InvoiceDate,
 									Replace(CONVERT(VARCHAR(11), S.EntryDate, 106), ' ', '-') VoucherDate, Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') PostingDate
-                                    , S.RowState, S.DeliveryPartyPlantId, S.InvoicingPartyPlantId AS PartyPlantId, S.InvoicingPartyPlantId, S.EntityId, S.PaymentTermId, S.BaseNoOfDays, S.BaseOnDueDate
+                                    ,  RowState=CASE  WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END , S.DeliveryPartyPlantId, S.InvoicingPartyPlantId AS PartyPlantId, S.InvoicingPartyPlantId, S.EntityId, S.PaymentTermId, S.BaseNoOfDays, S.BaseOnDueDate
 									, S.InvoiceNo, PPI.UserName AS BillTo, AM.StateId AS InvoicingStateId, ST.UserName AS InvoicingState, PPI.GSTIN AS InvoicingGSTIN
 									, PPD.UserName AS ShipTo, STD.UserName AS DeliveryState, PPD.GSTIN AS DeliveryGSTIN, S.InvoicingByAddress, S.DeliveryByAddress, S.MatureDate, S.ToCurrencyRate
 									, S.ToCurrencyRate AS CompanyCurrencyRate, S.Narration, S.PartyType, S.VoucherId, AMP.StateId AS PlantStateId
-                                    , CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark
+                                    , CASE  WHEN V.IsPark=1 THEN 1 ELSE 0 END AS IsPark
 									,V.VoucherNo,SalesPackingVoucherId=STUFF((select distinct ','+SP.VoucherId from dbo.SalesPacking SP                                          
 							                                where SP.SalesId=S.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 									FROM [TRN].[Sales] AS S

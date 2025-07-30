@@ -181,15 +181,14 @@ namespace Aplos.Areas.Products.Controllers
         }
 
 
-        [Authorize, HttpGet]
-        public JsonResult GetDataByInventoryIssue()
+        [Authorize, HttpPost]
+        public JsonResult GetDataByInventoryIssue(string column, string value)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
-            var jsondata = Json(inventoryIssueQueryService.GetDataByInventoryIssue(identity.PlantId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(inventoryIssueQueryService.GetDataByInventoryIssue(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
-            //return Json(_inventoryIssueService.GetDataByInventoryIssue(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -201,7 +200,6 @@ namespace Aplos.Areas.Products.Controllers
             var jsondata = Json(inventoryIssueQueryService.GetDataByInventoryReturnIssue(identity.PlantId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
-            //return Json(_inventoryIssueService.GetDataByInventoryIssue(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public JsonResult GetIssueDetailByIssueId(string issueId)

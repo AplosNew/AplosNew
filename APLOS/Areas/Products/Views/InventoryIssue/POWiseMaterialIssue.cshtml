@@ -269,107 +269,65 @@
     </div>
 </div>
 <div class="aplos-grid-toggle">
-    @*<div class="row text-right">
-            <div class="col-xs-12 col-sm-12 col-sm-12">
-                <div class="search-form">
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-3 col-md-3">
-                            <div class="select-style">
-                                <select ng-model="$root.parameters.searchBy">
-                                    <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                                </select>
-                            </div>
+   
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="searchByIssue">
+                                <option ng-repeat="option in searchByIssueList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
                         </div>
-                        <div class="col-xs-12 col-sm-7 col-md-7">
-                            <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData();">
-                        </div>
-                        <div class="col-xs-12 col-sm-2 col-md-2">
-                            <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="searchIssue" ng-enter="getdataInventoryIssue();">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getdataInventoryIssue()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="table-responsive modal-table">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Issue No</th>
-                        <th>Storage Location</th>
-                        <th>Issue Date</th>
-                        <th>Employee</th>
-                        <th>Qty</th>
-                        <th>Amount</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr dir-paginate="x in issueList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get($index);">
-                        <td>{{x.Id}}</td>
-                        <td>{{x.MaterialStorage}}</td>
-                        <td>{{x.IssueDate}}</td>
-                        <td>{{x.EmployeeName}}</td>
-                        <td>{{x.Qty}}</td>
-                        <td class="text-right">{{x.Amount| number| setDecimal:2}}</td>
-                        <td class="text-right table-td">
-                            <ul class="list-inline">
-                                <li><a class="btn btn-action" ng-click="IssueReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>
-                            </ul>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <dir-pagination-controls max-size="10"
-                                     direction-links="true" boundary-links="true"
-                                     on-page-change="getData(newPageNumber)">
-            </dir-pagination-controls>
-        </div>*@
-
-
-
-    <fieldset class="scheduler-border">
-        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-        <div>
-            <div id='Grid'></div>
-            <div class="content-container-fluid" style="color:black;">
-                @*e-allowselection="true"*@
-                <div style="color:black;" id="GridIIssue" ej-grid e-datasource="GridInventoryIssuedata"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
-                     e-recorddoubleclick="GetDataList" e-filtersettings-filterType="excel"
-                     e-enabletouch="true" e-allowselection="true"
-                     e-detailstemplate="detailTemp"
-                     e-detailsdatabound="detailgrid">
-                    <div e-columns>
-                        <div e-column e-field="Id" e-headertext="Issue No" e-width="80"></div>
-                        <div e-column e-field="issuetype" e-headertext="Issue Type" e-width="80"></div>
-                        <div e-column e-field="Entity" e-headertext="Entity Name" e-width="80"></div>
-                        <div e-column e-field="OrderRefNo" e-headertext="OrderRefNo" e-width="80"></div>
-                        <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="80"></div>
-                        <div e-column e-field="MaterialStorage" e-headertext="Storage Location" e-width="80"></div>
-                        <div e-column e-field="IssueDate" e-headertext="Issue Date" e-width="80"></div>
-                        <div e-column e-field="Qty" e-headertext="Qty" e-width="50"></div>
-                        <div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>
-                        <div e-column e-headertext="Actions" e-width="50">
-                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GridIIssue');" style="margin: -6px;"></i></button>
-                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
-                        </div>
-                    </div>
-
+    </div>
+    <div class="content-container-fluid" style="color:black;">
+        @*e-allowselection="true"*@
+        <div style="color:black;" id="GridIIssue" ej-grid e-datasource="GridInventoryIssuedata"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+             e-recorddoubleclick="GetDataList" e-filtersettings-filterType="excel"
+             e-enabletouch="true" e-allowselection="true"
+             e-detailstemplate="detailTemp"
+             e-detailsdatabound="detailgrid">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Issue No" e-width="80"></div>
+                <div e-column e-field="issuetype" e-headertext="Issue Type" e-width="80"></div>
+                <div e-column e-field="Entity" e-headertext="Entity Name" e-width="80"></div>
+                <div e-column e-field="OrderRefNo" e-headertext="OrderRefNo" e-width="80"></div>
+                <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="80"></div>
+                <div e-column e-field="MaterialStorage" e-headertext="Storage Location" e-width="80"></div>
+                <div e-column e-field="IssueDate" e-headertext="Issue Date" e-width="80"></div>
+                <div e-column e-field="Qty" e-headertext="Qty" e-width="50"></div>
+                <div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>
+                <div e-column e-headertext="Actions" e-width="50">
+                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GridIIssue');" style="margin: -6px;"></i></button>
+                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
                 </div>
-
             </div>
-            <script id="tabGridContents" type="text/x-jsrender">
-                <div class="tabcontrol" id="Test">
-                    <ul>
-                        <li><a href="#gridTab{{:Id}}">Issue Details</a></li>
-                    </ul>
-                    <div id="gridTab{{:Id}}">
-                        <div id="detailGrid"></div>
-                    </div>
-                </div>
-            </script>
+
         </div>
-    </fieldset>
+
+    </div>
+    <script id="tabGridContents" type="text/x-jsrender">
+        <div class="tabcontrol" id="Test">
+            <ul>
+                <li><a href="#gridTab{{:Id}}">Issue Details</a></li>
+            </ul>
+            <div id="gridTab{{:Id}}">
+                <div id="detailGrid"></div>
+            </div>
+        </div>
+    </script>
 </div>
 <div class="modal fade site-modal in" id="POPopUp1" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">

@@ -888,9 +888,9 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
 
         location.href = "Products/InventoryIssue/IssueReport?grnId=" + $scope.modelNew.Id;
     };
-    $scope.downloadIssueExcel = function () {
+    $scope.downloadIssueExcel = function (x) {
         var reportFormat = "Excel";
-        location.href = "Outsourcing/OSIssueReturn/GetIIPrintReport?reportFormat=" + reportFormat + '&IssueId=' + $scope.modelNew.Id;
+        location.href = "Outsourcing/OSIssueReturn/GetIIPrintReport?reportFormat=" + reportFormat + '&IssueId=' + x.IssueNo;
     };
 
     $scope.issueReportDownload = function (x) {

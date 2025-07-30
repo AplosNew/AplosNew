@@ -421,6 +421,8 @@
                 <th>Created From</th>
                 <th>Currency</th>
                 <th>Amount</th>
+                <th>SetOff</th>
+                <th>Balance</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>
@@ -436,6 +438,8 @@
                 <td>{{x.CreatedFrom}}</td>
                 <td>{{x.CurrencyCode}}</td>
                 <td class="text-right">{{x.Amount | number:2}}</td>
+                <td class="text-right">{{x.SetOffAmount | number:2}}</td>
+                <td class="text-right">{{x.Balance | number:2}}</td>
                 <td>{{x.IsPark?'Parked':'Posted'}}</td>
                 <td class="text-right">
                     <ul class="list-inline action-list">

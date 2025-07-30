@@ -326,9 +326,14 @@ UNION ALL
 			else
             {
 				sql = @"SELECT LAA.Id LoanAgainstAcceptanceId,LAA.CurrencyId, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
-						,IVD.GLGeneralInfoId,IVD.BudgetMasterId,IVD.ActivityId,IVD.InvoiceId,IVD.Id InvoiceDetailId,LAAD.Amount
-						,IV.CompanyCurrencyRate,BM.AccountTitle 
-						,IV.DocRefNo  AcceptanceNo,IV.DocDate InvoieDocDate,LAAD.OpeningBankMasterId BankMasterId
+						,GLGeneralInfoId=case when IVD.GLGeneralInfoId<>'' then IVD.GLGeneralInfoId else AJD.GLGeneralInfoId end
+						,BudgetMasterId=case when IVD.BudgetMasterId<>'' then IVD.BudgetMasterId else AJD.BudgetMasterId end
+						,ActivityId=case when IVD.ActivityId<>'' then IVD.ActivityId else AJD.ActivityId end
+						 ,IVD.InvoiceId,IVD.Id InvoiceDetailId,LAAD.Amount
+						,CompanyCurrencyRate=1--CompanyCurrencyRate=case when IV.CompanyCurrencyRate>0 then IV.CompanyCurrencyRate else 1.00 end
+						,BM.AccountTitle ,LAAD.AdjustmentNoteId,LAAD.AdjustmentNoteDetailId
+						,AcceptanceNo=case when IV.DocRefNo<>'' then   IV.DocRefNo else  AN.DocRefNo end
+						,InvoieDocDate=case when IV.DocDate<>'' then IV.DocDate else AN.DocDate end ,LAAD.OpeningBankMasterId BankMasterId
 						FROM InvoiceTaggingWithLCMaster LAA 
 						LEFT JOIN InvoiceTaggingWithLCDetail LAAD ON LAA.Id=LAAD.InvoiceTaggingWithLCMasterId
 						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
@@ -337,6 +342,8 @@ UNION ALL
 						LEFT JOIN SCS.Currency CU ON CU.Id=LAA.CurrencyId
 						LEFT JOIN TRN.Invoice IV ON IV.Id=LAAD.InvoiceId
 						LEFT JOIN TRN.InvoiceDetail IVD ON IVD.InvoiceId=IV.Id
+						LEFT JOIN TRN.AdjustmentNote AN ON AN.Id=LAAD.AdjustmentNoteId
+						LEFT JOIN TRN.AdjustmentNoteDetail AJD ON AJD.Id=LAAD.AdjustmentNoteDetailId
 						LEFT JOIN SEC.[USER] U ON U.UserId=LAA.AddedBy
 						WHERE LAA.PlantId='" + plantId + "' AND LAAD.InvoiceTaggingWithLCMasterId='" + LoanAgainstAcceptanceMasterId + "'  AND LAA.VoucherId IS NULL";
 			}

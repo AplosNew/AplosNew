@@ -4831,7 +4831,7 @@ UNION ALL
 										and V.EntityId=@entityId  and VDC.ParallelCurrencyId IN (@parallelCurrencyId) and v.IsPark=0 and  VD.OpeningBalanceDetailId IS NULL
 										GROUP BY ACT.BalanceType,GL.Id, VD.BudgetMasterId, VD.ActivityId, VDC.ParallelCurrencyId )T
 										WHERE ActivityId=VD.ActivityId),0))ForTheDay
-						,(ISNULL((SELECT CASE WHEN DRcumulative=0 THEN CRcumulative ELSE DRcumulative END ForTheFiscalYear FROM
+						,(ISNULL((SELECT  top(1) CASE WHEN DRcumulative=0 THEN CRcumulative ELSE DRcumulative END ForTheFiscalYear FROM
 										(SELECT VDFY.ActivityId,  sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VDFY.BudgetMasterId, VDFY.ActivityId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
 										sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VDFY.BudgetMasterId, VDFY.ActivityId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative
 										FROM TRN.VoucherDetailCurrency AS VDC
@@ -4887,7 +4887,7 @@ UNION ALL
 										and V.EntityId=@entityId  and VDC.ParallelCurrencyId IN (@parallelCurrencyId) and v.IsPark=0 and  VD.OpeningBalanceDetailId IS NULL
 										GROUP BY ACT.BalanceType,GL.Id, VD.BudgetMasterId, VD.ActivityId, VDC.ParallelCurrencyId )T
 										WHERE ActivityId=VD.ActivityId),0))ForTheDay
-						,(ISNULL((SELECT CASE WHEN DRcumulative=0 THEN CRcumulative ELSE DRcumulative END ForTheFiscalYear FROM
+						,(ISNULL((SELECT  top(1)  CASE WHEN DRcumulative=0 THEN CRcumulative ELSE DRcumulative END ForTheFiscalYear FROM
 										(SELECT VDFY.ActivityId,  sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VDFY.BudgetMasterId, VDFY.ActivityId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
 										sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VDFY.BudgetMasterId, VDFY.ActivityId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative
 										FROM TRN.VoucherDetailCurrency AS VDC
@@ -4922,7 +4922,6 @@ UNION ALL
 					AND VDC.ParallelCurrencyId IN (@parallelCurrencyId) and v.IsPark=0 and  vd.OpeningBalanceDetailId IS NULL
                     group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
 					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId, BC.UserName,BSC.UserName,BUD.UserName ,VD.ActivityId, A.UserName,BMA.Id  ";
-
                 return _sqlRepository.GetDataTable(strSql);
             }
             catch (Exception)

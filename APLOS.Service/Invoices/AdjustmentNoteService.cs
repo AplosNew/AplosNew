@@ -120,18 +120,20 @@ namespace Library.Service.Invoices
         public GridModel Query(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
             parameters.CmdText = @"SELECT V.VoucherNo, A.Id, A.Id AS AdjustmentNoteId, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.VoucherId, A.PostingDate, A.DocDate
-                                , A.DocRefNo, A.CurrencyId, C.Code AS CurrencyCode, A.Amount, A.IsPark, A.PartyType,[Status]=case when A.IsPark=0 Then 'Posted' Else 'Parked' END
+                                , A.DocRefNo, A.CurrencyId, C.Code AS CurrencyCode, AJND.Amount,IWD.SetOffAmount,Balance=AJND.Amount-ISNULL(IWD.SetOffAmount,0), A.IsPark, A.PartyType,[Status]=case when A.IsPark=0 Then 'Posted' Else 'Parked' END
                                 ,IsExpenseDistribution=CASE WHEN ISNULL((select COUNT(ID.Id) from TRN.InvoiceDetailCharges ID
 										INNER JOIN TRN.VoucherDetail VD ON VD.Id=ID.VoucherDetailId
 										WHERE VD.VoucherId=A.VoucherId),0)>0 THEN 1 ELSE 0 END
                                 ,CreatedFrom=case when (select count(Id) FROM [TRN].[SalesReturn] Where IsCreditNote=1AND VoucherId=A.VoucherId)>0 then 'SetOff'  ELSE 'General' END
                                 ,E.UserName EntityName,V.EntityId,V.Narration,A.CompanyGroupId,A.CompanyId,A.PlantId
                                 FROM [TRN].[AdjustmentNote] AS A
+								LEFT JOIN (SELECT AdjustmentNoteId,SUM(Amount) Amount FROM [TRN].[AdjustmentNoteDetail] GROUP BY AdjustmentNoteId) AJND ON AJND.AdjustmentNoteId=A.Id
                                 LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
                                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=A.PartyPlantId
                                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
                                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
                                 LEFT JOIN [ORG].[Entity] AS E ON E.Id=V.EntityId
+								LEFT JOIN (SELECT AdjustmentNoteId,SUM(Amount) SetOffAmount FROM TRN.InvoiceWriteOffDetail GROUP BY AdjustmentNoteId) IWD ON IWD.AdjustmentNoteId=A.Id
                                 WHERE A.Archive=0 AND V.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + sourceType + "'";
             return _sqlRepository.GetGridData(parameters);
         }
