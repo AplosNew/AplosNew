@@ -1389,7 +1389,6 @@ namespace Library.Accounting.Accounts
 										WHERE CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS HC ON HC.VoucherDetailId=VD.Id 
                                         WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0  AND V.IsPark=0 AND IVD.IsBlock=0 
-                                        AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLCDetail)
                                         --AND ISNULL(IV.PurchaseLCId,'')=''
                                         AND IV.SourceType in ('" + SourceType.VendorInvoice + "','" + SourceType.PurchaseDocAcceptance + "','" + SourceType.SuspensePayable + "','" + SourceType.ServicePayable + "','" + SourceType.EmployeePayable + "','" + SourceType.PostInvoice + "','" + SourceType.InvoiceToAcceptance + @"')
                                         AND IV.CompanyGroupId='" + companyGroupId + @"' AND IV.CompanyId='" + companyId + @"' AND IV.PartyId='" + partyId + @"' 
