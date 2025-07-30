@@ -828,9 +828,9 @@
                                         <li>
                                             <a href="{{bootPoint}}performance-grade-master" ng-click="InsertMenuAccessLog('performance-grade-master','Performance Grade')">Performance Grade</a>
                                         </li>
-                                        <li>
+                                        @*<li>
                                             <a href="{{bootPoint}}productive-allowance-rate-setup" ng-click="InsertMenuAccessLog('productive-allowance-rate-setup','Employee Wise Performance Setting')">Employee Wise Performance Setting</a>
-                                        </li>
+                                        </li>*@
                                     </ul>
                                 </li>
 
@@ -1020,9 +1020,11 @@
                                     <a>Settings</a>
                                     <ul>
                                         <li>
-                                            <a href="{{bootPoint}}additional-element-code-settings">Additional Element Code</a>
+                                            <a href="{{bootPoint}}additional-element-code-settings" ng-click="InsertMenuAccessLog('additional-element-code-settings','Additional Element Code')">Additional Element Code</a>
                                         </li>
-
+                                        <li>
+                                            <a href="{{bootPoint}}productive-allowance-rate-setup" ng-click="InsertMenuAccessLog('productive-allowance-rate-setup','Employee Wise Performance Setting')">Employee Wise Performance Setting</a>
+                                        </li>
                                     </ul>
                                 </li>
 

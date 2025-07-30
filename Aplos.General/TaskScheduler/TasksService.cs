@@ -2427,7 +2427,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN ORG.Position p ON p.Id=mb.PositionId
 
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
