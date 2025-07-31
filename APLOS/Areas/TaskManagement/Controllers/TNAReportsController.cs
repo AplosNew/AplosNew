@@ -211,7 +211,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
         [HttpPost, Authorize]
         public ActionResult GetTaskListResult(Dictionary<string, object> Filter, List<Dictionary<string, object>> FilterFields)
         {
-            DataTable dtFinal = new DataTable(); ;
+            DataTable dtFinal = new DataTable();
 
 
             GetTNAStatusReportsData(out dtFinal, Filter, FilterFields);
@@ -1338,7 +1338,8 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                     INNER JOIN hkp.TaskAppliedOn AS tao ON tao.Id=tm.TaskAppliedOnId
                                     INNER JOIN hkp.TaskCategory AS tc ON tm.TaskCategoryId=tc.Id
                                     INNER JOIN hkp.TaskSubCategory AS tsc ON tm.TaskSubCategoryId=tsc.Id
-                                    WHERE 1=1 " + TaskTypeFilter + @"
+                                    --WHERE 1=1 " + TaskTypeFilter + @"
+                                    WHERE 1=1 AND  isnull(TM.Id,'') IN (Select distinct TaskMasterId from MasterOrderTaskTemplate)
                                     ORDER BY TSC.Sequence ASC,TC.Sequence ASC, tm.Sequence ASC");
 
 

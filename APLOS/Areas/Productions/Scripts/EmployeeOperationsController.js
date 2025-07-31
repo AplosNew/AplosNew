@@ -184,7 +184,6 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
     // Add Tiles
     $scope.AddTile = function (e) {
-        console.log(e);
         let ob = {};
         Object.assign(ob, e);
         ob.Id = null;
