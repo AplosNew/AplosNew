@@ -44,7 +44,7 @@
                 <label class="col-sm-4 control-label">Process</label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ProcessId" name="Process" ng-change="getWkC()"
+                        <select class="form-control" ng-model="ProcessId" name="Process" ng-change="getWkC();GetShiftList();"
                                 ng-options="item.Value as item.Text for item in ProcessList">
                             <option value="">--Select--</option>
                         </select>
@@ -76,14 +76,26 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="col-sm-4 control-label" >Responsible Person<sup>*</sup></label>
-                <div class="col-sm-6 show-message" >
-                    <input type="text" name="Location" ng-model="responsiblePerson" ng-click="selectResp()" class="form-control" maxlength="200" tabindex="5">
+            @*<div class="form-group">
+            <label class="col-sm-4 control-label" >Responsible Person<sup>*</sup></label>
+            <div class="col-sm-6 show-message" >
+                <input type="text" name="Location" ng-model="responsiblePerson" ng-click="selectResp()" class="form-control" maxlength="200" tabindex="5">
 
-                </div>
-                <div class="col-sm-1" style="margin-top:10px">
-                    <button ng-click="selectResp()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+            </div>
+            <div class="col-sm-1" style="margin-top:10px">
+                <button ng-click="selectResp()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+            </div>
+        </div>*@
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <input type="text" name="ResponsiblePerson" ng-model="responsiblePerson" @*style="width:200px;"*@ class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="openPopupAngular('employeeNewPopUp')" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -350,5 +362,33 @@
             </div>
         </div>
 
+    </div>
+</div>
+
+<div class="modal site-modal" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closePopup('employeeNewPopUp');">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color: black;" id="Grid" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-type="string" e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

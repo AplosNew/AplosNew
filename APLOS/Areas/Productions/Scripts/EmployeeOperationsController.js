@@ -78,12 +78,12 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             $scope.periodId = resp.data.Current;
         });
 
-        $http({
-            method: 'GET',
-            url: $scope.path + 'GetShift',
-        }).then(function succ(resp) {
-            $scope.ShiftList = resp.data;
-        });
+        //$http({
+        //    method: 'GET',
+        //    url: $scope.path + 'GetShift',
+        //}).then(function succ(resp) {
+        //    $scope.ShiftList = resp.data;
+        //});
 
         $http({
             method: 'GET',
@@ -107,6 +107,17 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         });
     }
 
+    $scope.GetShiftList = function () {
+        $http.get('Productions/Productionsummary/GetShiftList?processId=' + $scope.ProcessId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.ShiftList = response.data;
+                    if (baseService.arrayLength(response.data) === 1) {
+                        $scope.shiftId = $scope.ShiftList[0].Value;
+                    }
+                }
+            });
+    }
 
     //Getting the WorkCenters
     $scope.getWkC = function () {
@@ -135,9 +146,29 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
                 $scope.responsiblePerson =null;
                 $scope.responsiblePersonId =null;
             }
-            console.log(resp.data);
         });
     }
+
+    $scope.employee = [];
+    $scope.getPopUpData = function () {
+        $scope.employee = [];
+        $http({
+            method: 'GET',
+            url: 'Costings/QuickCostingMaster/getemployeelist'
+        }).then(function successCallback(response) {
+            $scope.employee = response.data;
+        });
+    }
+    $scope.getPopUpData();
+
+    $scope.setEmpData = function (obj) {
+        $scope.responsiblePersonId = obj.data.SystemID;
+        $scope.responsiblePerson = obj.data.EmployeeName;
+
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    };
+
+
 
     // Getting the POs
     $scope.getPo = function () {
