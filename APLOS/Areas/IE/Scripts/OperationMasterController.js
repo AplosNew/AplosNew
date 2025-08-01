@@ -1,7 +1,7 @@
 ﻿'use strict';
 OperationMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function OperationMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Operation Master';
+    $rootScope.title = 'Skill Operation Master';
     $scope.Action = 'Save';
     $scope.Action1 = 'Save';
     $scope.Action2 = 'Delete';

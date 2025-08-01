@@ -1,7 +1,7 @@
 ﻿'use strict';
 operationVariationController.$inject = ["commonMessage", "$scope", "$rootScope", "baseService", "$http", "$window", "$filter"];
 function operationVariationController(commonMessage, $scope, $rootScope, baseService, $http, $window, $filter) {
-    $rootScope.title = "Operation Variation";
+    $rootScope.title = "Operation Variation Master";
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.path = 'Machines/operationVariation/';

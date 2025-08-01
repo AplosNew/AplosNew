@@ -1,7 +1,7 @@
 ﻿'use strict';
 OperationController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$window', '$filter'];
 function OperationController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $window, $filter) {
-    $rootScope.title = "Operation";
+    $rootScope.title = "Operation Master";
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.popUpIndex = -1;
