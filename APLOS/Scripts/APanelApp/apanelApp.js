@@ -534,6 +534,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("SalesPurchaseTransactionTypeController", SalesPurchaseTransactionTypeController)
     .controller("CasteController", CasteController)
     .controller("voucherTypeAdditionalInfoController", voucherTypeAdditionalInfoController)
+    .controller("IncentiveTypeController", IncentiveTypeController)
 
     
 

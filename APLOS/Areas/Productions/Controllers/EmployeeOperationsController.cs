@@ -88,9 +88,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetPOs(string wk)
+        public ActionResult GetPOs(string entityId)
         {
-            return Json(eo.GetPOs(wk), JsonRequestBehavior.AllowGet);
+            return Json(eo.GetPOs(entityId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]

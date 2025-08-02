@@ -559,6 +559,7 @@
     <Compile Include="Areas\HumanResource\Controllers\HRReportMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PlantInOutControllReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\LeaveTransectionController.cs" />
+    <Compile Include="Areas\IE\Controllers\IncentiveTypeController.cs" />
     <Compile Include="Areas\IE\Controllers\WorkcenterWiseDetentionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WebBasedPackingController.cs" />
     <Compile Include="Areas\Materials\Controllers\BarcodeGeneratorSettingController.cs" />
@@ -1989,6 +1990,7 @@
     <Content Include="Areas\HumanResource\Scripts\LeaveTransectionController.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerBudgetReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\otApproveController.js" />
+    <Content Include="Areas\IE\Scripts\IncentiveTypeController.js" />
     <Content Include="Areas\Materials\Scripts\BarcodeGeneratorSettingController.js" />
     <Content Include="Areas\Materials\Scripts\FabricGroupingController.js" />
     <Content Include="Areas\Materials\Scripts\ProcessConstraintController.js" />
@@ -5072,6 +5074,7 @@
     <Content Include="Areas\Employees\Views\EmployeeInformation\TrainingType.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeeInformation\AplosEmp.cshtml" />
     <Content Include="Areas\HumanResource\Views\ManpowerBudgetDashboard\Report.cshtml" />
+    <Content Include="Areas\IE\Views\IncentiveType\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

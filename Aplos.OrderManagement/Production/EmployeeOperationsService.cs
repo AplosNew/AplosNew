@@ -116,17 +116,20 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetPOs(string wk)
+        public IEnumerable<object> GetPOs(string entityId)
         {
             try
             {
-                var dd = @"Select Id from hkp.ProductionStatus where UserName like 'Run%'";
-                DataTable dtId = _sqlRepository.GetDataTable(dd);
-                var str = @"Select distinct po.Id
-                            from Scs.WorkCenterMaster wc
-                            left join org.Entity e on e.ID = wc.EntityId
-                            left join trn.ProductionOrder po on po.EntityId = e.Id
-                            where wc.Id = '" + wk + @"' and po.ProductionStatusId = '" + dtId.Rows[0]["Id"].ToString() + "'";
+                //var dd = @"Select Id from hkp.ProductionStatus where UserName like 'Run%'";
+                //DataTable dtId = _sqlRepository.GetDataTable(dd);
+                //var str = @"Select distinct po.Id
+                //            from Scs.WorkCenterMaster wc
+                //            left join org.Entity e on e.ID = wc.EntityId
+                //            left join trn.ProductionOrder po on po.EntityId = e.Id
+                //            where wc.Id = '" + wk + @"' and po.ProductionStatusId = '" + dtId.Rows[0]["Id"].ToString() + "'";
+                string str = @"select PO.Id from TRN.ProductionOrder PO
+LEFT JOIN HKP.ProductionStatus PS ON PS.id=PO.ProductionStatusId
+Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)

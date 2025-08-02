@@ -143,5 +143,9 @@ function IEConfig($routeProvider, $locationProvider) {
             templateUrl: 'ie/WorkcenterWiseDetention/Aplos',
             controller: 'WorkcenterWiseDetentionController'
         })
+        .when('/IncentiveType', {
+            templateUrl: 'ie/IncentiveType/Aplos',
+            controller: 'IncentiveTypeController'
+        })
         ;
 };

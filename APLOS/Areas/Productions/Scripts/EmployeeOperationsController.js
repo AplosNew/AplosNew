@@ -175,7 +175,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: 'POST',
             url: $scope.path + 'GetPOs',
-            data: { 'wk': $scope.workCenterId},
+            data: { 'entityId': $scope.EntityId},
         }).then(function succ(resp) {
             $scope.POList = resp.data;
         });

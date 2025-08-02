@@ -270,6 +270,17 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label class="col-sm-4 control-label">Incentive Type</label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select name="IncentiveType" ng-model="manPowerbudgetmasterNew.IncentiveTypeId" class="col-sm-3 form-control" title="IncentiveType"
+                                                ng-options="item.Value as item.Text for item in IncentiveTypeList">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="col-sm-4 control-label">Roster Applicable</label>
                                 <div class="col-sm-3">
                                     <div class="checkbox-site">
@@ -310,16 +321,16 @@
                                 </div>
                             </div>
                             @*<div class="form-group">
-                                    <label class="col-sm-4 control-label">Cost Center</label>
-                                    <div class="col-sm-8">
-                                        <div class="select-style">
-                                            <select name="CostCenter" ng-model="manPowerbudgetmasterNew.CostCenterId" class="col-sm-3 form-control"
-                                                    ng-options="item.Value as item.Text for item in CostCenterList">
-                                                <option></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>*@
+            <label class="col-sm-4 control-label">Cost Center</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select name="CostCenter" ng-model="manPowerbudgetmasterNew.CostCenterId" class="col-sm-3 form-control"
+                            ng-options="item.Value as item.Text for item in CostCenterList">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
 
 
                         </div>
