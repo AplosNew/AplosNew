@@ -84,7 +84,9 @@ namespace Aplos.Areas.Productions.Controllers
         [HttpGet, Authorize]
         public JsonResult GetPackingData()
         {
-            return Json(det.GetPackingData(), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(det.GetPackingData(), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
 
         [HttpGet, Authorize]
@@ -145,6 +147,12 @@ namespace Aplos.Areas.Productions.Controllers
                     }
                 }
             }
+            DataSet dsMaster;
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            con.OpenDataSetThroughAdapter("select * from dbo.SalesPacking where PackingId IN("+ PackingId + ")", out dsMaster, false, "1");
+            if (dsMaster.Tables[0].Rows.Count > 0)
+                throw new Exception("PackingId already exists!!!");
+
             GetIssueDetail(PackingId, out dsDetail);
             GetIssueHistory(PackingId, out dsHistory);
             GetItemScanChildData(PackingId, out dsItemScanData);
