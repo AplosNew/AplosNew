@@ -10,6 +10,26 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
     $scope.saveUrl = 'Accounts/InvoicePost/CreateIssue';
     $scope.deleteUrl = 'Accounts/InvoicePost/DeleteIssueJournal';
     $scope.ispostDisable = false;
+
+    //baseService.init($scope.getListUrl, null, null, 'DESC', 'IssueDate', 'IssueNo');
+    //$scope.getData = function (pageno) {
+    //    baseService.pagination(pageno, $scope.parameters)
+    //        .then(function (result) {
+    //            $scope.dataList = result.Rows;
+    //            for (var i = 0; i < $scope.dataList.length; i++) {
+    //                $scope.dataList[i].VoucherDate = new Date($scope.dataList[i].VoucherDate);
+    //                $scope.dataList[i].IssueDate = new Date($scope.dataList[i].IssueDate);
+    //            }
+    //        }, function () {
+    //            ShowResult(commonMessage.NetworkError, 'failure');
+    //        }).finally(function () {
+    //        });
+    //};
+    //$scope.getData();
+
+    
+  
+    $scope.searchByIssue = "IssueNo"; $scope.searchIssue = "";
     $scope.searchByIssueList = [
         {
             value: 'IssueNo'
@@ -22,6 +42,10 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
         {
             value: 'MaterialStorage'
             , name: 'Storage'
+        },
+        {
+            value: 'Entity'
+            , name: 'Entity'
         },
         {
             value: 'EmployeeName'
@@ -52,35 +76,21 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
             , name: 'LC No'
         }
     ];
-    $scope.parameters = {
-        limit: 10,
-        offset: 0,
-        order: "ASC",
-        sort: "VoucherNo",
-        searchBy: "VoucherNo",
-        pageSize: 10,
-        total_count: 0,
-        search: null,
-        serverPagination: true
+
+
+
+    $scope.GridInventoryIssuedata = [];
+    $scope.getdataInventoryIssue = function () {
+        $http({
+            method: 'POST',
+            url: 'Accounts/InventoryPayable/GetIssueJournalList',
+            data: { column: $scope.searchByIssue, value: $scope.searchIssue },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.GridInventoryIssuedata = response.data;
+        });
     };
-
-    baseService.init($scope.getListUrl, null, null, 'DESC', 'IssueDate', 'IssueNo');
-    $scope.getData = function (pageno) {
-        baseService.pagination(pageno, $scope.parameters)
-            .then(function (result) {
-                $scope.dataList = result.Rows;
-                for (var i = 0; i < $scope.dataList.length; i++) {
-                    $scope.dataList[i].VoucherDate = new Date($scope.dataList[i].VoucherDate);
-                    $scope.dataList[i].IssueDate = new Date($scope.dataList[i].IssueDate);
-                }
-            }, function () {
-                ShowResult(commonMessage.NetworkError, 'failure');
-            }).finally(function () {
-            });
-    };
-    $scope.getData();
-
-
+    $scope.getdataInventoryIssue();
 
 
     cboService.getCboVoucherTypeIssueJournalList(function (result) {
@@ -883,6 +893,38 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
     };
+
+    $scope.onClickReportDownloadWord = function (data) {
+        var reportFormat = "Pdf";
+        if (baseService.isUndefinedOrNull(data.IssueNo)) return ShowResult('No Id found', 'failure');
+        $window.open('Accounts/InventoryPayable/IssueJournalReport?reportFormat=' + reportFormat + '&inventoryIssueId=' + data.IssueNo ,'_blank');
+
+    };
+
+    $scope.commandPDF = [{
+        type: "details", buttonOptions: {
+            text: "PDF",
+            width: "50",
+            height: "20",
+            click: $scope.onClickReportDownloadWord
+        }
+    }];
+
+    $scope.onClickReportDownloadExcel = function (data) {
+        var reportFormat = "Pdf";
+        if (baseService.isUndefinedOrNull(data.IssueNo)) return ShowResult('No Id found', 'failure');
+        $window.open('Accounts/InventoryPayable/IssueJournalReport?reportFormat=' + reportFormat + '&inventoryIssueId=' + data.IssueNo, '_blank');
+
+    };
+
+    $scope.commandPDF = [{
+        type: "details", buttonOptions: {
+            text: "Excel",
+            width: "50",
+            height: "20",
+            click: $scope.onClickReportDownloadExcel
+        }
+    }];
 
     $scope.downloadIssue = function () {
 

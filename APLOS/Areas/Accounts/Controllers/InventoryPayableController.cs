@@ -438,14 +438,13 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #region Issue Journal
 
-        [Authorize, HttpGet]
-        public JsonResult GetIssueJournalList(GridParameter parameters)
+        [Authorize, HttpPost]
+        public JsonResult GetIssueJournalList(string column, string value)
         {
             AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(accountsInventoryPayableService.GetIssueJournalList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
-        }
-
+            return Json(accountsInventoryPayableService.GetIssueJournalList(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
+        } 
         [Authorize, HttpGet]
         public JsonResult GetIssueReturnJournalList(GridParameter parameters)
         {

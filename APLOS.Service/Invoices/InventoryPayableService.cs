@@ -7639,7 +7639,7 @@ namespace Library.Service.Invoices
                 flag = true;
                 voucherVM.PartyType = PartyType.Vendor.ToString();
                 voucherVM.NoteType = NoteType.VendorDebitNote.ToString();
-                voucherVM.Amount = voucherDetailVMList.Where(r => r.OtherName == "Return").Sum(r => r.Amount);
+                voucherVM.Amount = Math.Round(voucherDetailVMList.Where(r => r.OtherName == "Return").Sum(r => r.Amount), 4, MidpointRounding.AwayFromZero); 
                 // INSERT INTO AdjustmentNote
                 voucherVM.DocRefNo = "PR" + voucherVM.DocRefNo;
 
