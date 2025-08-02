@@ -222,22 +222,22 @@
                 <div class="row">
                     <div class="col-xs-12 col-sm-3 col-md-3">
                         <div class="select-style">
-                            <select ng-model="$root.parameters.searchBy">
+                            <select ng-model="searchByIssue">
                                 <option ng-repeat="option in searchByIssueList" value="{{option.value}}">{{option.name}}</option>
                             </select>
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-7 col-md-7">
-                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData();">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="searchIssue" ng-enter="getdataInventoryIssue();">
                     </div>
                     <div class="col-xs-12 col-sm-2 col-md-2">
-                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                        <button type="button" ng-click="getdataInventoryIssue()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="table-responsive modal-table">
+    @*<div class="table-responsive modal-table">
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -245,6 +245,7 @@
                     <th>Voucher No</th>
                     <th>Voucher Date</th>
                     <th>Storage Location</th>
+                    <th>Entity</th>
                     <th>Issue Date</th>
                     <th>Employee</th>
                     <th>Types</th>
@@ -258,11 +259,12 @@
                 </tr>
             </thead>
             <tbody>
-                <tr dir-paginate="x in dataList |itemsPerPage:$root.pageSize" total-items="$root.total_count" pagination-id="metaData.name + 'dataList'">
+                <tr dir-paginate="x in GridInventoryIssuedata |itemsPerPage:$root.pageSize" total-items="$root.total_count" pagination-id="metaData.name + 'dataList'">
                     <td>{{x.IssueNo}}</td>
                     <td>{{x.VoucherNo}}</td>
                     <td>{{x.VoucherDate | dateFiltering}}</td>
                     <td>{{x.MaterialStorageName}}</td>
+                    <td>{{x.Entity}}</td>
                     <td>{{x.IssueDate| dateFiltering}}</td>
                     <td>{{x.EmployeeName}}</td>
                     <td>{{x.Types}}</td>
@@ -277,8 +279,8 @@
                             <li><a class="btn btn-action" href="Accounts/InventoryPayable/IssueJournalReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&inventoryIssueId={{x.IssueNo}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                             <li><a class="btn btn-action" href="Accounts/InventoryPayable/IssueJournalReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&inventoryIssueId={{x.IssueNo}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                             <li><a class="btn btn-action" ng-click="issueReportDownload(x)"><i class="glyphicon glyphicon-print"></i></a></li>
-                            <li><a class="btn btn-action" ng-click="downloadIssueExcel(x)" title="Issue Excel Report" ><i class="glyphicon glyphicon-print"></i></a></li>
-                            <li><a ng-show="x.IsPark" class="btn btn-action"  ng-click="confirmDelete(x.IssueNo,x.VoucherId);" href=""><i class="glyphicon glyphicon-trash"></i></a></li>
+                            <li><a class="btn btn-action" ng-click="downloadIssueExcel(x)" title="Issue Excel Report"><i class="glyphicon glyphicon-print"></i></a></li>
+                            <li><a ng-show="x.IsPark" class="btn btn-action" ng-click="confirmDelete(x.IssueNo,x.VoucherId);" href=""><i class="glyphicon glyphicon-trash"></i></a></li>
                         </ul>
                     </td>
                 </tr>
@@ -288,7 +290,58 @@
                                  direction-links="true" boundary-links="true"
                                  on-page-change="getData(newPageNumber)">
         </dir-pagination-controls>
+    </div>*@
+    <div class="content-container-fluid" style="color:black;">
+        <div style="color:black;" id="GridPrint" ej-grid e-datasource="GridInventoryIssuedata" e-allowfiltering="true" e-allowpaging="true"
+             e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
+             e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
+            <div e-columns>
+                <div e-column e-field="IssueNo" e-headertext="IssueNo" e-width="60" e-filter="false"></div>
+                <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="180"></div>
+                <div e-column e-field="VoucherDate" e-headertext="VoucherDate" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                <div e-column e-field="MaterialStorageName" e-headertext="MaterialStorageName" e-width="80"></div>
+                <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
+                <div e-column e-field="IssueDate" e-headertext="IssueDate" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="130"></div>
+                <div e-column e-field="Types" e-headertext="Types" e-width="100" textAlign='Right'></div>
+                <div e-column e-field="SourceNo" e-headertext="SourceNo" e-width="60" textAlign='Right'></div>
+                <div e-column e-field="ContractId" e-headertext="ContractId" e-width="100" textAlign='Right'></div>
+                <div e-column e-field="TransactionQty" e-headertext=" TransactionQty " e-width="100" textAlign='Right'></div>
+                <div e-column e-field="PolicyAmount" e-headertext="PolicyAmount" e-width="100" textAlign='Right'></div>
+                <div e-column e-field="IsPark" e-headertext="Park/Post" e-width="100" textAlign='Right'></div>
+                <div e-column e-headertext="Report" e-template="#ReportTemplate" e-width="100"></div>
+            </div>
+
+
+        </div>
+        <script id="ReportTemplate" type="text/template">
+            <div class="common-btn">
+                <ul class="common-btn list-inline text-center">
+                    <li>
+                        <button ng-click="$parent.onClickReportDownloadWord(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                            <i class="fa fa-file-pdf-o"></i>
+                        </button>
+                        <button ng-click="$parent.onClickReportDownloadExcel(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                            <i class="fa fa-file-excel-o"></i>
+                        </button>
+                        <button ng-click="$parent.issueReportDownload(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="GRN">
+                            <i class="glyphicon glyphicon-file" style="color:orangered;"></i>
+                        </button>
+                        <button ng-click="$parent.downloadIssueExcel(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="GRN">
+                            <i class="glyphicon glyphicon-file" style="color:orangered;"></i>
+                        </button>
+                        <button ng-click="$parent.confirmDelete(data.IssueNo,data.VoucherId);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
+                            <i class="glyphicon glyphicon-file" style="color:orangered;"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </script>
+
+         
     </div>
+    <i>**Showing top 100 Posted Issue  order by PostingDate</i>
 </div>
 
 <!-- #region Inventory Receive Data -->
