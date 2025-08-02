@@ -168,8 +168,6 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     };
 
-
-
     // Getting the POs
     $scope.getPo = function () {
         $http({
