@@ -262,23 +262,35 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
 
 
 
-        public void saveData(List<Dictionary<string, object>> data, string WorkCenter, string ProcessId, string ShiftId, string POId, string Date, string PeriodId, string ResponsiblePersonId)
+        public void saveData(List<Dictionary<string, object>> data, string WorkCenter, string ProcessId, string ShiftId, string POId, string Date, string PeriodId, string ResponsiblePersonId,string plantId)
         {
             try
             {
-                DataSet dsMaster;
+                DataSet dsMaster,dsPS;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string TableName = "dbo.OperationWiseEmployees";
-
-                var yesterday = DateTime.Today.AddDays(-1);
-                if (Convert.ToDateTime(Date) < yesterday)
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select EmployeeOperationBackDateAllow from dbo.PlantWiseHRMSSetting Where PlantID='" + plantId + "' ", out dsPS, false, "1");
+                if (string.IsNullOrEmpty(dsPS.Tables[0].Rows[0]["EmployeeOperationBackDateAllow"].ToString()))
                 {
-                    throw new Exception("Please select Date properly! Today or Yesterday's data can be added/updated.");
+                    throw new Exception("Please Define Employee Operation Back Date Entry Allow Days in Plant Wise HRMS Setting.");
                 }
+                else
+                {
+                    int ad =Convert.ToInt32(dsPS.Tables[0].Rows[0]["EmployeeOperationBackDateAllow"]);
+                    var yesterday = DateTime.Today.AddDays(-ad);
+                    if (Convert.ToDateTime(Date) < yesterday)
+                    {
+                        throw new Exception("Please select Date properly! Today or Yesterday's data can be added/updated.");
+                    }
+                }
+
+
+               
 
                 #region Detail
 
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+              
                 con.OpenDataSetThroughAdapter("select *  from dbo.OperationWiseEmployees where 1 = 2 ", out dsMaster, false, "1");
 
 

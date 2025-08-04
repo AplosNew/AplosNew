@@ -74,6 +74,7 @@ function PlantWiseHRMSSettingController(cboService, commonMessage, $scope, $root
         DateAdded: new Date(),
         ResultendOT: null,
         IsSalaryStructureShowInEIReport: false
+        ,EmployeeOperationBackDateAllow:2
     }
     $scope.PlantWiseHRMSSetting = Object.assign({}, $scope.PlantWiseHRMSSettingMain);
     $scope.MasterList = [];
