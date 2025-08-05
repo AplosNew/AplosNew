@@ -234,7 +234,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: 'POST',
             url: $scope.path + 'GetOperationsData',
-            data: { 'PId': $scope.POId, 'Period': $scope.periodId, 'ProcessId': $scope.ProcessId},
+            data: { 'PId': $scope.POId, 'Period': $scope.periodId, 'ProcessId': $scope.ProcessId, 'WorkCenterId': $scope.workCenterId},
         }).then(function succ(resp) {
             $scope.ModelList = resp.data;
             for (var i = 0; i < $scope.ModelList.length; i++) {

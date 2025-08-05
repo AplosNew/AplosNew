@@ -100,9 +100,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetOperationsData(string PId, string Period, string ProcessId)
+        public ActionResult GetOperationsData(string PId, string Period, string ProcessId, string WorkCenterId)
         {
-            return Json(eo.GetOperationsData(PId, Period, ProcessId), JsonRequestBehavior.AllowGet);
+            return Json(eo.GetOperationsData(PId, Period, ProcessId, WorkCenterId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]

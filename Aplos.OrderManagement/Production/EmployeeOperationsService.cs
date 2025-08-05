@@ -187,10 +187,11 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
             }
         }
 
-        public IEnumerable<object> GetOperationsData(string PId, string Period, string ProcessId)
+        public IEnumerable<object> GetOperationsData(string PId, string Period, string ProcessId, string WorkCenterId)
         {
             //Filling the PeriodId
             string currPeriod = "";
+            string workCenId = "";
             if (Period == null)
             {
                 var periodSql = @"Select id as Value , UserName as Text , StartTime , EndTime from hkp.ProductionBookingPeriod where CONVERT(VARCHAR(8), StartTime, 108) <= Convert(varchar(8), GETDATE(), 108)
@@ -208,6 +209,14 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
             {
                 currPeriod = Period;
             }
+            if (WorkCenterId == null)
+            {
+                workCenId = "";
+            }
+            else
+            {
+                workCenId = " WHERE owe.workcenterId='" + WorkCenterId + @"'";
+            }
             DataSet dsMaster, dsPS;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -223,8 +232,8 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
                         left join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
                         left join ( Select owe.ProductionOrderId , owe.OperationVariationId , owe.EmployeeId, owe.Date , isnull(owep.Qty,0) as Qty 
 						from dbo.OperationWiseEmployees owe 
-						left join dbo.OperationWiseEmployees owep on owep.Id = owe.Id and owep.PeriodId   ='" + currPeriod + @"'
-						) as owe on owe.OperationVariationId = OP.Id and owe.ProductionOrderId = pb.ProductionOrderId and owe.Date >   Convert(date, DateAdd(DAY, -"+  ad + @", GetDate())) 
+						left join dbo.OperationWiseEmployees owep on owep.Id = owe.Id and owep.PeriodId   ='" + currPeriod + "' "+ workCenId + @"
+						) as owe on owe.OperationVariationId = OP.Id and owe.ProductionOrderId = pb.ProductionOrderId and owe.Date >   Convert(date, DateAdd(DAY, -" +  ad + @", GetDate())) 
                         left join dbo.EmployeeInformation ei on ei.SystemId = owe.EmployeeId
                         left join dbo.EmployeeOperationWip o on o.OperationVariationId = op.Id and o.ProductionOrderId = pb.ProductionOrderId and o.ProcessId = pt.ProcessId
 						where pb.ProductionOrderId='" + PId + @"' and pt.ProcessId ='" + ProcessId + @"'
