@@ -208,7 +208,11 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
             {
                 currPeriod = Period;
             }
-
+            DataSet dsMaster, dsPS;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            con.OpenDataSetThroughAdapter("select EmployeeOperationBackDateAllow from dbo.PlantWiseHRMSSetting Where PlantID='" + identity.PlantId + "' ", out dsPS, false, "1");
+            int ad = Convert.ToInt32(dsPS.Tables[0].Rows[0]["EmployeeOperationBackDateAllow"]);
             var str = @"select OP.ID as OperationId, OP.OperationMasterId as MasterOperationId  ,OP.Code as OperationCode ,OP.UserName as OperationName, bt.Sequence , owe.EmployeeId , isnull(o.WIP,0) as WIP,
                         isnull(Sum(owe.Qty),0) as Qty ,
                       
@@ -220,7 +224,7 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
                         left join ( Select owe.ProductionOrderId , owe.OperationVariationId , owe.EmployeeId, owe.Date , isnull(owep.Qty,0) as Qty 
 						from dbo.OperationWiseEmployees owe 
 						left join dbo.OperationWiseEmployees owep on owep.Id = owe.Id and owep.PeriodId   ='" + currPeriod + @"'
-						) as owe on owe.OperationVariationId = OP.Id and owe.ProductionOrderId = pb.ProductionOrderId and owe.Date >   Convert(date, DateAdd(DAY, -2, GetDate())) 
+						) as owe on owe.OperationVariationId = OP.Id and owe.ProductionOrderId = pb.ProductionOrderId and owe.Date >   Convert(date, DateAdd(DAY, -"+  ad + @", GetDate())) 
                         left join dbo.EmployeeInformation ei on ei.SystemId = owe.EmployeeId
                         left join dbo.EmployeeOperationWip o on o.OperationVariationId = op.Id and o.ProductionOrderId = pb.ProductionOrderId and o.ProcessId = pt.ProcessId
 						where pb.ProductionOrderId='" + PId + @"' and pt.ProcessId ='" + ProcessId + @"'
