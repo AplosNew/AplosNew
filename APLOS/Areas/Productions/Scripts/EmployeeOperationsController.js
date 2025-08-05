@@ -168,14 +168,12 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     };
 
-
-
     // Getting the POs
     $scope.getPo = function () {
         $http({
             method: 'POST',
             url: $scope.path + 'GetPOs',
-            data: { 'wk': $scope.workCenterId},
+            data: { 'entityId': $scope.EntityId},
         }).then(function succ(resp) {
             $scope.POList = resp.data;
         });

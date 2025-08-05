@@ -88,9 +88,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetPOs(string wk)
+        public ActionResult GetPOs(string entityId)
         {
-            return Json(eo.GetPOs(wk), JsonRequestBehavior.AllowGet);
+            return Json(eo.GetPOs(entityId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
@@ -116,7 +116,8 @@ namespace Aplos.Areas.Productions.Controllers
         {
             try
             {
-                eo.saveData(data, WorkCenter, ProcessId, ShiftId, POId, Date, PeriodId, ResponsiblePersonId);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                eo.saveData(data, WorkCenter, ProcessId, ShiftId, POId, Date, PeriodId, ResponsiblePersonId,identity.PlantId);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
 
             }

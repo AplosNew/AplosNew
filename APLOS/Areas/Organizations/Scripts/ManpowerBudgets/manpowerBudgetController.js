@@ -117,7 +117,8 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
         IsRosterApplicable: false,
         IsScattedWeekOffApplicable:false,
         IsResidencePlan: false,
-        IsTransportPlan: false
+        IsTransportPlan: false,
+        IncentiveTypeId:null
     };
 
     $scope.manpowerBudgetAllowance = {
@@ -1093,16 +1094,16 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
     }
     $scope.getAttendanceGroup();
 
-    //$scope.CostCenterList = [];
-    //$scope.GetCostCenterCboByCompanyandEntity = function (EntityId) {
-    //    $http({
-    //        method: 'GET',
-    //        url: $scope.path + "GetCostCenterCbo?CompanyId="+$scope.manPowerbudgetmasterNew.CompanyId+ '&EntityId=' + EntityId,
-    //    }).then(function successCallback(response) {
-    //        $scope.CostCenterList = response.data;
-    //    });
-    //}
-   
+    $scope.IncentiveTypeList = [];
+    $scope.GetIncentiveType = function () {
+        $http({
+            method: 'GET',
+            url: 'IE/IncentiveType/GetCbo',
+        }).then(function successCallback(response) {
+            $scope.IncentiveTypeList = response.data;
+        });
+    }
+    $scope.GetIncentiveType();
 
     $scope.employeeList = [];
     $scope.employeeParameters = {

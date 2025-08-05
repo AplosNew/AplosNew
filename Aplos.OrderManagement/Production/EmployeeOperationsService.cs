@@ -116,17 +116,20 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetPOs(string wk)
+        public IEnumerable<object> GetPOs(string entityId)
         {
             try
             {
-                var dd = @"Select Id from hkp.ProductionStatus where UserName like 'Run%'";
-                DataTable dtId = _sqlRepository.GetDataTable(dd);
-                var str = @"Select distinct po.Id
-                            from Scs.WorkCenterMaster wc
-                            left join org.Entity e on e.ID = wc.EntityId
-                            left join trn.ProductionOrder po on po.EntityId = e.Id
-                            where wc.Id = '" + wk + @"' and po.ProductionStatusId = '" + dtId.Rows[0]["Id"].ToString() + "'";
+                //var dd = @"Select Id from hkp.ProductionStatus where UserName like 'Run%'";
+                //DataTable dtId = _sqlRepository.GetDataTable(dd);
+                //var str = @"Select distinct po.Id
+                //            from Scs.WorkCenterMaster wc
+                //            left join org.Entity e on e.ID = wc.EntityId
+                //            left join trn.ProductionOrder po on po.EntityId = e.Id
+                //            where wc.Id = '" + wk + @"' and po.ProductionStatusId = '" + dtId.Rows[0]["Id"].ToString() + "'";
+                string str = @"select PO.Id from TRN.ProductionOrder PO
+LEFT JOIN HKP.ProductionStatus PS ON PS.id=PO.ProductionStatusId
+Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -259,23 +262,35 @@ namespace Library.OrderManagement.Production
 
 
 
-        public void saveData(List<Dictionary<string, object>> data, string WorkCenter, string ProcessId, string ShiftId, string POId, string Date, string PeriodId, string ResponsiblePersonId)
+        public void saveData(List<Dictionary<string, object>> data, string WorkCenter, string ProcessId, string ShiftId, string POId, string Date, string PeriodId, string ResponsiblePersonId,string plantId)
         {
             try
             {
-                DataSet dsMaster;
+                DataSet dsMaster,dsPS;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string TableName = "dbo.OperationWiseEmployees";
-
-                var yesterday = DateTime.Today.AddDays(-1);
-                if (Convert.ToDateTime(Date) < yesterday)
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select EmployeeOperationBackDateAllow from dbo.PlantWiseHRMSSetting Where PlantID='" + plantId + "' ", out dsPS, false, "1");
+                if (string.IsNullOrEmpty(dsPS.Tables[0].Rows[0]["EmployeeOperationBackDateAllow"].ToString()))
                 {
-                    throw new Exception("Please select Date properly! Today or Yesterday's data can be added/updated.");
+                    throw new Exception("Please Define Employee Operation Back Date Entry Allow Days in Plant Wise HRMS Setting.");
                 }
+                else
+                {
+                    int ad =Convert.ToInt32(dsPS.Tables[0].Rows[0]["EmployeeOperationBackDateAllow"]);
+                    var yesterday = DateTime.Today.AddDays(-ad);
+                    if (Convert.ToDateTime(Date) < yesterday)
+                    {
+                        throw new Exception("Please select Date properly! Today or Yesterday's data can be added/updated.");
+                    }
+                }
+
+
+               
 
                 #region Detail
 
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+              
                 con.OpenDataSetThroughAdapter("select *  from dbo.OperationWiseEmployees where 1 = 2 ", out dsMaster, false, "1");
 
 
