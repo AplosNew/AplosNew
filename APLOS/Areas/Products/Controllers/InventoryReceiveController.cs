@@ -1169,7 +1169,6 @@ namespace Aplos.Areas.Products.Controllers
             {
                 AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
                 return Json(_accountsInvoiceService.GetInventoryPayableFOC(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
-
             }
         }
 
