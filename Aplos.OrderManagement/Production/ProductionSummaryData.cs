@@ -5700,7 +5700,7 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                 }
 
                 string sql = @"Select A.* from(
-                Select ps.Id,trkp.UserName AS Plant,trke.UserName AS Entity,PS.EntityID,PS.WorkCenterMasterId, PS.ProductionOrderID,wcm.Code AS WorkCenter,FORMAT(PS.ProductionDate,'dd-MMM-yyyy') AS ActualDate,PS.Quantity AS ActualQty,ORD.CM*PS.Quantity AS ActualCM
+                Select ps.Id,trkp.UserName AS Plant,trke.UserName AS Entity,PS.EntityID,PS.WorkCenterMasterId, PS.ProductionOrderID,wcm.Code AS WorkCenter,ps.LotNumber,FORMAT(PS.ProductionDate,'dd-MMM-yyyy') AS ActualDate,PS.Quantity AS ActualQty,ORD.CM*PS.Quantity AS ActualCM
                 ,pt1.SPT AS SAM,ps.ProcessId,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter,mm.UserName AS Material,MA.StandardName AS Article,PL.Code ProductCode
                 ,PM.UserName AS Product,PC.UserName AS ProductCategory,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate,
                 ISNULL(sn.Quantity,0) AS PlanQty,ORD.CM*ISNULL(sn.Quantity,0) AS PlanCM,ORD.CM,CPL.[Username] AS ProductionShift,so.Id AS SalesOrderIdBooking,SO.LineItemReference
@@ -5766,11 +5766,11 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                 ,0 Utilization,ps.ProductionOrderId PORefNo,ps.AddedBy EntryBy,ORD.UOM,ps.Quantity ProductionQty,ps.Remarks,so.[Description] AS SalesOrderDescBooking
                 from (
                 SELECT ps.Id,ps.ProcessId,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId
-                ,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,ps.MasterOrderItemId,ps.ProductLibraryId,ps.AddedBy,ps.Remarks,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity
+                ,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,ps.MasterOrderItemId,ps.ProductLibraryId,ps.AddedBy,ps.Remarks,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity,ps.LotNumber
                 FROM trn.ProductionSummary AS ps
                 Where PS.MasterOrderItemId IS NOT NULL AND ps.ProductionDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' AND ps.EntityID in (" + EntityId + @")  and ps.ProcessId in (" + wp + @")
                 GROUP BY ps.Id,ps.ProcessId,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId, ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId
-                ,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,ps.MasterOrderItemId,ps.ProductLibraryId,ps.AddedBy,ps.Remarks
+                ,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,ps.MasterOrderItemId,ps.ProductLibraryId,ps.AddedBy,ps.Remarks,ps.LotNumber
 
                 ) AS PS
                 left join ProductLibrary PL on PL.Id=pS.ProductLibraryId
@@ -5810,7 +5810,7 @@ Order by PV.ProductionSummaryId,PB.Sequence";
 
                 UNION ALL
 
-                Select ps.Id,trkp.UserName AS Plant,trke.UserName AS Entity,PS.EntityID,PS.WorkCenterMasterId, PS.ProductionOrderID,wcm.Code AS WorkCenter,FORMAT(PS.ProductionDate,'dd-MMM-yyyy') AS ActualDate,PS.Quantity AS ActualQty,ORD.CM*PS.Quantity AS ActualCM,pt1.SPT AS SAM
+                Select ps.Id,trkp.UserName AS Plant,trke.UserName AS Entity,PS.EntityID,PS.WorkCenterMasterId, PS.ProductionOrderID,wcm.Code AS WorkCenter,ps.LotNumber,FORMAT(PS.ProductionDate,'dd-MMM-yyyy') AS ActualDate,PS.Quantity AS ActualQty,ORD.CM*PS.Quantity AS ActualCM,pt1.SPT AS SAM
                 ,ps.ProcessId,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter
                 ,Material=STUFF((select distinct ','+mm.UserName from mst.MaterialMaster mm
                 left outer join trn.MasterOrderItem XMOI on Xmoi.MaterialMasterId=mm.Id
@@ -5909,11 +5909,11 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                 ,0 Utilization,ps.ProductionOrderId PORefNo,ps.AddedBy EntryBy,ORD.UOM,ps.Quantity ProductionQty,ps.Remarks,so.[Description] AS SalesOrderDescBooking
                 from (
                 SELECT ps.Id,ps.ProcessId,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId
-                ,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,ps.MasterOrderItemId,pS.ProductLibraryId,ps.AddedBy,ps.Remarks,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity
+                ,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,ps.MasterOrderItemId,pS.ProductLibraryId,ps.AddedBy,ps.Remarks,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity,ps.LotNumber
                 FROM trn.ProductionSummary AS ps
                 Where PS.MasterOrderItemId IS NULL AND ps.ProductionDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' AND ps.EntityID in (" + EntityId + @")  and ps.ProcessId in (" + wp + @")
                 GROUP BY ps.Id,ps.ProcessId,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId, ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId
-                ,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,ps.MasterOrderItemId,pS.ProductLibraryId,ps.AddedBy,ps.Remarks
+                ,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,ps.MasterOrderItemId,pS.ProductLibraryId,ps.AddedBy,ps.Remarks,ps.LotNumber
                 ) AS PS
                 left join ProductLibrary PL on PL.Id=pS.ProductLibraryId
                 LEFT JOIN trn.SalesOrder AS so ON so.Id=ps.SalesOrderId

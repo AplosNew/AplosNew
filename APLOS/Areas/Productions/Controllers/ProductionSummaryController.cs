@@ -1938,6 +1938,10 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 sheet[ROW, COL].ColumnWidth = 12;
                 int colWorkCenter = COL;
                 COL++;
+                sheet[ROW, COL].Text = "LotNumber";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colLotNumber = COL;
+                COL++;
                 sheet[ROW, COL].Text = "ActualDate";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int colActualDate = COL;
@@ -2143,6 +2147,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                     sheet[ROW, colWorkCenterMasterId].Text = dtOrder.Rows[i]["WorkCenterMasterId"].ToString();
                     sheet[ROW, colProductionOrderID].Text = dtOrder.Rows[i]["ProductionOrderID"].ToString();
                     sheet[ROW, colWorkCenter].Text = dtOrder.Rows[i]["WorkCenter"].ToString();
+                    sheet[ROW, colLotNumber].Text = dtOrder.Rows[i]["LotNumber"].ToString();
                     sheet[ROW, colActualDate].Text = dtOrder.Rows[i]["ActualDate"].ToString();
                     sheet[ROW, colActualQty].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ActualQty"].ToString());
                     sheet[ROW, colActualCM].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ActualCM"].ToString());

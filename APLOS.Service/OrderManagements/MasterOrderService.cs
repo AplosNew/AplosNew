@@ -1963,6 +1963,8 @@ WHERE MOI.MasterOrderId='" + id + "'";
 
                 TaskScheduler.TaskScheduler schedule = new TaskScheduler.TaskScheduler(_sqlRepository);
                 schedule.CopyTaskTemplate(entity.Id);
+
+
             }
             catch (CustomException)
             {
