@@ -809,21 +809,15 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpPost]
-        public JsonResult CreateSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster)
+        public JsonResult CreateSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster, MasterOrder masterorder)
         {
-            _masterOrderService.InsertOrUpdateSOGraph(masterItemId, salesOrderMaster);
+            _masterOrderService.InsertOrUpdateSOGraph(masterItemId, salesOrderMaster, masterorder);
             Library.Planning.OrderManagement.MasterOrder mo = new Library.Planning.OrderManagement.MasterOrder();
             mo.GenerateLogForTnA(masterItemId, Library.Service.Enums.TaskAppliedOnEnum.SalesOrder);
 
             return Json(new { Data = salesOrderMaster, Message = AplosMessage.Updated });
         }
 
-        //[HttpPost, Authorize]
-        //public JsonResult CreateSplitSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster)
-        //{
-        //    _masterOrderService.InsertOrUpdateSplitSOGraph(masterItemId, salesOrderMaster);
-        //    return Json(new { Message = AplosMessage.Updated });
-        //}
 
         [HttpPost, Authorize]
         public JsonResult CreateSplitSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster)
@@ -844,9 +838,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpPost]
-        public JsonResult UpdateSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster, IEnumerable<SalesOrderTax> taxCategoryList)
+        public JsonResult UpdateSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster, IEnumerable<SalesOrderTax> taxCategoryList, MasterOrder masterorder)
         {
-            _masterOrderService.UpdateSOGraph(masterItemId, salesOrderMaster, taxCategoryList);
+            _masterOrderService.UpdateSOGraph(masterItemId, salesOrderMaster, taxCategoryList, masterorder);
             Library.Planning.OrderManagement.MasterOrder mo = new Library.Planning.OrderManagement.MasterOrder();
             mo.GenerateLogForTnA(masterItemId, Library.Service.Enums.TaskAppliedOnEnum.Style);
             return Json(new { Message = AplosMessage.Updated });

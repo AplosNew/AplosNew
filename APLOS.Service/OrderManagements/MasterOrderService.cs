@@ -252,7 +252,7 @@ namespace Library.Service.OrderManagements
                 strkey = column + " like '%" + value + "%'";
 
 
-            string sql = @"select top(1000)* from (SELECT A.Id, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId, EN.UserName Entity,FORMAT(A.AddedDate,'dd-MMM-yyyy') AS CreationDate,a.AddedBy AS CreatedBy
+            string sql = @"select top(1000)* from (SELECT A.Id,A.TaskTemplateMasterId, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId, EN.UserName Entity,FORMAT(A.AddedDate,'dd-MMM-yyyy') AS CreationDate,a.AddedBy AS CreatedBy
                                     , A.OrderType, A.PartyId, P.Code CustomerCode, P.UserName AS CustomerName, A.BuyerId,B.UserName Buyer
                                     , A.BuyerBrandId, A.BuyerDivisionId, A.TestingStandardId, A.MasterOrderNo, A.OrderStatusId	
                                     , A.OrderCategoryId,OC.UserName AS OrderCategory, A.SeasonId, A.OrderYear, A.CurrencyId, A.TotalQty	
@@ -1399,42 +1399,7 @@ Where SO.CheckByStatus = 'Checked' AND ApprovedStatus = 'To Be Approve' AND SO.A
 
                 TaskScheduler.TaskScheduler schedule = new TaskScheduler.TaskScheduler(_sqlRepository);
                 schedule.CopyTaskTemplate(entity.Id);
-                //if (UserRemarksControl["RemarkControlId"] != null)
-                //{
-                //    SaveUserRemarksControl(entity, UserRemarksControl);
-                //}
-                //List<MasterOrderItem> itemList = new List<MasterOrderItem>();
-
-                //for (int i = 0; i < entity.NoOfLineItem; i++)
-                //{
-                //    MasterOrderItem item = new MasterOrderItem
-                //    {
-                //        Id = string.Empty,
-                //        MasterOrderId = entity.Id,
-                //        MaterialMasterId = string.Empty,
-                //        ArticleId = string.Empty,
-                //        InquiryItemId = string.Empty,
-                //        SampleItemId = string.Empty,
-                //        BuyerReferenceNo = string.Empty,
-                //        OwnReferenceNo = string.Empty,
-                //        TotalQty = 0,
-                //        OrderWastagePercentage = entity.OrderWastagePercentage,
-                //        ExtraOrderPercentage = entity.ExtraOrderPercentage,
-                //        TestingStandardId = string.Empty,
-                //        Type=entity.Type,
-                //        ProductionGrouping=string.Empty,
-                //        IsRepeat=false,
-                //        AddedBy = entity.AddedBy,
-                //        AddedDate = entity.AddedDate,
-                //        AddedFromIP = entity.AddedFromIP
-                //    };
-                //    itemList.Add(item);
-                //}
-
-                //if (itemList != null)
-                //{
-                //    SaveMasterOrderItemData(itemList, entity.Id);
-                //}
+                
             }
             catch (Exception ex)
             {
@@ -1695,11 +1660,6 @@ WHERE MOI.MasterOrderId='" + id + "'";
             var flag = false;
             try
             {
-                //var useddata = GetUsedData(entity.Id);
-                //if (useddata.Rows.Count>0)
-                //{
-                //    throw new Exception("Update is not allowed after creation of Invoice.");
-                //}
 
                 var personDbDataList = _personRepository.Query(t => t.MasterOrderId == masterId).Select().ToList();
                 var itemDbDataList = _itemRepository.Query(t => t.MasterOrderId == masterId).Select().ToList();
@@ -2211,7 +2171,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
             }
         }
 
-        public void InsertOrUpdateSOGraph(string masterItemId, SalesOrderMaster salesOrderMaster)
+        public void InsertOrUpdateSOGraph(string masterItemId, SalesOrderMaster salesOrderMaster, MasterOrder masterorder)
         {
             try
             {
@@ -2219,17 +2179,8 @@ WHERE MOI.MasterOrderId='" + id + "'";
                 var itemQty = _itemRepository.Query(t => t.Id == salesOrderMaster.MasterOrderItemId).Select(t => t.TotalQty).FirstOrDefault();
                 var soTotalQty = _salesOrderRepository.Query(t => t.Id != salesOrderMaster.Id && t.MasterOrderItemId == salesOrderMaster.MasterOrderItemId).Select(t => t.Qty).Sum() + salesOrderMaster.Qty;
 
-                //var SKucount = _personRepository.SqlQuery<int>(@"select sum(Qty) total from(
-                //                    select Qty from TRN.FirstCharacteristics as FCS where FCS.SalesOrderId =  "+ salesOrderMaster.Id + @"
-                //                    union all
-                //                    select Qty from TRN.SecondCharacteristics as SCS where  SCS.SalesOrderId " + salesOrderMaster.Id + @" 
-                //                    union all
-                //                    select Qty from TRN.ThirdCharacteristics as TCS where TCS.SalesOrderId " + salesOrderMaster.Id + @" 
-                //                ) SoT").First();
-
                 if (soTotalQty > itemQty)
                     throw new CustomException("Sum of sales order quantity can't be greater than " + itemQty);
-
 
                 if (string.IsNullOrEmpty(salesOrderMaster.Id))
                 {
@@ -2265,6 +2216,30 @@ WHERE MOI.MasterOrderId='" + id + "'";
                 }
                 _unitOfWork.SaveChanges();
 
+                TaskScheduler.TaskScheduler schedule = new TaskScheduler.TaskScheduler(_sqlRepository);
+                schedule.UpdateTaskStatus();
+                //Sales Order Related Tasks
+                string sql = @"SELECT SO.* FROM trn.MasterOrder AS mo 
+                                INNER JOIN hkp.OrderStatus AS os ON os.Id=mo.OrderStatusId
+                                INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                                INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
+                           WHERE mo.id='" + masterorder.Id + "' and os.Id<>'" + Library.Model.Enums.OrderStatusEnum.Closed.ToString() + @"' AND ISNULL(mo.TaskTemplateMasterId,'')='" + masterorder.TaskTemplateMasterId + "'";
+
+                DataTable dtMasterReferenceData = _sqlRepository.GetDataTable(sql);
+                for (int i = 0; i < dtMasterReferenceData.Rows.Count; i++)
+                {
+
+                    try
+                    {
+                        DataTable dt = schedule.GetDataSourceMasterOrderNew(dtMasterReferenceData.Rows[i]["Id"].ToString(), TaskAppliedOnEnum.SalesOrder);
+                        if (dt.Rows.Count > 0)
+                            schedule.MakeTNAMaster(dt, dtMasterReferenceData.Rows[i]["Id"].ToString(), TaskAppliedOnEnum.SalesOrder);
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
 
             }
             catch (CustomException)
@@ -2354,7 +2329,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
 
         }
 
-        public void UpdateSOGraph(string masterItemId, SalesOrderMaster salesOrderMaster, IEnumerable<SalesOrderTax> taxCategoryList)
+        public void UpdateSOGraph(string masterItemId, SalesOrderMaster salesOrderMaster, IEnumerable<SalesOrderTax> taxCategoryList, MasterOrder masterorder)
         {
             try
             {
@@ -2365,13 +2340,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
                 var itemQty = _itemRepository.Query(t => t.Id == salesOrderMaster.MasterOrderItemId).Select(t => t.TotalQty).FirstOrDefault();
                 var soTotalQty = _salesOrderRepository.Query(t => t.Id != salesOrderMaster.Id && t.MasterOrderItemId == salesOrderMaster.MasterOrderItemId).Select(t => t.Qty).Sum() + salesOrderMaster.Qty;
 
-                //var SKucount = _personRepository.SqlQuery<int>(@"select sum(Qty) total from(
-                //                    select Qty from TRN.FirstCharacteristics as FCS where FCS.SalesOrderId =  "+ salesOrderMaster.Id + @"
-                //                    union all
-                //                    select Qty from TRN.SecondCharacteristics as SCS where  SCS.SalesOrderId " + salesOrderMaster.Id + @" 
-                //                    union all
-                //                    select Qty from TRN.ThirdCharacteristics as TCS where TCS.SalesOrderId " + salesOrderMaster.Id + @" 
-                //                ) SoT").First();
+               
 
                 if (soTotalQty > itemQty)
                     throw new CustomException("Sum of sales order quantity can't be greater than " + itemQty);
@@ -2412,6 +2381,30 @@ WHERE MOI.MasterOrderId='" + id + "'";
                 }
                 _unitOfWork.SaveChanges();
 
+                TaskScheduler.TaskScheduler schedule = new TaskScheduler.TaskScheduler(_sqlRepository);
+                schedule.UpdateTaskStatus();
+                //Sales Order Related Tasks
+                string sql = @"SELECT SO.* FROM trn.MasterOrder AS mo 
+                                INNER JOIN hkp.OrderStatus AS os ON os.Id=mo.OrderStatusId
+                                INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                                INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
+                           WHERE mo.id='" + masterorder.Id + "' and os.Id<>'" + Library.Model.Enums.OrderStatusEnum.Closed.ToString() + @"' AND ISNULL(mo.TaskTemplateMasterId,'')='" + masterorder.TaskTemplateMasterId + "'";
+
+                DataTable dtMasterReferenceData = _sqlRepository.GetDataTable(sql);
+                for (int i = 0; i < dtMasterReferenceData.Rows.Count; i++)
+                {
+
+                    try
+                    {
+                        DataTable dt = schedule.GetDataSourceMasterOrderNew(dtMasterReferenceData.Rows[i]["Id"].ToString(), TaskAppliedOnEnum.SalesOrder);
+                        if (dt.Rows.Count > 0)
+                            schedule.MakeTNAMaster(dt, dtMasterReferenceData.Rows[i]["Id"].ToString(), TaskAppliedOnEnum.SalesOrder);
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
 
             }
             catch (CustomException)

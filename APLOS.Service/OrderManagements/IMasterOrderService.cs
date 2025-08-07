@@ -31,7 +31,7 @@ namespace Library.Service.OrderManagements
         //DataTable LoadOrderMasterTax(string OrderMasterID);
         //DataTable LoadOrderMasterItems(string OrderMasterID);
         //DataTable LoadOrderMaster(string companyId, string OrderMasterID);
-        void UpdateSOGraph(string masterItemId, SalesOrderMaster salesOrderMaster, IEnumerable<SalesOrderTax> taxCategoryList);
+        void UpdateSOGraph(string masterItemId, SalesOrderMaster salesOrderMaster, IEnumerable<SalesOrderTax> taxCategoryList, MasterOrder masterorder);
         void CheckSOGraph(SalesOrderMaster salesOrderMaster);
         void ApproveSOGraph(MasterOrder entity, SalesOrderMaster salesOrderMaster);
        // IEnumerable<object> GetDepartmentPersonCbo(string plantId, string partyAccountGroupId, string partyId);
@@ -79,7 +79,7 @@ namespace Library.Service.OrderManagements
 
         void DeleteGraph(string id);
 
-        void InsertOrUpdateSOGraph(string masterItemId, SalesOrderMaster salesOrderMaster);
+        void InsertOrUpdateSOGraph(string masterItemId, SalesOrderMaster salesOrderMaster, MasterOrder masterorder);
 
         void DeleteSOGraph(string masterItemId, SalesOrderMaster salesOrderMaster);
 
