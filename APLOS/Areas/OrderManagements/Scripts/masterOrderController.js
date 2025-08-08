@@ -2558,6 +2558,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         , data: {
                             'masterItemId': $scope.masterItemId
                             , 'salesOrderMaster': $scope.soSplitModel
+                            , 'masterorder': $scope.fileNew
                         }
                         , dataType: 'JSON'
                     }).then(function successCallback(response) {

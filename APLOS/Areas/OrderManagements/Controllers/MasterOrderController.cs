@@ -33,6 +33,7 @@ using Library.Model.Materials;
 using Library.Service.Materials;
 using Library.OrderManagement.Production;
 using Library.Service.Systems;
+using Library.Service.TaskScheduler;
 #endregion
 
 namespace Aplos.Areas.OrderManagements.Controllers
@@ -820,7 +821,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
 
         [HttpPost, Authorize]
-        public JsonResult CreateSplitSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster)
+        public JsonResult CreateSplitSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster, MasterOrder masterOrder)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             IdentityParameter para = new IdentityParameter
@@ -833,7 +834,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 UpdatedFromIP = identity.IPAddress
             };
 
-            MasterOrder.SplitSalesOrderData(masterItemId, salesOrderMaster, para);
+            MasterOrder.SplitSalesOrderData(masterItemId, salesOrderMaster, para, masterOrder.Id,masterOrder.TaskTemplateMasterId);
             return Json(new { Message = AplosMessage.Updated + " Please reduce SKU Qty." });
         }
 

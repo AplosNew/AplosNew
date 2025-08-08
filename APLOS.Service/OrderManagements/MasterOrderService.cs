@@ -2223,7 +2223,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
                                 INNER JOIN hkp.OrderStatus AS os ON os.Id=mo.OrderStatusId
                                 INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
                                 INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
-                           WHERE mo.id='" + masterorder.Id + "' and os.Id<>'" + Library.Model.Enums.OrderStatusEnum.Closed.ToString() + @"' AND ISNULL(mo.TaskTemplateMasterId,'')='" + masterorder.TaskTemplateMasterId + "'";
+                           WHERE so.id='" + salesOrderMaster.Id + "' and os.Id<>'" + Library.Model.Enums.OrderStatusEnum.Closed.ToString() + @"' AND ISNULL(mo.TaskTemplateMasterId,'')='" + masterorder.TaskTemplateMasterId + "'";
 
                 DataTable dtMasterReferenceData = _sqlRepository.GetDataTable(sql);
                 for (int i = 0; i < dtMasterReferenceData.Rows.Count; i++)
@@ -2388,7 +2388,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
                                 INNER JOIN hkp.OrderStatus AS os ON os.Id=mo.OrderStatusId
                                 INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
                                 INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
-                           WHERE mo.id='" + masterorder.Id + "' and os.Id<>'" + Library.Model.Enums.OrderStatusEnum.Closed.ToString() + @"' AND ISNULL(mo.TaskTemplateMasterId,'')='" + masterorder.TaskTemplateMasterId + "'";
+                           WHERE so.id='" + salesOrderMaster.Id + "' and os.Id<>'" + Library.Model.Enums.OrderStatusEnum.Closed.ToString() + @"' AND ISNULL(mo.TaskTemplateMasterId,'')='" + masterorder.TaskTemplateMasterId + "'";
 
                 DataTable dtMasterReferenceData = _sqlRepository.GetDataTable(sql);
                 for (int i = 0; i < dtMasterReferenceData.Rows.Count; i++)
