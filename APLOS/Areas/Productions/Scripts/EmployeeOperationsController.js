@@ -350,6 +350,43 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
         });
     }
+    $scope.saveRowItemData = function (data) {
+        for (var i = 0; i < $scope.ModelList.length; i++) {
+            if ($scope.ModelList[i].Sequence == data.Sequence + 1) {
+                var NextoperationVariationId = $scope.ModelList[i].OperationId;
+            }
+        } 
+
+        $scope.NewList = [];
+
+        $scope.NewList.push(data);
+        $scope.ModelList = $scope.PrevAllList;
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'saveRowItemData',
+            data: {
+                'data': $scope.NewList, 'WorkCenter': $scope.workCenterId,
+                'ProcessId': $scope.ProcessId,
+                'ShiftId': $scope.shiftId,
+                'POId': $scope.POId,
+                'Date': $scope.Date, 'PeriodId': $scope.periodId,
+                'ResponsiblePersonId': $scope.responsiblePersonId,
+                'NxtOPVariationId': NextoperationVariationId,
+            },
+        }).then(function succ(resp) {
+
+            if (resp.data.Error === true) {
+                ShowResult(resp.data.Message, 'failure');
+            }
+            else {
+                ShowResult(resp.data.Message, 'success');
+                $scope.getAllData();
+                //$scope.ClearGrid();
+            }
+
+        });
+    }
 
     //Clearing the grid
     $scope.ClearGrid = function(){

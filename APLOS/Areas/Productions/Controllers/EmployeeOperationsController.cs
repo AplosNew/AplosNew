@@ -127,6 +127,21 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
+        [HttpPost]
+        public JsonResult saveRowItemData(List<Dictionary<string, object>> data, string WorkCenter, string ProcessId, string ShiftId, string POId, string Date, string PeriodId, string ResponsiblePersonId,string NxtOPVariationId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                eo.saveRowItemData(data, WorkCenter, ProcessId, ShiftId, POId, Date, PeriodId, ResponsiblePersonId, identity.PlantId, NxtOPVariationId);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
         [HttpPost, Authorize]
         public ActionResult processAll(string Date)
         {

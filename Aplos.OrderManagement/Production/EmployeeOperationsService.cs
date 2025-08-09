@@ -493,6 +493,232 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
             }
         }
 
+        public void saveRowItemData(List<Dictionary<string, object>> data, string WorkCenter, string ProcessId, string ShiftId, string POId, string Date, string PeriodId, string ResponsiblePersonId, string plantId, string NxtOPVariationId)
+        {
+            try
+            {
+                DataSet dsMaster, dsPS;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string TableName = "dbo.OperationWiseEmployees";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select EmployeeOperationBackDateAllow from dbo.PlantWiseHRMSSetting Where PlantID='" + plantId + "' ", out dsPS, false, "1");
+                if (string.IsNullOrEmpty(dsPS.Tables[0].Rows[0]["EmployeeOperationBackDateAllow"].ToString()))
+                {
+                    throw new Exception("Please Define Employee Operation Back Date Entry Allow Days in Plant Wise HRMS Setting.");
+                }
+                else
+                {
+                    int ad = Convert.ToInt32(dsPS.Tables[0].Rows[0]["EmployeeOperationBackDateAllow"]);
+                    var yesterday = DateTime.Today.AddDays(-ad);
+                    if (Convert.ToDateTime(Date) < yesterday)
+                    {
+                        throw new Exception("Please select Date properly! Today or Yesterday's data can be added/updated.");
+                    }
+                }
+
+
+
+
+                #region Detail
+
+
+                con.OpenDataSetThroughAdapter("select *  from dbo.OperationWiseEmployees where 1 = 2 ", out dsMaster, false, "1");
+
+
+                //Filling the EmpSystemIds
+
+                var empStr = @"Select distinct SystemId , EmployeeCode from dbo.EmployeeInformation";
+                DataTable dt = _sqlRepository.GetDataTable(empStr);
+                for (int i = 0; i < data.Count; i++)
+                {
+                    dt.DefaultView.RowFilter = @"EmployeeCode = '" + data[i]["EmployeeCode"].ToString() + "'";
+                    if (dt.DefaultView.Count > 0)
+                    {
+                        data[i]["EmployeeId"] = dt.DefaultView[0]["SystemId"].ToString();
+
+
+                        data[i]["Qty"] = getNum(data[i]["Qty"]);
+                    }
+                    else
+                    {
+                        throw new Exception("The Employee Code in Serial " + data[i]["Serial"] + " is not Present");
+                    }
+                }
+
+                //Filling the PeriodId
+                string currPeriod = "";
+                if (PeriodId == null)
+                {
+                    var periodSql = @"Select id as Value , UserName as Text , StartTime , EndTime from hkp.ProductionBookingPeriod where CONVERT(VARCHAR(8), StartTime, 108) <= Convert(varchar(8), GETDATE(), 108)
+                                        and CONVERT(VARCHAR(8), EndTime, 108) >= Convert(varchar(8), GETDATE(), 108)
+                                        order by EndTime desc";
+
+                    DataTable dtPeriod = _sqlRepository.GetDataTable(periodSql);
+                    if (dtPeriod.Rows.Count <= 0)
+                    {
+                        throw new Exception("Please Select the period Manually!! There is no defined Period for the current time!!");
+                    }
+                    currPeriod = dtPeriod.Rows[0]["Value"].ToString();
+                }
+                else
+                {
+                    currPeriod = PeriodId;
+                }
+
+                //Filling the DsMaster DataSet for saving
+                string _Id = "";
+                string _OperationVariationId = "";
+                double _tempQty = 0;
+
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    data[i]["Id"] = "OP" + _Id;
+                    dr["Id"] = "OP" + _Id;
+                    dr["ProcessId"] = ProcessId;
+                    dr["ShiftId"] = ShiftId;
+                    dr["WorkCenterId"] = WorkCenter;
+                    dr["ProductionOrderId"] = POId;
+                    dr["OperationVariationId"] = data[i]["OperationId"];
+                    dr["EmployeeId"] = data[i]["EmployeeId"];
+                    dr["ResponsiblePersonId"] = ResponsiblePersonId;
+                    dr["Date"] = Convert.ToDateTime(Date.ToString());
+                    dr["Qty"] = data[i]["Qty"];
+                    dr["PeriodId"] = currPeriod;
+                    dr["Remarks"] = data[i]["Remarks"];
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+                    dsMaster.Tables[0].Rows.Add(dr);
+                    _OperationVariationId=data[i]["OperationId"].ToString();
+                    _tempQty= clsStaticInfo.dbl(data[i]["Qty"].ToString());
+                }
+                #endregion Detail
+
+                #region WIP
+                DataSet dsSum;
+                ConnectionManager.DAL.ConManager c = new ConnectionManager.DAL.ConManager("1");
+                c.OpenDataSetThroughAdapter("select *  from  dbo.EmployeeOperationWip where ProductionOrderId = '" + POId + "' and ProcessId ='" + ProcessId + "' and OperationVariationId in ('"+ _OperationVariationId + "','"+ NxtOPVariationId + @"') order by Cast(OperationSequence AS int) asc", out dsSum, false, "1");
+                string _SId = "";
+
+                DataTable dtSum = dsSum.Tables[0];
+
+                for (int i = 0; i < dsMaster.Tables[0].Rows.Count; i++)
+                {
+                    dsSum.Tables[0].DefaultView.RowFilter = @"OperationVariationId='" + data[i]["OperationId"].ToString() + "' and OperationSequence ='" + data[i]["Sequence"].ToString() + "'";
+                    if (dsSum.Tables[0].DefaultView.Count > 0)
+                    {
+                        dsSum.Tables[0].DefaultView[0].Row.BeginEdit();
+                        dsSum.Tables[0].DefaultView[0]["Qty"] = clsStaticInfo.dbl(dsSum.Tables[0].DefaultView[0]["Qty"].ToString()) + clsStaticInfo.dbl(data[i]["Qty"].ToString());
+                        dsSum.Tables[0].DefaultView[0].Row.EndEdit();
+                    }
+                    else
+                    {
+                        DataRow dd = dsSum.Tables[0].NewRow();
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("dbo.EmployeeOperationWip", out _SId);
+                        dd["Id"] = "OW" + _SId;
+                        dd["ProductionOrderId"] = POId;
+                        dd["OperationVariationId"] = data[i]["OperationId"].ToString();
+                        dd["OperationSequence"] = data[i]["Sequence"].ToString();
+                        dd["ProcessId"] = ProcessId;
+                        dd["Qty"] = clsStaticInfo.dbl(data[i]["Qty"].ToString());
+                        dd["AddedBy"] = identity.Name;
+                        dd["AddedDate"] = System.DateTime.Now.ToString();
+                        dd["AddedFromIP"] = identity.IPAddress;
+                        dd["UpdatedBy"] = identity.Name;
+                        dd["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dd["UpdatedFromIP"] = identity.IPAddress;
+                        dsSum.Tables[0].Rows.Add(dd);
+
+
+                    }
+
+
+                }
+
+               // For WIP
+                for (int i = 0; i < dsSum.Tables[0].Rows.Count; i++)
+                {
+                    if (clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["OperationSequence"].ToString()) == 1)
+                    {
+                        dsSum.Tables[0].Rows[i].BeginEdit();
+                        dsSum.Tables[0].Rows[i]["WIP"] = 0;
+                        dsSum.Tables[0].Rows[i].EndEdit();
+                    }
+                    else
+                    {
+                        dsSum.Tables[0].Rows[i].BeginEdit();
+                        if (dsSum.Tables[0].Rows[i]["OperationVariationId"].ToString()== NxtOPVariationId)
+                        {
+                            dsSum.Tables[0].Rows[i]["WIP"] = _tempQty + clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["WIP"].ToString());
+
+                        }
+                        //if (clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["WIP"].ToString()) < 0)
+                        //{
+                        //    throw new Exception("WIP is Exceeding in Operation Sequence - " + dsSum.Tables[0].Rows[i]["OperationSequence"].ToString());
+                        //}
+                        dsSum.Tables[0].Rows[i].EndEdit();
+                    }
+                }
+
+                #endregion Summary
+
+                #region Employee Production Processing Half
+                DataSet dsPlan = null;
+                ConnectionManager.DAL.ConManager co = new ConnectionManager.DAL.ConManager("1");
+                co.OpenDataSetThroughAdapter("select *  from  dbo.EmployeeWiseProductionProcessing where Date='" + Date + "' and ProductionOrderId='" + POId + "'", out dsPlan, false, "1");
+
+                for (int i = 0; i < dsMaster.Tables[0].Rows.Count; i++)
+                {
+                    dsPlan.Tables[0].DefaultView.RowFilter = @"EmployeeId = '" + data[i]["EmployeeId"] + "' and OperationVariationId='" + data[i]["OperationId"].ToString() + "'";
+                    if (dsPlan.Tables[0].DefaultView.Count > 0)
+                    {
+                        dsPlan.Tables[0].DefaultView[0].Row.BeginEdit();
+                        dsPlan.Tables[0].DefaultView[0]["Qty"] = clsStaticInfo.dbl(dsPlan.Tables[0].DefaultView[0]["Qty"].ToString()) + clsStaticInfo.dbl(data[i]["Qty"].ToString());
+                        dsPlan.Tables[0].DefaultView[0].Row.EndEdit();
+                    }
+                    else
+                    {
+                        DataRow dr = dsPlan.Tables[0].NewRow();
+                        dr["Id"] = dsMaster.Tables[0].Rows[i]["Id"].ToString() + i.ToString();
+                        dr["Date"] = Convert.ToDateTime(Date);
+                        dr["EmployeeId"] = dsMaster.Tables[0].Rows[i]["EmployeeId"];
+                        dr["MasterOperationId"] = data[i]["MasterOperationId"];
+                        dr["OperationVariationId"] = data[i]["OperationId"].ToString();
+                        dr["ProductionOrderId"] = POId;
+                        dr["Qty"] = clsStaticInfo.dbl(data[i]["Qty"].ToString());
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dsPlan.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+
+
+                #endregion
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsSum, dsPlan);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         private double getNum(object num)
         {
             if (bplib.clsWebLib.RetValidLen(num).ToString() != "")
