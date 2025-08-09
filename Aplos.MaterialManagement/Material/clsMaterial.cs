@@ -144,7 +144,7 @@ LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId";
                 if (string.IsNullOrEmpty(column) == false)
                     strkey = column + " like '%" + value + "%'";
 
-                string sql = @"SELECT * FROM (SELECT DT.IssueId,M.*,E.EmployeeName ByWhom,EN.UserName Entity,MS.UserName MaterialStorage,ISNULL(D.TotalReqQty,0)TotalReqQty,ISNULL(ISU.IssuedQty,0)IssuedQty,Balance=D.TotalReqQty-ISNULL(ISU.IssuedQty,0),ISNULL(DT.AuthorizedByStatus,'')ApproveStatus,PS.UserName ProductionStatus
+                string sql = @"SELECT * FROM (SELECT DT.IssueId,M.*,E.EmployeeName ByWhom,E.EmployeeCode ByWhomEmployeeCode,EN.UserName Entity,MS.UserName MaterialStorage,ISNULL(D.TotalReqQty,0)TotalReqQty,ISNULL(ISU.IssuedQty,0)IssuedQty,Balance=D.TotalReqQty-ISNULL(ISU.IssuedQty,0),ISNULL(DT.AuthorizedByStatus,'')ApproveStatus,PS.UserName ProductionStatus
 FROM [dbo].[MaterialIssueControlMaster] M
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId
 LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
