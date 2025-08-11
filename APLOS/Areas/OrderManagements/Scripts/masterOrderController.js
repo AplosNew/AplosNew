@@ -2152,6 +2152,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     , data: {
                         'masterItemId': $scope.masterItemId
                         , 'salesOrderMaster': $scope.soModel
+                        , 'masterorder': $scope.fileNew
                     }
                     , dataType: 'JSON'
                 }).then(function successCallback(response) {
@@ -2212,6 +2213,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 'masterItemId': $scope.masterItemId
                 , 'salesOrderMaster': $scope.soModel
                 , 'taxCategoryList': $scope.taxList
+                 , 'masterorder': $scope.fileNew
             }
             , dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -2556,6 +2558,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         , data: {
                             'masterItemId': $scope.masterItemId
                             , 'salesOrderMaster': $scope.soSplitModel
+                            , 'masterorder': $scope.fileNew
                         }
                         , dataType: 'JSON'
                     }).then(function successCallback(response) {
@@ -3434,7 +3437,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 }
 
                 if (!$scope.IsSkuFormIsValid) {
-                    throw"Duplicate data";
+                    throw "Duplicate data";
                     return false;
                 }
 

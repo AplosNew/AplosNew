@@ -1766,7 +1766,7 @@ namespace Library.Service.TaskScheduler
                 if (dt.Rows[0]["TaskTemplateMasterId"].ToString() == "")
                     return;
 
-                if (dtMasterTask.Rows.Count == 0)
+               // if (dtMasterTask.Rows.Count == 0)
                     CopyTask(MasterOrderId, dt.Rows[0]["TaskTemplateMasterId"].ToString());
             }
 
@@ -1927,7 +1927,48 @@ namespace Library.Service.TaskScheduler
                 _info.SaveDataSets(dsTaskDestination, dsTaskDependencyDestination, dsSubTaskDestination);
 
 
+                UpdateTaskStatus();
+                //master order tasks
+                string sql = @"SELECT MO.* FROM trn.MasterOrder AS mo WHERE mo.Id='"+MasterOrderId+"' AND ISNULL(mo.TaskTemplateMasterId,'')='"+TemplateMasterId+"'";
 
+                DataTable dtMasterReferenceData = _sqlRepository.GetDataTable(sql);
+                for (int i = 0; i < dtMasterReferenceData.Rows.Count; i++)
+                {
+                    try
+                    {
+
+                        DataTable dt = GetDataSourceMasterOrderNew(dtMasterReferenceData.Rows[i]["Id"].ToString(), TaskAppliedOnEnum.MasterOrder);
+                        if (dt.Rows.Count > 0)
+                            MakeTNAMaster(dt, dtMasterReferenceData.Rows[i]["Id"].ToString(), TaskAppliedOnEnum.MasterOrder);
+
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
+
+
+                //line item related tasks
+                sql = @"SELECT MOI.* FROM trn.MasterOrder AS mo 
+                                INNER JOIN hkp.OrderStatus AS os ON os.Id=mo.OrderStatusId
+                                INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                                WHERE mo.id='" + MasterOrderId + "' and os.Id<>'" + Library.Model.Enums.OrderStatusEnum.Closed.ToString() + @"' AND ISNULL(mo.TaskTemplateMasterId,'')='" + TemplateMasterId + "'";
+
+                dtMasterReferenceData = _sqlRepository.GetDataTable(sql);
+                for (int i = 0; i < dtMasterReferenceData.Rows.Count; i++)
+                {
+                    try
+                    {
+                        DataTable dt = GetDataSourceMasterOrderNew(dtMasterReferenceData.Rows[i]["Id"].ToString(), TaskAppliedOnEnum.Style);
+                        if (dt.Rows.Count > 0)
+                            MakeTNAMaster(dt, dtMasterReferenceData.Rows[i]["Id"].ToString(), TaskAppliedOnEnum.Style);
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
 
             }
             catch (Exception ex)
@@ -1947,7 +1988,7 @@ namespace Library.Service.TaskScheduler
         #endregion MasterOrderTaskTemplates
 
 
-        private void UpdateTaskStatus()
+        public void UpdateTaskStatus()
         {
             try
 
@@ -2038,7 +2079,6 @@ namespace Library.Service.TaskScheduler
                 }
 
 
-
                 //Sales Order Related Tasks
                 sql = @"SELECT SO.* FROM trn.MasterOrder AS mo 
                                 INNER JOIN hkp.OrderStatus AS os ON os.Id=mo.OrderStatusId
@@ -2049,7 +2089,6 @@ namespace Library.Service.TaskScheduler
                 dtMasterReferenceData = _sqlRepository.GetDataTable(sql);
                 for (int i = 0; i < dtMasterReferenceData.Rows.Count; i++)
                 {
-
                     try
                     {
                         DataTable dt = GetDataSourceMasterOrderNew(dtMasterReferenceData.Rows[i]["Id"].ToString(), TaskAppliedOnEnum.SalesOrder);
@@ -2061,7 +2100,6 @@ namespace Library.Service.TaskScheduler
 
                     }
                 }
-
 
 
                 //Production Order Related Tasks

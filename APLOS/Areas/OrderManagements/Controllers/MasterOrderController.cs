@@ -33,6 +33,7 @@ using Library.Model.Materials;
 using Library.Service.Materials;
 using Library.OrderManagement.Production;
 using Library.Service.Systems;
+using Library.Service.TaskScheduler;
 #endregion
 
 namespace Aplos.Areas.OrderManagements.Controllers
@@ -809,24 +810,18 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpPost]
-        public JsonResult CreateSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster)
+        public JsonResult CreateSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster, MasterOrder masterorder)
         {
-            _masterOrderService.InsertOrUpdateSOGraph(masterItemId, salesOrderMaster);
+            _masterOrderService.InsertOrUpdateSOGraph(masterItemId, salesOrderMaster, masterorder);
             Library.Planning.OrderManagement.MasterOrder mo = new Library.Planning.OrderManagement.MasterOrder();
             mo.GenerateLogForTnA(masterItemId, Library.Service.Enums.TaskAppliedOnEnum.SalesOrder);
 
             return Json(new { Data = salesOrderMaster, Message = AplosMessage.Updated });
         }
 
-        //[HttpPost, Authorize]
-        //public JsonResult CreateSplitSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster)
-        //{
-        //    _masterOrderService.InsertOrUpdateSplitSOGraph(masterItemId, salesOrderMaster);
-        //    return Json(new { Message = AplosMessage.Updated });
-        //}
 
         [HttpPost, Authorize]
-        public JsonResult CreateSplitSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster)
+        public JsonResult CreateSplitSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster, MasterOrder masterOrder)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             IdentityParameter para = new IdentityParameter
@@ -839,14 +834,14 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 UpdatedFromIP = identity.IPAddress
             };
 
-            MasterOrder.SplitSalesOrderData(masterItemId, salesOrderMaster, para);
+            MasterOrder.SplitSalesOrderData(masterItemId, salesOrderMaster, para, masterOrder.Id,masterOrder.TaskTemplateMasterId);
             return Json(new { Message = AplosMessage.Updated + " Please reduce SKU Qty." });
         }
 
         [HttpPost]
-        public JsonResult UpdateSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster, IEnumerable<SalesOrderTax> taxCategoryList)
+        public JsonResult UpdateSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster, IEnumerable<SalesOrderTax> taxCategoryList, MasterOrder masterorder)
         {
-            _masterOrderService.UpdateSOGraph(masterItemId, salesOrderMaster, taxCategoryList);
+            _masterOrderService.UpdateSOGraph(masterItemId, salesOrderMaster, taxCategoryList, masterorder);
             Library.Planning.OrderManagement.MasterOrder mo = new Library.Planning.OrderManagement.MasterOrder();
             mo.GenerateLogForTnA(masterItemId, Library.Service.Enums.TaskAppliedOnEnum.Style);
             return Json(new { Message = AplosMessage.Updated });

@@ -558,7 +558,7 @@ namespace Library.Planning.OrderManagement
         {
             return masterId + currentId.ToString().PadLeft(padLeft, '0');
         }
-        public void SplitSalesOrderData(string masterItemId, SalesOrderMaster salesOrderMaster, IdentityParameter para)
+        public void SplitSalesOrderData(string masterItemId, SalesOrderMaster salesOrderMaster, IdentityParameter para,string masterOrderId, string TaskTemplateMasterId)
         {
             DataSet dsToSalesOrder, dsParentSalesOrder;
             DataSet dsToFirstCharacteristics;
@@ -724,6 +724,32 @@ namespace Library.Planning.OrderManagement
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsParentSalesOrder,dsToSalesOrder, dsToFirstCharacteristics, dsToSecondCharacteristics, dsToThirdCharacteristics, dsToSOCostingConfirm);
+
+
+             Library.Service.TaskScheduler.TaskScheduler schedule = new Library.Service.TaskScheduler.TaskScheduler(_sqlRepository);
+                schedule.UpdateTaskStatus();
+                //Sales Order Related Tasks
+                string sql = @"SELECT SO.* FROM trn.MasterOrder AS mo 
+                                INNER JOIN hkp.OrderStatus AS os ON os.Id=mo.OrderStatusId
+                                INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                                INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
+                           WHERE so.id='" + NewId + "' and os.Id<>'" + Library.Model.Enums.OrderStatusEnum.Closed.ToString() + @"' AND ISNULL(mo.TaskTemplateMasterId,'')='" + TaskTemplateMasterId + "'";
+
+                DataTable dtMasterReferenceData = _sqlRepository.GetDataTable(sql);
+                for (int i = 0; i < dtMasterReferenceData.Rows.Count; i++)
+                {
+
+                    try
+                    {
+                        DataTable dt = schedule.GetDataSourceMasterOrderNew(dtMasterReferenceData.Rows[i]["Id"].ToString(), TaskAppliedOnEnum.SalesOrder);
+                        if (dt.Rows.Count > 0)
+                            schedule.MakeTNAMaster(dt, dtMasterReferenceData.Rows[i]["Id"].ToString(), TaskAppliedOnEnum.SalesOrder);
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
 
 
             }
