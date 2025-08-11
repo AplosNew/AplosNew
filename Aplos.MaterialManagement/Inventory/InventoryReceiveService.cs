@@ -9802,6 +9802,10 @@ namespace Library.MaterialManagement.Inventory
                                 	,PO.SalesOrderId
                                     ,IRD.BaseQty
                                     ,BUoM.UserName AS BaseUoM
+                                    ,LotNumber=STUFF((select distinct ','+XSO.LotNumber
+		                                         from    trn.InventoryReceiveDetail XSO 	 
+												 JOIN trn.InventoryIssueHistory AS XIRD ON XSO.Id=XIRD.InventoryReceiveDetailId
+									                where XIRD.InventoryIssueDetailId=IRD.Id 	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                 FROM TRN.InventoryIssue IR
                                 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                                 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -10032,7 +10036,7 @@ namespace Library.MaterialManagement.Inventory
             //wTable.Rows[ROW].Cells[colChar2].Width = 40;
 
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU3");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("LotNumber");
             range.ApplyCharacterFormat(FontBold);
             int colChar3 = COL; COL++;
             //wTable.Rows[ROW].Cells[colChar2].Width = 40;
@@ -10161,7 +10165,7 @@ namespace Library.MaterialManagement.Inventory
                 TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
                 TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString());
                 TROW.Cells[colChar2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
-                TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
+                TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNumber"].ToString());
                 //TROW.Cells[colHSNCODE].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
                 TROW.Cells[colcomments].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Comments"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionQty"].ToString()).ToString("F2"));
