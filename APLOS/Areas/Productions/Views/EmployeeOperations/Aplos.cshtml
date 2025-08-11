@@ -177,7 +177,7 @@
                 <div class="table-responsive ">
                     <div id="EmpEditsGrid" ej-grid e-datasource="ModelList" e-queryCellInfo="PeriodValidation" e-actionComplete="refreshPage"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" >
                         <div e-columns>
                             <div e-column e-field="Sequence" e-headertext="Seq" e-width="20" e-isprimarykey="true"></div>
                             <div e-column e-field="OperationCode" e-headertext="Operation Code" e-width="50" e-isprimarykey="true"></div>
@@ -190,8 +190,7 @@
                             <div e-column e-headertext="Qty" e-template="#qty" e-textalign="center" e-width="80"></div>
 
                             <div e-column e-headertext="Remarks" e-template="#rem" e-textalign="center" e-width="80"></div>
-
-                            <div e-column e-template="#AddTile" e-headertext="Add" e-width="40"></div>
+                            <div e-column e-template="#btnAction" e-headertext="Actions" e-width="40"></div>
 
                         </div>
                     </div>
@@ -213,10 +212,12 @@
                     <input type="text" ng-model="data.Remarks" ng-keypress="$parent.changeInData(data,'rem');" style="color:black; text-align:center" />
                 </script>
 
-                <script type="text/template" id="AddTile">
+                <script type="text/template" id="btnAction">
                     <div class="common-btn">
                         <ul class="list-inline text-center">
+                            <li><button ng-click="$parent.saveRowItemData(data);" class="btn"><i class="glyphicon glyphicon-floppy-save"></i></button></li>
                             <li><button ng-click="$parent.AddTile(data);" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i></button></li>
+
                         </ul>
                     </div>
                 </script>
