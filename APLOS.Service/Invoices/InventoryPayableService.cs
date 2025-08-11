@@ -70,6 +70,7 @@ namespace Library.Service.Invoices
         private readonly IRepositoryAsync<PurchaseReturn> _purchaseReturnRepository;
         private readonly IRepositoryAsync<EmployeeSubsequentTransaction> _employeeSubsequentTransactionRepository;
         private readonly IRepositoryAsync<InventoryReceiveTax> _inventoryReceiveTaxRepository;
+        private readonly IRepositoryAsync<InventoryService> _inventoryServiceRepository;
         private readonly IRepositoryAsync<InventoryIssueReturn> _InventoryIssueReturnRepository;
 
         public InventoryPayableService(
@@ -106,6 +107,7 @@ namespace Library.Service.Invoices
              , IRepositoryAsync<EmployeeSubsequentTransaction> employeeSubsequentTransactionRepository
             , IRepositoryAsync<InventoryReceiveTax> inventoryReceiveTaxRepository
             , IRepositoryAsync<InventoryIssueReturn> InventoryIssueReturnRepository
+            , IRepositoryAsync<InventoryService> inventoryServiceRepository
 
             ) //: base( unitOfWork, pkGeneratorService)
         {
@@ -142,6 +144,7 @@ namespace Library.Service.Invoices
             _employeeSubsequentTransactionRepository = employeeSubsequentTransactionRepository;
             _inventoryReceiveTaxRepository = inventoryReceiveTaxRepository;
             _InventoryIssueReturnRepository = InventoryIssueReturnRepository;
+            _inventoryServiceRepository = inventoryServiceRepository;
         }
 
         #endregion Constructor
@@ -1579,7 +1582,8 @@ namespace Library.Service.Invoices
                                     AddedFromIP = invoiceTax.AddedFromIP
                                 };
                                 _invoiceTaxDetailRepository.Insert(invoiceTaxDetail);
-                            var inventoryreceivetax = _inventoryReceiveTaxRepository.Query(r => r.InventoryReceiveId == receiveId && r.InventoryReceiveDetailId != null && r.TaxCategoryId == voucherDetailVM.TaxCategoryId).Select().ToList();
+                            var othervendorServiceId = _inventoryServiceRepository.Query(r => r.InventoryReceiveId == receiveId && r.IsOtherVendor == true).Select(r=>r.Id).FirstOrDefault();
+                            var inventoryreceivetax = _inventoryReceiveTaxRepository.Query(r => r.InventoryReceiveId == receiveId && r.InventoryReceiveDetailId == null && r.TaxCategoryId == voucherDetailVM.TaxCategoryId && r.InventoryServiceId== othervendorServiceId).Select().ToList();
 
                             foreach (var DrTax in inventoryreceivetax)
                             {
@@ -1774,7 +1778,9 @@ namespace Library.Service.Invoices
                                 AddedFromIP = voucherOtherCharges.AddedFromIP
                             };
                             _invoiceTaxDetailRepository.Insert(invoiceTaxDetail);
-                            var inventoryreceivetax = _inventoryReceiveTaxRepository.Query(r => r.InventoryReceiveId == receiveId && r.InventoryReceiveDetailId != null && r.TaxCategoryId == voucherDetailVM.TaxCategoryId).Select().ToList();
+                            var othervendorServiceId = _inventoryServiceRepository.Query(r => r.InventoryReceiveId == receiveId && r.IsOtherVendor == true).Select(r => r.Id).FirstOrDefault();
+
+                            var inventoryreceivetax = _inventoryReceiveTaxRepository.Query(r => r.InventoryReceiveId == receiveId && r.InventoryReceiveDetailId == null && r.TaxCategoryId == voucherDetailVM.TaxCategoryId && r.InventoryServiceId== othervendorServiceId).Select().ToList();
 
                             foreach (var Crtax in inventoryreceivetax)
                             {
