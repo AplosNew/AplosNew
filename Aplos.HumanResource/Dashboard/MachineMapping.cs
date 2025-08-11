@@ -532,7 +532,7 @@ from
 
         public List<Dictionary<string, object>> FilterWiseArticleData(out List<string> DateColumns, Dictionary<string, string> parameters, string fromDate, string toDate, out List<Dictionary<string, object>> dt)
         {
-
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var str = @"Select isnull(req.CompanyId,'') as CompanyId , isnull(req.PlantId,'') as PlantId, isnull(req.EntityId,'') as EntityId ,
 req.MachineId , req.Machine as MachineName, req.MachineVarientId as ArticleId , req.Articles,
 isnull(req.ProductionDate,'') as ProductionDate, isnull(req.Allotted,0) as Allotted, isnull(Actual.Available,0) as Available , (isnull(Actual.Available,0) -isnull(req.Allotted,0)) as ShortExcess
@@ -567,7 +567,7 @@ format(p1.ProductionDate,'dd-MMM-yy') as ProductionDate , isnull(sum(bmd.Alloted
 								Left join ORG.Plant P ON P.Id=MB.PlantId
 								Left join ORG.Entity E ON E.Id=MB.EntityId
 								left join ORG.Company C on c.id = P.CompanyId
-								Where MM.CompanyGroupId='CG20181' AND
+								Where MM.CompanyGroupId='"+ identity.CompanyGroupId + @"' AND
                                isnull(C.Id,'') IN(" + parameters["CompanyId"] + @") AND
                                 isnull(P.Id,'') IN(" + parameters["PlantId"] + @") AND
                                 isnull(E.Id,'') IN(" + parameters["EntityId"] + @") 

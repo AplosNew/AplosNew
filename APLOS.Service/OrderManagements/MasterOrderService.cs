@@ -1924,6 +1924,28 @@ WHERE MOI.MasterOrderId='" + id + "'";
                 TaskScheduler.TaskScheduler schedule = new TaskScheduler.TaskScheduler(_sqlRepository);
                 schedule.CopyTaskTemplate(entity.Id);
 
+                DataTable dtm = _sqlRepository.GetDataTable("SELECT * FROM trn.MasterOrder AS mo WHERE mo.Id='" + entity.Id + "'");
+
+                //line item related tasks
+                string sql = @"SELECT MOI.* FROM trn.MasterOrder AS mo 
+                                INNER JOIN hkp.OrderStatus AS os ON os.Id=mo.OrderStatusId
+                                INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                                WHERE mo.id='" + entity.Id + "' and os.Id<>'" + Library.Model.Enums.OrderStatusEnum.Closed.ToString() + @"' AND ISNULL(mo.TaskTemplateMasterId,'')='" + dtm.Rows[0]["TaskTemplateMasterId"].ToString() + "'";
+
+               DataTable dtMasterReferenceData = _sqlRepository.GetDataTable(sql);
+                for (int i = 0; i < dtMasterReferenceData.Rows.Count; i++)
+                {
+                    try
+                    {
+                        DataTable dt = schedule.GetDataSourceMasterOrderNew(dtMasterReferenceData.Rows[i]["Id"].ToString(), TaskAppliedOnEnum.Style);
+                        if (dt.Rows.Count > 0)
+                            schedule.MakeTNAMaster(dt, dtMasterReferenceData.Rows[i]["Id"].ToString(), TaskAppliedOnEnum.Style);
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
 
             }
             catch (CustomException)

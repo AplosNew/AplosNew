@@ -1901,6 +1901,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
+                application.DefaultVersion = ExcelVersion.Excel2013;
                 workbook = application.Workbooks.Create(2);
                 workbook.Worksheets[1].Name = "Data";
                 sheet = workbook.Worksheets[1];
@@ -2218,7 +2219,471 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.IsGridLinesVisible = false;
 
-                sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+              //  sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+
+                #region Pivot
+                //  DataTable dtDistinctParameter = dtOrder.DefaultView.ToTable(true, "Parameter");
+
+                string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "OrderTempReport" + identity.UserId + ".xlsx";
+
+                workbook.SaveAs(fPath);
+                workbook = application.Workbooks.Open(fPath);
+                try { System.IO.File.Delete(fPath); } catch (Exception) { }
+
+                workbook.Worksheets[0].Name = "Process Wise";
+                sheet = workbook.Worksheets[0];
+
+
+                // Get the Data Sheet
+                IWorksheet dataSheet = workbook.Worksheets["Data"];
+
+                // Get the Pivot Sheet
+                IWorksheet pivotSheet = workbook.Worksheets["Pivot"];
+
+                // Detect the used range
+                IRange dataRange = dataSheet.Range[dataSheet.UsedRange.AddressLocal];
+
+                // Create the Pivot Cache
+                IPivotCache pivotCache = workbook.PivotCaches.Add(dataRange);
+
+                // Create the Pivot Table at A1
+                IPivotTable pivotTable = pivotSheet.PivotTables.Add("SalesPivot", pivotSheet.Range["A6"], pivotCache);
+
+                // Auto-match column headers even if they change
+                IPivotField GetFieldAuto(IPivotTable pt, string headerPattern)
+                {
+                    foreach (IPivotField f in pt.Fields)
+                    {
+                        if (f.Name.IndexOf(headerPattern, StringComparison.OrdinalIgnoreCase) >= 0)
+                            return f;
+                    }
+                    throw new Exception($"No matching field for '{headerPattern}' found.");
+                }
+
+                // Match patterns instead of exact names
+                IPivotField plantField = GetFieldAuto(pivotTable, "plant");
+                IPivotField entityField = GetFieldAuto(pivotTable, "entity");
+                IPivotField ActualQtyField = GetFieldAuto(pivotTable, "ActualQty");
+
+                // Assign row fields
+                plantField.Axis = PivotAxisTypes.Row;
+                entityField.Axis = PivotAxisTypes.Row;
+
+                // Assign column field
+                //monthField.Axis = PivotAxisTypes.Column;
+
+                // Assign data field
+                pivotTable.DataFields.Add(ActualQtyField, "Total Sales", PivotSubtotalTypes.Sum);
+
+                // Optional styling
+                pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium9;
+                
+
+                //IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
+               
+                //IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
+
+                //pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Row;
+                ////pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colActualDate - 1].Axis = PivotAxisTypes.Column;
+
+
+                //IPivotField field = pivotTable.Fields[colActualQty - 1];
+                ////field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                //pivotTable.DataFields.Add(field, "ActualQty", PivotSubtotalTypes.Sum);
+
+                //for (int i = 0; i < pivotTable.Fields.Count; i++)
+                //{
+                //    if (i == colProcess - 1 || i == colEntity - 1 || i == colActualDate - 1)
+                //        pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                //}
+
+                //pivotTable.ShowRowGrand = false;
+                //pivotTable.ShowDrillIndicators = false;
+                //pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
+                //pivotTable.Options.NullString = "";
+                //pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium20;
+
+              //  sheet = workbook.Worksheets[0];
+                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Poduction Order Process Wise Report", identity.CompanyId, identity.CompanyName, "");
+
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+                workbook.Worksheets[0].UsedRange["A7"].FreezePanes();
+
+
+                #endregion Buyer Summary
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string _ProcessWiseOrderReport(string fromDate, string toDate, string SheetName, string EntityId, string ProcessId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+
+                string Entity = "'" + EntityId.Replace(",", "','") + "'";//replaced with ""
+                string processId = "'" + ProcessId.Replace(",", "','") + "'";//replaced with ""
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                application.DefaultVersion = ExcelVersion.Excel2013;
+                workbook = application.Workbooks.Create(2);
+                workbook.Worksheets[1].Name = "Data";
+                sheet = workbook.Worksheets[1];
+                DataTable dtOrder;
+                _productionSummaryData.ProductionOrderReportSQL(fromDate, toDate, Entity, processId, out dtOrder);
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+                sheet[ROW, COL].Text = "Id";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colId = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Plant";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPlant = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEntity = COL;
+                COL++;
+                sheet[ROW, COL].Text = "EntityID";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEntityID = COL;
+                COL++;
+                sheet[ROW, COL].Text = "WorkCenterMasterId";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colWorkCenterMasterId = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ProductionOrderID";
+                sheet[ROW, COL].ColumnWidth = 22;
+                int colProductionOrderID = COL;
+                COL++;
+                sheet[ROW, COL].Text = "WorkCenter";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colWorkCenter = COL;
+                COL++;
+                sheet[ROW, COL].Text = "LotNumber";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colLotNumber = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ActualDate";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colActualDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ActualQty";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colActualQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ActualCM";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colActualCM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SAM";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colSAM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Process";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProcess = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ToProcess";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colToProcess = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ToWorkCenter";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colToWorkCenter = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Material";
+                sheet[ROW, COL].ColumnWidth = 30;
+                int colMaterial = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Article";
+                sheet[ROW, COL].ColumnWidth = 30;
+                int colArticle = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Product";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProduct = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ProductCategory";
+                sheet[ROW, COL].ColumnWidth = 6;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colProductCategory = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SnapshotDate";
+                sheet[ROW, COL].ColumnWidth = 6;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSnapshotDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanQty";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colPlanQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanCM";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPlanCM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "CM";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colCM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ProductionShift";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colProductionShift = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SalesOrderIdBooking";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colSalesOrderIdBooking = COL;
+                COL++;
+                sheet[ROW, COL].Text = "LineItemReference";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colLineItemReference = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SalesOrderDescBooking";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colSalesOrderDescBooking = COL;
+                COL++;
+                sheet[ROW, COL].Text = "StandardWorkingHours";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colStandardWorkingHours = COL;
+                COL++;
+                sheet[ROW, COL].Text = "StandardWorkStations";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colStandardWorkStations = COL;
+                COL++;
+                sheet[ROW, COL].Text = "DailyFixedCost";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDailyFixedCost = COL;
+                COL++;
+                sheet[ROW, COL].Text = "VariableCostPerHour";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colVariableCostPerHour = COL;
+                COL++;
+                sheet[ROW, COL].Text = "WorkingHours";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colWorkingHours = COL;
+                COL++;
+                sheet[ROW, COL].Text = "isBuildUp";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colisBuildUp = COL;
+                COL++;
+                sheet[ROW, COL].Text = "LineTargetPerDay";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colLineTargetPerDay = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanTargetPerHour";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPlanTargetPerHour = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanWorkingHoursPerDay";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPlanWorkingHoursPerDay = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Buyer";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colbuyer = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SalesOrderIds";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colSalesOrderIds = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SalesOrderDesc";
+                sheet[ROW, COL].ColumnWidth = 50;
+                int colSalesOrderDesc = COL;
+                COL++;
+                sheet[ROW, COL].Text = "MasterOrderNo";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colMasterOrderNo = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "BuyerOrderNo";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int colBuyerOrderNo = COL;
+                COL++;
+                sheet[ROW, COL].Text = "OwnOrderNo";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colOwnOrderNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "StyleNo";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colStyleNo = COL;
+                COL++;
+                sheet[ROW, COL].Text = "OwnStyleNo";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colOwnStyleNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "NoOfWorkStation";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colNoOfWorkStation = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanHours";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPlanHours = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ProductionHours";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProductionHours = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanMinutes";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPlanMinutes = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanEfficiency";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPlanEfficiency = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ActualMinutes";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colActualMinutes = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ActualEfficiency";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colActualEfficiency = COL;
+
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+
+                for (int i = 0; i < dtOrder.Rows.Count; i++)
+                {
+                    sheet[ROW, colId].Text = dtOrder.Rows[i]["Id"].ToString();
+                    sheet[ROW, colPlant].Text = dtOrder.Rows[i]["Plant"].ToString();
+                    sheet[ROW, colEntity].Text = dtOrder.Rows[i]["Entity"].ToString();
+                    sheet[ROW, colEntityID].Text = dtOrder.Rows[i]["EntityID"].ToString();
+                    sheet[ROW, colWorkCenterMasterId].Text = dtOrder.Rows[i]["WorkCenterMasterId"].ToString();
+                    sheet[ROW, colProductionOrderID].Text = dtOrder.Rows[i]["ProductionOrderID"].ToString();
+                    sheet[ROW, colWorkCenter].Text = dtOrder.Rows[i]["WorkCenter"].ToString();
+                    sheet[ROW, colLotNumber].Text = dtOrder.Rows[i]["LotNumber"].ToString();
+                    sheet[ROW, colActualDate].Text = dtOrder.Rows[i]["ActualDate"].ToString();
+                    sheet[ROW, colActualQty].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ActualQty"].ToString());
+                    sheet[ROW, colActualCM].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ActualCM"].ToString());
+                    sheet[ROW, colToProcess].Text = dtOrder.Rows[i]["ToProcess"].ToString();
+                    sheet[ROW, colProcess].Text = dtOrder.Rows[i]["Process"].ToString();
+                    sheet[ROW, colToWorkCenter].Text = dtOrder.Rows[i]["ToWorkCenter"].ToString();
+                    sheet[ROW, colMaterial].Text = dtOrder.Rows[i]["Material"].ToString();
+                    sheet[ROW, colArticle].Text = dtOrder.Rows[i]["Article"].ToString();
+                    sheet[ROW, colProduct].Text = dtOrder.Rows[i]["Product"].ToString();
+                    sheet[ROW, colProductCategory].Text = dtOrder.Rows[i]["ProductCategory"].ToString();
+                    sheet[ROW, colSnapshotDate].Text = dtOrder.Rows[i]["SnapshotDate"].ToString();
+                    sheet[ROW, colPlanQty].Text = dtOrder.Rows[i]["PlanQty"].ToString();
+                    sheet[ROW, colPlanCM].Text = dtOrder.Rows[i]["PlanCM"].ToString();
+                    sheet[ROW, colCM].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["CM"].ToString());
+                    sheet[ROW, colProductionShift].Text = dtOrder.Rows[i]["ProductionShift"].ToString();
+                    sheet[ROW, colSalesOrderIdBooking].Text = dtOrder.Rows[i]["SalesOrderIdBooking"].ToString();
+                    sheet[ROW, colLineItemReference].Text = dtOrder.Rows[i]["LineItemReference"].ToString();
+                    sheet[ROW, colSalesOrderDescBooking].Text = dtOrder.Rows[i]["SalesOrderDescBooking"].ToString();
+                    sheet[ROW, colStandardWorkingHours].Text = dtOrder.Rows[i]["StandardWorkingHours"].ToString();
+                    sheet[ROW, colStandardWorkStations].Text = dtOrder.Rows[i]["StandardWorkStations"].ToString();
+                    sheet[ROW, colDailyFixedCost].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["DailyFixedCost"].ToString());
+                    sheet[ROW, colVariableCostPerHour].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["VariableCostPerHour"].ToString());
+                    sheet[ROW, colWorkingHours].Text = dtOrder.Rows[i]["WorkingHours"].ToString();
+                    sheet[ROW, colisBuildUp].Text = dtOrder.Rows[i]["isBuildUp"].ToString();
+                    sheet[ROW, colLineTargetPerDay].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["LineTargetPerDay"].ToString());
+                    sheet[ROW, colPlanTargetPerHour].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["PlanTargetPerHour"].ToString());
+                    sheet[ROW, colPlanWorkingHoursPerDay].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["PlanWorkingHoursPerDay"].ToString());
+                    sheet[ROW, colbuyer].Text = dtOrder.Rows[i]["buyer"].ToString();
+                    sheet[ROW, colSalesOrderIds].Text = dtOrder.Rows[i]["SalesOrderIds"].ToString();
+                    sheet[ROW, colSalesOrderDesc].Text = dtOrder.Rows[i]["SalesOrderDesc"].ToString();
+                    sheet[ROW, colMasterOrderNo].Text = dtOrder.Rows[i]["MasterOrderNo"].ToString();
+                    sheet[ROW, colBuyerOrderNo].Text = dtOrder.Rows[i]["BuyerOrderNo"].ToString();
+                    sheet[ROW, colOwnOrderNo].Text = dtOrder.Rows[i]["OwnOrderNo"].ToString();
+                    sheet[ROW, colStyleNo].Text = dtOrder.Rows[i]["StyleNo"].ToString();
+                    sheet[ROW, colOwnStyleNo].Text = dtOrder.Rows[i]["OwnStyleNo"].ToString();
+                    sheet[ROW, colNoOfWorkStation].Text = dtOrder.Rows[i]["NoOfWorkStation"].ToString();
+                    sheet[ROW, colPlanHours].Text = dtOrder.Rows[i]["PlanHours"].ToString();
+                    sheet[ROW, colProductionHours].Text = dtOrder.Rows[i]["ProductionHours"].ToString();
+                    sheet[ROW, colPlanMinutes].Text = dtOrder.Rows[i]["PlanMinutes"].ToString();
+                    sheet[ROW, colPlanEfficiency].Text = dtOrder.Rows[i]["PlanEfficiency"].ToString();
+                    sheet[ROW, colActualMinutes].Text = dtOrder.Rows[i]["ActualMinutes"].ToString();
+                    sheet[ROW, colActualEfficiency].Text = dtOrder.Rows[i]["ActualEfficiency"].ToString();
+                    //sheet[ROW, colParameter].Text = dtOrder.Rows[i]["Parameter"].ToString();
+                    //sheet[ROW, colParameterValue].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ParameterValue"].ToString());
+
+
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+                IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+                table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Order Report Process Wise", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //  sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
 
 
                 //#endregion ******************Report Header******************
@@ -2249,15 +2714,20 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
                 IWorksheet pivotSheet = workbook.Worksheets[0];
                 IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
+                int cacheIndex = cache.Index;
+                if (cacheIndex >= 0)
+                {
+                    //Your Code Here
+                }
                 IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
 
                 pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colActualDate - 1].Axis = PivotAxisTypes.Column;
 
 
                 IPivotField field = pivotTable.Fields[colActualQty - 1];
-                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
                 pivotTable.DataFields.Add(field, "ActualQty", PivotSubtotalTypes.Sum);
 
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
@@ -2270,7 +2740,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 pivotTable.ShowDrillIndicators = false;
                 pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
                 pivotTable.Options.NullString = "";
-                pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
+                pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium20;
 
                 sheet = workbook.Worksheets[0];
                 reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Poduction Order Process Wise Report", identity.CompanyId, identity.CompanyName, "");
@@ -2286,7 +2756,11 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
 
                 #endregion Buyer Summary
+
                 filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+
+                //workbook.SaveAs(filePath, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open, ExcelHttpContentType.Excel2010);
+
                 workbook.SaveAs(filePath);
                 workbook.Close();
                 excelEngine.Dispose();
