@@ -1,4 +1,4 @@
-﻿<togglable name="Operation Master "></togglable>
+﻿<togglable name="Skill Master "></togglable>
 
 @*Index Grid*@
 <div class="aplos-grid-toggle">
@@ -43,31 +43,18 @@
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                      e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                     <div e-columns>
-
-                        @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
-                        @*<div e-column e-field="CompanyGroup" e-headertext="CompanyGroup" e-width="80"></div>
-                            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
-
-                            <div e-column e-field="ShortName" e-headertext="ShortName" e-width="80"></div>
-                            <div e-column e-field="StandardName" e-headertext="StandardName" e-width="80"></div>*@
                         <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
                         <div e-column e-field="UserName" e-headertext="Operation Name" e-width="80"></div>
                         <div e-column e-field="OperationActivity" e-headertext="OperationActivity" e-width="50"></div>
-                        <div e-column e-field="OperationType" e-headertext="OperationType" e-width="80"></div>
-                        <div e-column e-field="OperationCategory" e-headertext="OperationCategory" e-width="80"></div>
+                        @*<div e-column e-field="OperationType" e-headertext="OperationType" e-width="80"></div>
+                            <div e-column e-field="OperationCategory" e-headertext="OperationCategory" e-width="80"></div>*@
                         <div e-column e-field="Type" e-headertext="Type" e-width="80"></div>
-                        <div e-column e-field="MachineMaster" e-headertext="MachineMaster" e-width="80"></div>
+                        @*<div e-column e-field="MachineMaster" e-headertext="MachineMaster" e-width="80"></div>*@
                         <div e-column e-field="Skill" e-headertext="Skill" e-width="80"></div>
                         <div e-column e-field="SkillGroup" e-headertext="SkillGroup" e-width="80"></div>
+                        <div e-column e-field="DesignationGroup" e-headertext="Designation Group" e-width="80"></div>
                         <div e-column e-field="LegalDesignation" e-headertext="LegalDesignation" e-width="80"></div>
                         <div e-column e-field="ProposedSalary" e-headertext="ProposedSalary" e-width="50"></div>
-                        @*<div e-column e-field="Remarks" e-headertext="Remarks" e-width="50"></div>*@
-                        @*<div e-column e-field="Active" e-headertext="Active" e-width="50"></div>*@
-
-
-                        @*<div e-column e-headertext="Print" e-commands="command" e-isunbound=true e-textalign="center" e-width="50"></div>*@
-
-
                     </div>
 
                 </div>
@@ -75,347 +62,273 @@
             </div>
         </div>
     </fieldset>
-
-
-
-
-
-
-
 </div>
 
+<div class="form-horizontal form-elements">
+    <div ng-form="modelNewForm">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border"></legend>
+            <div class="col-md-12">
+                <div class="col-md-4">
+                    <div class="form-group" id="">
+                        <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
 
-
-
-<div class="form-horizontal form-elements" ng-form="modelNewForm">
-    <fieldset class="scheduler-border">
-        <legend class="scheduler-border"></legend>
-        <div class="col-md-12">
-            <div class="col-md-4">
-                <div class="form-group" id="">
-                    <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-
-                        <input type="text" name="Sequence" ng-model="modelNew.Sequence" class="form-control" maxlength="10">
+                            <input type="text" name="Sequence" ng-model="modelNew.Sequence" class="form-control" maxlength="10">
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Code<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Code" ng-model="modelNew.Code" class="form-control" required maxlength="10">
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Code" ng-model="modelNew.Code" class="form-control" required maxlength="10">
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Short Name" ng-model="modelNew.ShortName" class="form-control" required maxlength="15">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="clearfix"></div>
-        <div class="col-md-12">
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Standard Name" ng-model="modelNew.StandardName" class="form-control" required maxlength="100">
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="User Name" ng-model="modelNew.UserName" class="form-control" required maxlength="100">
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Operation Activity<sup>*</sup></label>
-                    <div class="col-sm-8 show-message ">
-                        <div class="select-style">
-                            <select class="form-control" id="currency" name="Operation Activity" ng-model="modelNew.OperationActivityId" ng-options="item.Value as item.Text for item in OperationActivityList" tabindex="1" required>
-                                <option value="">---Select---</option>
-                            </select>
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Short Name" ng-model="modelNew.ShortName" class="form-control" required maxlength="15">
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-
-        <div class="clearfix"></div>
-
-        <div class="col-md-12">
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Operation Type<sup>*</sup></label>
-                    <div class="col-sm-8 show-message ">
-                        <div class="select-style">
-                            <select class="form-control" id="currency" name="Operation Type" ng-model="modelNew.OperationTypeId" ng-options="item.Value as item.Text for item in OperationTypeList" tabindex="2" required>
-                                <option value="">---Select---</option>
-                            </select>
+            <div class="clearfix"></div>
+            <div class="col-md-12">
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Standard Name" ng-model="modelNew.StandardName" class="form-control" required maxlength="100">
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Operation Category<sup>*</sup></label>
-                    <div class="col-sm-8 show-message ">
-                        <div class="select-style">
-                            <select class="form-control" id="currency" name="Operation Category" ng-model="modelNew.OperationCategoryId" ng-options="item.Value as item.Text for item in OperationCategoryList" tabindex="3" required>
-
-                                <option value="">---Select---</option>
-                            </select>
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="User Name" ng-model="modelNew.UserName" class="form-control" required maxlength="100">
                         </div>
                     </div>
                 </div>
-            </div>
 
-
-
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Type<sup>*</sup></label>
-                    <div class="col-sm-8 show-message ">
-                        <div class="select-style">
-                            <select class="form-control" id="currency" name="Type" ng-model="modelNew.Type" tabindex="4" required>
-                                <option value="">---Select---</option>
-                                <option value="ACTIVITY">ACTIVITY</option>
-                                <option value="OPERATION">OPERATION</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-        </div>
-
-
-        <div class="clearfix"></div>
-
-        <div class="col-md-12">
-
-
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Machine Master</label>
-                    <div class="col-sm-8 show-message ">
-                        <div class="select-style">
-                            <select class="form-control" id="currency" name="Machine Master" ng-disabled="modelNew.Type!='OPERATION'" ng-model="modelNew.MachineMasterId" ng-options="item.Value as item.Text for item in MachineMasterList"
-                                    tabindex="5" @*ng-change="GetCboSkillCboByMachine();"*@>
-                                <option value="">---Select---</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Skill</label>
-                    <div class="col-sm-8 show-message ">
-						<div class="select-style">
-							@*modelNew.Type!='ACTIVITY'*@
-							<select class="form-control" id="Skill" name="Skill" @*ng-disabled="modelNew.Type!='ACTIVITY'"*@ ng-change="GetSkillGroupingCbo();" ng-model="modelNew.SkillId" ng-options="item.Value as item.Text for item in SkillList"
-									tabindex="6">
-								<option value="">---Select---</option>
-							</select>
-						</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Skill Group<sup>*</sup></label>
-                    <div class="col-sm-8 show-message ">
-                        <div class="select-style">
-                            <select class="form-control" id="SkillGroup" name="Skill Group" ng-model="modelNew.SkillGroupId" disabled ng-options="item.Value as item.Text for item in SkillGroupingList" tabindex="7" required>
-                                <option value="">---Select---</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="clearfix"></div>
-
-        <div class="col-md-12">
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Legal Designation</label>
-                    <div class="col-sm-8 show-message ">
-                        <div class="select-style">
-                            <select class="form-control" id="currency" name="Legal Designation" ng-model="modelNew.LegalDesignationId" ng-options="item.Value as item.Text for item in legalDesignationList"
-                                    tabindex="8">
-                                <option value="">---Select---</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Process</label>
-                    <div class="col-sm-8 show-message ">
-                        <div class="select-style">
-                            <select class="form-control" id="Process" name="Process" ng-model="modelNew.ProcessId" ng-options="item.Value as item.Text for item in ProcessList" tabindex="9">
-                                <option value="">---Select---</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Proposed Salary<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input  type="number" name="Proposed Salary" ng-model="modelNew.ProposedSalary" class="form-control" maxlength="10" required>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="clearfix"></div>
-
-        <div class="col-md-12">
-            <div class="col-md-4" show-errors>
-                <div class="form-group" id="">
-                    <label class="col-sm-4 control-label">Active<sup>*</sup></label>
-                    <div class="col-sm-8 show-message ">
-                        <input type="checkbox" name="Active" ng-model="modelNew.Active" checked="checked" />
-
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group" id="">
-                    <label class="col-sm-4 control-label">Remarks</label>
-                    <div class="col-sm-8 show-message ">
-
-
-                        <textarea class="form-control" rows="3" ng-model="modelNew.Remarks" maxlength="250" tabindex="6"></textarea>
-
-
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group" id="div_grnNo">
-                    <label class="col-sm-4 control-label">OPM Id<sup></sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" disabled name="Proposed Salary" ng-model="modelNew.OperationMasterIdID" class="form-control" maxlength="10">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-12 text-right" style="padding-top: 17px;">
-            @*<ul class="common-btn list-inline text-right">
-                    <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{modelNew.Id.length>0?'Update':'Save'}}</button></li>
-                    <li> <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                    <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                </ul>*@
-            <ul class="list-inline text-right">
-                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-            </ul>
-        </div>
-    </fieldset>
-</div>
-<div class="form-horizontal form-elements" ng-form="modelNewForm1">
-    <div class="tab-design" id="tab_show">
-        <div class="site-tab">
-            <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Manpower Budget</a></li>
-
-            </ul>
-        </div>
-        <div class="tab-content" ng-hide="modelNew.OperationMasterIdID==null">
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-                <fieldset class="scheduler-border">
-                    <legend class="scheduler-border"></legend>
-                    <div class="col-md-12">
-                        <div class="col-md-6">
-                            <div class="form-group" id="">
-                                <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input type="text" name="Sequence" ng-model="modelNewM.Sequence" class="form-control" maxlength="10" required>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group" id="" show-errors>
-                                <label class="col-sm-4 control-label">Entity<sup></sup></label>
-                                <div class="col-sm-8 show-message ">
-                                    <div class="select-style">
-                                        <select class="form-control" id="Entity" name="Entity" ng-model="modelNewM.EntityId" ng-options="item.Value as item.Text for item in EntityList" tabindex="9">
-                                            <option value="">---Select---</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        @*<div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Position<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="input-group">
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">Operation Activity<sup>*</sup></label>
+                        <div class="col-sm-8 show-message ">
                             <div class="select-style">
-                                <select style="width:280px;" class="form-control searchableDDL" id="Position" name="Position" ng-model="modelNewM.PositionId" ng-options="item.Value as item.Text for item in PositionList" tabindex="9">
+                                <select class="form-control" id="currency" name="Operation Activity" ng-model="modelNew.OperationActivityId" ng-options="item.Value as item.Text for item in OperationActivityList" tabindex="1" required>
                                     <option value="">---Select---</option>
                                 </select>
                             </div>
-
                         </div>
                     </div>
-
-
                 </div>
-            </div>*@
-                    </div>
-                    <div class="clearfix"></div>
-                    @*<div class="col-md-12">
-                        <div class="col-md-6">
-                            <div class="form-group" id="" show-errors>
-                                <label class="col-sm-4 control-label">Position<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <div class="input-group">
-                                        <div class="select-style">
-                                            <select style="width:455px;" class="form-control searchableDDL" id="Position" name="Position" ng-model="modelNewM.PositionId" ng-options="item.Value as item.Text for item in PositionList" tabindex="9">
-                                                <option value="">---Select---</option>
-                                            </select>
-                                        </div>
+            </div>
 
-                                    </div>
+
+            <div class="clearfix"></div>
+
+            <div class="col-md-12">
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">Designation Group<sup>*</sup></label>
+                        <div class="col-sm-8 show-message ">
+                            <div class="select-style">
+                                <select class="form-control" id="DesignationGroup" name="Designation Group" ng-model="modelNew.DesignationGroupId" ng-options="item.Id as item.UserName for item in designationGroupList" ng-change="GetCbolegalDesignation();" tabindex="2" required>
+                                    <option value="">---Select---</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="col-md-4">
+                        <div class="form-group" id="" show-errors>
+                            <label class="col-sm-4 control-label">Operation Type<sup>*</sup></label>
+                            <div class="col-sm-8 show-message ">
+                                <div class="select-style">
+                                    <select class="form-control" id="currency" name="Operation Type" ng-model="modelNew.OperationTypeId" ng-options="item.Value as item.Text for item in OperationTypeList" tabindex="2" required>
+                                        <option value="">---Select---</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
-                        </div>*@
-                <div class="col-md-12">
-                    <div class="col-md-6">
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group" id="" show-errors>
+                            <label class="col-sm-4 control-label">Operation Category<sup>*</sup></label>
+                            <div class="col-sm-8 show-message ">
+                                <div class="select-style">
+                                    <select class="form-control" id="currency" name="Operation Category" ng-model="modelNew.OperationCategoryId" ng-options="item.Value as item.Text for item in OperationCategoryList" tabindex="3" required>
+
+                                        <option value="">---Select---</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
+
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">Legal Designation</label>
+                        <div class="col-sm-8 show-message ">
+                            <div class="select-style">
+                                <select class="form-control" id="currency" name="Legal Designation" ng-model="modelNew.LegalDesignationId" ng-options="item.Id as item.UserName for item in legalDesignationList"
+                                        tabindex="8">
+                                    <option value="">---Select---</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">Type<sup>*</sup></label>
+                        <div class="col-sm-8 show-message ">
+                            <div class="select-style">
+                                <select class="form-control" id="currency" name="Type" ng-model="modelNew.Type" tabindex="4" required>
+                                    <option value="">---Select---</option>
+                                    <option value="ACTIVITY">ACTIVITY</option>
+                                    <option value="OPERATION">OPERATION</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+
+            <div class="clearfix"></div>
+
+            <div class="col-md-12">
+
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">Skill</label>
+                        <div class="col-sm-8 show-message ">
+                            <div class="select-style">
+                                @*modelNew.Type!='ACTIVITY'*@
+                                <select class="form-control" id="Skill" name="Skill" @*ng-disabled="modelNew.Type!='ACTIVITY'"*@ ng-change="GetSkillGroupingCbo();" ng-model="modelNew.SkillId" ng-options="item.Value as item.Text for item in SkillList"
+                                        tabindex="6">
+                                    <option value="">---Select---</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">Skill Group<sup>*</sup></label>
+                        <div class="col-sm-8 show-message ">
+                            <div class="select-style">
+                                <select class="form-control" id="SkillGroup" name="Skill Group" ng-model="modelNew.SkillGroupId" disabled ng-options="item.Value as item.Text for item in SkillGroupingList" tabindex="7" required>
+                                    <option value="">---Select---</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">Process</label>
+                        <div class="col-sm-8 show-message ">
+                            <div class="select-style">
+                                <select class="form-control" id="Process" name="Process" ng-model="modelNew.ProcessId" ng-options="item.Value as item.Text for item in ProcessList" tabindex="9">
+                                    <option value="">---Select---</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="clearfix"></div>
+
+            <div class="col-md-12">
+
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">Proposed Salary<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="number" name="Proposed Salary" ng-model="modelNew.ProposedSalary" class="form-control" maxlength="10" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="form-group" id="">
+                        <label class="col-sm-2 control-label">Remarks</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" rows="1" ng-model="modelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+
+            <div class="col-md-12">
+                <div class="col-md-4" show-errors>
+                    <div class="form-group" id="">
+                        <label class="col-sm-4 control-label">Active<sup>*</sup></label>
+                        <div class="col-sm-8 show-message ">
+                            <input type="checkbox" name="Active" ng-model="modelNew.Active" checked="checked" />
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group" id="div_grnNo">
+                        <label class="col-sm-4 control-label">Skill Master Id<sup></sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" disabled name="Skill Master Id" ng-model="modelNew.OperationMasterId" class="form-control" maxlength="10">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li><button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                    <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+
+        </fieldset>
+
+
+    </div>
+    <div class="col-md-12">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Manpower Budget</a></li>
+                <li ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" data-toggle="tab">Machine Master</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div ng-form="modelNewForm1">
+                    <div class="col-xs-6 col-sm-6 col-md-6">
+                        <div class="form-group" id="">
+                            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Sequence" ng-model="modelNewM.Sequence" class="form-control" maxlength="10" required>
+                            </div>
+                        </div>
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Position<sup>*</sup></label>
                             <div class="col-sm-7 show-message">
@@ -427,9 +340,38 @@
                                 <button tabindex="13" ng-click="positionPopUp();" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-search"></i></button>
                             </div>
                         </div>
-                    </div>
+                        <div class="form-group" id="" show-errors>
+                            <label class="col-sm-4 control-label">Caption<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Caption" ng-model="modelNewM.Caption" class="form-control" maxlength="100">
+                            </div>
+                            @*<span class="input-group-btn">
+                                    <button ng-click="GetCOAICodeList();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>*@
+                        </div>
+                        <div class="form-group" id="" show-errors>
+                            <label class="col-sm-4 control-label">Active<sup>*</sup></label>
+                            <div class="col-sm-8 show-message ">
 
-                    <div class="col-md-6">
+                                <div class="col-sm-8 show-message ">
+                                    <input type="checkbox" name="Active" ng-model="modelNewM.Active" checked="checked" />
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-6">
+                        <div class="form-group" id="" show-errors>
+                            <label class="col-sm-4 control-label">Entity<sup></sup></label>
+                            <div class="col-sm-8 show-message ">
+                                <div class="select-style">
+                                    <select class="form-control" id="Entity" name="Entity" ng-model="modelNewM.EntityId" ng-options="item.Value as item.Text for item in EntityList" tabindex="9">
+                                        <option value="">---Select---</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group" id="" show-errors>
                             <label class="col-sm-4 control-label">Shift<sup></sup></label>
                             <div class="col-sm-8 show-message ">
@@ -440,133 +382,35 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group" id="" show-errors>
+                            <label class="col-sm-4 control-label">Manpower Budget<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="number" name="Manpower Budget" ng-model="modelNewM.ManpowerBudget" class="form-control" maxlength="10">
+                            </div>
+                        </div>
                     </div>
 
-                    @*<div class="col-md-6">
-            <div class="form-group" id="" show-errors>
-                <label class="col-sm-4 control-label">Line No<sup></sup></label>
-                <div class="col-sm-8 show-message ">
-                    <div class="select-style">
-                        <select class="form-control" id="Line" name="Line" ng-model="modelNewM.LineId" ng-options="item.Value as item.Text for item in LineList" tabindex="9">
-                            <option value="">---Select---</option>
-                        </select>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveManpower();" ng-disabled="modelNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action1}}</button></li>
+                            <li> <button ng-click="valuePassInDelModal();" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> {{Action2}}</button></li>
+                            <li> <button ng-click="Clear1();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
                     </div>
                 </div>
             </div>
-        </div>*@
-                </div>
-                        <div class="col-md-12">
-                            <div class="col-md-6">
-                                <div class="form-group" id="" show-errors>
-                                    <label class="col-sm-4 control-label">Caption<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input type="text" name="Caption" ng-model="modelNewM.Caption" class="form-control" maxlength="100">
-                                    </div>
-                                    @*<span class="input-group-btn">
-                        <button ng-click="GetCOAICodeList();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                    </span>*@
-                                </div>
-                            </div>
+            <div role="tabpanel" class="tab-pane" ng-class="{ 'in':isSet(2), active: isSet(2) }">
 
-                            <div class="col-md-6">
-                                <div class="form-group" id="" show-errors>
-                                    <label class="col-sm-4 control-label">Manpower Budget<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input type="number" name="Manpower Budget" ng-model="modelNewM.ManpowerBudget" class="form-control" maxlength="10">
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div class="col-md-12">
-                            <div class="col-md-6">
-                                <div class="form-group" id="" show-errors>
-                                    <label class="col-sm-4 control-label">Active<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message ">
-
-                                        <div class="col-sm-8 show-message ">
-                                            <input type="checkbox" name="Active" ng-model="modelNewM.Active" checked="checked" />
-
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        @Html.Partial("~/Areas/Organizations/Views/Position/_PositionPopUp.cshtml")
-
-                        <div class="clearfix"></div>
-                        @*<div class="form-group" show-errors id="div_GL">
-            <label class="col-sm-3 control-label">GL<sup>*</sup></label>
-            <div class="col-sm-9 show-message">
-                <div class="input-group">
-                    <div class="select-style">
-                        <select name="Fiscal Year" class="form-control searchableDDL" ng-change="getBudgetMasterCboList(report.GLGeneralInfoId);" ng-model="report.GLGeneralInfoId" required>
-                            <option ng-repeat="option in glList" value="{{option.GLGeneralInfoId}}">{{option.GLGeneralInfoCode}} - {{option.GLGeneralInfoName}}</option>
-                        </select>
-                    </div>
-                    <span class="input-group-btn">
-                        <button ng-click="GetCOAICodeList();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                    </span>
-                </div>
             </div>
-        </div>*@
-                        <div class="col-md-12 text-right" style="padding-top: 17px;">
-                            @*<ul class="common-btn list-inline text-right">
-                <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{modelNew.Id.length>0?'Update':'Save'}}</button></li>
-                <li> <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-            </ul>*@
-                            <ul class="list-inline text-right">
-                                <li> <button ng-click="SaveManpower();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action1}}</button></li>
-                                <li> <button ng-click="valuePassInDelModal();" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> {{Action2}}</button></li>
-                                <li> <button ng-click="Clear1();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                            </ul>
-                        </div>
-</fieldset>
-            </div>
-            <fieldset class="scheduler-border">
-                <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-                <div>
-                    @*<div id='Grid'></div>*@
-                    <div class="content-container-fluid" style="color:black;">
-                        @*e-allowselection="true"*@
-                        <div style="color:black;" id="Grid123" ej-grid e-datasource="GetOperationPositionMp"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                             e-recorddoubleclick="recorddoubleclickMP" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
-                            <div e-columns>
-                                @*<div e-column e-field="UserName" e-headertext="Operation Name" e-width="80"></div>*@
-                                <div e-column e-field="Entity" e-headertext="Entity" e-width="50"></div>
-                                <div e-column e-field="Position" e-headertext="Position" e-width="80"></div>
-                                <div e-column e-field="Shiftname" e-headertext="Shift" e-width="80"></div>
-                                <div e-column e-field="Caption" e-headertext="Caption" e-width="50"></div>
-                                <div e-column e-field="ManpowerBudget" e-headertext="Manpower Budget" e-width="20"></div>
-
-                                @*<div e-column e-field="Remarks" e-headertext="Remarks" e-width="50"></div>*@
-                                @*<div e-column e-field="Active" e-headertext="Active" e-width="50"></div>*@
-
-
-                                @*<div e-column e-headertext="Print" e-commands="command" e-isunbound=true e-textalign="center" e-width="50"></div>*@
-
-
-                            </div>
-
-                        </div>
-
-                    </div>
-                </div>
-            </fieldset>
-
         </div>
-
     </div>
+
 </div>
+
 
 <div class="clearfix"></div>
 
-
+@Html.Partial("~/Areas/Organizations/Views/Position/_PositionPopUp.cshtml")
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteManpower();"></confirm-archive-generic>
 

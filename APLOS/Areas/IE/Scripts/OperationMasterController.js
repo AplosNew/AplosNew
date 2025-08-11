@@ -1,7 +1,7 @@
 ﻿'use strict';
 OperationMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function OperationMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Skill Operation Master';
+    $rootScope.title = 'Skill Master';
     $scope.Action = 'Save';
     $scope.Action1 = 'Save';
     $scope.Action2 = 'Delete';
@@ -44,7 +44,8 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         ProcessId: null,
         ProposedSalary: null,
         Remarks: null,
-        Active: null
+        Active: null,
+        DesignationGroupId:null
     };
     $scope.modelNew = Object.assign({}, $scope.model);
 
@@ -66,6 +67,17 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
     $(".searchableDDL").select2();
     $scope.modelNewM.Active = true;
     $scope.modelNew.Active = true;
+
+    $scope.designationGroupList = [];
+    $scope.GetDesignationGroupCbo = function () {
+        $http({
+            method: 'GET',
+            url: 'IE/OperationMaster/GetDesignationGroupCbo'
+        }).then(function successCallback(response) {
+            $scope.designationGroupList = response.data;
+        });
+    };
+    $scope.GetDesignationGroupCbo();
 
 
     // #region GET Display DTA ON GRID
@@ -91,7 +103,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
             method: "GET",
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
-            url: 'IE/OperationMaster/GetOperationPositionMPBudget?id=' + $scope.modelNew.OperationMasterIdID,
+            url: 'IE/OperationMaster/GetOperationPositionMPBudget?id=' + $scope.modelNew.OperationMasterId,
         }).then(function successCallback(response) {
             $scope.GetOperationPositionMp = response.data;
             //entrydata = copy(searchdata);
@@ -101,8 +113,6 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
 
 
     //#endregion
-
-
 
     // #region Bind Data on DropdownList 
 
@@ -252,12 +262,11 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         //debugger;
         $http({
             method: 'GET',
-            url: 'IE/OperationMaster/GetCbolegalDesignation'
+            url: 'IE/OperationMaster/GetCbolegalDesignation?designationGroupId=' + $scope.modelNew.DesignationGroupId
         }).then(function successCallback(response) {
             $scope.legalDesignationList = response.data;
         });
     }
-    $scope.GetCbolegalDesignation();
 
 
     $scope.GetCboProcess = function () {
@@ -274,7 +283,6 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
 
 
     //#endregion
-
 
     // #region For AutoSequenceNo
     $scope.GeneratSequenceNo = function () {
@@ -295,7 +303,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         //debugger;
         $http({
             method: 'GET',
-            url: 'IE/OperationMaster/GetAutoSequenceForManPower?OMId=' + $scope.modelNew.OperationMasterIdID
+            url: 'IE/OperationMaster/GetAutoSequenceForManPower?OMId=' + $scope.modelNew.OperationMasterId
         }).then(function successCallback(response) {
             $scope.modelNewM.Sequence = response.data;
         });
@@ -304,8 +312,6 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
 
 
     //#endregion AutoSequenceNo
-
-
 
     // #region Data Save Update and Delete
 
@@ -334,7 +340,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
 
                             $scope.getaldataOperationMaster();
                             //$scope.Clear();
-                            $scope.modelNew.OperationMasterIdID = response.data.Id;
+                            $scope.modelNew.OperationMasterId = response.data.Id;
 
                         }
                     }), function errorCallBack(response) {
@@ -454,22 +460,20 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
 
     //#endregion 
 
-
     $scope.recorddoubleclick = function ($event) {
 
         //debugger;       
         var x = $event;
         $scope.OMId = x.data.Id;
-        $scope.modelNew.OperationMasterIdID = x.data.Id;
+        $scope.modelNew = Object.assign({}, x.data);
+        $scope.modelNew.OperationMasterId = x.data.Id;
         $scope.modelNew.SkillId = x.data.SkillId;
         $scope.GetDataByMasterOrderIdfn($scope.OMId);
         // $scope.GetDataByMasterOrderIdfnMP1($scope.OMId);
         $scope.GetOperationPositionMPBudget();
         $scope.GetAutoSequenceForManPower();
+        $scope.GetCbolegalDesignation();
         $scope.Action = 'Update';
-        // $scope.Action1 = 'Update';
-        //$scope.Action1 = 'Update';   
-        //$scope.modelNewM.PositionId = $('#Position option:selected').val();
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     };
     $scope.recorddoubleclickMP = function ($event) {
@@ -492,7 +496,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         }).then(function successCallback(response) {
 
             $scope.modelNew = response.data[0];
-            $scope.modelNew.OperationMasterIdID = response.data[0].Id;
+            $scope.modelNew.OperationMasterId = response.data[0].Id;
 
         });
     }
@@ -521,6 +525,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
 
         });
     }
+
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -530,32 +535,15 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
+
     $scope.SaveManpower = function () {
-        //debugger;
-        //      for (var i = 0; i < $scope.GetOperationPositionMp.length; i++) {
-        //          if ($scope.GetOperationPositionMp[i].EntityId === $scope.modelNewM.EntityId
-        //              && $scope.GetOperationPositionMp[i].PositionId === $scope.modelNewM.PositionId
-        //              && $scope.GetOperationPositionMp[i].SystemID === $scope.modelNewM.ShiftId) {
-        //              ShowResult('Combination Already Exists', 'failure');
-        //              return false;
-        //	}
-        //}
         angular.copy($scope.modelNewM, $scope.modelM);
-        $scope.modelM.OperationMasterId = $scope.modelNew.OperationMasterIdID;
+        $scope.modelM.OperationMasterId = $scope.modelNew.OperationMasterId;
 
         $scope.$broadcast('show-errors-check-validity');
         try {
             if ($scope.modelNewForm1.$valid) {
                 if ($scope.Action1 === 'Save') {
-                    //if ($scope.modelM.PositionId === null) {
-                    //    ShowResult('Please select Position');
-                    //}
-                    //else if ($scope.modelM.Caption === null) {
-                    //    ShowResult('Please input Caption');
-                    //}
-                    //else if ($scope.modelM.ManpowerBudget === null) {
-                    //    ShowResult('Please input Manpower Budget');
-                    //}
                     $http({
                         method: 'POST',
                         url: $scope.saveUrl1,
@@ -581,15 +569,6 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
                 }
                 else if ($scope.Action1 === 'Update') {
                     $scope.modelM.OperationMasterId = $scope.OperationMasterId;
-                    //if ($scope.modelM.PositionId === null) {
-                    //    ShowResult('Please select Position');
-                    //}
-                    //else if ($scope.modelM.Caption === null) {
-                    //    ShowResult('Please input Caption');
-                    //}
-                    //else if ($scope.modelM.ManpowerBudget === null) {
-                    //    ShowResult('Please input Manpower Budget');
-                    //}
                     $http({
                         method: 'POST',
                         url: $scope.updateUrl1,
@@ -604,7 +583,6 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
                         else {
                             ShowResult(response.data.Message, 'success');
                             $scope.GetOperationPositionMPBudget();
-
                         }
                     }, function errorCallBack(response) {
                         //$scope.getData();
@@ -617,9 +595,6 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
             ShowResult(e, 'failure');
         }
     };
-
-
-
 
     $scope.positionSearchList = [];
     $scope.positionDataList = [];
@@ -695,4 +670,128 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         window.open('IE/OperationMaster/OperationMasterReports?reportFormat=' + reportFormat, '_blank');
     };
 
+   
+
+
+    // #region Material Master
+
+    $scope.materialList = [];
+    $scope.materialParameters = {
+        limit: 10
+        , offset: 0
+        , order: 'asc'
+        , sort: 'MaterialMasterName'
+        , searchBy: "MaterialMasterName"
+        , pageSize: 10
+        , total_count: 0
+        , search: null
+        , serverPagination: true
+    };
+    $scope.materialPopUp = function (index) {
+        $scope.popUpIndex = index;
+        $scope.materialDataList = [];
+        $scope.materialUrl = 'Materials/MaterialMaster/GetCommonMachineListByProcess?processIds=' + baseService.getColumnValueList($scope.sprocessList, 'ProcessId');
+        baseService.setCurrentPage('materialDataList');
+        $scope.getMaterialData = function (pageno) {
+            baseService.paginationBase($scope.materialUrl, pageno, $scope.materialParameters)
+                .then(function (result) {
+                    $scope.materialDataList = result.Rows;
+                    $scope.materialParameters.total_count = result.Total;
+                    if (baseService.arrayLength($scope.materialList) === 0) {
+                        baseService.getDDLSearchColumn(result.Rows, $scope.materialList);
+                    }
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure', 'materialId');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#materialId')).modal('show');
+        $scope.getMaterialData();
+    };
+    $scope.closeMaterial = function () {
+        $scope.popUpIndex = -1;
+        angular.element(document.querySelector('#materialId')).modal('hide');
+    };
+
+    // #endregion MM
+
+    // #region Article
+
+    $scope.articleList = [];
+    $scope.articleParameters = {
+        limit: 10
+        , offset: 0
+        , order: 'asc'
+        , sort: 'StandardName'
+        , searchBy: "StandardName"
+        , pageSize: 10
+        , total_count: 0
+        , search: null
+        , serverPagination: true
+    };
+    $scope.articlePopUp = function (materialMasterId, materialName, materialIndex) {
+        try {
+            var flag = false;
+            if (!baseService.isUndefinedOrNull($scope.operationVariationNew.OperationId)) {
+                //var opProcessIds = $.grep($scope.operationList, function (item) { return item.Value === $scope.operationVariationNew.OperationId; })[0].ProsessIds;
+                var opProcessIds = $.grep($scope.operationList, function (item) { return item.Id === $scope.operationVariationNew.OperationId; })[0].ProsessIds;
+
+            } else {
+                throw "Select Operation.";
+            }
+
+            var prosessIds = $scope.materialDataList[materialIndex].ProsessIds;
+
+            if (!baseService.isUndefinedOrNull(prosessIds) && !baseService.isUndefinedOrNull(opProcessIds)) {
+                var opProcessArray = opProcessIds.split(',');
+                var processAray = prosessIds.split(',');
+                for (var i = 0; i < baseService.arrayLength(processAray); i++) {
+                    if (opProcessArray.indexOf(processAray[i]) !== -1) {
+                        flag = true;
+                        break;
+                    }
+                }
+            }
+            if (!flag) throw 'operation process and machine process not match ';
+            $scope.excluedList = ['SkillName', 'MachineAllowance'];
+            $scope.operationVariationNew.MaterialName = materialName;
+            $scope.articleDataList = [];
+            $scope.articleUrl = 'Machines/operation/GetArticleListByMaterialMaster?materialMasterId=' + materialMasterId;
+            baseService.setCurrentPage('dataList');
+            $scope.getarticleData = function (pageno) {
+                baseService.paginationBase($scope.articleUrl, pageno, $scope.articleParameters)
+                    .then(function (result) {
+                        $scope.articleDataList = result.Rows;
+                        $scope.articleParameters.total_count = result.Total;
+                        if (baseService.arrayLength($scope.articleList) === 0) {
+                            baseService.getDDLSearchColumn(result.Rows, $scope.articleList);
+                        }
+                    }, function () {
+                        ShowResult(commonMessage.NetworkError, 'failure', 'articleId');
+                    }).finally(function () {
+                    });
+            };
+            angular.element(document.querySelector('#articleId')).modal('show');
+            $scope.getarticleData();
+        } catch (e) {
+            ShowResult(e, '', 'materialId');
+        }
+
+    };
+    $scope.selectArticle = function (data) {
+        $scope.operationVariationNew.ArticleId = data.Id;
+        $scope.operationVariationNew.ArticleName = data.StandardName;
+
+        $scope.operationVariationNew.SkillId = data.SkillId;
+        $scope.operationVariationNew.SkillName = data.SkillName;
+        $scope.operationVariationNew.MachineAllowance = data.MachineAllowance;
+        calculateSAM();
+        $scope.closeArticle();
+        $scope.closeMaterial();
+    };
+    $scope.closeArticle = function () {
+        angular.element(document.querySelector('#articleId')).modal('hide');
+    };
+
+    // #endregion Article
 }

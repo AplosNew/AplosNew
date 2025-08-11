@@ -126,10 +126,18 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetCbolegalDesignation()
+        public JsonResult GetCbolegalDesignation(string designationGroupId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_operationMasterService.GetCbolegalDesignation(), JsonRequestBehavior.AllowGet);
+            //return Json(_operationMasterService.GetCbolegalDesignation(), JsonRequestBehavior.AllowGet);
+            string sql = @"Select LD.Id,LD.UserName  FROM MST.DesignationMaster DM
+LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId AND DC.PlantId = '"+identity.PlantId+@"'
+LEFT JOIN [MST].[DesignationMasterLegalDesignation] DMLD ON DMLD.DesignationMasterId=DM.Id
+LEFT JOIN HKP.LegalDesignation LD ON DMLD.LegalDesignationId=LD.Id
+LEFT JOIN HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
+WHERE DM.DesignationGroupId='"+ designationGroupId + "' AND LD.Id<>''";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
         }
 
         [Authorize, HttpGet]
@@ -161,13 +169,25 @@ namespace Aplos.Areas.IE.Controllers
         }
 
 
-
+        [HttpGet, Authorize]
+        public ActionResult GetDesignationGroupCbo()
+        {
+            try
+            {
+                string sql = @"Select Id,UserName from HKP.DesignationGroup Where Active=1";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         #endregion
 
 
         #region Grid data for Operation Master UI
-         [Authorize,  HttpGet]
+        [Authorize,  HttpGet]
         public JsonResult GetOperationMaster()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
