@@ -4813,10 +4813,8 @@ UNION ALL
         [HttpPost, Authorize]
         public JsonResult GetPOBOQItemForGRN(string POId, string ContractId, string masterOrderitemId, string SalesOrderId, string MaterialMasterId, string ArticleId)
         {
-
             BOQQueryService bOQQueryService = new BOQQueryService(_sqlRepository);
             return Json(bOQQueryService.GetPOBOQItemForGRN(POId, ContractId, masterOrderitemId, SalesOrderId, MaterialMasterId, ArticleId), JsonRequestBehavior.AllowGet);
-
         }
 
         [HttpPost]
