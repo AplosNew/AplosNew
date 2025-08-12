@@ -549,6 +549,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.ExchangeDisplayExchangeRates($scope.fileNew.Id, $scope.fileNew.CurrencyId);//reloading currency exchange rates
         $scope.GetPaymentTermChangeable();
         $scope.GetPackingDetail();
+        if (baseService.isUndefinedOrNull($scope.fileNew.MatureDate)) {
+            $scope.getMatureDate($scope.fileNew.BaseOnDueDate, $scope.fileNew.PaymentTermDays);
+        }
         //$scope.GetContractByMasterOrder();
     };
 
@@ -2213,7 +2216,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 'masterItemId': $scope.masterItemId
                 , 'salesOrderMaster': $scope.soModel
                 , 'taxCategoryList': $scope.taxList
-                 , 'masterorder': $scope.fileNew
+                , 'masterorder': $scope.fileNew
             }
             , dataType: 'JSON'
         }).then(function successCallback(response) {

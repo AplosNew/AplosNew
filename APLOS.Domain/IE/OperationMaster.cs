@@ -6,58 +6,25 @@ namespace Library.Model.IE
     public class OperationMaster : BaseModel 
     {
         #region Scalar Properties
-
-        
         public string Id { get; set; }
-
         public string CompanyGroupID { get; set; }
-        /// <summary>
-        /// This is used for Is delete active or not.
-        /// </summary>
-       
         public decimal Sequence { get; set; }
-
-        /// <summary>
-        /// This is Item Code.
-        /// </summary>
         public string Code { get; set; }
-
-        /// <summary>
-        /// This is Short Name.
-        /// </summary>
         public string ShortName { get; set; }
-
-        /// <summary>
-        /// This is Standard Name.
-        /// </summary>
         public string StandardName { get; set; }
-
-        /// <summary>
-        /// This is User Name.
-        /// </summary>
         public string UserName { get; set; }
-
         public string OperationActivityId { get; set; }
         public string OperationTypeId { get; set; }
         public string OperationCategoryId { get; set; }
         public string Skillid { get; set; }
-
-
-
+        public string DesignationGroupId { get; set; }
         public string Type { get; set; }
-
-        public string MachineMasterId { get; set; }
-        
+        public string MachineMasterId { get; set; }        
         public string SkillGroupId { get; set; }
-
         public string LegalDesignationId { get; set; }
         public string ProcessId { get; set; }
-
-
         public decimal ProposedSalary { get; set; }
         public string Remarks { get; set; }
-
-
         public bool Active { get; set; }
 
         #endregion Scalar Properties

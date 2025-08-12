@@ -15,10 +15,8 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
         , CompanyGroupId: null
         , ArticleId: null
         , ArticleName: null
-
         , SkillId: null
         , SkillName: null
-
         , SAM: 0
         , SubOperationSAM: 0
         , AdditionalSAM: 0
@@ -27,7 +25,6 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
         , MachineAllowance: 0
         , AdditionalAllowance: 0
         , SPI: 0
-
         , Code: null
         , ShortName: null
         , StandardTime: null
@@ -36,7 +33,6 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
         , Description: null
         , Active: true
         , isSpecialOperation: false
-
         , BasicProcessTime: 0
         , AssociateProcessTime: 0
         , PersonalAllowance: 0
