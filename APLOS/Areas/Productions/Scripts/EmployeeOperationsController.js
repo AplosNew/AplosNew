@@ -358,8 +358,12 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         } 
 
         $scope.NewList = [];
-
-        $scope.NewList.push(data);
+        for (var j = 0; j < $scope.ModelList.length; j++) {
+            if ($scope.ModelList[j].Sequence == data.Sequence) {
+                $scope.NewList.push($scope.ModelList[j]);
+            }
+        }
+        
         $scope.ModelList = $scope.PrevAllList;
 
         $http({

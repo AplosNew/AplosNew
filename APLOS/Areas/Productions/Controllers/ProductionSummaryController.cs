@@ -21,6 +21,7 @@ using System.Linq;
 using Library.Model.Enums;
 using System.Drawing;
 using Library.Service.Systems;
+//using Microsoft.Office.Interop.Excel
 
 #endregion
 
@@ -2263,20 +2264,20 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
 
                 IPivotField field = pivotTable.Fields[colActualQty - 1];
-                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
                 pivotTable.DataFields.Add(field, "ActualQty", PivotSubtotalTypes.Sum);
 
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
-                    if (i == colProcess - 1 || i == colEntity - 1 || i == colActualDate - 1)
+                    if (i == colProcess - 1|| i == colEntity - 1 || i == colActualDate - 1)
                         pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
                 }
 
-                pivotTable.ShowRowGrand = false;
-                pivotTable.ShowDrillIndicators = false;
-                pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
-                pivotTable.Options.NullString = "";
-                pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium20;
+                //pivotTable.ShowRowGrand = false;
+                //pivotTable.ShowDrillIndicators = false;
+                //pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
+                //pivotTable.Options.NullString = "";
+                //pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium20;
 
                 sheet = workbook.Worksheets[0];
                 reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Poduction Order Process Wise Report", identity.CompanyId, identity.CompanyName, "");
