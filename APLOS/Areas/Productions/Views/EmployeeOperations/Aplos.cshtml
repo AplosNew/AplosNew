@@ -169,7 +169,7 @@
 
                         @*<li> <button ng-click="checkWIP();" class="btn" tabindex="9"><i class="glyphicon glyphicon-check"></i> Check WIP </button></li>*@
 
-                        <li> <button ng-click="saveData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Save </button></li>
+                        <li> <button ng-click="saveData();" class="btn" ng-disabled="isSaveBtnDisable" tabindex="9"><i class="glyphicon glyphicon-download"></i> Save </button></li>
                         @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                 <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
                     </ul>
