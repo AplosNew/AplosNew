@@ -311,7 +311,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
        
     //}
 
-
+    $scope.isSaveBtnDisable = false;
     //Saving of the Data
     $scope.saveData = function () {
 
@@ -351,6 +351,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         });
     }
     $scope.saveRowItemData = function (data) {
+        $scope.isSaveBtnDisable = true;
         for (var i = 0; i < $scope.ModelList.length; i++) {
             if ($scope.ModelList[i].Sequence == data.Sequence + 1) {
                 var NextoperationVariationId = $scope.ModelList[i].OperationId;
