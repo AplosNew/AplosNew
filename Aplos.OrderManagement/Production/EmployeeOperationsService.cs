@@ -599,7 +599,7 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
                     dr["UpdatedFromIP"] = identity.IPAddress;
                     dsMaster.Tables[0].Rows.Add(dr);
                     _OperationVariationId=data[i]["OperationId"].ToString();
-                    _tempQty= clsStaticInfo.dbl(data[i]["Qty"].ToString());
+                    _tempQty+= clsStaticInfo.dbl(data[i]["Qty"].ToString());
                 }
                 #endregion Detail
 
@@ -657,7 +657,12 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
                     else
                     {
                         dsSum.Tables[0].Rows[i].BeginEdit();
-                        if (dsSum.Tables[0].Rows[i]["OperationVariationId"].ToString()== NxtOPVariationId)
+                        if (dsSum.Tables[0].Rows[i]["OperationVariationId"].ToString()== _OperationVariationId)
+                        {
+                            dsSum.Tables[0].Rows[i]["WIP"] =  clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["WIP"].ToString())-_tempQty ;
+
+                        }
+                        else if (dsSum.Tables[0].Rows[i]["OperationVariationId"].ToString() == NxtOPVariationId)
                         {
                             dsSum.Tables[0].Rows[i]["WIP"] = _tempQty + clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["WIP"].ToString());
 
