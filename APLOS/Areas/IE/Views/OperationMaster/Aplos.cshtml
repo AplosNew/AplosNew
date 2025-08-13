@@ -45,7 +45,7 @@
                     <div e-columns>
                         <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
                         <div e-column e-field="UserName" e-headertext="Operation Name" e-width="80"></div>
-                        <div e-column e-field="OperationActivity" e-headertext="OperationActivity" e-width="50"></div>
+                        @*<div e-column e-field="OperationActivity" e-headertext="OperationActivity" e-width="50"></div>*@
                         @*<div e-column e-field="OperationType" e-headertext="OperationType" e-width="80"></div>
                             <div e-column e-field="OperationCategory" e-headertext="OperationCategory" e-width="80"></div>*@
                         <div e-column e-field="Type" e-headertext="Type" e-width="80"></div>
@@ -118,15 +118,15 @@
                 </div>
 
                 <div class="col-md-4">
-                    <div class="form-group" id="" show-errors>
-                        <label class="col-sm-4 control-label">Operation Activity<sup>*</sup></label>
+                    <div class="form-group">
+                        @*<label class="col-sm-4 control-label">Operation Activity<sup>*</sup></label>
                         <div class="col-sm-8 show-message ">
                             <div class="select-style">
                                 <select class="form-control" id="currency" name="Operation Activity" ng-model="modelNew.OperationActivityId" ng-options="item.Value as item.Text for item in OperationActivityList" tabindex="1" required>
                                     <option value="">---Select---</option>
                                 </select>
                             </div>
-                        </div>
+                        </div>*@
                     </div>
                 </div>
             </div>
