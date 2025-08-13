@@ -168,7 +168,7 @@ namespace Library.OrderManagement.Production
                 for (var i = 0; i < dtTrial.Rows.Count; i++)
                 {
                     da = dsMaster.Tables[0].NewRow();
-                    string id = "" + dtTrial.Rows[i]["EntityId"].ToString() + "" + i;
+                    string id = "" + dtTrial.Rows[i]["EntityId"].ToString() + "-" + i;
                     dtTrial.Rows[i]["Id"] = id;
 
                     da["Id"] = dtTrial.Rows[i]["Id"];
