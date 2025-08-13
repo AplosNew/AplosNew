@@ -3,18 +3,18 @@
 <div class="form-horizontal" ng-form="operationVariationNewForm">
     <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl">
         @*<div class="form-group" show-errors>
-            <label class="col-sm-2 control-label">Operation<sup>*</sup></label>
-            <div class="col-sm-4 show-message">
-                <div class="select-style">
-                    <select class="form-control" submit-required="true" ng-model="operationVariationNew.OperationId"
-                            ng-change="getDataList();GetSequence();getAttributeList();" ng-options="item.Value as item.Text for item in operationList"
-                            name="Operation Step" required tabindex="1">
-                        <option value=""></option>
-                    </select>
+                <label class="col-sm-2 control-label">Operation<sup>*</sup></label>
+                <div class="col-sm-4 show-message">
+                    <div class="select-style">
+                        <select class="form-control" submit-required="true" ng-model="operationVariationNew.OperationId"
+                                ng-change="getDataList();GetSequence();getAttributeList();" ng-options="item.Value as item.Text for item in operationList"
+                                name="Operation Step" required tabindex="1">
+                            <option value=""></option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <label class="col-sm-4 control-label" style="color:blue">{{msg}}</label>
-        </div>*@
+                <label class="col-sm-4 control-label" style="color:blue">{{msg}}</label>
+            </div>*@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Operation<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -52,8 +52,6 @@
                                 <input type="number" name="Sequence" ng-model="operationVariationNew.Sequence" class="form-control" required placeholder="0" tabindex="2">
                             </div>
                         </div>
-
-
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -83,6 +81,9 @@
                                 </div>
                             </div>
                         </div>
+
+                        
+
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group" show-errors>
@@ -133,7 +134,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                     </div>
                 </div>
             </div>
