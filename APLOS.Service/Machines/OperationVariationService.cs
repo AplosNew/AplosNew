@@ -86,7 +86,7 @@ namespace Library.Service.Machines
                 parameters.CmdText = @"SELECT OS.*, ISNULL(OP.BasicProcessTime, 0) AS BasicProcessTime, ISNULL(OP.AssociateProcessTime, 0) AS AssociateProcessTime
                                             , ISNULL(OP.PersonalAllowance, 0) AS PersonalAllowance
                                             , OP.OperationLength, OP.IsMachineRequired
-	                                        , ART.StandardName AS ArticleName, SK.UserName AS SkillName,MM.UserName MaterialName,OM.Code OperationMasterCode
+	                                        , ART.StandardName AS ArticleName,MM.UserName MaterialName,OM.UserName SkillName
                                            ,OP.Code OperationCode,OP.UserName OperationName
                             FROM [MST].[OperationVariation] AS OS
                             JOIN [MST].[Operation] AS OP ON OP.Id = OS.OperationId
@@ -94,7 +94,7 @@ namespace Library.Service.Machines
                             LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON OS.ArticleId = ART.Id
                             LEFT JOIN [MST].[MaterialMaster] AS MM ON MM.Id=ART.MaterialMasterId
                             LEFT JOIN [MST].[OperationMaster]  OM ON OM.Id=OS.OperationMasterId
-                            JOIN [HKP].[Skill] AS SK ON OP.SkillId = SK.Id
+                            --JOIN [HKP].[Skill] AS SK ON OP.SkillId = SK.Id
                             WHERE OS.CompanyGroupId='" + groupId + "'AND OS.OperationId='" + operationId + "'";
                 return _sqlRepository.GetGridData(parameters);
             }

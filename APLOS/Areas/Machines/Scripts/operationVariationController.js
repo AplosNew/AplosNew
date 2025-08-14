@@ -970,7 +970,7 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
         var gridObj = $("#Grid").data("ejGrid");
         $scope.data = gridObj.getSelectedRecords()[0];
         $scope.operationVariationNew.OperationMasterId = $scope.data.Id;
-        $scope.operationVariationNew.OperationMasterCode = $scope.data.Code;
+        $scope.operationVariationNew.SkillName = $scope.data.UserName;
         angular.element(document.querySelector('#OperationPopUp')).modal('hide');
         $scope.Operation = null;
     }

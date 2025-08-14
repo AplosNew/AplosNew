@@ -149,7 +149,7 @@ namespace Library.Service.WorkCenters
 								, m.ResponsiblePersonId, RES.EmployeeName AS ResponsiblePersonName
 								, m.MentorId, MNT.EmployeeName AS MentorName, m.BuyerId
                                 , m.AccountHolder, AH.EmployeeName AS AccountHolderName
-                                , m.AccountInCharge, AC.EmployeeName AS AccountInChargeName,M.GroupingData,M.Active,M.OperationBulletinId,BT.BulletinName OperationBulletin
+                                , m.AccountInCharge, AC.EmployeeName AS AccountInChargeName,M.GroupingData,M.Active,M.OperationBulletinId,BT.AlternativeName OperationBulletin
                             FROM [SCS].[WorkCenterMaster] m
                             LEFT JOIN [HKP].[WorkCenterCategory] c ON c.Id = m.WorkCenterCategoryId
                             LEFT JOIN [HKP].[WorkCenterSubCategory] sc ON sc.Id = m.WorkCenterSubCategoryId

@@ -95,7 +95,7 @@
                         </div>
                         <div class="form-group">
                             <label class="col-sm-8 control-label">Is Additional Info Applicable</label>
-                            <div class="col-sm-2" style="padding-top: 8px;margin-left:-125px;">
+                            <div class="col-sm-4" style="padding-top: 8px;margin-left:-125px;">
                                 <div class="checkbox-site">
                                     <label>
                                         <input type="checkbox" ng-model="salesVM.IsAdditionalInfoApplicable" tabindex="8">
@@ -103,6 +103,7 @@
                                     </label>
                                 </div>
                             </div>
+                           
                         </div>
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Trancastion Type<sup>*</sup></label>
@@ -154,9 +155,15 @@
                                 <input type="text" ng-maxlength="50" name="BL Number" ng-model="salesVM.BLNumber" class="form-control" tabindex="4" capitalize autocomplete="off">
                             </div>
                             <label class="col-sm-2 control-label" style="margin-left: -30px;" title="BL Date">BL Dt</label>
-                            <div class="col-sm-4" style="margin-left: -12px;width: 42%;">
+                            <div class="col-sm-4" style="width: 37%;">
                                 <input type="text" name="BL Date" ng-model="salesVM.BLDate" datepicker class="form-control">
                                 @*<input type="text" class="form-control" ej-numerictextbox e-decimalplaces="0" ej-disabled="true" e-enablertl="false" e-value="model.Amount" e-width="100%" />*@
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" tilte="Export Promotion Capital Goods No">EPCG No</label>
+                            <div class="col-sm-8" style="width: 60%;">
+                                <input type="text" ng-maxlength="50" name="EPCGNumber" ng-model="salesVM.EPCGNumber" class="form-control" tabindex="4" autocomplete="off">
                             </div>
                         </div>
                         <div class="form-group">

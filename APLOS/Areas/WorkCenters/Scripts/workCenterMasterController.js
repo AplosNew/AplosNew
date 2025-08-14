@@ -102,14 +102,13 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
     }
 
     $scope.CloseOperationBulletinPopup = function () {
-
         var eDialog = $("#BulletinPoUp").data("ejDialog");
         eDialog.close();
     }
 
     $scope.SetOperationBulletinData = function (args) {
         $scope.mastermodal.OperationBulletinId = args.data.Id;
-        $scope.mastermodal.OperationBulletin = args.data.BulletinName;
+        $scope.mastermodal.OperationBulletin = args.data.AlternativeName;
         $scope.CloseOperationBulletinPopup();
     }
 
@@ -1636,9 +1635,9 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
         Remarks: null,
         Active: true,
         MachineAppicable: false,
-        MachineName:null,
+        MachineName: null,
         ArticleId: null,
-        SkillLevel:null
+        SkillLevel: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -1655,7 +1654,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
             url: 'WorkCenters/WorkCenterMaster/GetWCSkill?WorkCenterMasterId=' + $scope.masterId
         }).then(function successCallback(response) {
             $scope.WCSList = response.data;
-           
+            $scope.GetSBList();
         });
     }
 
@@ -1711,7 +1710,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
     };
     $scope.articlePopUp = function () {
         try {
-           
+
             $scope.articleDataList = [];
             $scope.articleUrl = 'WorkCenters/WorkCenterMaster/GetMachine';
             baseService.setCurrentPage('dataList');
@@ -1750,11 +1749,11 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
     $scope.SaveWCS = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
-            $scope.ModelNew.WorkCenterMasterId= $scope.masterId;
+            $scope.ModelNew.WorkCenterMasterId = $scope.masterId;
             $http({
                 method: 'POST',
                 url: 'WorkCenters/WorkCenterMaster/CreateWCSkill',
-                data: { 'data': $scope.ModelNew, 'WorkCenterMasterId': $scope.ModelNew.WorkCenterMasterId},
+                data: { 'data': $scope.ModelNew, 'WorkCenterMasterId': $scope.ModelNew.WorkCenterMasterId },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -1783,5 +1782,102 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
     }
+
+    $scope.SBModel = {
+        Id:null,
+        WorkCenterMasterId: null,
+        SkillMasterId: null,
+        RequiredManPower: 0,
+        AllotedManpower: 0,
+        Remarks:null
+    }
+    $scope.SBModelNew = Object.assign({}, $scope.SBModel);
+
+
+    $scope.OperationMasterList = [];
+    $scope.showOperationPopUp = function () {
+        $scope.OperationMasterList = [];
+        $scope.Operation = "Operation Master";
+        $http.get('employees/EmployeeInformation/GetOperationMaster')
+            .then(function (response) {
+                $scope.OperationMasterList = response.data;
+            });
+
+        angular.element(document.querySelector('#OperationPopUp')).modal('show');
+    };
+
+    $scope.SetOperation = function (args) {
+        var gridObj = $("#GridOP").data("ejGrid");
+        $scope.data = gridObj.getSelectedRecords()[0];
+        $scope.SBModelNew.SkillMasterId = $scope.data.Id;
+        $scope.SBModelNew.SkillName = $scope.data.UserName;
+        angular.element(document.querySelector('#OperationPopUp')).modal('hide');
+    }
+
+
+    $scope.SaveSB = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.SBModelNewForm.$valid) {
+            $scope.SBModelNew.WorkCenterMasterId = $scope.masterId;
+            $http({
+                method: 'POST',
+                url: 'WorkCenters/WorkCenterMaster/CreateSB',
+                data: { 'data': $scope.SBModelNew, 'WorkCenterMasterId': $scope.masterId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearSBFields();
+                    $scope.GetSBList();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.SBList = [];
+    $scope.GetSBList = function () {
+        $http({
+            method: 'GET',
+            url: 'WorkCenters/WorkCenterMaster/GetWCSkillBudget?WorkCenterMasterId=' + $scope.masterId
+        }).then(function successCallback(response) {
+            $scope.SBList = response.data;
+
+        });
+    }
+
+    $scope.GetSB = function (args) {
+        $scope.SBModelNew = Object.assign({}, args.data);
+        $scope.SBAction = 'Update';
+    };
+
+    $scope.ClearSB = function () {
+        ClearSBFields();
+        return true;
+    };
+    $scope.SBAction = 'Save';
+    function ClearSBFields() {
+        $scope.SBAction = 'Save';
+        $scope.SBModel = {
+            Id: null,
+            WorkCenterMasterId: null,
+            SkillMasterId: null,
+            RequiredManPower: 0,
+            AllotedManpower: 0,
+            Remarks: null
+        }
+        $scope.SBModelNew = Object.assign({}, $scope.SBModel);
+
+    }
+
+
+
+
 
 };

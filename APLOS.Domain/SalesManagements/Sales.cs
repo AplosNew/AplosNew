@@ -42,6 +42,7 @@ namespace Library.Model.SalesManagements
        
         public string CancelStatus { get; set; }
         public string TrancastionTypeId { get; set; }
+        public string EPCGNumber { get; set; }
 
         #endregion Scalar Properties
 
