@@ -3065,6 +3065,7 @@ Where EmpSystemId='" + empId + "'";
         public string Skill { get; set; }
         public string SkillGroup { get; set; }
         public string LegalDesignation { get; set; }
+        public string DesignationGroup { get; set; }
         public string MachineMaster { get; set; }
         public string Process { get; set; }
     }
