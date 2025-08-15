@@ -1881,12 +1881,11 @@ LEFT JOIN HKP.Process P ON P.Id=OM.ProcessId";
                                 vm.SkillGroup = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
                                 vm.DesignationGroup = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
                                 vm.LegalDesignation = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
-                                vm.MachineMaster = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
-                                vm.Process = dsExcel.Tables[0].Rows[i][7].ToString().Trim();
-                                vm.EmpSystemId = dsExcel.Tables[0].Rows[i][8].ToString().Trim();
+                                vm.Process = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.EmpSystemId = dsExcel.Tables[0].Rows[i][7].ToString().Trim();
                                 data.Add(vm);
 
-                            }
+                             }
                         }
                         else
                         {
