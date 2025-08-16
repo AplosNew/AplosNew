@@ -1386,7 +1386,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillName"); int colSkillName = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillGroup"); int colSkillGroup = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillCategory"); int colSkillCategory = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MachineApplicable"); int colMachineApplicable = xlsCol; 
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MachineApplicable"); int colMachineApplicable = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 17.50; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OperationApplicable"); int colOperationApplicable = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19; xlsCol += 1;
@@ -1601,27 +1601,46 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
             }
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public ActionResult SaveEmployeeSkillData(IEnumerable<EmployeeSkill> skillDataList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster;
+            DataSet dsMaster = null;
             string _Id = "";
+            string sql = "";
+            string EmpSystemId = "";
+            foreach (var item in skillDataList)
+            {
+                if (EmpSystemId == "")
+                {
+                    EmpSystemId = item.EmpSystemId;
+                }
+                else
+                {
+                    EmpSystemId += "," + item.EmpSystemId;
+                }
+            }
+
+            objCon = new ConnectionManager.DAL.ConManager("1");
+            sql = "DELETE FROM [dbo].[EmployeeSkill] WHERE EmpSystemId IN(" + EmpSystemId + ")";
+            objCon.BeginTransaction();
+            objCon.executeQuery(sql);
+            objCon.CommitTransaction();
+
+
 
             foreach (var item in skillDataList)
             {
-                string sql = "SELECT * FROM [dbo].[EmployeeSkill] WHERE SkillId='" + item.SkillId + "' AND EmpSystemId='" + item.EmpSystemId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
+                sql = "SELECT * FROM [dbo].[EmployeeSkill] WHERE SkillId='" + item.SkillId + "' AND EmpSystemId='" + item.EmpSystemId + "'";
                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmployeeSkill", out _Id);
 
                     DataRow dr = dsMaster.Tables[0].NewRow();
-                    dr["Id"] = _Id;
+                    dr["Id"] = item.SkillId + item.EmpSystemId;
                     dr["EmpSystemId"] = item.EmpSystemId;
                     dr["SkillId"] = item.SkillId;
                     dr["Remark"] = item.Remark;
@@ -1638,7 +1657,7 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
                     DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
 
                     dr.BeginEdit();
-                    
+
                     dr["EmpSystemId"] = item.EmpSystemId;
                     dr["SkillId"] = item.SkillId;
                     dr["Remark"] = item.Remark;
@@ -1652,6 +1671,7 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
                 OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
                 obj.SaveDataSets(dsMaster);
             }
+
             return Json(new { Message = AplosMessage.Insert });
         }
 
@@ -1726,7 +1746,7 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DesignationGroup"); int colDesignationGroup = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LegalDesignation"); int colLegalDesignation = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Process"); int colProcess = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmpSystemId"); int colEmpSystemId = xlsCol; 
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmpSystemId"); int colEmpSystemId = xlsCol;
 
                 endXlsCol = xlsCol;
 
@@ -1885,7 +1905,7 @@ LEFT JOIN HKP.Process P ON P.Id=OM.ProcessId";
                                 vm.EmpSystemId = dsExcel.Tables[0].Rows[i][7].ToString().Trim();
                                 data.Add(vm);
 
-                             }
+                            }
                         }
                         else
                         {
