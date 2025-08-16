@@ -48,7 +48,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                             Approve.employeename as ApproveBy
                             ,TC.CommentText as Comment, TC.AddedBy as CommentBy,  
                             TC.AddedDate as CommentDate
-                            ,tm.AddedDate AssignedDate,creater.DueDate,AssignMaster.commitmentdate, TM.ClosingDate
+                            ,tm.AddedDate AssignedDate,AssignMaster.DueDate,AssignMaster.commitmentdate, TM.ClosingDate
  
                             from TaskManagerMaster TM
                             left join TaskComments TC on TC.TaskmanagerMasterId = TM.Id
@@ -85,7 +85,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                             )as Crosscheck on Crosscheck.TaskManagerMasterId=TM.ID
 
                             left join (
-                            select ta.ResponsiblePersonId,ta.commitmentdate, ta.TaskManagerMasterId,e.employeename
+                            select ta.DueDate,ta.ResponsiblePersonId,ta.commitmentdate, ta.TaskManagerMasterId,e.employeename
                               from  TaskAudit TA left join employeeinformation e on e.systemid=ta.ResponsiblePersonId
                                where ta.authorizationtype='AssignTo'
                             )as AssignMaster on AssignMaster.TaskManagerMasterId=TM.ID
@@ -108,7 +108,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                             Approve.employeename as ApproveBy
                             ,TC.CommentText as Comment, TC.AddedBy as CommentBy,  
                             TC.AddedDate as CommentDate
-                            ,tm.AddedDate AssignedDate,creater.DueDate,AssignMaster.commitmentdate, TM.ClosingDate
+                            ,tm.AddedDate AssignedDate,AssignMaster.DueDate,AssignMaster.commitmentdate, TM.ClosingDate
  
                             from TaskManagerMaster TM
                             left join TaskComments TC on TC.TaskmanagerMasterId = TM.Id
@@ -145,12 +145,12 @@ namespace Aplos.Areas.TaskManagement.Controllers
                             )as Crosscheck on Crosscheck.TaskManagerMasterId=TM.ID
 
                             left join (
-                            select ta.ResponsiblePersonId,ta.commitmentdate, ta.TaskManagerMasterId,e.employeename
+                            select ta.DueDate,ta.ResponsiblePersonId,ta.commitmentdate, ta.TaskManagerMasterId,e.employeename
                               from  TaskAudit TA left join employeeinformation e on e.systemid=ta.ResponsiblePersonId
                                where ta.authorizationtype='AssignTo'
                             )as AssignMaster on AssignMaster.TaskManagerMasterId=TM.ID
 
-                            where TM.CurrentStatus <> 'Closed' and TM.AddedDate between '"+fromdate+ " 00:00:59' and  '" + todate+ " 12:00:00'";
+                            where TM.CurrentStatus <> 'Closed' and TM.AddedDate between '" + fromdate+ " 00:00:59' and  '" + todate+ " 12:00:00'";
 
 
                     }

@@ -3259,13 +3259,11 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                     ob.ProductionBulletinTemplateMasterId = $scope.BulletinTemplateMasterId ? undefined || null : $scope.ProcessId;
                     ob.Sequence = null;
                     ob.OperationVariationId = $scope.searchdata[i].OperationVariationId;
-                    ob.OperationMasterId = $scope.searchdata[i].OperationMasterId;
-                    ob.OperationMasterCode = $scope.searchdata[i].OperationMasterCode;
+                    ob.SkillMasterId = $scope.searchdata[i].SkillMasterId;
                     ob.OperationGroup = null;
                     ob.MachineVarientId = $scope.searchdata[i].MachineVarientId;
                     ob.MaterialMaster = $scope.searchdata[i].MaterialMaster;
                     ob.MachineName = $scope.searchdata[i].Article;
-                    ob.SkillId = $scope.searchdata[i].SkillId;
                     ob.FGZoneId = null;
                     ob.FGComponentId = null;
                     ob.Symbol = $scope.searchdata[i].AdditionalSAMSymbol;

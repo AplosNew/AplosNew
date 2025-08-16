@@ -108,6 +108,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sql = @"SELECT * FROM (SELECT ei.SystemId AS Id,ei.EmployeeCode,ei.EmployeeName,ei.EmpPicPath,convert(bit,0) as IsConnected,isnull(ei.EmpType,'') AS EmpType,
                             isnull(D.UserName,'') Designation,DEPT.UserName Department
                               FROM EmployeeInformation AS ei 
+                            INNER JOIN MST.ManpowerBudget MB ON MB.Id=EI.BudgetCode
                             INNER JOIN org.Position AS p ON p.Id=MB.PositionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=ei.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON P.DepartmentId=DEPT.Id
@@ -143,7 +144,8 @@ namespace Aplos.Areas.TaskManagement.Controllers
             {
                 sql = @"SELECT * FROM (SELECT ei.SystemId AS Id,ei.EmployeeCode,ei.EmployeeName,ei.EmpPicPath,convert(bit,0) as IsConnected,isnull(ei.EmpType,'') AS EmpType,
                             isnull(D.UserName,'') Designation,DEPT.UserName Department
-                              FROM EmployeeInformation AS ei 
+                            FROM EmployeeInformation AS ei 
+                            INNER JOIN MST.ManpowerBudget MB ON MB.Id=EI.BudgetCode
                             INNER JOIN org.Position AS p ON p.Id=MB.PositionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=ei.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON P.DepartmentId=DEPT.Id
