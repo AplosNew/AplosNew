@@ -4037,7 +4037,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     $scope.SetOperation = function (args) {
         var gridObj = $("#OperationMasterGrid").data("ejGrid");
         $scope.data = gridObj.getSelectedRecords()[0];
-        $scope.modeldata.OperationMasterId = $scope.data.Id;
+        $scope.modeldata.SkillMasterId = $scope.data.Id;
         $scope.modeldata.OperationMasterCode = $scope.data.Code;
         $scope.UpdateOperationMaster();
         angular.element(document.querySelector('#OperationPopUp')).modal('hide');

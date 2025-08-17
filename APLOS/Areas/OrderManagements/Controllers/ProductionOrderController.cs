@@ -2125,21 +2125,21 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                     Process.DefaultView.RowFilter = "ProductionBulletinTemplateMasterId='" + Detail.Rows[i]["Id"].ToString() + "'";
                     for (int K = 0; K < Process.DefaultView.Count; K++)
                     {
-                        GetOperationMasterByOperationVariation(Process.DefaultView[K].Row["OperationVariationId"].ToString(), out DataSet dsOperationMaster);
+                        //GetOperationMasterByOperationVariation(Process.DefaultView[K].Row["OperationVariationId"].ToString(), out DataSet dsOperationMaster);
 
                         DataRow drDetailSKUDestination = ProductionBulletinTemplateDetail.Tables[0].NewRow();
                         CopyRow(Process.DefaultView[K].Row, ref drDetailSKUDestination);
                         drDetailSKUDestination["Id"] = NewId + "-" + (i + 1) + "-" + (K + 1);
                         drDetailSKUDestination["ProductionBulletinTemplateMasterId"] = NewId + "-" + (i + 1);
 
-                        if (string.IsNullOrEmpty(dsOperationMaster.Tables[0].Rows[0]["OperationMasterId"].ToString()))
-                        {
-                            drDetailSKUDestination["OperationMasterId"] = DBNull.Value;
-                        }
-                        else
-                        {
-                            drDetailSKUDestination["OperationMasterId"] = dsOperationMaster.Tables[0].Rows[0]["OperationMasterId"].ToString();
-                        }
+                        //if (string.IsNullOrEmpty(dsOperationMaster.Tables[0].Rows[0]["OperationMasterId"].ToString()))
+                        //{
+                        //    drDetailSKUDestination["OperationMasterId"] = DBNull.Value;
+                        //}
+                        //else
+                        //{
+                        //    drDetailSKUDestination["OperationMasterId"] = dsOperationMaster.Tables[0].Rows[0]["OperationMasterId"].ToString();
+                        //}
 
                         ProductionBulletinTemplateDetail.Tables[0].Rows.Add(drDetailSKUDestination);
                     }
@@ -2196,7 +2196,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
             {
                 var dblist = _bulletinDetailRepository.Find(entity.Id);
 
-                dblist.OperationMasterId = entity.OperationMasterId;
+                dblist.SkillMasterId = entity.SkillMasterId;
 
                 AuditService.UpdatedLog(dblist);
                 _bulletinDetailRepository.Update(dblist);
