@@ -478,7 +478,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
         {
             try
             {
-                //parameters.sort = "CAST(AddedDate AS datetime)";
+                parameters.sort = "CAST(AddedDate AS datetime)";
                 //parameters.sort = "TAB.AddedDate,TAB.InvoiceNo";
                 parameters.CmdText = @"SELECT S.Id,S.Id AS SalesId, S.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, S.CurrencyId,CO.BaseCurrencyId, C.Code AS CurrencyCode, S.DocRefNo, ISNULL(SM.Amount,0) + ISNULL(SS.Amount,0) AS Amount,
 									 Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') InvoiceDate,

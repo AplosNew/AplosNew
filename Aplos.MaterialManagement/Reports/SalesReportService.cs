@@ -9027,7 +9027,7 @@ AND PSI.Id=(SELECT TOP 1 Id FROM dbo.PostSalesInvoice MR WHERE MR.SalesId=PSI.Sa
                     FOR XML path('')
                         ,TYPE
                     ).value('.', 'VARCHAR(MAX)'), 1, 1, ''), '&amp;', '&'), 'amp;', '')
-,MO.BuyerReferenceNo,BB.IFSCCode,ISNULL(E.VATResistrationNo,Cmp.VATResistrationNo)VATResistrationNo		
+,MO.BuyerReferenceNo,BB.IFSCCode,ISNULL(E.VATResistrationNo,Cmp.VATResistrationNo)VATResistrationNo,IR.EPCGNumber		
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
