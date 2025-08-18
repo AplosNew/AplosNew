@@ -1885,6 +1885,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             }
 
         }
+       
 
         public string ProcessWiseOrderReport(string fromDate, string toDate, string SheetName, string EntityId, string ProcessId)
         {
@@ -1902,7 +1903,6 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
-                application.DefaultVersion = ExcelVersion.Excel2013;
                 workbook = application.Workbooks.Create(2);
                 workbook.Worksheets[1].Name = "Data";
                 sheet = workbook.Worksheets[1];
@@ -1939,10 +1939,6 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 sheet[ROW, COL].Text = "WorkCenter";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int colWorkCenter = COL;
-                COL++;
-                sheet[ROW, COL].Text = "LotNumber";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int colLotNumber = COL;
                 COL++;
                 sheet[ROW, COL].Text = "ActualDate";
                 sheet[ROW, COL].ColumnWidth = 12;
@@ -2015,10 +2011,6 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 sheet[ROW, COL].Text = "SalesOrderIdBooking";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colSalesOrderIdBooking = COL;
-                COL++;
-                sheet[ROW, COL].Text = "LineItemReference";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colLineItemReference = COL;
                 COL++;
                 sheet[ROW, COL].Text = "SalesOrderDescBooking";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -2149,7 +2141,6 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                     sheet[ROW, colWorkCenterMasterId].Text = dtOrder.Rows[i]["WorkCenterMasterId"].ToString();
                     sheet[ROW, colProductionOrderID].Text = dtOrder.Rows[i]["ProductionOrderID"].ToString();
                     sheet[ROW, colWorkCenter].Text = dtOrder.Rows[i]["WorkCenter"].ToString();
-                    sheet[ROW, colLotNumber].Text = dtOrder.Rows[i]["LotNumber"].ToString();
                     sheet[ROW, colActualDate].Text = dtOrder.Rows[i]["ActualDate"].ToString();
                     sheet[ROW, colActualQty].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ActualQty"].ToString());
                     sheet[ROW, colActualCM].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ActualCM"].ToString());
@@ -2166,7 +2157,6 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                     sheet[ROW, colCM].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["CM"].ToString());
                     sheet[ROW, colProductionShift].Text = dtOrder.Rows[i]["ProductionShift"].ToString();
                     sheet[ROW, colSalesOrderIdBooking].Text = dtOrder.Rows[i]["SalesOrderIdBooking"].ToString();
-                    sheet[ROW, colLineItemReference].Text = dtOrder.Rows[i]["LineItemReference"].ToString();
                     sheet[ROW, colSalesOrderDescBooking].Text = dtOrder.Rows[i]["SalesOrderDescBooking"].ToString();
                     sheet[ROW, colStandardWorkingHours].Text = dtOrder.Rows[i]["StandardWorkingHours"].ToString();
                     sheet[ROW, colStandardWorkStations].Text = dtOrder.Rows[i]["StandardWorkStations"].ToString();
@@ -2220,7 +2210,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.IsGridLinesVisible = false;
 
-                //  sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
 
 
                 //#endregion ******************Report Header******************
@@ -2251,15 +2241,10 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
                 IWorksheet pivotSheet = workbook.Worksheets[0];
                 IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
-                int cacheIndex = cache.Index;
-                if (cacheIndex >= 0)
-                {
-                    //Your Code Here
-                }
                 IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
 
                 pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colActualDate - 1].Axis = PivotAxisTypes.Column;
 
 
@@ -2269,15 +2254,15 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
-                    if (i == colProcess - 1|| i == colEntity - 1 || i == colActualDate - 1)
+                    if (i == colProcess - 1 || i == colEntity - 1 || i == colActualDate - 1)
                         pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
                 }
 
-                //pivotTable.ShowRowGrand = false;
-                //pivotTable.ShowDrillIndicators = false;
-                //pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
-                //pivotTable.Options.NullString = "";
-                //pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium20;
+                pivotTable.ShowRowGrand = false;
+                pivotTable.ShowDrillIndicators = false;
+                pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
+                pivotTable.Options.NullString = "";
+                pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
 
                 sheet = workbook.Worksheets[0];
                 reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Poduction Order Process Wise Report", identity.CompanyId, identity.CompanyName, "");
@@ -2293,11 +2278,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
 
                 #endregion Buyer Summary
-
                 filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
-
-                //workbook.SaveAs(filePath, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open, ExcelHttpContentType.Excel2010);
-
                 workbook.SaveAs(filePath);
                 workbook.Close();
                 excelEngine.Dispose();
@@ -2309,7 +2290,6 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 throw ex;
             }
         }
-
         public string ItemWiseOrderReport(string fromDate, string toDate, string SheetName, string EntityId, string ProcessId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
