@@ -328,7 +328,7 @@ LEFT JOIN (SELECT
                     LEFT OUTER JOIN trn.ProductionBulletinTemplateDetail AS BMD ON BMD.ProductionBulletinTemplateMasterId=BM.Id
         
                   
-                    JOIN mst.OperationMaster AS om ON om.Id=bmd.OperationMasterId       
+                    JOIN mst.OperationMaster AS om ON om.Id=bmd.SkillMasterId       
                     LEFT OUTER JOIN hkp.Process AS omp ON omp.Id=om.ProcessId      
 
 

@@ -8836,9 +8836,11 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
         {
             try
             {
-                var sql = @"SELECT OM.Id,OM.Code,OM.ShortName,OM.StandardName,OM.UserName,MM.StandardName MachineMaster,S.UserName Skill,0 CycleTime, [check]=CAST (0 AS bit) FROM MST.OperationVariation OM
-                          LEFT JOIN MST.MaterialMasterArticle MM ON MM.Id=OM.ArticleId
-                          LEFT JOIN HKP.Skill S ON S.Id=OM.SkillId
+                var sql = @"SELECT OM.Id,OM.Code,OM.ShortName,OM.StandardName,OM.UserName,MM.StandardName MachineMaster,S.UserName Skill,OPM.UserName SkillMaster,0 CycleTime, 
+[check]=CAST (0 AS bit) FROM MST.OperationVariation OM
+LEFT JOIN MST.MaterialMasterArticle MM ON MM.Id=OM.ArticleId
+LEFT  JOIN MST.OperationMaster OPM ON OPM.Id=OM.OperationMasterId
+LEFT JOIN HKP.Skill S ON S.Id=OM.SkillId
                           WHERE  OM.CompanyGroupId='" + companyGroupId + "' ORDER BY UserName";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
