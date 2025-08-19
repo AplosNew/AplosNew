@@ -66,7 +66,7 @@ function employeeOperationUploadController(commonMessage, $scope, $rootScope, ba
             ShowResult(e, "failure");
         }
     };
-    $scope.SaveEmployeeOperationUploadedData = function () {
+    $scope._SaveEmployeeOperationUploadedData = function () {
 
         try {
             $.ajax({
@@ -78,7 +78,7 @@ function employeeOperationUploadController(commonMessage, $scope, $rootScope, ba
                 dataType: "json",
                 success: function (response) {
                     if (response.Error === true) {
-                        $scope.ShowSaveBtn = true;
+                        $scope.ShowSaveBtn = false;
                         ShowResult(response.Message, 'failure');
                     }
                     else {
@@ -96,6 +96,35 @@ function employeeOperationUploadController(commonMessage, $scope, $rootScope, ba
             $scope.ShowSaveBtn = false;
             ShowResult(e, 'failure');
 
+        }
+    };
+
+    $scope.SaveEmployeeOperationUploadedData = function () {
+        try {
+            $scope.ShowSaveBtn = true;
+            $http({
+                method: 'POST',
+                url: $scope.pathBalanceSheetScheduling + 'SaveEmployeeOperationData',
+                data: { 'operationDataList': $scope.EmployeeOperationUploadedData },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    $scope.ShowSaveBtn = true;
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.EmployeeOperationUploadedData = [];
+                    $("#uploadImage").val(null);
+                    $scope.ShowSaveBtn = false;
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+            $scope.ShowSaveBtn = false;
         }
     };
     //  #endregion EmployeeOperationUploadedData Upload Download

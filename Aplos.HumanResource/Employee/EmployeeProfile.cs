@@ -2258,11 +2258,12 @@ LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
                         if (dsMaster.Tables[0].Rows.Count == 0)
                         {
                             seq++;
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmployeeOperation", out _Id);
+                            //bplib.clsGenID genid = new bplib.clsGenID();
+                            //genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmployeeOperation", out _Id);
 
                             DataRow dr = dsMaster.Tables[0].NewRow();
-                            dr["Id"] = _Id;
+                            dr["Id"] = item.EmpSystemId+"-"+seq;
+                            //dr["Id"] = _Id;
                             dr["Sequence"] = seq;
                             dr["EmpSystemId"] = item.EmpSystemId;
                             dr["OperationMasterId"] = item.OperationMasterId;
@@ -2304,7 +2305,6 @@ LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
 

@@ -3711,15 +3711,14 @@ function employeeInformationController(addressService, fileReader, cboService, c
                     var ob = {};
                     ob.Id = null;
                     ob.EmpSystemId = $scope.employeeInformation.SystemId;
-                    //if ($scope.Operation == "Operation Master") {
-                    //    ob.OperationVariationId = null;
-                    //}
-                    //else {
-                    //    ob.OperationMasterId = null;
-                    //}
-
-                    ob.OperationMasterId = $scope.OperationList[i].OperationMasterId;
-                    ob.OperationVariationId = $scope.OperationList[i].Id;
+                    if ($scope.Operation == "Operation Master") {
+                        ob.OperationMasterId = $scope.OperationList[i].Id;
+                    }
+                    else {
+                        ob.OperationMasterId = $scope.OperationList[i].OperationMasterId;
+                        ob.OperationVariationId = $scope.OperationList[i].Id;
+                    }
+                 
                     ob.Code = $scope.OperationList[i].Code;
                     ob.ShortName = $scope.OperationList[i].ShortName;
                     ob.StandardName = $scope.OperationList[i].StandardName;
