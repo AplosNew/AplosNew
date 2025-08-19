@@ -111,7 +111,7 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.filterComplete = function (args) {
         
         if ($scope.allData != null ) {
-            destroyTabs();
+            //destroyTabs();
         }
         loadLeftGrid();
         var gridObj = $("#filters").data("ejGrid");

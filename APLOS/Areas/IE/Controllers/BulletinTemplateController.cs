@@ -1431,7 +1431,8 @@ namespace Aplos.Areas.IE.Controllers
                 LEFT JOIN HKP.OperationCategory OCategory ON OCategory.Id = BTD.OperationCategoryId
                 LEFT JOIN MST.ProductMaster PM ON PM.Id = BT.ProductMasterId
                 LEFT JOIN HKP.SizeGroup SG ON SG.Id = BT.SizeGroupId
-                LEFT JOIN HKP.Skill S ON S.Id = BTD.SkillId
+                LEFT JOIN mst.OperationMaster AS om ON om.Id=BTD.SkillMasterId 
+                LEFT JOIN HKP.Skill S ON S.Id = OM.SkillId
                 LEFT JOIN MST.MaterialMaster MM ON MM.Id = MMA.MaterialMasterId
                 LEFT JOIN HKP.Attachment ATH ON ATH.Id = BTD.AttachmentId
                 WHERE BT.Id = '" + bulletinTemplateId + "' ORDER BY P.UserName,BTD.Sequence";

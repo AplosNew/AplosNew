@@ -405,8 +405,8 @@ namespace Library.General.IE
                                 CASE WHEN isnull(tc.Id,'')<>'' THEN tc.Qty ELSE
                                 CASE WHEN ISNULL(sc.Id,'')<>'' THEN sc.Qty ELSE
                                 CASE WHEN ISNULL(fc.Id,'')<>'' THEN fc.Qty ELSE so.Qty END END END AS OrderBreakdownQty
-                                ,BPT=(A.TotalSPT/A.AllotedManpower),A.AddedDate,A.AddedBy,A.RequiredStdTarget,A.TotalSPT,A.AllotedManpower, PlanEfficency=(A.RequiredStdTarget/(A.AllotedManpower * 60 / A.TotalSPT)*100)
-                                ,PerManProductivity=A.RequiredStdTarget/A.AllotedManpower,[Target]=(A.AllotedManpower * 60 / A.TotalSPT),A.PlannedHoursPerDay,A.MCTotalSPT,NMCTotalSPT,A.MCTotalMP,NMCTotalMP
+                                ,BPT=(A.TotalSPT/NULLIF(A.AllotedManpower,0)),A.AddedDate,A.AddedBy,A.RequiredStdTarget,A.TotalSPT,A.AllotedManpower, PlanEfficency=(A.RequiredStdTarget/(NULLIF(A.AllotedManpower,0) * 60 / A.TotalSPT)*100)
+                                ,PerManProductivity=A.RequiredStdTarget/NULLIF(A.AllotedManpower,0),[Target]=(A.AllotedManpower * 60 / A.TotalSPT),A.PlannedHoursPerDay,A.MCTotalSPT,NMCTotalSPT,A.MCTotalMP,NMCTotalMP
                                 
                                 FROM trn.SalesOrder AS so
                                 INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
@@ -524,7 +524,8 @@ namespace Library.General.IE
                 LEFT JOIN HKP.OperationCategory OCategory ON OCategory.Id = PBTD.OperationCategoryId
                 LEFT JOIN MST.ProductMaster PM ON PM.Id = PBT.ProductMasterId
                 LEFT JOIN HKP.SizeGroup SG ON SG.Id = PBT.SizeGroupId
-                LEFT JOIN HKP.Skill S ON S.Id = PBTD.SkillId
+                LEFT JOIN mst.OperationMaster AS om ON om.Id=PBTD.SkillMasterId 
+                LEFT JOIN HKP.Skill S ON S.Id = OM.SkillId
                 LEFT JOIN MST.MaterialMaster MM ON MM.Id = MMA.MaterialMasterId
 				LEFT JOIN HKP.Attachment ATH ON ATH.Id = PBTD.AttachmentId
 				where PBT.ProductionOrderId = '" + ProductionOrderId + "'  order by p.UserName,PBTD.Sequence";
