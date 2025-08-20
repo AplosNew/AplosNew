@@ -604,6 +604,7 @@ function loanInterestPayableController(accountService, bankService, cboService, 
         $scope.loanRepaymentSchedulelist = [];
         $("#loanDetails").children().remove();
         $scope.isReadOnly = false;
+
     };
 
     $scope.clearSchedule = function () {
