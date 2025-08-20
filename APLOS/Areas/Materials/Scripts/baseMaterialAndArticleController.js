@@ -448,4 +448,17 @@ function baseMaterialAndArticleController(cboService, commonMessage, $scope, $ro
         angular.element(document.querySelector('#materialarticleNewPopUp')).modal('show');
     }
 
+    $scope.getMaterialMasterWithCbxArticle = function () {
+        $http({
+            method: 'POST',
+            url: 'Materials/MaterialMasterArticle/GetMaterialMasterWithArticlePopUpData?type=' + $scope.materialType,
+            data: { column: $scope.searchByMaterial, value: $scope.search },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.materialArticleList = response.data;
+        });
+        angular.element(document.querySelector('#materialarticleNewCbxPopUp')).modal('show');
+
+    };
+
 }

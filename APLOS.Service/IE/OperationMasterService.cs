@@ -209,7 +209,7 @@ namespace Library.Service.IE
             {
 
                 return from m in _SkillService.Query().Select().OrderBy(r => r.UserName)
-                       select new { Text = m.UserName, Value = m.Id,SkillGroupId=m.SkillGroupId };
+                       select new { Text = m.UserName, Value = m.Id, SkillGroupId = m.SkillGroupId };
             }
             catch (Exception ex)
             {
@@ -225,7 +225,7 @@ namespace Library.Service.IE
             {
                 var sql = @"select SK.id SkillId,SK.UserName from [HKP].[Skill] SK
                             Left Join [MST].[MachineMaster] MM On MM.skillId=Sk.Id 
-                            where MM.Id='"+ Id + "'";
+                            where MM.Id='" + Id + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -358,7 +358,29 @@ namespace Library.Service.IE
             }
         }
 
-
+        public IEnumerable<object> GetSkillMasterMachineData(string masterId)
+        {
+            try
+            {
+                string sql = @"SELECT SM.*,MGP.UserName AS MaterialGroupMasterName,MT.UserName MaterialTypeName,M.Code MaterialCode,M.UserName MaterialMasterName
+, MMA.Code, MMA.StandardName,HSNCode = CASE WHEN HC.Code <> '' THEN ISNULL(HC.Code, NULL) ELSE ISNULL(MHC.Code, NULL) END,M.IsAsset,BPM.BusinessProcessName
+      FROM dbo.SkillMasterMachine SM
+LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id = SM.ArticleId
+LEFT JOIN[MST].[MaterialMaster] M ON M.Id = MMA.MaterialMasterId
+LEFT JOIN[MST].[MaterialGroupMaster] AS MGP ON M.MaterialGroupMasterId = MGP.Id
+LEFT JOIN[HKP].[MaterialType] AS MT ON MGP.MaterialTypeId = MT.Id
+LEFT JOIN[HKP].[HSNCode] HC ON HC.id = MMA.HSNCodeId
+LEFT JOIN[HKP].[HSNCode] MHC ON MHC.id = M.HSNCodeId
+LEFT JOIN(SELECT distinct MBP.MaterialMasterId, BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+JOIN[SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id WHERE BP.BusinessProcessName = 'MachineDefinition') BPM ON BPM.MaterialMasterId = M.Id
+Where SM.SkillMasterId = '" + masterId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         #region Operation Master Reports
 
@@ -385,7 +407,7 @@ namespace Library.Service.IE
             }
         }
 
-        private void CreateOperationMasterReports(ref Syncfusion.XlsIO.IWorksheet  sheet1, ref Syncfusion.XlsIO.IWorksheet sheet2, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId)
+        private void CreateOperationMasterReports(ref Syncfusion.XlsIO.IWorksheet sheet1, ref Syncfusion.XlsIO.IWorksheet sheet2, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId)
         {
             var cmdText = @"
                         SELECT OM.Id
@@ -458,11 +480,11 @@ namespace Library.Service.IE
                 throw new Exception("No Data Found !!!");
 
             var _row = 5;
-           
+
             //_row++;
             var _rowL = _row;
             var row = _row + 1;
-           
+
 
             var sheet1headreColIndex = 1;
             //var sheet2headreColIndex = 1;
@@ -498,17 +520,17 @@ namespace Library.Service.IE
             sheet1headreColIndex++;
             report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Process ");
             sheet1headreColIndex++;
-           
+
             report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Active");
             sheet1headreColIndex++;
-        
+
             report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Entity Name");
             sheet1headreColIndex++;
             report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Position Name");
             sheet1headreColIndex++;
             report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Caption");
             sheet1headreColIndex++;
-         
+
             report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Man power Budget");
             sheet1headreColIndex++;
 

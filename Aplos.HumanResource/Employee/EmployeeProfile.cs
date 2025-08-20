@@ -2231,7 +2231,7 @@ LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
                             LEFT JOIN HKP.Skill S ON S.Id=OM.SkillId
                             LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=OV.ArticleId
                             LEFT JOIN HKP.Skill VS ON VS.Id=OV.SkillId
-                            ORDER BY EO.EmpSystemId,EO.Sequence";
+                            WHERE EO.Archive=0 ORDER BY EO.EmpSystemId,EO.Sequence";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -3092,5 +3092,6 @@ Where EmpSystemId='" + empId + "'";
         public string DesignationGroup { get; set; }
         public string MachineMaster { get; set; }
         public string Process { get; set; }
+        public string Archive { get; set; }
     }
 }

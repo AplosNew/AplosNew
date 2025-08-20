@@ -120,13 +120,13 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         @*<label class="col-sm-4 control-label">Operation Activity<sup>*</sup></label>
-                        <div class="col-sm-8 show-message ">
-                            <div class="select-style">
-                                <select class="form-control" id="currency" name="Operation Activity" ng-model="modelNew.OperationActivityId" ng-options="item.Value as item.Text for item in OperationActivityList" tabindex="1" required>
-                                    <option value="">---Select---</option>
-                                </select>
-                            </div>
-                        </div>*@
+                            <div class="col-sm-8 show-message ">
+                                <div class="select-style">
+                                    <select class="form-control" id="currency" name="Operation Activity" ng-model="modelNew.OperationActivityId" ng-options="item.Value as item.Text for item in OperationActivityList" tabindex="1" required>
+                                        <option value="">---Select---</option>
+                                    </select>
+                                </div>
+                            </div>*@
                     </div>
                 </div>
             </div>
@@ -346,8 +346,8 @@
                                 <input type="text" name="Caption" ng-model="modelNewM.Caption" class="form-control" maxlength="100">
                             </div>
                             @*<span class="input-group-btn">
-                    <button ng-click="GetCOAICodeList();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                </span>*@
+                                    <button ng-click="GetCOAICodeList();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>*@
                         </div>
                         <div class="form-group" id="" show-errors>
                             <label class="col-sm-4 control-label">Active<sup>*</sup></label>
@@ -415,7 +415,40 @@
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-
+                <div ng-form="modelNewFormMC">
+                    @*<div class="col-xs-6 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Machine Master</label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <span class="input-group-btn">
+                            <button ng-click="getArticle();" class="btn single-small-btn" tabindex="21"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li><button ng-click="getArticle();" ng-disabled="modelNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign"></i> Machine Master</button></li>
+                        </ul>
+                    </div>
+                    <div style="color:black;" id="SMACGrid" ej-grid e-datasource="SkillMasterMachineList" e-allowfiltering="true" e-allowpaging="true"
+                         e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
+                         e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
+                        <div e-columns>
+                            <div e-column e-field="MaterialGroupMasterName" e-headertext="M Group" e-width="80" e-filter="false"></div>
+                            <div e-column e-field="MaterialTypeName" e-headertext="MaterialType" e-width="100"></div>
+                            <div e-column e-field="MaterialCode" e-headertext="Material Code" e-width="80" textAlign='Center'></div>
+                            <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="80" textAlign='Center'></div>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                            <div e-column e-field="StandardName" e-headertext="Machine Name" e-width="100"></div>
+                            <div e-column e-field="HSNCode" e-headertext="HSN Code" e-width="60" textAlign='Center'></div>
+                            <div e-column e-field="BusinessProcessName" e-headertext="Business Process" e-width="60"></div>
+                            <div e-column e-field="IsAsset" e-headertext="IsAsset" e-width="60"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -426,6 +459,7 @@
 <div class="clearfix"></div>
 
 @Html.Partial("~/Areas/Organizations/Views/Position/_PositionPopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialArticleNewWithCbxPopUp.cshtml")
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteManpower();"></confirm-archive-generic>
 
