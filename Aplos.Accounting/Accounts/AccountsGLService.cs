@@ -571,6 +571,38 @@ AND BMA.Active=1";
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public IEnumerable<object> GetTaxCodeForSubsequentLoan(DateTime postingDate, string companyId)
+        {
+            try
+            {
+                var sql = @"SELECT DISTINCT TC.Id, TC.UserName AS Text
+                        FROM [MST].[TaxCode] TC
+                        WHERE TC.InvoiceOrPayment='Others'
+						UNION ALL
+						 SELECT DISTINCT TC.Id, TC.UserName  AS Text
+                        FROM [MST].[TaxCodeYear] AS TCY
+                        LEFT JOIN [MST].[TaxCode] AS TC ON TC.Id = TCY.TaxCodeId
+                        LEFT JOIN [MST].[TaxCodeGL] AS TCGL ON TC.Id = TCGL.TaxCodeId
+					    LEFT JOIN [SCS].[TaxYear] AS TY ON TY.Id=TCY.TaxYearId
+						LEFT JOIN [SCS].[TaxYearPeriod] AS TYP ON TYP.TaxYearId=TY.Id
+                        LEFT JOIN [ORG].Company AS CO ON CO.COAId=TCGL.COAId
+                        LEFT JOIN MST.TaxCategory TCA ON TCA.Id=TC.TaxCategoryId
+						LEFT JOIN MST.TaxCodeDetail TCD ON TCD.TaxCodeId=TC.Id AND TCD.TaxCodeYearId=TCY.Id
+                        WHERE TC.InputOrOutput='Input'
+						AND TYP.StartDate <='" + postingDate.ToDbDate() + "' AND TYP.EndDate >='" + postingDate.ToDbDate() + "' AND CO.Id='" + companyId + @"' 
+                         AND TCA.TaxCategoryType='TDS'";
+                var data = _sqlRepository.GetCombo(sql, "Id", "Text");
+                if (null == data)
+                    throw new CustomException(ResourcesCore.FYNotFound);
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
         public IEnumerable<object> GetTaxCodeOutputVATGST(DateTime postingDate, string companyId)
         {
             try

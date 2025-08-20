@@ -156,7 +156,7 @@ function loanInterestPayableController(accountService, bankService, cboService, 
     $scope.getTaxCodeInvoiceTriggeringInstanceOthers = function () {
         $http({
             method: "GET",
-            url: "accounts/TaxCode/GetTaxCodeInvoiceTriggeringInstanceOthers"
+            url: "accounts/TaxCode/GetTaxCodeForSubsequentLoan?postingDate=" + $filter("dateFiltering")(Date.now())
         }).then(function successCallback(response) {
             $scope.taxCodCboList = response.data;
         });
@@ -599,6 +599,7 @@ function loanInterestPayableController(accountService, bankService, cboService, 
         $scope.voucher.TransactionType = "LoanTaken";
         $scope.voucher.SourceType = "LoanInterestPayable";
         $scope.currencyExchangeRate = [];
+        $scope.taxCodDataList = [];
         $scope.getCboVoucherTypeLoanList();
         $scope.loanRepaymentSchedulelist = [];
         $("#loanDetails").children().remove();

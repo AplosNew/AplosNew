@@ -87,6 +87,14 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize, HttpGet]
+        public ActionResult GetTaxCodeForSubsequentLoan(DateTime postingDate)
+        {
+            AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsGLService.GetTaxCodeForSubsequentLoan(postingDate,identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public ActionResult GetTaxCodeOutputVATGST(DateTime postingDate)
         {
             AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);

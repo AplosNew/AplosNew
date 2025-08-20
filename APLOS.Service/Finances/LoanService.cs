@@ -3487,9 +3487,8 @@ namespace Library.Service.Finances
                                 BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
                                 ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                 Amount = invoiceTax.TaxAmount,
-                                AType = "Cr"
+                                AType = "Dr"
                             };
-                            totalwithholdCrAmount += invoiceTaxDetail.Amount;
                             totalVoucherDetailTaxAmount += totalwithholdCrAmount;
                             _invoiceTaxService.InsertInvoiceTaxDetail(invoiceTax, invoiceTaxDetail, 1);
 
@@ -3499,7 +3498,7 @@ namespace Library.Service.Finances
                                 BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                 ActivityId = invoiceTaxDetail.ActivityId,
                                 InvoiceTaxDetailId = invoiceTaxDetail.Id,
-                                CrAmount = invoiceTaxDetail.Amount
+                                DrAmount = invoiceTaxDetail.Amount
                                 //PostingWithoutTaxAllow = voucherDetailDr.PostingWithoutTaxAllow
                             };
                             totalAmountCr += voucherDetailTax.CrAmount;
@@ -3512,10 +3511,11 @@ namespace Library.Service.Finances
                                 ToCurrencyId = companyCurrencyId,
                                 ParallelCurrencyId = companyCurrencyId,
                                 FromCurrencyId = companyCurrencyId,
-                                CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTax.CrAmount,
+                                DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTax.DrAmount,
                                 ToCurrencyConversion = 1 / voucherVM.CompanyCurrencyRate
                             };
-                            totalBaseCurrencyCrAmount += voucherDetailCurrencydb.CrAmount;
+                            totalCurrencyAmountDr += voucherDetailCurrencydb.DrAmount;
+                            totalAmountDr += voucherDetailTax.DrAmount;
                             _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTax, voucherDetailCurrencydb);
                         }
 

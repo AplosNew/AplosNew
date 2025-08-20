@@ -967,7 +967,7 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
                 var str = @"Select distinct ptd.OperationVariationId , pm.ProcessId , ptd.TotalSPT , skc.Id as SkillCatId,  skc.UserName ,pt.ProductionOrderId  from trn.ProductionBulletinTemplateDetail ptd
                                 left join  trn.ProductionBulletinTemplateMaster pm on pm.Id  = ptd.ProductionBulletinTemplateMasterId
                                 left join  trn.ProductionBulletinTemplate pt on pt.Id = pm.ProductionBulletinTemplateId
-								left join hkp.Skill sk on sk.Id = ptd.SkillId
+								left join hkp.Skill sk on sk.Id = ptd.SkillMasterId
                                 left join hkp.SkillCategory skc on skc.Id = sk.SkillCategoryId";
 
 
