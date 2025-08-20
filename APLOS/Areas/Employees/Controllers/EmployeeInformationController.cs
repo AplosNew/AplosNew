@@ -1757,6 +1757,14 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(employeeProfile.GetSavedOperationData(empsystemId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetAllEmployeeOperationData()
+        {
+            var jsondata = Json(employeeProfile.GetAllEmployeeOperationData(), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
         [HttpPost, Authorize]
         public JsonResult SaveOperation(List<EmployeeOperation> data, string EmpSystemId)
         {
