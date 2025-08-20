@@ -13,7 +13,7 @@ namespace Library.Model.IE
         public string OperationCode { get; set; }
         public string OperationGroup { get; set; }
         public string MachineVarientId { get; set; }
-        public string SkillId { get; set; }
+        public string SkillMasterId { get; set; }
         public string FGZoneId { get; set; }
         public string FGComponentId { get; set; }
         public decimal AdditionalSPT { get; set; }

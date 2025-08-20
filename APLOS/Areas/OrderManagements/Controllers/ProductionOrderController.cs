@@ -1043,7 +1043,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
         {
             try
             {
-                string sql = @"SELECT BTD.Id,BTD.ProductionBulletinTemplateMasterId,BTD.Sequence,BTD.OperationVariationId,BTD.OperationGroup,BTD.SkillId,BTD.MachineVarientId,BTD.FGZoneId,BTD.FGComponentId
+                string sql = @"SELECT BTD.Id,BTD.ProductionBulletinTemplateMasterId,BTD.Sequence,BTD.OperationVariationId,BTD.OperationGroup,BTD.SkillMasterId,BTD.MachineVarientId,BTD.FGZoneId,BTD.FGComponentId
                             ,CONVERT(NUMERIC(10,2),BTD.AdditionalSPT) AdditionalSPT, CONVERT(NUMERIC(10,2),BTD.TotalSPT) TotalSPT, CONVERT(NUMERIC(10,2),BTD.AllotedWorkstation) AllotedWorkstation
                             , CONVERT(NUMERIC(10,2),BTD.AllotedManpower) AllotedManpower, BTD.AttachmentId,BTD.GaugeFolderId,BTD.OperationConsumptionId,BTD.OperationTypeId,CONVERT(NUMERIC(10,2),BTD.Frequency) Frequency
                             ,BTD.Remark,BTD.OperationCategoryId,BTD.QualityLevel,CONVERT(NUMERIC(10,2),BTD.AvgAllotedTime) AvgAllotedTime,CONVERT(NUMERIC(10,0),BTD.OperationTargetPerHr) OperationTargetPerHr
@@ -1051,8 +1051,8 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                             ,OV.Code OperationCode, OV.UserName OperationVariation, FZ.UserName FGZone, FC.UserName FGComponent, A.UserName Attachment,
                              GF.UserName GaugeFolder, OC.UserName OperationConsumption, OT.UserName OperationType, OV.OperationId, MMA.StandardName MachineName
                             ,0 AvgAllotedTime, OperationSPT=BTD.TotalSPT-BTD.AdditionalSPT, MM.UserName MaterialMaster, 0 IsMaxAllottedTime 
-                            , SK.UserName AS SkillName,OPP.BasicProcessTime,OPP.AssociateProcessTime,OPP.PersonalAllowance,OV.MachineAllowance,OPP.Frequency,OPP.SPI OperationSPI,OV.TotalSAM, OV.AdditionalSAMSymbol,OV.SubOperationSAM,OV.AdditionalSAM
-                            ,BTD.SPI,BTD.NoOfStitch,BTD.OperationLength,BTD.StitchCodeId,BTD.FabricWidth,OV.AdditionalAllowance,OM.Code OperationMasterCode,BTD.OperationMasterId,ISNULL(OV.VASSAMSOURCE,'') VASSAMSOURCE,0 DelFlag
+                            , OM.UserName AS SkillName,OPP.BasicProcessTime,OPP.AssociateProcessTime,OPP.PersonalAllowance,OV.MachineAllowance,OPP.Frequency,OPP.SPI OperationSPI,OV.TotalSAM, OV.AdditionalSAMSymbol,OV.SubOperationSAM,OV.AdditionalSAM
+                            ,BTD.SPI,BTD.NoOfStitch,BTD.OperationLength,BTD.StitchCodeId,BTD.FabricWidth,OV.AdditionalAllowance,ISNULL(OV.VASSAMSOURCE,'') VASSAMSOURCE,0 DelFlag
                              FROM [TRN].[ProductionBulletinTemplateDetail] BTD
                              LEFT JOIN [MST].[OperationVariation] OV ON OV.Id=BTD.OperationVariationId
                              LEFT JOIN (SELECT OP.Id,ISNULL(OP.BasicProcessTime, 0) AS BasicProcessTime, ISNULL(OP.AssociateProcessTime, 0) AS AssociateProcessTime
@@ -1066,8 +1066,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                              LEFT JOIN HKP.OperationType OT ON OT.Id=BTD.OperationTypeId
                              LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id = BTD.MachineVarientId
                              LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=MMA.MaterialMasterId
-							 LEFT JOIN [HKP].[Skill] AS SK ON BTD.SkillId=Sk.Id
-						     LEFT JOIN MST.OperationMaster AS OM ON OM.Id=BTD.OperationMasterId
+							 LEFT JOIN [MST].[OperationMaster] OM ON OM.Id = BTD.SkillMasterId
                              WHERE BTD.ProductionBulletinTemplateMasterId='" + bulletinTemplateMasterId + "' ORDER BY BTD.Sequence ";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -1182,8 +1181,6 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                            	,A.Id MachineVarientId
 							,MM.UserName MaterialMaster
                            	,A.StandardName Article
-							,S.Id SkillId
-                           	,S.UserName Skill
                            	,OV.UserName OperationVariation
                            	,OV.SubOperationSAM
                            	,OV.AdditionalSAM
@@ -1196,17 +1193,16 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                             ,OV.OperationId
                             ,OCT.Id OperationCategoryId
 							,OCT.UserName OperationCategory
-							,OM.Id OperationMasterId, OM.Code OperationMasterCode
+							,OM.Id SkillMasterId, OM.UserName SkillName
                             ,SC.Id StitchCodeId ,SC.UserName StitchCode,O.OperationLength
                            FROM [MST].[OperationVariation] OV
                            LEFT JOIN [MST].[MaterialMasterArticle] A ON A.Id = OV.ArticleId
-                           LEFT JOIN [HKP].[Skill] S ON S.Id = OV.SkillId
-                           LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=A.MaterialMasterId AND MM.SkillId=S.Id
+						   LEFT JOIN MST.OperationMaster AS OM ON OM.Id=OV.OperationMasterId
+                           LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=A.MaterialMasterId 
                            LEFT JOIN [MST].[Operation] O ON O.Id = OV.OperationId
                            LEFT JOIN [HKP].[OperationType] OT ON OT.Id = O.OperationTypeId
                            LEFT JOIN [HKP].[OperationCategory] OCT ON OCT.Id = O.OperationCategoryId
                             LEFT JOIN [HKP].[StitchCode] SC ON SC.Id = A.StitchCodeId
-						   LEFT JOIN MST.OperationMaster AS OM ON OM.Id=OV.OperationMasterId
 						   LEFT JOIN (SELECT * FROM [MST].[OperationProcess] WHERE ProcessId='" + processId + @"')OP ON OP.OperationId=OV.OperationId
                            WHERE OV.CompanyGroupId = '" + identity.CompanyGroupId + @"' 
                            --AND OV.Id NOT IN (SELECT OperationVariationId FROM [TRN].[ProductionBulletinTemplateDetail] PBTD
@@ -1300,20 +1296,20 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                     Process.DefaultView.RowFilter = "BulletinTemplateMasterId='" + Detail.Rows[i]["Id"].ToString() + "'";
                     for (int K = 0; K < Process.DefaultView.Count; K++)
                     {
-                        GetOperationMasterByOperationVariation(Process.DefaultView[K].Row["OperationVariationId"].ToString(), out DataSet dsOperationMaster);
+                        //GetOperationMasterByOperationVariation(Process.DefaultView[K].Row["OperationVariationId"].ToString(), out DataSet dsOperationMaster);
 
                         DataRow drDetailSKUDestination = BulletinTemplateDetail.Tables[0].NewRow();
                         CopyRow(Process.DefaultView[K].Row, ref drDetailSKUDestination);
                         drDetailSKUDestination["Id"] = NewId + "-" + (i + 1) + "-" + (K + 1);
                         drDetailSKUDestination["ProductionBulletinTemplateMasterId"] = NewId + "-" + (i + 1);
-                        if (string.IsNullOrEmpty(dsOperationMaster.Tables[0].Rows[0]["OperationMasterId"].ToString()))
-                        {
-                            drDetailSKUDestination["OperationMasterId"] = DBNull.Value;
-                        }
-                        else
-                        {
-                            drDetailSKUDestination["OperationMasterId"] = dsOperationMaster.Tables[0].Rows[0]["OperationMasterId"].ToString();
-                        }
+                        //if (string.IsNullOrEmpty(dsOperationMaster.Tables[0].Rows[0]["SkillMasterId"].ToString()))
+                        //{
+                        //    drDetailSKUDestination["SkillMasterId"] = DBNull.Value;
+                        //}
+                        //else
+                        //{
+                        //    drDetailSKUDestination["SkillMasterId"] = dsOperationMaster.Tables[0].Rows[0]["SkillMasterId"].ToString();
+                        //}
 
 
                         BulletinTemplateDetail.Tables[0].Rows.Add(drDetailSKUDestination);
@@ -1611,7 +1607,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                             dr["Sequence"] = seq;
                             dr["OperationVariationId"] = item.OperationVariationId;
                             dr["OperationGroup"] = item.OperationGroup;
-                            dr["SkillId"] = item.SkillId;
+                            dr["SkillMasterId"] = item.SkillMasterId;
                             dr["MachineVarientId"] = item.MachineVarientId;
                             dr["FGZoneId"] = item.FGZoneId;
                             dr["FGComponentId"] = item.FGComponentId;
@@ -1624,7 +1620,6 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                             dr["GaugeFolderId"] = item.GaugeFolderId;
                             dr["OperationConsumptionId"] = item.OperationConsumptionId;
                             dr["OperationTypeId"] = item.OperationTypeId;
-                            dr["OperationMasterId"] = item.OperationMasterId;
                             dr["Frequency"] = item.Frequency;
                             dr["Remark"] = item.Remark;
 
@@ -1671,7 +1666,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                             dr["Sequence"] = item.Sequence;
                             dr["OperationVariationId"] = item.OperationVariationId;
                             dr["OperationGroup"] = item.OperationGroup;
-                            dr["SkillId"] = item.SkillId;
+                            dr["SkillMasterId"] = item.SkillMasterId;
                             dr["MachineVarientId"] = item.MachineVarientId;
                             dr["FGZoneId"] = item.FGZoneId;
                             dr["FGComponentId"] = item.FGComponentId;
@@ -1684,7 +1679,6 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                             dr["GaugeFolderId"] = item.GaugeFolderId;
                             dr["OperationConsumptionId"] = item.OperationConsumptionId;
                             dr["OperationTypeId"] = item.OperationTypeId;
-                            dr["OperationMasterId"] = item.OperationMasterId;
                             dr["Frequency"] = item.Frequency;
                             dr["Remark"] = item.Remark;
 
@@ -1776,7 +1770,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                 var dblist = _bulletinDetailRepository.Find(entity.Id);
 
                 dblist.MachineVarientId = entity.MachineVarientId;
-                dblist.SkillId = entity.SkillId;
+                dblist.SkillMasterId = entity.SkillMasterId;
                 //dblist.OperationMasterId = null;
 
                 AuditService.UpdatedLog(dblist);
@@ -2131,21 +2125,21 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                     Process.DefaultView.RowFilter = "ProductionBulletinTemplateMasterId='" + Detail.Rows[i]["Id"].ToString() + "'";
                     for (int K = 0; K < Process.DefaultView.Count; K++)
                     {
-                        GetOperationMasterByOperationVariation(Process.DefaultView[K].Row["OperationVariationId"].ToString(), out DataSet dsOperationMaster);
+                        //GetOperationMasterByOperationVariation(Process.DefaultView[K].Row["OperationVariationId"].ToString(), out DataSet dsOperationMaster);
 
                         DataRow drDetailSKUDestination = ProductionBulletinTemplateDetail.Tables[0].NewRow();
                         CopyRow(Process.DefaultView[K].Row, ref drDetailSKUDestination);
                         drDetailSKUDestination["Id"] = NewId + "-" + (i + 1) + "-" + (K + 1);
                         drDetailSKUDestination["ProductionBulletinTemplateMasterId"] = NewId + "-" + (i + 1);
 
-                        if (string.IsNullOrEmpty(dsOperationMaster.Tables[0].Rows[0]["OperationMasterId"].ToString()))
-                        {
-                            drDetailSKUDestination["OperationMasterId"] = DBNull.Value;
-                        }
-                        else
-                        {
-                            drDetailSKUDestination["OperationMasterId"] = dsOperationMaster.Tables[0].Rows[0]["OperationMasterId"].ToString();
-                        }
+                        //if (string.IsNullOrEmpty(dsOperationMaster.Tables[0].Rows[0]["OperationMasterId"].ToString()))
+                        //{
+                        //    drDetailSKUDestination["OperationMasterId"] = DBNull.Value;
+                        //}
+                        //else
+                        //{
+                        //    drDetailSKUDestination["OperationMasterId"] = dsOperationMaster.Tables[0].Rows[0]["OperationMasterId"].ToString();
+                        //}
 
                         ProductionBulletinTemplateDetail.Tables[0].Rows.Add(drDetailSKUDestination);
                     }
@@ -2202,7 +2196,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
             {
                 var dblist = _bulletinDetailRepository.Find(entity.Id);
 
-                dblist.OperationMasterId = entity.OperationMasterId;
+                dblist.SkillMasterId = entity.SkillMasterId;
 
                 AuditService.UpdatedLog(dblist);
                 _bulletinDetailRepository.Update(dblist);

@@ -9,9 +9,7 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.EndDay;
     Date.prototype.toShortFormat = function () {
 
-        let monthNames = ["Jan", "Feb", "Mar", "Apr",
-            "May", "Jun", "Jul", "Aug",
-            "Sep", "Oct", "Nov", "Dec"];
+        let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug","Sep", "Oct", "Nov", "Dec"];
 
         let day = ('0' + this.getDate().toString()).slice(-2);
 
@@ -113,7 +111,7 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.filterComplete = function (args) {
         
         if ($scope.allData != null ) {
-            destroyTabs();
+            //destroyTabs();
         }
         loadLeftGrid();
         var gridObj = $("#filters").data("ejGrid");

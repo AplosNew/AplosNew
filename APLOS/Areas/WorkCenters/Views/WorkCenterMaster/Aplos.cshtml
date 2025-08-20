@@ -466,6 +466,7 @@
                         <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">Shift</a></li>
                         <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" data-toggle="tab">SubProcess</a></li>
                         <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" data-toggle="tab">Skill</a></li>
+                        <li role="presentation" ng-class="{ active: isSet(7) }"><a ng-click="setTab(7)" href="" data-toggle="tab">Skill Budget</a></li>
                     </ul>
                 </div>
                 <div class="tab-content">
@@ -830,6 +831,64 @@
                                     <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
                                     <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
                                     <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(7), active: isSet(7) }">
+                        <div class="form-elements form-horizontal" ng-form name="SBModelNewForm">
+                            <input type="hidden" ng-model="SBModelNew.Id">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label" style="padding-left: 30px;">Skill Master<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="input-group">
+                                            <input type="text" name="Skill Master" ng-model="SBModelNew.SkillName" class="form-control" required disabled>
+                                            <span class="input-group-btn">
+                                                <button ng-click="showOperationPopUp();" class="btn single-small-btn" tabindex="22"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Alloted Manpower<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="AllotedManpower" ng-model="SBModelNew.AllotedManpower" class="form-control" required tabindex="5" maxlength="50">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Required ManPower<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="RequiredManPower" ng-model="SBModelNew.RequiredManPower" n-decim class="form-control" required tabindex="5" maxlength="50">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Remarks</label>
+                                    <div class="col-sm-8">
+                                        <textarea class="form-control" rows="3" ng-model="SBModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="SaveSB();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{SBAction}}</button></li>
+                                    @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                                    <li> <button ng-click="ClearSB();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                </ul>
+                            </div>
+                            <div id="GridSB" ej-grid e-datasource="SBList" e-recorddoubleclick="GetSB"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                <div e-columns>
+                                    <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+                                    <div e-column e-field="SkillName" e-headertext="Skill Name" e-width="2"></div>
+                                    <div e-column e-field="RequiredManPower" e-headertext="Required ManPower" e-width="3"></div>
+                                    <div e-column e-field="AllotedManpower" e-headertext="Alloted Manpower" e-width="5"></div>
+                                    <div e-column e-field="Remarks" e-headertext="Remarks" e-width="5"></div>
                                 </div>
                             </div>
                         </div>
@@ -1331,6 +1390,36 @@
              data-ng-click-cancel="closeArticle()">
 </modal-table>
 <!-- #endregion -->
+
+<div class="modal fade site-modal in" id="OperationPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <i class="glyphicon glyphicon-info-sign"></i> {{Operation}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div style="color:black;" id="GridOP" ej-grid e-datasource="OperationMasterList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-recorddoubleclick="SetOperation" e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-headertext-color="black" e-textalign="left" e-width="75"></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
+                        <div e-column e-field="ShortName" e-headertext="Short Name" e-width="50"></div>
+                        <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="70"></div>
+                        <div e-column e-field="UserName" e-headertext="User Name" e-width="70"></div>
+                        <div e-column e-field="MachineMaster" e-headertext="Machine Master" e-width="100"></div>
+                        <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- #endregion -->
 <confirm-archive-generic data-modalid="confirmmasterdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeMasterYes()"></confirm-archive-generic>
 <confirm-archive-generic data-modalid="confirmRowRemove" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>

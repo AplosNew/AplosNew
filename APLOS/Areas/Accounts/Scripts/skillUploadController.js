@@ -67,13 +67,20 @@ function skillUploadController(commonMessage, $scope, $rootScope, baseService, $
         }
     };
     $scope.SaveEmployeeSkillUploadedData = function () {
-
         try {
+            $scope.EmployeeSkillUploadedDataList = [];
+            for (var i = 0; i < $scope.EmployeeSkillUploadedData.length; i++) {
+                if (!baseService.isUndefinedOrNull($scope.EmployeeSkillUploadedData[i].SkillId) && !baseService.isUndefinedOrNull($scope.EmployeeSkillUploadedData[i].EmpSystemId)) {
+                    $scope.EmployeeSkillUploadedDataList.push($scope.EmployeeSkillUploadedData[i]);
+                }
+            }
+
+
             $.ajax({
                 type: "POST",
                 url: $scope.pathBalanceSheetScheduling + 'SaveEmployeeSkillData',
                 data: {
-                    'skillDataList': $scope.EmployeeSkillUploadedData
+                    'skillDataList': $scope.EmployeeSkillUploadedDataList
                 },
                 dataType: "json",
                 success: function (response) {

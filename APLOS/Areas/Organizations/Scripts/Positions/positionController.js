@@ -67,7 +67,9 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
         UserReportGroup: null,
         ProcessId: null,
         GoodWorkPositionCodeId: null,
-        GoodWorkPositionCode: null
+        GoodWorkPositionCode: null,
+        SkillApplicable: false,
+        SkillType:null
     };
 
     $scope.positionAllowance = {
@@ -310,46 +312,53 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
     };
 
     $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        reDirectToRequiredTab();
-        if ($scope.companySSFormTab1.$valid && $scope.companySSFormTab2.$valid) {
-            if ($scope.Action === 'Save') {
-                $http({
-                    method: 'POST',
-                    url: 'Organizations/Position/Create',
-                    data: { 'positionStructureSetup': $scope.companyStructureSetup, 'positionJobDescription': $scope.jobDescriptionSelectedList },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.getData();
-                        ClearFields();
-                    }
-                });
-                return true;
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            reDirectToRequiredTab();
+            if ($scope.companyStructureSetup.SkillApplicable && baseService.isUndefinedOrNull($scope.companyStructureSetup.SkillType)) {
+                throw "Skill Type is required.";
             }
-            else if ($scope.Action === 'Update') {
-                $http({
-                    method: 'POST',
-                    url: 'Organizations/Position/Edit',
-                    data: { 'positionStructureSetup': $scope.companyStructureSetup, 'positionJobDescription': $scope.jobDescriptionSelectedList },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        baseService.setCurrentPage('dataList');
-                        $scope.getData();
-                        ClearFields();
-                    }
-                });
-                return true;
+            if ($scope.companySSFormTab1.$valid && $scope.companySSFormTab2.$valid) {
+                if ($scope.Action === 'Save') {
+                    $http({
+                        method: 'POST',
+                        url: 'Organizations/Position/Create',
+                        data: { 'positionStructureSetup': $scope.companyStructureSetup, 'positionJobDescription': $scope.jobDescriptionSelectedList },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.getData();
+                            ClearFields();
+                        }
+                    });
+                    return true;
+                }
+                else if ($scope.Action === 'Update') {
+                    $http({
+                        method: 'POST',
+                        url: 'Organizations/Position/Edit',
+                        data: { 'positionStructureSetup': $scope.companyStructureSetup, 'positionJobDescription': $scope.jobDescriptionSelectedList },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            baseService.setCurrentPage('dataList');
+                            $scope.getData();
+                            ClearFields();
+                        }
+                    });
+                    return true;
+                }
             }
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
     };
 
@@ -387,6 +396,7 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
         $scope.positionAllowanceList = [];
         $scope.tableShow = false;
         $scope.companyStructureSetup.Active = true;
+        $scope.companyStructureSetup.SkillApplicable = false;
     }
 
     function reDirectToRequiredTab() {
@@ -626,6 +636,28 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
                         '<span class="input-group-btn">' +
                         '<button name="submit" ng-click="RPPositionCodePopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>' +
                         '</span>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+
+                        '<div class="form-group">' +
+                        '<label class="col-sm-4 control-label">Skill Applicable</label>' +
+                        '<div class="col-sm-2">' +
+                        '<div class="checkbox-site">' +
+                        '<label class="control-label">' +
+                        '<input type="checkbox" ng-model="companyStructureSetup.SkillApplicable">' +
+                        '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>' +
+                        '</label>' +
+                        '</div>' +
+                        '</div>' +
+                        '<label class="col-sm-2 control-label">Skill Type</label>' +
+                        '<div class="col-sm-4">' +
+                        '<div class="select-style">' +
+                        '<select class="form-control" id="SkillType" ng-disabled="companyStructureSetup.SkillApplicable==false" name="SkillType" ng-model="companyStructureSetup.SkillType" tabindex="4">' +
+                        '<option value="">---Select---</option>' +
+                        '<option value="ACTIVITY">ACTIVITY</option>' +
+                        '<option value="OPERATION">OPERATION</option>' +
+                        '</select>' +
                         '</div>' +
                         '</div>' +
                         '</div>' +

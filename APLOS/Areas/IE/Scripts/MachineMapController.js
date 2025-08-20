@@ -118,7 +118,7 @@ function MachineMapController(cboService, commonMessage, $scope, $rootScope, bas
         var gridObj = $("#filters").data("ejGrid");
         var filteredRecords = gridObj.getFilteredRecords();
         if ($scope.allData != null) {
-            destroyTabs();
+           // destroyTabs();
         }
         loadLeftGrid();
         if (filteredRecords.length == 0) {

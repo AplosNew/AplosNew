@@ -2216,6 +2216,30 @@ LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
             }
         }
 
+        public IEnumerable<object> GetAllEmployeeOperationData()
+        {
+            try
+            {
+                var sql = @"SELECT EO.EmpSystemId,E.EmployeeCode,E.EmployeeName,EO.Sequence,ISNULL(OM.Code,OV.Code) Code,ISNULL(OM.ShortName,OV.ShortName) ShortName
+                            ,ISNULL(OM.StandardName,OV.StandardName) StandardName,ISNULL(OM.UserName,OV.UserName) UserName
+                            ,ISNULL(S.UserName,VS.UserName) Skill,EO.CycleTime
+                            FROM EmployeeOperation EO
+                            LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=EO.EmpSystemId
+                            LEFT JOIN  MST.OperationMaster OM ON EO.OperationMasterId=OM.Id
+                            LEFT JOIN  MST.OperationVariation OV ON EO.OperationVariationId=OV.Id
+                            LEFT JOIN MST.MachineMaster MM ON MM.Id=OM.MachineMasterId 
+                            LEFT JOIN HKP.Skill S ON S.Id=OM.SkillId
+                            LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=OV.ArticleId
+                            LEFT JOIN HKP.Skill VS ON VS.Id=OV.SkillId
+                            ORDER BY EO.EmpSystemId,EO.Sequence";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public void GetOperationSequence(string empSystemId, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager Obj;
@@ -2258,11 +2282,12 @@ LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
                         if (dsMaster.Tables[0].Rows.Count == 0)
                         {
                             seq++;
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmployeeOperation", out _Id);
+                            //bplib.clsGenID genid = new bplib.clsGenID();
+                            //genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmployeeOperation", out _Id);
 
                             DataRow dr = dsMaster.Tables[0].NewRow();
-                            dr["Id"] = _Id;
+                            dr["Id"] = item.EmpSystemId+"-"+seq.ToString();
+                            //dr["Id"] = _Id;
                             dr["Sequence"] = seq;
                             dr["EmpSystemId"] = item.EmpSystemId;
                             dr["OperationMasterId"] = item.OperationMasterId;
@@ -2304,7 +2329,6 @@ LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
 
@@ -3065,6 +3089,7 @@ Where EmpSystemId='" + empId + "'";
         public string Skill { get; set; }
         public string SkillGroup { get; set; }
         public string LegalDesignation { get; set; }
+        public string DesignationGroup { get; set; }
         public string MachineMaster { get; set; }
         public string Process { get; set; }
     }

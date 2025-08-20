@@ -95,7 +95,7 @@ group by mo.PlantId , c.Id , p.UserName , c.UserName";
                     LEFT OUTER JOIN trn.ProductionBulletinTemplateDetail AS BMD ON BMD.ProductionBulletinTemplateMasterId=BM.Id
         
         
-                    JOIN mst.OperationMaster AS om ON om.Id=bmd.OperationMasterId       
+                    JOIN mst.OperationMaster AS om ON om.Id=bmd.SkillMasterId       
                     LEFT OUTER JOIN hkp.Process AS omp ON omp.Id=om.ProcessId
                     LEFT OUTER JOIN hkp.Skill AS omsk ON omsk.Id=om.SkillId
 					LEFT OUTER JOIN hkp.SkillCategory AS skc ON skc.Id = omsk.SkillCategoryId
@@ -328,7 +328,7 @@ LEFT JOIN (SELECT
                     LEFT OUTER JOIN trn.ProductionBulletinTemplateDetail AS BMD ON BMD.ProductionBulletinTemplateMasterId=BM.Id
         
                   
-                    JOIN mst.OperationMaster AS om ON om.Id=bmd.OperationMasterId       
+                    JOIN mst.OperationMaster AS om ON om.Id=bmd.SkillMasterId       
                     LEFT OUTER JOIN hkp.Process AS omp ON omp.Id=om.ProcessId      
 
 
@@ -649,7 +649,7 @@ om.UserName,sg.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategor
                     LEFT OUTER JOIN trn.ProductionBulletinTemplateDetail AS BMD ON BMD.ProductionBulletinTemplateMasterId=BM.Id
         
                   
-                    JOIN mst.OperationMaster AS om ON om.Id=bmd.OperationMasterId       
+                    JOIN mst.OperationMaster AS om ON om.Id=bmd.SkillMasterId       
                     LEFT OUTER JOIN hkp.Process AS omp ON omp.Id=om.ProcessId      
 					left join scs.WorkCenterMaster wc on wc.Id = po.EntityId
 

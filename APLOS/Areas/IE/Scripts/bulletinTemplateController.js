@@ -776,7 +776,7 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
                     ob.MachineVarientId = $scope.searchdata[i].MachineVarientId;
                     ob.MaterialMaster = $scope.searchdata[i].MaterialMaster;
                     ob.MachineName = $scope.searchdata[i].Article;
-                    ob.SkillId = $scope.searchdata[i].SkillId;
+                    ob.SkillMasterId = $scope.searchdata[i].SkillMasterId;
                     ob.FGZoneId = null;
                     ob.FGComponentId = null;
                     ob.Symbol = $scope.searchdata[i].AdditionalSAMSymbol;
@@ -1117,13 +1117,13 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
     $scope.selectArticle = function (data) {
         $scope.operationVariationNew.ArticleId = data.Id;
         $scope.operationVariationNew.ArticleName = data.StandardName;
-        $scope.operationVariationNew.SkillId = data.SkillId;
-        $scope.operationVariationNew.SkillName = data.SkillName;
+        //$scope.operationVariationNew.SkillId = data.SkillId;
+        //$scope.operationVariationNew.SkillName = data.SkillName;
         $scope.operationVariationNew.MachineAllowance = data.MachineAllowance;
         //$scope.operationVariationNew.AdditionalAllowance = data.AdditionalAllowance;
 
         $scope.machine.MachineVarientId = $scope.operationVariationNew.ArticleId;
-        $scope.machine.SkillId = $scope.operationVariationNew.SkillId;
+       // $scope.machine.SkillId = $scope.operationVariationNew.SkillId;
 
         // getOperationVariationUtilityData($scope.operationId, $scope.operationVariationNew.ArticleId, $scope.operationVariationNew.SkillId);
 

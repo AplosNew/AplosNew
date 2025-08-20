@@ -1069,6 +1069,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.data = gridObj.getSelectedRecords()[0];
             $scope.employeeNew.OperationVariationId = $scope.data.Id;
             $scope.employeeNew.OperationVariationCode = $scope.data.Code;
+            $scope.employeeNew.OperationMasterID = $scope.data.OperationMasterId;
             angular.element(document.querySelector('#SOperationPopUp')).modal('hide');
 
         }
@@ -1088,6 +1089,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.data = gridObj.getSelectedRecords()[0];
             $scope.employeeInformation.OperationVariationId = $scope.data.Id;
             $scope.employeeInformation.OperationVariationCode = $scope.data.Code;
+            $scope.employeeInformation.OperationMasterID = $scope.data.OperationMasterId;
             angular.element(document.querySelector('#OperationPopUp')).modal('hide');
 
         }
@@ -3711,13 +3713,12 @@ function employeeInformationController(addressService, fileReader, cboService, c
                     ob.EmpSystemId = $scope.employeeInformation.SystemId;
                     if ($scope.Operation == "Operation Master") {
                         ob.OperationMasterId = $scope.OperationList[i].Id;
-                        ob.OperationVariationId = null;
                     }
                     else {
-                        ob.OperationMasterId = null;
+                        ob.OperationMasterId = $scope.OperationList[i].OperationMasterId;
                         ob.OperationVariationId = $scope.OperationList[i].Id;
                     }
-
+                 
                     ob.Code = $scope.OperationList[i].Code;
                     ob.ShortName = $scope.OperationList[i].ShortName;
                     ob.StandardName = $scope.OperationList[i].StandardName;
@@ -4383,7 +4384,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
     }
 
     $scope.setEmpData = function (obj) {
-        
+
         var data = obj.data;
         $scope.TrainingTypeNew.ResponsiblePersonCode = data.EmployeeCode;
         $scope.TrainingTypeNew.ResponsiblePersonId = data.SystemId;
@@ -4392,7 +4393,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     }
 
-    $scope.closeEmployeePopUp= function () {
+    $scope.closeEmployeePopUp = function () {
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     }
     //#endregion TrainingType

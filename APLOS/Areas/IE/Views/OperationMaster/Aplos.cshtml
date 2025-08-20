@@ -346,8 +346,8 @@
                                 <input type="text" name="Caption" ng-model="modelNewM.Caption" class="form-control" maxlength="100">
                             </div>
                             @*<span class="input-group-btn">
-                                    <button ng-click="GetCOAICodeList();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                </span>*@
+                    <button ng-click="GetCOAICodeList();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                </span>*@
                         </div>
                         <div class="form-group" id="" show-errors>
                             <label class="col-sm-4 control-label">Active<sup>*</sup></label>
@@ -396,6 +396,21 @@
                             <li> <button ng-click="valuePassInDelModal();" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> {{Action2}}</button></li>
                             <li> <button ng-click="Clear1();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                         </ul>
+                    </div>
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="Grid123" ej-grid e-datasource="GetOperationPositionMp"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-recorddoubleclick="recorddoubleclickMP" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="50"></div>
+                                <div e-column e-field="Position" e-headertext="Position" e-width="80"></div>
+                                <div e-column e-field="Shiftname" e-headertext="Shift" e-width="80"></div>
+                                <div e-column e-field="Caption" e-headertext="Caption" e-width="50"></div>
+                                <div e-column e-field="ManpowerBudget" e-headertext="Manpower Budget" e-width="20"></div>
+                            </div>
+
+                        </div>
+
                     </div>
                 </div>
             </div>

@@ -3130,6 +3130,7 @@ namespace Library.Service.SalesManagements
                     Incoterms = voucherVM.Incoterms,
                     IncotermsValue = voucherVM.IncotermsValue,
                     TrancastionTypeId = voucherVM.TrancastionTypeId,
+                    EPCGNumber=voucherVM.EPCGNumber,
                     SourceType = "Packing",
                     Id = "MS" + _pkGeneratorService.GetAutoNumber(nameof(Sales), PKGeneratorEnum.Yearly, null, DateTime.Now),
                 };
@@ -3510,6 +3511,7 @@ namespace Library.Service.SalesManagements
                     UpdatedBy = voucherVM.UpdatedBy,
                     UpdatedDate = voucherVM.UpdatedDate,
                     UpdatedFromIP = voucherVM.UpdatedFromIP,
+                    EPCGNumber = voucherVM.EPCGNumber,
                     SourceType = "Packing",
                     TrancastionTypeId = voucherVM.TrancastionTypeId,
                     ModelState = ModelState.Modified,

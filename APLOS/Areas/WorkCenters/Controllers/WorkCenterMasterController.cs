@@ -405,6 +405,56 @@ WHERE BP.BusinessProcessName = 'MachineDefinition' AND ART.Active = 1";
             dr.EndEdit();
         }
 
+        [HttpPost]
+        public JsonResult CreateSB(Dictionary<string, object> data, string WorkCenterMasterId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from [HKP].[WorkCenterSkillBudget] where Id='" + data["Id"] + "' AND WorkCenterMasterId='" + WorkCenterMasterId + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("WorkCenterSkillBudget", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetWCSkillBudget(string WorkCenterMasterId)
+        {
+            string sql = @"select w.*,A.UserName SkillName from [HKP].[WorkCenterSkillBudget] W
+LEFT JOIN MST.OperationMaster A on A.Id=w.SkillMasterId Where w.WorkCenterMasterId='" + WorkCenterMasterId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
 
         #endregion -- Operations
     }

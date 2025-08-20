@@ -582,7 +582,7 @@ namespace Library.Service.IEnumerable
                 var dblist = _bulletinDetailRepository.Find(entity.Id);
 
                 dblist.MachineVarientId = entity.MachineVarientId;
-                dblist.SkillId = entity.SkillId;
+                dblist.SkillMasterId = entity.SkillMasterId;
 
                 AuditService.UpdatedLog(dblist);
                 _bulletinDetailRepository.Update(dblist);
@@ -632,7 +632,7 @@ namespace Library.Service.IEnumerable
         {
             try
             {
-                string sql = @"SELECT BTD.Id,BTD.BulletinTemplateMasterId,BTD.Sequence,BTD.OperationVariationId,BTD.OperationGroup,BTD.SkillId,BTD.MachineVarientId,BTD.FGZoneId,BTD.FGComponentId
+                string sql = @"SELECT BTD.Id,BTD.BulletinTemplateMasterId,BTD.Sequence,BTD.OperationVariationId,BTD.OperationGroup,BTD.SkillMasterId,BTD.MachineVarientId,BTD.FGZoneId,BTD.FGComponentId
                             ,CONVERT(NUMERIC(10,2),BTD.AdditionalSPT) AdditionalSPT, CONVERT(NUMERIC(10,2),BTD.TotalSPT) TotalSPT, CONVERT(NUMERIC(10,2),BTD.AllotedWorkstation) AllotedWorkstation
                             , CONVERT(NUMERIC(10,2),BTD.AllotedManpower) AllotedManpower, BTD.AttachmentId,BTD.GaugeFolderId,BTD.OperationConsumptionId,BTD.OperationTypeId,CONVERT(NUMERIC(10,2),BTD.Frequency) Frequency
                             ,BTD.Remark,BTD.OperationCategoryId,BTD.QualityLevel,CONVERT(NUMERIC(10,2),BTD.AvgAllotedTime) AvgAllotedTime,CONVERT(NUMERIC(10,0),BTD.OperationTargetPerHr) OperationTargetPerHr
@@ -640,7 +640,7 @@ namespace Library.Service.IEnumerable
                             ,OV.Code OperationCode, OV.UserName OperationVariation, FZ.UserName FGZone, FC.UserName FGComponent, A.UserName Attachment,
                              GF.UserName GaugeFolder, OC.UserName OperationConsumption, OT.UserName OperationType, OV.OperationId, MMA.StandardName MachineName
                             ,0 AvgAllotedTime, OperationSPT=BTD.TotalSPT-BTD.AdditionalSPT, MM.UserName MaterialMaster, 0 IsMaxAllottedTime 
-                            , SK.UserName AS SkillName,OPP.BasicProcessTime,OPP.AssociateProcessTime,OPP.PersonalAllowance,OV.MachineAllowance,OPP.Frequency,OPP.SPI OperationSPI,OV.TotalSAM, OV.AdditionalSAMSymbol,OV.SubOperationSAM,OV.AdditionalSAM
+                            , OM.UserName AS SkillName,OPP.BasicProcessTime,OPP.AssociateProcessTime,OPP.PersonalAllowance,OV.MachineAllowance,OPP.Frequency,OPP.SPI OperationSPI,OV.TotalSAM, OV.AdditionalSAMSymbol,OV.SubOperationSAM,OV.AdditionalSAM
                             ,BTD.SPI,BTD.NoOfStitch,BTD.OperationLength,BTD.StitchCodeId,BTD.FabricWidth,OV.AdditionalAllowance,ISNULL(OV.VASSAMSOURCE,'') VASSAMSOURCE
                              ,BTD.NeedleDescription,BTD.NeedleMaterialMasterId,BTD.NeedleArticleId	
                             ,BTD.BobbinDescription,BTD.BobbinMaterialMasterId,BTD.BobbinArticleId
@@ -659,7 +659,7 @@ namespace Library.Service.IEnumerable
                              LEFT JOIN HKP.OperationType OT ON OT.Id=BTD.OperationTypeId
                              LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id = BTD.MachineVarientId
                              LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=MMA.MaterialMasterId
-							 LEFT JOIN [HKP].[Skill] AS SK ON BTD.SkillId=Sk.Id
+							 LEFT JOIN [MST].[OperationMaster] OM ON OM.Id = BTD.SkillMasterId
                              WHERE BTD.BulletinTemplateMasterId='" + bulletinTemplateMasterId + "' ORDER BY BTD.Sequence ";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -682,8 +682,8 @@ namespace Library.Service.IEnumerable
                            	,A.Id MachineVarientId
 							,MM.UserName MaterialMaster
                            	,A.StandardName Article
-							,S.Id SkillId
-                           	,S.UserName Skill
+							,OV.OperationMasterId SkillMasterId
+                           	,OM.UserName SkillName
                            	,OV.UserName OperationVariation
                            	,OV.SubOperationSAM
                            	,OV.AdditionalSAM
@@ -699,9 +699,10 @@ namespace Library.Service.IEnumerable
                             ,SC.Id StitchCodeId ,SC.UserName StitchCode,OperationLength=ISNULL(O.OperationLength,0)* 2.54
                            FROM [MST].[OperationVariation] OV
                            LEFT JOIN [MST].[MaterialMasterArticle] A ON A.Id = OV.ArticleId
-                           LEFT JOIN [HKP].[Skill] S ON S.Id = OV.SkillId
-                           LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=A.MaterialMasterId AND MM.SkillId=S.Id
+                           --LEFT JOIN [HKP].[Skill] S ON S.Id = OV.SkillId
+                           LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=A.MaterialMasterId --AND MM.SkillId=S.Id
                            LEFT JOIN [MST].[Operation] O ON O.Id = OV.OperationId
+                           LEFT JOIN [MST].[OperationMaster] OM ON OM.Id = OV.OperationMasterId
                            LEFT JOIN [HKP].[OperationType] OT ON OT.Id = O.OperationTypeId
                            LEFT JOIN [HKP].[OperationCategory] OCT ON OCT.Id = O.OperationCategoryId
                            LEFT JOIN [HKP].[StitchCode] SC ON SC.Id = A.StitchCodeId
@@ -774,7 +775,7 @@ namespace Library.Service.IEnumerable
                     dr["Sequence"] = Sequence;
                     dr["OperationVariationId"] = dataSet.Tables[0].Rows[i]["OperationVariationId"];
                     dr["OperationGroup"] = null;
-                    dr["SkillId"] = dataSet.Tables[0].Rows[i]["SkillId"];
+                    dr["SkillMasterId"] = dataSet.Tables[0].Rows[i]["SkillMasterId"];
                     dr["MachineVarientId"] = dataSet.Tables[0].Rows[i]["MachineVarientId"];
                     dr["FGZoneId"] = null;
                     dr["FGComponentId"] = null;
@@ -847,8 +848,8 @@ namespace Library.Service.IEnumerable
                            	,A.Id MachineVarientId
 							,MM.UserName MaterialMaster
                            	,A.StandardName Article
-							,S.Id SkillId
-                           	,S.UserName Skill
+							,OM.Id SkillMasterId
+                           	,OM.UserName SkillName
                            	,OV.UserName OperationVariation
                            	,OV.SubOperationSAM
                            	,OV.AdditionalSAM
@@ -864,8 +865,8 @@ namespace Library.Service.IEnumerable
                             ,SC.Id StitchCodeId ,SC.UserName StitchCode,O.OperationLength
                            FROM [MST].[OperationVariation] OV
                            LEFT JOIN [MST].[MaterialMasterArticle] A ON A.Id = OV.ArticleId
-                           LEFT JOIN [HKP].[Skill] S ON S.Id = OV.SkillId
-                           LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=A.MaterialMasterId AND MM.SkillId=S.Id
+                           LEFT JOIN [MST].[OperationMaster] OM ON OM.Id = OV.OperationMasterId
+                           LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=A.MaterialMasterId --AND MM.SkillId=S.Id
                            LEFT JOIN [MST].[Operation] O ON O.Id = OV.OperationId
                            LEFT JOIN [HKP].[OperationType] OT ON OT.Id = O.OperationTypeId
                            LEFT JOIN [HKP].[OperationCategory] OCT ON OCT.Id = O.OperationCategoryId
@@ -920,7 +921,7 @@ namespace Library.Service.IEnumerable
                     dr["Sequence"] = sq;
                     dr["OperationVariationId"] = dataSet.Tables[0].Rows[i]["OperationVariationId"];
                     dr["OperationGroup"] = null;
-                    dr["SkillId"] = dataSet.Tables[0].Rows[i]["SkillId"];
+                    dr["SkillMasterId"] = dataSet.Tables[0].Rows[i]["SkillMasterId"];
                     dr["MachineVarientId"] = dataSet.Tables[0].Rows[i]["MachineVarientId"];
                     dr["FGZoneId"] = null;
                     dr["FGComponentId"] = null;
@@ -1254,7 +1255,7 @@ namespace Library.Service.IEnumerable
                     dr["Sequence"] = dataSet.Tables[0].Rows[i]["Sequence"];
                     dr["OperationVariationId"] = dataSet.Tables[0].Rows[i]["OperationVariationId"];
                     dr["OperationGroup"] = dataSet.Tables[0].Rows[i]["OperationGroup"];
-                    dr["SkillId"] = dataSet.Tables[0].Rows[i]["SkillId"];
+                    dr["SkillMasterId"] = dataSet.Tables[0].Rows[i]["SkillMasterId"];
                     dr["MachineVarientId"] = dataSet.Tables[0].Rows[i]["MachineVarientId"];
                     dr["FGZoneId"] = dataSet.Tables[0].Rows[i]["FGZoneId"];
                     dr["FGComponentId"] = dataSet.Tables[0].Rows[i]["FGComponentId"];
