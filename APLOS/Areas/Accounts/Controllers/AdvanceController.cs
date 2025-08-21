@@ -693,7 +693,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult InsertVendorAdvanceWriteOff(VoucherViewModel advanceVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList)
+        public JsonResult InsertVendorAdvanceWriteOff(VoucherViewModel advanceVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList, IEnumerable<VoucherDetailViewModel> voucherDetailExpensesList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             advanceVM.CompanyGroupId = identity.CompanyGroupId;
@@ -719,7 +719,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             else
             {
-                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceWriteOffService.InsertVendorAdvanceWriteOff(advanceVM, advanceDetailVMList)) });
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceWriteOffService.InsertVendorAdvanceWriteOff(advanceVM, advanceDetailVMList, voucherDetailExpensesList)) });
             }
             
         }

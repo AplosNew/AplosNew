@@ -83,14 +83,22 @@
                 <input type="text" name="Doc Date" ng-model="advance.DocDate" datepicker="checkDocDate();" required class="form-control" tabindex="3">
             </div>
         </div>
-        <div class="form-group" ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.Return.ToString()'">
+        <div class="form-group" >
             <label class="col-sm-4 control-label">Payment Source<sup>*</sup></label>
             <div class="col-sm-8 radio">
-                <label>
+                <label ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.SetOff.ToString()'">
+                    <input ng-click="clearBankPopUp()" type="radio" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.Invoice.ToString()">
+                    <span class="cr" tabindex="8"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Invoice.ToString()
+                </label>
+                <label ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.Return.ToString()'">
                     <input ng-click="clearBankPopUp()" type="radio" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.Bank.ToString()">
                     <span class="cr" tabindex="8"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Bank.ToString()
                 </label>
-                <label>
+                <label ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.SetOff.ToString()'">
+                    <input ng-click="clearBankPopUp()" type="radio" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.GL.ToString()">
+                    <span class="cr" tabindex="8"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.GL.ToString()
+                </label>
+                <label ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.Return.ToString()'">
                     <input ng-click="clearCashPopUp()" type="radio" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.Cash.ToString()">
                     <span class="cr" tabindex="9"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Cash.ToString()
                 </label>
@@ -171,7 +179,7 @@
             </div>
         </div>
     </div>
-    <div class="col-xs-12 col-sm-12 col-md-12" ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.SetOff.ToString()'">
+    <div class="col-xs-12 col-sm-12 col-md-12" ng-show="advance.PaymentSource=='@Library.Model.Payments.PaymentSource.Invoice.ToString()'">
         <div class="common-btn">
             <ul class="list-inline text-left">
                 <li ng-show="advance.PartyId"><button ng-click="showInvoicePopUp(advance.PartyId);" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i> Select Invoice</button></li>
@@ -234,6 +242,51 @@
                 </tr>
             </tfoot>
         </table>
+    </div>
+    <div class="clearfix"></div>
+    <div ng-show="advance.PaymentSource=='@Library.Model.Payments.PaymentSource.GL.ToString()'">
+        <ul class="list-inline">
+            <li><button class="btn single-btn" ng-click="popUp()" tabindex=""><i class="glyphicon glyphicon-plus"></i> GL</button></li>
+        </ul>
+    </div>
+    <div class="row form-elements">
+        <div class="col-xs-12 col-sm-12 col-md-12 modal-table" ng-show="advance.PaymentSource=='@Library.Model.Payments.PaymentSource.GL.ToString()'">
+            <table class="table table-responsive table-striped">
+                <thead>
+                    <tr>
+                        <th>GL</th>
+                        <th>Budget</th>
+                        <th>Activity</th>
+                        <th>Amount</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in voucherDetailExpensesList">
+                        <td>{{x.GLGeneralInfoCode}} - {{x.GLGeneralInfoName}}</td>
+                        <td>{{x.BudgetName}}</td>
+                        <td>{{x.ActivityName}}</td>
+                        <td id="td_Amount">
+                            <div class="show-message">
+                                <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Amount">
+                            </div>
+                        </td>
+                        <td class="text-right">
+                            <button ng-click="removeDetaillRow($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot ng-show="voucherDetailExpensesList.length">
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td><b>Sub Total</b></td>
+                        <td class="text-right"><b>{{ voucherDetailExpensesList | sumByKey : 'Amount' }}</b></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
     </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
@@ -305,6 +358,7 @@
 @Html.Partial("~/Areas/Accounts/Views/_VendorAdvancePopUp.cshtml")
 @Html.Partial("~/Areas/Banks/Views/_CashPopUp.cshtml")
 @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
 <toaster-container toaster-options="{'close-button':true, 'animation-class': 'toast-top-center'}"></toaster-container>
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(voucherId)"></confirm-archive-generic>

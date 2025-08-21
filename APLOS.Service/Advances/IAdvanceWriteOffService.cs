@@ -18,7 +18,7 @@ namespace Library.Service.Advances
 
         string InsertCustomerAdvanceWriteOff(VoucherViewModel advanceVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList, IEnumerable<VoucherDetailViewModel> voucherDetailExpensesList, IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList);
         string InsertMultiCustomerAdvanceWriteOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList, IEnumerable<VoucherDetailViewModel> voucherDetailListNew, IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList);
-        string InsertVendorAdvanceWriteOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
+        string InsertVendorAdvanceWriteOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailViewModel> voucherDetailExpensesList);
         string InsertVendorAdvanceWriteOffDifferentCurrency(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
 
         string InsertEmployeeAdvanceWriteOff(VoucherViewModel advanceVM, VoucherDetailViewModel VoucherDetailVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList, IEnumerable<VoucherDetailViewModel> voucherDetailGLList);

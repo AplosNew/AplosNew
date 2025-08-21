@@ -683,6 +683,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
     }
     $scope.closeCustomerAdvancePopUpSelected = function (data) {
         data.TrnType = "Dr";
+        $scope.voucherDetailList = [];
         $scope.advance.VoucherNo = data.VoucherNo;
         $scope.advance.PartyName = data.PartyCode + " - " + data.PartyName;
         $scope.advance.PartyId = data.PartyId;
@@ -694,7 +695,6 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         $scope.advance.EntityId = data.EntityId;
         $scope.advance.AdvanceId = data.AdvanceId;
         $scope.advance.AdvanceDetailId = data.AdvanceDetailId;
-
         $scope.advance.CompanyId = data.CompanyId;
         $scope.advance.PlantId = data.PlantId;
         $scope.advance.PartyType = data.PartyType;
@@ -703,7 +703,6 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         $scope.advance.NewCompanyCurrencyRate = data.CompanyCurrencyRate;
         $scope.advance.PaymentPostingDate = data.PostingDate;
         $scope.totalAdvanceVendorWise($scope.advance.PartyId);
-
         angular.element(document.querySelector("#customerAdvancePopUp")).modal("hide");
     };
 
@@ -829,6 +828,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         else {
             $scope.advance.PaymentSource = 'Invoice'
         }
+        $scope.voucherDetailList = [];
     };
 
     $scope.closeBankPopUp = function () {
@@ -1098,10 +1098,9 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         $scope.advance.ActivityCode = null;
         $scope.advance.ActivityName = null;
         $scope.voucherDetailList = [];
+        $scope.voucherDetailExpensesList = [];
         $scope.voucherDetailListNew = [];
     }
-
-    
 
     $scope.closePartyPopUp = function (x) {
         var party = x.data;
@@ -1216,8 +1215,6 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         }
     };
 
-    
-
     $scope.tranCurrencyListNew = [];
     $scope.TrnCurrency = function () {
         cboService.getCboTransactionCurrencyByCompany('', function (result) {
@@ -1303,7 +1300,6 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
             else
                 $scope.isReadOnly = false;
             angular.element(document.querySelector("#customerAdvancePopUpNew")).modal("hide");
-            //$scope.convertAmountCr(x);
         }
         else {
             ShowResult(data.DocRefNo + " already  Exist", "failure", "customerAdvancePopUpNew");
@@ -1456,7 +1452,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
             return true;
         }
         if ($scope.companyConfig.IsVoucherFromBudget)
-            var getRow = $filter("filter")($scope.voucherDetailExpensesList, { "TrnType": "Dr", "BudgetMasterId": data.BudgetMasterId, "ActivityId": data.ActivityId, });
+            var getRow = $filter("filter")($scope.voucherDetailExpensesList, { "TrnType": "Cr", "BudgetMasterId": data.BudgetMasterId, "ActivityId": data.ActivityId, });
 
         if (!baseService.isUndefinedOrNull(getRow) && getRow.length > 0 && getRow[0].BudgetMasterId === data.BudgetMasterId) {
             ShowResult("This Activity is already added!", "failure", "GLPopUp");
@@ -1480,7 +1476,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
             $scope.voucherDetail.PlantId = $scope.advance.PlantId;
             $scope.voucherDetail.CrAmount = 0;
             $scope.voucherDetail.DrAmount = 0;
-            $scope.voucherDetail.TrnType = "Dr";
+            $scope.voucherDetail.TrnType = "Cr";
             $scope.voucherDetailExpensesList.push($scope.voucherDetail);
             $scope.voucherDetail = {};
             $scope.closeCOAICodeListPopUp();
