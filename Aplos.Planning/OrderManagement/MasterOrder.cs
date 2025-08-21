@@ -1151,14 +1151,22 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
 
         public IEnumerable<object> GetUoMCboByProductMaster()
         {
-            string sql = @"Select P.Id ProductMasterId,BUoM.Id AS Value,BUoM.UserName AS Text,CAST(1 as bit) ByDefault from [MST].[ProductMaster] P
+            //string sql = @"Select P.Id ProductMasterId,BUoM.Id AS Value,BUoM.UserName AS Text,CAST(1 as bit) ByDefault from [MST].[ProductMaster] P
+            //                LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=P.BaseUOMId
+            //                Where ISNULL(BUoM.Id,'')<>''
+            //                UNION ALL
+            //                Select AUom.ProductMasterId,BUoM.Id,BUoM.UserName,CAST(0 as bit) ByDefault from MST.ProductMasterAlternativeUoM AUoM 
+            //                LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=AUom.AlternativeUOMId
+            //                Where ISNULL(BUoM.Id,'')<>''
+            //                Order by ProductMasterId";
+
+            string sql = @"Select distinct BUoM.Id AS Value,BUoM.UserName AS Text from [MST].[ProductMaster] P
                             LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=P.BaseUOMId
                             Where ISNULL(BUoM.Id,'')<>''
                             UNION ALL
-                            Select AUom.ProductMasterId,BUoM.Id,BUoM.UserName,CAST(0 as bit) ByDefault from MST.ProductMasterAlternativeUoM AUoM 
+                            Select distinct BUoM.Id,BUoM.UserName from MST.ProductMasterAlternativeUoM AUoM 
                             LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=AUom.AlternativeUOMId
-                            Where ISNULL(BUoM.Id,'')<>''
-                            Order by ProductMasterId";
+                            Where ISNULL(BUoM.Id,'')<>''";
             return _sqlRepository.GetDataCollection(sql);
         }
         public IEnumerable<object> GetOrderCostingMasterTemplateDataByArticle(string articleId)

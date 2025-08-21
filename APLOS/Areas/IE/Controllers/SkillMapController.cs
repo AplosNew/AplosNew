@@ -109,9 +109,9 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         [HttpPost , Authorize]
-        public ActionResult skillwiseEmployee(string code , string shifts , string seq)
+        public ActionResult skillwiseEmployee(string code , string shifts , string seq, string companyId)
         {
-            return Json(skill.skillWiseEmployees(code , shifts , seq), JsonRequestBehavior.AllowGet);
+            return Json(skill.skillWiseEmployees(code , shifts , seq, companyId), JsonRequestBehavior.AllowGet);
         }
     }
 

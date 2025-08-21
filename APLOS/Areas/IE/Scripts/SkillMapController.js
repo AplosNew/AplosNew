@@ -281,36 +281,48 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.seq;
     $scope.skillGridDoubleClick = function (e) {
         $scope.preChart = e.data;
-        if (e.cellIndex < 3) {
+        if (e.cellIndex < 5) {
             fillChart(e.data);
         }
-        else if (e.cellIndex >= 3 && e.cellIndex < 6)
+        else if (e.cellIndex >= 5 && e.cellIndex < 8)
         {
             var seq = ''; var skillCode = ""; $scope.seq = "";
             $scope.SkillCodeWork = "";
             $scope.SkillWork = "";
-            if (e.cellIndex == 3) { seq = '1'; } 
-            if (e.cellIndex == 4) { seq = '2'; }
-            if (e.cellIndex == 5) { seq = '3'; }
+            //if (e.cellIndex == 3) { seq = '1'; } 
+            //if (e.cellIndex == 4) { seq = '2'; }
+            //if (e.cellIndex == 5) { seq = '3'; }
+
+            if (e.cellIndex == 5) { seq = '1'; }
+            if (e.cellIndex == 6) { seq = '2'; }
+            if (e.cellIndex == 7) { seq = '3'; }
+
             var skillCode = e.data.SkillCode;
             $scope.SkillCodeWork = skillCode;
             $scope.SkillWork = e.data.Skill;
             $scope.seq = seq;
             var shifts = $scope.parameters[1].Value;
+            var companyId = $scope.parameters[0].Value;
             $http({
                 method: 'POST',
                 url: 'IE/SkillMap/skillwiseEmployee',
-                data: { 'code': skillCode, 'shifts': shifts, 'seq': seq },
+                data: { 'code': skillCode, 'shifts': shifts, 'seq': seq, 'companyId': companyId},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
-                var ColumnList = [
-                    
-
+                var ColumnList = [                   
+                    { field: 'BudgetCode', width: 80, headerText: "Budget Code", type: "string" },
+                    { field: 'Entity', width: 80, headerText: "Entity", type: "string" },
+                    { field: 'ShiftName', width: 80, headerText: "Shift Name", type: "string" },
+                    { field: 'Line', width: 80, headerText: "Line", type: "string" },
+                    { field: 'GivenDesignation', width: 80, headerText: "Given Designation", type: "string" },
+                    { field: 'LegalDesignation', width: 80, headerText: "Legal Designation", type: "string" },
+                    { field: 'EmployeeId', width: 80, headerText: "EmployeeId", type: "string" },
                     { field: 'EmployeeCode', width: 80, headerText: "Employee Code", type: "string" },
                     { field: 'EmployeeName', width: 180, headerText: "Name", type: "string" },
-                    
-
-
+                    { field: 'EmployeeCurrentStatus', width: 180, headerText: "Employee Current Status", type: "string" },
+                    { field: 'SubSection', width: 180, headerText: "SubSection", type: "string" },
+                    { field: 'Section', width: 180, headerText: "Section", type: "string" },
+                    { field: 'Department', width: 180, headerText: "Department", type: "string" }                  
                 ];
                 $("#employeeSkillGrid").ejGrid({
                     dataSource: response.data,
@@ -508,14 +520,29 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
         
         var ColumnList = [
             //{ field: 'SkillId', width: 120, headerText: "SkillId" },
-            { field: 'SkillCategory', width: 40, headerText: "Skill Category" },
-            { field: 'SkillCode', width: 80, headerText: "Skill Code" },
-            { field: 'Skill', width: 180, headerText: "Skill" },
-            { field: 'SkillGroup', width: 180, headerText: "Skill Group" },
-            { field: 'Skill1', width: 80, headerText: "Skill 1" },
-            { field: 'Skill2', width: 80, headerText: "Skill 2" },
-            { field: 'Skill3', width: 80, headerText: "Skill 3" }
-            
+            //{ field: 'SkillCategory', width: 40, headerText: "Skill Category" },
+            //{ field: 'SkillCode', width: 80, headerText: "Skill Code" },
+            //{ field: 'Skill', width: 180, headerText: "Skill" },
+            //{ field: 'SkillGroup', width: 180, headerText: "Skill Group" },
+            //{ field: 'Skill1', width: 80, headerText: "Skill 1" },
+            //{ field: 'Skill2', width: 80, headerText: "Skill 2" },
+            //{ field: 'Skill3', width: 80, headerText: "Skill 3" }
+
+            { field: 'SkillGroup', width: 50, headerText: "Skill Group" },
+            { field: 'SkillCategory', width: 50, headerText: "Skill Category" },
+            { field: 'Skill', width: 100, headerText: "Skill" },
+            { field: 'SkillMaster', width: 180, headerText: "Skill Master" },
+            { field: 'SkillCode', width: 50, headerText: "Skill Code" },
+            { field: 'Skill1', width: 70, headerText: "Skill 1" },
+            { field: 'Skill2', width: 70, headerText: "Skill 2" },
+            { field: 'Skill3', width: 70, headerText: "Skill 3" }
+
+            //{ field: 'SkillCategory', width: 40, headerText: "Skill Category" },
+            //{ field: 'SkillCode', width: 80, headerText: "Skill Code" },
+            //{ field: 'Skill', width: 180, headerText: "Skill" },
+            //{ field: 'Skill1', width: 80, headerText: "Skill 1" },
+            //{ field: 'Skill2', width: 80, headerText: "Skill 2" },
+            //{ field: 'Skill3', width: 80, headerText: "Skill 3" }
 
         ];
 

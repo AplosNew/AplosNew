@@ -50,8 +50,7 @@ group by mo.PlantId , c.Id , p.UserName , c.UserName";
         {
             try
             {
-                var str = @"
-                            Select distinct c.Id as CompanyId,c.UserName as Company,e.Id as EntityId, e.UserName as Entity,
+                var str = @"Select distinct c.Id as CompanyId,c.UserName as Company,e.Id as EntityId, e.UserName as Entity,
                             p.Id as PlantId,p.UserName as Plant,s.ShiftDefinationDescription as [Shift],s.SystemID as ShiftId,
                             ISNULL (om.SkillId,'') as SkillId,ISNULL( om.UserName,'') as Skill, ISNULL(omp.UserName,'') AS Process,
                             ISNULL(omp.Id,'') as ProcessId, ISNULL(skc.UserName,'') AS Category, ISNULL(skc.Id,'') as CategoryId,
@@ -302,8 +301,8 @@ group by mo.PlantId , c.Id , p.UserName , c.UserName";
         {
 
             var str = @"select  isnull(emp.Skill1,0) as Skill1, isnull(emp.Skill2,0) as Skill2, isnull(emp.Skill3,0) as Skill3,skc.[Sequence],omp.Id as ProcessId, 
-om.Id AS OperationMasterId,om.SkillId, om.SkillGroupId , om.OperationTypeId , isnull(om.Code,'') as SkillCode,om.UserName AS Skill,sg.UserName SkillGroup ,om.OperationCategoryId as CategoryId,
-skc.UserName as SkillCat,omsk.SkillCategoryId,omsk.UserName AS UserName,
+om.Id AS OperationMasterId,om.SkillId, om.SkillGroupId , om.OperationTypeId , isnull(om.Code,'') as SkillCode,om.UserName AS SkillMaster,sg.UserName SkillGroup ,om.OperationCategoryId as CategoryId,
+skc.UserName as SkillCat,omsk.SkillCategoryId,omsk.UserName AS Skill,
 isnull(DT.ProductionDate,'" + fromDate + @"') as ProductionDate , isnull(dt.SkillIdTemp,'') as SkillIdTemp, isnull(sum(dt.RequiredManPower),0) as RequiredManPower,
 isnull(sum(dt.AllotedManpower),0) as AllotedManpower , 
 isnull(emp.CompanyId,'') as CompanyId,convert(DECIMAL(18,2),ISNULL(sum(dt.AllotedManpower),0))-isnull(sum(dt.RequiredManPower),0) AS ShortExcess
@@ -346,7 +345,7 @@ LEFT JOIN (SELECT
 											WHERE ES.WorkDate =FORMAT(GETDATE(), 'dd-MMM-yyyy') 
                                             AND isnull(S.SystemId,'') IN(" + parameters["ShiftId"] + @")
 											) AD ON AD.EmpSystemID=E.SystemId
-											where E.EmployeeStatus='Active' AND E.EmpType<>'Guest' 
+											where E.EmployeeStatus='Active' AND E.EmpType<>'Guest' AND isnull(E.CompanyId,'') IN(" + parameters["CompanyId"] + @") 
 											group by EOP.Id,C.id 
 											) as shi on shi.operationId = om.Id
                           where CAST(p1.ProductionDate as DATE) between '" + fromDate + @"' and  '" + toDate + @"' AND
@@ -381,7 +380,7 @@ LEFT JOIN (SELECT
 											WHERE ES.WorkDate =FORMAT(GETDATE(), 'dd-MMM-yyyy')
 											 AND isnull(S.SystemId,'') IN(" + parameters["ShiftId"] + @")
 											) AD ON AD.EmpSystemID=E.SystemId
-											where E.EmployeeStatus='Active' AND E.EmpType<>'Guest'
+											where E.EmployeeStatus='Active' AND E.EmpType<>'Guest' AND isnull(E.CompanyId,'') IN(" + parameters["CompanyId"] + @") 
 											group by EOP.Id,C.id  ) as emp
 											group by emp.Id , emp.OperationMasterId 
 											) as emp on emp.OperationMasterId = om.Id
@@ -409,6 +408,7 @@ om.UserName,sg.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategor
             SkillData.Columns.Add("SkillId");
             SkillData.Columns.Add("RowCaption");
             SkillData.Columns.Add("Skill");
+            SkillData.Columns.Add("SkillMaster");
             SkillData.Columns.Add("SkillGroup");
             SkillData.Columns.Add("SkillCategory");
             SkillData.Columns.Add("SkillCode");
@@ -441,6 +441,7 @@ om.UserName,sg.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategor
                         dr["Index"] = ind;
                         dr["SkillId"] = dtRequiredManpower.Rows[i]["SkillId"];
                         dr["Skill"] = dtRequiredManpower.Rows[i]["Skill"];
+                        dr["SkillMaster"] = dtRequiredManpower.Rows[i]["SkillMaster"];
                         dr["SkillGroup"] = dtRequiredManpower.Rows[i]["SkillGroup"];
                         dr["SkillCategory"] = dtRequiredManpower.Rows[i]["SkillCat"];
                         dr["SkillCode"] = dtRequiredManpower.Rows[i]["SkillCode"];
@@ -482,6 +483,7 @@ om.UserName,sg.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategor
                         dr["Index"] = ind;
                         dr["SkillId"] = dtRequiredManpower.Rows[i]["SkillId"];
                         dr["Skill"] = dtRequiredManpower.Rows[i]["Skill"];
+                        dr["SkillMaster"] = dtRequiredManpower.Rows[i]["SkillMaster"];
                         dr["SkillGroup"] = dtRequiredManpower.Rows[i]["SkillGroup"];
                         dr["SkillCategory"] = dtRequiredManpower.Rows[i]["SkillCat"];
                         dr["SkillCode"] = dtRequiredManpower.Rows[i]["SkillCode"];
@@ -520,6 +522,7 @@ om.UserName,sg.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategor
                         dr["Index"] = ind;
                         dr["SkillId"] = dtRequiredManpower.Rows[i]["SkillId"];
                         dr["Skill"] = dtRequiredManpower.Rows[i]["Skill"];
+                        dr["SkillMaster"] = dtRequiredManpower.Rows[i]["SkillMaster"];
                         dr["SkillGroup"] = dtRequiredManpower.Rows[i]["SkillGroup"];
                         dr["SkillCategory"] = dtRequiredManpower.Rows[i]["SkillCat"];
                         dr["SkillCode"] = dtRequiredManpower.Rows[i]["SkillCode"];
@@ -687,26 +690,34 @@ om.UserName,sg.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategor
             }
         }
 
-        public IEnumerable<object> skillWiseEmployees(string code, string shifts, string seq)
+        public IEnumerable<object> skillWiseEmployees(string code, string shifts, string seq,string companyId)
         {
             try
             {
-                var str = @"Select C.Id,EOP.Code, E.EmployeeCode , E.EmployeeName 
-											
+                var str = @"Select E.BudgetCode,EN.UserName Entity,AD.ShiftName,LN.UserName Line,D.UserName GivenDesignation,LD.UserName LegalDesignation,E.SystemId EmployeeId, E.EmployeeCode , E.EmployeeName 
+											,E.EmployeeCurrentStatus--,YesterDayStatus,ToDayStatus
+											,SS.UserName SubSection,S.UserName Section,DP.UserName Department											
 											from EmployeeInformation E
-											LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
-											LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
+											LEFT JOIN MST.ManpowerBudget MB ON MB.Id=E.BudgetCode
+											LEFT JOIN ORG.Entity EN ON EN.Id=MB.EntityId
+											LEFT JOIN ORG.Line LN ON LN.Id=MB.LineId
+											LEFT JOIN HKP.Designation D ON D.Id=GivenDesignationId
+											LEFT JOIN HKP.LegalDesignation LD ON LD.Id=E.LegalDesignationId
+											LEFT JOIN ORG.Position P ON P.Id=MB.PositionId
+											LEFT JOIN ORG.Section S ON S.Id=P.SectionId
+											LEFT JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
+											LEFT JOIN ORG.Department DP ON DP.Id=P.DepartmentId
 											LEFT JOIN EmployeeOperation EO ON EO.EmpSystemId=E.SystemId
 											LEFT JOIN MST.OperationMaster EOP ON EOP.Id=EO.OperationMasterId
 											LEFT JOIN (
-											SELECT ES.EmpSystemID, S.ShiftDefinationDescription
+											SELECT ES.EmpSystemID,  S.UserName ShiftName
 											FROM EmpDateWiseShiftAssign ES
 											LEFT JOIN ShiftDefination S ON S.SystemID = ES.ShiftSystemID
                                             
 											WHERE ES.WorkDate =FORMAT(GETDATE(), 'dd-MMM-yyyy')
                                             AND isnull(S.SystemId,'') IN(" + shifts + @")
 											) AD ON AD.EmpSystemID=E.SystemId
-											where E.EmployeeStatus='Active' AND E.EmpType<>'Guest' and eop.code = '" + code + @"' and eo.Sequence = '" + seq + @"'
+											where E.EmployeeStatus='Active' AND E.EmpType<>'Guest' and E.CompanyId IN(" + companyId + @") and eop.code = '" + code + @"' and eo.Sequence = '" + seq + @"'
 											order by E.EmployeeName";
                 return _sqlRepository.GetDataCollection(str);
             }
