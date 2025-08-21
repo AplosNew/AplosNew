@@ -92,6 +92,10 @@
                                     <input ng-click="clearSourceInfo()" type="radio" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.Bank.ToString()">
                                     <span class="cr" tabindex="8"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Bank.ToString()
                                 </label>
+                                <label>
+                                    <input ng-click="clearSourceInfo()" type="radio" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.GL.ToString()">
+                                    <span class="cr" tabindex="8"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.GL.ToString()
+                                </label>
                                 <label ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.Return.ToString()'">
                                     <input ng-click="clearSourceInfo()" type="radio" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.Cash.ToString()">
                                     <span class="cr" tabindex="9"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Cash.ToString()
@@ -183,7 +187,7 @@
                                 <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="advance.CompanyCurrencyRate" class="form-control text-right" tabindex="5" readonly required>
                             </div>
                             <div class="col-sm-4 show-message" style="padding-left:0px;" ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.Return.ToString()'">
-                                <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="advance.CompanyCurrencyRate" class="form-control text-right" tabindex="5"  required>
+                                <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="advance.CompanyCurrencyRate" class="form-control text-right" tabindex="5" required>
                             </div>
                         </div>
                         <div class="form-group" show-errors>
@@ -198,7 +202,52 @@
                                 <textarea rows="2" type="text" name="Narration" tabindex="8" class="form-control" ng-model="advance.Narration" required capitalize></textarea>
                             </div>
                         </div>
-                        
+
+                    </div>
+                    <div class="clearfix"></div>
+                    <div ng-show="advance.PaymentSource=='@Library.Model.Payments.PaymentSource.GL.ToString()'">
+                        <ul class="list-inline">
+                            <li><button class="btn single-btn" ng-click="popUp()" tabindex=""><i class="glyphicon glyphicon-plus"></i> GL</button></li>
+                        </ul>
+                    </div>
+                    <div class="row form-elements">
+                        <div class="col-xs-12 col-sm-12 col-md-12 modal-table" ng-show="advance.PaymentSource=='@Library.Model.Payments.PaymentSource.GL.ToString()'">
+                            <table class="table table-responsive table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>GL</th>
+                                        <th>Budget</th>
+                                        <th>Activity</th>
+                                        <th>Amount</th>
+                                        <th class="text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in voucherDetailExpensesList">
+                                        <td>{{x.GLGeneralInfoCode}} - {{x.GLGeneralInfoName}}</td>
+                                        <td>{{x.BudgetName}}</td>
+                                        <td>{{x.ActivityName}}</td>
+                                        <td id="td_Amount">
+                                            <div class="show-message">
+                                                <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Amount">
+                                            </div>
+                                        </td>
+                                        <td class="text-right">
+                                            <button ng-click="removeDetaillRow(x.Id,x.VoucherId,x.VoucherDetailId,$index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot ng-show="voucherDetailExpensesList.length">
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td><b>Sub Total</b></td>
+                                        <td class="text-right"><b>{{ voucherDetailExpensesList | sumByKey : 'Amount' }}</b></td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
                     </div>
                     <div class="clearfix"></div>
                     <div class="table-responsive modal-table" ng-hide="voucherDetailList.length==0">
@@ -713,6 +762,7 @@
     @Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
     @Html.Partial("~/Areas/Banks/Views/_CashPopUp.cshtml")
     @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
+    @Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
     <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceWriteOffId)"></confirm-archive-generic>
     <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(voucherId)"></confirm-archive-generic>
 
