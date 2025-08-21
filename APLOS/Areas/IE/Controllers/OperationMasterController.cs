@@ -22,6 +22,7 @@ using Library.Data.Repositories;
 using System.Linq;
 using Library.Model.Enums;
 using Aplos.Controllers;
+using System.Data;
 
 namespace Aplos.Areas.IE.Controllers
 {
@@ -32,14 +33,14 @@ namespace Aplos.Areas.IE.Controllers
 
 
         private readonly IOperationMasterService _operationMasterService;
-       
+
         private readonly IOperationService _operationService;
         private readonly IOperationVariationService _operationStepService;
 
         private readonly IOperationTimeCaptureMasterService _ioperationtimecaptureservice;
         private readonly IOperationTimeCaptureDetailService _operationtimecapturedetailservice;
         private readonly IOperationPositionMPBudgetService _OperationPositionMPBudgetService;
-        private readonly IRepositoryAsync<OperationPositionMPBudget> _OperationPositionMPBudgetRepository; 
+        private readonly IRepositoryAsync<OperationPositionMPBudget> _OperationPositionMPBudgetRepository;
         private readonly ISqlRepository _sqlRepository;
 
 
@@ -67,7 +68,7 @@ namespace Aplos.Areas.IE.Controllers
         #endregion Constructor
 
         #region -- Pages
-  
+
         public ActionResult Aplos()
         {
             return View();
@@ -104,7 +105,7 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetCboSkillCboByMachine(string Id) 
+        public JsonResult GetCboSkillCboByMachine(string Id)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_operationMasterService.GetCboSkillCboByMachine(Id), JsonRequestBehavior.AllowGet);
@@ -131,11 +132,11 @@ namespace Aplos.Areas.IE.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             //return Json(_operationMasterService.GetCbolegalDesignation(), JsonRequestBehavior.AllowGet);
             string sql = @"Select LD.Id,LD.UserName  FROM MST.DesignationMaster DM
-LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId AND DC.PlantId = '"+identity.PlantId+@"'
+LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId AND DC.PlantId = '" + identity.PlantId + @"'
 LEFT JOIN [MST].[DesignationMasterLegalDesignation] DMLD ON DMLD.DesignationMasterId=DM.Id
 LEFT JOIN HKP.LegalDesignation LD ON DMLD.LegalDesignationId=LD.Id
 LEFT JOIN HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
-WHERE DM.DesignationGroupId='"+ designationGroupId + "' AND LD.Id<>''";
+WHERE DM.DesignationGroupId='" + designationGroupId + "' AND LD.Id<>''";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
         }
@@ -148,7 +149,7 @@ WHERE DM.DesignationGroupId='"+ designationGroupId + "' AND LD.Id<>''";
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetCboEntity() 
+        public JsonResult GetCboEntity()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_OperationPositionMPBudgetService.GetCboEntity(), JsonRequestBehavior.AllowGet);
@@ -187,7 +188,7 @@ WHERE DM.DesignationGroupId='"+ designationGroupId + "' AND LD.Id<>''";
 
 
         #region Grid data for Operation Master UI
-        [Authorize,  HttpGet]
+        [Authorize, HttpGet]
         public JsonResult GetOperationMaster()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -211,7 +212,7 @@ WHERE DM.DesignationGroupId='"+ designationGroupId + "' AND LD.Id<>''";
             return Json(_operationMasterService.GetDataByMasterOrderId(id), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
-        public JsonResult GetDataByMasterOrderIdMP(string id) 
+        public JsonResult GetDataByMasterOrderIdMP(string id)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_OperationPositionMPBudgetService.GetDataByMasterOrderIdMP(id), JsonRequestBehavior.AllowGet);
@@ -239,7 +240,7 @@ WHERE DM.DesignationGroupId='"+ designationGroupId + "' AND LD.Id<>''";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return _operationMasterService.GetAutoNumber(nameof(OperationMaster), PKGeneratorEnum.Yearly, null, DateTime.Now);
         }
-        private string GetPK1() 
+        private string GetPK1()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return _operationMasterService.GetAutoNumber(nameof(OperationPositionMPBudget), PKGeneratorEnum.Yearly, null, DateTime.Now);
@@ -253,15 +254,15 @@ WHERE DM.DesignationGroupId='"+ designationGroupId + "' AND LD.Id<>''";
             {
                 _operationMasterService.Check(model);
             }
-            catch(CustomException)
+            catch (CustomException)
             {
                 throw;
             }
-          
+
             //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             model.Id = "OP" + GetPK();
             model.CompanyGroupID = identity.CompanyGroupId;
-            if(model.Type=="ACTIVITY")
+            if (model.Type == "ACTIVITY")
             {
                 model.MachineMasterId = null;
                 model.Skillid = model.Skillid;
@@ -273,7 +274,7 @@ WHERE DM.DesignationGroupId='"+ designationGroupId + "' AND LD.Id<>''";
             }
             else if (model.Active)
             {
-                model.Active=true;
+                model.Active = true;
             }
             else if (!model.Active)
             {
@@ -281,7 +282,7 @@ WHERE DM.DesignationGroupId='"+ designationGroupId + "' AND LD.Id<>''";
             }
 
             _operationMasterService.Insert(model);
-            return Json(new { OperationMaster = model,model.Id, Sequence = _operationMasterService.GetAutoSequence(), Message = AplosMessage.Insert });
+            return Json(new { OperationMaster = model, model.Id, Sequence = _operationMasterService.GetAutoSequence(), Message = AplosMessage.Insert });
         }
 
         [HttpPost]
@@ -370,8 +371,8 @@ WHERE DM.DesignationGroupId='"+ designationGroupId + "' AND LD.Id<>''";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             model.Id = "OPP" + GetPK1();
-            model.CompanyGroupID = identity.CompanyGroupId;  
-             if (model.PositionId == null)
+            model.CompanyGroupID = identity.CompanyGroupId;
+            if (model.PositionId == null)
             {
                 throw new CustomException("Please select position");
             }
@@ -383,16 +384,16 @@ WHERE DM.DesignationGroupId='"+ designationGroupId + "' AND LD.Id<>''";
             {
                 throw new CustomException("Please input Manpower Budget");
             }
-            else if(model.Active)
+            else if (model.Active)
             {
                 model.Active = true;
             }
             else if (!model.Active)
             {
-                model.Active = false; 
+                model.Active = false;
             }
             var res = _OperationPositionMPBudgetRepository.SqlQuery<int>($"select id=case when Id is not null then 1 else 0 end from Mst.OperationPositionMPBudget where OperationMasterId='{model.OperationMasterId}' AND EntityId= '{model.EntityId}' and PositionId='{model.PositionId}' and Caption='{model.Caption}' and ShiftId='{model.ShiftId}'").FirstOrDefault();
-            
+
             if (res == 1)
             {
                 throw new CustomException("Combination already exist!");
@@ -442,16 +443,16 @@ WHERE DM.DesignationGroupId='"+ designationGroupId + "' AND LD.Id<>''";
                 {
                     model.Active = false;
                 }
-            
-            _OperationPositionMPBudgetService.Update(model);
-            return Json(new { Sequence = _operationMasterService.GetAutoSequence(), Message = AplosMessage.Updated });
+
+                _OperationPositionMPBudgetService.Update(model);
+                return Json(new { Sequence = _operationMasterService.GetAutoSequence(), Message = AplosMessage.Updated });
             }
             catch (Exception ex)
             {
                 return Json(new { Error = true, Message = ex.ToString() });
             }
         }
-        
+
         [HttpPost]
         public ActionResult DeleteManpower(string id)
         {
@@ -459,8 +460,58 @@ WHERE DM.DesignationGroupId='"+ designationGroupId + "' AND LD.Id<>''";
             return Json(new { Sequence = _operationMasterService.GetAutoSequence(), Message = AplosMessage.Deleted });
         }
 
+        [HttpPost, Authorize]
+        public ActionResult SaveSkillMachine(List<Dictionary<string, object>> machineList, string SkillMasterId)
+        {
+            try
+            {
 
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string _Id = "";
+                string sql = "";
+                string EmpSystemId = "";
 
+                sql = "SELECT * FROM [dbo].[SkillMasterMachine] WHERE SkillMasterId='" + SkillMasterId + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                foreach (var item in machineList)
+                {
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+                        dr["SkillMasterId"] = item["SkillMasterId"];
+                        dr["ArticleId"] = item["ArticleId"];
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+
+                }
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetSkillMasterMachineData(string OMId)
+        {
+            return Json(_operationMasterService.GetSkillMasterMachineData(OMId), JsonRequestBehavior.AllowGet);
+        }
 
 
 

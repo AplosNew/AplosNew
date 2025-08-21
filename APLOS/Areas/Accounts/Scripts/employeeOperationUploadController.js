@@ -1,7 +1,7 @@
 ﻿'use strict';
 employeeOperationUploadController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
 function employeeOperationUploadController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = "Employee Operation Upload";
+    $rootScope.title = "Employee Skill Master Upload";
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {

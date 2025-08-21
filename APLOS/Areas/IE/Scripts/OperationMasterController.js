@@ -1,6 +1,6 @@
 ﻿'use strict';
-OperationMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function OperationMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+OperationMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller'];
+function OperationMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
     $rootScope.title = 'Skill Master';
     $scope.Action = 'Save';
     $scope.Action1 = 'Save';
@@ -25,6 +25,10 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.saveUrl1 = $scope.path + 'CreateManpower';
     $scope.updateUrl1 = $scope.path + 'EditManpower';
     $scope.deleteUrl1 = $scope.path + 'DeleteManpower/';
+    $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
+
+
+
     $scope.model = {
         Id: null,
         CompanyGroupId: null,
@@ -45,7 +49,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         ProposedSalary: null,
         Remarks: null,
         Active: null,
-        DesignationGroupId:null
+        DesignationGroupId: null
     };
     $scope.modelNew = Object.assign({}, $scope.model);
 
@@ -238,7 +242,6 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.GetCboSkillGroupingCbo();
 
-
     $scope.GetSkillGroupingCbo = function () {
         for (var i = 0; i < $scope.SkillList.length; i++) {
             if ($scope.modelNew.SkillId == $scope.SkillList[i].Value) {
@@ -255,9 +258,6 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         }
     }
 
-
-
-
     $scope.GetCbolegalDesignation = function () {
         //debugger;
         $http({
@@ -265,9 +265,10 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
             url: 'IE/OperationMaster/GetCbolegalDesignation?designationGroupId=' + $scope.modelNew.DesignationGroupId
         }).then(function successCallback(response) {
             $scope.legalDesignationList = response.data;
+
+            $scope.GetSkillMasterMachineData();
         });
     }
-
 
     $scope.GetCboProcess = function () {
         //debugger;
@@ -279,8 +280,6 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         });
     }
     $scope.GetCboProcess();
-
-
 
     //#endregion
 
@@ -375,9 +374,6 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
             ShowResult(e, 'failure');
         }
     };
-
-
-
 
     $scope.Delete = function () {
 
@@ -529,7 +525,6 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
-        $scope.getalldata1();
 
     };
     $scope.isSet = function (tabNum) {
@@ -670,128 +665,139 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         window.open('IE/OperationMaster/OperationMasterReports?reportFormat=' + reportFormat, '_blank');
     };
 
-   
 
+    // #region SkillMasterMachine
 
-    // #region Material Master
+    $scope.ActionSM = "Save";
+    $scope.SkillMasterMachine = {
+        Id: null,
+        SkillMasterId: null,
+        ArticleId: null
+    }
+    $scope.SkillMasterMachineNew = Object.assign({}, $scope.SkillMasterMachine);
+    $scope.materialArticleList = [];
 
-    $scope.materialList = [];
-    $scope.materialParameters = {
-        limit: 10
-        , offset: 0
-        , order: 'asc'
-        , sort: 'MaterialMasterName'
-        , searchBy: "MaterialMasterName"
-        , pageSize: 10
-        , total_count: 0
-        , search: null
-        , serverPagination: true
-    };
-    $scope.materialPopUp = function (index) {
-        $scope.popUpIndex = index;
-        $scope.materialDataList = [];
-        $scope.materialUrl = 'Materials/MaterialMaster/GetCommonMachineListByProcess?processIds=' + baseService.getColumnValueList($scope.sprocessList, 'ProcessId');
-        baseService.setCurrentPage('materialDataList');
-        $scope.getMaterialData = function (pageno) {
-            baseService.paginationBase($scope.materialUrl, pageno, $scope.materialParameters)
-                .then(function (result) {
-                    $scope.materialDataList = result.Rows;
-                    $scope.materialParameters.total_count = result.Total;
-                    if (baseService.arrayLength($scope.materialList) === 0) {
-                        baseService.getDDLSearchColumn(result.Rows, $scope.materialList);
-                    }
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure', 'materialId');
-                }).finally(function () {
-                });
-        };
-        angular.element(document.querySelector('#materialId')).modal('show');
-        $scope.getMaterialData();
-    };
-    $scope.closeMaterial = function () {
-        $scope.popUpIndex = -1;
-        angular.element(document.querySelector('#materialId')).modal('hide');
+    $scope.materialType = 'MachineDefinition';
+    $scope.getArticle = function () {
+        $scope.getMaterialMasterWithCbxArticle();
     };
 
-    // #endregion MM
+    // #region checkbox all
 
-    // #region Article
-
-    $scope.articleList = [];
-    $scope.articleParameters = {
-        limit: 10
-        , offset: 0
-        , order: 'asc'
-        , sort: 'StandardName'
-        , searchBy: "StandardName"
-        , pageSize: 10
-        , total_count: 0
-        , search: null
-        , serverPagination: true
+    $scope.refreshTemplatearticle = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllarticle });
     };
-    $scope.articlePopUp = function (materialMasterId, materialName, materialIndex) {
-        try {
-            var flag = false;
-            if (!baseService.isUndefinedOrNull($scope.operationVariationNew.OperationId)) {
-                //var opProcessIds = $.grep($scope.operationList, function (item) { return item.Value === $scope.operationVariationNew.OperationId; })[0].ProsessIds;
-                var opProcessIds = $.grep($scope.operationList, function (item) { return item.Id === $scope.operationVariationNew.OperationId; })[0].ProsessIds;
 
-            } else {
-                throw "Select Operation.";
-            }
-
-            var prosessIds = $scope.materialDataList[materialIndex].ProsessIds;
-
-            if (!baseService.isUndefinedOrNull(prosessIds) && !baseService.isUndefinedOrNull(opProcessIds)) {
-                var opProcessArray = opProcessIds.split(',');
-                var processAray = prosessIds.split(',');
-                for (var i = 0; i < baseService.arrayLength(processAray); i++) {
-                    if (opProcessArray.indexOf(processAray[i]) !== -1) {
-                        flag = true;
-                        break;
-                    }
-                }
-            }
-            if (!flag) throw 'operation process and machine process not match ';
-            $scope.excluedList = ['SkillName', 'MachineAllowance'];
-            $scope.operationVariationNew.MaterialName = materialName;
-            $scope.articleDataList = [];
-            $scope.articleUrl = 'Machines/operation/GetArticleListByMaterialMaster?materialMasterId=' + materialMasterId;
-            baseService.setCurrentPage('dataList');
-            $scope.getarticleData = function (pageno) {
-                baseService.paginationBase($scope.articleUrl, pageno, $scope.articleParameters)
-                    .then(function (result) {
-                        $scope.articleDataList = result.Rows;
-                        $scope.articleParameters.total_count = result.Total;
-                        if (baseService.arrayLength($scope.articleList) === 0) {
-                            baseService.getDDLSearchColumn(result.Rows, $scope.articleList);
-                        }
-                    }, function () {
-                        ShowResult(commonMessage.NetworkError, 'failure', 'articleId');
-                    }).finally(function () {
-                    });
-            };
-            angular.element(document.querySelector('#articleId')).modal('show');
-            $scope.getarticleData();
-        } catch (e) {
-            ShowResult(e, '', 'materialId');
+    function CheckBoxSelectAllarticle(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
         }
 
+        var filtered = $("#MACGrid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.materialArticleList.length; i++) {
+                $scope.materialArticleList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#MACGrid").data("ejGrid");
+        gridObj.refreshContent();
     };
-    $scope.selectArticle = function (data) {
-        $scope.operationVariationNew.ArticleId = data.Id;
-        $scope.operationVariationNew.ArticleName = data.StandardName;
 
-        $scope.operationVariationNew.SkillId = data.SkillId;
-        $scope.operationVariationNew.SkillName = data.SkillName;
-        $scope.operationVariationNew.MachineAllowance = data.MachineAllowance;
-        calculateSAM();
-        $scope.closeArticle();
-        $scope.closeMaterial();
-    };
-    $scope.closeArticle = function () {
-        angular.element(document.querySelector('#articleId')).modal('hide');
-    };
+    // #endregion checkbox all
 
+    $scope.machineList = [];
+    function MakeData() {
+
+        for (var i = 0; i < $scope.materialArticleList.length; i++) {
+            if ($scope.materialArticleList[i].Flag == true) {
+                if (checkExists($scope.machineList, $scope.materialArticleList[i].Id) === false) {
+                    var ob = {};
+                    ob.Id = null;
+                    ob.ArticleId = $scope.materialArticleList[i].Id;
+                    ob.SkillMasterId = $scope.modelNew.OperationMasterId;
+
+                    $scope.machineList.push(ob);
+                }
+                else {
+                    throw "This Machine " + $scope.materialArticleList[i].StandardName + " is already taken.";
+                }
+            }
+        }
+
+    }
+
+    function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].ArticleId === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.CloseArticle = function () {
+        try {
+            MakeData();
+            $scope.SaveSM();
+            angular.element(document.querySelector('#materialarticleNewCbxPopUp')).modal('hide');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
     // #endregion Article
+
+    $scope.SaveSM = function () {
+        try {
+            if (baseService.arrayLength($scope.machineList) < 0) {
+                throw "Select Machine Master.";
+            }
+
+            $http({
+                method: 'POST',
+                url: 'IE/OperationMaster/SaveSkillMachine',
+                data: { 'machineList': $scope.machineList, 'SkillMasterId': $scope.modelNew.OperationMasterId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetSkillMasterMachineData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.SkillMasterMachineList = [];
+    $scope.GetSkillMasterMachineData = function () {
+        $http({
+            method: 'GET',
+            url: 'IE/OperationMaster/GetSkillMasterMachineData?OMId=' + $scope.modelNew.OperationMasterId
+        }).then(function successCallback(response) {
+            $scope.SkillMasterMachineList = response.data;
+        });
+    }
+
+    $scope.ClearSM = function () {
+        $scope.ActionSM = "Save";
+        $scope.SkillMasterMachine = {
+            Id: null,
+            SkillMasterId: null,
+            ArticleId: null,
+            MaterialName: null
+        }
+        $scope.SkillMasterMachineNew = Object.assign({}, $scope.SkillMasterMachine);
+    }
 }

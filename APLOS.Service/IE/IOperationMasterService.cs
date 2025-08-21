@@ -29,7 +29,7 @@ namespace Library.Service.IE
 		IEnumerable<object> GetCbolegalDesignation();
 		IEnumerable<object> GetCboSkillGrouping();
 		IEnumerable<object> GetDataByMasterOrderId(string id);
-
+		IEnumerable<object> GetSkillMasterMachineData(string masterId);
 		void Check(OperationMaster entity);
 
 

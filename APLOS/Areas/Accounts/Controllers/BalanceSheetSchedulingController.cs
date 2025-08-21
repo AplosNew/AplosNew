@@ -1630,9 +1630,9 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
 
 
 
+            objCon = new ConnectionManager.DAL.ConManager("1");
             foreach (var item in skillDataList)
             {
-                objCon = new ConnectionManager.DAL.ConManager("1");
                 sql = "SELECT * FROM [dbo].[EmployeeSkill] WHERE SkillId='" + item.SkillId + "' AND EmpSystemId='" + item.EmpSystemId + "'";
                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
@@ -1684,7 +1684,7 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             IWorkbook workbook = GetSampleFileEmployeeOperation(identity.Name);
-            var reportFileName = "Employee Operation Data upload Sample File";
+            var reportFileName = "Employee Skill Master Data upload Sample File";
 
             switch (reportFormat)
             {
@@ -1723,16 +1723,16 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
-                workbook = application.Workbooks.Create(2);
+                workbook = application.Workbooks.Create(1);
 
                 int xlsRow = 1, xlsCol = 1;
                 int endXlsCol = 1;
 
-                #region Lunch Out
+                #region SampleFileEmployeeOperation
                 IWorksheet sheet1 = null;
                 sheet1 = workbook.Worksheets[0];
                 IWorksheet sheetSource = null;
-                sheetSource = workbook.Worksheets[1];
+                sheetSource = workbook.Worksheets[0];
                 xlsRow = 1;
 
                 #region ------------------Column Header------------------
@@ -1746,7 +1746,8 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DesignationGroup"); int colDesignationGroup = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LegalDesignation"); int colLegalDesignation = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Process"); int colProcess = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmpSystemId"); int colEmpSystemId = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmpSystemId"); int colEmpSystemId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sequence"); int colSeq = xlsCol;
 
                 endXlsCol = xlsCol;
 
@@ -1799,7 +1800,7 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
                 sheet1.Name = "Sheet1";
                 #endregion Page Setup
 
-                #endregion  Lunch Out
+                #endregion  SampleFileEmployeeOperation
 
                 return workbook;
             }
@@ -1903,6 +1904,7 @@ LEFT JOIN HKP.Process P ON P.Id=OM.ProcessId";
                                 vm.LegalDesignation = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
                                 vm.Process = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
                                 vm.EmpSystemId = dsExcel.Tables[0].Rows[i][7].ToString().Trim();
+                                vm.Sequence = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][8].ToString());
                                 data.Add(vm);
 
                             }
@@ -1947,72 +1949,93 @@ LEFT JOIN HKP.Process P ON P.Id=OM.ProcessId";
         {
             try
             {
-                try
+
+                EmployeeProfile ef = new EmployeeProfile();
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string _Id = "";
+                string sql = "";
+                string EmpSystemId = "";
+                foreach (var item in operationDataList)
                 {
-                    EmployeeProfile ef = new EmployeeProfile();
-                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                    ConnectionManager.DAL.ConManager objCon;
-                    DataSet dsMaster;
-                    string _Id = "";
-                    foreach (var item in operationDataList)
+                    if (EmpSystemId == "")
                     {
-                        if (!string.IsNullOrEmpty(item.OperationMasterId))
-                        {
-                            string sql = "SELECT * FROM [dbo].[EmployeeOperation] WHERE OperationMasterId='" + item.OperationMasterId + "' AND EmpSystemId='" + item.EmpSystemId + "'";
-                            objCon = new ConnectionManager.DAL.ConManager("1");
-                            objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-
-                            DataSet dsSeq;
-                            ef.GetOperationSequence(item.EmpSystemId, out dsSeq);
-                            decimal seq = Convert.ToDecimal(dsSeq.Tables[0].Rows[0]["Sequence"].ToString());
-                            if (seq != 0)
-                            {
-                                seq--;
-                            }
-
-                            if (dsMaster.Tables[0].Rows.Count == 0)
-                            {
-                                //bplib.clsGenID genid = new bplib.clsGenID();
-                                //genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmployeeOperation", out _Id);
-                                seq++;
-                                DataRow dr = dsMaster.Tables[0].NewRow();
-                                //dr["Id"] = _Id;
-                                dr["Id"] = item.EmpSystemId + "-" + seq.ToString();
-                                dr["EmpSystemId"] = item.EmpSystemId;
-                                dr["OperationMasterId"] = item.OperationMasterId;
-                                dr["Sequence"] = seq;
-                                dr["AddedBy"] = identity.Name;
-                                dr["AddedDate"] = DateTime.Now;
-                                dr["AddedFromIP"] = identity.IPAddress;
-
-                                dsMaster.Tables[0].Rows.Add(dr);
-                            }
-                            else
-                            {
-                                //edit
-                                DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-
-                                dr.BeginEdit();
-
-                                dr["EmpSystemId"] = item.EmpSystemId;
-                                dr["OperationMasterId"] = item.OperationMasterId;
-
-                                dr["UpdatedBy"] = identity.Name;
-                                dr["UpdatedDate"] = DateTime.Now;
-                                dr["UpdatedFromIP"] = identity.IPAddress;
-
-                                dr.EndEdit();
-                            }
-                            OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
-                            obj.SaveDataSets(dsMaster); 
-                        }
+                        EmpSystemId = item.EmpSystemId;
                     }
-                    return Json(new { Message = AplosMessage.Insert });
+                    else
+                    {
+                        EmpSystemId += "," + item.EmpSystemId;
+                    }
                 }
-                catch (Exception ex)
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                sql = "Update [dbo].[EmployeeOperation] set Archive=1 WHERE EmpSystemId IN(" + EmpSystemId + ")";
+                objCon.BeginTransaction();
+                objCon.executeQuery(sql);
+                objCon.CommitTransaction();
+
+                sql = "SELECT * FROM [dbo].[EmployeeOperation] WHERE 1=2";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                foreach (var item in operationDataList)
                 {
-                    throw ex;
+                    if (!string.IsNullOrEmpty(item.OperationMasterId))
+                    {
+
+
+                        DataSet dsSeq;
+                        //ef.GetOperationSequence(item.EmpSystemId, out dsSeq);
+                        //decimal seq = Convert.ToDecimal(dsSeq.Tables[0].Rows[0]["Sequence"].ToString());
+                        //if (seq != 0)
+                        //{
+                        //    seq--;
+                        //}
+
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item.Id + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmployeeOperation", out _Id);
+                            //seq++;
+                            DataRow dr = dsMaster.Tables[0].NewRow();
+                            dr["Id"] = _Id;
+                            //dr["Id"] = item.EmpSystemId + "-" + item.Sequence;
+                            dr["EmpSystemId"] = item.EmpSystemId;
+                            dr["OperationMasterId"] = item.OperationMasterId;
+                            dr["Sequence"] = item.Sequence; ;
+                            dr["Archive"] = false;
+                            dr["AddedBy"] = identity.Name;
+                            dr["AddedDate"] = DateTime.Now;
+                            dr["AddedFromIP"] = identity.IPAddress;
+
+                            dsMaster.Tables[0].Rows.Add(dr);
+                        }
+                        //else
+                        //{
+                        //    //edit
+                        //    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                        //    dr.BeginEdit();
+
+                        //    dr["EmpSystemId"] = item.EmpSystemId;
+                        //    dr["OperationMasterId"] = item.OperationMasterId;
+                        //    dr["Archive"] = false;
+                        //    dr["UpdatedBy"] = identity.Name;
+                        //    dr["UpdatedDate"] = DateTime.Now;
+                        //    dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        //    dr.EndEdit();
+                        //}
+                    }
                 }
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+                return Json(new { Message = AplosMessage.Insert });
+
             }
             catch (Exception ex)
             {
