@@ -199,8 +199,8 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $window,$sco
         BankGL: null,
         BankGLGeneralInfoId: null,
         AdvancePostingDate: null,
-        SettlementType: "SetOff"
-        //PaymentSource: 'Bank'
+        SettlementType: "SetOff",
+        PaymentSource: "Invoice"
     };
 
     $scope.voucherDetail = {
@@ -404,8 +404,12 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $window,$sco
             return true;
         }
         var vdetailDr = $filter('filter')($scope.voucherDetailList, { TrnType: 'Dr' });
-        if (vdetailDr.length === 0 && $scope.advance.SettlementType === 'SetOff') {
+        if (vdetailDr.length === 0 && $scope.advance.SettlementType === 'SetOff' && $scope.advance.PaymentSource ==='Invoice') {
             ShowResult('Please add Invoice!', 'failure');
+            return true;
+        }
+        if ($scope.voucherDetailExpensesList.length==0 && $scope.advance.SettlementType === 'SetOff' && $scope.advance.PaymentSource === 'GL') {
+            ShowResult('Please add GL!', 'failure');
             return true;
         }
         if (new Date($scope.advance.AdvancePostingDate) > new Date($scope.advance.PostingDate)) {
@@ -466,6 +470,7 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $window,$sco
                     data: {
                         'advanceVM': $scope.advance,
                         'advanceDetailVMList': $scope.voucherDetailList,
+                        "voucherDetailExpensesList": $scope.voucherDetailExpensesList
                     },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
@@ -844,6 +849,10 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $window,$sco
     };
 
     $scope.changeSettlementType = function () {
+        if ($scope.advance.SettlementType == 'SetOff')
+            $scope.advance.PaymentSource = 'Bank'
+        if ($scope.advance.SettlementType == 'Return')
+            $scope.advance.PaymentSource = 'Invoice'
     };
 
     $scope.closeBankPopUp = function () {
@@ -909,7 +918,7 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $window,$sco
         $scope.advance.ActivityId = null;
         $scope.advance.ActivityCode = null;
         $scope.advance.ActivityName = null;
-
+        $scope.voucherDetailExpensesList = [];
     };
 
     $scope.closeCashPopUp = function () {
@@ -1004,5 +1013,114 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $window,$sco
         }
 
     }
+
+    $scope.searchglByList = [
+        {
+            "name": "GL Code",
+            "value": "GLGeneralInfoCode"
+        },
+        {
+            "name": "GL Name",
+            "value": "GLGeneralInfoName"
+        },
+        {
+            "name": "Budget",
+            "value": "BudgetName"
+        },
+        {
+            "name": "Activity",
+            "value": "ActivityName"
+        },
+        {
+            "name": "Ref No",
+            "value": "RefNo"
+        }
+    ];
+
+    $scope.glListParameters = {
+        limit: 10,
+        offset: 0,
+        order: "asc",
+        sort: "GLGeneralInfoCode",
+        searchBy: "ActivityName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    $scope.popUp = function () {
+        $scope.customerInvoiceGLList = [];
+        baseService.setCurrentPage("cOAICodeList");
+        $scope.GetCOAICodeListData = function (pageno) {
+            baseService.paginationBase("Accounts/GLItem/GetAllGLBudgetActivityPostingAutomaticOnly", pageno, $scope.glListParameters)
+                .then(function (result) {
+                    $scope.cOAICodeList = result.Rows;
+                    $scope.glListParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure", "GLPopUp");
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector("#GLPopUp")).modal("show");
+        $scope.GetCOAICodeListData();
+    };
+
+    $scope.closeCOAICodeListPopUp = function () {
+        angular.element(document.querySelector("#GLPopUp")).modal("hide");
+    };
+    $scope.closeCOAICodeListPopUpSelected = function (x) {
+        if ($scope.rowSelected !== null) {
+            angular.element(document.querySelector("#GLPopUp")).modal("hide");
+        } else {
+            angular.element(document.querySelector("#cancelPopUp")).modal("show");
+        }
+    };
+
+    $scope.setSelected = function (data) {
+        $scope.addRow(data);
+    };
+    $scope.voucherDetailExpensesList = [];
+    $scope.addRow = function (data) {
+        if (baseService.isUndefinedOrNull($scope.advance.CurrencyId)) {
+            ShowResult("Please select Currency!", "failure", "GLPopUp");
+            return true;
+        }
+        if ($scope.companyConfig.IsVoucherFromBudget)
+            var getRow = $filter("filter")($scope.voucherDetailExpensesList, { "TrnType": "Dr", "BudgetMasterId": data.BudgetMasterId, "ActivityId": data.ActivityId, });
+
+        if (!baseService.isUndefinedOrNull(getRow) && getRow.length > 0 && getRow[0].BudgetMasterId === data.BudgetMasterId) {
+            ShowResult("This Activity is already added!", "failure", "GLPopUp");
+        }
+        else {
+            $scope.voucherDetail.BudgetMasterId = data.BudgetMasterId;
+            $scope.voucherDetail.BudgetCode = data.BudgetCode;
+            $scope.voucherDetail.BudgetName = data.BudgetName;
+            $scope.voucherDetail.ActivityId = data.ActivityId;
+            $scope.voucherDetail.ActivityCode = data.ActivityCode;
+            $scope.voucherDetail.ActivityName = data.ActivityName;
+
+            $scope.voucherDetail.GLGeneralInfoId = data.GLGeneralInfoId;
+            $scope.voucherDetail.GLGeneralInfoCode = data.GLGeneralInfoCode;
+            $scope.voucherDetail.GLGeneralInfoName = data.GLGeneralInfoName;
+
+            $scope.voucherDetail.DocDate = $filter("dateFiltering")($scope.advance.DocDate);
+            $scope.voucherDetail.DocRefNo = $scope.advance.DocRefNo;
+            $scope.voucherDetail.Narration = $scope.advance.Narration;
+            $scope.voucherDetail.EntityId = $scope.advance.EntityId;
+            $scope.voucherDetail.PlantId = $scope.advance.PlantId;
+            $scope.voucherDetail.CrAmount = 0;
+            $scope.voucherDetail.DrAmount = 0;
+            $scope.voucherDetail.TrnType = "Dr";
+            $scope.voucherDetailExpensesList.push($scope.voucherDetail);
+            $scope.voucherDetail = {};
+            $scope.closeCOAICodeListPopUp();
+        }
+    };
+
+    $scope.removeDetaillRow = function (index) {
+        $scope.voucherDetailExpensesList.splice(index, 1);
+        return false;
+    };
 
 }
