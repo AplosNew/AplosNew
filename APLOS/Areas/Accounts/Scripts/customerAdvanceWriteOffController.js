@@ -427,6 +427,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         $scope.advanceNew.PostingDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.advanceNew.DocDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucherDetailCurrencyList = [];
+        $scope.voucherDetailExpensesList = [];
         $scope.voucherDetailList = [];
         $scope.voucherDetailListNew = [];
         $scope.advanceDetailList = [];
@@ -1486,19 +1487,9 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         }
     };
 
-    $scope.removeDrRow = function () {
-        var dr = $scope.voucherDetailExpensesList.length;
-        while (dr--) {
-            if ($scope.voucherDetailExpensesList[dr]["TrnType"] === "Dr") {
-                $scope.voucherDetailExpensesList.splice(dr, 1);
-            }
-        }
-        var drc = $scope.voucherDetailCurrencyList.length;
-        while (drc--) {
-            if ($scope.voucherDetailCurrencyList[drc]["TrnType"] === "Dr") {
-                $scope.voucherDetailCurrencyList.splice(drc, 1);
-            }
-        }
+    $scope.removeDetaillRow = function (index) {
+            $scope.voucherDetailExpensesList.splice(index, 1);
+            return false;
     };
 
 
