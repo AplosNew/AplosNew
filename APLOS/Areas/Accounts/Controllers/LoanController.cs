@@ -236,7 +236,8 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult InsertLoanPayment(VoucherViewModel voucherVM, VoucherViewModel loanAdditionVM, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
+        public JsonResult InsertLoanPayment(VoucherViewModel voucherVM, VoucherViewModel loanAdditionVM
+            , IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist, IEnumerable<InvoiceTaxViewModel> taxDetailVMList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -292,7 +293,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
                 else
                 {
-                    return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanWriteOff(voucherVM, loanRepaymentSchedulelist)) });
+                    return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanWriteOff(voucherVM, loanRepaymentSchedulelist, taxDetailVMList)) });
                 }
 
             }

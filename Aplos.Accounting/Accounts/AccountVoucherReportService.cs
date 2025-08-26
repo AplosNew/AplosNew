@@ -405,6 +405,13 @@ namespace Library.Accounting.Accounts
                         , Replace(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') DocDate
                         ,V.DocRefNo ,C.Code TrnCurrency
                        ,ISNULL((select sum(CrAmount) from trn.VoucherDetail where VoucherId=V.Id and CrAmount>0),0) CrAmount
+                        ,Particulars=case when IV.VoucherId<>'' then IVP.UserName  
+										 when A.VoucherId<>'' then AP.UserName 
+										 when AJN.VoucherId<>'' then AJNP.UserName 
+										 when AWF.VoucherId<>'' then AWFP.UserName
+										 when IWF.VoucherId<>'' then IWFP.UserName
+										 when EP.VoucherId<>'' then EI.EmployeeCode+' - '+ EI.EmployeeName
+					   end
                         ,V.AddedBy , Replace(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') EntryDate ,v.Narration
                        ,IsPark = case when V.IsPark=1 then 'Yes' else 'No' end
                         FROM  TRN.Voucher AS V 
@@ -412,6 +419,18 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN [ORG].[Company] AS CO ON CO.Id=V.CompanyId
                         LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=V.PlantId
                         LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=V.EntityId
+                        LEFT JOIN trn.Invoice IV ON IV.VoucherId=V.Id
+						LEFT JOIN HKP.Party IVP ON IVP.Id=IV.PartyId
+						LEFT JOIN trn.Advance A ON A.VoucherId=V.Id
+						LEFT JOIN HKP.Party AP ON AP.Id=A.PartyId
+						LEFT JOIN trn.AdjustmentNote AJN ON AJN.VoucherId=V.Id
+						LEFT JOIN HKP.Party AJNP ON AJNP.Id=AJN.PartyId
+						LEFT JOIN TRN.InvoiceWriteOff IWF ON IWF.VoucherId=V.Id
+						LEFT JOIN HKP.Party IWFP ON IWFP.Id=IWF.PartyId
+						LEFT JOIN trn.AdvanceWriteOff AWF ON AWF.VoucherId=V.Id
+						LEFT JOIN HKP.Party AWFP ON AWFP.Id=AWF.PartyId
+						LEFT JOIN trn.EmployeePayable EP ON EP.VoucherId=V.Id
+						Left JOIN dbo.EmployeeInformation EI ON EI.SystemId=EP.EmployeeId
                         WHERE V.IsPark=1 and V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId ='" + companyId + "' AND V.PlantId='" + plantId +  "' AND CONVERT(DATE, V.PostingDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"'  ";
             return _sqlRepository.GetDataTable(cmdText);
 
@@ -7673,7 +7692,13 @@ group by x.GL,x.Budget,x.Activity,x.GLGeneralInfoId,x.BudgetMasterId,x.ActivityI
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
-            
+
+            worksheet[ROW, COL].Text = "Particulars";
+            int colParticulars = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
             worksheet[ROW, COL].Text = "Tran. Currency";
             int colTrnCurrency = COL;
             worksheet[ROW, COL].ColumnWidth = 12;
@@ -7705,6 +7730,7 @@ group by x.GL,x.Budget,x.Activity,x.GLGeneralInfoId,x.BudgetMasterId,x.ActivityI
                 worksheet[ROW, colEntryDate].Text = dtDayBookData.Rows[i]["EntryDate"].ToString();
                 worksheet[ROW, colDocDate].Text = dtDayBookData.Rows[i]["DocDate"].ToString();
                 worksheet[ROW, colDocRefNo].Text = dtDayBookData.Rows[i]["DocRefNo"].ToString();
+                worksheet[ROW, colParticulars].Text = dtDayBookData.Rows[i]["Particulars"].ToString();
                 worksheet[ROW, colTrnCurrency].Text = dtDayBookData.Rows[i]["TrnCurrency"].ToString();
                 worksheet[ROW, colCrAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["CrAmount"].ToString());
                 worksheet[ROW, colCrAmount].NumberFormat = clsStaticInfo.NumberFormat(2);

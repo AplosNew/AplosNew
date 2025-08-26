@@ -12,7 +12,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
     $scope.isAdvance = false;
     $scope.isReadOnly = false;
     $scope.isWriteOff = false;
-    
+
     $controller("currencyBaseController", { $scope: $scope, $http: $http });
     $controller("partyBaseController", { $scope: $scope, $http: $http });
     $scope.isBankAmount = false;
@@ -54,7 +54,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         TransactionType: "LoanTaken",
         IsSchedule: false,
         IsSplit: false,
-        CompanyCurrencyRate:1
+        CompanyCurrencyRate: 1
     };
     $scope.loanAddition = {
         LoanDocRefNo: null,
@@ -141,9 +141,9 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
 
     baseService.getCompanyConfiguration(function (result) {
         $scope.companyConfig = result;
-            cboService.getCboEntityByPlant(null, null, "", function (result) {
-                $scope.entityList = result;
-            });
+        cboService.getCboEntityByPlant(null, null, "", function (result) {
+            $scope.entityList = result;
+        });
     });
 
     $scope.getCboVoucherTypeLoanList = function () {
@@ -341,12 +341,12 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
                 $scope.voucher.BankName = bank.BankCode + " - " + bank.BankName + " - " + bank.AccountTitle + " - " + bank.AccountNumber;
                 $scope.voucher.BankMasterId = bank.BankMasterId;
             }
-            else if ($scope.LoanSetOffType == 'Multi'){
+            else if ($scope.LoanSetOffType == 'Multi') {
                 $scope.voucherML.SourceBankAccountTitle = bank.AccountTitle;
                 $scope.voucherML.BankName = bank.BankCode + " - " + bank.BankName + " - " + bank.AccountTitle + " - " + bank.AccountNumber;
                 $scope.voucherML.BankMasterId = bank.BankMasterId;
             }
-           
+
         }
         $scope.hideBankPopUp();
     };
@@ -420,7 +420,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
             return true;
         }
         return false;
-        
+
     };
     $scope.Save = function () {
         $scope.$broadcast("show-errors-check-validity");
@@ -435,7 +435,8 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
                     data: {
                         "voucherVM": $scope.voucher,
                         "loanAdditionVM": $scope.loanAddition,
-                        "loanRepaymentSchedulelist": $scope.loanRepaymentSchedulelist
+                        "loanRepaymentSchedulelist": $scope.loanRepaymentSchedulelist,
+                        "taxDetailVMList": $scope.TDSList,
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -614,7 +615,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
 
 
 
-   
+
 
     $scope.GetCurrencyExchangeRateList = function () {
         if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
@@ -651,7 +652,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
             $scope.voucher.InterestPaymentAmount = $scope.voucher.InterestBalance;
             ShowResult("Interest Payment Amount should not exceed Interest Balance Amount.", "failure");
         }
-    } 
+    }
     $scope.loanDataList = [];
     $scope.getPopUpData = function () {
         $http({
@@ -695,7 +696,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         $scope.voucher.InterestAmount = data.InterestAmount - data.OtherExpensesPayable;
         $scope.voucher.OtherExpensesPayable = data.OtherExpensesPayable;
         $scope.voucher.Balance = data.Balance;
-        $scope.voucher.LoanDocRefNo = data.Particulars+"-"+ data.DocRefNo;
+        $scope.voucher.LoanDocRefNo = data.Particulars + "-" + data.DocRefNo;
         $scope.voucher.LoanPostingDate = data.PostingDate;
         $scope.voucher.LoanDocDate = data.DocDateNew;
         $scope.voucher.InterestWriteOff = data.InterestWriteOff;
@@ -808,7 +809,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
                 $scope.voucher.ExchangeType = null;
             }
         }
-        
+
     };
 
     $scope.exchangeGainLossCal = function (rate) {
@@ -857,27 +858,27 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
     };
     $scope.exchangeGainLossAmountloanAddition = function () {
         if ($scope.voucher.PaymentSource == "Loan") {
-        var balance = parseFloat($scope.voucher.Balance), dramount = parseFloat($scope.loanAddition.LoanSetOffAmount);
-        if (dramount > balance) {
-            $scope.loanAddition.LoanSetOffAmount = $scope.voucher.Balance;
-            ShowResult("Payment Amount should not exceed Loan Amount.", "failure");
-        }
-        else {
-            CloseShowResult();
-        }
-        if ($scope.voucher.PaymentSource == "Loan") {
-            if ($scope.loanAddition.Amount < $scope.loanAddition.LoanSetOffAmount) {
-                $scope.voucher.ExchangeAmount = Math.abs($scope.loanAddition.LoanSetOffAmount - $scope.loanAddition.Amount).toFixed(2);
-                $scope.voucher.ExchangeType = "ExchangeGain";
-            }
-            else if ($scope.loanAddition.Amount > $scope.loanAddition.LoanSetOffAmount) {
-                $scope.voucher.ExchangeAmount = Math.abs($scope.loanAddition.Amount - $scope.loanAddition.LoanSetOffAmount).toFixed(2);
-                $scope.voucher.ExchangeType = "ExchangeLoss";
+            var balance = parseFloat($scope.voucher.Balance), dramount = parseFloat($scope.loanAddition.LoanSetOffAmount);
+            if (dramount > balance) {
+                $scope.loanAddition.LoanSetOffAmount = $scope.voucher.Balance;
+                ShowResult("Payment Amount should not exceed Loan Amount.", "failure");
             }
             else {
-                $scope.voucher.ExchangeAmount = 0;
-                $scope.voucher.ExchangeType = null;
+                CloseShowResult();
             }
+            if ($scope.voucher.PaymentSource == "Loan") {
+                if ($scope.loanAddition.Amount < $scope.loanAddition.LoanSetOffAmount) {
+                    $scope.voucher.ExchangeAmount = Math.abs($scope.loanAddition.LoanSetOffAmount - $scope.loanAddition.Amount).toFixed(2);
+                    $scope.voucher.ExchangeType = "ExchangeGain";
+                }
+                else if ($scope.loanAddition.Amount > $scope.loanAddition.LoanSetOffAmount) {
+                    $scope.voucher.ExchangeAmount = Math.abs($scope.loanAddition.Amount - $scope.loanAddition.LoanSetOffAmount).toFixed(2);
+                    $scope.voucher.ExchangeType = "ExchangeLoss";
+                }
+                else {
+                    $scope.voucher.ExchangeAmount = 0;
+                    $scope.voucher.ExchangeType = null;
+                }
             }
         }
     };
@@ -891,7 +892,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
             else {
                 CloseShowResult();
             }
-           
+
             if (booksLoanAmount > $scope.voucher.LoanSetOffAmount) {
                 $scope.voucher.ExchangeAmount = Math.abs(booksLoanAmount - $scope.voucher.LoanSetOffAmount).toFixed(2);
                 $scope.voucher.ExchangeType = "ExchangeGain";
@@ -904,7 +905,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
                 $scope.voucher.ExchangeAmount = 0;
                 $scope.voucher.ExchangeType = null;
             }
-            
+
         }
     };
 
@@ -944,9 +945,9 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
     };
 
     $scope.GetCOAICodeList = function () {
-        if ($scope.voucher.TransactionType =='LoanTaken')
+        if ($scope.voucher.TransactionType == 'LoanTaken')
             $scope.GLUrl1 = "Accounts/glitem/GetExpenseGLBudgetActivity";
-        else 
+        else
             $scope.GLUrl1 = "Accounts/glitem/GetRevenueGLBudgetActivity";
         $scope.GetCOAICodeListData = function (pageno) {
             baseService.paginationBase($scope.GLUrl1, pageno, $scope.glListParameters)
@@ -975,7 +976,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         }
     };
     $scope.setSelected = function (data) {
-        $scope.voucher.GLName = data.GLGeneralInfoId + ' - ' + data.BudgetName+' - '+data.ActivityName;
+        $scope.voucher.GLName = data.GLGeneralInfoId + ' - ' + data.BudgetName + ' - ' + data.ActivityName;
         $scope.voucher.ActivityId = data.ActivityId;
         $scope.voucher.GLGeneralInfoId = data.GLGeneralInfoId;
         $scope.voucher.BudgetMasterId = data.BudgetMasterId;
@@ -1320,7 +1321,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
             $scope.voucherML.BaseCurrencyId = $scope.CurrencyParallel[0].CurrencyId;
         });
     };
-    
+
 
 
     $scope.currencyExchangeRateML = [];
@@ -1466,4 +1467,60 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
     $scope.removeRowML = function (index) {
         $scope.ExistingLoanList.splice(index, 1);
     }
+
+    $scope.TDSCboList = [];
+    $scope.TDSlistMessage = "";
+    $scope.getTDS = function (date) {
+        $http({
+            method: "get",
+            url: "accounts/TaxCode/GetTDSCbo?postingDate=" + $filter("dateFiltering")(date)
+        }).then(
+            function successCallback(response) {
+                if (response.data.Error === true) {
+                    $scope.TDSlistMessage = response.data.Message;
+                }
+                else {
+                    $scope.TDSCboList = response.data;;
+                }
+            },
+            function errorCallback(response) {
+            });
+    };
+
+    $scope.getTDS($filter("dateFiltering")(Date.now()));
+    $scope.selectTDS = function () {
+        $scope.TDS.ValueOfFixed = $.grep($scope.TDSCboList, function (item) {
+            return item.Id === $scope.TDS.TaxCodeId;
+        })[0].ValueOfFixed;
+        $scope.TDS.Type = $.grep($scope.TDSCboList, function (item) {
+            return item.Id === $scope.TDS.TaxCodeId;
+        })[0].Type;
+        //if ($scope.TDS.Type == 'FixedPercentage' && !baseService.isUndefinedOrNull($scope.TDS.ValueOfFixed)) {
+        //    $scope.TDS.TaxAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * $scope.TDS.ValueOfFixed / 100).toFixed(4);
+        //}
+    }
+    $scope.TDSList = [];
+    $scope.addTDS = function () {
+        if (manualValidation("td_TDS_TaxCode", baseService.isUndefinedOrNull($scope.TDS.TaxCodeId), "Tax Code is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_TDS_TaxCodeAmount", baseService.isUndefinedOrNull($scope.TDS.TaxAmount), "Amount is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_TDS_TaxCodeCompanyCurrencyAmount", baseService.isUndefinedOrNull($scope.TDS.CompanyCurrencyAmount), $scope.companyCurrencyCode + " is required.")) {
+            $scope.invalidRow = true;
+        }
+        else {
+            $scope.TDS.TaxName = $.grep($scope.TDSCboList, function (item) {
+                return item.Id === $scope.TDS.TaxCodeId;
+            })[0].UserName;
+
+            $scope.TDSList.push($scope.TDS);
+            $scope.TDS = {};
+        }
+        $scope.calBaseAmount();
+    };
+    $scope.removeTDSRow = function (index) {
+        $scope.TDSList.splice(index, 1);
+    };
 }

@@ -71,6 +71,10 @@
                                         <span class="cr" tabindex="21"><i class="cr-icon"></i></span>Cash
                                     </label>
                                     <label>
+                                        <input ng-click="changeSourceFrom('Tax')" type="radio" name="source" ng-model="voucher.PaymentSource" value="Tax">
+                                        <span class="cr" tabindex="21"><i class="cr-icon"></i></span>Tax
+                                    </label>
+                                    <label>
                                         <input ng-click="changeSourceFrom('Loan')" type="radio" name="source" ng-model="voucher.PaymentSource" value="Loan">
                                         <span class="cr" tabindex="21"><i class="cr-icon"></i></span>Loan
                                     </label>
@@ -153,7 +157,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
 
                         <div class="clearfix"></div>
                         <div class="col-md-7 col-sm-7 col-xs-7">
@@ -296,7 +300,59 @@
 
                             </fieldset>
                         </div>
-
+                        <div class="col-xs-12 col-sm-6 col-md-6 modal-table" ng-show="voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.Tax.ToString()'">
+                            <table class="table table-responsive table-striped">
+                                <caption>TDS </caption>
+                                <thead>
+                                    <tr>
+                                        <th>Input Tax</th>
+                                        <th>Percentage</th>
+                                        @*<th>Amount</th>*@
+                                        <th class="text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td id="td_TDS_TaxCode">
+                                            <div class="select-style show-message">
+                                                <select name="TDSTaxCodeId" ng-model="TDS.TaxCodeId" ng-change="selectTDS(TDS.TaxCodeId)" class="col-sm-3 form-control"
+                                                        ng-options="item.Id as item.UserName for item in TDSCboList">
+                                                    <option></option>
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <input type="text" n-decimals="4" class="form-control text-right" ng-disabled="TDS.Type =='FixedPercentage' && TDS.ValueOfFixed!=null" ng-model="TDS.ValueOfFixed">
+                                            </div>
+                                        </td>
+                                        @*<td id="td_TDS_TaxCodeAmount">
+                            <div class="show-message">
+                                <input type="text" n-decimals="4" class="form-control text-right" ng-model="TDS.TaxAmount" ng-keyup="copyTaxesAmount();">
+                            </div>
+                        </td>*@
+                                        <td class="text-right">
+                                            <a ng-click="addTDS();" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                                        </td>
+                                    </tr>
+                                    <tr ng-repeat="x in TDSList">
+                                        <td>{{x.TaxName}}</td>
+                                        <td>{{x.ValueOfFixed}}</td>
+                                        @*<td class="text-right">{{x.TaxAmount | number:2 }}</td>*@
+                                        <td class="text-right">
+                                            <button ng-click="removeTDSRow($index)" data-toggle="modal" ng-disabled="x.AdvanceId" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                @*<tfoot ng-show="TDSList.length">
+                    <tr>
+                        <td colspan="2"><b>Sub Total</b></td>
+                        <td class="text-right"><b>{{ TDSList | sumByKey : 'TaxAmount' | number:2}}</b></td>
+                        <td></td>
+                    </tr>
+                </tfoot>*@
+                            </table>
+                        </div>
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li><button ng-click="Save();" class="btn" tabindex="23"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
