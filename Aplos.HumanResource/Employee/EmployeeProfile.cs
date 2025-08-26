@@ -3074,6 +3074,7 @@ Where EmpSystemId='" + empId + "'";
         public string EmpSystemId { get; set; }
         public string OperationMasterId { get; set; }
         public string OperationVariationId { get; set; }
+        public string OperationVariation { get; set; }
 
         public decimal CycleTime { get; set; } = 0;
         public string AddedBy { get; set; }
@@ -3091,7 +3092,10 @@ Where EmpSystemId='" + empId + "'";
         public string LegalDesignation { get; set; }
         public string DesignationGroup { get; set; }
         public string MachineMaster { get; set; }
+        public string Code { get; set; }
         public string Process { get; set; }
         public string Archive { get; set; }
+        public string Operation { get; set; }
+        public string SKillMaster { get; set; }
     }
 }

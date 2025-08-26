@@ -1,4 +1,4 @@
-﻿<togglable name="Skill To be Uploaded & Downloaded"></togglable>
+﻿<togglable name="Employee Operation Variation To be Uploaded & Downloaded"></togglable>
 <div class="form-elements form-horizontal row" ng-form name="ModelNewForm">
     <div class="col-md-12">
         <div class="col-md-10">
@@ -22,32 +22,30 @@
 
 <div class="row">
     <div class="col-sm-12">
-        <div id="GridEmployeeSkill"
+        <div id="GridEmployeeOPV"
              ng-init="chkinit()"
-             ej-grid e-datasource="EmployeeSkillUploadedData"
+             ej-grid e-datasource="EmployeeOperationVariationUploadedData"
              e-allowfiltering="true"
              e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
              e-allowscrolling="true"
              e-pagesettings-pagesize="25"
              e-filtersettings-filterType="excel">
             <div e-columns>
-                <div e-column e-field="SkillId" e-headertext="SkillId" e-width="60"></div>
-                <div e-column e-field="SkillCode" e-headertext="SkillCode" e-width="100"></div>
-                <div e-column e-field="SkillName" e-headertext="SkillName" e-width="100"></div>
-                <div e-column e-field="SkillGroup" e-headertext="SkillGroup" e-width="100"></div>
-                <div e-column e-field="SkillCategory" e-headertext="SkillCategory" e-width="100"></div>
-                <div e-column e-field="MachineApplicable" e-headertext="MachineApplicable" e-width="50"></div>
-                <div e-column e-field="OperationApplicable" e-headertext="OperationApplicable" e-width="50"></div>
-                <div e-column e-field="DashboardApllicable" e-headertext="DashboardApllicable" e-width="50"></div>
+                <div e-column e-field="OperationVariationId" e-headertext="OperationVariationId" e-width="60"></div>
+                <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>
+                <div e-column e-field="OperationVariation" e-headertext="OperationVariation" e-width="100"></div>
+                <div e-column e-field="Operation" e-headertext="Operation" e-width="100"></div>
+                <div e-column e-field="SKillMaster" e-headertext="SKillMaster" e-width="100"></div>
+                <div e-column e-field="MachineMaster" e-headertext="MachineMaster" e-width="50"></div>
                 <div e-column e-field="EmpSystemId" e-headertext="EmpSystemId" e-width="60"></div>
-                <div e-column e-field="Remark" e-headertext="Remark" e-width="100"></div>
+                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="100"></div>
             </div>
         </div>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12 ">
         <div class="common-btn">
             <ul class="list-inline text-right">
-                <li ng-show="ShowSaveBtn"> <button ng-click="SaveEmployeeSkillUploadedData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                <li ng-show="ShowSaveBtn"> <button ng-click="SaveEmployeeOperaionVariationUploadedData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
             </ul>
         </div>
     </div>

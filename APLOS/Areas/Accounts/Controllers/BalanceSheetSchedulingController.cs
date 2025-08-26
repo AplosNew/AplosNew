@@ -1320,13 +1320,13 @@ namespace Aplos.Areas.Accounts.Controllers
 
         }
 
-        #region SkillUpload
+        #region EmpOperationVariationUpload
         [HttpGet, Authorize]
-        public ActionResult GetSkillSampleFile(ReportFormat reportFormat)
+        public ActionResult GetEmpOperationVariationSampleFile(ReportFormat reportFormat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            IWorkbook workbook = GetSampleFileEmployeeSkill(identity.Name);
-            var reportFileName = "Employee Skill Data upload Sample File";
+            IWorkbook workbook = GetSampleFileEmployeeOperationVariation(identity.Name);
+            var reportFileName = "Employee Operation Variation Data upload Sample File";
 
             switch (reportFormat)
             {
@@ -1342,7 +1342,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         }
 
-        public IWorkbook GetSampleFileEmployeeSkill(string Name)
+        public IWorkbook GetSampleFileEmployeeOperationVariation(string Name)
         {
             #region declare
             clsReport objRpt = null;
@@ -1370,30 +1370,26 @@ namespace Aplos.Areas.Accounts.Controllers
                 int xlsRow = 1, xlsCol = 1;
                 int endXlsCol = 1;
 
-                #region Lunch Out
+                #region SampleFileEmployeeOperation
                 IWorksheet sheet1 = null;
                 sheet1 = workbook.Worksheets[0];
-                //IWorksheet sheetSource = null;
-                //sheetSource = workbook.Worksheets[1];
+                IWorksheet sheetSource = null;
+                sheetSource = workbook.Worksheets[0];
                 xlsRow = 1;
 
                 #region ------------------Column Header------------------
 
 
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillId"); int colSkillId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillCode"); int colSkillCode = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillName"); int colSkillName = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillGroup"); int colSkillGroup = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillCategory"); int colSkillCategory = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MachineApplicable"); int colMachineApplicable = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 17.50; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OperationApplicable"); int colOperationApplicable = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DashboardApplicable"); int colDashboardApllicable = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OperationVariationId"); int colId = xlsCol; sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Code"); int colCode = xlsCol; sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OperationVariation"); int colName = xlsCol; sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Operation"); int colOP = xlsCol; sheet1.Range[xlsRow, xlsCol].ColumnWidth = 21; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillMaster"); int colSkillMaster = xlsCol; sheet1.Range[xlsRow, xlsCol].ColumnWidth = 21; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Machine"); int colMachine = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 21; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmpSystemId"); int colEmpSystemId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remark"); int colRemark = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sequence"); int colSeq = xlsCol;
 
                 endXlsCol = xlsCol;
 
@@ -1406,20 +1402,15 @@ namespace Aplos.Areas.Accounts.Controllers
                 xlsRow++;
 
                 #endregion ------------------Column Header------------------
-
-                DataTable dtSkill = GetSkillData();
+                DataTable dtSkill = GetOperationVariationData();
                 for (int i = 0; i < dtSkill.Rows.Count; i++)
                 {
-                    sheet1[xlsRow, colSkillId].Text = dtSkill.Rows[i]["SkillId"].ToString();
-                    sheet1[xlsRow, colSkillCode].Text = dtSkill.Rows[i]["SkillCode"].ToString();
-                    sheet1[xlsRow, colSkillName].Text = dtSkill.Rows[i]["SkillName"].ToString();
-                    sheet1[xlsRow, colSkillGroup].Text = dtSkill.Rows[i]["SkillGroup"].ToString();
-                    sheet1[xlsRow, colSkillCategory].Text = dtSkill.Rows[i]["SkillCategory"].ToString();
-                    sheet1[xlsRow, colMachineApplicable].Text = dtSkill.Rows[i]["MachineApplicable"].ToString();
-                    sheet1[xlsRow, colOperationApplicable].Text = dtSkill.Rows[i]["OperationApplicable"].ToString();
-                    sheet1[xlsRow, colDashboardApllicable].Text = dtSkill.Rows[i]["DashboardApplicable"].ToString();
-                    sheet1[xlsRow, colEmpSystemId].Text = dtSkill.Rows[i]["EmpSystemId"].ToString();
-                    sheet1[xlsRow, colRemark].Text = dtSkill.Rows[i]["Remark"].ToString();
+                    sheet1[xlsRow, colId].Text = dtSkill.Rows[i]["OperationVariationId"].ToString();
+                    sheet1[xlsRow, colCode].Text = dtSkill.Rows[i]["Code"].ToString();
+                    sheet1[xlsRow, colName].Text = dtSkill.Rows[i]["OperationVariation"].ToString();
+                    sheet1[xlsRow, colOP].Text = dtSkill.Rows[i]["Operation"].ToString();
+                    sheet1[xlsRow, colSkillMaster].Text = dtSkill.Rows[i]["SKillMaster"].ToString();
+                    sheet1[xlsRow, colMachine].Text = dtSkill.Rows[i]["Machine"].ToString();
                     xlsRow++;
                 }
 
@@ -1449,7 +1440,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 sheet1.Name = "Sheet1";
                 #endregion Page Setup
 
-                #endregion  Lunch Out
+                #endregion  SampleFileEmployeeOperation
 
                 return workbook;
             }
@@ -1458,6 +1449,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 throw ex;
             }
         }
+
         public DataTable GetSkillData()
         {
             var cmdText = @"Select S.Id SkillId,S.Code SkillCode,S.UserName SkillName,SG.UserName SkillGroup,SC.UserName SkillCategory,''EmpSystemId,'' Remark
@@ -1482,12 +1474,12 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
         }
 
         [HttpPost, Authorize]
-        public JsonResult ImportSkillData(FormCollection form)
+        public JsonResult ImportOperationVariationData(FormCollection form)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                List<EmployeeSkill> data = new List<EmployeeSkill>();
+                List<EmployeeOperation> data = new List<EmployeeOperation>();
 
                 var file = Request.Files["file"];
 
@@ -1550,20 +1542,17 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
                         {
                             for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
                             {
-                                EmployeeSkill vm = new EmployeeSkill();
+                                EmployeeOperation vm = new EmployeeOperation();
 
-                                vm.SkillId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
-                                vm.SkillCode = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
-                                vm.SkillName = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
-                                vm.SkillGroup = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
-                                vm.SkillCategory = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
-                                vm.MachineApplicable = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
-                                vm.OperationApplicable = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
-                                vm.DashboardApllicable = dsExcel.Tables[0].Rows[i][7].ToString().Trim();
-                                vm.EmpSystemId = dsExcel.Tables[0].Rows[i][8].ToString().Trim();
-                                vm.Remark = dsExcel.Tables[0].Rows[i][9].ToString().Trim();
+                                vm.OperationVariationId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.Code = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                vm.OperationVariation = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
+                                vm.Operation = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
+                                vm.SKillMaster = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
+                                vm.MachineMaster = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
+                                vm.EmpSystemId = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.Sequence = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][7].ToString());
                                 data.Add(vm);
-
                             }
                         }
                         else
@@ -1600,81 +1589,80 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+        
 
         [HttpPost, Authorize]
-        public ActionResult SaveEmployeeSkillData(IEnumerable<EmployeeSkill> skillDataList)
+        public ActionResult SaveEmployeeOperationVariationData(IEnumerable<EmployeeOperation> operationDataList)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster = null;
-            string _Id = "";
-            string sql = "";
-            string EmpSystemId = "";
-            foreach (var item in skillDataList)
+            try
             {
-                if (EmpSystemId == "")
+
+                EmployeeProfile ef = new EmployeeProfile();
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string _Id = "";
+                string sql = "";
+                string EmpSystemId = "";
+                foreach (var item in operationDataList)
                 {
-                    EmpSystemId = item.EmpSystemId;
+                    if (EmpSystemId == "")
+                    {
+                        EmpSystemId = item.EmpSystemId;
+                    }
+                    else
+                    {
+                        EmpSystemId += "," + item.EmpSystemId;
+                    }
                 }
-                else
-                {
-                    EmpSystemId += "," + item.EmpSystemId;
-                }
-            }
 
-            objCon = new ConnectionManager.DAL.ConManager("1");
-            sql = "DELETE FROM [dbo].[EmployeeSkill] WHERE EmpSystemId IN(" + EmpSystemId + ")";
-            objCon.BeginTransaction();
-            objCon.executeQuery(sql);
-            objCon.CommitTransaction();
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                sql = "Update [dbo].[EmployeeOperationVariation] set Archive=1 WHERE EmpSystemId IN(" + EmpSystemId + ")";
+                objCon.BeginTransaction();
+                objCon.executeQuery(sql);
+                objCon.CommitTransaction();
 
-
-
-            objCon = new ConnectionManager.DAL.ConManager("1");
-            foreach (var item in skillDataList)
-            {
-                sql = "SELECT * FROM [dbo].[EmployeeSkill] WHERE SkillId='" + item.SkillId + "' AND EmpSystemId='" + item.EmpSystemId + "'";
+                sql = "SELECT * FROM [dbo].[EmployeeOperationVariation] WHERE 1=2";
+                objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
-                if (dsMaster.Tables[0].Rows.Count == 0)
+                foreach (var item in operationDataList)
                 {
+                    if (!string.IsNullOrEmpty(item.OperationVariationId))
+                    {
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item.Id + "'";
 
-                    DataRow dr = dsMaster.Tables[0].NewRow();
-                    dr["Id"] = item.SkillId + item.EmpSystemId;
-                    dr["EmpSystemId"] = item.EmpSystemId;
-                    dr["SkillId"] = item.SkillId;
-                    dr["Remark"] = item.Remark;
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmployeeOperationVariation", out _Id);
+                            //seq++;
+                            DataRow dr = dsMaster.Tables[0].NewRow();
+                            dr["Id"] = _Id;
+                            //dr["Id"] = item.EmpSystemId + "-" + item.Sequence;
+                            dr["EmpSystemId"] = item.EmpSystemId;
+                            dr["OperationVariationId"] = item.OperationVariationId;
+                            dr["Sequence"] = item.Sequence; ;
+                            dr["Archive"] = false;
+                            dr["AddedBy"] = identity.Name;
+                            dr["AddedDate"] = DateTime.Now;
+                            dr["AddedFromIP"] = identity.IPAddress;
 
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = DateTime.Now;
-                    dr["AddedFromIP"] = identity.IPAddress;
-
-                    dsMaster.Tables[0].Rows.Add(dr);
-                }
-                else
-                {
-                    //edit
-                    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-
-                    dr.BeginEdit();
-
-                    dr["EmpSystemId"] = item.EmpSystemId;
-                    dr["SkillId"] = item.SkillId;
-                    dr["Remark"] = item.Remark;
-
-                    dr["UpdatedBy"] = identity.Name;
-                    dr["UpdatedDate"] = DateTime.Now;
-                    dr["UpdatedFromIP"] = identity.IPAddress;
-
-                    dr.EndEdit();
+                            dsMaster.Tables[0].Rows.Add(dr);
+                        }
+                    }
                 }
                 OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
                 obj.SaveDataSets(dsMaster);
+                return Json(new { Message = AplosMessage.Insert });
+
             }
-
-            return Json(new { Message = AplosMessage.Insert });
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
-
 
         #endregion
 
@@ -1820,6 +1808,19 @@ LEFT JOIN HKP.DesignationGroup DG ON DG.Id=OM.DesignationGroupId
 LEFT JOIN HKP.LegalDesignation LD ON LD.Id=OM.LegalDesignationId
 LEFT JOIN MST.MachineMaster MM ON MM.Id=OM.MachineMasterId
 LEFT JOIN HKP.Process P ON P.Id=OM.ProcessId";
+            return _sqlRepository.GetDataTable(cmdText);
+
+
+        }
+
+        public DataTable GetOperationVariationData()
+        {
+            var cmdText = @"Select OV.Id OperationVariationId,OV.Code,OV.UserName OperationVariation,O.UserName Operation,OM.UserName SKillMaster,A.UserName Machine
+from MST.OperationVariation OV
+LEFT JOIN MST.Operation O ON O.Id=OV.OperationId
+LEFT JOIN MST.OperationMaster OM ON OM.Id=OV.OperationMasterId
+LEFT JOIN MST.MaterialMasterArticle A ON A.Id=OV.ArticleId
+Where OV.Active=1 Order By OV.UserName";
             return _sqlRepository.GetDataTable(cmdText);
 
 
