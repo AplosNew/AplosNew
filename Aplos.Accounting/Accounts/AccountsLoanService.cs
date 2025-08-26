@@ -54,7 +54,7 @@ namespace Library.Accounting.Accounts
         public GridModel GetLoanInterestPayableList(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
             parameters.CmdText = @"SELECT  LP.VoucherId, V.VoucherNo, LP.Id, P.Code AS PartyCode, P.UserName AS PartyName, LP.PostingDate, LP.DocDate, LP.DocRefNo, C.Code AS CurrencyCode, LP.Amount
-                                    , LP.PartyPlantId, PP.UserName AS PartyPlantName, LP.IsPark,LP.FinancingId FinancingNo,F.DocRefNo LoanNo,V.SourceType
+                                    , LP.PartyPlantId, PP.UserName AS PartyPlantName, LP.IsPark,[Status]=case when V.IsPark=1 then 'Parked' when LP.IsPark=0 then 'Posted' else '' End,LP.FinancingId FinancingNo,F.DocRefNo LoanNo,V.SourceType
                                     FROM [TRN].[FinancingSubsequentTransaction] AS LP
                                     LEFT JOIN TRN.Financing F ON F.Id=LP.FinancingId
                                     LEFT JOIN [TRN].[Voucher] AS V ON V.Id=LP.VoucherId

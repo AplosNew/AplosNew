@@ -565,6 +565,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         $scope.currencyExchangeRate = [];
         $scope.loanAddition = {};
         $scope.getCboVoucherTypeLoanList();
+        $scope.TDSList = [];
         $scope.loanRepaymentSchedulelist = [];
         $("#loanDetails").children().remove();
         $scope.isReadOnly = false;
