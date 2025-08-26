@@ -294,7 +294,7 @@
                     <li role="presentation" ng-class="{ active: isSet2(15) }"><a ng-click="setTab2(15)" href="" aria-controls="RelativeInfo" role="tab" data-toggle="tab">Relative Info</a></li>
                     @*<li role="presentation" ng-class="{ active: isSet2(17) }"><a ng-click="setTab2(17)" href="" aria-controls="FingerPrint" role="tab" data-toggle="tab">Finger Print</a></li>*@
                     <li role="presentation" ng-class="{ active: isSet2(18) }"><a ng-click="setTab2(18)" href="" aria-controls="Advance" role="tab" data-toggle="tab">Advance</a></li>
-                    <li role="presentation" ng-class="{ active: isSet2(19) }"><a ng-click="setTab2(19)" href="" aria-controls="Operation" role="tab" data-toggle="tab">Operation</a></li>
+                    <li role="presentation" ng-class="{ active: isSet2(19) }"><a ng-click="setTab2(19)" href="" aria-controls="Operation" role="tab" data-toggle="tab">Skill Master</a></li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -2129,8 +2129,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group" ng-show="Operation==='Operation Master'">
-                            <label class="col-sm-4 control-label">Operation Master</label>
+                        <div class="form-group" @*ng-show="Operation==='Operation Master'"*@>
+                            <label class="col-sm-4 control-label">Skill Master</label>
                             <div class="col-sm-8">
                                 <div class="input-group">
                                     <input type="text" name="Operation Master" ng-model="employeeInformation.OperationMasterCode" class="form-control" readonly>
@@ -2140,7 +2140,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group" ng-show="Operation==='Operation Variation'">
+                        @*<div class="form-group" ng-show="Operation==='Operation Variation'">
                             <label class="col-sm-4 control-label">Operation Variation</label>
                             <div class="col-sm-8">
                                 <div class="input-group">
@@ -2150,7 +2150,7 @@
                                     </span>
                                 </div>
                             </div>
-                        </div>
+                        </div>*@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Is Global Employee</label>
                             <div class="col-sm-8">
@@ -2212,20 +2212,20 @@
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(19), active: isSet2(19) }">
-                    <div class="common-btn" ng-show="Operation=='Operation Master'">
+                    <div class="common-btn" @*ng-show="Operation=='Operation Master'"*@>
                         <ul class="list-inline text-left">
                             <li>
-                                <btton ng-click="showOperationPopUp('MOM')" ng-disabled="employeeInformation.SystemId===null" tooltip data-placement="top" title="Add Operation Master" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"> OperationMaster</i></btton>
+                                <btton ng-click="showOperationPopUp('MOM')" ng-disabled="employeeInformation.SystemId===null" tooltip data-placement="top" title="Add Skill Master" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"> Skill Master</i></btton>
                             </li>
                         </ul>
                     </div>
-                    <div class="common-btn" ng-show="Operation=='Operation Variation'">
+                    @*<div class="common-btn" ng-show="Operation=='Operation Variation'">
                         <ul class="list-inline text-left">
                             <li>
                                 <btton ng-click="showOperationPopUp('MOV')" ng-disabled="employeeInformation.SystemId===null" tooltip data-placement="top" title="Add Operation Variation" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"> OperationVariation</i></btton>
                             </li>
                         </ul>
-                    </div>
+                    </div>*@
                     <div class="row" ng-show="EmployeeOperationList.length>0">
                         <div style="color:black;" id="GridEmployeeMultioperation" ej-grid e-datasource="EmployeeOperationList" e-gridlines="vertical"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
