@@ -91,6 +91,12 @@ function loanInterestPayableController(accountService, bankService, cboService, 
             "name": "Currency",
             "value": "Currency"
         }
+        ,
+        {
+            "name": "Status",
+            "value": "Status"
+        }
+        
     ];
 
     baseService.init("accounts/Loan/GetLoanInterestPayableList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");

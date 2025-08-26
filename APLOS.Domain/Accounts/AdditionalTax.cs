@@ -1,5 +1,6 @@
 ﻿using Library.Core;
 using Library.Model.Employees;
+using Library.Model.Finances;
 using Library.Model.Inventory;
 using Library.Model.Invoices;
 using Library.Model.Taxations;
@@ -65,6 +66,9 @@ namespace Library.Model.Accounts
         public string InventoryReceiveId { get; set; }
         public AdjustmentNote AdjustmentNote { get; set; }
         public string AdjustmentNoteId { get; set; }
+
+        public FinancingWriteOff FinancingWriteOff { get; set; }
+        public string FinancingWriteOffId { get; set; }
 
         #endregion Navigation Properties
 

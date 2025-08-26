@@ -5242,8 +5242,8 @@ GROUP BY FAR.FABudgetMasterId
                 var inDirect = new System.Text.StringBuilder();
                 var inDirectsql = "";
 
-                inDirectsql = @"DELETE FROM [TRN].[AssetDepreciationDetail] WHERE AssetDepreciationId in('" + assetDepreciationId + @"') AND AssetRegisterId NOT IN(SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail])
-	                            DELETE FROM [TRN].[AssetDepreciation] WHERE Id in('" + assetDepreciationId + @"') AND Id NOT IN(SELECT AssetDepreciationId FROM [TRN].[AssetDepreciationDetail] WHERE AssetDepreciationId in('" + assetDepreciationId + @"') AND AssetRegisterId  IN(SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail]))
+                inDirectsql = @"DELETE FROM [TRN].[AssetDepreciationDetail] WHERE AssetDepreciationId in('" + assetDepreciationId + @"') --AND AssetRegisterId NOT IN(SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail])
+	                            DELETE FROM [TRN].[AssetDepreciation] WHERE Id in('" + assetDepreciationId + @"') --AND Id NOT IN(SELECT AssetDepreciationId FROM [TRN].[AssetDepreciationDetail] WHERE AssetDepreciationId in('" + assetDepreciationId + @"') AND AssetRegisterId  IN(SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail]))
 	                            UPDATE [TRN].[AssetDepreciation] SET Status='Disposed Assets Depreciation' WHERE Id in('" + assetDepreciationId + @"') AND Id  IN(SELECT AssetDepreciationId FROM [TRN].[AssetDepreciationDetail] WHERE AssetDepreciationId in('" + assetDepreciationId + @"') AND AssetRegisterId  IN(SELECT AssetRegisterId FROM [TRN].[FixedAssetRegisterDisposedDetail])) ";
                 inDirect.Append(inDirectsql);
                 _sqlRepository.ExecuteSqlCommand(inDirect.ToString());

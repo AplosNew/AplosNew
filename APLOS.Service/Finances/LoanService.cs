@@ -26,10 +26,13 @@ using Library.Model.Invoices;
 using Library.Service.Invoices;
 using Library.ViewModel.Banks;
 using Library.Service.Banks;
+using Library.Model.Accounts;
+using Library.Model.Taxations;
+using Library.Model.Systems;
 
 namespace Library.Service.Finances
 {
-    public class LoanService : ILoanService
+    public class LoanService : Service<Financing>, ILoanService
     {
         #region Constructor
 
@@ -38,10 +41,15 @@ namespace Library.Service.Finances
         private readonly IVoucherService _voucherService;
         private readonly IFinancingTypeGLService _financingTypeGLService;
         private readonly IRepositoryAsync<FinancingSubsequentTransaction> _loanInterestPayableRepository;
+        IRepositoryAsync<Financing> _financingRepository;
         private readonly IFinancingService _financingService;
         private readonly IPKGeneratorService _pkGeneratorService;
         private readonly IInvoiceTaxService _invoiceTaxService;
         private readonly IBankChargeService _bankChargeService;
+        private readonly IRepositoryAsync<AdditionalTax> _additionalTaxRepository;
+        private readonly IRepositoryAsync<AdditionalTaxDetail> _additionalTaxDetailRepository;
+        private readonly IRepositoryAsync<TaxCode> _taxCodeRepository;
+        private readonly IRepositoryAsync<InvoiceTax> _invoiceTaxRepository;
 
         public LoanService(
              IUnitOfWork unitOfWork
@@ -49,21 +57,31 @@ namespace Library.Service.Finances
             , IVoucherService voucherService
             , IFinancingTypeGLService financingTypeGLService
             , IRepositoryAsync<FinancingSubsequentTransaction> loanInterestPayableRepository
+            , IRepositoryAsync<Financing> financingRepository
             , IFinancingService financingService
             , IPKGeneratorService pkGeneratorService
             , IInvoiceTaxService invoiceTaxService
             , IBankChargeService bankChargeService
-            )
+            , IRepositoryAsync<AdditionalTax> additionalTaxRepository
+            , IRepositoryAsync<AdditionalTaxDetail> additionalTaxDetailRepository
+            , IRepositoryAsync<TaxCode> taxCodeRepository
+            , IRepositoryAsync<InvoiceTax> invoiceTaxRepository
+            ) : base(financingRepository, unitOfWork, pkGeneratorService)
         {
             _sqlRepository = sqlRepository;
             _unitOfWork = unitOfWork;
             _pkGeneratorService = pkGeneratorService;
             _voucherService = voucherService;
             _financingTypeGLService = financingTypeGLService;
+            _financingRepository = financingRepository;
             _financingService = financingService;
             _loanInterestPayableRepository = loanInterestPayableRepository;
             _invoiceTaxService = invoiceTaxService;
             _bankChargeService = bankChargeService;
+            _additionalTaxRepository = additionalTaxRepository;
+            _additionalTaxDetailRepository = additionalTaxDetailRepository;
+            _taxCodeRepository = taxCodeRepository;
+            _invoiceTaxRepository = invoiceTaxRepository;
         }
 
         #endregion Constructor
@@ -840,8 +858,25 @@ namespace Library.Service.Finances
                     _unitOfWork.Rollback();
             }
         }
-
-        public string InsertLoanWriteOff(VoucherViewModel voucherVM, IEnumerable<FinancingScheduleViewModel> financingScheduleVMList)
+        private InvoiceTax InsertInvoiceTax(FinancingWriteOff invoicewriteoff, InvoiceTax invoiceTax, PKGenerator pKGenerator)
+        {
+            pKGenerator.MaxNumber++;
+            invoiceTax.Id = DateTime.Now.Year + pKGenerator.MaxNumber.ToString();
+            invoiceTax.FinancingId = invoicewriteoff.FinancingId;
+            invoiceTax.TaxYearId = invoicewriteoff.TaxYearId;
+            invoiceTax.TaxYearPeriodId = invoicewriteoff.TaxYearPeriodId;
+            invoiceTax.VoucherId = invoicewriteoff.VoucherId;
+            invoiceTax.PartyId = invoicewriteoff.PartyId;
+            invoiceTax.PartyPlantId = invoicewriteoff.PartyPlantId;
+            invoiceTax.SourceType = invoicewriteoff.SourceType;
+            invoiceTax.Archive = invoicewriteoff.Archive;
+            invoiceTax.AddedBy = invoicewriteoff.AddedBy;
+            invoiceTax.AddedDate = invoicewriteoff.AddedDate;
+            invoiceTax.AddedFromIP = invoicewriteoff.AddedFromIP;
+            _invoiceTaxRepository.Insert(invoiceTax);
+            return invoiceTax;
+        }
+        public string InsertLoanWriteOff(VoucherViewModel voucherVM, IEnumerable<FinancingScheduleViewModel> financingScheduleVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList)
         {
             var flag = false;
             try
@@ -943,6 +978,14 @@ namespace Library.Service.Finances
                 var exchangeloss = new VoucherDetail
                 {
                     PartyType = voucherVM.PartyType
+                };
+                var invoiceTax = new InvoiceTax
+                {
+
+                };
+                var invoiceTaxDetail = new InvoiceTaxDetail
+                {
+
                 };
                 var voucherDetailLoanInterestPayable = new VoucherDetail
                 {
@@ -1136,9 +1179,92 @@ namespace Library.Service.Finances
                         voucherDetailTo.CashMasterId = voucherVM.CashMasterId;
                         voucherDetailTo.TrnNature = TransactionNature.ToCash.ToString();
                     }
-                    voucherDetailTo.CrAmount = voucherVM.Amount + voucherVM.ExpenseAmount + voucherVM.InterestPaymentAmount + voucherVM.InterestCashAmount;
-                    //voucherDetailTo.FinancingDetailWriteOffId = financingDetailWriteOff.Id;
+                    else if (voucherVM.PaymentSource == PaymentSource.Tax.ToString())
+                    {
+                        if (null != tdsVMList && tdsVMList.Count() > 0)
+                        {
+                            var tdstax = new AdditionalTax
+                            {
 
+                                TaxYearId = voucher.TaxYearId,
+                                TaxYearPeriodId = voucher.TaxYearPeriodId,
+                                //TaxAmount = tdsVMList.Sum(r => r.TaxAmount),
+                                TaxAmount = financinWriteOff.Amount,
+                                TaxAutoAmount = tdsVMList.Sum(r => r.TaxAutoAmount),
+                                InventoryReceiveId = null,
+                                InvoiceId = null,
+                                FinancingWriteOffId = financinWriteOff.Id,
+                                EmployeePayableId = null,
+                                PartyId = financinWriteOff.PartyId,
+                                PartyPlantId = financinWriteOff.PartyPlantId,
+                                Id =  base.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                                AddedBy = voucher.AddedBy,
+                                AddedDate = voucher.AddedDate,
+                                AddedFromIP = voucher.AddedFromIP,
+                                VoucherId = voucher.Id
+                            };
+                            _additionalTaxRepository.Insert(tdstax);
+
+
+                            var invoiceTaxPk = _invoiceTaxService.GetMaxNumber();
+                            int addtionalTaxDetailId = 0;
+                            foreach (var invoiceTaxVM in tdsVMList)
+                            {
+                                var taxCode = _taxCodeRepository.Find(invoiceTaxVM.TaxCodeId);
+                                if (null == taxCode)
+                                    throw new CustomException("Tax code not found!");
+
+                                var taxCodeGL = _accountsCommonService.GetTaxCodeGL(taxCode.Id); _accountsCommonService.GetTaxCodeGL(taxCode.Id);
+                                if (null == taxCodeGL)
+                                    throw new CustomException("Tax code GL not found!");
+                               
+                                voucherDetailTo.TrnNature = TransactionNature.ToGL.ToString();
+                                addtionalTaxDetailId++;
+                                var tdsDetail = new AdditionalTaxDetail
+                                {
+                                    GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                    BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                    ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
+                                    Amount = financinWriteOff.Amount,
+                                    AdditionalTaxId = tdstax.Id,
+                                    TaxCodeId = invoiceTaxVM.TaxCodeId,
+                                    TaxCategoryId = taxCode.TaxCategoryId,
+                                    AType = "Cr",
+                                    Id = MakePK(tdstax.Id, addtionalTaxDetailId, 3),
+                                    AddedBy = voucher.AddedBy,
+                                    AddedDate = voucher.AddedDate,
+                                    AddedFromIP = voucher.AddedFromIP
+                                };
+                                _additionalTaxDetailRepository.Insert(tdsDetail);
+                                 invoiceTax = new InvoiceTax
+                                {
+                                    TaxCodeId = invoiceTaxVM.TaxCodeId,
+                                    TaxCategoryId = taxCode.TaxCategoryId,
+                                    TaxAmount = financinWriteOff.Amount,
+                                    TaxAutoAmount = 0,
+                                    VoucherId = voucher.Id
+                                };
+                                InsertInvoiceTax(financinWriteOff, invoiceTax, invoiceTaxPk);
+
+                                 invoiceTaxDetail = new InvoiceTaxDetail
+                                {
+                                    GLGeneralInfoId = tdsDetail.GLGeneralInfoId,
+                                    BudgetMasterId = tdsDetail.BudgetMasterId,
+                                    ActivityId = tdsDetail.ActivityId,
+                                    Amount = tdsDetail.Amount,
+                                    AType = "Cr"
+                                };
+                                _invoiceTaxService.InsertInvoiceTaxDetail(invoiceTax, invoiceTaxDetail, 1);
+                                voucherDetailTo.GLGeneralInfoId = tdsDetail.GLGeneralInfoId;
+                                voucherDetailTo.BudgetMasterId = tdsDetail.BudgetMasterId;
+                                voucherDetailTo.ActivityId = tdsDetail.ActivityId;
+                            }
+                        }
+                        
+                        
+                    }
+                    voucherDetailTo.CrAmount = voucherVM.Amount + voucherVM.ExpenseAmount + voucherVM.InterestPaymentAmount + voucherVM.InterestCashAmount;
+                    
                     #endregion To
                 }
                 var currentVoucherDetailId = 1;
@@ -1154,6 +1280,11 @@ namespace Library.Service.Finances
                     currentVoucherDetailId++;
                     _voucherService.InsertVoucherDetail(voucher, voucherDetailTo, currentVoucherDetailId);
                     totalAmountCr += voucherDetailTo.CrAmount;
+                    if (tdsVMList.Count() > 0)
+                    {
+                        invoiceTax.VoucherDetailId = voucherDetailTo.Id;
+                        voucherDetailTo.InvoiceTaxDetailId = invoiceTaxDetail.Id;
+                    }
 
 
                     var financingSubsequentTransaction = new FinancingSubsequentTransaction
