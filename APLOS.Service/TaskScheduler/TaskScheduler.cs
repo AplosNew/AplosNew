@@ -2206,7 +2206,91 @@ namespace Library.Service.TaskScheduler
 
 
 
-                string sql = @"SELECT TT.Id,MT.TaskDescription,MT.StoryPoint,TT.OriginalSequentialStartDate AS TempStartDate,TT.OriginalSequentialEndDate AS TempEndDate,tm.TaskCategoryId,tm.TaskSubCategoryId,
+                //string sql = @"SELECT TT.Id,MT.TaskDescription,MT.StoryPoint,TT.OriginalSequentialStartDate AS TempStartDate,TT.OriginalSequentialEndDate AS TempEndDate,tm.TaskCategoryId,tm.TaskSubCategoryId,
+                //                    ISNULL(mo.ResponsiblePersonId,ttm.EmployeeId) AS AssignedBy,tt.EmployeeId AS AssignTo,t.MasterOrderId,
+                //                    t.MasterOrderItemId, t.SalesOrderId, t.ProductionOrderId, t.TNAAppliedOn,
+                //                    MASO.MDesc,li.STDesc,so.SODesc,po.PODesc
+
+                //                      FROM TNATasks TT
+                //                    INNER JOIN MasterOrderTaskTemplate AS MT ON tt.TaskTemplateId=mt.Id
+                //                    INNER JOIN trn.MasterOrder AS mo ON mo.Id=mt.MasterOrderId
+                //                    INNER JOIN TaskTemplateMaster AS ttm ON ttm.Id=mo.TaskTemplateMasterId
+                //                    INNER JOIN EmployeeInformation AS ei ON ei.SystemId=tt.EmployeeId
+                //                    INNER JOIN TaskMaster AS tm ON tm.Id=mt.TaskMasterId
+                //                    INNER JOIN TNAMaster AS t ON t.Id=tt.TNAMasterId
+
+                //                    LEFT OUTER JOIN (
+                //                    SELECT mo.Id, CONCAT(' Master Order#',mo.Id,'(',b.UserName,')',' ,SO Desc:',STUFF((select distinct ','+XSO.[Description] from 
+                //                                                                     trn.SalesOrder XSO 
+                //                                                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+                //                                                                      left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+                //                                                         where Mo.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')) AS MDesc
+                //                      FROM trn.MasterOrder AS mo	
+                //                    LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
+                //                    ) AS MASO ON maso.Id=t.MasterOrderId
+
+                //                    LEFT OUTER JOIN (
+                //                    SELECT moi.Id, CONCAT('Buyer Item#',moi.BuyerReferenceNo, ', Master Order#',mo.Id,'(',b.UserName,')',' ,SO Desc:',STUFF((select distinct ','+XSO.[Description] from 
+                //                                                                     trn.SalesOrder XSO 
+                //                                                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+                //                                                                      left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+                //                                                         where Moi.Id=XMOI.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')) AS STDesc
+                //                      FROM trn.MasterOrder AS mo	
+                //                      INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                //                      LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
+                //                    ) AS LI ON li.Id=t.MasterOrderItemId
+                //                    LEFT OUTER JOIN (
+                //                     SELECT SO.Id, CONCAT( 'LineItem#',SO.LineItemReference, ' SO Id:',so.Id,
+                //                     CASE WHEN ISNULL(cp.PONumber,'')<>'' THEN CONCAT(', PO#',cp.PONumber,format(cp.PODate,'dd-MMM-yyyy'),' ') ELSE '' END,
+                //                     ', Del. Date ',format(so.DeliveryDate,'dd-MMM-yyyy'), ', Buyer Item#',moi.BuyerReferenceNo, ', Master Order#',mo.Id,'(',b.UserName,')',', SO Desc:',so.[Description]) AS SODesc
+                //                      FROM trn.MasterOrder AS mo	
+                //                      INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                //                      INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
+                //                      LEFT JOIN  trn.CustomerPO AS cp ON cp.Id=so.CustomerPOId
+                //                      LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
+                //                    ) AS SO ON So.Id=t.SalesOrderId
+
+                //                    LEFT OUTER JOIN (
+                //                   SELECT PO.Id, CONCAT('Prod Order#', po.Id,', ',
+                //                            'Buyer ',STUFF((select distinct ','+XB.UserName from 
+                //                                                                     trn.SalesOrder XSO 
+                //                                                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+                //                                                                      left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+                //                                                                      left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+                //                                                                      left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+                //                                                                       where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                //                            ', Buyer Item#',STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+                //                                                                     trn.SalesOrder XSO 
+                //                                                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+                //                                                                      left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+                //                                                                       where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                //                            ', Master Order#',STUFF((select distinct ','+XMO.MasterOrderNo from 
+                //                                                                     trn.SalesOrder XSO 
+                //                                                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+                //                                                                      left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+                //                                                                      left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+                //                                                         where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                //                   ', SO Desc:',STUFF((select distinct ','+XSO.[Description] from 
+                //                                                                     trn.SalesOrder XSO 
+                //                                                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+                //                                                                      --left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+                //                                                                      --left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+                //                                                         where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                //                            ) AS PODesc
+                //                      FROM trn.MasterOrder AS mo	
+                //                      INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                //                      INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
+                //                      INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
+                //                      INNER JOIN trn.ProductionOrder AS po ON po.Id=pod.ProductionOrderId
+                //                      LEFT JOIN  trn.CustomerPO AS cp ON cp.Id=so.CustomerPOId
+                //                      LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
+                //                    ) AS PO ON PO.Id=t.ProductionOrderId
+
+                //                WHERE tt.TNAMasterId='" + TNAMasterId + @"' AND isnull(tt.[ACTIVE],'')=1 ";
+
+
+                string sql = @"SELECT TT.Id,MT.TaskDescription,MT.StoryPoint,TT.SequentialStartDate AS TempStartDate,TT.SequentialEndDate AS TempEndDate,tm.TaskCategoryId,tm.TaskSubCategoryId,
                                     ISNULL(mo.ResponsiblePersonId,ttm.EmployeeId) AS AssignedBy,tt.EmployeeId AS AssignTo,t.MasterOrderId,
                                     t.MasterOrderItemId, t.SalesOrderId, t.ProductionOrderId, t.TNAAppliedOn,
                                     MASO.MDesc,li.STDesc,so.SODesc,po.PODesc
