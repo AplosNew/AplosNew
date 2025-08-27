@@ -3189,7 +3189,7 @@
     <Content Include="Areas\Setups\Scripts\shiftGroupController.js" />
     <Content Include="Areas\Setups\Scripts\plantSettingController.js" />
     <Content Include="Areas\Setups\Views\HSNTaxPercentageNew\Aplos.cshtml" />
-    <Content Include="Areas\Accounts\Scripts\skillUploadController.js" />
+    <Content Include="Areas\Accounts\Scripts\employeeOperationVariationUploadController.js" />
     <Content Include="Areas\TaskManagement\Scripts\EditControlController.js" />
     <Content Include="Areas\TaskManagement\Scripts\TaskCloserMasterController.js" />
     <Content Include="Areas\TaskManagement\Scripts\UserEditControlController.js" />

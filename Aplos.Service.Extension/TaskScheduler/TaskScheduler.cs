@@ -119,9 +119,10 @@ namespace Library.Service.Extension.TaskScheduler
             DataTable dtCal = _sqlRepository.GetDataTable(@"select XMO.AddedDate from trn.MasterOrder XMO WHERE XMO.Id='" + MasterOrderId + "'");
             DateTime dtCreationDate = Convert.ToDateTime(dtCal.Rows[0]["AddedDate"].ToString());
 
-            dtCalendar = _sqlRepository.GetDataTable(@"SELECT * FROM PlantCalendar AS pc
+            string sql = @"SELECT * FROM PlantCalendar AS pc
                                                                     WHERE PC.PlantId=(select PlantId from TRN.MasterOrder where Id='" + MasterOrderId + @"') AND convert(date,WorkingDate) between '" + dtCreationDate.AddMonths(-3).ToString("dd-MMM-yyyy") + @"' and '" + dtCreationDate.AddMonths(36).ToString("dd-MMM-yyyy") + @"'
-                                                                    ORDER BY pc.WorkingDate");
+                                                                    ORDER BY pc.WorkingDate";
+            dtCalendar = _sqlRepository.GetDataTable(sql);
 
         }
     }

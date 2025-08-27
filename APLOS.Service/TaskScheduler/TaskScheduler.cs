@@ -633,80 +633,6 @@ namespace Library.Service.TaskScheduler
 
             Library.Service.Extension.TaskScheduler.TaskScheduler scheduler = new Extension.TaskScheduler.TaskScheduler();
             scheduler.GetDataSourceMasterOrderNew(MasterOrderId, out DataTable dtData, out DataTable dtRelations, out DataTable dtTaskDelayedEndDate, out DataTable dtCalendar);
-            //_sqlRepository.ExecuteSqlCommand(@"UPDATE MasterOrderTaskTemplate SET TaskDependentDatesId = tm.TaskDependentDatesId
-            //                                        FROM MasterOrderTaskTemplate AS mott 
-            //                                        INNER JOIN TaskMaster AS tm ON tm.Id=mott.TaskMasterId
-            //                                        WHERE ISNULL(mott.TaskDependentDatesId,'')=''
-
-            //                                    UPDATE TaskTemplate SET TaskDependentDatesId = tm.TaskDependentDatesId
-            //                                        FROM TaskTemplate AS mott 
-            //                                        INNER JOIN TaskMaster AS tm ON tm.Id=mott.TaskMasterId
-            //                                        WHERE ISNULL(mott.TaskDependentDatesId,'')=''");
-
-
-            //DataTable dtData = _sqlRepository.GetDataTable(@"SELECT d.PreTaskTemplateId, isnull(d.TaskTemplateId,tt.Id) AS TaskTemplateId, d.Criteria,  
-            //                        isnull(d.LagDays,0) AS LagDays,isnull(tt.LagDays,0) AS OwnLagDays,tt.Id, tt.TaskMasterId,'' AS DependentDate,
-            //                    --CASE WHEN ISNULL(d.Criteria,'')='' THEN isnull(tt.LagDays,0) ELSE isnull(d.LagDays,0) END AS LagDays,
-            //                                                '' AS TempStartDate,'' AS TempEndDate,'' AS ActualStartDate,'' AS ActualEndDate,'' AS SequentialStartDate,'' AS SequentialEndDate,'' AS OriginalSequentialStartDate,'' AS OriginalSequentialEndDate,
-            //                                                            tt.TaskDescription,convert(bit,1) AS HasActualDate,convert(bit,1) AS HasPredecessorActualDate,'NO' AS isPredecessorDelayed,'NO' AS isCurrentDelayed,
-            //                                                                convert(INT,(isnull(ei.SystemId,'0'))) AS resourceId,ei.employeename as resourceName,ei.EmpPicPath,
-            //                                                        tt.[Active], tt.Sequence,  CASE WHEN ISNULL(rpt.IsRepeat,0)=1 AND ISNULL(tt.ForNewOrder,0)=1 THEN 0 
-            //                                                        ELSE tt.Duration END AS Duration, tt.startDate, tt.endDate,isnull(tm.ConsiderOffDays,0) AS ConsiderOffDays,
-            //                                                        EI.SystemId AS EmployeeId, tt.ForNewOrder, tt.IsMandatory, tt.TaskType,
-            //                                                        tt.IsTaskMilestone, tt.TaskDependentDatesId, tt.TaskAppliedOnId,aon.TaskAppliedOnEnum,tdd.DependentDatesEnum,
-            //                                                        tt.ResponsiblePersonCategory, tt.IsFirstTask, tt.IsLastTask
-            //                                                FROM MasterOrderTaskTemplate AS tt 
-            //                                                LEFT OUTER JOIN MasterOrderTaskTemplateDependency AS D ON d.TaskTemplateId=tt.Id AND d.Id=(SELECT TOP 1 Id FROM MasterOrderTaskTemplateDependency WHERE TaskTemplateId=tt.Id)
-            //                                                LEFT OUTER JOIN TaskMaster AS tm ON tm.Id=tt.TaskMasterId
-            //                                                LEFT OUTER JOIN hkp.TaskAppliedOn AS AON ON aon.Id=tt.TaskAppliedOnId
-            //                                                LEFT OUTER JOIN hkp.TaskDependentDates AS tdd ON tdd.Id=tt.TaskDependentDatesId  
-            //                                                LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=tt.MasterOrderId
-            //                                                LEFT OUTER JOIN (SELECT TOP 1 moi.MasterOrderId,IsRepeat FROM trn.MasterOrderItem AS moi 
-            //                                                                WHERE moi.MasterOrderId='" + MasterOrderId + @"' AND ISNULL(moi.IsRepeat,0)=0) as RPT ON RPT.MasterOrderId=MO.Id
-            //                                                LEFT OUTER JOIN EntityTask AS et ON et.EntityId=mo.EntityId AND et.TaskMasterId=tt.TaskMasterId AND tt.ResponsiblePersonCategory='Entity'
-            //                                                LEFT OUTER JOIN mst.BuyerMaster AS bm ON isnull(bm.BuyerId,'')=isnull(mo.BuyerId,'')
-            //                                                          AND ISNULL(bm.BuyerDepartmentId,isnull(mo.BuyerDepartmentId,''))=isnull(mo.BuyerDepartmentId,'')
-            //                                                          AND ISNULL(bm.BuyerDivisionId,isnull(mo.BuyerDivisionId,''))=isnull(mo.BuyerDivisionId,'')
-
-            //                                                LEFT OUTER JOIN BuyerMasterTask AS bmt ON bmt.BuyerMasterId=bm.Id AND tt.TaskMasterId=bmt.TaskMasterId AND tt.ResponsiblePersonCategory='Buyer' AND bmt.Active=1
-            //                                                LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=ISNULL(tt.EmployeeId,ISNULL(bmt.EmpSystemId,et.EmpSystemId))
-            //                                                WHERE tt.MasterOrderId='" + MasterOrderId + @"' ORDER BY convert(int,isnull(tt.RefTaskTemplateId,999999999)),convert(int,tt.Id)");
-
-            //DataTable dtRelations = _sqlRepository.GetDataTable(@"SELECT isnull(D.Id,tt.Id) AS Id,  d.PreTaskTemplateId,convert(bit,1) AS HasActualDate,'NO' AS isCurrentDelayed,
-            //                                                        isnull(d.TaskTemplateId,tt.Id) AS TaskTemplateId, d.Criteria, isnull(tm.ConsiderOffDays,0) AS ConsiderOffDays,
-            //                                                        --CASE WHEN ISNULL(d.Criteria,'')='' THEN isnull(tt.LagDays,0) ELSE isnull(d.LagDays,0) END AS LagDays,
-            //                                                        isnull(d.LagDays,0) AS LagDays,isnull(tt.LagDays,0) AS OwnLagDays,
-            //                                                          CASE WHEN ISNULL(rpt.IsRepeat,0)=1 AND ISNULL(tt.ForNewOrder,0)=1 THEN 0 
-            //                                                                ELSE tt.Duration END AS Duration,'' AS TempStartDate,'' AS TempEndDate,'' AS DependentDate,
-            //                                                        '' AS ActualStartDate,'' AS ActualEndDate,'' AS SequentialStartDate,'' AS SequentialEndDate
-            //                                                        ,aon.TaskAppliedOnEnum,tdd.DependentDatesEnum
-            //                                                        FROM MasterOrderTaskTemplate AS tt 
-            //                                                        LEFT JOIN MasterOrderTaskTemplateDependency AS D ON d.TaskTemplateId=tt.Id 
-            //                                                        LEFT OUTER JOIN (SELECT TOP 1 moi.MasterOrderId,IsRepeat FROM trn.MasterOrderItem AS moi 
-            //                                                                WHERE moi.MasterOrderId='" + MasterOrderId + @"' AND ISNULL(moi.IsRepeat,0)=0) as RPT ON RPT.MasterOrderId=tt.MasterOrderId
-
-            //                                                        LEFT OUTER JOIN TaskMaster AS tm ON tm.Id=tt.TaskMasterId
-            //                                                        LEFT OUTER JOIN hkp.TaskAppliedOn AS AON ON aon.Id=tt.TaskAppliedOnId
-            //                                                        LEFT OUTER JOIN hkp.TaskDependentDates AS tdd ON tdd.Id=tt.TaskDependentDatesId     
-            //                                             WHERE tt.MasterOrderId='" + MasterOrderId + @"'
-            //                                            ORDER BY convert(int,isnull(tt.RefTaskTemplateId,999999999)),convert(int,d.TaskTemplateId)");
-
-
-            //DataTable dtTaskDelayedEndDate = _sqlRepository.GetDataTable(@"SELECT MT.Id,
-            //                                        FORMAT(GETDATE(),'dd-MMM-yyyy') AS TaskNewEndDate FROM TaskManagerMaster TM
-            //                                        INNER JOIN TNATasks AS t ON tm.TNATasksId=t.Id
-            //                                        INNER JOIN MasterOrderTaskTemplate AS MT ON mt.Id=t.TaskTemplateId
-            //                                        INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tm.Id AND ta.AuthorizationType='AssignTo'
-
-            //                                        WHERE mt.MasterOrderId='" + MasterOrderId + @"' AND convert(date,GETDATE())>=convert(date,ta.DueDate) AND tm.CurrentStatus<>'CLOSED'");
-
-
-            //DataTable dtCal = _sqlRepository.GetDataTable(@"select XMO.AddedDate from trn.MasterOrder XMO WHERE XMO.Id='" + MasterOrderId + "'");
-            //DateTime dtCreationDate = Convert.ToDateTime(dtCal.Rows[0]["AddedDate"].ToString());
-
-            //DataTable dtCalendar = _sqlRepository.GetDataTable(@"SELECT * FROM PlantCalendar AS pc
-            //                                                        WHERE PC.PlantId=(select PlantId from TRN.MasterOrder where Id='" + MasterOrderId + @"') AND convert(date,WorkingDate) between '" + dtCreationDate.AddMonths(-3).ToString("dd-MMM-yyyy") + @"' and '" + dtCreationDate.AddMonths(36).ToString("dd-MMM-yyyy") + @"'
-            //                                                        ORDER BY pc.WorkingDate");
 
 
             DataTable dtOriginalData = dtData.DefaultView.ToTable();
@@ -1447,8 +1373,7 @@ namespace Library.Service.TaskScheduler
             dtRefData = _sqlRepository.GetDataTable(SQL);
             MasterOrderId = dtRefData.Rows[0]["MasterOrderId"].ToString();
 
-
-            DataTable dtData = _sqlRepository.GetDataTable(@"SELECT k.Enum as DependentDatesEnum,convert(date,mo.AddedDate) as  ActualDate
+            SQL = @"SELECT k.Enum as DependentDatesEnum,convert(date,mo.AddedDate) as  ActualDate
                                     FROM (SELECT 'MasterOrderCreationDate' AS Enum) AS K
                                     LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id='" + MasterOrderId + @"' 
                                     UNION ALL
@@ -1531,7 +1456,9 @@ namespace Library.Service.TaskScheduler
                                                                   FROM trn.ProductionOrderDetail AS pod
 									INNER JOIN ProductionPlanningType1 AS ppt ON ppt.ProductionOrderID=pod.ProductionOrderId
                                     INNER JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
-                                                 WHERE so.id='" + SalesOrderId + @"') AS D ON 1=1 GROUP BY k.Enum");
+                                                 WHERE so.id='" + SalesOrderId + @"') AS D ON 1=1 GROUP BY k.Enum";
+
+            DataTable dtData = _sqlRepository.GetDataTable(SQL);
 
             dtData.Columns.Add("HasActualDate");
             // DependentDatesEnum.
@@ -2279,7 +2206,91 @@ namespace Library.Service.TaskScheduler
 
 
 
-                string sql = @"SELECT TT.Id,MT.TaskDescription,MT.StoryPoint,TT.OriginalSequentialStartDate AS TempStartDate,TT.OriginalSequentialEndDate AS TempEndDate,tm.TaskCategoryId,tm.TaskSubCategoryId,
+                //string sql = @"SELECT TT.Id,MT.TaskDescription,MT.StoryPoint,TT.OriginalSequentialStartDate AS TempStartDate,TT.OriginalSequentialEndDate AS TempEndDate,tm.TaskCategoryId,tm.TaskSubCategoryId,
+                //                    ISNULL(mo.ResponsiblePersonId,ttm.EmployeeId) AS AssignedBy,tt.EmployeeId AS AssignTo,t.MasterOrderId,
+                //                    t.MasterOrderItemId, t.SalesOrderId, t.ProductionOrderId, t.TNAAppliedOn,
+                //                    MASO.MDesc,li.STDesc,so.SODesc,po.PODesc
+
+                //                      FROM TNATasks TT
+                //                    INNER JOIN MasterOrderTaskTemplate AS MT ON tt.TaskTemplateId=mt.Id
+                //                    INNER JOIN trn.MasterOrder AS mo ON mo.Id=mt.MasterOrderId
+                //                    INNER JOIN TaskTemplateMaster AS ttm ON ttm.Id=mo.TaskTemplateMasterId
+                //                    INNER JOIN EmployeeInformation AS ei ON ei.SystemId=tt.EmployeeId
+                //                    INNER JOIN TaskMaster AS tm ON tm.Id=mt.TaskMasterId
+                //                    INNER JOIN TNAMaster AS t ON t.Id=tt.TNAMasterId
+
+                //                    LEFT OUTER JOIN (
+                //                    SELECT mo.Id, CONCAT(' Master Order#',mo.Id,'(',b.UserName,')',' ,SO Desc:',STUFF((select distinct ','+XSO.[Description] from 
+                //                                                                     trn.SalesOrder XSO 
+                //                                                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+                //                                                                      left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+                //                                                         where Mo.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')) AS MDesc
+                //                      FROM trn.MasterOrder AS mo	
+                //                    LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
+                //                    ) AS MASO ON maso.Id=t.MasterOrderId
+
+                //                    LEFT OUTER JOIN (
+                //                    SELECT moi.Id, CONCAT('Buyer Item#',moi.BuyerReferenceNo, ', Master Order#',mo.Id,'(',b.UserName,')',' ,SO Desc:',STUFF((select distinct ','+XSO.[Description] from 
+                //                                                                     trn.SalesOrder XSO 
+                //                                                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+                //                                                                      left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+                //                                                         where Moi.Id=XMOI.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')) AS STDesc
+                //                      FROM trn.MasterOrder AS mo	
+                //                      INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                //                      LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
+                //                    ) AS LI ON li.Id=t.MasterOrderItemId
+                //                    LEFT OUTER JOIN (
+                //                     SELECT SO.Id, CONCAT( 'LineItem#',SO.LineItemReference, ' SO Id:',so.Id,
+                //                     CASE WHEN ISNULL(cp.PONumber,'')<>'' THEN CONCAT(', PO#',cp.PONumber,format(cp.PODate,'dd-MMM-yyyy'),' ') ELSE '' END,
+                //                     ', Del. Date ',format(so.DeliveryDate,'dd-MMM-yyyy'), ', Buyer Item#',moi.BuyerReferenceNo, ', Master Order#',mo.Id,'(',b.UserName,')',', SO Desc:',so.[Description]) AS SODesc
+                //                      FROM trn.MasterOrder AS mo	
+                //                      INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                //                      INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
+                //                      LEFT JOIN  trn.CustomerPO AS cp ON cp.Id=so.CustomerPOId
+                //                      LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
+                //                    ) AS SO ON So.Id=t.SalesOrderId
+
+                //                    LEFT OUTER JOIN (
+                //                   SELECT PO.Id, CONCAT('Prod Order#', po.Id,', ',
+                //                            'Buyer ',STUFF((select distinct ','+XB.UserName from 
+                //                                                                     trn.SalesOrder XSO 
+                //                                                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+                //                                                                      left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+                //                                                                      left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+                //                                                                      left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+                //                                                                       where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                //                            ', Buyer Item#',STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+                //                                                                     trn.SalesOrder XSO 
+                //                                                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+                //                                                                      left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+                //                                                                       where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                //                            ', Master Order#',STUFF((select distinct ','+XMO.MasterOrderNo from 
+                //                                                                     trn.SalesOrder XSO 
+                //                                                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+                //                                                                      left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+                //                                                                      left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+                //                                                         where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                //                   ', SO Desc:',STUFF((select distinct ','+XSO.[Description] from 
+                //                                                                     trn.SalesOrder XSO 
+                //                                                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+                //                                                                      --left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+                //                                                                      --left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+                //                                                         where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                //                            ) AS PODesc
+                //                      FROM trn.MasterOrder AS mo	
+                //                      INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                //                      INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
+                //                      INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
+                //                      INNER JOIN trn.ProductionOrder AS po ON po.Id=pod.ProductionOrderId
+                //                      LEFT JOIN  trn.CustomerPO AS cp ON cp.Id=so.CustomerPOId
+                //                      LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
+                //                    ) AS PO ON PO.Id=t.ProductionOrderId
+
+                //                WHERE tt.TNAMasterId='" + TNAMasterId + @"' AND isnull(tt.[ACTIVE],'')=1 ";
+
+
+                string sql = @"SELECT TT.Id,MT.TaskDescription,MT.StoryPoint,TT.SequentialStartDate AS TempStartDate,TT.SequentialEndDate AS TempEndDate,tm.TaskCategoryId,tm.TaskSubCategoryId,
                                     ISNULL(mo.ResponsiblePersonId,ttm.EmployeeId) AS AssignedBy,tt.EmployeeId AS AssignTo,t.MasterOrderId,
                                     t.MasterOrderItemId, t.SalesOrderId, t.ProductionOrderId, t.TNAAppliedOn,
                                     MASO.MDesc,li.STDesc,so.SODesc,po.PODesc

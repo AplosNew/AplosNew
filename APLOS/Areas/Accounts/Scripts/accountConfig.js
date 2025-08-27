@@ -1103,9 +1103,9 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/VoucherType/VoucherTypeAdditionalinfo",
             controller: "voucherTypeAdditionalInfoController"
         })
-        .when('/skill-upload', {
+        .when('/eov-upload', {
             templateUrl: 'Accounts/BalanceSheetScheduling/SkillUpload',
-            controller: 'skillUploadController'
+            controller: 'employeeOperationVariationUploadController'
         })
         .when('/eo-upload', {
             templateUrl: 'Accounts/BalanceSheetScheduling/EmployeeOperationUpload',

@@ -1,15 +1,15 @@
 ﻿'use strict';
-skillUploadController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function skillUploadController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = "Skill Upload";
+employeeOperationVariationUploadController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function employeeOperationVariationUploadController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+    $rootScope.title = "Employee Operation Variation Upload";
 
     $scope.pathBalanceSheetScheduling = 'accounts/BalanceSheetScheduling/';
     //  #region Skill Data Upload Download
     $scope.GetSampleFile = function () {
         var ReportFormat = 'Excel';
-        location.href = $scope.pathBalanceSheetScheduling + 'GetSkillSampleFile?reportFormat=' + ReportFormat;
+        location.href = $scope.pathBalanceSheetScheduling + 'GetEmpOperationVariationSampleFile?reportFormat=' + ReportFormat;
     };
-    $scope.EmployeeSkillUploadedData = [];
+    $scope.EmployeeOperationVariationUploadedData = [];
     $scope.picdata = null;
     $scope.ShowSaveBtn = false;
     $("#uploadImage").change(function () {
@@ -31,7 +31,7 @@ function skillUploadController(commonMessage, $scope, $rootScope, baseService, $
                 var picData = new FormData();
                 $http({
                     method: 'POST',
-                    url: $scope.pathBalanceSheetScheduling + 'ImportSkillData',
+                    url: $scope.pathBalanceSheetScheduling + 'ImportOperationVariationData',
                     headers: { 'Content-Type': undefined },
                     transformRequest: function (data) {
                         picData.append("modelNew", angular.toJson(data.modelNew));
@@ -51,8 +51,8 @@ function skillUploadController(commonMessage, $scope, $rootScope, baseService, $
 
                     }
                     else {
-                        $scope.EmployeeSkillUploadedData = [];
-                        $scope.EmployeeSkillUploadedData = response.data;
+                        $scope.EmployeeOperationVariationUploadedData = [];
+                        $scope.EmployeeOperationVariationUploadedData = response.data;
                         $scope.ShowSaveBtn = true;
                     }
                 }, function errorCallback(response) {
@@ -66,21 +66,14 @@ function skillUploadController(commonMessage, $scope, $rootScope, baseService, $
             ShowResult(e, "failure");
         }
     };
-    $scope.SaveEmployeeSkillUploadedData = function () {
+    $scope.SaveEmployeeOperaionVariationUploadedData = function () {
         try {
-            $scope.EmployeeSkillUploadedDataList = [];
-            for (var i = 0; i < $scope.EmployeeSkillUploadedData.length; i++) {
-                if (!baseService.isUndefinedOrNull($scope.EmployeeSkillUploadedData[i].SkillId) && !baseService.isUndefinedOrNull($scope.EmployeeSkillUploadedData[i].EmpSystemId)) {
-                    $scope.EmployeeSkillUploadedDataList.push($scope.EmployeeSkillUploadedData[i]);
-                }
-            }
-
-
+            
             $.ajax({
                 type: "POST",
-                url: $scope.pathBalanceSheetScheduling + 'SaveEmployeeSkillData',
+                url: $scope.pathBalanceSheetScheduling + 'SaveEmployeeOperationVariationData',
                 data: {
-                    'skillDataList': $scope.EmployeeSkillUploadedDataList
+                    'operationDataList': $scope.EmployeeOperationVariationUploadedData
                 },
                 dataType: "json",
                 success: function (response) {
@@ -90,7 +83,7 @@ function skillUploadController(commonMessage, $scope, $rootScope, baseService, $
                     }
                     else {
                         ShowResult(response.Message, 'success');
-                        $scope.EmployeeSkillUploadedData = [];
+                        $scope.EmployeeOperationVariationUploadedData = [];
                         $("#uploadImage").val(null);
                         $scope.ShowSaveBtn = false;
                     }
@@ -105,5 +98,5 @@ function skillUploadController(commonMessage, $scope, $rootScope, baseService, $
 
         }
     };
-    //  #endregion EmployeeSkillUploadedData Upload Download
+    //  #endregion EmployeeOperationVariationUploadedData Upload Download
 }
