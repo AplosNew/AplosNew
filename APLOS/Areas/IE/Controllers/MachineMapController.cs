@@ -67,10 +67,10 @@ namespace Aplos.Areas.IE.Controllers
        //     return Json(_skillMap.EntityList(company), JsonRequestBehavior.AllowGet);
        // }
 
-        [HttpGet , Authorize]
-        public ActionResult leftGridData()
+        [HttpPost , Authorize]
+        public ActionResult leftGridData(Dictionary<string, string> parameters)
         {
-            return Json(machine.leftGridData(), JsonRequestBehavior.AllowGet);
+            return Json(machine.leftGridData(parameters), JsonRequestBehavior.AllowGet);
         }
 
         
