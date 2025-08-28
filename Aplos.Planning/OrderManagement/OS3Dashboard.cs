@@ -171,8 +171,8 @@ namespace Library.Planning.OrderManagement
                                 ,OrderStatusId
                                 from
                                 (
-                                 Select distinct so.Id ,so.Qty , so.Rate , so.CM , so.DeliveryDate,so.AddedDate , so.CommitmentDate , pod.ProductionOrderID , (SELECT MAX(xp1.ProductionDate) FROM ProductionPlanningType1 Xp1 WHERE Xp1.ProductionOrderID=pod.ProductionOrderID) as ProductionDate, so.OrderStatusId as OrderStatusId ,
-                                DateDiff(Day,"+Dtype+", " + DDate+ @") as EarlyOrLateBy , prt.Username as customers ,ISNULL(en.UserName,e.UserName) as Entity ,  (case when so.PlanExFactoryDate is null then so.CommitmentDate else PlanExFactoryDate end) as DDate , emp.EmployeeName as MResp,
+                                 Select distinct so.Id ,so.Qty , so.Rate , so.CM , so.DeliveryDate,so.AddedDate , so.CommitmentDate , pod.ProductionOrderID , so.SoProdCompDate as ProductionDate, so.OrderStatusId as OrderStatusId ,
+                                DateDiff(Day,so.SoProdCompDate, so.DeliveryDate) as EarlyOrLateBy, prt.Username as customers ,ISNULL(en.UserName,e.UserName) as Entity ,  (case when so.PlanExFactoryDate is null then so.CommitmentDate else PlanExFactoryDate end) as DDate , emp.EmployeeName as MResp,
 								ee.EmployeeName as EResp " + ids+ @"
                                 from trn.MasterOrder mo 
 								left join hkp.orderstatus os on os.Id = mo.OrderStatusId
@@ -528,8 +528,12 @@ namespace Library.Planning.OrderManagement
 
                 var str = @"Select * from (Select isnull(en.UserName,e.UserName) as Entity,prt.Username as Customers,b.UserName as Buyer, mo.BuyerReferenceNo,mo.OwnReferenceNo
 								,moi.BuyerReferenceNo as IBuyerReferenceNo,moi.OwnReferenceNo as IOwnReferenceNo,mma.StandardName Article,so.Id SONo, SO.LineItemReference, so.Qty,Pk.DispatchBalance, format(so.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate, format(so.CommitmentDate,'dd-MMM-yyyy') as CommitmentDate 
-								,format((SELECT MAX(xp1.ProductionDate) FROM ProductionPlanningType1 Xp1 WHERE Xp1.ProductionOrderID=pod.ProductionOrderID),'dd-MMM-yyyy') as ProductionDate,  format((case when so.PlanExFactoryDate is null then so.CommitmentDate else PlanExFactoryDate end) , 'dd-MMM-yyyy') as DDate
-								,mo.Id as OrderNo,moi.Id as ItemNo,po.Id as PRNo,emp.EmployeeName as MResp,DateDiff(Day,(SELECT MAX(xp1.ProductionDate) FROM ProductionPlanningType1 Xp1 WHERE Xp1.ProductionOrderID = pod.ProductionOrderID), so.DeliveryDate) as EarlyOrLateBy 
+								--,format((SELECT MAX(xp1.ProductionDate) FROM ProductionPlanningType1 Xp1 WHERE Xp1.ProductionOrderID=pod.ProductionOrderID),'dd-MMM-yyyy') as ProductionDate
+,so.SoProdCompDate as ProductionDate
+,  format((case when so.PlanExFactoryDate is null then so.CommitmentDate else PlanExFactoryDate end) , 'dd-MMM-yyyy') as DDate
+								,mo.Id as OrderNo,moi.Id as ItemNo,po.Id as PRNo,emp.EmployeeName as MResp
+--,DateDiff(Day,(SELECT MAX(xp1.ProductionDate) FROM ProductionPlanningType1 Xp1 WHERE Xp1.ProductionOrderID = pod.ProductionOrderID), so.DeliveryDate) as EarlyOrLateBy 
+,SO.EarlyOrLateBy 
 								,so.OrderStatusId as OrderStatusId,ps.UserName as POStatus,OC.UserName OrderType,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END,so.AddedDate  , pod.ProductionOrderID , os.Username as MOOrderStatusId ,ee.EmployeeName as EResp ,mo.BuyerId,rem.Remarks
 								
                                from trn.MasterOrder mo 
