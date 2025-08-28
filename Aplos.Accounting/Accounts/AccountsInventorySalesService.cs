@@ -306,13 +306,13 @@ namespace Library.Accounting.Accounts
 						UNION ALL
                             SELECT  'A/R' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId
 
-                            ,MGPGL.GLGeneralInfoId GLGeneralInfoId
+                            ,CPGL.GLGeneralInfoId GLGeneralInfoId
 							,GL.AccountCode GLGeneralInfoCode
 							,GL.UserName GLGeneralInfoName
-							,MGPGL.BudgetMasterId BudgetMasterId
+							,CPGL.BudgetMasterId BudgetMasterId
 							,B.Code BudgetCode
 							,B.UserName BudgetName
-							,MGPGL.ActivityId ActivityId
+							,CPGL.ActivityId ActivityId
 							,A.Code ActivityCode
 							,A.UserName ActivityName
 
@@ -332,12 +332,11 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
 								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
 						LEFT JOIN(SELECT * FROM [HKP].[CompanyParty] WHERE PlantId=@plantId AND PartyType='Customer')AS CP ON IR.CustomerId = CP.PartyId
-						LEFT JOIN [HKP].[PartyAccountGroup] AS PACG ON CP.PartyAccountGroupId = PACG.Id
-						LEFT JOIN [HKP].[MaterialGroupPartyAccountGroupGL] AS MGPGL ON MGGL.MaterialGroupMasterId = MGPGL.MaterialGroupMasterId AND MGPGL.PartyAccountGroupId= PACG.Id AND GLType='Receivable'
-						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON MGPGL.GLGeneralInfoId= GL.Id
-						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON MGPGL.BudgetMasterId= BM2.Id
+						LEFT JOIN HKP.CompanyPartyGL CPGL ON CPGL.CompanyPartyId=CP.Id and CPGL.PartyGLType='ReconciliationGL' 
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON CPGL.GLGeneralInfoId= GL.Id
+						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON CPGL.BudgetMasterId= BM2.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
-						LEFT JOIN [HKP].[Activity] AS A ON MGPGL.ActivityId= A.Id
+						LEFT JOIN [HKP].[Activity] AS A ON CPGL.ActivityId= A.Id
 
                         LEFT JOIN (SELECT FAMBT.BudgetMasterId,FAVGL.VendorReconGLId ,FAVGL.VendorReconBudgetMasterId,FAVGL.VendorReconActivityId 
 						FROM HKP.FixedAssetMasterBudgetTag FAMBT 
@@ -351,7 +350,7 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN [HKP].[Activity] AS AF ON FAG.VendorReconActivityId= AF.Id
 
 						WHERE ISD.InventorySalesId=@receiveId
-						GROUP BY  IR.Id, MGPGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, MGPGL.BudgetMasterId, B.Code, B.UserName, MGPGL.ActivityId, A.Code, A.UserName
+						GROUP BY  IR.Id, CPGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, CPGL.BudgetMasterId, B.Code, B.UserName, CPGL.ActivityId, A.Code, A.UserName
 						,MM.IsAsset,FAG.VendorReconGLId,GLF.AccountCode,GLF.UserName,FAG.VendorReconBudgetMasterId,BF.Code,BF.UserName,FAG.VendorReconActivityId,AF.Code,AF.UserName
 						,ISD.Id 
 							)X

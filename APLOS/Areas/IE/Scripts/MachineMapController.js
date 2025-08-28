@@ -61,7 +61,7 @@ function MachineMapController(cboService, commonMessage, $scope, $rootScope, bas
     }
     // The Left Grid
     $scope.left = [];
-    async function loadLeftGrid() {
+    async function loadLeftGrid(parameters) {
         var ColumnList = [
             { field: 'CompanyName', width: 20, headerText: "Company", type: "string" },
             { field: 'PlantName', width: 20, headerText: "Plant", type: "string" },
@@ -73,8 +73,9 @@ function MachineMapController(cboService, commonMessage, $scope, $rootScope, bas
         ];
         if ($scope.left.length == 0 || $scope.left == null) {
             $http({
-                method: 'GET',
+                method: 'POST',
                 url: 'IE/MachineMap/leftGridData',
+                data: { 'parameters': parameters  },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.left = response.data;
@@ -120,7 +121,7 @@ function MachineMapController(cboService, commonMessage, $scope, $rootScope, bas
         if ($scope.allData != null) {
            // destroyTabs();
         }
-        loadLeftGrid();
+        
         if (filteredRecords.length == 0) {
             filteredRecords = $scope.filters;
         }
@@ -134,6 +135,7 @@ function MachineMapController(cboService, commonMessage, $scope, $rootScope, bas
             parameters.push({ "Key": "EntityId", "Value": getString(filteredRecords, "EntityId") });
             parameters.push({ "Key": "ProcessId", "Value": getString(filteredRecords, "ProcessId") });
             $scope.applyFilters(parameters);
+            loadLeftGrid(parameters);
         }
         catch (e) {
 
