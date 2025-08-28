@@ -18,7 +18,7 @@ namespace Library.HumanResource.Dashboard
         }
 
 
-        public IEnumerable<object> leftGridData()
+        public IEnumerable<object> leftGridData(Dictionary<string, string> parameters)
         {
             try
             {
@@ -34,6 +34,7 @@ left outer join org.Company c on c.Id = p.CompanyId
 left join trn.ProductionOrderDetail as pod on pod.SalesOrderId = so.Id
 left join trn.ProductionOrder as po on po.Id = pod.ProductionOrderId
 left join trn.ProductionBulletinTemplate as pbt on pbt.ProductionOrderId = po.Id
+Where isnull(C.Id,'') IN(" + parameters["CompanyId"] + @") 
 group by mo.PlantId , c.Id , p.UserName , c.UserName";
                 return _sqlRepository.GetDataCollection(str);
 

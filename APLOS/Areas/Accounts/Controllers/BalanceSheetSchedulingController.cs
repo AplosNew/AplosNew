@@ -1728,7 +1728,7 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
 
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SKillMasterId"); int colOperationMasterId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OperationMaster"); int colOperationMaster = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillMaster"); int colOperationMaster = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Skill"); int colSkill = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SkillGroup"); int colSkillGroup = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DesignationGroup"); int colDesignationGroup = xlsCol; xlsCol += 1;
@@ -1753,7 +1753,7 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
                 for (int i = 0; i < dtSkill.Rows.Count; i++)
                 {
                     sheet1[xlsRow, colOperationMasterId].Text = dtSkill.Rows[i]["OperationMasterId"].ToString();
-                    sheet1[xlsRow, colOperationMaster].Text = dtSkill.Rows[i]["OperationMaster"].ToString();
+                    sheet1[xlsRow, colOperationMaster].Text = dtSkill.Rows[i]["SkillMaster"].ToString();
                     sheet1[xlsRow, colSkill].Text = dtSkill.Rows[i]["Skill"].ToString();
                     sheet1[xlsRow, colSkillGroup].Text = dtSkill.Rows[i]["SkillGroup"].ToString();
                     sheet1[xlsRow, colDesignationGroup].Text = dtSkill.Rows[i]["DesignationGroup"].ToString();
@@ -1898,7 +1898,7 @@ Where OV.Active=1 Order By OV.UserName";
                                 EmployeeOperation vm = new EmployeeOperation();
 
                                 vm.OperationMasterId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
-                                vm.OperationMaster = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                vm.SKillMaster = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
                                 vm.Skill = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
                                 vm.SkillGroup = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
                                 vm.DesignationGroup = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
