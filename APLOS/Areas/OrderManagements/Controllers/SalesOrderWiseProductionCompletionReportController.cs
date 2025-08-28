@@ -298,6 +298,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     if (dr != null)
                     {
                         ExpectedDate = GetDate(dr["Date"].ToString());
+                        dtSOComplete.Rows[i]["ExDate"] = ExpectedDate;
 
                         sheet2[ROW2, colSOComDate].Text = ExpectedDate;
                         sheet2[ROW2, colSOComDate].NumberFormat = "dd-MMM-yyyy";
@@ -326,14 +327,18 @@ namespace Aplos.Areas.OrderManagements.Controllers
                                 TimeSpan ts = Convert.ToDateTime(dtSOComplete.Rows[i]["ExFactoryDate"].ToString()) - Convert.ToDateTime(ExpectedDate).AddDays(clsStaticInfo.dbl(dtSOComplete.Rows[i]["Days"].ToString()));
 
                                 sheet2[ROW2, colLateBy].Number = ts.Days;
-                            } 
+                            }
                         }
 
 
                     }
 
+
                     ROW2++;
                 }
+
+
+
                 sheet2.AutoFilters.FilterRange = sheet2.Range[startRow2, 1, ROW2, endcol2];
 
                 reportUtility.CompanyPlantHeaderNew(ref sheet2, 1, "Sales Order Wise Production Completion Date Report", identity.CompanyId, identity.CompanyName, "");
