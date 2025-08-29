@@ -1720,8 +1720,8 @@ WHERE MOI.MasterOrderId='" + id + "'";
                     var thirdCharDbList = _thirdCharacteristicsRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
                     var SOCostingConfirmationDbList = _SOCostingConfirmationRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
 
-                    var count = _itemRepository.SqlQuery<int>($"SELECT count(Id)Id FROM [TRN].[MasterOrderItem] WHERE MasterOrderId='{masterId}'").First();
-                    //var count = _itemRepository.SqlQuery<int>($"SELECT CAST((RIGHT(ISNULL(MAX(CAST(Id AS INT)), 0),3)) AS INT) Id FROM [TRN].[MasterOrderItem] WHERE MasterOrderId='{masterId}'").First();
+                    //var count = _itemRepository.SqlQuery<int>($"SELECT count(Id)Id FROM [TRN].[MasterOrderItem] WHERE MasterOrderId='{masterId}'").First();
+                    var count = _itemRepository.SqlQuery<int>($"SELECT CAST((RIGHT(ISNULL(MAX(CAST(Id AS INT)), 0),2)) AS INT) Id FROM [TRN].[MasterOrderItem] WHERE MasterOrderId='{masterId}'").First();
                     foreach (var item in itemList)
                     {
                         if (item.TotalQty == 0) throw new CustomException("Add Qty");
