@@ -2135,7 +2135,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 FROM SalaryInfoDefine SID 
 LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
 WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-Where GWPaymentAdviseId IN(select PaymentAdviseId from [dbo].[GoodWorkPaymentAdviseDetail] Where PaymentAdviseId in (select Id from [dbo].[GoodWorkPaymentAdvise] Where EmpSystemId ='" + empId + @"') and DisbursementVoucherId IS NULL) AND EmpSystemId='" + empId + @"' AND GD.Minute<>0
+Where GWPaymentAdviseId IN(select PaymentAdviseId from [dbo].[GoodWorkPaymentAdviseDetail] Where EmpSystemId ='" + empId + @"' and DisbursementVoucherId IS NULL) AND EmpSystemId='" + empId + @"' AND GD.Minute<>0
 Group By OLS.OTreductionFactor,B.Basic
  ) AS varchar(100))
 

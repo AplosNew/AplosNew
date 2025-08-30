@@ -1557,6 +1557,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     }
 
+    $scope.ItemCategoryList = [];
+    $scope.ItemCategoryList = [{ Value: 'Critical', Text: "Critical" }, { Value: 'Normal', Text: "Normal" }, { Value: 'Important', Text: "Important" }];
+
     $scope.addNewItem = function () {
         $scope.getLineItemType();
         $scope.itemList.push({
@@ -1595,7 +1598,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             FileName: null,
             Remark: null,
             OrderStatusId: null,
-            UOMId: $scope.fileNew.TotalQtyUOMId
+            UOMId: $scope.fileNew.TotalQtyUOMId,
+            ItemCategory:null
         });
     };
 
