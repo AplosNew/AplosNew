@@ -10,9 +10,52 @@ function EmployeeDOJChangeController(commonMessage, $scope, $rootScope, baseServ
     $scope.saveUrl = $scope.path + 'SaveDOJ';
  
 
+    $scope.DOJpastDays = 0;
+    $scope.GetPlantWiseHRMSSetting = function () {
+        $http({
+            method: 'GET',
+            url: 'Employees/EmployeeInformation/GetPlantWiseHRMSSetting'
+        }).then(function successCallback(response) {
+
+            if (response.data[0].DOCBaseON === "Month") {
+                $scope.showMonthInput = true;
+                $scope.showDayInput = false;
+                $scope.EmployeeModel.DOCIsMonth = true;
+                $scope.EmployeeModel.DOCIsDay = false;
+                $scope.EmployeeModel.DOCMonth = response.data[0].DOCCount;
+
+                $scope.showEmpMonthInput = true;
+                $scope.showEmpDayInput = false;
+                $scope.EmployeeModel.DOCIsMonth = true;
+                $scope.EmployeeModel.DOCIsDay = false;
+                $scope.EmployeeModel.DOCMonth = response.data[0].DOCCount;
+
+            }
+            else {
+                $scope.showMonthInput = false;
+                $scope.showDayInput = true;
+                $scope.EmployeeModel.DOCIsDay = true;
+                $scope.EmployeeModel.DOCIsMonth = false;
+                $scope.EmployeeModel.DOCDay = response.data[0].DOCCount;
+
+            }
+           
+        })
+    };
 
 
-
+    $scope.SetDoc = function () {
+        if ($scope.EmployeeModel.DOCIsMonth) {
+            var dt = new Date($scope.NewDOJ);
+            $scope.DOC = new Date(dt.setMonth(dt.getMonth() + $scope.EmployeeModel.DOCMonth));
+            $scope.EmployeeModel.DOC = $filter('dateFiltering')(new Date($scope.DOC), 'dd-MM-yyyy');
+        }
+        if ($scope.EmployeeModel.DOCIsDay) {
+            var dt = new Date($scope.NewDOJ);
+            $scope.DOC = new Date(dt.setDate(dt.getDate() + $scope.EmployeeModel.DOCDay));
+            $scope.EmployeeModel.DOC = $filter('dateFiltering')(new Date($scope.DOC), 'dd-MM-yyyy');
+        }
+    }
 
     $scope.NewDOJ = null;
     $scope.Save = function () {
@@ -25,7 +68,7 @@ function EmployeeDOJChangeController(commonMessage, $scope, $rootScope, baseServ
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'EmpId': $scope.EmployeeModel.SystemId, 'NewDOJ': $scope.NewDOJ },
+                data: { 'EmpId': $scope.EmployeeModel.SystemId, 'NewDOJ': $scope.NewDOJ,'DOC': $scope.EmployeeModel.DOC },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -89,7 +132,7 @@ function EmployeeDOJChangeController(commonMessage, $scope, $rootScope, baseServ
 
             var eDialog = $("#dialogEmployeeInfo").data("ejDialog");
             eDialog.close();
-
+            $scope.GetPlantWiseHRMSSetting();
             
 
 

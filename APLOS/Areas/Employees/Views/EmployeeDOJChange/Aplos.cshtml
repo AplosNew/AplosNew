@@ -25,8 +25,8 @@
                 <label class="col-sm-8 control-label">: {{EmployeeModel.DOJ}}</label>
             </div>
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">DOS </label>
-                <label class="col-sm-8 control-label">: {{EmployeeModel.DOS}}</label>
+                <label class="col-sm-4 control-label">DOC </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.DOC}}</label>
             </div>
 
 
@@ -39,7 +39,7 @@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">New DOJ <sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" maxlength="15" name="ShortName" ng-model="NewDOJ" datepicker placeholder="dd-MMM-yyyy" class="form-control" required tabindex="3">
+                    <input type="text" maxlength="15" name="ShortName" ng-model="NewDOJ" ng-change="SetDoc();" datepicker placeholder="dd-MMM-yyyy" class="form-control" required tabindex="3">
                 </div>
             </div>
             <div class="form-group" show-errors>
@@ -105,6 +105,7 @@
                     <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
 
                     <div e-column e-field="DOJ" e-headertext="DOJ" e-width="70"></div>
+                    <div e-column e-field="DOC" e-headertext="DOC" e-width="70"></div>
                     <div e-column e-field="DOS" e-headertext="DOS" e-width="70"></div>
                     @*<div e-column e-field="DOBs" e-headertext="DOB" e-width="70"></div>*@
                     <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
