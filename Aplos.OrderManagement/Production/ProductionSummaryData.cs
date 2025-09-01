@@ -4770,11 +4770,12 @@ FROM trn.SalesOrder SO
 LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=so.Id
 LEFT JOIN(Select MIN(ProductionDate)BaseProcProdStartDate,MAX(ProductionDate)BaseProductionEndDate,A.ProductionOrderId 
 FROM TRN.ProductionSummary A
-LEFT JOIN HKP.Process B ON B.Id=A.ProcessId
+left join TRN.ProductionOrderProcessSet B ON B.ProductionOrderId=A.ProductionOrderId  AND B.ProcessId=A.ProcessId Where B.IsBaseProcess=1
 Group By A.ProductionOrderId) BASEP ON BASEP.ProductionOrderId=POD.ProductionOrderId
 
-LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanEndDate,ProductionOrderId 
-From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=POD.ProductionOrderId
+LEFT JOIN(Select MIN(A.ProductionDate)BaseProcPlanStartDate,MAX(A.ProductionDate)BaseProcPlanEndDate,A.ProductionOrderId 
+From ProductionPlanningType1 A
+Group By A.ProductionOrderId) Type1 ON Type1.ProductionOrderId=POD.ProductionOrderId
 LEFT JOIN TRN.ProductionOrder PO ON PO.Id=POD.ProductionOrderId
 LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId
 LEFT JOIN dbo.ProductionOrderSchedulingParametersType1 SC ON Sc.ProductionOrderID=PO.Id
@@ -4808,7 +4809,7 @@ Where X.POId IN (" + parameters["POId"] + @")";
         {
             try
             {
-                string sql = @"SELECT row_number() over (partition by POD.ProductionOrderId order by POD.ProductionOrderId,SO.DeliveryDate) as Seq,
+                string sql = @"SELECT row_number() over (partition by POD.ProductionOrderId order by POD.ProductionOrderId,SO.DeliveryDate,SO.Qty,SO.Id) as Seq,
 POD.ProductionOrderId,SO.OrderStatusId SOStatus,m.[Days]
 ,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,SO.Id SOId,SO.Qty SOQty
 ,SoCommqty=SUM(SO.Qty) OVER (PARTITION BY POD.ProductionOrderId ORDER BY SO.DeliveryDate ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
