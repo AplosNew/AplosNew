@@ -1280,7 +1280,7 @@ namespace Library.Service.Finances
                     currentVoucherDetailId++;
                     _voucherService.InsertVoucherDetail(voucher, voucherDetailTo, currentVoucherDetailId);
                     totalAmountCr += voucherDetailTo.CrAmount;
-                    if (tdsVMList.Count() > 0)
+                    if (tdsVMList != null && tdsVMList.Count() > 0)
                     {
                         invoiceTax.VoucherDetailId = voucherDetailTo.Id;
                         voucherDetailTo.InvoiceTaxDetailId = invoiceTaxDetail.Id;

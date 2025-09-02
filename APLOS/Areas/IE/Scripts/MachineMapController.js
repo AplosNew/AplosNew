@@ -134,8 +134,8 @@ function MachineMapController(cboService, commonMessage, $scope, $rootScope, bas
             parameters.push({ "Key": "PlantId", "Value": getString(filteredRecords, "PlantId") });
             parameters.push({ "Key": "EntityId", "Value": getString(filteredRecords, "EntityId") });
             parameters.push({ "Key": "ProcessId", "Value": getString(filteredRecords, "ProcessId") });
+            
             $scope.applyFilters(parameters);
-            loadLeftGrid(parameters);
         }
         catch (e) {
 
@@ -441,6 +441,7 @@ function MachineMapController(cboService, commonMessage, $scope, $rootScope, bas
                 $scope.dateList = response.data.Columns;
                 $scope.showDates = response.data.Columns;
                 $scope.allData = response;
+                loadLeftGrid($scope.parameters);
                 $scope.preChart = {};
                 $scope.fillTableGrid();
             })
@@ -457,6 +458,7 @@ function MachineMapController(cboService, commonMessage, $scope, $rootScope, bas
                 $scope.dateList = response.data.Columns;
                 $scope.showDates = response.data.Columns;
                 $scope.allData = response;
+                loadLeftGrid($scope.parameters);
                 $scope.preChart = {};
                 $scope.fillTableGrid();
             })
