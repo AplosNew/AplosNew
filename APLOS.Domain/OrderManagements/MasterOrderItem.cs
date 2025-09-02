@@ -25,6 +25,7 @@ namespace Library.Model.OrderManagements
         public string ProductLibraryId { get; set; }
         public string FileName { get; set; }
         public string Remark { get; set; }
+        public string ItemCategory { get; set; }
         public string OrderStatusId { get; set; }
         #endregion Scalar Properties
 

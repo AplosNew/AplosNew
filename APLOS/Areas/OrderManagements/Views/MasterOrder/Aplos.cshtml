@@ -435,12 +435,12 @@
                                         <th>Buyer Ref.No</th>
                                         <th>Production/Own #</th>
                                         <th>Production Group</th>
+                                        <th>Item Category</th>
                                         <th>Order Wastage Percentage</th>
                                         <th>Extra Order Percentage</th>
                                         <th>Inquiry</th>
                                         <th>Sample No</th>
                                         <th>Testing Std</th>
-
                                         <th>Repeat</th>
                                         <th>Product Library</th>
                                         <th>Order Costing</th>
@@ -503,13 +503,13 @@
                                             </div>
                                         </td>
                                         @*<td>
-                                                <div class="input-group">
-                                                    <input type="text" name="Customer" ng-model="x.MaterialMasterName" class="form-control" readonly style="width: 200px;">
-                                                    <span class="input-group-btn">
-                                                        <button ng-click="getMaterial($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                    </span>
-                                                </div>
-                                            </td>*@
+            <div class="input-group">
+                <input type="text" name="Customer" ng-model="x.MaterialMasterName" class="form-control" readonly style="width: 200px;">
+                <span class="input-group-btn">
+                    <button ng-click="getMaterial($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                </span>
+            </div>
+        </td>*@
                                         <td>
 
                                             <div class="input-group">
@@ -545,6 +545,15 @@
                                         <td>
                                             <input type="text" ng-model=" x.ProductionGrouping" ng-disabled="x.IsDefault==true" class="form-control" ng-keyup="CheckSpecialCharecter($index);">
                                         </td>
+                                        <td>
+                                            <div class="select-style">
+                                                <select class="form-control" ng-model="x.ItemCategory"
+                                                        ng-options="item.Value as item.Text for item in ItemCategoryList" style="width: 80px;">
+                                                    <option value="">--Select--</option>
+                                                </select>
+                                            </div>
+                                        </td>
+
                                         <td>
                                             <input type="text" n-decimals="2" ng-model=" x.OrderWastagePercentage" class="form-control text-right">
                                         </td>

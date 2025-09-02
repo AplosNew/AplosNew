@@ -82,7 +82,7 @@ namespace Library.Service.WorkCenters
         {
             try
             {
-                parameters.CmdText = @" SELECT EI.SystemId, mb.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                parameters.CmdText = @"SELECT EI.SystemId, mb.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
 								, EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [DesignationName], MB.EntityId,PR.UserName PositionName
         						, DEG.UserName GivenDesignation,DEPT.UserName Department
                                     FROM dbo.EmployeeInformation AS EI
@@ -91,7 +91,18 @@ namespace Library.Service.WorkCenters
         					        LEFT OUTER JOIN ORG.Position PR ON MB.PositionId=PR.Id
 									LEFT OUTER JOIN ORG.Entity E ON MB.EntityId=E.Id
         					        LEFT OUTER JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
-                                    WHERE EI.PlantId='" + plantId + "' AND EI.EmployeeStatus='Active'";
+                                    WHERE EI.PlantId='" + plantId + @"' AND EI.EmployeeStatus='Active'
+                                    UNION 
+									SELECT EI.SystemId, mb.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+								, EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [DesignationName], MB.EntityId,PR.UserName PositionName
+        						, DEG.UserName GivenDesignation,DEPT.UserName Department
+                                    FROM dbo.EmployeeInformation AS EI
+									LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.GivenDesignationID
+                                    LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+        					        LEFT OUTER JOIN ORG.Position PR ON MB.PositionId=PR.Id
+									LEFT OUTER JOIN ORG.Entity E ON MB.EntityId=E.Id
+        					        LEFT OUTER JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                    WHERE EI.IsGlobalEmployee=1 AND EI.EmployeeStatus='Active'";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)

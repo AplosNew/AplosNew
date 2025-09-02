@@ -110,14 +110,24 @@ function employeeOperationUploadController(commonMessage, $scope, $rootScope, ba
 
     $scope.EmployeeOperationList = [];
     $scope.getSavedOperationData = function () {
-        if (baseService.arrayLength($scope.EmployeeOperationList) == 0) {
             $http({
                 method: 'GET',
                 url: 'Employees/EmployeeInformation/GetAllEmployeeOperationData'
             }).then(function successCallback(response) {
                 $scope.EmployeeOperationList = response.data;
             });
-        }
+       
+    }
+
+    $scope.EmployeeOperationArchiveList = [];
+    $scope.getSavedOperationArchiveData = function () {
+        $http({
+            method: 'GET',
+            url: 'Employees/EmployeeInformation/GetAllEmployeeOperationArchiveData'
+        }).then(function successCallback(response) {
+            $scope.EmployeeOperationArchiveList = response.data;
+        });
+
     }
 
     $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
@@ -130,6 +140,38 @@ function employeeOperationUploadController(commonMessage, $scope, $rootScope, ba
 
         if (dataList.length == 0) {
             dataList = $scope.EmployeeOperationList;
+        }
+
+        $scope.fileName = 'EmployeeSkillMaster';
+        $http({
+            method: "POST",
+            url: $scope.exportgriddataUrl,
+            data: {
+                'data': dataList,
+                'reportFileName': $scope.fileName,
+            },
+            dataType: 'JSON',
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+    };
+
+    $scope.XlsAReport = function () {
+        var dataList = [];
+        var g = $("#GridEmpMultiopa").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.EmployeeOperationArchiveList;
         }
 
         $scope.fileName = 'EmployeeSkillMaster';

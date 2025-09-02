@@ -602,7 +602,7 @@ namespace Library.Service.OrderManagements
                             ,MOI.ProductLibraryId,MOI.FileName,MOI.Remark,MOI.OrderStatusId,MOI.UOMId
                             ,BOQNo=(Select COUNT(Id) from [dbo].[QuickBOQ] Where MasterOrderItemId=MOI.Id)
                             ,SONo=(Select COUNT(Id) from TRN.SalesOrder Where MasterOrderItemId=MOI.Id)
-                            ,MOI.Consignment,MOI.OrderCostingMasterTemplateId,'' TempList,PM.Id ProductMasterId,CAST(1 as bit) ByDefault,PL.UserName ProductLibrary,OCT.UserName OrderCostingMasterTemplate,MOI.Rate,ISNULL(AA.ArticlePartyName,P.UserName) CustomerArticle,ISNULL(ART.IsDefaultProductionGrouping,0)IsDefault
+                            ,MOI.Consignment,MOI.OrderCostingMasterTemplateId,'' TempList,PM.Id ProductMasterId,CAST(1 as bit) ByDefault,PL.UserName ProductLibrary,OCT.UserName OrderCostingMasterTemplate,MOI.Rate,ISNULL(AA.ArticlePartyName,P.UserName) CustomerArticle,ISNULL(ART.IsDefaultProductionGrouping,0)IsDefault,MOI.ItemCategory
                         FROM TRN.MasterOrderItem AS MOI
                         JOIN MST.MaterialMaster AS MM ON MOI.MaterialMasterId=MM.Id
                         LEFT JOIN MST.MaterialMasterArticle AS ART ON MOI.ArticleId=ART.Id
@@ -1720,8 +1720,8 @@ WHERE MOI.MasterOrderId='" + id + "'";
                     var thirdCharDbList = _thirdCharacteristicsRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
                     var SOCostingConfirmationDbList = _SOCostingConfirmationRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
 
-                    var count = _itemRepository.SqlQuery<int>($"SELECT count(Id)Id FROM [TRN].[MasterOrderItem] WHERE MasterOrderId='{masterId}'").First();
-                    //var count = _itemRepository.SqlQuery<int>($"SELECT CAST((RIGHT(ISNULL(MAX(CAST(Id AS INT)), 0),3)) AS INT) Id FROM [TRN].[MasterOrderItem] WHERE MasterOrderId='{masterId}'").First();
+                    //var count = _itemRepository.SqlQuery<int>($"SELECT count(Id)Id FROM [TRN].[MasterOrderItem] WHERE MasterOrderId='{masterId}'").First();
+                    var count = _itemRepository.SqlQuery<int>($"SELECT CAST((RIGHT(ISNULL(MAX(CAST(Id AS INT)), 0),2)) AS INT) Id FROM [TRN].[MasterOrderItem] WHERE MasterOrderId='{masterId}'").First();
                     foreach (var item in itemList)
                     {
                         if (item.TotalQty == 0) throw new CustomException("Add Qty");

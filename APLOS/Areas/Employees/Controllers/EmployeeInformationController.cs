@@ -1765,6 +1765,31 @@ namespace Aplos.Areas.Employees.Controllers
             return jsondata;
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetAllEmployeeOperationArchiveData()
+        {
+            var jsondata = Json(employeeProfile.GetAllEmployeeOperationArchiveData(), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetAllEmployeeOperationVariationData()
+        {
+            var jsondata = Json(employeeProfile.GetAllEmployeeOperationVariationData(), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetAllEmployeeOperationVariationArchiveData()
+        {
+            var jsondata = Json(employeeProfile.GetAllEmployeeOperationVariationArchiveData(), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
         [HttpPost, Authorize]
         public JsonResult SaveOperation(List<EmployeeOperation> data, string EmpSystemId)
         {

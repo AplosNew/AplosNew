@@ -9,7 +9,7 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.EndDay;
     Date.prototype.toShortFormat = function () {
 
-        let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug","Sep", "Oct", "Nov", "Dec"];
+        let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
         let day = ('0' + this.getDate().toString()).slice(-2);
 
@@ -45,17 +45,16 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
         }
         $scope.EndDay = $scope.datesArray[89];
     }
-    
+
     $scope.dateFilter();
 
-    $scope.resetDates = function()
-    {
+    $scope.resetDates = function () {
         $scope.startDate = (new Date()).toShortFormat();
         $scope.dateFilter();
     }
     $scope.left = [];
 
-    async function loadLeftGrid() {
+    async function loadLeftGrid(parameters) {
         var ColumnList = [
             { field: 'CompanyName', width: 20, headerText: "Company", type: "string" },
             { field: 'PlantName', width: 20, headerText: "Plant", type: "string" },
@@ -67,8 +66,9 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
         ];
         if ($scope.left.length == 0 || $scope.left == null) {
             $http({
-                method: 'GET',
+                method: 'POST',
                 url: 'IE/SkillMap/leftGridData',
+                data: { 'parameters': parameters },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.left = response.data;
@@ -99,21 +99,21 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
             gridObj.refreshContent(true);
             gridObj.refreshTemplate();
         }
-        
+
 
     }
 
-    
-   
+
+
 
 
     $scope.shiftsAll = [];
     $scope.filterComplete = function (args) {
-        
-        if ($scope.allData != null ) {
+
+        if ($scope.allData != null) {
             //destroyTabs();
         }
-        loadLeftGrid();
+
         var gridObj = $("#filters").data("ejGrid");
         var filteredRecords = gridObj.getFilteredRecords();
         //if (angular.isUndefinedOrNull(filteredRecords) == false) {
@@ -121,45 +121,46 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
         if (filteredRecords.length == 0) {
             filteredRecords = $scope.filters;
             //$scope.allData = $scope.fullTable;
-           // $scope.fillTableGrid();
+            // $scope.fillTableGrid();
         }
-        
-            var parameters = [];
-            parameters.push({ "Key": "CompanyId", "Value": getString(filteredRecords, "CompanyId") });
-            parameters.push({ "Key": "ShiftId", "Value": getString(filteredRecords, "ShiftId") });
-            parameters.push({ "Key": "PlantId", "Value": getString(filteredRecords, "PlantId") });
-            parameters.push({ "Key": "EntityId", "Value": getString(filteredRecords, "EntityId") });
-            parameters.push({ "Key": "ProcessId", "Value": getString(filteredRecords, "ProcessId") });
-            parameters.push({ "Key": "CategoryId", "Value": getString(filteredRecords, "CategoryId") });
-            parameters.push({ "Key": "TypeId", "Value": getString(filteredRecords, "TypeId") });
-            parameters.push({ "Key": "SkillId", "Value": getString(filteredRecords, "SkillId") });
-            parameters.push({ "Key": "SkillGroupId", "Value": getString(filteredRecords, "SkillGroupId") });
+
+        var parameters = [];
+        parameters.push({ "Key": "CompanyId", "Value": getString(filteredRecords, "CompanyId") });
+        parameters.push({ "Key": "ShiftId", "Value": getString(filteredRecords, "ShiftId") });
+        parameters.push({ "Key": "PlantId", "Value": getString(filteredRecords, "PlantId") });
+        parameters.push({ "Key": "EntityId", "Value": getString(filteredRecords, "EntityId") });
+        parameters.push({ "Key": "ProcessId", "Value": getString(filteredRecords, "ProcessId") });
+        parameters.push({ "Key": "CategoryId", "Value": getString(filteredRecords, "CategoryId") });
+        parameters.push({ "Key": "TypeId", "Value": getString(filteredRecords, "TypeId") });
+        parameters.push({ "Key": "SkillId", "Value": getString(filteredRecords, "SkillId") });
+        parameters.push({ "Key": "SkillGroupId", "Value": getString(filteredRecords, "SkillGroupId") });
 
 
-           // $scope.filters = filteredRecords;
-            var shifs = [];
-            $scope.shiftsAll = [];
-            for (var i = 0; i < filteredRecords.length; i++) {
-                
-                if (shifs.includes(filteredRecords[i]["Shift"]) == false) {
-                    shifs.push(filteredRecords[i]["Shift"]);
-                }
 
-                
+        // $scope.filters = filteredRecords;
+        var shifs = [];
+        $scope.shiftsAll = [];
+        for (var i = 0; i < filteredRecords.length; i++) {
+
+            if (shifs.includes(filteredRecords[i]["Shift"]) == false) {
+                shifs.push(filteredRecords[i]["Shift"]);
             }
-            for (var i = 0; i < shifs.length; i++) {
-                var str = "";
-                if (i == shifs.length - 1) {
-                    str = shifs[i] + ".";
-                }
-                else {
-                    str = shifs[i] + ", ";
-                }
-                $scope.shiftsAll.push(str);
+
+
+        }
+        for (var i = 0; i < shifs.length; i++) {
+            var str = "";
+            if (i == shifs.length - 1) {
+                str = shifs[i] + ".";
             }
-            $scope.applyFilters(parameters);
-        
-            
+            else {
+                str = shifs[i] + ", ";
+            }
+            $scope.shiftsAll.push(str);
+        }
+        $scope.applyFilters(parameters);
+
+
 
     }
     var getString = function (data, column) {
@@ -210,27 +211,27 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.filters = response.data;
-           
 
-        //try {
-        //    var gridObj = $("#filters").data("ejGrid");
-        //    if (gridObj !== undefined && typeof gridObj === 'object' && typeof gridObj.destroy === 'function') gridObj.destroy();
-        //} catch (e) {
 
-        //}
-        //$("#filters").ejGrid({
-        //    dataSource: $scope.filters,
-        //    minWidth: 450, minHeight: 400,
-        //    allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowSelection: true, allowTextWrap: true, allowScrolling: true,
-        //    filterSettings: { filterType: "excel" },
-        //    columns: ColumnList
-        //});
+            //try {
+            //    var gridObj = $("#filters").data("ejGrid");
+            //    if (gridObj !== undefined && typeof gridObj === 'object' && typeof gridObj.destroy === 'function') gridObj.destroy();
+            //} catch (e) {
 
-        var gridObj = $("#filters").data("ejGrid");
-        //gridObj.refreshTemplate();
-        $("#filters").children('.e-pager.e-js.e-pager').hide();
-        $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
-        $("#filters").children('.e-gridcontent').hide();
+            //}
+            //$("#filters").ejGrid({
+            //    dataSource: $scope.filters,
+            //    minWidth: 450, minHeight: 400,
+            //    allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowSelection: true, allowTextWrap: true, allowScrolling: true,
+            //    filterSettings: { filterType: "excel" },
+            //    columns: ColumnList
+            //});
+
+            var gridObj = $("#filters").data("ejGrid");
+            //gridObj.refreshTemplate();
+            $("#filters").children('.e-pager.e-js.e-pager').hide();
+            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
+            $("#filters").children('.e-gridcontent').hide();
         });
     }
 
@@ -239,19 +240,19 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
     ///////////The Date Modifications 
     $scope.dateList = []; //String Format of Dates
     $scope.dates = []; //Dates Format of the strings
-    $scope.IntervalsList = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    $scope.IntervalsList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     $scope.showDates = [];
     $scope.Interval = 1;
 
     $scope.intervalSet = function () {
         $scope.showDates = [];
-        
+
         var i = 0;
         var intervals = parseInt($scope.Interval);
 
-        for (i = 0; i < $scope.dateList.length ; i += intervals) {
-                $scope.showDates.push($scope.dateList[i]);
-                
+        for (i = 0; i < $scope.dateList.length; i += intervals) {
+            $scope.showDates.push($scope.dateList[i]);
+
         }
         $scope.fillTableGrid();
         $scope.loadFilters();
@@ -264,11 +265,11 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
         $scope.fillTableGrid();
     }
 
-    
 
- 
 
-   
+
+
+
     //The Double Click For Chart\
     $scope.preChart;
     $scope.SkillCodeWork;
@@ -284,8 +285,7 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
         if (e.cellIndex < 5) {
             fillChart(e.data);
         }
-        else if (e.cellIndex >= 5 && e.cellIndex < 8)
-        {
+        else if (e.cellIndex >= 5 && e.cellIndex < 8) {
             var seq = ''; var skillCode = ""; $scope.seq = "";
             $scope.SkillCodeWork = "";
             $scope.SkillWork = "";
@@ -306,10 +306,10 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
             $http({
                 method: 'POST',
                 url: 'IE/SkillMap/skillwiseEmployee',
-                data: { 'code': skillCode, 'shifts': shifts, 'seq': seq, 'companyId': companyId},
+                data: { 'code': skillCode, 'shifts': shifts, 'seq': seq, 'companyId': companyId },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
-                var ColumnList = [                   
+                var ColumnList = [
                     { field: 'BudgetCode', width: 80, headerText: "Budget Code", type: "string" },
                     { field: 'Entity', width: 80, headerText: "Entity", type: "string" },
                     { field: 'ShiftName', width: 80, headerText: "Shift Name", type: "string" },
@@ -322,7 +322,7 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
                     { field: 'EmployeeCurrentStatus', width: 180, headerText: "Employee Current Status", type: "string" },
                     { field: 'SubSection', width: 180, headerText: "SubSection", type: "string" },
                     { field: 'Section', width: 180, headerText: "Section", type: "string" },
-                    { field: 'Department', width: 180, headerText: "Department", type: "string" }                  
+                    { field: 'Department', width: 180, headerText: "Department", type: "string" }
                 ];
                 $("#employeeSkillGrid").ejGrid({
                     dataSource: response.data,
@@ -351,19 +351,19 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
             $scope.SkillCodeWork = skillCode;
             $scope.DateWork = date;
             $scope.Actual = e.rowData.Skill1;
-           
+
             $scope.required = parseFloat($scope.Actual) - parseFloat(e.cellValue);
-            
+
             $scope.SkillWork = e.data.Skill;
             $http({
                 method: 'POST',
                 url: 'IE/SkillMap/allotedWorkCenter',
-                data: {'parameters': $scope.parameters,'skillId' :skillId , 'date':date},
+                data: { 'parameters': $scope.parameters, 'skillId': skillId, 'date': date },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.dataSourceForChart = response.data;
                 var ColumnList = [
-                    { field: 'UserName', width: 80, headerText: "Work Center", type: "string"},
+                    { field: 'UserName', width: 80, headerText: "Work Center", type: "string" },
                     { field: 'Alloted', width: 80, headerText: "Required", type: "string" },
                     { field: 'buyer', width: 80, headerText: "Buyer", type: "string" },
                     { field: 'Article', width: 80, headerText: "Article", type: "string" },
@@ -385,7 +385,7 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
                 angular.element(document.querySelector('#dateModal')).modal('show');
             });
         }
-        
+
     }
 
     $scope.closedateModal = function () {
@@ -404,7 +404,7 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
     //The Cell Color Change in the Grid
     $scope.cellColorChange = function (e) {
         try {
-           
+
 
             for (var i = 0; i < $scope.skillDates.length; i++) {
                 if ($scope.skillDates[i] == e.column.field) {
@@ -419,9 +419,8 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
             }
 
         }
-        catch (ex)
-        {
-            
+        catch (ex) {
+
         }
     }
 
@@ -429,11 +428,11 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.clearFilters = function () {
 
         var gridObj = $("#filters").data("ejGrid");
-         gridObj.clearFiltering();
+        gridObj.clearFiltering();
     }
 
 
-   
+
     $scope.pivotdatasource = [];
     $scope.shortExcess = [];
     $scope.actualMp = [];
@@ -442,11 +441,12 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.allData;
 
     //The Grid For the Skills
-    
 
-    
+
+
 
     $scope.applyFilters = function (parameters) {
+        loadLeftGrid(parameters);
         $scope.dataSource = [];
         $scope.shortExcess = [];
         $scope.actualMp = [];
@@ -455,8 +455,8 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
         $http({
             method: 'POST',
             url: 'IE/SkillMap/GetScheduleDataFiltered',
-            data: { 'parameters': parameters, 'fromDate' :$scope.FirstDay , 'toDate' : $scope.EndDay},
-            
+            data: { 'parameters': parameters, 'fromDate': $scope.FirstDay, 'toDate': $scope.EndDay },
+
         }).then(function successCallback(response) {
             $scope.dateList = response.data.Columns;
             $scope.showDates = response.data.Columns;
@@ -466,7 +466,7 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
 
     }
 
-    
+
     function summaryDash() {
         var response = $scope.allData;
         var ColumnList = [
@@ -475,11 +475,11 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
 
         ];
 
-        
+
         for (var i = 0; i < response.data.Columns.length; i++) {
             ColumnList.push({ field: response.data.Columns[i], width: 100, headerText: response.data.Columns[i], format: "{0:N2}", type: "number" });
         }
-        
+
         $("#summaryDash").ejGrid({
             dataSource: response.data.Compact,
             minWidth: 450, minHeight: 400,
@@ -517,7 +517,7 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
         }
 
         summaryDash();
-        
+
         var ColumnList = [
             //{ field: 'SkillId', width: 120, headerText: "SkillId" },
             //{ field: 'SkillCategory', width: 40, headerText: "Skill Category" },
@@ -619,7 +619,7 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
         catch (e) {
 
         }
-        
+
     }
 
     function fillSummary(data) {
@@ -641,7 +641,7 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
             SummaryChart.update();
 
         }
-        catch (e) {}
+        catch (e) { }
     }
 
 
@@ -672,7 +672,7 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
             ]
         },
         options: {
-            
+
             bezierCurve: false,
             scaleShowValues: true,
             scales: {
@@ -695,7 +695,7 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
                 display: true,
                 text: ''
             },
-            
+
         },
     });
 

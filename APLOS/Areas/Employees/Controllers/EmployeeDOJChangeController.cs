@@ -101,6 +101,7 @@ namespace Aplos.Areas.Employees.Controllers
                          , FORMAT(EI.DOB,'dd-MMM-yyyy') DOB
                          , FORMAT(EI.DOJ,'dd-MMM-yyyy') DOJ
                          , FORMAT(EI.DOS,'dd-MMM-yyyy') DOS
+                         , FORMAT(EI.DOc,'dd-MMM-yyyy') DOC
                          , DG.UserName LegalDesignation
                          , DP.UserName Department
                          , PMB.Code,PR.UserName PositionName
@@ -154,7 +155,7 @@ namespace Aplos.Areas.Employees.Controllers
 
 
         [HttpPost]
-        public JsonResult SaveDOJ(string EmpId,string NewDOJ)
+        public JsonResult SaveDOJ(string EmpId,string NewDOJ,string DOC)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string YearlyCalendarId = string.Empty;
@@ -162,7 +163,7 @@ namespace Aplos.Areas.Employees.Controllers
             DataSet dsEmployeeFinalSettlement;
             try
             {
-                string sql = @" UPDATE EmployeeInformation SET DOJ = '" + NewDOJ + @"'   WHERE SystemId='" + EmpId + @"'  
+                string sql = @" UPDATE EmployeeInformation SET DOJ = '" + NewDOJ + @"',DOC='"+ DOC + @"'   WHERE SystemId='" + EmpId + @"'  
                                                              
                                 UPDATE EmpDateWiseJobLocation SET EffectiveDate = '" + NewDOJ + @"'  WHERE EmpSystemID='" + EmpId + @"' 
 						                            AND  SystemID=( SELECT TOP 1 SystemID FROM  EmpDateWiseJobLocation WHERE EmpSystemID='" + EmpId + @"' ORDER BY EffectiveDate) 

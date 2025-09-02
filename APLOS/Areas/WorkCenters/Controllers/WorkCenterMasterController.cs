@@ -405,7 +405,7 @@ WHERE BP.BusinessProcessName = 'MachineDefinition' AND ART.Active = 1";
             dr.EndEdit();
         }
 
-        [HttpPost]
+        [Authorize,HttpPost]
         public JsonResult CreateSB(Dictionary<string, object> data, string WorkCenterMasterId)
         {
             try
