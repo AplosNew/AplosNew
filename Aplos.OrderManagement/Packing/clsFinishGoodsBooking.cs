@@ -81,8 +81,8 @@ namespace Library.OrderManagement.Packing
                 string sql = @"SELECT Qty=ROUND(CAST(SUM(CASE WHEN ISC.IsDespatch=0 THEN ISC.NetWeight ELSE 0 END) AS DECIMAL(18,2)), 2),ISC.POId,ISC.ProductCode,FORMAT(ISM.WorkDate,'dd-MMM-yyyy') WorkDate
 	                        FROM dbo.ItemScanChild ISC 
 	                        LEFT JOIN dbo.ItemScan ISM ON ISM.Id=ISC.MasterId 
-	                        WHERE ISNULL(ISC.InventoryReceiveDetailId,'')='' AND ISNULL(ISC.PackingId,'')='' AND ISC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='"+ entityId + @"')
-                            AND ISC.PoId='"+ productionOrderId + @"' AND ISC.ProductCode='"+productCode+@"'  AND ISM.WorkDate NOT IN(Select FORMAT(WorkDate,'dd-MMM-yyyy') from dbo.ItemScan Where WorkDate between '"+fromDate+@"' AND '"+toDate+@"') 
+	                        WHERE ISNULL(ISC.InventoryReceiveDetailId,'')='' AND ISNULL(ISC.PackingId,'')='' AND ISC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + entityId + @"')
+                            AND ISC.PoId='" + productionOrderId + @"' AND ISC.ProductCode='" + productCode + @"'  AND ISM.WorkDate NOT IN(Select FORMAT(WorkDate,'dd-MMM-yyyy') from dbo.ItemScan Where WorkDate between '" + fromDate + @"' AND '" + toDate + @"') 
 	                        GROUP BY ISC.PoId,ISC.ProductCode,ISM.WorkDate";
 
                 return _sqlRepository.GetDataCollection(sql, null);
@@ -288,7 +288,7 @@ namespace Library.OrderManagement.Packing
             }
         }
 
-        public void SaveData(Dictionary<string, object> data,List<Dictionary<string, object>> FGList,string ToDate)
+        public void SaveData(Dictionary<string, object> data, List<Dictionary<string, object>> FGList, string ToDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -615,7 +615,7 @@ namespace Library.OrderManagement.Packing
                 }
 
                 #endregion
-                              
+
 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsMaster, dsFGDetail, dsInventoryReceive, dsInventoryMaterial, dsInventoryReceiveDetail, dsConsumptionByCosting, dsItemScanChild, dsProductionSummary);
@@ -1756,19 +1756,14 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
             }
         }
 
-        public IEnumerable<object> GetItemScanChildData(string entityId, string fromDate, string toDate)
+        public IEnumerable<object> GetItemScanChildData(string entityId, string fromDate, string toDate, string level)
         {
             try
             {
-
-        //        ,Balance = CONVERT(decimal(18, 2), ISNULL(A.Qty, 0.00)) - ISNULL((SELECT Qty = SUM(CASE WHEN ISC.IsDespatch = 1 THEN ISC.NetWeight ELSE 0 END)
-        //FROM dbo.ItemScanChild ISC
-        //LEFT JOIN dbo.ItemScan ISM ON ISM.Id = ISC.MasterId
-        //WHERE ISNULL(ISC.InventoryReceiveDetailId, '') <> '' AND ISNULL(ISC.PackingId, '') <> ''
-        //AND ISC.POId IN(Select Id from TRN.ProductionOrder Where EntityId = '" + entityId + @"')
-        //GROUP BY ISC.PoId, ISC.ProductCode),0)
-
-                string sql = @"SELECT CAST(0 AS bit) Flag,'' Id,PD.ProductionOrderId,PD.ProductCode,PD.MasterOrderItemId,SONo = STUFF((SELECT DISTINCT ',' + XSO.Id
+                string sql = "";
+                if (level == "Costing")
+                {
+                    sql = @"SELECT CAST(0 AS bit) Flag,'' Id,PD.ProductionOrderId,PD.ProductCode,PD.MasterOrderItemId,SONo = STUFF((SELECT DISTINCT ',' + XSO.Id
 							FROM trn.SalesOrder XSO
 							WHERE XSO.Id = PD.SalesOrderId
 							FOR XML path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
@@ -1830,16 +1825,19 @@ GROUP BY  POD.ProductionOrderId,B.Rate
 INNER JOIN(
 Select Qty=SUM(CASE WHEN ISC.IsDespatch=0 THEN ISC.NetWeight ELSE 0 END),ISC.POId,ISC.ProductCode 
 	from dbo.ItemScanChild ISC 
-	LEFT JOIN dbo.ItemScan ISM ON ISM.Id=ISC.MasterId 
-	WHERE ISM.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(ISC.InventoryReceiveDetailId,'')='' AND ISNULL(ISC.PackingId,'')='' AND ISC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + entityId + @"')
+	INNER JOIN dbo.ItemScan ISM ON ISM.Id=ISC.MasterId 
+	LEFT JOIN TRN.ProductionOrder PO ON PO.Id=ISC.POId
+	WHERE ISM.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(ISC.InventoryReceiveDetailId,'')='' AND ISNULL(ISC.PackingId,'')=''  
+    AND  PO.EntityId='" + entityId + @"' 
 	GROUP BY ISC.PoId,ISC.ProductCode
 ) A ON A.POId= PD.ProductionOrderId AND PD.ProductCode=A.ProductCode
 
 LEFT JOIN(
 Select UnBookedQty=SUM(CASE WHEN ISC.IsDespatch=0 THEN ISC.NetWeight ELSE 0 END),ISC.POId,ISC.ProductCode 
 	from dbo.ItemScanChild ISC 
-	LEFT JOIN dbo.ItemScan ISM ON ISM.Id=ISC.MasterId 
-	WHERE ISNULL(ISC.InventoryReceiveDetailId,'')='' AND ISNULL(ISC.PackingId,'')='' AND ISC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + entityId + @"')
+	INNER JOIN dbo.ItemScan ISM ON ISM.Id=ISC.MasterId 
+	LEFT JOIN TRN.ProductionOrder PO ON PO.Id=ISC.POId
+	WHERE ISNULL(ISC.InventoryReceiveDetailId,'')='' AND ISNULL(ISC.PackingId,'')=''  AND  PO.EntityId='" + entityId + @"'
     AND ISM.WorkDate NOT IN(Select FORMAT(WorkDate,'dd-MMM-yyyy') from dbo.ItemScan Where WorkDate between '" + fromDate + @"' AND '" + toDate + @"')
 	GROUP BY ISC.PoId,ISC.ProductCode
 ) B ON B.POId= PD.ProductionOrderId AND PD.ProductCode=B.ProductCode
@@ -1847,12 +1845,14 @@ Select UnBookedQty=SUM(CASE WHEN ISC.IsDespatch=0 THEN ISC.NetWeight ELSE 0 END)
 LEFT JOIN(
 Select BookedQty=SUM(CASE WHEN ISC.IsDespatch=0 THEN ISC.NetWeight ELSE 0 END),ISC.POId,ISC.ProductCode 
 	from dbo.ItemScanChild ISC 
-	LEFT JOIN dbo.ItemScan ISM ON ISM.Id=ISC.MasterId 
-	WHERE ISNULL(ISC.InventoryReceiveDetailId,'')<>'' AND ISNULL(ISC.PackingId,'')='' AND ISC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + entityId + @"')
+	INNER JOIN dbo.ItemScan ISM ON ISM.Id=ISC.MasterId 
+	LEFT JOIN TRN.ProductionOrder PO ON PO.Id=ISC.POId 
+	WHERE ISNULL(ISC.InventoryReceiveDetailId,'')<>'' AND ISNULL(ISC.PackingId,'')=''  AND  PO.EntityId='" + entityId + @"'
 	GROUP BY ISC.PoId,ISC.ProductCode
 ) C ON C.POId= PD.ProductionOrderId AND PD.ProductCode=C.ProductCode
 
-WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.InventoryReceiveDetailId,'')='' AND ISNULL(SC.PackingId,'')='' AND SC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + entityId + @"')
+WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.InventoryReceiveDetailId,'')='' AND ISNULL(SC.PackingId,'')='' 
+--AND  PO.EntityId='" + entityId + @"'
 GROUP BY PD.ProductionOrderId,PD.ProductCode,PD.OrderCostingMasterTemplateId,PD.Rate,PD.MaterialMaster,PD.MaterialMasterId,PD.Article,PD.ArticleId,PD.IsAsset,PD.UOM,PD.TotalQty,PD.Buyer,PD.MasterOrderItemId,A.Qty,B.UnBookedQty,C.BookedQty,PD.BuyerReferenceNo,PD.SalesOrderId
 UNION ALL
 SELECT CAST(0 AS bit) Flag,'' Id, ProductionOrderId,ProductCode,''MasterOrderItemId,''SONo,''MaterialMasterId,''ArticleId,'' MaterialMaster,''Article,'' OrderCostingMasterTemplateId,Qty=CONVERT(decimal(18,2),Qty),Rate=CONVERT(decimal(18,4),0), Amount=CONVERT(decimal(18,2),0)
@@ -1860,8 +1860,9 @@ SELECT CAST(0 AS bit) Flag,'' Id, ProductionOrderId,ProductCode,''MasterOrderIte
 (
 	Select Qty=SUM(CASE WHEN ISC.IsDespatch=0 THEN ISC.NetWeight ELSE 0 END),ISC.POId ProductionOrderId,ISC.ProductCode 
 		from dbo.ItemScanChild ISC 
-		LEFT JOIN dbo.ItemScan ISM ON ISM.Id=ISC.MasterId 
-		WHERE ISM.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(ISC.InventoryReceiveDetailId,'')='' AND ISNULL(ISC.PackingId,'')='' AND ISC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + entityId + @"')
+		INNER JOIN dbo.ItemScan ISM ON ISM.Id=ISC.MasterId 
+	LEFT JOIN TRN.ProductionOrder PO ON PO.Id=ISC.POId 
+		WHERE ISM.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(ISC.InventoryReceiveDetailId,'')='' AND ISNULL(ISC.PackingId,'')='' AND  PO.EntityId='" + entityId + @"'
 		GROUP BY ISC.PoId,ISC.ProductCode
 ) A
 where not exists
@@ -1876,6 +1877,121 @@ where not exists
 		LEFT JOIN dbo.ProductLibrary PL ON MOI.ProductLibraryId=PL.Id
 	) B where A.ProductionOrderId=B.ProductionOrderId and A.ProductCode=B.ProductCode
 )";
+                }
+                else if (level == "QBOQ")
+                {
+                    sql = @" SELECT CAST(0 AS bit) Flag,'' Id,PD.ProductionOrderId,PD.ProductCode,PD.MasterOrderItemId,SONo = STUFF((SELECT DISTINCT ',' + XSO.Id
+
+                            FROM trn.SalesOrder XSO
+
+                            WHERE XSO.Id = PD.SalesOrderId
+
+                            FOR XML path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							,PD.MaterialMasterId,PD.ArticleId,PD.MaterialMaster,PD.Article,NULL OrderCostingMasterTemplateId
+                            , Qty = CONVERT(decimal(18, 2), ISNULL(A.Qty, 0.00)), Rate = CONVERT(decimal(18, 4), ISNULL(PD.Rate, 0.0000))
+                            , Amount = CONVERT(decimal(18, 2), (ISNULL(A.Qty, 0.00) * ISNULL(PD.Rate, 0.0000)))
+                            , PD.IsAsset,PD.UOM,PD.Buyer,PD.BuyerReferenceNo,PD.TotalQty ItemQty, ISNULL(B.UnBookedQty, 0)UnBookedQty,ISNULL(C.BookedQty, 0)BookedQty,Balance = ISNULL((PD.TotalQty - C.BookedQty), 0)
+FROM dbo.ItemScanChild SC
+LEFT JOIN dbo.ItemScan ISN ON ISN.Id = SC.MasterId
+LEFT JOIN(
+    SELECT DISTINCT POD.ProductionOrderId, ISNULL(QB.Rate,0)Rate,MOI.Id MasterOrderItemId
+     , MM.Id MaterialMasterId, MMA.Id ArticleId, MM.UserName MaterialMaster, MMA.StandardName Article, MM.IsAsset,U.Id UOM, PL.Code ProductCode, BR.UserName Buyer, SUM(SO.Qty)TotalQty,MOI.BuyerReferenceNo,POD.SalesOrderId
+         FROM TRN.ProductionOrder PO
+LEFT JOIN TRN.ProductionOrderDetail POD ON POD.ProductionOrderId = PO.Id
+LEFT JOIN  TRN.SalesOrder SO ON SO.Id = POD.SalesOrderId
+LEFT JOIN TRN.MasterOrderItem MOI ON moi.Id = so.MasterOrderItemId
+LEFT JOIN TRN.MasterOrder MO ON mo.Id = MOI.MasterOrderId
+LEFT JOIN HKP.Buyer BR ON BR.Id = MO.BuyerId
+LEFT JOIN dbo.ProductLibrary PL ON MOI.ProductLibraryId = PL.Id
+LEFT JOIN MST.MaterialMaster MM ON MM.Id = moi.MaterialMasterId
+LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id = moi.ArticleId
+LEFT JOIN(select MasterOrderItemId, sum(grossconsumption) Rate from dbo.QuickBOQ group by MasterOrderItemId) QB ON QB.MasterOrderItemId = MOI.Id
+LEFT JOIN SCS.UnitOfMeasurement U ON MM.BaseUoMId = U.Id
+
+
+GROUP BY  POD.ProductionOrderId
+,MOI.Id
+	,MM.Id,MMA.Id,MM.UserName,MMA.StandardName,MM.IsAsset,U.Id,PL.Code,BR.UserName,MOI.BuyerReferenceNo,POD.SalesOrderId,QB.Rate
+) PD ON PD.ProductionOrderId = SC.POId
+
+INNER JOIN(
+Select Qty = SUM(CASE WHEN ISC.IsDespatch = 0 THEN ISC.NetWeight ELSE 0 END), ISC.POId, ISC.ProductCode
+    from dbo.ItemScanChild ISC
+
+    INNER JOIN dbo.ItemScan ISM ON ISM.Id= ISC.MasterId
+
+    LEFT JOIN TRN.ProductionOrder PO ON PO.Id= ISC.POId
+
+    WHERE ISM.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(ISC.InventoryReceiveDetailId,'')= '' AND ISNULL(ISC.PackingId,'')= ''
+    AND PO.EntityId = '" + entityId + @"'
+
+    GROUP BY ISC.PoId,ISC.ProductCode
+) A ON A.POId = PD.ProductionOrderId AND PD.ProductCode = A.ProductCode
+
+LEFT JOIN(
+Select UnBookedQty = SUM(CASE WHEN ISC.IsDespatch = 0 THEN ISC.NetWeight ELSE 0 END), ISC.POId, ISC.ProductCode
+    from dbo.ItemScanChild ISC
+
+    INNER JOIN dbo.ItemScan ISM ON ISM.Id= ISC.MasterId
+
+    LEFT JOIN TRN.ProductionOrder PO ON PO.Id= ISC.POId
+
+    WHERE ISNULL(ISC.InventoryReceiveDetailId,'')= '' AND ISNULL(ISC.PackingId,'')= ''  AND PO.EntityId = '" + entityId + @"'
+    AND ISM.WorkDate NOT IN(Select FORMAT(WorkDate, 'dd-MMM-yyyy') from dbo.ItemScan Where WorkDate between '" + fromDate + @"' AND '" + toDate + @"')
+
+    GROUP BY ISC.PoId,ISC.ProductCode
+) B ON B.POId = PD.ProductionOrderId AND PD.ProductCode = B.ProductCode
+
+LEFT JOIN(
+Select BookedQty = SUM(CASE WHEN ISC.IsDespatch = 0 THEN ISC.NetWeight ELSE 0 END), ISC.POId, ISC.ProductCode
+    from dbo.ItemScanChild ISC
+
+    INNER JOIN dbo.ItemScan ISM ON ISM.Id= ISC.MasterId
+
+    LEFT JOIN TRN.ProductionOrder PO ON PO.Id= ISC.POId
+
+    WHERE ISNULL(ISC.InventoryReceiveDetailId,'')<> '' AND ISNULL(ISC.PackingId,'')= ''  AND PO.EntityId = '" + entityId + @"'
+
+    GROUP BY ISC.PoId,ISC.ProductCode
+) C ON C.POId = PD.ProductionOrderId AND PD.ProductCode = C.ProductCode
+
+WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.InventoryReceiveDetailId,'')= '' AND ISNULL(SC.PackingId,'')= ''
+ --AND PO.EntityId = '" + entityId + @"'
+GROUP BY PD.ProductionOrderId,PD.ProductCode ,PD.Rate,PD.MaterialMaster,PD.MaterialMasterId,PD.Article,PD.ArticleId,PD.IsAsset,PD.UOM,PD.TotalQty,PD.Buyer,PD.MasterOrderItemId,A.Qty,B.UnBookedQty,C.BookedQty,PD.BuyerReferenceNo,PD.SalesOrderId
+UNION ALL
+SELECT CAST(0 AS bit) Flag,'' Id, ProductionOrderId,ProductCode,''MasterOrderItemId,''SONo,''MaterialMasterId,''ArticleId,'' MaterialMaster,''Article,'' OrderCostingMasterTemplateId,Qty = CONVERT(decimal(18, 2), Qty),Rate = CONVERT(decimal(18, 4), 0), Amount = CONVERT(decimal(18, 2), 0)
+,0 IsAsset,''UOM,''Buyer,'' BuyerReferenceNo,0 ItemQty,0 UnBookedQty,0 BookedQty,0 Balance from
+(
+    Select Qty = SUM(CASE WHEN ISC.IsDespatch = 0 THEN ISC.NetWeight ELSE 0 END), ISC.POId ProductionOrderId, ISC.ProductCode
+        from dbo.ItemScanChild ISC
+
+        INNER JOIN dbo.ItemScan ISM ON ISM.Id= ISC.MasterId
+
+    LEFT JOIN TRN.ProductionOrder PO ON PO.Id= ISC.POId
+
+        WHERE ISM.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(ISC.InventoryReceiveDetailId,'')= '' AND ISNULL(ISC.PackingId,'')= '' AND PO.EntityId = '" + entityId + @"'
+
+        GROUP BY ISC.PoId,ISC.ProductCode
+) A
+where not exists
+(
+    select* from
+
+    (
+        SELECT DISTINCT POD.ProductionOrderId, ISNULL(PL.Code,'') ProductCode,PL.*
+         FROM TRN.ProductionOrder PO
+
+        LEFT JOIN TRN.ProductionOrderDetail POD ON POD.ProductionOrderId = PO.Id
+
+        LEFT JOIN TRN.SalesOrder SO ON SO.Id = POD.SalesOrderId
+
+        LEFT JOIN TRN.MasterOrderItem MOI ON moi.Id = so.MasterOrderItemId
+
+        LEFT JOIN dbo.ProductLibrary PL ON MOI.ProductLibraryId = PL.Id
+	) B where A.ProductionOrderId = B.ProductionOrderId and A.ProductCode = B.ProductCode
+)";
+                }
+
                 return _sqlRepository.GetDataCollection(sql, null);
 
             }

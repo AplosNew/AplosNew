@@ -178,9 +178,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetItemScanChildData(string entityId,string fromDate, string toDate)
+        public JsonResult GetItemScanChildData(string entityId,string fromDate, string toDate,string level)
         {
-            var jsondata = Json(clsFinishGoodsBooking.GetItemScanChildData(entityId,fromDate, toDate), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(clsFinishGoodsBooking.GetItemScanChildData(entityId,fromDate, toDate, level), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
