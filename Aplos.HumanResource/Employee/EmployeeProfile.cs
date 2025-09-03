@@ -2220,9 +2220,11 @@ LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
         {
             try
             {
-                var sql = @"SELECT EO.EmpSystemId,E.EmployeeCode,E.EmployeeName,EO.Sequence,OM.Code,OM.ShortName,OM.StandardName,OM.UserName,S.UserName Skill,EO.CycleTime
+                var sql = @"SELECT EO.EmpSystemId,E.EmployeeCode,E.EmployeeName,EO.Sequence,OM.Code,OM.ShortName,OM.StandardName,OM.UserName,S.UserName Skill,EO.CycleTime,EN.UserName Entity
                             FROM EmployeeOperation EO
                             LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=EO.EmpSystemId
+							LEFT JOIN MST.ManpowerBudget MB ON MB.Id=E.BudgetCode
+							LEFT JOIN ORG.Entity EN ON EN.Id=MB.EntityId
                             LEFT JOIN  MST.OperationMaster OM ON EO.OperationMasterId=OM.Id
                             LEFT JOIN HKP.Skill S ON S.Id=OM.SkillId
                             WHERE EO.Archive=0 ORDER BY EO.EmpSystemId,EO.Sequence";
@@ -2238,9 +2240,11 @@ LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
         {
             try
             {
-                var sql = @"SELECT EO.EmpSystemId,E.EmployeeCode,E.EmployeeName,EO.Sequence,OM.Code,OM.ShortName,OM.StandardName,OM.UserName,S.UserName Skill,EO.CycleTime
+                var sql = @"SELECT EO.EmpSystemId,E.EmployeeCode,E.EmployeeName,EO.Sequence,OM.Code,OM.ShortName,OM.StandardName,OM.UserName,S.UserName Skill,EO.CycleTime,EN.UserName Entity
                             FROM EmployeeOperation EO
                             LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=EO.EmpSystemId
+							LEFT JOIN MST.ManpowerBudget MB ON MB.Id=E.BudgetCode
+							LEFT JOIN ORG.Entity EN ON EN.Id=MB.EntityId
                             LEFT JOIN  MST.OperationMaster OM ON EO.OperationMasterId=OM.Id
                             LEFT JOIN HKP.Skill S ON S.Id=OM.SkillId
                             WHERE EO.Archive=1 ORDER BY EO.EmpSystemId,EO.Sequence";
@@ -2256,8 +2260,11 @@ LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
         {
             try
             {
-                var sql = @"SELECT EO.EmpSystemId,E.EmployeeCode,E.EmployeeName,EO.Sequence,OV.Code,OV.ShortName,OV.StandardName,OV.UserName,MMA.StandardName MachineName          FROM EmployeeOperationVariation EO
+                var sql = @"SELECT EO.EmpSystemId,E.EmployeeCode,E.EmployeeName,EO.Sequence,OV.Code,OV.ShortName,OV.StandardName,OV.UserName,MMA.StandardName MachineName,EN.UserName Entity    
+                            FROM EmployeeOperationVariation EO
                             LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=EO.EmpSystemId
+							LEFT JOIN MST.ManpowerBudget MB ON MB.Id=E.BudgetCode
+							LEFT JOIN ORG.Entity EN ON EN.Id=MB.EntityId
                             LEFT JOIN  MST.OperationVariation OV ON EO.OperationVariationId=OV.Id
                             LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=OV.ArticleId
                             WHERE EO.Archive=0 ORDER BY EO.EmpSystemId,EO.Sequence";
@@ -2273,8 +2280,11 @@ LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
         {
             try
             {
-                var sql = @"SELECT EO.EmpSystemId,E.EmployeeCode,E.EmployeeName,EO.Sequence,OV.Code,OV.ShortName,OV.StandardName,OV.UserName,MMA.StandardName MachineName           FROM EmployeeOperationVariation EO
+                var sql = @"SELECT EO.EmpSystemId,E.EmployeeCode,E.EmployeeName,EO.Sequence,OV.Code,OV.ShortName,OV.StandardName,OV.UserName,MMA.StandardName MachineName,EN.UserName Entity        
+                            FROM EmployeeOperationVariation EO
                             LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=EO.EmpSystemId
+							LEFT JOIN MST.ManpowerBudget MB ON MB.Id=E.BudgetCode
+							LEFT JOIN ORG.Entity EN ON EN.Id=MB.EntityId
                             LEFT JOIN  MST.OperationVariation OV ON EO.OperationVariationId=OV.Id
                             LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=OV.ArticleId
                             WHERE EO.Archive=1 ORDER BY EO.EmpSystemId,EO.Sequence";
