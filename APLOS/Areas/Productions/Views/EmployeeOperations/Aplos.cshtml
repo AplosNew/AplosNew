@@ -7,7 +7,7 @@
                 <label class="col-sm-4 control-label">Entity</label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="EntityId" name="Entity" ng-change="getProcess();getPo();"
+                        <select class="form-control" ng-model="EntityId" name="Entity" ng-change="getProcess();getPo();getWkC();"
                                 ng-options="item.Value as item.Text for item in EntityList">
                             <option value="">--Select--</option>
                         </select>

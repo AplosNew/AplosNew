@@ -51,9 +51,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetWorkCenter(string PId)
+        public ActionResult GetWorkCenter(string PId,string entityId)
         {
-            return Json(eo.GetWorkCenter(PId), JsonRequestBehavior.AllowGet);
+            return Json(eo.GetWorkCenter(PId, entityId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]

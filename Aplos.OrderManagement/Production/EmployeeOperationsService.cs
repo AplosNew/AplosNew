@@ -38,12 +38,11 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetWorkCenter(string PId)
+        public IEnumerable<object> GetWorkCenter(string PId, string entityId)
         {
             try
             {
-                var Sql = @"select distinct Id as Value , UserName as Text from scs.WorkCenterMaster where ProcessId = '" + PId + "'";
-                //where ope.AddedBy='" + AddedBy + "'
+                var Sql = @"select distinct Id as Value , UserName as Text from SCS.WorkCenterMaster WHERE ProcessId = '" + PId + "' AND EntityId='"+ entityId + @"'";
                 return _sqlRepository.GetDataCollection(Sql, null);
             }
             catch (Exception ex)
