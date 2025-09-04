@@ -47,7 +47,7 @@ namespace Library.Service.Extension.TaskScheduler
 
         public void GetDataSourceMasterOrderNew(string MasterOrderId,out DataTable dtData, out DataTable dtRelations, out DataTable dtTaskDelayedEndDate, out DataTable dtCalendar)
         {
-
+            string sql = "";
             _sqlRepository.ExecuteSqlCommand(@"UPDATE MasterOrderTaskTemplate SET TaskDependentDatesId = tm.TaskDependentDatesId
                                                     FROM MasterOrderTaskTemplate AS mott 
                                                     INNER JOIN TaskMaster AS tm ON tm.Id=mott.TaskMasterId
@@ -57,9 +57,7 @@ namespace Library.Service.Extension.TaskScheduler
                                                     FROM TaskTemplate AS mott 
                                                     INNER JOIN TaskMaster AS tm ON tm.Id=mott.TaskMasterId
                                                     WHERE ISNULL(mott.TaskDependentDatesId,'')=''");
-
-
-             dtData = _sqlRepository.GetDataTable(@"SELECT d.PreTaskTemplateId, isnull(d.TaskTemplateId,tt.Id) AS TaskTemplateId, d.Criteria,  
+            sql = @"SELECT d.PreTaskTemplateId, isnull(d.TaskTemplateId,tt.Id) AS TaskTemplateId, d.Criteria,  
                                     isnull(d.LagDays,0) AS LagDays,isnull(tt.LagDays,0) AS OwnLagDays,tt.Id, tt.TaskMasterId,'' AS DependentDate,
                                 --CASE WHEN ISNULL(d.Criteria,'')='' THEN isnull(tt.LagDays,0) ELSE isnull(d.LagDays,0) END AS LagDays,
                                                             '' AS TempStartDate,'' AS TempEndDate,'' AS ActualStartDate,'' AS ActualEndDate,'' AS SequentialStartDate,'' AS SequentialEndDate,'' AS OriginalSequentialStartDate,'' AS OriginalSequentialEndDate,
@@ -85,9 +83,10 @@ namespace Library.Service.Extension.TaskScheduler
 										
                                                             LEFT OUTER JOIN BuyerMasterTask AS bmt ON bmt.BuyerMasterId=bm.Id AND tt.TaskMasterId=bmt.TaskMasterId AND tt.ResponsiblePersonCategory='Buyer' AND bmt.Active=1
                                                             LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=ISNULL(tt.EmployeeId,ISNULL(bmt.EmpSystemId,et.EmpSystemId))
-                                                            WHERE tt.MasterOrderId='" + MasterOrderId + @"' ORDER BY convert(int,isnull(tt.RefTaskTemplateId,999999999)),convert(int,tt.Id)");
+                                                            WHERE tt.MasterOrderId='" + MasterOrderId + @"' ORDER BY convert(int,isnull(tt.RefTaskTemplateId,999999999)),convert(int,tt.Id)";
 
-            dtRelations = _sqlRepository.GetDataTable(@"SELECT isnull(D.Id,tt.Id) AS Id,  d.PreTaskTemplateId,convert(bit,1) AS HasActualDate,'NO' AS isCurrentDelayed,
+             dtData = _sqlRepository.GetDataTable(sql);
+            sql = @"SELECT isnull(D.Id,tt.Id) AS Id,  d.PreTaskTemplateId,convert(bit,1) AS HasActualDate,'NO' AS isCurrentDelayed,
                                                                     isnull(d.TaskTemplateId,tt.Id) AS TaskTemplateId, d.Criteria, isnull(tm.ConsiderOffDays,0) AS ConsiderOffDays,
                                                                     --CASE WHEN ISNULL(d.Criteria,'')='' THEN isnull(tt.LagDays,0) ELSE isnull(d.LagDays,0) END AS LagDays,
                                                                     isnull(d.LagDays,0) AS LagDays,isnull(tt.LagDays,0) AS OwnLagDays,
@@ -104,7 +103,8 @@ namespace Library.Service.Extension.TaskScheduler
                                                                     LEFT OUTER JOIN hkp.TaskAppliedOn AS AON ON aon.Id=tt.TaskAppliedOnId
                                                                     LEFT OUTER JOIN hkp.TaskDependentDates AS tdd ON tdd.Id=tt.TaskDependentDatesId     
                                                          WHERE tt.MasterOrderId='" + MasterOrderId + @"'
-                                                        ORDER BY convert(int,isnull(tt.RefTaskTemplateId,999999999)),convert(int,d.TaskTemplateId)");
+                                                        ORDER BY convert(int,isnull(tt.RefTaskTemplateId,999999999)),convert(int,d.TaskTemplateId)";
+            dtRelations = _sqlRepository.GetDataTable(sql);
 
 
             dtTaskDelayedEndDate = _sqlRepository.GetDataTable(@"SELECT MT.Id,
@@ -119,7 +119,7 @@ namespace Library.Service.Extension.TaskScheduler
             DataTable dtCal = _sqlRepository.GetDataTable(@"select XMO.AddedDate from trn.MasterOrder XMO WHERE XMO.Id='" + MasterOrderId + "'");
             DateTime dtCreationDate = Convert.ToDateTime(dtCal.Rows[0]["AddedDate"].ToString());
 
-            string sql = @"SELECT * FROM PlantCalendar AS pc
+             sql = @"SELECT * FROM PlantCalendar AS pc
                                                                     WHERE PC.PlantId=(select PlantId from TRN.MasterOrder where Id='" + MasterOrderId + @"') AND convert(date,WorkingDate) between '" + dtCreationDate.AddMonths(-3).ToString("dd-MMM-yyyy") + @"' and '" + dtCreationDate.AddMonths(36).ToString("dd-MMM-yyyy") + @"'
                                                                     ORDER BY pc.WorkingDate";
             dtCalendar = _sqlRepository.GetDataTable(sql);
