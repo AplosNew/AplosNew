@@ -12681,7 +12681,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                  SELECT SourceType= case when V.SourceType='VendorInvoice' then 'Inbound Invoice'
 						                when V.SourceType='VendorPayment' then 'Vendor Payment'
 						                when V.SourceType='CreditNoteSetOff' then 'Credit Note SetOff'
-						                when V.SourceType='InventoryPayable' then 'Purchase' else '' end
+						                when V.SourceType='InventoryPayable' then 'Purchase' else V.SourceType end
                 ,InvoiceVoucherNo=case when IWD.VoucherNo<>'' then IWD.VoucherNo else V.VoucherNo end ,IWD.InventoryReceiveId
 				,InvoicePostingDate=case when IWD.PostingDate<>'' then  IWD.PostingDate else v.PostingDate end 
 				,InvoieDocRefNo=case when iwd.DocRefNo<>'' then iwd.DocRefNo else v.DocRefNo end
@@ -12691,22 +12691,25 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 				                   when v.SourceType='VendorInvoice' then 'GL'
 				                   when v.SourceType='VendorPayment' then 'GL'
 				                   when v.SourceType='CreditNoteSetOff' then 'GL'
-				                   else '' end
+				                   else v.SourceType end
 				                   ,Particular=case when v.SourceType='InventoryPayable' then TXC.UserName 
 									                WHEN v.SourceType='VendorInvoice' THEN A.UserName
 									                WHEN v.SourceType='VendorPayment' THEN AP.UserName
 									                WHEN v.SourceType='CreditNoteSetOff' THEN AP.UserName
+									                WHEN v.SourceType='LoanPayment' THEN AP.UserName
 				                   else '' end
 				 ,TaxableAmount=case when IWD.InventoryReceiveId<>'' and ISNULL(INS.IsOtherVendor,0)<>1   then IRD.TotalMaterialTranAmount
 									when   INS.IsOtherVendor=1 then INS.TaxableAmount
 									when SAM.ServiceAcknowledgementMasterId<>'' then SAM.TotalMaterialTranAmount
 					                when v.SourceType='VendorInvoice' then VD.DrAmount
 					                when v.SourceType='VendorPayment' then IWD.TaxableAmount
-					                when v.SourceType='CreditNoteSetOff' then IWD.Amount-IT.TaxAmount	else 0 end
+					                when v.SourceType='CreditNoteSetOff' then IWD.Amount-IT.TaxAmount	 
+					                when v.SourceType='LoanPayment' then lopy.LoanInterestTaxableAmount	else 0 end
                 ,InvoiceAmount=case when v.SourceType='InventoryPayable' then IRD.TotalMaterialTranAmount
 					                when v.SourceType='VendorInvoice' then VD.DrAmount	
 					                when v.SourceType='CreditNoteSetOff' then VD.DrAmount	
-					                when v.SourceType='VendorPayment' then IWD.Amount	else 0 end
+					                when v.SourceType='VendorPayment' then IWD.Amount
+									when v.SourceType='LoanPayment' then lopy.LoanInterstInvoiceAmount	else 0 end
                 --,IT.Id
                 ,0 DrAmount ,CrAmount=case when ITD.AType='Cr' then IT.TaxAmount else 0 end
                 ,TC.Code TaxCode ,TC.Sequence TCSequence,TC.TaxCategoryType,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
@@ -12755,6 +12758,10 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 				join trn.Invoice I on I.ServiceAcknowledgementMasterId =sam.Id
 				join trn.InvoiceWriteOffDetail IWD ON IWD.InvoiceId=I.Id
 				group by sad.ServiceAcknowledgementMasterId,IWD.InvoiceWriteOffId)SAM ON IT.InvoiceWriteOffId=SAM.InvoiceWriteOffId
+                left join [TRN].[FinancingSubsequentTransaction] fst on fst.Voucherid=V.Id
+				left join (select Financingid,sum(Amount) LoanInterestTaxableAmount,sum(Amount) LoanInterstInvoiceAmount from [TRN].[FinancingSubsequentTransaction] 
+				where   TransactionType='InterestPayable'
+				group by financingId) LOPY ON LOPY.FinancingId=fst.FinancingId
                 WHERE TC.TaxCategoryType='TDS' AND ITD.AType='Cr' 
 				AND V.PostingDate between '" + fromDate + "' AND '" + toDate + "' and V.PlantId = '" + plantId + @"' and V.IsPark=0
                 

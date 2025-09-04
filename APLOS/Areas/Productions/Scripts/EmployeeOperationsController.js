@@ -121,10 +121,11 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
     //Getting the WorkCenters
     $scope.getWkC = function () {
+        $scope.workCenterList = [];
         $http({
             method: 'POST',
             url: $scope.path + 'GetWorkCenter',
-            data: { 'PId': $scope.ProcessId }
+            data: { 'PId': $scope.ProcessId, 'entityId': $scope.EntityId }
         }).then(function succ(resp) {
             $scope.workCenterList = resp.data;
         });
