@@ -1928,58 +1928,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                     }
                     ProductionPlanSimulationAlgorithm(entityid, EntityIds, processid);
 
-    //                ConnectionManager.DAL.ConManager objCon;
-    //                string ExpectedDate = "";
-    //                DataTable dtSOComplete, dtOrderMaster;
-    //                GetProductionOrderMaster(out dtOrderMaster);
-    //                GetSOCompletionData(out dtSOComplete);
-    //                DataSet dsMaster;
-    //                string sql = "SELECT * FROM TRN.SalesOrder Where OrderStatusId NOT IN('Closed','Cancelled')";
-    //                objCon = new ConnectionManager.DAL.ConManager("1");
-    //                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-
-
-    //                for (int i = 0; i < dtSOComplete.Rows.Count; i++)
-    //                {
-    //                    DataRow dr = GetExpectedSOCompletionDate(clsStaticInfo.dbl(dtSOComplete.Rows[i]["SoCommqty"].ToString()), dtSOComplete.Rows[i]["ProductionOrderId"].ToString(), dtOrderMaster);
-
-    //                    if (dr != null)
-    //                    {
-    //                        ExpectedDate = GetDate(dr["Date"].ToString());
-    //                        dtSOComplete.Rows[i]["ExDate"] = ExpectedDate;
-
-    //                        TimeSpan dts = Convert.ToDateTime(ExpectedDate) - Convert.ToDateTime(dtSOComplete.Rows[i]["DeliveryDate"].ToString());
-    //                        dtSOComplete.Rows[i]["EarlyOrLateBy"] = dts.Days;
-    //                    }
-
-    //                }
-
-    //                var result = dtSOComplete.AsEnumerable()
-    //.Where(r => DateTime.TryParse(r["ExDate"]?.ToString(), out _)) // filter valid dates
-    //.GroupBy(r => r.Field<string>("SOId"))
-    //.Select(g => g.OrderBy(r => DateTime.Parse(r["ExDate"].ToString())).First());
-
-    //                DataTable minDt = result.Any() ? result.CopyToDataTable() : dtSOComplete.Clone();
-
-    //                foreach (DataRow row in minDt.Rows)
-    //                {
-    //                    DataView dv = new DataView(dsMaster.Tables[0]);
-    //                    dv.RowFilter = "Id='" + row["SOId"].ToString() + "'";
-    //                    if (dv.Count > 0)
-    //                    {
-    //                        DataRow drmo = dv[0].Row;
-    //                        drmo.BeginEdit();
-
-    //                        drmo["SoProdCompDate"] = row["ExDate"];
-    //                        drmo["EarlyOrLateBy"] = row["EarlyOrLateBy"].ToString();
-    //                        drmo.EndEdit();
-    //                    }
-
-    //                }
-
-
-    //                clsStaticInfo obj = new clsStaticInfo();
-    //                obj.SaveDataSets(dsMaster);
+   
                 }
                 catch (Exception ex)
                 {
