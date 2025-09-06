@@ -197,7 +197,7 @@ LEFT JOIN [dbo].[ProductLibrary] PL ON PL.Id=MOI.ProductLibraryId
 LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId
 LEFT JOIN dbo.EmployeeInformation RP ON RP.SystemId=SO.ResponsiblePersonId
 LEFT JOIN ORG.Entity E ON E.Id=PO.EntityId
-Where  SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0  AND POD.ProductionOrderId<>'' and PO.EntityId='"+entityid+"'";
+Where  SO.OrderStatusId NOT IN('Cancelled','Hold') AND POD.ProductionOrderId<>'' and PO.EntityId='" + entityid+"'";
 
                 dt = _sqlRepository.GetDataTable(sql);
 

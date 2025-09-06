@@ -4818,8 +4818,7 @@ POD.ProductionOrderId,SO.OrderStatusId SOStatus,m.[Days]
 												[dbo].ProductLibraryAttribute MA												
 												where MA.ProductLibraryId=PL.Id for xml path('') ), 1, 1, '')
 
-,PS.UserName POStatus,FORMAT(SO.PlanExFactoryDate,'dd-MMM-yyyy')ExFactoryDate,FORMAT(SO.CommitmentDate,'dd-MMM-yyyy')CommitmentDate,RP.EmployeeName ResponsiblePerson,E.UserName Entity--,CP.PartyType
-,DiffComEx=CASE  WHEN SO.CommitmentDate IS NULL THEN DATEDIFF(DAY,PlanExFactoryDate,GETDATE()) ELSE DATEDIFF(DAY,SO.CommitmentDate,GETDATE()) END
+,PS.UserName POStatus,FORMAT(SO.PlanExFactoryDate,'dd-MMM-yyyy')ExFactoryDate,FORMAT(SO.CommitmentDate,'dd-MMM-yyyy')CommitmentDate,RP.EmployeeName ResponsiblePerson,E.UserName Entity,DiffComEx=CASE  WHEN SO.CommitmentDate IS NULL THEN DATEDIFF(DAY,PlanExFactoryDate,GETDATE()) ELSE DATEDIFF(DAY,SO.CommitmentDate,GETDATE()) END
 from trn.SalesOrder SO
 left join TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
 left join TRN.ProductionOrder PO ON PO.Id=POD.ProductionOrderId
@@ -4833,8 +4832,7 @@ LEFT JOIN [dbo].[ProductLibrary] PL ON PL.Id=MOI.ProductLibraryId
 LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId
 LEFT JOIN dbo.EmployeeInformation RP ON RP.SystemId=SO.ResponsiblePersonId
 LEFT JOIN ORG.Entity E ON E.Id=PO.EntityId
---LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
-Where  SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0  AND POD.ProductionOrderId<>''
+Where  SO.OrderStatusId NOT IN('Cancelled','Hold') AND POD.ProductionOrderId<>''
 AND PO.Id IN (" + parameters["POId"] + @") AND P.Id IN (" + parameters["PartyId"] + @")  AND SO.ResponsiblePersonId IN (" + parameters["ResponsiblePersonId"] + @") ";
 
                 dt = _sqlRepository.GetDataTable(sql);
