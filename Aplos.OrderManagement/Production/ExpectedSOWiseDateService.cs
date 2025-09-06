@@ -31,7 +31,7 @@ namespace Library.OrderManagement.Production
                 GetProductionOrderMaster(out dtOrderMaster, entityid);
                 GetSOCompletionData(out dtSOComplete, entityid);
                 DataSet dsMaster;
-                string sql = "SELECT * FROM TRN.SalesOrder Where OrderStatusId NOT IN('Closed','Cancelled')";
+                string sql = "SELECT * FROM TRN.SalesOrder Where OrderStatusId NOT IN('Hold','Cancelled')";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
