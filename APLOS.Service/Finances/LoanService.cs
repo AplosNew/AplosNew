@@ -869,7 +869,7 @@ namespace Library.Service.Finances
             invoiceTax.PartyId = invoicewriteoff.PartyId;
             invoiceTax.PartyPlantId = invoicewriteoff.PartyPlantId;
             invoiceTax.SourceType = invoicewriteoff.SourceType;
-            invoiceTax.Archive = invoicewriteoff.Archive;
+            invoiceTax.Archive = false;
             invoiceTax.AddedBy = invoicewriteoff.AddedBy;
             invoiceTax.AddedDate = invoicewriteoff.AddedDate;
             invoiceTax.AddedFromIP = invoicewriteoff.AddedFromIP;
@@ -942,6 +942,7 @@ namespace Library.Service.Finances
                 financinWriteOff.FinancingNo = voucher.VoucherNo;
                 // Set to Financing
                 financinWriteOff.VoucherId = voucher.Id;
+                voucherVM.FinancingId = financinWriteOff.FinancingId;
 
                 // INSERT INTO FinancingDetail
                 var financingDetailWriteOff = new FinancingDetailWriteOff
@@ -1206,7 +1207,7 @@ namespace Library.Service.Finances
                             _additionalTaxRepository.Insert(tdstax);
 
 
-                            var invoiceTaxPk = _invoiceTaxService.GetMaxNumber();
+                           
                             int addtionalTaxDetailId = 0;
                             foreach (var invoiceTaxVM in tdsVMList)
                             {
@@ -1236,25 +1237,8 @@ namespace Library.Service.Finances
                                     AddedFromIP = voucher.AddedFromIP
                                 };
                                 _additionalTaxDetailRepository.Insert(tdsDetail);
-                                 invoiceTax = new InvoiceTax
-                                {
-                                    TaxCodeId = invoiceTaxVM.TaxCodeId,
-                                    TaxCategoryId = taxCode.TaxCategoryId,
-                                    TaxAmount = financinWriteOff.Amount,
-                                    TaxAutoAmount = 0,
-                                    VoucherId = voucher.Id
-                                };
-                                InsertInvoiceTax(financinWriteOff, invoiceTax, invoiceTaxPk);
-
-                                 invoiceTaxDetail = new InvoiceTaxDetail
-                                {
-                                    GLGeneralInfoId = tdsDetail.GLGeneralInfoId,
-                                    BudgetMasterId = tdsDetail.BudgetMasterId,
-                                    ActivityId = tdsDetail.ActivityId,
-                                    Amount = tdsDetail.Amount,
-                                    AType = "Cr"
-                                };
-                                _invoiceTaxService.InsertInvoiceTaxDetail(invoiceTax, invoiceTaxDetail, 1);
+                                invoiceTax.TaxCodeId = invoiceTaxVM.TaxCodeId;
+                                invoiceTax.TaxCategoryId = taxCode.TaxCategoryId;
                                 voucherDetailTo.GLGeneralInfoId = tdsDetail.GLGeneralInfoId;
                                 voucherDetailTo.BudgetMasterId = tdsDetail.BudgetMasterId;
                                 voucherDetailTo.ActivityId = tdsDetail.ActivityId;
@@ -1280,11 +1264,28 @@ namespace Library.Service.Finances
                     currentVoucherDetailId++;
                     _voucherService.InsertVoucherDetail(voucher, voucherDetailTo, currentVoucherDetailId);
                     totalAmountCr += voucherDetailTo.CrAmount;
-                    //if (tdsVMList != null && tdsVMList.Count() > 0)
-                    //{
-                    //    invoiceTax.VoucherDetailId = voucherDetailTo.Id;
-                    //    voucherDetailTo.InvoiceTaxDetailId = invoiceTaxDetail.Id;
-                    //}
+                    if (tdsVMList != null && tdsVMList.Count() > 0)
+                    {
+                        var invoiceTaxPk = _invoiceTaxService.GetMaxNumber();
+                        invoiceTax = new InvoiceTax
+                        {
+                            TaxAmount = financinWriteOff.Amount,
+                            TaxAutoAmount = 0,
+                            VoucherId = voucher.Id
+                        };
+                        InsertInvoiceTax(financinWriteOff, invoiceTax, invoiceTaxPk);
+
+                        invoiceTaxDetail = new InvoiceTaxDetail
+                        {
+                            GLGeneralInfoId = voucherDetailTo.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailTo.BudgetMasterId,
+                            ActivityId = voucherDetailTo.ActivityId,
+                            Amount = invoiceTax.TaxAmount,
+                            AType = "Cr"
+                        };
+                        _invoiceTaxService.InsertInvoiceTaxDetail(invoiceTax, invoiceTaxDetail, 1);
+                        voucherDetailTo.InvoiceTaxDetailId = invoiceTaxDetail.Id;
+                    }
 
 
                     var financingSubsequentTransaction = new FinancingSubsequentTransaction
