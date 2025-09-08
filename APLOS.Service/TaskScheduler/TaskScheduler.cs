@@ -696,9 +696,10 @@ namespace Library.Service.TaskScheduler
 
                     }
                 }
-                getSubsceedingDateNew(drPresceding["TaskTemplateId"].ToString(), cur, dtCalendar, dtTemplateData, dtDependentDates, dtTaskData, dtTaskDelayedEndDate);
-                dtTemplateData.DefaultView.RowFilter = "isnull(TempStartDate,'')=''";
-                continue;
+               
+                    getSubsceedingDateNew(drPresceding["TaskTemplateId"].ToString(), cur, dtCalendar, dtTemplateData, dtDependentDates, dtTaskData, dtTaskDelayedEndDate);
+                    dtTemplateData.DefaultView.RowFilter = "isnull(TempStartDate,'')=''";
+                    continue;
 
             }
 
@@ -1856,7 +1857,7 @@ namespace Library.Service.TaskScheduler
 
                 UpdateTaskStatus();
                 //master order tasks
-                string sql = @"SELECT MO.* FROM trn.MasterOrder AS mo WHERE mo.Id='"+MasterOrderId+"' AND ISNULL(mo.TaskTemplateMasterId,'')='"+TemplateMasterId+"'";
+                string sql = @"SELECT MO.* FROM trn.MasterOrder AS mo WHERE mo.Id='" + MasterOrderId + "' AND ISNULL(mo.TaskTemplateMasterId,'')='" + TemplateMasterId + "'";
 
                 DataTable dtMasterReferenceData = _sqlRepository.GetDataTable(sql);
                 for (int i = 0; i < dtMasterReferenceData.Rows.Count; i++)
@@ -2102,6 +2103,10 @@ namespace Library.Service.TaskScheduler
                 string ChildSystemId = "";
                 for (int i = 0; i < dtData.Rows.Count; i++)
                 {
+                    if (dtData.Rows[i]["TaskTemplateId"].ToString()== "202521534")
+                    {
+
+                    }
                     dsChild.Tables[0].DefaultView.RowFilter = "TaskTemplateId='" + dtData.Rows[i]["TaskTemplateId"].ToString() + "'";
                     if (dsChild.Tables[0].DefaultView.Count == 0)
                     {
@@ -2961,7 +2966,7 @@ namespace Library.Service.TaskScheduler
             {
                 if (hubConnection.State != Microsoft.AspNet.SignalR.Client.ConnectionState.Connected)
                     await hubConnection.Start();
-               
+
             }
             catch (Exception ex)
             {
@@ -2984,7 +2989,7 @@ namespace Library.Service.TaskScheduler
                     catch (Exception ex)
                     {
 
-                      
+
                     }
                 }
             }

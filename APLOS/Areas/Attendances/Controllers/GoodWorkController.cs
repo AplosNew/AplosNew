@@ -145,7 +145,7 @@ namespace Aplos.Areas.Attendances.Controllers
                          WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + @"  " + dep + @"  " + sec + @"   " + subsec + @"   " + des + @" " + userGr + @"
                           AND ei.SystemId in (select EmpSystemID from dbo.AttdnProcessData where ShiftSystemId='" + shiftId + @"' and WorkDate='" + workDate + @"')  
                         AND ei.SystemId IN(Select EmployeeId From [dbo].[ExceptionGoodWorkEmployee] where GoodWorkSetUpId = '" + userGroupId + @"')
-                        --and EI.EmployeeStatus='Active' 
+                        and EI.EmployeeStatus='Active' 
 and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup where GoodWorkSetUpId = '" + userGroupId + @"')
                         AND ei.SystemId NOT IN(select EmpSystemId from dbo.GoodWorkDetail Where GoodWorkId IN(Select Id from dbo.GoodWork Where WorkDate= '" + workDate + @"'))
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
@@ -1239,7 +1239,8 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
 												left join OverTimePmtPolicyMaster otpm on otpm.ID=dc.OverTimePmtPolicyMasterID and otpm.PlantID in ('" + identity.PlantId + @"')
 												left join OverTimePmtPolicyDetails oNW on oNW.OverTimePmtPolicyID=otpm.ID and onw.OverTimeDayType='Working Day'
 
-                                     where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND EI.EmployeeStatus='Active' AND EI.EmployeeCurrentStatus IS NULL and gwd.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1 AND gw.ApprovedStatus='Approved' AND GWD.GWPaymentAdviseId IS NULL
+                                     where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' --AND EI.EmployeeStatus='Active' AND EI.EmployeeCurrentStatus IS NULL 
+and gwd.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1 AND gw.ApprovedStatus='Approved' AND GWD.GWPaymentAdviseId IS NULL
                                      group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross
 									 ,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,OLS.OTreductionFactor,Department.UserName,Section.UserName,SubSection.UserName ,EI.EmployeeStatus,EI.PaymentMode
                                     )T 
@@ -1296,7 +1297,8 @@ left join mst.DesignationMaster dml on dml.DesignationId=ei.GivenDesignationId
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND EI.EmployeeStatus='Active' AND EI.EmployeeCurrentStatus IS NULL AND DayStatus NOT  IN ('A') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 AND apd.GWPaymentAdviseId IS NULL and ISNULL(apd.AdditionalOT,0)>0
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' --AND EI.EmployeeStatus='Active' AND EI.EmployeeCurrentStatus IS NULL 
+AND DayStatus NOT  IN ('A') AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 AND apd.GWPaymentAdviseId IS NULL and ISNULL(apd.AdditionalOT,0)>0
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,Department.UserName,Section.UserName,SubSection.UserName
 								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id,EI.EmployeeStatus,EI.PaymentMode
                                 )T WHERE T.CheckBoxSelectAD=0
@@ -1347,7 +1349,8 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 												left join OverTimePmtPolicyMaster otpm on otpm.ID=dc.OverTimePmtPolicyMasterID and otpm.PlantID in ('" + identity.PlantId + @"')
 												left join OverTimePmtPolicyDetails oNW on oNW.OverTimePmtPolicyID=otpm.ID and onw.OverTimeDayType='Working Day'
 
-                                     where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND EI.EmployeeStatus='Active' AND EI.EmployeeCurrentStatus IS NULL and gwd.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1 AND gw.ApprovedStatus='Approved' 
+                                     where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' --AND EI.EmployeeStatus='Active' AND EI.EmployeeCurrentStatus IS NULL 
+and gwd.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1 AND gw.ApprovedStatus='Approved' 
                                      AND GWD.GWPaymentAdviseId='" + goodWorkPaymentAdviseId + @"'
                                      group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross
 									 ,z.Id,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,OLS.OTreductionFactor,Department.UserName,Section.UserName,SubSection.UserName ,EI.EmployeeStatus,EI.PaymentMode
@@ -1393,7 +1396,8 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 												left join OverTimePmtPolicyMaster otpm on otpm.ID=dc.OverTimePmtPolicyMasterID and otpm.PlantID in ('" + identity.PlantId + @"')
 												left join OverTimePmtPolicyDetails oNW on oNW.OverTimePmtPolicyID=otpm.ID and onw.OverTimeDayType='Working Day'
 
-                                     where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND EI.EmployeeStatus='Active' AND EI.EmployeeCurrentStatus IS NULL and gwd.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1 AND gw.ApprovedStatus='Approved' 
+                                     where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' --AND EI.EmployeeStatus='Active' AND EI.EmployeeCurrentStatus IS NULL 
+and gwd.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1 AND gw.ApprovedStatus='Approved' 
                                      AND GWD.GWPaymentAdviseId IS NULL
                                      group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross
 									 ,z.Id,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,G.GrossSalaryHeadID,OLS.OTreductionFactor,Department.UserName,Section.UserName,SubSection.UserName ,EI.EmployeeStatus,EI.PaymentMode
@@ -1455,7 +1459,8 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND EI.EmployeeStatus='Active' AND EI.EmployeeCurrentStatus IS NULL AND DayStatus NOT  IN ('A')  AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and ISNULL(apd.AdditionalOT,0)>0
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' --AND EI.EmployeeStatus='Active' AND EI.EmployeeCurrentStatus IS NULL 
+AND DayStatus NOT  IN ('A')  AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and ISNULL(apd.AdditionalOT,0)>0
                                 AND apd.GWPaymentAdviseId='" + goodWorkPaymentAdviseId + @"' 
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
 								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id,EI.EmployeeStatus,EI.PaymentMode
@@ -1512,7 +1517,8 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
                                                                           FROM SalaryInfoDefine SID 
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND EI.EmployeeStatus='Active' AND EI.EmployeeCurrentStatus IS NULL AND DayStatus NOT  IN ('A')  AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and ISNULL(apd.AdditionalOT,0)>0
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' --AND EI.EmployeeStatus='Active' AND EI.EmployeeCurrentStatus IS NULL 
+AND DayStatus NOT  IN ('A')  AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 and ISNULL(apd.AdditionalOT,0)>0
                                 AND apd.GWPaymentAdviseId IS NULL
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,z.Id,Department.UserName,Section.UserName,SubSection.UserName
 								,onw.FormulaDesID,B.Basic,B.BasicSalaryHeadID,za.Id,EI.EmployeeStatus,EI.PaymentMode

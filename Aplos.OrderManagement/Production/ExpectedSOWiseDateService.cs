@@ -22,168 +22,86 @@ namespace Library.OrderManagement.Production
 
         public void ExpectedSOWiseProductionCompletionSave(string entityid)
         {
-            ExcelEngine excelEngine = null;
-            IApplication application = null;
-            IWorkbook workbook = null;
-            IWorksheet sheet = null;
             try
             {
-                if (string.IsNullOrEmpty(entityid) || entityid == "''")
-                    throw new Exception("Select entity");
-
-
-                Dictionary<string, List<DataRow>> dicProductionQtyDistribution;
-                DataTable dt, dtOrderMaster;
-                getSalesOrderDistribution(System.DateTime.Now.ToString("dd-MMM-yyyy"), entityid, out dicProductionQtyDistribution, out dt);
-
-                getOrderMaster(entityid, out dtOrderMaster);
-
-
-                if (dtOrderMaster.Rows.Count == 0)
-                    throw new Exception("No data found");
-
-                excelEngine = new ExcelEngine();
-                application = excelEngine.Excel;
-                workbook = application.Workbooks.Create(5);
-                workbook.Worksheets[3].Name = "OS3 Data";
-                sheet = workbook.Worksheets[3];
-
-
-                int ROW = 1; int COL = 1;
-
-                #region columns
-
-                sheet[ROW, COL].Text = "EntityId";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colEntity = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "SalesOrderId";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colSalesOrderId = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "ProductionOrderId";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colProductionOrderId = COL;
-                COL++;
-
-
-                sheet[ROW, COL].Text = "ExpectedCompletionDate";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colExpectedCompletionDate = COL;
-                COL++;
-                sheet[ROW, COL].Text = "ProducedQty";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colAvailableProducedQty = COL;
-                COL++;
-                sheet[ROW, COL].Text = "PlanQty";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colAvailablePlanQty = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Qty";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colTotalAvailableQty = COL;
-
-                #endregion columns
-
-                int endCol = COL;
-
-
-
-                ROW++;
-
-                int startRow = ROW;
-
-                string ExpectedProductionStartDate = "";
-                double PRCumulativePlanQty = 0;
-                string PRId = "";
-                for (int i = 0; i < dtOrderMaster.Rows.Count; i++)
-                {
-                    if (dtOrderMaster.Rows[i]["ProductionOrderId"].ToString() == "23350")
-                    {
-
-                    }
-                    if (PRId != dtOrderMaster.Rows[i]["ProductionOrderId"].ToString())
-                    {
-                        PRCumulativePlanQty = 0;
-                        ExpectedProductionStartDate = "";
-                    }
-                    PRId = dtOrderMaster.Rows[i]["ProductionOrderId"].ToString();
-
-                    PRCumulativePlanQty += clsStaticInfo.dbl(dtOrderMaster.Rows[i]["PlannedQty"].ToString());
-                    dtOrderMaster.Rows[i]["CummPlannedQty"] = PRCumulativePlanQty;
-
-
-                    sheet[ROW, colEntity].Text = dtOrderMaster.Rows[i]["EntityId"].ToString();
-                    sheet[ROW, colProductionOrderId].Text = dtOrderMaster.Rows[i]["ProductionOrderId"].ToString();
-
-                    sheet[ROW, colSalesOrderId].Text = dtOrderMaster.Rows[i]["SalesOrderId"].ToString();
-
-                    //if (dtOrderMaster.Rows[i]["ProductionOrderId"].ToString() == "20104")
-                    //{
-
-                    //ProductionStartDate
-                    //}
-
-                    if (dicProductionQtyDistribution.ContainsKey(dtOrderMaster.Rows[i]["ProductionOrderId"].ToString()))
-                    {
-                        DataRow dr = GetExpectedCompletionDate(PRCumulativePlanQty, dicProductionQtyDistribution[dtOrderMaster.Rows[i]["ProductionOrderId"].ToString()]);
-                        if (dr != null)
-                        {
-                            if (ExpectedProductionStartDate == "")
-                                ExpectedProductionStartDate = GetDate(dr["ProductionStartDate"].ToString());
-
-                            sheet[ROW, colExpectedCompletionDate].Text = GetDate(dr["ProductionDate"].ToString());
-                            sheet[ROW, colExpectedCompletionDate].NumberFormat = "dd-MMM-yyyy";
-                            sheet[ROW, colAvailableProducedQty].Number = clsStaticInfo.dbl(dr["CummProductionQty"].ToString());
-                            sheet[ROW, colAvailablePlanQty].Number = clsStaticInfo.dbl(dr["CummPlanQty"].ToString());
-                            sheet[ROW, colTotalAvailableQty].Number = clsStaticInfo.dbl(dr["CummPlanQty"].ToString()) + clsStaticInfo.dbl(dr["CummProductionQty"].ToString());
-
-                            ExpectedProductionStartDate = GetDate(dr["ProductionDate"].ToString());
-                        }
-
-                    }
-
-
-                    ROW++;
-
-                }
-
-                DataTable dtTrial = sheet.ExportDataTable(1, 1, ROW, endCol, ExcelExportDataTableOptions.ColumnNames);
-                dtTrial.Columns.Add("Id", typeof(string));
-
+               
+                ConnectionManager.DAL.ConManager objCon;
+                string ExpectedDate = "";
+                DataTable dtSOComplete, dtOrderMaster;
+                GetProductionOrderMaster(out dtOrderMaster, entityid);
+                GetSOCompletionData(out dtSOComplete, entityid);
                 DataSet dsMaster;
+                string sql = "SELECT * FROM TRN.SalesOrder Where OrderStatusId NOT IN('Hold','Cancelled')";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+
+                for (int i = 0; i < dtSOComplete.Rows.Count; i++)
+                {
+                    DataRow dr = GetExpectedSOCompletionDate(clsStaticInfo.dbl(dtSOComplete.Rows[i]["SoCommqty"].ToString()), dtSOComplete.Rows[i]["ProductionOrderId"].ToString(), dtOrderMaster);
+
+                    if (dr != null)
+                    {
+                        ExpectedDate = GetDate(dr["Date"].ToString());
+                        dtSOComplete.Rows[i]["ExDate"] = ExpectedDate;
+                        dtSOComplete.Rows[i]["Quantity"] =Convert.ToInt32(dr["Quantity"]);
+
+                        TimeSpan dts = Convert.ToDateTime(ExpectedDate) - Convert.ToDateTime(dtSOComplete.Rows[i]["DeliveryDate"].ToString());
+                        dtSOComplete.Rows[i]["EarlyOrLateBy"] = dts.Days;
+                    }
+
+                }
+
+                var result = dtSOComplete.AsEnumerable()
+.Where(r => DateTime.TryParse(r["ExDate"]?.ToString(), out _)) // filter valid dates
+.GroupBy(r => r.Field<string>("SOId"))
+.Select(g => g.OrderBy(r => DateTime.Parse(r["ExDate"].ToString())).First());
+
+                DataTable minDt = result.Any() ? result.CopyToDataTable() : dtSOComplete.Clone();
+
+                foreach (DataRow row in minDt.Rows)
+                {
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "Id='" + row["SOId"].ToString() + "'";
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        drmo.BeginEdit();
+
+                        drmo["SoProdCompDate"] = row["ExDate"];
+                        drmo["EarlyOrLateBy"] = row["EarlyOrLateBy"].ToString();
+                        drmo.EndEdit();
+                    }
+                }
+
+               
+                DataSet dtTrial;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from dbo.ExpectedSOWiseProductionCompletion  where EntityId in (" + entityid + @")", out dsMaster, false, "1");
-                while (dsMaster.Tables[0].DefaultView.Count > 0)
+                con.OpenDataSetThroughAdapter("select * from dbo.ExpectedSOWiseProductionCompletion  where EntityId in (" + entityid + @")", out dtTrial, false, "1");
+                while (dtTrial.Tables[0].DefaultView.Count > 0)
                 {
-                    dsMaster.Tables[0].DefaultView[0].Delete();
+                    dtTrial.Tables[0].DefaultView[0].Delete();
                 }
+                int _count = 0;
                 DataRow da = null;
-                for (var i = 0; i < dtTrial.Rows.Count; i++)
+                foreach (DataRow row in minDt.Rows)
                 {
-                    da = dsMaster.Tables[0].NewRow();
-                    string id = "" + dtTrial.Rows[i]["EntityId"].ToString() + "-" + i;
-                    dtTrial.Rows[i]["Id"] = id;
+                    _count++;
+                    da = dtTrial.Tables[0].NewRow();
+                   
+                    da["Id"] = entityid + "-" + _count;
+                    da["EntityId"] = entityid;
+                    da["ProductionOrderId"] = row["ProductionOrderId"];
+                    da["SalesOrderId"] = row["SOId"];
+                    da["ExpectedCompletionDate"] = row["ExDate"];
+                    da["Quantity"] = row["Quantity"];
 
-                    da["Id"] = dtTrial.Rows[i]["Id"];
-                    da["EntityId"] = dtTrial.Rows[i]["EntityId"];
-                    da["ProductionOrderId"] = dtTrial.Rows[i]["ProductionOrderId"];
-                    da["SalesOrderId"] = dtTrial.Rows[i]["SalesOrderId"];
-                    da["ExpectedCompletionDate"] = dtTrial.Rows[i]["ExpectedCompletionDate"];
-                    da["Quantity"] = dtTrial.Rows[i]["Qty"];
+                    dtTrial.Tables[0].Rows.Add(da);
 
-                    dsMaster.Tables[0].Rows.Add(da);
                 }
-
-
+                                
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                _info.SaveDataSets(dsMaster, dtTrial);
             }
             catch (Exception ex)
             {
@@ -193,6 +111,120 @@ namespace Library.OrderManagement.Production
 
         }
 
+        public void GetProductionOrderMaster(out DataTable dtOrderMaster, string entityid)
+        {
+            try
+            {
+                string sql = @"Select * from(Select row_number() over (partition by po.Id order by po.Id,A.Date) as Seq
+,po.Id POId,sc.ID ScheduleId,PS.UserName POStatus,FORMAT(PO.AddedDate,'dd-MMM-yyyy')POCreationDate ,FORMAT(BASEP.BaseProcProdStartDate,'dd-MMM-yyyy')BaseProcProdStartDate,FORMAT(BASEP.BaseProductionEndDate,'dd-MMM-yyyy')BaseProductionEndDate
+,FORMAT(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy')BaseProcPlanStartDate,FORMAT(Type1.BaseProcPlanEndDate,'dd-MMM-yyyy')BaseProcPlanEndDate
+,POStartDate=FORMAT(case when Type1.BaseProcPlanStartDate is null or BASEP.BaseProcProdStartDate  <  Type1.BaseProcPlanStartDate then BASEP.BaseProcProdStartDate else Type1.BaseProcPlanStartDate end,'dd-MMM-yyyy')
+,POCompletionDate=FORMAT((case when Type1.BaseProcPlanEndDate is null or BASEP.BaseProductionEndDate  > Type1.BaseProcPlanEndDate then BASEP.BaseProductionEndDate else Type1.BaseProcPlanEndDate end ),'dd-MMM-yyyy')
+,COUNT(SO.id) NoOfSO
+,FORMAT(A.Date,'dd-MMM-yyyy') Date
+
+,PlanningStatus=CASE WHEN FORMAT(case when Type1.BaseProcPlanStartDate is null or BASEP.BaseProcProdStartDate  <  Type1.BaseProcPlanStartDate then BASEP.BaseProcProdStartDate else Type1.BaseProcPlanStartDate end,'dd-MMM-yyyy') IS NULL 
+OR FORMAT((case when Type1.BaseProcPlanEndDate is null or BASEP.BaseProductionEndDate  > Type1.BaseProcPlanEndDate then BASEP.BaseProductionEndDate else Type1.BaseProcPlanEndDate end ),'dd-MMM-yyyy') IS NULL OR SC.Id IS NULL THEN 'Schedule Missing' ELSE 'Schedule' END
+,POCompletion= CASE WHEN A.Date<= GETDATE() Then 'Complete' else 'Scheduled' END 
+,A.ProdQty,A.PlanQty,AvailableQty= CASE WHEN ISNULL(A.ProdQty,0)>0 THEN A.ProdQty ELSE A.PlanQty END
+
+,CumProdQty=SUM(CASE WHEN ISNULL(A.ProdQty,0)>0 THEN A.ProdQty ELSE A.PlanQty END) OVER(PARTITION BY PO.ID ORDER BY A.Date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+,Quantity= A.ProdQty+A.PlanQty
+
+FROM trn.SalesOrder SO
+LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=so.Id
+LEFT JOIN TRN.ProductionOrder PRD ON PRD.Id=POD.ProductionOrderId
+LEFT JOIN(Select MIN(ProductionDate)BaseProcProdStartDate,MAX(ProductionDate)BaseProductionEndDate,A.ProductionOrderId 
+FROM TRN.ProductionSummary A
+left join TRN.ProductionOrderProcessSet B ON B.ProductionOrderId=A.ProductionOrderId  AND B.ProcessId=A.ProcessId Where B.IsBaseProcess=1
+Group By A.ProductionOrderId) BASEP ON BASEP.ProductionOrderId=POD.ProductionOrderId
+
+LEFT JOIN(Select MIN(A.ProductionDate)BaseProcPlanStartDate,MAX(A.ProductionDate)BaseProcPlanEndDate,A.ProductionOrderId 
+From ProductionPlanningType1 A
+Group By A.ProductionOrderId) Type1 ON Type1.ProductionOrderId=POD.ProductionOrderId
+LEFT JOIN TRN.ProductionOrder PO ON PO.Id=POD.ProductionOrderId
+LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId
+LEFT JOIN dbo.ProductionOrderSchedulingParametersType1 SC ON Sc.ProductionOrderID=PO.Id
+LEFT JOIN(
+Select B.* from
+(
+Select PS.ProductionOrderId POId,PS.ProductionDate Date,SUM(Quantity)ProdQty,0 PlanQty from TRN.ProductionOrder PO
+LEFT JOIN TRN.ProductionSummary PS ON PS.ProductionOrderId=PO.Id
+left join TRN.ProductionOrderProcessSet A ON A.ProductionOrderId=PS.ProductionOrderId  AND PS.ProcessId=A.ProcessId Where A.IsBaseProcess=1 Group BY PS.ProductionOrderId,PS.ProductionDate
+UNION
+Select DISTINCT PO.Id POId,T1.ProductionDate Date, 0 ProdQty,SUM(T1.Quantity) PlanQty 
+from TRN.ProductionOrder PO
+LEFT JOIN dbo.ProductionPlanningType1 T1 ON T1.ProductionOrderID=PO.Id
+Group BY PO.Id,T1.ProductionDate
+)B Where ISNULL(B.Date,'')<>'' 
+)A ON A.POId=PO.Id
+
+Where SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0 and pod.ProductionOrderId<>'' AND PRD.EntityId='" + entityid + @"'
+GROUP BY po.Id,BASEP.BaseProcProdStartDate,BASEP.BaseProductionEndDate,Type1.BaseProcPlanStartDate,Type1.BaseProcPlanEndDate
+,A.Date,sc.ID,PS.UserName,PO.AddedDate,A.ProdQty,A.PlanQty)x";
+                dtOrderMaster = _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void GetSOCompletionData(out DataTable dt, string entityid)
+        {
+            try
+            {
+                string sql = @"SELECT row_number() over (partition by POD.ProductionOrderId order by POD.ProductionOrderId,SO.DeliveryDate,SO.Qty,SO.Id) as Seq,
+POD.ProductionOrderId,SO.OrderStatusId SOStatus,m.[Days]
+,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,SO.Id SOId,SO.Qty SOQty
+,SoCommqty=SUM(SO.Qty) OVER (PARTITION BY POD.ProductionOrderId ORDER BY SO.DeliveryDate ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+,P.UserName Customer,MOI.BuyerReferenceNo,moi.OwnReferenceNo,moi.Id LineitemId,MMA.StandardName Article,PL.Code ProductCode
+,ProductLibraryDetail=STUFF((select distinct ','+MA.Code+'-'+MA.AttributeValue from
+												[dbo].ProductLibraryAttribute MA												
+												where MA.ProductLibraryId=PL.Id for xml path('') ), 1, 1, '')
+
+,PS.UserName POStatus,FORMAT(SO.PlanExFactoryDate,'dd-MMM-yyyy')ExFactoryDate,FORMAT(SO.CommitmentDate,'dd-MMM-yyyy')CommitmentDate,RP.EmployeeName ResponsiblePerson,E.UserName Entity,DiffComEx=CASE  WHEN SO.CommitmentDate IS NULL THEN DATEDIFF(DAY,PlanExFactoryDate,GETDATE()) ELSE DATEDIFF(DAY,SO.CommitmentDate,GETDATE()) END,'' ExDate,''EarlyOrLateBy,so.OrderStatusId,0 Quantity
+from trn.SalesOrder SO
+left join TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+left join TRN.ProductionOrder PO ON PO.Id=POD.ProductionOrderId
+LEFT JOIN TRN.ProductionOrderProcessSet M ON m.ProductionOrderId=POD.ProductionOrderId
+AND m.Id=(SELECT TOP 1 ID FROM TRN.ProductionOrderProcessSet EII WHERE EII.ProductionOrderId=POD.ProductionOrderId ORDER BY EII.Sequence DESC)
+LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
+LEFT JOIN TRN.MasterOrder MO ON MO.Id=MOI.MasterOrderId
+LEFT JOIN HKP.Party P ON P.Id=MO.PartyId
+LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId
+LEFT JOIN [dbo].[ProductLibrary] PL ON PL.Id=MOI.ProductLibraryId
+LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId
+LEFT JOIN dbo.EmployeeInformation RP ON RP.SystemId=SO.ResponsiblePersonId
+LEFT JOIN ORG.Entity E ON E.Id=PO.EntityId
+Where  SO.OrderStatusId NOT IN('Cancelled','Hold') AND POD.ProductionOrderId<>'' and PO.EntityId='" + entityid+"'";
+
+                dt = _sqlRepository.GetDataTable(sql);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private DataRow GetExpectedSOCompletionDate(double RequiredQty, string POId, DataTable Data)
+        {
+            for (int i = 0; i < Data.Rows.Count; i++)
+            {
+                if (Data.Rows[i]["POId"].ToString() == POId)
+                {
+
+                    if (clsStaticInfo.dbl(Data.Rows[i]["CumProdQty"].ToString()) >= RequiredQty)
+                    {
+                        return Data.Rows[i];
+                    }
+                }
+            }
+
+
+            return null;
+        }
 
         private void getSalesOrderDistribution(string date, string entityid, out Dictionary<string, List<DataRow>> dicDistributedSO, out DataTable dt)
         {
