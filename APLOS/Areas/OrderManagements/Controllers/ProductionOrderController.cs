@@ -113,7 +113,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT distinct P.Id,P.UserName FROM PlanningTypes AS pt 
 INNER JOIN hkp.Process AS p ON p.Id=pt.BaseProcessId
-WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "'";
+WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "' AND pt.PlantId='"+identity.PlantId+"'";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -2190,7 +2190,14 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
 
         }
 
-        public void UpdateOperationMaster(ProductionBulletinTemplateDetail entity)
+        [HttpPost, Authorize]
+        public ActionResult UpdateOperationMaster(ProductionBulletinTemplateDetail entity)
+        {
+            UpdateOperationMasterData(entity);
+            return Json(new { Message = AplosMessage.Updated });
+        }
+
+        public void UpdateOperationMasterData(ProductionBulletinTemplateDetail entity)
         {
             try
             {

@@ -2123,7 +2123,7 @@ AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.Empl
 			 ) AS varchar(100))
 
 WHEN OL.UserName='GoodWork' THEN CAST((
-Select cast(((sum(gd.Minute)/60)*(B.Basic/104)) AS decimal(18,0)) from dbo.GoodWorkDetail GD
+Select cast(((sum(gd.Minute)/60)*(B.Basic/26/8)) AS decimal(18,0)) from dbo.GoodWorkDetail GD
 left join EmployeeInformation ei on ei.SystemId=GD.EmpSystemId
 left join (Select top 1* from [dbo].[OTLimitSetting])OLS ON OLS.PlantID=ei.PlantId
 LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = GD.EmpSystemId
@@ -2140,7 +2140,7 @@ Group By OLS.OTreductionFactor,B.Basic
  ) AS varchar(100))
 
  WHEN OL.UserName='OverTime' THEN CAST((
-Select CAST(((sum(gd.AdditionalOT)/60)*(B.Basic/104)) AS decimal(18,0)) from dbo.AttdnProcessData GD
+Select CAST(((sum(gd.AdditionalOT)/60)*(B.Basic/26/8)) AS decimal(18,0)) from dbo.AttdnProcessData GD
 left join EmployeeInformation ei on ei.SystemId=GD.EmpSystemId
 left join (Select top 1* from [dbo].[OTLimitSetting])OLS ON OLS.PlantID=ei.PlantId
 LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = GD.EmpSystemId

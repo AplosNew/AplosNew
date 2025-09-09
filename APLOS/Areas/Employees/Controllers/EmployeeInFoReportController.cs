@@ -1492,7 +1492,7 @@ namespace Aplos.Areas.Employees.Controllers
                             xps.UserName pSection, dsg.UserName pDesignation,DirectManpowerCost = CASE WHEN ps.DirectManpowerCost = 1 THEN 'YES' ELSE 'NO' END,Direct = CASE WHEN ps.IsDirect = 1 THEN 'YES' ELSE 'NO' END
                             ,srm.SalaryRuleName, abpm.AttenBnsPolicyName,PLC.Operation,OV.Code OperationVariationCode,OM.Code OperationMasterCode 
                                 ,MultipleOperationVariation=STUFF((select ', '+P.Code 
-                                     FROM EmployeeOperation BTP 
+                                     FROM EmployeeOperationVariation BTP 
 									   join MSt.OperationVariation P ON P.Id=BTP.OperationVariationId
                                         WHERE E.SystemId=BTP.EmpSystemId order by BTP.Sequence for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
