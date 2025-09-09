@@ -186,7 +186,7 @@ namespace Library.Planning.OrderManagement
 								left outer join hkp.Party prt on prt.Id = mo.PartyId
 								left outer join dbo.EmployeeInformation emp on emp.SystemId = mo.ResponsiblePersonId
 								left outer join dbo.EmployeeInformation ee on ee.SystemId = e.EmployeeId
-								where os.id<> 'Closed' and os.Id <>'Cancelled' and so.OrderStatusId not in ('Closed','Cancelled')
+								where os.id<> 'Closed' and os.Id <>'Cancelled' and so.OrderStatusId not in ('Hold','Cancelled')
                                 " + filter+ @"
 --UNION 
 --								Select distinct so.Id ,so.Qty , so.Rate , so.CM , so.DeliveryDate,so.AddedDate , so.CommitmentDate , pod.ProductionOrderID , (SELECT MAX--(xp1.ProductionDate) FROM ProductionPlanningType1 Xp1 WHERE Xp1.ProductionOrderID=pod.ProductionOrderID) as ProductionDate, so.OrderStatusId as -OrderStatusId ,
@@ -203,7 +203,7 @@ namespace Library.Planning.OrderManagement
 --								left outer join hkp.Party prt on prt.Id = mo.PartyId
 --								left outer join dbo.EmployeeInformation emp on emp.SystemId = mo.ResponsiblePersonId
 --								left outer join dbo.EmployeeInformation ee on ee.SystemId = e.EmployeeId
---								where os.id<> 'Closed' and os.Id <>'Cancelled' and so.OrderStatusId not in ('Closed','Cancelled')
+--								where os.id<> 'Closed' and os.Id <>'Cancelled' and so.OrderStatusId not in ('Closed','Hold','Cancelled')
 --                                  " + filter + @" 
                                 ) as da
                                 " + groupBy+"";
@@ -533,7 +533,7 @@ namespace Library.Planning.OrderManagement
 ,  format((case when so.PlanExFactoryDate is null then so.CommitmentDate else PlanExFactoryDate end) , 'dd-MMM-yyyy') as DDate
 								,mo.Id as OrderNo,moi.Id as ItemNo,po.Id as PRNo,emp.EmployeeName as MResp
 --,DateDiff(Day,(SELECT MAX(xp1.ProductionDate) FROM ProductionPlanningType1 Xp1 WHERE Xp1.ProductionOrderID = pod.ProductionOrderID), so.DeliveryDate) as EarlyOrLateBy 
-,SO.EarlyOrLateBy 
+,EarlyOrLateBy=DateDiff(Day,SO.SOProdCompDate, so.DeliveryDate) 
 								,so.OrderStatusId as OrderStatusId,ps.UserName as POStatus,OC.UserName OrderType,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END,so.AddedDate  , pod.ProductionOrderID , os.Username as MOOrderStatusId ,ee.EmployeeName as EResp ,mo.BuyerId,rem.Remarks
 								
                                from trn.MasterOrder mo 
@@ -575,7 +575,7 @@ namespace Library.Planning.OrderManagement
                                 group by oc.SalesOrderId
 								) as rem on rem.SalesOrderId = so.Id
                                 
-								where os.id<> 'Closed' and os.Id <>'Cancelled' and so.OrderStatusId not in ('Closed','Cancelled')
+								where os.id<> 'Closed' and os.Id <>'Cancelled' and so.OrderStatusId not in ('Hold','Cancelled')
                                 " + filter+@" "+diffCols+ @") da 
                                 " + filRange + " " + timing + @"";
                 
