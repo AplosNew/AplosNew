@@ -116,7 +116,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT p.* FROM PlanningTypes AS pt 
                                 INNER JOIN hkp.Process AS p ON p.Id=pt.BaseProcessId
-                                WHERE PT.PlanningType='" + ScreenPlanningType.ToString() + "' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "'";
+                                WHERE PT.PlanningType='" + ScreenPlanningType.ToString() + "' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "'  AND pt.PlantId='" + identity.PlantId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
