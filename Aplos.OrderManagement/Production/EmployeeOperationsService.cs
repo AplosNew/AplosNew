@@ -42,7 +42,7 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var Sql = @"select distinct Id as Value , UserName as Text from SCS.WorkCenterMaster WHERE ProcessId = '" + PId + "' AND EntityId='"+ entityId + @"'";
+                var Sql = @"select distinct Id as Value , UserName as Text from SCS.WorkCenterMaster where ProcessId = '" + PId + "' AND EntityId='"+ entityId + @"'";
                 return _sqlRepository.GetDataCollection(Sql, null);
             }
             catch (Exception ex)
@@ -567,7 +567,9 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
                 //Filling the DsMaster DataSet for saving
                 string _Id = "";
                 string _OperationVariationId = "";
+                string _MasterOperationId = "";
                 double _tempQty = 0;
+                int _secq = 0;
 
 
                 for (int i = 0; i < data.Count; i++)
@@ -598,6 +600,8 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
                     dr["UpdatedFromIP"] = identity.IPAddress;
                     dsMaster.Tables[0].Rows.Add(dr);
                     _OperationVariationId=data[i]["OperationId"].ToString();
+                    _MasterOperationId = data[i]["MasterOperationId"].ToString();
+                    _secq = Convert.ToInt32(data[i]["Sequence"].ToString());
                     _tempQty+= clsStaticInfo.dbl(data[i]["Qty"].ToString());
                 }
                 #endregion Detail
@@ -612,24 +616,26 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
 
                 for (int i = 0; i < dsMaster.Tables[0].Rows.Count; i++)
                 {
-                    dsSum.Tables[0].DefaultView.RowFilter = @"OperationVariationId='" + data[i]["OperationId"].ToString() + "' and OperationSequence ='" + data[i]["Sequence"].ToString() + "'";
+                    dsSum.Tables[0].DefaultView.RowFilter = @"OperationVariationId='" + _OperationVariationId + "' and ProductionOrderId = '" + POId + "' ";
                     if (dsSum.Tables[0].DefaultView.Count > 0)
                     {
                         dsSum.Tables[0].DefaultView[0].Row.BeginEdit();
-                        dsSum.Tables[0].DefaultView[0]["Qty"] = clsStaticInfo.dbl(dsSum.Tables[0].DefaultView[0]["Qty"].ToString()) + clsStaticInfo.dbl(data[i]["Qty"].ToString());
+                        dsSum.Tables[0].DefaultView[0]["Qty"] = clsStaticInfo.dbl(dsSum.Tables[0].DefaultView[0]["Qty"].ToString()) + clsStaticInfo.dbl(dsMaster.Tables[0].Rows[i]["Qty"].ToString());
                         dsSum.Tables[0].DefaultView[0].Row.EndEdit();
                     }
-                    else
+                    dsSum.Tables[0].DefaultView.RowFilter = @"OperationVariationId='" + NxtOPVariationId + "' and ProductionOrderId = '" + POId + "' ";
+                    if(dsSum.Tables[0].DefaultView.Count == 0)
                     {
                         DataRow dd = dsSum.Tables[0].NewRow();
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("dbo.EmployeeOperationWip", out _SId);
                         dd["Id"] = "OW" + _SId;
                         dd["ProductionOrderId"] = POId;
-                        dd["OperationVariationId"] = data[i]["OperationId"].ToString();
-                        dd["OperationSequence"] = data[i]["Sequence"].ToString();
+                        dd["OperationVariationId"] = NxtOPVariationId;
+                        dd["OperationSequence"] = _secq+1;
                         dd["ProcessId"] = ProcessId;
-                        dd["Qty"] = clsStaticInfo.dbl(data[i]["Qty"].ToString());
+                        dd["Qty"] = _tempQty;
+                        dd["WIP"] = 0;
                         dd["AddedBy"] = identity.Name;
                         dd["AddedDate"] = System.DateTime.Now.ToString();
                         dd["AddedFromIP"] = identity.IPAddress;
@@ -637,11 +643,7 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
                         dd["UpdatedDate"] = System.DateTime.Now.ToString();
                         dd["UpdatedFromIP"] = identity.IPAddress;
                         dsSum.Tables[0].Rows.Add(dd);
-
-
                     }
-
-
                 }
 
                // For WIP
@@ -683,11 +685,11 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
 
                 for (int i = 0; i < dsMaster.Tables[0].Rows.Count; i++)
                 {
-                    dsPlan.Tables[0].DefaultView.RowFilter = @"EmployeeId = '" + data[i]["EmployeeId"] + "' and OperationVariationId='" + data[i]["OperationId"].ToString() + "'";
+                    dsPlan.Tables[0].DefaultView.RowFilter = @"EmployeeId = '" + dsMaster.Tables[0].Rows[i]["EmployeeId"] + "' and OperationVariationId='" + _OperationVariationId + "'";
                     if (dsPlan.Tables[0].DefaultView.Count > 0)
                     {
                         dsPlan.Tables[0].DefaultView[0].Row.BeginEdit();
-                        dsPlan.Tables[0].DefaultView[0]["Qty"] = clsStaticInfo.dbl(dsPlan.Tables[0].DefaultView[0]["Qty"].ToString()) + clsStaticInfo.dbl(data[i]["Qty"].ToString());
+                        dsPlan.Tables[0].DefaultView[0]["Qty"] = clsStaticInfo.dbl(dsPlan.Tables[0].DefaultView[0]["Qty"].ToString()) + _tempQty;
                         dsPlan.Tables[0].DefaultView[0].Row.EndEdit();
                     }
                     else
@@ -696,10 +698,10 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
                         dr["Id"] = dsMaster.Tables[0].Rows[i]["Id"].ToString() + i.ToString();
                         dr["Date"] = Convert.ToDateTime(Date);
                         dr["EmployeeId"] = dsMaster.Tables[0].Rows[i]["EmployeeId"];
-                        dr["MasterOperationId"] = data[i]["MasterOperationId"];
-                        dr["OperationVariationId"] = data[i]["OperationId"].ToString();
+                        dr["MasterOperationId"] = _MasterOperationId;
+                        dr["OperationVariationId"] = _OperationVariationId;
                         dr["ProductionOrderId"] = POId;
-                        dr["Qty"] = clsStaticInfo.dbl(data[i]["Qty"].ToString());
+                        dr["Qty"] = _tempQty;
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = DateTime.Now.ToString();
                         dr["AddedFromIP"] = identity.IPAddress;
