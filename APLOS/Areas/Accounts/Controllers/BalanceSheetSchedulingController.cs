@@ -1753,7 +1753,7 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
                 for (int i = 0; i < dtSkill.Rows.Count; i++)
                 {
                     sheet1[xlsRow, colOperationMasterId].Text = dtSkill.Rows[i]["OperationMasterId"].ToString();
-                    sheet1[xlsRow, colOperationMaster].Text = dtSkill.Rows[i]["SkillMaster"].ToString();
+                    sheet1[xlsRow, colOperationMaster].Text = dtSkill.Rows[i]["OperationMaster"].ToString();
                     sheet1[xlsRow, colSkill].Text = dtSkill.Rows[i]["Skill"].ToString();
                     sheet1[xlsRow, colSkillGroup].Text = dtSkill.Rows[i]["SkillGroup"].ToString();
                     sheet1[xlsRow, colDesignationGroup].Text = dtSkill.Rows[i]["DesignationGroup"].ToString();
