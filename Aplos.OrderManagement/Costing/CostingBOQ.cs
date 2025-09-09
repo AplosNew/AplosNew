@@ -1563,6 +1563,43 @@ namespace Library.OrderManagement.Costing
             return dtData;
 
         }
+        private DataTable BOQUnProcessQuery( string CostingBOQMasterId,string soId)
+        {
+            string sql = @"SELECT 
+                            convert(bit,CASE WHEN isnull(cb.SOCount,0)=0 THEN 0 ELSE 1 END,0) AS Saved
+							, convert(bit,CASE WHEN isnull(cb.SOCount,0)=0 THEN 0 ELSE 1 END,0) AS Selected
+							,cm.OrderCostingMasterTemplateId,
+                            ci.Sequence,isnull(tr.SOCount,0) SOCount,
+                             cm.Id, cm.CostingItemId, cm.Consumption,uom.UserName AS UOM,CM.GrossConsumption,CM.GrossAmount,
+                            ci.UserName AS ItemDescription,
+                                   CM.[Description], CM.SourcingType, CM.Remarks,ei.EmployeeName AS ResponsiblePerson,
+                                   mm.UserName AS Material,mma.StandardName AS Article,CM.BOQCriteria,CM.POCriteria
+                              FROM OrderProcurementCostingDirectMaterial AS CM
+                         INNER JOIN trn.MasterOrderItem AS moi ON moi.OrderCostingMasterTemplateId=cm.OrderCostingMasterTemplateId
+                            INNER JOIN trn.SalesOrder AS so ON  so.Id='2231203' and so.MasterOrderItemId=moi.id
+                               INNER JOIN hkp.CostingItem AS ci ON ci.Id=cm.CostingItemId
+                            LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=cm.MaterialMasterId
+                            LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=cm.ArticleId
+                            LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=cm.ResponsiblePersonId
+                            LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=ci.UnitOfMeasurementId
+                            LEFT JOIN ( SELECT cb.OrderProcurementCostingDirectMaterialId,COUNT(DISTINCT cb.SalesOrderId) AS SOCount
+									   FROM CostingBOQItems AS cb
+									-- WHERE cb.SalesOrderId IN ('','2231203')
+									 GROUP BY cb.OrderProcurementCostingDirectMaterialId) AS TR ON tr.OrderProcurementCostingDirectMaterialId=cm.Id
+									 
+							LEFT JOIN ( SELECT cb.OrderProcurementCostingDirectMaterialId,COUNT(DISTINCT cb.SalesOrderId) AS SOCount
+									   FROM CostingBOQItems AS cb
+									 WHERE --cb.SalesOrderId IN ('','2231203') AND 
+									 cb.CostingBOQMasterId='"+ CostingBOQMasterId + @"'  
+									 GROUP BY cb.OrderProcurementCostingDirectMaterialId) AS CB ON CB.OrderProcurementCostingDirectMaterialId=cm.Id
+                          where convert(bit,CASE WHEN isnull(cb.SOCount,0)=0 THEN 0 ELSE 1 END,0)=0
+                      Order BY  CASE WHEN convert(bit,CASE WHEN isnull(cb.SOCount,0)=0 THEN 0 ELSE 1 END,0)=0 AND isnull(tr.SOCount,0)=1 THEN 1 ELSE 0 END,ci.Sequence ";
+
+            DataTable dtData = _sqlRepository.GetDataTable(sql);
+
+            return dtData;
+
+        }
 
         public void ReportXls(string CostingBOQMasterId)
         {
@@ -2078,6 +2115,109 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[edRow, 1, edRow, endColl].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[edRow, 1, edRow, endColl].BorderInside(ExcelLineStyle.Hair);
 
+
+                mer += 3;
+                #region UNPORCESS BOM SUMMARY
+
+                sheet[mer, 1].Text = "UNPROCESS BOM SUMMARY:";
+                sheet.Range[mer, 1].CellStyle.Font.Size = 15;
+                sheet.Range[mer, 1, mer, 19].Merge();
+                mer++;
+
+
+                COL = 1;
+
+                sheet[mer, COL].Text = "CostingItemId";
+                //int colItem = COL;
+                COL++;
+
+                sheet[mer, COL].Text = "Item";
+                //int colItem = COL;
+                COL++;
+
+                sheet[mer, COL].Text = "BOQCriteria";
+                //int colUOMs = COL;
+                COL++;
+
+                sheet[mer, COL].Text = "Material";
+                //int colUOMs = COL;
+                COL++;
+
+                sheet[mer, COL].Text = "Article";
+                //int colUOMs = COL;
+                COL++;
+
+                sheet[mer, COL].Text = "Gross Consumption";
+                //int colGrossConsumption = COL;
+                sheet[mer, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+                COL++;
+
+                sheet[mer, COL].Text = "UOM";
+                //int colUOMs = COL;
+                COL++;
+
+                sheet[mer, COL].Text = "Responsible Person";
+                //int colUOMs = COL;
+                COL++;
+
+
+
+
+                endCol = COL;
+                sheet.Range[mer, 1, mer, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[mer, 1, mer, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+                sheet.Range[mer, 1, mer, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[mer, 1, mer, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narmer";
+                //mer++;
+                //StartMer = mer;
+                DataTable dtSOUP = _sqlRepository.GetDataTable(new Library.OrderManagement.Production.ProductionOrder().GetExistingSalesOrderListForReport(CostingBOQMasterId));
+                DataTable dtMUP = BOQUnProcessQuery(CostingBOQMasterId,null);
+                //DataTable dtMUP = new DataView(dtEmployeeData).ToTable(true, "CostingBOQMasterId", "ItemDesc", "UOM", "Currency", "Article");
+                DataView dvMUP = new DataView(dtMUP);
+                dvM.RowFilter = "CostingBOQMasterId='" + dtEmployeeData.Rows[0]["CostingBOQMasterId"].ToString() + "'";
+
+                var edMerUP = mer;
+                var colUP = endCol;
+
+                edMerUP++;
+                int msrUP = edMerUP;
+                //int sc = 4;
+                int ecUP = 0;
+                for (int i = 0; i < dtMUP.Rows.Count; i++)
+                {
+
+                    colUP = 1;
+                    sheet.Range[edMerUP, colUP].Text = dtMUP.Rows[i]["CostingItemId"].ToString(); colUP++;
+                    sheet.Range[edMerUP, colUP].Text = dtMUP.Rows[i]["ItemDescription"].ToString(); colUP++;
+                    sheet.Range[edMerUP, colUP].Text = dtMUP.Rows[i]["BOQCriteria"].ToString(); colUP++;
+                    sheet.Range[edMerUP, colUP].Text = dtMUP.Rows[i]["Material"].ToString(); colUP++;
+                    sheet.Range[edMerUP, colUP].Text = dtMUP.Rows[i]["Article"].ToString(); colUP++;
+
+                    sheet.Range[edMerUP, colUP].Number = clsStaticInfo.dbl(dtMUP.Rows[i]["GrossConsumption"].ToString());
+                    sheet.Range[edMerUP, colUP].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet.Range[edMerUP, colUP, edMerUP, colUP].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet.Range[edMerUP, colUP, edMerUP, colUP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    colUP++;
+                    sheet.Range[edMerUP, colUP].Text = dtMUP.Rows[i]["UOM"].ToString(); colUP++;
+                    sheet.Range[edMerUP, colUP].Text = dtMUP.Rows[i]["ResponsiblePerson"].ToString(); colUP++;
+                     
+                    int endColUPs = colUP;
+                    sheet.Range[edMerUP, 1, edMerUP, endColUPs].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[edMerUP, 1, edMerUP, endColUPs].BorderInside(ExcelLineStyle.Hair);
+                    sheet.UsedRange.CellStyle.Font.FontName = "Arial Narmer";
+                    edMerUP++;
+                }
+
+                    ec = colUP;
+                int merUP = edMerUP;
+
+                var colUPs = 1;
+                
+
+                int endColUPl = 10;
+
+                #endregion
                 string strFileName = "BOM Report " + CostingBOQMasterId + ".xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();
