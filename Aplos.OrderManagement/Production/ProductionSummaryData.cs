@@ -4793,7 +4793,7 @@ Group BY PO.Id,T1.ProductionDate
 )B Where ISNULL(B.Date,'')<>'' 
 )A ON A.POId=PO.Id
 
-Where SO.OrderStatusId NOT IN('Cancelled','Closed') and pod.ProductionOrderId<>''
+Where SO.OrderStatusId NOT IN('Cancelled','Hold') and pod.ProductionOrderId<>''
 GROUP BY po.Id,BASEP.BaseProcProdStartDate,BASEP.BaseProductionEndDate,Type1.BaseProcPlanStartDate,Type1.BaseProcPlanEndDate
 ,A.Date,sc.ID,PS.UserName,PO.AddedDate,A.ProdQty,A.PlanQty)x
 Where X.POId IN (" + parameters["POId"] + @")";
@@ -4855,7 +4855,7 @@ LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
 LEFT JOIN TRN.MasterOrder MO ON MO.Id=MOI.MasterOrderId
 LEFT JOIN HKP.Party P ON P.Id = MO.PartyId
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=SO.ResponsiblePersonId
-Where  SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0  AND POD.ProductionOrderId<>''";
+Where  SO.OrderStatusId NOT IN('Cancelled','Hold') AND POD.ProductionOrderId<>''";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
