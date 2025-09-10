@@ -4793,7 +4793,7 @@ Group BY PO.Id,T1.ProductionDate
 )B Where ISNULL(B.Date,'')<>'' 
 )A ON A.POId=PO.Id
 
-Where SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0 and pod.ProductionOrderId<>''
+Where SO.OrderStatusId NOT IN('Cancelled','Closed') and pod.ProductionOrderId<>''
 GROUP BY po.Id,BASEP.BaseProcProdStartDate,BASEP.BaseProductionEndDate,Type1.BaseProcPlanStartDate,Type1.BaseProcPlanEndDate
 ,A.Date,sc.ID,PS.UserName,PO.AddedDate,A.ProdQty,A.PlanQty)x
 Where X.POId IN (" + parameters["POId"] + @")";
