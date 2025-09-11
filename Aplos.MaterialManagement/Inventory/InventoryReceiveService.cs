@@ -19530,11 +19530,11 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 ,E4.EmployeeName ReceivedBy
                 ,CC.UserName CostCenter
                 ,IRD.Comments
-                ,PPI.UserName BillTo
-                ,PPI1.UserName ShipTo
+               ,BILLADD.Address1 BillTo
+                ,ShipADD.Address1 ShipTo
                 ,IRD.InventorySalesId
                 ,Pr.UserName CustomerName
-				,IR.AddedBy
+				,IR.AddedBy,IR.NoteForAccounts
 				,IRD.Id InventorySalesDetailid
 				,CheckedBy=CASE WHEN IR.CheckedByStatus='Checked' Then eI.EmployeeName else '' END 
                 ,AuthorizedBy=CASE When IR.ApprovedByStatus='Approved'then eI1.EmployeeName else '' END
@@ -19579,7 +19579,9 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.BaseUOMId = TUoM.Id
                 LEFT JOIN [ORG].[CostCenter] AS CC On CC.Id=IRD.CostCenterId
                 LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=IR.InvoicingPartyPlantId
+				LEFT JOIN [MST].[AddressMaster] AS BILLADD ON BILLADD.Id=PPI.AddressMasterId
                 LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=IR.DeliveryPartyPlantId
+				LEFT JOIN [MST].[AddressMaster] AS ShipADD ON ShipADD.Id=PPI1.AddressMasterId
                 LEFT JOIN [HKP].[Party] AS Pr ON Pr.Id=IR.CustomerId
 
                          WHERE IR.Id ='" + OrderMasterID + "'";
@@ -19823,16 +19825,10 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
             int colChar2 = COL; COL++;
             wTable.Rows[ROW].Cells[colChar2].Width = 45;
 
-
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU3");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN No");
             range.ApplyCharacterFormat(FontBold);
-            int colChar3 = COL; COL++;
-            wTable.Rows[ROW].Cells[colChar3].Width = 45;
-
-            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN No");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colHSNNo = COL; COL++;
-            //wTable.Rows[ROW].Cells[colChar3].Width = 45;
+            int colHSNNo = COL; COL++;
+            wTable.Rows[ROW].Cells[colHSNNo].Width = 45;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Comments");
             range.ApplyCharacterFormat(FontBold);
@@ -19934,8 +19930,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
                 TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString());
                 TROW.Cells[colChar2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
-                TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
-                //TROW.Cells[colHSNNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
+                TROW.Cells[colHSNNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
                 TROW.Cells[colcomments].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Comments"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
                 TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("#,##0.0000"));
@@ -19961,9 +19956,6 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                         }
                     }
                 }
-
-
-
             }
 
             ROW++;
@@ -19976,7 +19968,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
-                if (C == colRate || /*C == colHSNNo ||*/ C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || C == colcomments || C == colRate || C == colUoM || C == colMaterialGroup || dicTaxes.ContainsValue(C))
+                if (C == colRate || /*C == colHSNNo ||*/ C == colArticle || C == colChar1 || C == colChar2 || C == colHSNNo || C == colcomments || C == colRate || C == colUoM || C == colMaterialGroup || dicTaxes.ContainsValue(C))
                     continue;
 
                 double value = 0;
@@ -20591,7 +20583,9 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 
             try
             {
-                strSQL = @"SELECT POS.Id ServiceId,SM.UserName  Service , POS.Description, POS.Amount,POS.TotalTaxAmount,Pos.AddedBy,pos.AddedDate,pos.UpdatedBy,pos.UpdatedDate FROM [TRN].[InventorySales] PO
+                strSQL = @"SELECT POS.Id ServiceId,SM.UserName  Service , POS.Description, POS.Amount,POS.TotalTaxAmount
+                            ,Pos.AddedBy,pos.AddedDate,pos.UpdatedBy,pos.UpdatedDate 
+                            FROM [TRN].[InventorySales] PO
                             INNER join [TRN].[InventorySalesService] POS ON POS.InventorySalesId = PO.Id
                             INNER JOIN HKP.ServiceMaster SM ON POS.ServiceMasterId = SM.Id 
                             where PO.Id = '" + OrderMasterID + "'";

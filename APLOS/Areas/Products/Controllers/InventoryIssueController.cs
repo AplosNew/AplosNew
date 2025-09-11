@@ -1051,7 +1051,7 @@ namespace Aplos.Areas.Products.Controllers
 							,PPI.UserName ,PPI1.UserName,II.ToCurrencyRate, II.DocRefNo, II.DocDate , II.CurrencyId,CAST(II.NoteForAccounts AS NVARCHAR(MAX)),p.UserName ,P.Id 
                             ,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName ,II.ApprovedBy,PPI.Id,II.PaymentTermId,II.BaseOnDueDate,II.BaseNoOfDays,II.MatureDate
 							)x  
-							Order BY IssueDate DESC";
+							Order BY Id DESC";
                 }
                 else if (tabType == "2")
                 {

@@ -11,95 +11,89 @@
 				<div class="col-md-12">
 					<table class="table table-striped" style="font-size: 12px;white-space: nowrap; ">
 						<thead>
-							<tr>
-								<th>Select</th> @*ng-hide="productNew.Id!=null"*@
-								<th>IsOpeningBalance</th>
-								<th>Vendor</th>
-								<th>Entry Date</th>
-								<th>PO No</th>
-								<th>GRN Date</th>
-								<th>GRN No</th>
-								<th>Balance Qty</th>
-								<th class="col-md-2">Sales Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-								<th></th>
-								<th></th>
-								<th>Receive Qty</th>
-								@*<th>Base Qty</th>*@
-								<th>Issue Qty</th>
-
-								<th>Purchase Return Qty</th>
-								<th>Issue Return Qty</th>
-								<th>Adjustment Qty</th>
-								<th>Inventory Sale Qty</th>
-								@*<th>Balance Qty</th>*@
-								<th>Rate</th>
-								<th>Base Rate</th>
-								@*<th>Sales Rate</th>
-								<th>Amount</th>*@
-								<th>Approved</th>
-								<th>Posting</th>
-
-								@*<th class="col-md-2">Requisition Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>*@
-							</tr>
+                            <tr>
+                                <th>Select</th> @*ng-hide="productNew.Id!=null"*@
+                                <th>IsOpeningBalance</th>
+                                <th>Vendor</th>
+                                <th>Entry Date</th>
+                                <th>PO No</th>
+                                <th>GRN Date</th>
+                                <th>GRN No</th>
+                                <th>Rate</th>
+                                <th>Base Rate</th>
+                                <th>Balance Qty</th>
+                                <th class="col-md-2">Sales Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                <th></th>
+                                <th></th>
+                                <th>Receive Qty</th>
+                                <th>Issue Qty</th>
+                                <th>Purchase Return Qty</th>
+                                <th>Issue Return Qty</th>
+                                <th>Adjustment Qty</th>
+                                <th>Inventory Sale Qty</th>
+                                <th>Approved</th>
+                                <th>Posting</th>
+                            </tr>
 						</thead>
 						<tbody>
-							<tr ng-repeat="x in materialStockList">
-								<td>
-									@*ng-hide="productNew.Id!=null"*@
-									<div class="checkbox-site">
-										<label>
-											<input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag">
-											<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-										</label>
-									</div>
-								</td>
-								<td>{{x.IsOpeningBalance}}</td>
-								<td>{{x.PartyCode}}-{{x.PartyName}}</td>
-								<td>{{x.ReceiveDate}}</td>
-								<td>{{x.PONo}}</td>
-								<td>{{x.GRNDate}}</td>
-								<td>{{x.GRNNo}}</td>
-								<td>{{x.BalanceStock}} {{x.BUoM}}</td>
-								<td class="text-right" colspan="3">
-									<div class="input-group">
-										<input type="text" n-decimals="2" ng-model="x.RequisitionQty" class="form-control text-right" @*ng-keyup="calculateBaseQty(x)" ng-disabled="productNew.Id!=null"*@ width="200" />
-										@*<span class="input-group-addon">{{x.TUoM}}</span>
-											<span class="input-group-addon">{{x.IssueTransactionUoM}}</span>*@
-										<span class="input-group-addon">{{x.TrasactopmUomQty}}</span>
-										<span class="input-group-addon">{{x.IssueTransactionUoM}}</span>
-									</div>
-								</td>
-								<td>{{x.TransactionQty}} {{x.TUoM}}</td>
-								@*<td>{{x.BaseQty}} {{x.BUoM}}</td>*@
-								<td>{{x.BaseIssueQty}} {{x.BUoM}}</td>
+                            <tr ng-repeat="x in materialStockList">
+                                <td>
+                                    @*ng-hide="productNew.Id!=null"*@
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.IsOpeningBalance}}</td>
+                                <td>{{x.PartyCode}}-{{x.PartyName}}</td>
+                                <td>{{x.ReceiveDate}}</td>
+                                <td>{{x.PONo}}</td>
+                                <td>{{x.GRNDate}}</td>
+                                <td>{{x.GRNNo}}</td>
+                                <td>{{x.BaseRate|setDecimal:4}} {{x.TCurrency}}</td>
+                                <td>{{x.BaseCurrencyRate|setDecimal:4}} {{x.BCurrency}}</td>
+                                <td>{{x.BalanceStock}} {{x.BUoM}}</td>
+                                <td class="text-right" colspan="3">
+                                    <div class="input-group">
+                                        <input type="text" n-decimals="2" ng-model="x.RequisitionQty" class="form-control text-right" @*ng-keyup="calculateBaseQty(x)" ng-disabled="productNew.Id!=null"*@ width="200" />
+                                        @*<span class="input-group-addon">{{x.TUoM}}</span>
+                <span class="input-group-addon">{{x.IssueTransactionUoM}}</span>*@
+                                        <span class="input-group-addon">{{x.TrasactopmUomQty}}</span>
+                                        <span class="input-group-addon">{{x.IssueTransactionUoM}}</span>
+                                    </div>
+                                </td>
+                                <td>{{x.TransactionQty}} {{x.TUoM}}</td>
+                                @*<td>{{x.BaseQty}} {{x.BUoM}}</td>*@
+                                <td>{{x.BaseIssueQty}} {{x.BUoM}}</td>
 
-								<td>{{x.PurchaseReturnQty}} {{x.BUoM}}</td>
-								<td>{{x.IssueReturnQty}} {{x.v}}</td>
-								<td>{{x.ReductionByAdjustmentQty}} {{x.BUoM}}</td>
+                                <td>{{x.PurchaseReturnQty}} {{x.BUoM}}</td>
+                                <td>{{x.IssueReturnQty}} {{x.v}}</td>
+                                <td>{{x.ReductionByAdjustmentQty}} {{x.BUoM}}</td>
 
-								<td>{{x.InventorySalesQty}} {{x.BUoM}}</td>
+                                <td>{{x.InventorySalesQty}} {{x.BUoM}}</td>
 
-								@*<td>{{x.BalanceStock}} {{x.BUoM}}</td>*@
-								<td>{{x.BaseRate|setDecimal:4}} {{x.TCurrency}}</td>
-								<td>{{x.BaseCurrencyRate|setDecimal:4}} {{x.BCurrency}}</td>
-
-								@*<td>{{x.SalesRate|setDecimal:4}} {{x.TCurrency}}</td>
-								<td>{{x.TotalAmount|setDecimal:4}} {{x.TCurrency}}</td>*@
-								<td>{{x.IsApproved}}</td>
-								<td>{{x.IsPosting}}</td>
+                                @*<td>{{x.BalanceStock}} {{x.BUoM}}</td>*@
 
 
-								<!--<td class="text-right" colspan="2">
-								<div class="input-group">
-									<input type="text" n-decimals="2" ng-model="x.RequisitionQty" class="form-control text-right"-->
-								@*ng-keyup="calculateBaseQty(x)" ng-disabled="productNew.Id!=null"*@
-								<!--width="200" />
-										<span class="input-group-addon">{{x.TUoM}}</span>
-									</div>
-								</td>-->
-							</tr>
+                                @*<td>{{x.SalesRate|setDecimal:4}} {{x.TCurrency}}</td>
+        <td>{{x.TotalAmount|setDecimal:4}} {{x.TCurrency}}</td>*@
+                                <td>{{x.IsApproved}}</td>
+                                <td>{{x.IsPosting}}</td>
+
+
+                                <!--<td class="text-right" colspan="2">
+    <div class="input-group">
+        <input type="text" n-decimals="2" ng-model="x.RequisitionQty" class="form-control text-right"-->
+                                @*ng-keyup="calculateBaseQty(x)" ng-disabled="productNew.Id!=null"*@
+                                <!--width="200" />
+            <span class="input-group-addon">{{x.TUoM}}</span>
+        </div>
+    </td>-->
+                            </tr>
 							<tr>
-								<td colspan="7" class="text-right"><strong>Total : </strong></td>
+								<td colspan="9" class="text-right"><strong>Total : </strong></td>
 								<td class="text-left"><strong>{{materialStockList | sumByKey : 'BalanceStock' }}</strong></td>
 								<td class="text-right"><strong>{{materialStockList | sumByKey : 'RequisitionQty' }}</strong></td>
 								<td></td>

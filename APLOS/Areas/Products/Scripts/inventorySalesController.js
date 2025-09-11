@@ -436,6 +436,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 		$scope.detailModel.SecondCharacteristicsValueId = null;
 		$scope.detailModel.ThirdCharacteristicsValueId = null;
 		$scope.detailModel.IsOriginApplicable = ob.IsOriginApplicable;
+		$scope.detailModel.HSNCode = ob.HSNCode;
 
 		$scope.hasArticle = ob.HasAttribute;
 		$scope.hasSku = ob.WithSKU;
@@ -466,6 +467,9 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 		//debugger;
 		try {
 			$scope.detailModel.ArticleId = ob.Id;
+			$scope.detailModel.ArticleName = ob.StandardName;
+			if (ob.HSNCode)
+			$scope.detailModel.HSNCode = ob.HSNCode;
 			$scope.detailModel.ArticleName = ob.StandardName;
 			manualValidation('div_ar', false);
 			if (!ob.WithSKU)
@@ -1460,49 +1464,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 					$scope.detailModel.BaseQty = tQty;
 				}
 			}
-			//for (var i = 0; i < baseService.arrayLength($scope.detailList); i++) {
-			//	if ($scope.detailModel.MaterialMasterId === $scope.detailList[i].MaterialMasterId &&
-			//		$scope.detailModel.ArticleId === $scope.detailList[i].ArticleId &&
-			//		$scope.detailModel.FirstCharacteristicsValueId === $scope.detailList[i].FirstCharacteristicsValueId &&
-			//		$scope.detailModel.SecondCharacteristicsValueId === $scope.detailList[i].SecondCharacteristicsValueId &&
-			//		$scope.detailModel.ThirdCharacteristicsValueId === $scope.detailList[i].ThirdCharacteristicsValueId &&
-			//		$scope.detailModel.CountryId === $scope.detailList[i].CountryId) {
-			//		//return ShowResult('This material already received');
-			//		throw 'This material already received';
-			//	}
-			//}
-
-			//for (var i = 0; i < baseService.arrayLength($scope.detailList); i++) {
-			//	if ($scope.detailList[i].FirstCharacteristicsValueId === undefined)
-			//		$scope.detailList[i].FirstCharacteristicsValueId = null;
-			//	if ($scope.detailList[i].SecondCharacteristicsValueId === undefined)
-			//		$scope.detailList[i].SecondCharacteristicsValueId = null;
-			//	if ($scope.detailList[i].ThirdCharacteristicsValueId === undefined)
-			//		$scope.detailList[i].ThirdCharacteristicsValueId = null;
-			//	if ($scope.detailList[i].CountryId === undefined)
-			//		$scope.detailList[i].CountryId = null;
-			//	if ($scope.detailModel.CountryId === undefined)
-			//		$scope.detailModel.CountryId = null;
-			//	if (baseService.isUndefinedOrNull($scope.detailList[i].MaterialMasterId) === baseService.isUndefinedOrNull($scope.detailModel.MaterialMasterId) &&
-			//		baseService.isUndefinedOrNull($scope.detailList[i].ArticleId) === baseService.isUndefinedOrNull($scope.detailModel.ArticleId) &&
-			//		baseService.isUndefinedOrNull($scope.detailList[i].FirstCharacteristicsValueId) === baseService.isUndefinedOrNull($scope.detailModel.FirstCharacteristicsValueId) &&
-			//		baseService.isUndefinedOrNull($scope.detailList[i].SecondCharacteristicsValueId) === baseService.isUndefinedOrNull($scope.detailModel.SecondCharacteristicsValueId) &&
-			//		baseService.isUndefinedOrNull($scope.detailList[i].ThirdCharacteristicsValueId) === baseService.isUndefinedOrNull($scope.detailModel.ThirdCharacteristicsValueId) &&
-			//		baseService.isUndefinedOrNull($scope.detailList[i].CountryId) === baseService.isUndefinedOrNull($scope.detailModel.CountryId))
-			//		//throw 'This material already issued.';
-			//		ShowResult('This material already Added', 'failure', 'detailPopUp');
-			//	return false;
-			//	//if ($scope.detailList[i].MaterialMasterId === $scope.detailModel.MaterialMasterId &&
-			//	//$scope.detailList[i].ArticleId === $scope.detailModel.ArticleId &&
-			//	//$scope.detailList[i].FirstCharacteristicsValueId === $scope.detailModel.FirstCharacteristicsValueId &&
-			//	//$scope.detailList[i].SecondCharacteristicsValueId === $scope.detailModel.SecondCharacteristicsValueId &&
-			//	//$scope.detailList[i].ThirdCharacteristicsValueId === $scope.detailModel.ThirdCharacteristicsValueId &&
-			//	//$scope.detailList[i].CountryId === $scope.detailModel.CountryId
-			//	//) {
-			//	//throw 'This material already issued.';
-			//	//}
-
-			//}
+			 
 			for (var i = 0; i < baseService.arrayLength($scope.detailList); i++) {
 				if ($scope.detailList[i].FirstCharacteristicsValueId === 'undefined' || $scope.detailList[i].FirstCharacteristicsValueId === null || $scope.detailList[i].FirstCharacteristicsValueId === '') {
 					$scope.detailList[i].FirstCharacteristicsValueId = null;
