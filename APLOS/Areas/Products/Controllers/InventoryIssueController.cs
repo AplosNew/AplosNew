@@ -987,7 +987,6 @@ namespace Aplos.Areas.Products.Controllers
 	                        ,Sum(ISH.TotalAmount) TotalAmount
 							,II.Remarks,II.Id AS IssueId
 							,II.OrderRefNo
-							
 			                    ,PPI.Id InvoicingPartyPlantId    ,PPI.UserName BillTo
 							,PPI1.UserName ShipTo,II.ToCurrencyRate, II.DocRefNo, II.DocDate , II.CurrencyId,CAST(II.NoteForAccounts AS NVARCHAR(MAX)) 'NoteForAccounts',p.UserName PartyName,P.Id PartyId
                             ,EI2.EmployeeName CheckedByName,II.CheckedBy,EI1.EmployeeName ApprovedByName,II.ApprovedBy,II.PaymentTermId,FORMAT(II.BaseOnDueDate, 'dd-MMM-yyyy') BaseOnDueDate,II.BaseNoOfDays,FORMAT(II.MatureDate, 'dd-MMM-yyyy') MatureDate
