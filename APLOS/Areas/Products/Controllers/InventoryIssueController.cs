@@ -997,7 +997,7 @@ namespace Aplos.Areas.Products.Controllers
 							Left JOIN [ORG].[Entity] E On E.id= II.EntityId
 								LEFT JOIN (select distinct Id,ROUND(sum(TransactionQty), 2) Qty,ROUND(sum(SalesRate), 2) SalesRate,(ROUND(sum(TransactionQty), 2) * ROUND(sum(SalesRate), 2)) TotalAmount from  TRN.InventorySalesDetail group by Id)  ISH ON ISH.Id=IID.Id
 
-			                         LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
+			                 LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
 							LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId left Join hkp.Party P On p.id=II.CustomerId
 							Left Join employeeinformation EI2 On EI2.SystemId=II.CheckedBy
 							Left Join employeeinformation EI1 On EI1.SystemId=II.CheckedBy
