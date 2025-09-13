@@ -5261,6 +5261,7 @@
     <Content Include="Areas\SalesManagements\Views\SalesProcess.cshtml" />
     <Content Include="Areas\Setups\Views\ServiceMaster\_ServiceMasterPopUpNew.cshtml" />
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\SkillUpload.cshtml" />
+    <Content Include="POPResources\Templates\InventorySalesReport202034.docx" />
     <Content Include="Areas\QMS\Views\QualityProcess\AplosNew.cshtml" />
     <None Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsd">
       <Generator>MSDataSetGenerator</Generator>

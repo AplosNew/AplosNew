@@ -94,7 +94,8 @@ namespace Library.Service.Advances
         private readonly IEmployeePayableWriteOffService _employeePayableWriteOffService;
         private readonly IFinancingService _financingService;
         private readonly IRepositoryAsync<FinancingSubsequentTransaction> _loanInterestPayableRepository;
-        private readonly IRepositoryAsync<FinancingWriteOff> _financingWriteOffRepository;
+        //private readonly IRepositoryAsync<FinancingWriteOff> _financingWriteOffRepository;
+        private readonly IRepositoryAsync<FinancingDetailWriteOff> _financingDetailWriteOffRepository;
 
         public AdvanceService(
               IRepositoryAsync<Advance> advanceRepository
@@ -146,7 +147,8 @@ namespace Library.Service.Advances
             , IRepositoryAsync<BankReconciliationMap> bankReconciliationMapRepository
             , IFinancingService financingService
             , IRepositoryAsync<FinancingSubsequentTransaction> loanInterestPayableRepository
-            , IRepositoryAsync<FinancingWriteOff> financingWriteOffRepository
+            //, IRepositoryAsync<FinancingWriteOff> financingWriteOffRepository
+            , IRepositoryAsync<FinancingDetailWriteOff> financingDetailWriteOffRepository
             ) : base(advanceRepository, unitOfWork, pkGeneratorService)
         {
             _employeeTransactionTypeGLService = employeeTransactionTypeGLService;
@@ -196,7 +198,8 @@ namespace Library.Service.Advances
             _bankReconciliationMapRepository = bankReconciliationMapRepository;
             _financingService = financingService;
             _loanInterestPayableRepository = loanInterestPayableRepository;
-            _financingWriteOffRepository = financingWriteOffRepository;
+            //_financingWriteOffRepository = financingWriteOffRepository;
+            _financingDetailWriteOffRepository = financingDetailWriteOffRepository;
         }
 
         #endregion Constructor
@@ -9382,6 +9385,35 @@ namespace Library.Service.Advances
                     {
                         var vendorAdWr = new System.Text.StringBuilder();
                         var vendorAdWrsql = "";
+
+                        if(item.PaymentSource== "MultiBank")
+                        {
+                            var financingDetailSetOffId = _voucherDetailRepository.Query(r => r.VoucherId == item.VoucherId && r.FinancingDetailWriteOffId != null).Select(r=>r.FinancingDetailWriteOffId).FirstOrDefault();
+                             if (financingDetailSetOffId != null)
+                            {
+                                var financingDetailWriteOff =_financingDetailWriteOffRepository.Find(financingDetailSetOffId);
+
+                                var financing = _financingService.FindFinancing(financingDetailWriteOff.FinancingId);
+                                var financingdetail = _financingService.FindFinancingDetail(financingDetailWriteOff.FinancingDetailId);
+
+                                financingdetail.WrittenOffAmount -= financingDetailWriteOff.Amount;
+                                financing.WrittenOffAmount -= financingDetailWriteOff.Amount;
+                                financingdetail.IsWrittenOff = financingdetail.Amount == financingdetail.WrittenOffAmount;
+                                financing.IsWrittenOff = financing.Amount == financing.WrittenOffAmount;
+
+                                _financingService.UpdateFinancingDetail(financingdetail);
+                                _financingService.UpdateFinancing(financing);
+                                vendorAdWrsql = @"update trn.VoucherDetail set FinancingDetailWriteOffId=NULL  where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + item.VoucherId.ToString() + "')";
+                                vendorAdWr.Append(vendorAdWrsql);
+
+                                vendorAdWrsql = @"delete trn.FinancingDetailWriteOff where  Id in ('"+ financingDetailSetOffId + @"')";
+                                vendorAdWr.Append(vendorAdWrsql);
+                                vendorAdWrsql = @"delete trn.FinancingWriteOff where  Id in ('"+ financingDetailWriteOff.FinancingWriteOffId + @"')";
+                                vendorAdWr.Append(vendorAdWrsql);
+                                vendorAdWrsql = @"delete trn.financingSubsequentTransaction where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + item.VoucherId.ToString() + "')";
+                                vendorAdWr.Append(vendorAdWrsql);
+                            }
+                        }
                         vendorAdWrsql = @"delete trn.voucherdetailcurrency where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + item.VoucherId.ToString() + "')";
                         vendorAdWr.Append(vendorAdWrsql);
                         vendorAdWrsql = @"delete trn.GLTransactionDetail where VoucherDetailId in (select id from trn.voucherdetail where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + item.VoucherId.ToString() + "'))";

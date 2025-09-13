@@ -987,7 +987,6 @@ namespace Aplos.Areas.Products.Controllers
 	                        ,Sum(ISH.TotalAmount) TotalAmount
 							,II.Remarks,II.Id AS IssueId
 							,II.OrderRefNo
-							
 			                    ,PPI.Id InvoicingPartyPlantId    ,PPI.UserName BillTo
 							,PPI1.UserName ShipTo,II.ToCurrencyRate, II.DocRefNo, II.DocDate , II.CurrencyId,CAST(II.NoteForAccounts AS NVARCHAR(MAX)) 'NoteForAccounts',p.UserName PartyName,P.Id PartyId
                             ,EI2.EmployeeName CheckedByName,II.CheckedBy,EI1.EmployeeName ApprovedByName,II.ApprovedBy,II.PaymentTermId,FORMAT(II.BaseOnDueDate, 'dd-MMM-yyyy') BaseOnDueDate,II.BaseNoOfDays,FORMAT(II.MatureDate, 'dd-MMM-yyyy') MatureDate
@@ -998,7 +997,7 @@ namespace Aplos.Areas.Products.Controllers
 							Left JOIN [ORG].[Entity] E On E.id= II.EntityId
 								LEFT JOIN (select distinct Id,ROUND(sum(TransactionQty), 2) Qty,ROUND(sum(SalesRate), 2) SalesRate,(ROUND(sum(TransactionQty), 2) * ROUND(sum(SalesRate), 2)) TotalAmount from  TRN.InventorySalesDetail group by Id)  ISH ON ISH.Id=IID.Id
 
-			                         LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
+			                 LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
 							LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId left Join hkp.Party P On p.id=II.CustomerId
 							Left Join employeeinformation EI2 On EI2.SystemId=II.CheckedBy
 							Left Join employeeinformation EI1 On EI1.SystemId=II.CheckedBy
@@ -1051,7 +1050,7 @@ namespace Aplos.Areas.Products.Controllers
 							,PPI.UserName ,PPI1.UserName,II.ToCurrencyRate, II.DocRefNo, II.DocDate , II.CurrencyId,CAST(II.NoteForAccounts AS NVARCHAR(MAX)),p.UserName ,P.Id 
                             ,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName ,II.ApprovedBy,PPI.Id,II.PaymentTermId,II.BaseOnDueDate,II.BaseNoOfDays,II.MatureDate
 							)x  
-							Order BY IssueDate DESC";
+							Order BY Id DESC";
                 }
                 else if (tabType == "2")
                 {
