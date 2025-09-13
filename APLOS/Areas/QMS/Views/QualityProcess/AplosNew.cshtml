@@ -1,0 +1,357 @@
+﻿<togglable name="{{title}}"></togglable>
+<div class="form-elements form-horizontal">
+    <div ng-form name="ModelNewForm" id="maindiv">
+        <input type="hidden" ng-model="ModelNew.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" id="Process" ng-model="ModelNew.ProcessId" ng-options="item.Value as item.Text for item in ProcessList"
+                                name="Process" tabindex="1" required>
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Quality Process User Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Quality Process User Name" ng-model="ModelNew.QualityProcessUserName" class="form-control" required tabindex="3" maxlength="100">
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Check Point User Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Check Point User Name" ng-model="ModelNew.CheckPointUserName" class="form-control" required tabindex="5" maxlength="100">
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <input type="text" name="ResponsiblePerson" ng-model="ModelNew.ResponsiblePersonName" required class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="openPopupAngular('employeeNewPopUp')" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Material Applicable</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="ModelNew.MaterialApplicable" tabindex="8">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">General Applicable</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="ModelNew.GeneralApplicable" tabindex="8">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Quality Process Standard Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Quality Process Standard Name" ng-model="ModelNew.QualityProcessStandardName" class="form-control" required tabindex="2" maxlength="100">
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Check Point Standard Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Check Point Standard Name" ng-model="ModelNew.CheckPointStandardName" class="form-control" required tabindex="4" maxlength="100">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Operation Applicable</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="ModelNew.OperationApplicable" tabindex="8">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="tab-design">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Product" role="tab" data-toggle="tab">Product</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Article" role="tab" data-toggle="tab">Article</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="User" role="tab" data-toggle="tab">User Name</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form="tabForm1" id="Product">
+
+                <div ng-form="modelNewFormProd">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li><button ng-click="GetproductPopUp();" ng-disabled="ModelNew.Id==null" class="btn"><i class="glyphicon glyphicon-plus"></i> Product Master</button></li>
+                        </ul>
+                    </div>
+                    <div style="color:black;" id="PMGrid" ej-grid e-datasource="PMList" e-allowfiltering="true" e-allowpaging="true" 
+                         e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
+                          e-allowscrolling="true" e-showstackedheader="true">
+                        <div e-columns>
+                            <div e-column e-field="UserName" e-headertext="User Name" e-width="80" e-filter="false"></div>
+                            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="100"></div>
+                            <div e-column e-field="ProductCategory" e-headertext="Product Category" e-width="80" textAlign='Center'></div>
+                            <div e-column e-field="ProductSubCategory" e-headertext="Product SubCategory" e-width="80" textAlign='Center'></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="Article">
+
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="getArticle();" ng-disabled="ModelNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign"></i> Article</button></li>
+                    </ul>
+                </div>
+                <div style="color:black;" id="ArtGrid" ej-grid e-datasource="articleList" e-allowfiltering="true" e-allowpaging="true"
+                     e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
+                     e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
+                    <div e-columns>
+                        <div e-column e-field="MaterialGroupMasterName" e-headertext="M Group" e-width="80" e-filter="false"></div>
+                        <div e-column e-field="MaterialTypeName" e-headertext="MaterialType" e-width="100"></div>
+                        <div e-column e-field="MaterialCode" e-headertext="Material Code" e-width="80" textAlign='Center'></div>
+                        <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="80" textAlign='Center'></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                        <div e-column e-field="StandardName" e-headertext="Machine Name" e-width="100"></div>
+                        <div e-column e-field="HSNCode" e-headertext="HSN Code" e-width="60" textAlign='Center'></div>
+                        <div e-column e-field="IsAsset" e-headertext="IsAsset" e-width="60"></div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }" ng-form="tabForm3" id="UserName">
+                
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+            <div e-column e-field="Process" e-headertext="Process" e-width="2"></div>
+            <div e-column e-field="QualityProcessUserName" e-headertext="QualityProcessUserName" e-width="4"></div>
+            <div e-column e-field="QualityProcessStandardName" e-headertext="Quality Process Standard Name" e-width="4"></div>
+            <div e-column e-field="CheckPointUserName" e-headertext="Check Point User Name" e-width="4"></div>
+            <div e-column e-field="CheckPointStandardName" e-headertext="Check Point Standard Name" e-width="4"></div>
+            <div e-column e-field="ResponsiblePersonName" e-headertext="Responsible Person" e-width="5"></div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmEmployeeCategoryPopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteEmployeeCategory();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDGPopUp" title="Confirmation" message={{message_dgconfirmation}} data-ng-click-right-button="DeleteDG();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeleteProductionBookingParameterPopUp" title="Confirmation" message={{message_PrductionParaconfirmation}} data-ng-click-right-button="DeleteEmployeeSeperationItem();"></confirm-archive-generic>
+<div class="modal site-modal" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closePopup('employeeNewPopUp');">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color: black;" id="Grid" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-type="string" e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="productPopUpId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Product Master<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByProduct">
+                                            <option ng-repeat="option in searchByProductList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchprod" ng-enter="GetProductMasterDataList();">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetProductMasterDataList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="ProdGrid" ej-grid e-datasource="ProductMasterList" e-allowfiltering="true" e-allowpaging="true" e-templaterefresh="refreshTemplateProd"
+                         e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
+                         e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerProdTemplate" e-template="#checkboxProdTemplate" e-textalign="center" e-width="30"></div>
+                            <div e-column e-field="UserName" e-headertext="User Name" e-width="80" e-filter="false"></div>
+                            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="100"></div>
+                            <div e-column e-field="ProductCategory" e-headertext="Product Category" e-width="80" textAlign='Center'></div>
+                            <div e-column e-field="ProductSubCategory" e-headertext="Product SubCategory" e-width="80" textAlign='Center'></div>
+                        </div>
+                    </div>
+
+                </div>
+                <script type="text/template" id="checkboxProdTemplate">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                </script>
+                <script type="text/x-jsrender" id="headerProdTemplate">
+                    <input type="checkbox" id="headchkprod" />
+                </script>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseProduct();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="materialarticleCbxPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Material Article<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByMaterial">
+                                            <option ng-repeat="option in searchByMaterialList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getMaterialMasterWithArticleBySearch();">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getMaterialMasterWithArticleBySearch()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="PAGrid" ej-grid e-datasource="materialArticleList" e-allowfiltering="true" e-allowpaging="true" e-templaterefresh="refreshTemplatearticle"
+                         e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
+                         e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                            <div e-column e-field="MaterialGroupMasterName" e-headertext="M Group" e-width="80" e-filter="false"></div>
+                            <div e-column e-field="MaterialTypeName" e-headertext="MaterialType" e-width="100"></div>
+                            <div e-column e-field="MaterialCode" e-headertext="Material Code" e-width="80" textAlign='Center'></div>
+                            <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="80" textAlign='Center'></div>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                            <div e-column e-field="StandardName" e-headertext="Article" e-width="100"></div>
+                            <div e-column e-field="HSNCode" e-headertext="HSN Code" e-width="60" textAlign='Center'></div>
+                            <div e-column e-field="BusinessProcessName" e-headertext="Business Process" e-width="60"></div>
+                            <div e-column e-field="IsAsset" e-headertext="IsAsset" e-width="60"></div>
+                            <div e-column e-field="WithSKU" e-headertext="WithSKU" e-width="60"></div>
+                            <div e-column e-field="HasAttribute" e-headertext="HasAttribute" e-width="60"></div>
+                            <div e-column e-field="IsMachineApplicable" e-headertext="MachineApplicable" e-width="60"></div>
+                            <div e-column e-field="IsWorkCenterApplicable" e-headertext="WorkCenterApplicable" e-width="60"></div>
+                            <div e-column e-field="IsOriginApplicable" e-headertext="OriginApplicable" e-width="60"></div>
+                        </div>
+                    </div>
+
+                </div>
+                <script type="text/template" id="checkboxTemplate">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplate">
+                    <input type="checkbox" id="headchk" />
+                </script>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseArticle();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+                @*<i>**Showing top 600 Article</i>*@
+            </div>
+        </div>
+    </div>
+</div>

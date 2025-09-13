@@ -147,33 +147,6 @@
                         </div>
                     </div>
                 </div>
-                @*<div class="col-md-4">
-                        <div class="form-group" id="" show-errors>
-                            <label class="col-sm-4 control-label">Operation Type<sup>*</sup></label>
-                            <div class="col-sm-8 show-message ">
-                                <div class="select-style">
-                                    <select class="form-control" id="currency" name="Operation Type" ng-model="modelNew.OperationTypeId" ng-options="item.Value as item.Text for item in OperationTypeList" tabindex="2" required>
-                                        <option value="">---Select---</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="form-group" id="" show-errors>
-                            <label class="col-sm-4 control-label">Operation Category<sup>*</sup></label>
-                            <div class="col-sm-8 show-message ">
-                                <div class="select-style">
-                                    <select class="form-control" id="currency" name="Operation Category" ng-model="modelNew.OperationCategoryId" ng-options="item.Value as item.Text for item in OperationCategoryList" tabindex="3" required>
-
-                                        <option value="">---Select---</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>*@
-
                 <div class="col-md-4">
                     <div class="form-group" id="" show-errors>
                         <label class="col-sm-4 control-label">Legal Designation</label>
@@ -416,18 +389,7 @@
             </div>
             <div role="tabpanel" class="tab-pane" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                 <div ng-form="modelNewFormMC">
-                    @*<div class="col-xs-6 col-sm-6 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Machine Master</label>
-                <div class="col-sm-8 show-message">
-                    <div class="input-group">
-                        <span class="input-group-btn">
-                            <button ng-click="getArticle();" class="btn single-small-btn" tabindex="21"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>*@
+                    
                     <div class="common-btn">
                         <ul class="list-inline text-left">
                             <li><button ng-click="getArticle();" ng-disabled="modelNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign"></i> Machine Master</button></li>

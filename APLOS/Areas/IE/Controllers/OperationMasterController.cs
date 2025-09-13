@@ -469,9 +469,7 @@ WHERE DM.DesignationGroupId='" + designationGroupId + "' AND LD.Id<>''";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.DAL.ConManager objCon;
                 DataSet dsMaster;
-                string _Id = "";
                 string sql = "";
-                string EmpSystemId = "";
 
                 sql = "SELECT * FROM [dbo].[SkillMasterMachine] WHERE SkillMasterId='" + SkillMasterId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");

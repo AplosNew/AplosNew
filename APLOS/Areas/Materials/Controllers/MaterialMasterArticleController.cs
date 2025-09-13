@@ -117,6 +117,18 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost, Authorize]
+        public JsonResult GetMaterialMasterWithArticleDataByProductMaster(string column, string value, string ProductMasterId)
+        {
+            MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var jsondata = Json(materialCommonService.GetMaterialMasterWithArticleDataByProductMaster(column, value, identity.CompanyGroupId, ProductMasterId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+
+        [HttpPost, Authorize]
         public JsonResult GetMaterialMasterWithArticleForProcessConstraintPopUpData(string column, string value, string type)
         {
             MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
