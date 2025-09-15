@@ -276,9 +276,11 @@ where RD.ProcessId='" + ProcessId + "'";
                             LEFT JOIN ORG.Department AS DEP ON DEP.Id=p.DepartmentId
                             LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
-                            WHERE EI.EmployeeStatus='Active'";
+                            WHERE EI.EmployeeStatus='Active' AND EI.PlantId='" + identity.PlantId + "'";
 
-            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+            var json = Json(_sqlRepository.GetDataCollection(str, null), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
 
         [Authorize, HttpPost]

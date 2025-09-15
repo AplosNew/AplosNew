@@ -67,6 +67,8 @@ namespace Aplos.Areas.QMS.Controllers
         {
             try
             {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
                 string CmdText = @"SELECT Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,PR.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
@@ -85,7 +87,7 @@ namespace Aplos.Areas.QMS.Controllers
                                         LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EMP.GivenDesignationId
 										LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
-                                        WHERE  EMP.EmployeeStatus='Active' AND EMP.EmpType<>'Guest'
+                                        WHERE  EMP.EmployeeStatus='Active' AND EMP.EmpType<>'Guest'AND EMP.PlantId='" + identity.PlantId + @"'
                                         ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
                 var json = Json(_sqlRepository.GetDataCollection(CmdText, null), JsonRequestBehavior.AllowGet);
                 json.MaxJsonLength = int.MaxValue;
@@ -176,7 +178,7 @@ namespace Aplos.Areas.QMS.Controllers
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
-                return Json(new { Error = false, Data= data, Sequence = GetSequence(), Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
@@ -327,6 +329,33 @@ namespace Aplos.Areas.QMS.Controllers
             }
         }
 
+        public ActionResult DeleteQualityProcess(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from QualityProcessMaster where id='" + id + "'");
+                con.executeQuery("delete from QualityProcessProductMaster where QualityProcessMasterId='" + id + "'");
+                con.executeQuery("delete from ualityProcessArticle where QualityProcessMasterId='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
         [HttpPost, Authorize]
         public ActionResult GetQualityProcessList(string column, string value)
         {
@@ -341,7 +370,7 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=QP.ResponsiblePersonId) AS TEM
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public ActionResult GetProductMasterList(string column, string value)
         {
             try
@@ -420,8 +449,33 @@ LEFT JOIN MSt.ProductMaster PM ON PM.Id=M.ProductMasterId
 LEFT JOIN HKP.ProductCategory PC ON PC.Id=PM.ProductCategoryId
 LEFT JOIN HKP.ProductSubCategory PSC ON PSC.Id=PM.ProductSubCategoryId
 LEFT JOIN HKP.Process P ON  P.Id= PM.BaseProcessId
-Where M.QualityProcessMasterId='"+masterId+"'";
+Where M.QualityProcessMasterId='" + masterId + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult DeleteQualityProcessProductMaster(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from QualityProcessProductMaster where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
         }
 
         [HttpPost, Authorize]
@@ -484,6 +538,31 @@ LEFT JOIN[HKP].[HSNCode] HC ON HC.id = MMA.HSNCodeId
 LEFT JOIN[HKP].[HSNCode] MHC ON MHC.id = M.HSNCodeId
 Where SM.QualityProcessMasterId='" + masterId + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult DeleteQualityProcessArticle(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from QualityProcessArticle where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
         }
         #endregion
 
