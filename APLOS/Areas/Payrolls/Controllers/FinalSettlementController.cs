@@ -2731,18 +2731,29 @@ AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastB
                 , CAST(EI.Value AS decimal(18,2)) DrAmount 
                 , 0 CrAmount 
                 , CAST(EI.Value AS decimal(18,2)) Amount
-                ,vd.GLGeneralInfoId  ,vd.BudgetMasterId,vd.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
-                , B.UserName BudgetName,A.UserName ActivityName ,BMA.Active
+                , GLGeneralInfoId=case when   vd.GLGeneralInfoId<>'' then vd.GLGeneralInfoId else BMESI.GLGeneralInfoId end
+				, BudgetMasterId=case when   vd.BudgetMasterId<>'' then vd.BudgetMasterId else BMESI.Id end
+				, ActivityId=case when   vd.ActivityId<>'' then vd.ActivityId else BMAESI.ActivityId end
+				, GLName= case when GL.UserName<>'' then  GL.AccountCode + ' - ' + GL.UserName else GLESI.AccountCode + ' - ' + GLESI.UserName end
+                , BudgetName=case when B.UserName<>'' then B.UserName else BESI.UserName end 
+                , ActivityName=case when A.UserName<>'' then A.UserName else AESI.UserName end 
+				,Active=case when BMA.Active<>0 then  BMA.Active else BMAESI.Active end
 				FROM EmployeeFullAndFinalSettlement  E
 				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='NetPay'
 				LEFT JOIN [dbo].[EmployeeSeperationItem] ESI ON  ESI.Id=EI.EmployeeSeperationItemId
-				LEFT JOIN ( SELECT vd.GLGeneralInfoId, vd.BudgetMasterId,vd.ActivityId,sl.EmployeeFinalSettlementId FROM [dbo].[SalaryLock] sl   
+				LEFT JOIN ( SELECT vd.GLGeneralInfoId, vd.BudgetMasterId,vd.ActivityId,sl.EmployeeFinalSettlementId 
+				FROM [dbo].[SalaryLock] sl   
 				left join trn.VoucherDetail vd on vd.VoucherId=sl.PayableVoucherId and vd.TrnNature ='Net Pay' and Vd.AccountsGroupId=sl.AccountsGroupId WHERE sl.EmployeeFinalSettlementId IS NOT NULL AND vd.ActivityId IS NOT NULL GROUP BY vd.GLGeneralInfoId, vd.BudgetMasterId,vd.ActivityId,sl.EmployeeFinalSettlementId) AS vd ON vd.EmployeeFinalSettlementId=E.FinalSettlementId
 				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON vd.GLGeneralInfoId=GL.Id
 				LEFT JOIN[MST].[BudgetMaster] AS BM ON vd.BudgetMasterId= BM.Id
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON vd.ActivityId= A.Id
                 LEFT JOIN[MST].[BudgetMasterActivity] AS BMA ON BMA.BudgetMasterId= BM.Id AND BMA.ActivityId= A.Id
+				LEFT JOIN [MST].[BudgetMasterActivity] BMAESI ON  BMAESI.Id=ESI.CrBudgetMasterActivityId
+				LEFT JOIN[MST].[BudgetMaster] AS BMESI ON BMAESI.BudgetMasterId= BMESI.Id
+				LEFT JOIN[HKP].[GLGeneralInfo] AS GLESI ON BMESI.GLGeneralInfoId=GLESI.Id
+				LEFT JOIN [HKP].[Budget] AS BESI ON BMESI.BudgetId= BESI.Id
+				LEFT JOIN [HKP].[Activity] AS AESI ON BMAESI.ActivityId= AESI.Id
 				WHERE  E.VoucherId IS NULL AND ISNULL(CAST(EI.Value AS decimal(18,2)),0)<>0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
                 Union All
