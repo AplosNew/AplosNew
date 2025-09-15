@@ -715,7 +715,7 @@ Where CM.Id='" + masterId + "'";
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 
                 con.OpenDataSetThroughAdapter("select * from TRN.ComplianceAudit where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-                con.OpenDataSetThroughAdapter("select * from TRN.ComplianceAuditorMap where 1=1", out dsCheckPoint, false, "1");
+                con.OpenDataSetThroughAdapter("select * from TRN.ComplianceAuditorMap where 1=2", out dsCheckPoint, false, "1");
                 con.OpenDataSetThroughAdapter("select * from dbo.ComplianceResponsiblePersonAndAuditor where ComplianceMasterId='" + data["ComplianceMasterId"] + "' AND SourceType='" + SourceType + "' AND EmpSystemId='" + identity.EmployeeId + "'", out dsEmp, false, "1");
                 string _Id = "";
 

@@ -121,6 +121,11 @@
             controller: 'QualityProcessController'
         })
 
+        .when('/qlty-process', {
+            templateUrl: 'QMS/QualityProcess/aplosnew',
+            controller: 'QualityProcessNewController'
+        })
+
         .when('/quality-management-master', {
             templateUrl: 'QMS/QualityManagementMaster/aplos',
             controller: 'QualityManagementMasterController'

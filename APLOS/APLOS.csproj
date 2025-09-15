@@ -2027,6 +2027,7 @@
     <Content Include="Areas\QMS\Scripts\LWQSummaryReportController.js" />
     <Content Include="Areas\QMS\Scripts\LotWiseQualityReportController.js" />
     <Content Include="Areas\QMS\Scripts\DefineSQCIssueController.js" />
+    <Content Include="Areas\QMS\Scripts\QualityProcessNewController.js" />
     <Content Include="Areas\SalesManagements\Scripts\InputCreditCheckController.js" />
     <Content Include="Areas\SalesManagements\Scripts\InputCreditApproveController.js" />
     <Content Include="Areas\SalesManagements\Scripts\InputCreditController.js" />
@@ -5261,6 +5262,7 @@
     <Content Include="Areas\Setups\Views\ServiceMaster\_ServiceMasterPopUpNew.cshtml" />
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\SkillUpload.cshtml" />
     <Content Include="POPResources\Templates\InventorySalesReport202034.docx" />
+    <Content Include="Areas\QMS\Views\QualityProcess\AplosNew.cshtml" />
     <None Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>PayrollsDataSet.Designer.cs</LastGenOutput>
