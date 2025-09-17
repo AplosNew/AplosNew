@@ -1506,4 +1506,78 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
         return true;
     };
 
+
+    $scope.searchglOtherChargesByList = [
+        {
+            "name": "GL Code",
+            "value": "GLGeneralInfoCode"
+        },
+        {
+            "name": "GL Name",
+            "value": "GLGeneralInfoName"
+        },
+        {
+            "name": "Budget",
+            "value": "BudgetName"
+        },
+        {
+            "name": "Activity",
+            "value": "ActivityName"
+        },
+        {
+            "name": "Ref No",
+            "value": "RefNo"
+        }
+    ];
+    $scope.glOtherChargesListParameters = {
+        limit: 10,
+        offset: 0,
+        order: "asc",
+        sort: "GLGeneralInfoName",
+        searchBy: "GLGeneralInfoName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.indexGL = "";
+    $scope.cOAOtherChargesCodeList = [];
+    $scope.popOtherChargesUpGL = function (index,data) {
+        $scope.indexGLOtherCharges = index;
+        $scope.tempGLOtherChargesData = data;
+        //baseService.setCurrentPage("cOAOtherChargesCodeList");
+        $scope.GetCOAICodeOtherChargesListData = function (pageno) {
+            baseService.paginationBase("Accounts/GLItem/GetOtherVendorChargesGLBudgetList?serviceMasterId=" + $scope.tempGLOtherChargesData.ServiceMasterId, pageno, $scope.glOtherChargesListParameters)
+                .then(function (result) {
+                    $scope.cOAOtherChargesCodeList = result.Rows;
+                    $scope.glOtherChargesListParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure", "GLOtherChargesPopUp");
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector("#GLOtherChargesPopUp")).modal("show");
+        $scope.GetCOAICodeOtherChargesListData();
+    };
+
+    $scope.closeCOAICodeOtherChargesListPopUp = function () {
+        angular.element(document.querySelector("#GLOtherChargesPopUp")).modal("hide");
+    };
+    $scope.setSelectedOtherCharges = function (data, index) {
+        for (var i = 0; i < $scope.OtherVendorChargesPayableList.length; i++) {
+            if ($scope.OtherVendorChargesPayableList[i].OtherName == 'Material' && $scope.OtherVendorChargesPayableList[i].Amount == $scope.tempGLOtherChargesData.Amount) {
+                $scope.OtherVendorChargesPayableList[i].GLGeneralInfoId = data.GLGeneralInfoId;
+                $scope.OtherVendorChargesPayableList[i].GLGeneralInfoCode = data.GLGeneralInfoCode;
+                $scope.OtherVendorChargesPayableList[i].GLGeneralInfoName = data.GLGeneralInfoName;
+                $scope.OtherVendorChargesPayableList[i].BudgetMasterId = data.BudgetMasterId;
+                $scope.OtherVendorChargesPayableList[i].BudgetName = data.BudgetName;
+                $scope.OtherVendorChargesPayableList[i].ActivityId = data.ActivityId;
+                $scope.OtherVendorChargesPayableList[i].ActivityName = data.ActivityName;
+            }
+        }
+        
+        $scope.closeCOAICodeOtherChargesListPopUp();
+    };
+
+
 }

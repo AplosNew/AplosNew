@@ -1,0 +1,56 @@
+﻿<div class="modal fade site-modal in" id="GLOtherChargesPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form name="glPopUpForm">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Service Master GL</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="glOtherChargesListParameters.searchBy">
+                                            <option ng-repeat="option in searchglOtherChargesByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="glOtherChargesListParameters.search" ng-enter="GetCOAICodeOtherChargesListData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetCOAICodeOtherChargesListData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in cOAOtherChargesCodeList |itemsPerPage:glOtherChargesListParameters.pageSize" pagination-id="metaData.name + 'cOAOtherChargesCodeList'" total-items="glOtherChargesListParameters.total_count"
+                                ng-dblclick="setSelectedOtherCharges(x,$index)" ng-class="{selected : x.BudgetMasterId === rowSelected}">
+                                <td>{{x.GLGeneralInfoCode}} - {{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'cOAOtherChargesCodeList'" direction-links="true" boundary-links="true" on-page-change="GetCOAICodeOtherChargesListData(newPageNumber)"></dir-pagination-controls>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="closeCOAICodeListPopUp()">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
