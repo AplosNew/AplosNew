@@ -209,13 +209,15 @@
                     <textarea name="Description" class="form-control" rows="2" maxlength="1000" ng-model="modelNew.Narration" tabindex="7"></textarea>
                 </div>
             </div>
-            <div class="form-group" show-errors ng-show="modelNew.IsInvoice">
+            <div class="form-group" show-errors>
+                @*ng-show="modelNew.IsInvoice"*@
                 <label class="col-sm-3 control-label">Invoice No<sup>*</sup></label>
                 <div class="col-sm-9 show-message">
                     <input type="text" maxlength="50" name="Doc Ref" ng-model="modelNew.InvoiceNo" class="form-control" autocomplete="off">
                 </div>
             </div>
-            <div class="form-group" show-errors ng-show="modelNew.IsInvoice">
+            <div class="form-group" show-errors>
+                @*ng-show="modelNew.IsInvoice"*@
                 <label class="col-sm-3 control-label">Invoice Date<sup>*</sup></label>
                 <div class="col-sm-9 show-message">
                     <input type="text" name="InvoiceDate" ng-model="modelNew.InvoiceDate" datepicker class="form-control datepicker" tabindex="11">
@@ -570,6 +572,7 @@
                                 <th>Activity</th>
                                 <th>Dr</th>
                                 <th>Cr</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -579,11 +582,17 @@
                                 <td>{{x.ActivityName}}</td>
                                 <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
                                 <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
+                                <td class="text-right">
+                                    <button ng-click="popOtherChargesUpGL($index,x)" ng-show="x.OtherName=='Material'" data-toggle="modal" class="btn btn-action tooltip-here" data-placement="top" title="popUp">
+                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                    </button>
+                                </td>
                             </tr>
                             <tr>
                                 <td colspan="3"></td>
                                 <td class="text-right"><strong>{{OtherVendorChargesPayableList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
                                 <td class="text-right"><strong>{{OtherVendorChargesPayableList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
+                                <td> </td>
                             </tr>
                         </tbody>
                     </table>
@@ -739,6 +748,7 @@
 @Html.Partial("~/Areas/Accounts/Views/_PartyFiscalInvoiceAmountPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_InvoiceSetOffDetailByInvoicePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityOtherChargesPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_PaymentTermUpdatePopUp.cshtml")
 
 

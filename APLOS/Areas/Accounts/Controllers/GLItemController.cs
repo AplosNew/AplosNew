@@ -220,6 +220,15 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize, HttpGet]
+        public ActionResult GetOtherVendorChargesGLBudgetList(GridParameter parameters,string serviceMasterId)
+        {
+            AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsGLService.GetOtherVendorChargesGLBudgetList(parameters, identity.CompanyGroupId, identity.CompanyId, serviceMasterId, AccountTypeEnum.Expense.ToString()), JsonRequestBehavior.AllowGet);
+            //return Json(_glGeneralInfoService.GetInvoiceGLBudgetList(parameters, identity.CompanyGroupId, identity.CompanyId, AccountTypeEnum.Expense.ToString()), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public ActionResult GetExpenseTypeGLBudgetActivityList(GridParameter parameters)
         {
 

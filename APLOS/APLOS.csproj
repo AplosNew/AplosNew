@@ -5077,6 +5077,7 @@
     <Content Include="Areas\HumanResource\Views\ManpowerBudgetDashboard\Report.cshtml" />
     <Content Include="Areas\IE\Views\IncentiveType\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\Shared\_MaterialArticleNewWithCbxPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\_GLBudgetActivityOtherChargesPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

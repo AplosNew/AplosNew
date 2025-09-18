@@ -298,6 +298,38 @@ AND BMA.Active=1";
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public GridModel GetOtherVendorChargesGLBudgetList(GridParameter parameters, string companyGroupId, string companyId,string serviceMasterId, string AccountType)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT distinct GLGI.COAId, C.UserName AS COA, GLGI.AccountGroupId, AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                                    , BMA.BudgetMasterId, B.Code BudgetCode, B.UserName BudgetName,BM.RefNo, BMA.ActivityId, A.Code ActivityCode, A.UserName ActivityName,ACT.Id AccountType,A.IsOrderSpecific,A.ActivityOrderType,A.ValueOfDistribution
+									,BMA.Id BudgetMasterActivityId
+                                    FROM [MST].[BudgetMasterActivity] BMA 
+                                    INNER JOIN [HKP].[ServiceMasterGL] SMGL ON SMGL.DrControlId=BMA.Id
+									LEFT OUTER JOIN [MST].[BudgetMaster] AS BM ON BMA.BudgetMasterId=BM.Id
+									LEFT JOIN HKP.Budget AS B ON BM.BudgetId = B.Id
+									LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=BM.GLGeneralInfoId
+									LEFT JOIN HKP.Activity AS A ON A.Id=BMA.ActivityId
+                                    LEFT JOIN HKP.[GLCompanyInfo]AS GLCI ON GLCI.GLGeneralInfoId = GLGI.Id
+                                    LEFT JOIN HKP.[AccountGroup]  AS AG ON AG.Id = GLGI.AccountGroupId
+                                    LEFT JOIN HKP.[AccountType]  AS ACT ON ACT.Id = AG.AccountTypeId
+                                    LEFT JOIN HKP.[GLCompanyGroup] AS glcg ON glcg.GLGeneralInfoId = GLGI.Id
+                                    LEFT JOIN HKP.[COA] AS C ON C.Id = GLGI.COAId
+                                    WHERE BMA.Active=1 AND SMGL.ServiceMasterId='"+ serviceMasterId + @"' AND GLCI.CompanyId='" + companyId + @"' AND A.Active=1 AND GLGI.IsPostingAutomaticOnly=0 AND ACT.Id in ('" + AccountType + @"','Asset','Liability') AND GLGI.Active = 1 AND GLGI.Archive = 0
+                                    AND GLGI.Id NOT IN(SELECT BM.GLGeneralInfoId FROM [MST].[BankMaster] AS BM  WHERE BM.GLGeneralInfoId <> '')
+                                    AND GLGI.Id NOT IN(SELECT CM.GLGeneralInfoId FROM [MST].[CashMaster] AS CM  WHERE CM.GLGeneralInfoId <> '') 
+                                    --AND  GLGI.Id NOT IN (SELECT GLAT.GLGeneralInfoId FROM [HKP].[GLAccountType] as GLAT WHERE GLAT.GLGeneralInfoId<>'')
+                                    ";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
         public List<Dictionary<string, object>> GetTaxCategoryMaterialLevelCbo(string companyGroupId, string countryId)
         {
             try
