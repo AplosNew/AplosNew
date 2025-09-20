@@ -533,6 +533,7 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
             url: 'QMS/QualityProcess/GetQualityProcessUserName?masterId=' + $scope.ModelNew.Id
         }).then(function successCallback(response) {
             $scope.UserNameList = response.data;
+            $scope.GetBudgetCodeData();
         });
     }
 
@@ -637,16 +638,17 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
     };
 
     $scope.BudgetCodeList = [];
+    $scope.BCList = [];
     $scope.selectDoubleClick = function () {
         try {
             var ob = {};
             for (var i = 0; i < $scope.popUpDataList.length; i++) {
                 if ($scope.popUpDataList[i].isSelected == true) {
-                    if (checkDoubleGWS($scope.BudgetCodeList, $scope.popUpDataList[i].Id) === false) {
+                    if (checkDoubleGWS($scope.BCList, $scope.popUpDataList[i].Id) === false) {
                         ob.Id = Math.floor(Math.random() * 9) - 10;
-                        ob.BudgetId = $scope.popUpDataList[i].Id;
+                        ob.ManpowerBudgetId = $scope.popUpDataList[i].Id;
                         ob.QualityProcessMasterId = $scope.ModelNew.Id;
-                        $scope.BudgetCodeList.push(ob);
+                        $scope.BCList.push(ob);
                         ob = {};
                     }
                 }
@@ -660,7 +662,7 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
 
     function checkDoubleGWS(list, Id) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].BudgetId === Id) {
+            if (list[i].ManpowerBudgetId === Id) {
                 return true;
             }
         }
@@ -680,7 +682,7 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
                 method: 'POST',
                 url: "QMS/QualityProcess/CreateBudgetCode",
                 data: {
-                    'data': $scope.BudgetCodeList
+                    'data': $scope.BCList
                     , 'masterId': $scope.ModelNew.Id
                 },
                 dataType: 'JSON'
@@ -703,31 +705,31 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
     $scope.GetBudgetCodeData = function () {
         $http({
             method: 'GET',
-            url: $scope.path + "GetGoodWorkBudgetCodeSetupData?goodWorkSetupId=" + $scope.ModelNew.Id
+            url: "QMS/QualityProcess/GetQualityProcessManpowerBudget?masterId=" + $scope.ModelNew.Id
         }).then(function (response) {
             $scope.BudgetCodeList = response.data;
-            $scope.GetBudgetedEmployee();
+            //$scope.GetBudgetedEmployee();
         });
     }
 
-    $scope.removeUN = function (obj) {
-        $scope.UNNew = obj.data;
-        if (!baseService.isUndefinedOrNull($scope.UNNew.Id))
-            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.UNNew.UserName + ' ]';
-        angular.element(document.querySelector('#confirmUNPopUp')).modal('show');
+    $scope.removeBC = function (obj) {
+        $scope.BCNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.BCNew.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.BCNew.Code + ' ]';
+        angular.element(document.querySelector('#confirmBCPopUp')).modal('show');
     }
 
     $scope.DeleteBC = function () {
         $http({
             method: 'POST',
-            url: 'QMS/QualityProcess/DeleteQualityProcessManpowerBudget?id=' + $scope.UNNew.Id
+            url: 'QMS/QualityProcess/DeleteQualityProcessManpowerBudget?id=' + $scope.BCNew.Id
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.getUserNameData();
+                $scope.GetBudgetCodeData();
             }
         }, function () {
             ShowResult(commonMessage.NetworkError, 'failure');

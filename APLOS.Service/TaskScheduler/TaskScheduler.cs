@@ -2360,11 +2360,13 @@ namespace Library.Service.TaskScheduler
 		                                                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
 		                                                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 			                                                                      where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+			                               ', SONo:',STUFF((select distinct ','+XSO.Id from 
+	                                                                                    trn.SalesOrder XSO 
+		                                                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+			                                                                      where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 			                                ', SO Desc:',STUFF((select distinct ','+XSO.[Description] from 
 	                                                                                    trn.SalesOrder XSO 
 		                                                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-		                                                                                    --left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                                                                                    --left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 			                                                                      where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                             ) AS PODesc
                                       FROM trn.MasterOrder AS mo	

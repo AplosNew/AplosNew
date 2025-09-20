@@ -686,7 +686,7 @@ Where SM.QualityProcessMasterId='" + masterId + "'";
         public JsonResult GetQualityProcessManpowerBudget(string masterId)
         {
 
-            string sql = @"SELECT PMB.Id, PMB.Code, PMB.EntityId, ERD.UserName AS EntityName, PMB.PositionId, PRD.UserName AS PositionName,PRD.Code PositionCode,ERD.Code EntityCode, 
+            string sql = @"SELECT QMB.Id, PMB.Code, PMB.EntityId, ERD.UserName AS EntityName, PMB.PositionId, PRD.UserName AS PositionName,PRD.Code PositionCode,ERD.Code EntityCode, 
 PMB.EmploymentType, PMB.IsOTEntitled, PMB.PayrollGroupId, PMB.WorkGroupId, PMB.Deployment, PRD.IsDirect , ERD.PlantId, 
 (SELECT UserName FROM  [ORG].[Plant] WHERE Id=ERD.PlantId) AS [Plant], ERD.DivisionId, 
 (SELECT UserName FROM  [ORG].[Division] WHERE Id=ERD.DivisionId) AS [Division],

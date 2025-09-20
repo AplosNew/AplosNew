@@ -1316,6 +1316,7 @@ upanelApp.controller("employeeOperationUploadController", employeeOperationUploa
 upanelApp.controller("ComplianceAuditController", ComplianceAuditController)
 upanelApp.controller("manpowerBudgetReportController", manpowerBudgetReportController)
 upanelApp.controller("QualityProcessNewController", QualityProcessNewController)
+upanelApp.controller("masterOrderUploadController", masterOrderUploadController)
 
 
 
