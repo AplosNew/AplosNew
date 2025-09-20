@@ -6,7 +6,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     $scope.ModelList = [];
     $scope.path = 'Productions/EmployeeOperations/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
-    
+
 
     //Variables
     $scope.workCenterId = null;
@@ -55,7 +55,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
     };
     $scope.isSet = function (tabNum) {
-      
+
         return $scope.tab === tabNum;
     };
 
@@ -101,7 +101,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: 'POST',
             url: $scope.path + 'GetProcess',
-            data: {'EId':$scope.EntityId}
+            data: { 'EId': $scope.EntityId }
         }).then(function succ(resp) {
             $scope.ProcessList = resp.data;
         });
@@ -137,15 +137,15 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: 'GET',
             url: $scope.path + 'GetResp',
-            params: {'WKId' : $scope.workCenterId},
+            params: { 'WKId': $scope.workCenterId },
         }).then(function succ(resp) {
             if (resp.data.length > 0) {
                 $scope.responsiblePerson = resp.data[0].EmployeeName;
                 $scope.responsiblePersonId = resp.data[0].ResponsiblePersonId;
             }
             else {
-                $scope.responsiblePerson =null;
-                $scope.responsiblePersonId =null;
+                $scope.responsiblePerson = null;
+                $scope.responsiblePersonId = null;
             }
         });
     }
@@ -174,7 +174,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: 'POST',
             url: $scope.path + 'GetPOs',
-            data: { 'entityId': $scope.EntityId},
+            data: { 'entityId': $scope.EntityId },
         }).then(function succ(resp) {
             $scope.POList = resp.data;
         });
@@ -206,8 +206,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
     // Refreshing the serials
     function refreshSerial() {
-        for (var j = 0; j < $scope.ModelList.length ; j++)
-        {
+        for (var j = 0; j < $scope.ModelList.length; j++) {
             $scope.ModelList[j].Serial = j;
         }
     }
@@ -222,24 +221,24 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         ob.EmployeeId = null;
         ob.PeriodId = e.PeriodId;
         ob.Qty = 0;
-       
+
         ob.Remarks = null;
         ob.isChanged = 0;
-        $scope.ModelList.splice(e.Serial+1, 0, ob);
+        $scope.ModelList.splice(e.Serial + 1, 0, ob);
         refreshSerial();
     }
-    
+
     //Getting All the Data For the Saving
     $scope.PrevAllList = [];
     $scope.getAllData = function () {
         $http({
             method: 'POST',
             url: $scope.path + 'GetOperationsData',
-            data: { 'PId': $scope.POId, 'Period': $scope.periodId, 'ProcessId': $scope.ProcessId, 'WorkCenterId': $scope.workCenterId},
+            data: { 'PId': $scope.POId, 'Period': $scope.periodId, 'ProcessId': $scope.ProcessId, 'WorkCenterId': $scope.workCenterId },
         }).then(function succ(resp) {
             $scope.ModelList = resp.data;
             for (var i = 0; i < $scope.ModelList.length; i++) {
-                Object.assign($scope.ModelList[i], {'Serial': parseInt(i) ,'isChanged': 0 , 'Remarks':null });
+                Object.assign($scope.ModelList[i], { 'Serial': parseInt(i), 'isChanged': 0, 'Remarks': null });
                 //$scope.refreshPage();
                 if ($scope.ModelList[i].Sequence in wipNos) {
                     continue;
@@ -258,7 +257,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         gridObj.dataSource($scope.ModelList);
     }
 
-   // While Changing the Places
+    // While Changing the Places
     $scope.changeInData = function (e, col) {
         e.isChanged = 1;
 
@@ -291,9 +290,9 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
                 e.Qty = 0;
                 ShowResult('Value Exceeds than WIP in ' + e.OperationCode + '!!', 'failure');
             }
-            
+
         }
-       // refresh();
+        // refresh();
 
     }
 
@@ -309,7 +308,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     //            ShowResult('Value Exceeds than WIP in ' + $scope.ModelList[i].OperationCode+ '!!', 'failure');
     //        }
     //    }
-       
+
     //}
 
     $scope.isSaveBtnDisable = false;
@@ -318,7 +317,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
         $scope.NewList = [];
 
-       /* $scope.checkWIP();*/
+        /* $scope.checkWIP();*/
 
         for (var i = 0; i < $scope.ModelList.length; i++) {
             if ($scope.ModelList[i].isChanged == true && $scope.ModelList[i].Qty > 0) {
@@ -335,10 +334,10 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
                 'data': $scope.NewList, 'WorkCenter': $scope.workCenterId,
                 'ProcessId': $scope.ProcessId,
                 'ShiftId': $scope.shiftId,
-                'POId': $scope.POId ,
+                'POId': $scope.POId,
                 'Date': $scope.Date, 'PeriodId': $scope.periodId,
                 'ResponsiblePersonId': $scope.responsiblePersonId,
-                  },
+            },
         }).then(function succ(resp) {
 
             if (resp.data.Error === true) {
@@ -353,49 +352,60 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     }
     $scope.saveRowItemData = function (data) {
         $scope.isSaveBtnDisable = true;
+        $scope.invalidqty = false;
         for (var i = 0; i < $scope.ModelList.length; i++) {
             if ($scope.ModelList[i].Sequence == data.Sequence + 1) {
                 var NextoperationVariationId = $scope.ModelList[i].OperationId;
             }
-        } 
+        }
 
         $scope.NewList = [];
         for (var j = 0; j < $scope.ModelList.length; j++) {
             if ($scope.ModelList[j].Sequence == data.Sequence) {
+                $scope.tempQty = parseFloat($filter("sumByKey")($filter("filter")($scope.ModelList, { Sequence: data.Sequence }), "Qty") * 100 + Number.EPSILON) / 100;
+                if ($scope.ModelList[j].WIP < $scope.tempQty && $scope.ModelList[j].Sequence!=1) {
+                    $scope.invalidqty = true;
+                    ShowResult('Qty can not greater than WIP !!', 'failure')
+                    break;
+                }
+                else {
+
                 $scope.NewList.push($scope.ModelList[j]);
+                }
             }
         }
-        
+
         $scope.ModelList = $scope.PrevAllList;
+        if (!$scope.invalidqty) {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'saveRowItemData',
+                data: {
+                    'data': $scope.NewList, 'WorkCenter': $scope.workCenterId,
+                    'ProcessId': $scope.ProcessId,
+                    'ShiftId': $scope.shiftId,
+                    'POId': $scope.POId,
+                    'Date': $scope.Date, 'PeriodId': $scope.periodId,
+                    'ResponsiblePersonId': $scope.responsiblePersonId,
+                    'NxtOPVariationId': NextoperationVariationId,
+                },
+            }).then(function succ(resp) {
 
-        $http({
-            method: 'POST',
-            url: $scope.path + 'saveRowItemData',
-            data: {
-                'data': $scope.NewList, 'WorkCenter': $scope.workCenterId,
-                'ProcessId': $scope.ProcessId,
-                'ShiftId': $scope.shiftId,
-                'POId': $scope.POId,
-                'Date': $scope.Date, 'PeriodId': $scope.periodId,
-                'ResponsiblePersonId': $scope.responsiblePersonId,
-                'NxtOPVariationId': NextoperationVariationId,
-            },
-        }).then(function succ(resp) {
+                if (resp.data.Error === true) {
+                    ShowResult(resp.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(resp.data.Message, 'success');
+                    $scope.getAllData();
+                    //$scope.ClearGrid();
+                }
 
-            if (resp.data.Error === true) {
-                ShowResult(resp.data.Message, 'failure');
-            }
-            else {
-                ShowResult(resp.data.Message, 'success');
-                $scope.getAllData();
-                //$scope.ClearGrid();
-            }
-
-        });
+            });
+        }
     }
 
     //Clearing the grid
-    $scope.ClearGrid = function(){
+    $scope.ClearGrid = function () {
         $scope.ModelList = [];
     }
 
@@ -404,7 +414,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: 'POST',
             url: $scope.path + 'getReportView',
-            data: { 'Date': $scope.Date, 'Wkc': $scope.workCenterId},
+            data: { 'Date': $scope.Date, 'Wkc': $scope.workCenterId },
         }).then(function succ(response) {
             console.log(response.data.Data);
             console.log(response.data.Cols);
@@ -446,7 +456,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: 'POST',
             url: $scope.path + "getReportDownload",
-            data: { 'Date': $scope.Date, 'Wkc': $scope.workCenterId},
+            data: { 'Date': $scope.Date, 'Wkc': $scope.workCenterId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -465,7 +475,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             method: 'POST',
             url: $scope.path + "getProcessDownload",
             data: {
-                'FromDate': $scope.FromDate , 'ToDate':$scope.ToDate,
+                'FromDate': $scope.FromDate, 'ToDate': $scope.ToDate,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -480,7 +490,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         });
     }
 
-   $scope.getEmployeeWorkDurationReport = function () {
+    $scope.getEmployeeWorkDurationReport = function () {
         $http({
             method: 'POST',
             url: $scope.path + "getEmployeeWorkDurationReport",
@@ -499,7 +509,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             ShowResult(response.data.Message, 'failure');
         });
     }
-    
+
 
     //Processing Button
     $scope.ProcessDate = null;
@@ -517,7 +527,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             }
             else {
                 ShowResult(resp.data.Message, 'success');
-               
+
             }
 
         });

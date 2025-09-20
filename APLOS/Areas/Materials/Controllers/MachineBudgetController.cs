@@ -40,6 +40,11 @@ namespace Aplos.Areas.Materials.Controllers
         {
             return View();
         }
+
+        public ActionResult MachineTransfer()
+        {
+            return View();
+        }
         #endregion
 
         #region -- Machines
@@ -75,6 +80,29 @@ namespace Aplos.Areas.Materials.Controllers
 
         #endregion
 
+        #region Machine Transfer
+        [HttpPost, Authorize]
+        public ActionResult GetMachineBudgetByFromEntity(string EntityId)
+        {
+            try
+            {
+                string strSQL = string.Empty;
+                strSQL = @"SELECT MB.*,MM.UserName Material,P.UserName Plant,ISNULL(E.UserName,'ALL') Entity,MMA.StandardName Article 
+                            FROM [dbo].[MachineBudget] MB
+                            LEFT JOIN ORG.Plant P ON P.Id=MB.PlantId
+                            LEFT JOIN ORG.Entity E ON E.Id=MB.EntityId
+                            LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
+                            LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MB.ArticleId
+                            LEFT JOIN MST.MaterialMaster  MM ON MM.Id=MMA.MaterialMasterId
+                            Where MB.EntityId='" + EntityId + "'";
+                return Json(_sqlRepository.GetDataCollection(strSQL), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
         //#region  ---Budget  
 
         [HttpGet, Authorize]
@@ -370,12 +398,12 @@ namespace Aplos.Areas.Materials.Controllers
             try
             {
                 string strSQL = string.Empty;
-                strSQL = @"SELECT MB.*,C.UserName Company,P.UserName Plant,ISNULL(E.UserName,'ALL') Entity,P.CompanyId    
+                strSQL = @"SELECT MB.*,MM.UserName Material,P.UserName Plant,ISNULL(E.UserName,'ALL') Entity,MMA.StandardName Article    
                             FROM [dbo].[MachineBudget] MB
                             LEFT JOIN ORG.Plant P ON P.Id=MB.PlantId
                             LEFT JOIN ORG.Entity E ON E.Id=MB.EntityId
-                            LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
                             LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MB.ArticleId
+                            LEFT JOIN MST.MaterialMaster  MM ON MM.Id=MMA.MaterialMasterId
                             Where MB.ArticleId='" + ArticleId + "'";
                 return Json(_sqlRepository.GetDataCollection(strSQL), JsonRequestBehavior.AllowGet);
             }

@@ -1992,6 +1992,7 @@
     <Content Include="Areas\HumanResource\Scripts\otApproveController.js" />
     <Content Include="Areas\IE\Scripts\IncentiveTypeController.js" />
     <Content Include="Areas\Materials\Scripts\BarcodeGeneratorSettingController.js" />
+    <Content Include="Areas\Materials\Scripts\machineTransferController.js" />
     <Content Include="Areas\Materials\Scripts\FabricGroupingController.js" />
     <Content Include="Areas\Materials\Scripts\ProcessConstraintController.js" />
     <Content Include="Areas\MIS\Scripts\manpowerStatusBIController.js" />
@@ -5078,6 +5079,7 @@
     <Content Include="Areas\IE\Views\IncentiveType\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\Shared\_MaterialArticleNewWithCbxPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\_GLBudgetActivityOtherChargesPopUp.cshtml" />
+    <Content Include="Areas\Materials\Views\MachineBudget\MachineTransfer.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
