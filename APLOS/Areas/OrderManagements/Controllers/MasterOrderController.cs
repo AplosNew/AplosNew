@@ -34,6 +34,7 @@ using Library.Service.Materials;
 using Library.OrderManagement.Production;
 using Library.Service.Systems;
 using Library.Service.TaskScheduler;
+using Library.Data;
 #endregion
 
 namespace Aplos.Areas.OrderManagements.Controllers
@@ -83,6 +84,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         public ActionResult IndependentOrder()
+        {
+            return View();
+        }
+
+        public ActionResult Upload()
         {
             return View();
         }
@@ -834,7 +840,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 UpdatedFromIP = identity.IPAddress
             };
 
-            MasterOrder.SplitSalesOrderData(masterItemId, salesOrderMaster, para, masterOrder.Id,masterOrder.TaskTemplateMasterId);
+            MasterOrder.SplitSalesOrderData(masterItemId, salesOrderMaster, para, masterOrder.Id, masterOrder.TaskTemplateMasterId);
             return Json(new { Message = AplosMessage.Updated + " Please reduce SKU Qty." });
         }
 
@@ -988,7 +994,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 {
 
                     DataSet dsMaster;
-                        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                     con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[CustomerPO] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -1000,7 +1006,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     {
                         DataRow dr = dv[0].Row;
                         dr.BeginEdit();
-                                                
+
                         dr["PONumber"] = data["PONumber"];
                         dr["PODate"] = data["PODate"];
                         dr["UpdatedBy"] = identity.Name;
@@ -1893,7 +1899,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }//End of function
         #endregion QBOQ
 
-        #region Contract
+
         [HttpGet, Authorize]
         public ActionResult GetMasterOrderAmountAndQty(string masterId)
         {
@@ -2457,13 +2463,13 @@ namespace Aplos.Areas.OrderManagements.Controllers
             {
                 int count = 0;
                 ConnectionManager.DAL.ConManager objCon;
-                DataSet dsChild,dsId;
+                DataSet dsChild, dsId;
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[SalesAdditionalInfo] where  SalesOrderId='" + SOId + "'", out dsChild, false, "1");
                 objCon.OpenDataSetThroughAdapter("SELECT Count(Id)IdC FROM [dbo].[SalesAdditionalInfo] where  SalesOrderId='" + SOId + "'", out dsId, false, "1");
-                if (dsId.Tables[0].Rows.Count>0)
+                if (dsId.Tables[0].Rows.Count > 0)
                 {
-                    count =Convert.ToInt32(dsId.Tables[0].Rows[0]["IdC"].ToString());
+                    count = Convert.ToInt32(dsId.Tables[0].Rows[0]["IdC"].ToString());
                 }
                 if (data != null)
                 {
@@ -2498,6 +2504,321 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 return Json(new { Error = true, ex.Message });
             }
         }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetMOSampleFile(ReportFormat reportFormat)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            IWorkbook workbook = MasterOrder.GetMOSampleFile(identity.Name);
+            var reportFileName = "Master Order Upload Template";
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult ImportMOData(FormCollection form)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                List<MasterOrder> data = new List<MasterOrder>();
+
+                var file = Request.Files["file"];
+
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                else
+                {
+                    throw new CustomException(Resources.ExcelUploadError);
+                }
+                string path = "";
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetAttendanceRawData(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+                FileInfo docFile;
+                string exception = "\r\n";
+                try
+                {
+                    try
+                    {
+                        string connString = string.Empty;
+                        ExcelEngine excelEngine = null;
+                        IApplication application = null;
+                        IWorkbook workbook = null;
+
+                        excelEngine = new ExcelEngine();
+                        application = excelEngine.Excel;
+                        workbook = excelEngine.Excel.Workbooks.Open(path);
+
+                        DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+                        DataSet dsExcel = new DataSet();
+                        dsExcel.Tables.Add(dt);
+
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            exception += "\r\nTrying to delete";
+                            docFile.Delete();
+                        }
+
+                        if (dsExcel.Tables[0].Rows.Count > 0)
+                        {
+                            for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
+                            {
+                                Library.Model.OrderManagements.MasterOrder vm = new Library.Model.OrderManagements.MasterOrder();
+
+                                vm.CompanyId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.PlantId = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                vm.EntityId = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
+                                vm.OrderType = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
+                                vm.PartyId = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
+                                vm.BuyerId = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
+                                vm.BuyerBrandId = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.BuyerDivisionId = dsExcel.Tables[0].Rows[i][7].ToString().Trim();
+                                vm.OrderStatusId = dsExcel.Tables[0].Rows[i][8].ToString();
+                                vm.OrderCategoryId = dsExcel.Tables[0].Rows[i][9].ToString();
+                                vm.SeasonId = dsExcel.Tables[0].Rows[i][10].ToString();
+                                vm.OrderYear = dsExcel.Tables[0].Rows[i][11].ToString();
+                                vm.CurrencyId = dsExcel.Tables[0].Rows[i][12].ToString();
+                                vm.TotalQty = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][13].ToString());
+                                vm.NoOfLineItem = Convert.ToInt32(dsExcel.Tables[0].Rows[i][14].ToString());
+                                vm.ResponsiblePersonId = dsExcel.Tables[0].Rows[i][15].ToString();
+                                vm.Remarks = dsExcel.Tables[0].Rows[i][16].ToString();
+                                vm.OrderWastagePercentage = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][17].ToString());
+                                vm.ExtraOrderPercentage = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][18].ToString());
+                                vm.TotalQtyUOMId = dsExcel.Tables[0].Rows[i][19].ToString();
+                                vm.Type = dsExcel.Tables[0].Rows[i][20].ToString();
+                                vm.BuyerDepartmentId = dsExcel.Tables[0].Rows[i][21].ToString();
+                                vm.BuyerReferenceNo = dsExcel.Tables[0].Rows[i][22].ToString();
+                                vm.OwnReferenceNo = dsExcel.Tables[0].Rows[i][23].ToString();
+                                data.Add(vm);
+
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Please Select File");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            docFile.Delete();
+                        }
+                        throw (ex);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    //throw ex;
+                }
+                finally
+                {
+                }
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        public Dictionary<string, object> GetTaskTemplateMasterId(string buyerId, string buyerDivisionId, string buyerDepartmentId)
+        {
+            try
+            {
+                var sql = "SELECT BM.TaskTemplateMasterId FROM mst.BuyerMaster AS  BM WHERE bm.BuyerId='" + buyerId + "' AND isnull(bm.BuyerDepartmentId,'" + buyerDepartmentId + "')='" + buyerDepartmentId + "' AND isnull(bm.BuyerDivisionId,'" + buyerDivisionId + "')='" + buyerDivisionId + "'";
+                return _sqlRepository.GetData(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetPartyPlantPaymentTerm(string partyId)
+        {
+            try
+            {
+                string sql = @"SELECT PP.Id AS [Value], PP.UserName AS [Text], AM.Address1, CP.PaymentTermId,CP.NoOfDay
+FROM [HKP].[PartyPlant] AS PP
+LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PP.AddressMasterId
+LEFT JOIN (Select top 1 CP.PaymentTermId,CP.PartyId,PD.NoOfDay from [HKP].[CompanyParty] AS CP 
+left join [MST].[PaymentTermDetail] PD ON PD.PaymentTermId=CP.PaymentTermId
+Where CP.PartyId='"+ partyId + @"' and PD.NoOfDay<>0)CP ON CP.PartyId=PP.PartyId
+WHERE PP.PartyId='" + partyId + @"' ORDER BY 2";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult SaveMOData(IEnumerable<MasterOrder> dataList)
+        {
+            try
+            {
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string _Id = "";
+                string sql = "";
+
+
+                sql = "SELECT * FROM TRN.MasterOrder WHERE 1=2";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                foreach (var entity in dataList)
+                {
+
+                    if (!string.IsNullOrEmpty(entity.BuyerId))
+                    {
+                        var taskTemplateMasterId = GetTaskTemplateMasterId(entity.BuyerId, entity.BuyerDivisionId, entity.BuyerDepartmentId);
+                        if (taskTemplateMasterId.Count > 0)
+                        {
+                            entity.TaskTemplateMasterId = taskTemplateMasterId["TaskTemplateMasterId"].ToString();
+                        }
+
+                    }
+
+                    var PartyPlantPaymentTerm = GetPartyPlantPaymentTerm(entity.PartyId);
+                    if (PartyPlantPaymentTerm.Rows.Count > 0)
+                    {
+                        entity.InvoicingPartyPlantId = PartyPlantPaymentTerm.Rows[0]["Value"].ToString();
+                        entity.DeliveryPartyPlantId = PartyPlantPaymentTerm.Rows[0]["Value"].ToString();
+                        entity.DeliveryByAddress = PartyPlantPaymentTerm.Rows[0]["Address1"].ToString();
+                        entity.InvoicingByAddress = PartyPlantPaymentTerm.Rows[0]["Address1"].ToString();
+                        entity.PaymentTermId = PartyPlantPaymentTerm.Rows[0]["PaymentTermId"].ToString();
+                        entity.PaymentTermDays =Convert.ToInt32(PartyPlantPaymentTerm.Rows[0]["NoOfDay"].ToString());
+                        entity.BaseOnDueDate = DateTime.Now;
+                        entity.MatureDate =Convert.ToDateTime(entity.BaseOnDueDate).AddDays(entity.PaymentTermDays);
+                    }
+
+                    entity.MasterOrderNo = entity.Id;
+                    if (entity.BuyerDepartmentId == "ALL")
+                    {
+                        entity.BuyerDepartmentId = null;
+                    }
+                    if (entity.BuyerDivisionId == "ALL")
+                    {
+                        entity.BuyerDivisionId = null;
+                    }
+                    if (entity.BuyerBrandId == "NULL")
+                    {
+                        entity.BuyerBrandId = null;
+                    }
+
+
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "Id='" + entity.Id + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        bplib.clsGenID objGenID = new bplib.clsGenID();
+                        objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(MasterOrder), out _Id);
+
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+                        dr["Id"] = _Id;
+                        dr["CompanyId"] = entity.CompanyId;
+                        dr["PlantId"] = entity.PlantId;
+                        dr["EntityId"] = entity.EntityId;
+                        dr["OrderType"] = entity.OrderType;
+                        dr["PartyId"] = entity.PartyId;
+                        dr["BuyerId"] = entity.BuyerId;
+                        dr["BuyerBrandId"] = entity.BuyerBrandId == null ? DBNull.Value : entity.BuyerBrandId;
+                        dr["BuyerDivisionId"] = entity.BuyerDivisionId;
+                        dr["MasterOrderNo"] = _Id;
+                        dr["OrderStatusId"] = entity.OrderStatusId;
+                        dr["OrderCategoryId"] = entity.OrderCategoryId;
+                        dr["SeasonId"] = entity.SeasonId;
+                        dr["OrderYear"] = entity.OrderYear;
+                        dr["CurrencyId"] = entity.CurrencyId;
+                        dr["TotalQty"] = entity.TotalQty;
+                        dr["NoOfLineItem"] = entity.NoOfLineItem;
+                        dr["ResponsiblePersonId"] = entity.ResponsiblePersonId;
+                        dr["Remarks"] = entity.Remarks;
+                        dr["OrderWastagePercentage"] = entity.OrderWastagePercentage;
+                        dr["ExtraOrderPercentage"] = entity.ExtraOrderPercentage;
+                        dr["TotalQtyUOMId"] = entity.TotalQtyUOMId;
+                        dr["InvoicingPartyPlantId"] = entity.InvoicingPartyPlantId;
+                        dr["DeliveryPartyPlantId"] = entity.DeliveryPartyPlantId;
+                        dr["InvoicingByAddress"] = entity.InvoicingByAddress;
+                        dr["DeliveryByAddress"] = entity.DeliveryByAddress;
+                        dr["TestingStandardId"] = entity.TestingStandardId;
+                        dr["IsReplacement"] = entity.IsReplacement;
+                        dr["Type"] = entity.Type;
+                        dr["SpecialTaxId"] = entity.SpecialTaxId;
+                        dr["IsExtraOrderPercentage"] = entity.IsExtraOrderPercentage;
+                        dr["BuyerDepartmentId"] = entity.BuyerDepartmentId;
+                        dr["TaskTemplateMasterId"] = entity.TaskTemplateMasterId;
+                        dr["BuyerReferenceNo"] = entity.BuyerReferenceNo;
+                        dr["OwnReferenceNo"] = entity.OwnReferenceNo;
+                        dr["PaymentTermId"] = entity.PaymentTermId;
+                        dr["PaymentTermDays"] = entity.PaymentTermDays;
+                        dr["ExceptionalProcessId"] = entity.ExceptionalProcessId;
+                        dr["ExceptionalSubProcessId"] = entity.ExceptionalSubProcessId;
+                        dr["BaseOnDueDate"] = entity.BaseOnDueDate;
+                        dr["MatureDate"] = entity.MatureDate;
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+
+                }
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 
     public class OpenHeadModelNew
@@ -2536,4 +2857,4 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
     }
 }
-#endregion
+

@@ -2021,6 +2021,21 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                     new Exception("The following production orders are running but no workcenter was defined: " + ids);
                 }
 
+                DataSet dsToData;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[ProductionPlanningArchive] WHERE 1=2", out dsToData, false, "1");
+                DataTable dtFromData = _sqlRepository.GetDataTable(@"select * FROM ProductionPlanningType1 where EntityId IN (" + ProcessingEntities + @") AND ISNULL(UpdatedDate,AddedDate)<=GetDate()");
+                for (int j = 0; j < dtFromData.DefaultView.Count; j++)
+                {
+                    DataRow drData = dsToData.Tables[0].NewRow();
+                    CopyRow(dtFromData.DefaultView[j].Row, ref drData);
+                    dsToData.Tables[0].Rows.Add(drData);
+                }
+
+                clsStaticInfo clsStatic = new clsStaticInfo();
+                clsStatic.SaveDataSets(dsToData);
+
                 _sqlRepository.ExecuteSqlCommand(@"delete FROM ProductionPlanningType1 where EntityId IN (" + ProcessingEntities + @")");
 
                 Dictionary<string, double> DicBalanceWorkcenterHours = new Dictionary<string, double>();
@@ -2447,6 +2462,37 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
             }
 
         }
+
+        private void CopyRow(DataRow drSource, ref DataRow drDestination)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            for (int COL = 0; COL < drSource.Table.Columns.Count; COL++)
+            {
+                try
+                {
+                    drDestination[drSource.Table.Columns[COL].ColumnName] = drSource[drSource.Table.Columns[COL].ColumnName];
+
+                }
+                catch (Exception ex)
+                {
+                }
+                try
+                {
+                    drDestination["AddedBy"] = identity.Name;
+                    drDestination["AddedDate"] = DateTime.Now;
+                    drDestination["AddedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedBy"] = identity.Name;
+                    drDestination["UpdatedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedDate"] = DateTime.Now;
+
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+
+        }
+
         private double AllocatedQty(ref DateTime LSD, string WCId, Dictionary<string, double> WCList, double Hour, double TargetPerDay, double CurrentQty, bool BuildUp)
         {
             //if (CurrentQty == 52)

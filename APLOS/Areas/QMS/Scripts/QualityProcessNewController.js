@@ -12,7 +12,7 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
     $scope.searchBy = "QualityProcessUserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Process', name: "Process" }, { value: 'QualityProcessUserName', name: "Quality Process User Name" }, { value: 'QualityProcessStandardName', name: "Quality Process Standard Name" }, { value: 'CheckPointUserName', name: "Check Point User Name" }, { value: 'CheckPointStandardName', name: "Check  PointStandard Name" }, { value: 'Remarks', name: "Remarks" }];
 
-    $scope.tab = 1;
+    $scope.tab = 8;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
     };
@@ -53,8 +53,6 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
     $scope.selectedProductMasterList = [];
     $scope.ProductMasterList = [];
 
-
-
     $scope.getData = function () {
         $http({
             method: 'POST',
@@ -83,7 +81,6 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
-   
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.GetProdMasterData();
@@ -212,7 +209,7 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
             if ($scope.ProductMasterList[i].Flag == true) {
                 if (checkPMExists($scope.PMList, $scope.ProductMasterList[i].Id) === false) {
                     var ob = {};
-                    ob.Id =  Math.floor(Math.random() * 9) - 10;
+                    ob.Id = Math.floor(Math.random() * 9) - 10;
                     ob.ProductMasterId = $scope.ProductMasterList[i].ProductMasterId;
                     ob.QualityProcessMasterId = $scope.ModelNew.Id;
 
@@ -307,7 +304,6 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
         });
 
     };
-
 
     // #endregion
 
@@ -458,6 +454,7 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
             url: 'QMS/QualityProcess/GetQualityProcessArticle?masterId=' + $scope.ModelNew.Id
         }).then(function successCallback(response) {
             $scope.articleList = response.data;
+            $scope.getUserNameData();
         });
     }
 
@@ -489,7 +486,86 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
 
     // #endregion Article
 
+    // #region UserName
+    $scope.UserNamemodel = { Id: Math.floor(Math.random() * 9) - 10, UserName: null, QualityProcessMasterId: $scope.ModelNew.Id };
+
+    $scope.SaveU = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.tabForm3.$valid) {
+            $http({
+                method: 'POST',
+                url: 'QMS/QualityProcess/CreateUserName',
+                data: { 'data': $scope.UserNamemodel, 'masterId': $scope.ModelNew.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getUserNameData();
+                    $scope.UserNamemodel = { Id: Math.floor(Math.random() * 9) - 10, UserName: null, QualityProcessMasterId: $scope.ModelNew.Id };
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.GetUN = function (args) {
+        $scope.UserNamemodel = Object.assign({}, args.data);
+        $scope.UAction = 'Update';
+    };
+
+    $scope.ClearU = function () {
+        $scope.UserNamemodel = { Id: Math.floor(Math.random() * 9) - 10, UserName: null, QualityProcessMasterId: $scope.ModelNew.Id };
+        $scope.UAction = 'Save';
+    };
+
+    $scope.UserNameList = [];
+    $scope.BudgetCodeList = [];
+    $scope.authorizationList = [];
+    $scope.popUpEmpDataList = [];
+    $scope.getUserNameData = function () {
+        $http({
+            method: 'GET',
+            url: 'QMS/QualityProcess/GetQualityProcessUserName?masterId=' + $scope.ModelNew.Id
+        }).then(function successCallback(response) {
+            $scope.UserNameList = response.data;
+            $scope.GetBudgetCodeData();
+        });
+    }
+
+    $scope.removeUN = function (obj) {
+        $scope.UNNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.UNNew.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.UNNew.UserName + ' ]';
+        angular.element(document.querySelector('#confirmUNPopUp')).modal('show');
+    }
+
+    $scope.DeleteUN = function () {
+        $http({
+            method: 'POST',
+            url: 'QMS/QualityProcess/DeleteUN?id=' + $scope.UNNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getUserNameData();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+    // #endregion UserName
+
     $scope.operationList = [];
+
 
 
     //#region BudgetCode
@@ -510,25 +586,11 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
         serverPagination: true
     };
 
-    function removeDuplicates(myArr, prop) {
-        return myArr.filter((obj, pos, arr) => {
-            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
-        });
-    }
+
     $scope.popUpDataList = [];
     $scope.popUpBudgetCode = function () {
         try {
-            var entityCode = "";
-            if ($scope.selectedEntityList.length > 0) {
-                var uniqueEntityId = removeDuplicates($scope.selectedEntityList, 'EntityId');
-                var entityCode = "";
-                if (uniqueEntityId.length > 0) {
-                    entityCode = "IN(";
-                    entityCode += Array.prototype.map.call(uniqueEntityId, function (item) { return "'" + item.EntityId + "'"; }).join(",") + ")";
-                }
-                $scope.sqlInStatement = entityCode;
-            }
-            $scope.popUpUrl = 'employees/recruitment/GetManpowerBudgetListByEntitySql?entityids=' + $scope.sqlInStatement;
+            $scope.popUpUrl = 'employees/recruitment/GetBudgetCodeList';
 
             $scope.popUpEmpDataList = [];
             $http({
@@ -536,14 +598,11 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
                 url: $scope.popUpUrl
 
             }).then(function successCallback(response) {
-                $scope.popUpDataList = response.data;
-                for (var j = 0; j < $scope.BudgetCodeList.length; j++) {
-                    for (var i = 0; i < $scope.popUpDataList.length; i++) {
-                        if ($scope.BudgetCodeList[j].BudgetId == $scope.popUpDataList[i].Id) {
-                            $scope.popUpDataList.splice(i, 1);
-                        }
-                    }
+                $scope.popUpDataList = response.data.Rows;
+                for (var i = 0; i < $scope.popUpDataList.length; i++) {
+                    $scope.popUpDataList[i].isSelected = 0;
                 }
+
             });
             angular.element(document.querySelector('#popUpId')).modal('show');
         } catch (e) {
@@ -553,7 +612,6 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
 
 
     $scope.BudgetCodeList = [];
-    $scope.popUpDataList = [];
 
     $scope.refreshTemplate = function (args) {
         $("#headchkGWS").ejCheckBox({ "change": CheckBoxSelectGWS });
@@ -579,62 +637,23 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
         gridObj.refreshContent();
     };
 
-
+    $scope.BudgetCodeList = [];
+    $scope.BCList = [];
     $scope.selectDoubleClick = function () {
         try {
             var ob = {};
             for (var i = 0; i < $scope.popUpDataList.length; i++) {
                 if ($scope.popUpDataList[i].isSelected == true) {
-                    if (checkDoubleGWS($scope.BudgetCodeList, $scope.popUpDataList[i].BudgetId) === false) {
-                        ob.Id = null;
-                        ob.Activity = $scope.popUpDataList[i].Activity;
-                        ob.BudgetId = $scope.popUpDataList[i].BudgetId;
-                        ob.Code = $scope.popUpDataList[i].Code;
-                        ob.Department = $scope.popUpDataList[i].Department;
-                        ob.DepartmentId = $scope.popUpDataList[i].DepartmentId;
-                        ob.Deployment = $scope.popUpDataList[i].Deployment;
-                        ob.Designation = $scope.popUpDataList[i].Designation;
-                        ob.DesignationId = $scope.popUpDataList[i].DesignationId;
-                        ob.Division = $scope.popUpDataList[i].Division;
-                        ob.DivisionId = $scope.popUpDataList[i].DivisionId;
-                        ob.EmployeeType = $scope.popUpDataList[i].EmployeeType;
-                        ob.EntityId = $scope.popUpDataList[i].EntityId;
-                        ob.EntityCode = $scope.popUpDataList[i].EntityCode;
-                        ob.EntityName = $scope.popUpDataList[i].EntityName;
-                        ob.Flag = $scope.popUpDataList[i].Flag;
-                        ob.IsDirect = $scope.popUpDataList[i].IsDirect;
-                        ob.IsOTEntitled = $scope.popUpDataList[i].IsOTEntitled;
-                        ob.Line = $scope.popUpDataList[i].Line;
-                        ob.LineId = $scope.popUpDataList[i].LineId;
-                        ob.PayrollGroupId = $scope.popUpDataList[i].PayrollGroupId;
-                        ob.Plant = $scope.popUpDataList[i].Plant;
-                        ob.PlantId = $scope.popUpDataList[i].PlantId;
-                        ob.PositionCode = $scope.popUpDataList[i].PositionCode;
-                        ob.PositionId = $scope.popUpDataList[i].PositionId;
-                        ob.PositionName = $scope.popUpDataList[i].PositionName;
-                        ob.Section = $scope.popUpDataList[i].Section;
-                        ob.SectionId = $scope.popUpDataList[i].SectionId;
-                        ob.ShiftDefination = $scope.popUpDataList[i].ShiftDefination;
-                        ob.ShiftDefinationId = $scope.popUpDataList[i].ShiftDefinationId;
-                        ob.SubDivision = $scope.popUpDataList[i].SubDivision;
-                        ob.SubDivisionId = $scope.popUpDataList[i].SubDivisionId;
-                        ob.SubSection = $scope.popUpDataList[i].SubSection;
-                        ob.SubSectionId = $scope.popUpDataList[i].SubSectionId;
-                        ob.Unit = $scope.popUpDataList[i].Unit;
-                        ob.UnitId = $scope.popUpDataList[i].UnitId;
-                        ob.UserGroup = $scope.popUpDataList[i].UserGroup;
-                        ob.WorkGroupId = $scope.popUpDataList[i].WorkGroupId;
-                        ob.DeployedManpower = $scope.popUpDataList[i].DeployedManpower;
-                        ob.BudgetedManpower = $scope.popUpDataList[i].BudgetedManpower;
-                        ob.IsGoodWorkApplicable = false;
-                        ob.IsCompensatoryApplicable = false;
-                        ob.IsEmployeeApplicable = false;
-                        ob.GoodWorkCategory = null;
-                        $scope.BudgetCodeList.push(ob);
+                    if (checkDoubleGWS($scope.BCList, $scope.popUpDataList[i].Id) === false) {
+                        ob.Id = Math.floor(Math.random() * 9) - 10;
+                        ob.ManpowerBudgetId = $scope.popUpDataList[i].Id;
+                        ob.QualityProcessMasterId = $scope.ModelNew.Id;
+                        $scope.BCList.push(ob);
                         ob = {};
                     }
                 }
             }
+            $scope.BCSave();
             angular.element(document.querySelector('#popUpId')).modal('hide');
         } catch (e) {
             ShowResult(e, "failure");
@@ -643,7 +662,7 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
 
     function checkDoubleGWS(list, Id) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].BudgetId === Id) {
+            if (list[i].ManpowerBudgetId === Id) {
                 return true;
             }
         }
@@ -651,91 +670,73 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
     }
 
 
-    $scope.clearCode = function () {
-        $scope.employeeNew.BudgetCode = null;
-        $scope.employeeNew.Code = null;
-        $scope.employeeNew.EntityName = null;
-        $scope.employeeNew.Designation = null;
-        $scope.employeeNew.PositionName = null;
-
-        $scope.employeeNew.DesignationId = null;
-        $scope.employeeNew.UnitId = null;
-        $scope.employeeNew.DivisionId = null;
-        $scope.employeeNew.DepartmentId = null;
-        $scope.employeeNew.SectionId = null;
-        $scope.employeeNew.SubSectionId = null;
-        $scope.employeeNew.SubdivisionID = null;
-        $scope.employeeNew.LineId = null;
-        $scope.employeeNew.EmployeeCodeTypeId = null;
-        $scope.employeeNew.EmploymentType = null;
-        $scope.employeeNew.PositionID = null;
-        $scope.employeeNew.IsDirect = false;
-    };
-
-    $scope.GetOnRollByBudget = function (budgetId) {
-        try {
-            $http.get('employees/EmployeeInformation/GetOnRollByBudget?budgetId=' + budgetId)
-                .then(function (response) {
-                    if (response.data[0].TotalNumber < response.data[0].OnRollManPwr || response.data[0].TotalNumber == response.data[0].OnRollManPwr) {
-                        ShowResult("On Roll Manpower is exceeding Budgeted Manpower.", 'failure', 'popUpId');;
-                    }
-                    else {
-                        angular.element(document.querySelector('#popUpId')).modal('hide');
-                    }
-                });
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
     $scope.closePopUp = function () {
         $scope.valueData = '';
         angular.element(document.querySelector('#popUpId')).modal('hide');
         angular.element(document.querySelector('#LDPopUp')).modal('hide');
     };
-
-    $scope.callbackbuttoncancel = function () {
-        $scope.closePopUp();
+       
+    $scope.BCSave = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: "QMS/QualityProcess/CreateBudgetCode",
+                data: {
+                    'data': $scope.BCList
+                    , 'masterId': $scope.ModelNew.Id
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetBudgetCodeData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
 
-    $scope.BCSave = function () {
+    $scope.GetBudgetCodeData = function () {
+        $http({
+            method: 'GET',
+            url: "QMS/QualityProcess/GetQualityProcessManpowerBudget?masterId=" + $scope.ModelNew.Id
+        }).then(function (response) {
+            $scope.BudgetCodeList = response.data;
+            //$scope.GetBudgetedEmployee();
+        });
+    }
 
-        for (var i = 0; i < $scope.BudgetCodeList.length; i++) {
-            if (baseService.isUndefinedOrNull($scope.BudgetCodeList[i].GoodWorkCategory) || $scope.BudgetCodeList[i].GoodWorkCategory === 0) {
-                ShowResult('Good Work Category can not be blank...');
-                return false;
-            }
-        }
+    $scope.removeBC = function (obj) {
+        $scope.BCNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.BCNew.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.BCNew.Code + ' ]';
+        angular.element(document.querySelector('#confirmBCPopUp')).modal('show');
+    }
+
+    $scope.DeleteBC = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "CreateBudgetCode",
-            data: {
-                'data': $scope.BudgetCodeList
-                , 'goodWorkSetupId': $scope.ModelNew.Id
-            },
-            dataType: 'JSON'
+            url: 'QMS/QualityProcess/DeleteQualityProcessManpowerBudget?id=' + $scope.BCNew.Id
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.GetGoodWorkBudgetCodeData();
+                $scope.GetBudgetCodeData();
             }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        }
-    };
-
-    $scope.GetGoodWorkBudgetCodeData = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + "GetGoodWorkBudgetCodeSetupData?goodWorkSetupId=" + $scope.ModelNew.Id
-        }).then(function (response) {
-            $scope.BudgetCodeList = response.data;
-            $scope.GetBudgetedEmployee();
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
         });
-    }
 
+    };
 
     //#endregion BudgetCode
 

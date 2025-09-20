@@ -308,6 +308,9 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/SalesOrderUpdate/SalesOrderReviseDate',
             controller: 'salesOrderRevisedateController'
         })
-    
+        .when('/mo-upload', {
+            templateUrl: 'OrderManagements/masterOrder/Upload',
+            controller: 'masterOrderUploadController'
+        })
         ;
 }

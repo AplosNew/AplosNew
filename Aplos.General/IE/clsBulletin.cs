@@ -31,7 +31,7 @@ namespace Library.General.IE
         {
             try
             {
-                string sql = @"SELECT BTD.Id,BTD.BulletinTemplateMasterId,BTD.Sequence,BTD.OperationVariationId,BTD.OperationGroup,BTD.SkillId,BTD.MachineVarientId,BTD.FGZoneId,BTD.FGComponentId
+                string sql = @"SELECT BTD.Id,BTD.BulletinTemplateMasterId,BTD.Sequence,BTD.OperationVariationId,BTD.OperationGroup,BTD.SkillMasterId,BTD.MachineVarientId,BTD.FGZoneId,BTD.FGComponentId
                             ,CONVERT(NUMERIC(10,2),BTD.AdditionalSPT) AdditionalSPT, CONVERT(NUMERIC(10,2),BTD.TotalSPT) TotalSPT, CONVERT(NUMERIC(10,2),BTD.AllotedWorkstation) AllotedWorkstation
                             , CONVERT(NUMERIC(10,2),BTD.AllotedManpower) AllotedManpower, BTD.AttachmentId,BTD.GaugeFolderId,BTD.OperationConsumptionId,BTD.OperationTypeId,CONVERT(NUMERIC(10,2),BTD.Frequency) Frequency
                             ,BTD.Remark,BTD.OperationCategoryId,BTD.QualityLevel,CONVERT(NUMERIC(10,2),BTD.AvgAllotedTime) AvgAllotedTime,CONVERT(NUMERIC(10,0),BTD.OperationTargetPerHr) OperationTargetPerHr
@@ -57,7 +57,7 @@ namespace Library.General.IE
                              LEFT JOIN HKP.OperationType OT ON OT.Id=BTD.OperationTypeId
                              LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id = BTD.MachineVarientId
                              LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=MMA.MaterialMasterId
-							 LEFT JOIN [HKP].[Skill] AS SK ON BTD.SkillId=Sk.Id
+							 LEFT JOIN  MST.OperationMaster AS SK ON BTD.SkillMasterId=Sk.Id
                              LEFT JOIN [HKP].StitchCode AS SC ON BTD.StitchCodeId=SC.Id
 
                              LEFT JOIN [MST].[MaterialMaster] MMN ON MMN.Id=BTD.NeedleMaterialMasterId

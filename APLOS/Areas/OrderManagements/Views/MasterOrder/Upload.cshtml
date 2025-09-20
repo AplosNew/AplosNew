@@ -1,0 +1,181 @@
+﻿<div class="site-tab">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Master Order</a></li>
+        <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" data-toggle="tab">Line Item</a></li>
+        <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);" href="" data-toggle="tab">Sales Order</a></li>
+    </ul>
+</div>
+<div class="tab-content">
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+        <togglable name="Master Order"></togglable>
+        <div class="form-elements form-horizontal row" ng-form name="ModelNewForm">
+            <div class="col-md-12">
+                <div class="col-md-8">
+                    <div class="inputBtnSection common-btn">
+                        <label class="fileUpload col-sm-4 ">
+                            <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                        </label>
+                        <input type="button" value="Import Data" class="btn btn-success"
+                               ng-click="ImportData()" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="GetSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File Download</button></li>
+                            <li ng-show="ShowSaveBtn"> <button ng-click="SaveMOData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="GridMO"
+                     ng-init="chkinit()"
+                     ej-grid e-datasource="moData"
+                     e-allowfiltering="true"
+                     e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowscrolling="true"
+                     e-pagesettings-pagesize="25"
+                     e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="CompanyId" e-headertext="CompanyId" e-width="60"></div>
+                        <div e-column e-field="PlantId" e-headertext="PlantId" e-width="100"></div>
+                        <div e-column e-field="EntityId" e-headertext="EntityId" e-width="100"></div>
+                        <div e-column e-field="CustomerId" e-headertext="CustomerId" e-width="100"></div>
+                        <div e-column e-field="TotalQty" e-headertext="TotalQty" e-width="100"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 ">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li ng-show="ShowSaveBtn"> <button ng-click="SaveMOData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+        @*<div class="common-btn">
+            <ul class="list-inline text-left">
+                <li> <button ng-click="XlsReport();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
+            </ul>
+        </div>*@
+        <togglable name="Master Order Item"></togglable>
+        <div class="form-elements form-horizontal row" ng-form name="ModelNew2Form">
+            <div class="col-md-12">
+                <div class="col-md-8">
+                    <div class="inputBtnSection common-btn">
+                        <label class="fileUpload col-sm-4 ">
+                            <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                        </label>
+                        <input type="button" value="Import Data" class="btn btn-success"
+                               ng-click="ImportMOIData()" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="GetMOISampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File Download</button></li>
+                            <li ng-show="ShowSaveBtn"> <button ng-click="SaveMOIData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="GridMOI"
+                     ng-init="chkinit()"
+                     ej-grid e-datasource="itemData"
+                     e-allowfiltering="true"
+                     e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowscrolling="true"
+                     e-pagesettings-pagesize="25"
+                     e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="OperationVariationId" e-headertext="OperationVariationId" e-width="60"></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>
+                        <div e-column e-field="OperationVariation" e-headertext="OperationVariation" e-width="100"></div>
+                        <div e-column e-field="Operation" e-headertext="Operation" e-width="100"></div>
+                        <div e-column e-field="SKillMaster" e-headertext="SKillMaster" e-width="100"></div>
+                        <div e-column e-field="MachineMaster" e-headertext="MachineMaster" e-width="50"></div>
+                        <div e-column e-field="EmpSystemId" e-headertext="EmpSystemId" e-width="60"></div>
+                        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="100"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 ">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li ng-show="ShowSaveBtn"> <button ng-click="SaveMOIData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+        @*<div class="common-btn">
+            <ul class="list-inline text-left">
+                <li> <button ng-click="XlsAReport();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
+            </ul>
+        </div>*@
+        <div class="form-elements form-horizontal row" ng-form name="ModelNew2Form">
+            <div class="col-md-12">
+                <div class="col-md-8">
+                    <div class="inputBtnSection common-btn">
+                        <label class="fileUpload col-sm-4 ">
+                            <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                        </label>
+                        <input type="button" value="Import Data" class="btn btn-success"
+                               ng-click="ImportMOIData()" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="GetSOSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File Download</button></li>
+                            <li ng-show="ShowSaveBtn"> <button ng-click="SaveSOData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="GridSO"
+                     ng-init="chkinit()"
+                     ej-grid e-datasource="SOData"
+                     e-allowfiltering="true"
+                     e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowscrolling="true"
+                     e-pagesettings-pagesize="25"
+                     e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="OperationVariationId" e-headertext="OperationVariationId" e-width="60"></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>
+                        <div e-column e-field="OperationVariation" e-headertext="OperationVariation" e-width="100"></div>
+                        <div e-column e-field="Operation" e-headertext="Operation" e-width="100"></div>
+                        <div e-column e-field="SKillMaster" e-headertext="SKillMaster" e-width="100"></div>
+                        <div e-column e-field="MachineMaster" e-headertext="MachineMaster" e-width="50"></div>
+                        <div e-column e-field="EmpSystemId" e-headertext="EmpSystemId" e-width="60"></div>
+                        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="100"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 ">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li ng-show="ShowSaveBtn"> <button ng-click="SaveSOData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

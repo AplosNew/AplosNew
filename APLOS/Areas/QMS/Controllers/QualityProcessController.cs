@@ -275,7 +275,6 @@ namespace Aplos.Areas.QMS.Controllers
         #region QualityProcessMaster
 
         [HttpPost]
-
         public JsonResult CreateQualityProcess(Dictionary<string, object> data)
         {
             try
@@ -325,6 +324,79 @@ namespace Aplos.Areas.QMS.Controllers
             {
 
                 return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost]
+        public JsonResult CreateUserName(Dictionary<string, object> data, string masterId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+               
+                con.OpenDataSetThroughAdapter("select * from dbo.QualityProcessUserName where UserName='" + data["UserName"] + "' AND  QualityProcessMasterId<>'" + masterId + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Quality Process User Name already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from dbo.QualityProcessUserName where QualityProcessMasterId='" + masterId + "'", out dsMaster, false, "1");
+
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    
+                    data["QualityProcessMasterId"] = masterId;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetQualityProcessUserName(string masterId)
+        {
+
+            string sql = @"select * from dbo.QualityProcessUserName where QualityProcessMasterId='" + masterId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult DeleteUN(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from QualityProcessUserName where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
 
             }
         }
@@ -564,6 +636,101 @@ Where SM.QualityProcessMasterId='" + masterId + "'";
 
             }
         }
+
+        [HttpPost, Authorize]
+        public ActionResult CreateBudgetCode(List<Dictionary<string, object>> data, string masterId)
+        {
+            try
+            {
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string sql = "";
+
+                sql = "SELECT * FROM [dbo].[QualityProcessManpowerBudget] WHERE 1=2";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                foreach (var item in data)
+                {
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+                        dr["QualityProcessMasterId"] = item["QualityProcessMasterId"];
+                        dr["ManpowerBudgetId"] = item["ManpowerBudgetId"];
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+
+                }
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetQualityProcessManpowerBudget(string masterId)
+        {
+
+            string sql = @"SELECT QMB.Id, PMB.Code, PMB.EntityId, ERD.UserName AS EntityName, PMB.PositionId, PRD.UserName AS PositionName,PRD.Code PositionCode,ERD.Code EntityCode, 
+PMB.EmploymentType, PMB.IsOTEntitled, PMB.PayrollGroupId, PMB.WorkGroupId, PMB.Deployment, PRD.IsDirect , ERD.PlantId, 
+(SELECT UserName FROM  [ORG].[Plant] WHERE Id=ERD.PlantId) AS [Plant], ERD.DivisionId, 
+(SELECT UserName FROM  [ORG].[Division] WHERE Id=ERD.DivisionId) AS [Division],
+ERD.UnitId, (SELECT UserName FROM  [ORG].[Unit] WHERE Id=ERD.UnitId) AS [Unit], PRD.DepartmentId, 
+(SELECT UserName FROM [ORG].[Department] WHERE Id=PRD.DepartmentId) AS [Department], PRD.SectionId, 
+(SELECT UserName FROM [ORG].[Section] WHERE Id=PRD.SectionId) AS [Section], PRD.SubSectionId, 
+(SELECT UserName FROM [ORG].[SubSection] WHERE Id=PRD.SubSectionId) AS [SubSection], PMB.LineId, 
+(SELECT UserName FROM  [ORG].[Line] WHERE Id=PMB.LineId) AS [Line] , PMB.ShiftDefinationId, 
+(SELECT UserName FROM  [dbo].[ShiftDefination] WHERE SystemID=PMB.ShiftDefinationId) AS [ShiftDefination] , 
+PRD.DesignationId, (SELECT UserName FROM [HKP].[Designation] WHERE Id=PRD.DesignationId) AS [Designation]  
+FROM [dbo].[QualityProcessManpowerBudget] QMB
+LEFT JOIN [MST].[ManpowerBudget] AS PMB ON PMB.Id=QMB.ManpowerBudgetId
+INNER JOIN ORG.Entity AS ERD ON PMB.EntityId=ERD.Id 
+INNER JOIN ORG.Position AS PRD ON PMB.PositionId = PRD.Id 
+WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='"+ masterId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult DeleteQualityProcessManpowerBudget(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from QualityProcessManpowerBudget where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+
         #endregion
 
     }
