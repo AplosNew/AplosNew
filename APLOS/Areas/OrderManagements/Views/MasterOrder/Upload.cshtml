@@ -67,14 +67,38 @@
         </div>*@
         <togglable name="Master Order Item"></togglable>
         <div class="form-elements form-horizontal row" ng-form name="ModelNew2Form">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select name="Company" class="form-control" ng-model="fileNew.CompanyId" ng-options="item.Value as item.Text for item in companyList" required>
+                                <option value="">--Select--</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">MasterOrderNo<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <input type="text" name="MasterOrderNo" ng-model="fileNew.MasterOrderNo" class="form-control" readonly required>
+                            <span class="input-group-btn">
+                                <button ng-click="ShowMasterOrder();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="col-md-12">
                 <div class="col-md-8">
                     <div class="inputBtnSection common-btn">
                         <label class="fileUpload col-sm-4 ">
-                            <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                            <input id="uploadMOIImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadMOIFile" accept=".xls,.xlsx" />
                         </label>
-                        <input type="button" value="Import Data" class="btn btn-success"
-                               ng-click="ImportMOIData()" />
+                        <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportMOIData()" />
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -92,21 +116,22 @@
             <div class="col-sm-12">
                 <div id="GridMOI"
                      ng-init="chkinit()"
-                     ej-grid e-datasource="itemData"
+                     ej-grid e-datasource="moiData"
                      e-allowfiltering="true"
                      e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowscrolling="true"
                      e-pagesettings-pagesize="25"
                      e-filtersettings-filterType="excel">
                     <div e-columns>
-                        <div e-column e-field="OperationVariationId" e-headertext="OperationVariationId" e-width="60"></div>
-                        <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>
-                        <div e-column e-field="OperationVariation" e-headertext="OperationVariation" e-width="100"></div>
-                        <div e-column e-field="Operation" e-headertext="Operation" e-width="100"></div>
-                        <div e-column e-field="SKillMaster" e-headertext="SKillMaster" e-width="100"></div>
-                        <div e-column e-field="MachineMaster" e-headertext="MachineMaster" e-width="50"></div>
-                        <div e-column e-field="EmpSystemId" e-headertext="EmpSystemId" e-width="60"></div>
-                        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="100"></div>
+                        <div e-column e-field="MaterialMasterId" e-headertext="MaterialMasterId" e-width="60"></div>
+                        <div e-column e-field="ArticleId" e-headertext="ArticleId" e-width="100"></div>
+                        <div e-column e-field="BuyerReferenceNo" e-headertext="BuyerReferenceNo" e-width="100"></div>
+                        <div e-column e-field="OwnReferenceNo" e-headertext="OwnReferenceNo" e-width="100"></div>
+                        <div e-column e-field="TotalQty" e-headertext="TotalQty" e-width="100"></div>
+                        <div e-column e-field="OrderWastagePercentage" e-headertext="OrderWastagePercentage" e-width="50"></div>
+                        <div e-column e-field="ExtraOrderPercentage" e-headertext="ExtraOrderPercentage" e-width="60"></div>
+                        <div e-column e-field="Type" e-headertext="Type" e-width="100"></div>
+                        <div e-column e-field="ProductionGrouping" e-headertext="ProductionGrouping" e-width="100"></div>
                     </div>
                 </div>
             </div>
@@ -120,20 +145,58 @@
         </div>
     </div>
     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+        <togglable name="Sales Order"></togglable>
         @*<div class="common-btn">
             <ul class="list-inline text-left">
                 <li> <button ng-click="XlsAReport();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
             </ul>
         </div>*@
-        <div class="form-elements form-horizontal row" ng-form name="ModelNew2Form">
+        <div class="form-elements form-horizontal row" ng-form name="ModelNew3Form">
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select name="Company" class="form-control" ng-model="fileNew.CompanyId" ng-options="item.Value as item.Text for item in companyList" required>
+                                <option value="">--Select--</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">MasterOrderNo<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <input type="text" name="MasterOrderNo" ng-model="fileNew.MasterOrderNo" class="form-control" readonly required>
+                            <span class="input-group-btn">
+                                <button ng-click="ShowMasterOrder();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">ItemNo<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <input type="text" name="ItemNo" ng-model="fileNew.ItemNo" class="form-control" readonly required>
+                            <span class="input-group-btn">
+                                <button ng-click="ShowMasterOrderItem();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="col-md-12">
                 <div class="col-md-8">
                     <div class="inputBtnSection common-btn">
                         <label class="fileUpload col-sm-4 ">
-                            <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                            <input id="uploadSOImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
                         </label>
-                        <input type="button" value="Import Data" class="btn btn-success"
-                               ng-click="ImportMOIData()" />
+                        <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportSOData()" />
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -151,21 +214,23 @@
             <div class="col-sm-12">
                 <div id="GridSO"
                      ng-init="chkinit()"
-                     ej-grid e-datasource="SOData"
+                     ej-grid e-datasource="soData"
                      e-allowfiltering="true"
                      e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowscrolling="true"
                      e-pagesettings-pagesize="25"
                      e-filtersettings-filterType="excel">
                     <div e-columns>
-                        <div e-column e-field="OperationVariationId" e-headertext="OperationVariationId" e-width="60"></div>
-                        <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>
-                        <div e-column e-field="OperationVariation" e-headertext="OperationVariation" e-width="100"></div>
-                        <div e-column e-field="Operation" e-headertext="Operation" e-width="100"></div>
-                        <div e-column e-field="SKillMaster" e-headertext="SKillMaster" e-width="100"></div>
-                        <div e-column e-field="MachineMaster" e-headertext="MachineMaster" e-width="50"></div>
-                        <div e-column e-field="EmpSystemId" e-headertext="EmpSystemId" e-width="60"></div>
-                        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="100"></div>
+                        <div e-column e-field="OrderCategoryId" e-headertext="OrderCategoryId" e-width="60"></div>
+                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DeliveryDate" e-headertext="DeliveryDate" e-width="100"></div>
+                        <div e-column e-field="ShipmentModeId" e-headertext="ShipmentModeId" e-width="100"></div>
+                        <div e-column e-field="DestinationId" e-headertext="DestinationId" e-width="100"></div>
+                        <div e-column e-field="Qty" e-headertext="Qty" e-width="100"></div>
+                        <div e-column e-field="PackingTypeId" e-headertext="PackingTypeId" e-width="50"></div>
+                        <div e-column e-field="ResponsiblePersonId" e-headertext="ResponsiblePersonId" e-width="60"></div>
+                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LSD" e-headertext="LSD" e-width="100"></div>
+                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="MainRawMaterialInhouseDate" e-headertext="MainRawMaterialInhouseDate" e-width="100"></div>
+                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="OtherRawMaterialInhouseDate" e-headertext="OtherRawMaterialInhouseDate" e-width="100"></div>
                     </div>
                 </div>
             </div>
@@ -176,6 +241,114 @@
                     </ul>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="MOPopUpNew" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <i class="glyphicon glyphicon-info-sign"></i> Master Order Info
+                </h4>
+            </div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row" ng-form name="MOInfoform">
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="SearchColumn">
+                                                <option ng-repeat="option in modelFilterByList" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="SearchValue" ng-enter="getData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div style="color:black;" id="Grid" ej-grid e-datasource="files" e-recorddoubleclick="Set"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-gridlines="vertical"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
+                                <div e-column e-type="string" e-field="MasterOrderNo" e-headertext="Master Order No" e-width="80"></div>
+                                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="CreationDate" e-headertext="Creation Date" e-width="90"></div>
+                                <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="180"></div>
+                                <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="180"></div>
+                                <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Buyer Ord#" e-width="100"></div>
+                                <div e-column e-type="string" e-field="TotalQty" e-headertext="Total Quantity" e-width="90"></div>
+                                <div e-column e-type="string" e-field="TotalAmount" e-format="{0:0.00}" e-headertext="Total Amount" e-width="90"></div>
+                                <div e-column e-type="string" e-field="ResponsiblePersonName" e-headertext="Responsible Person" e-width="180"></div>
+                                <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                                <div e-column e-type="string" e-field="UserName" e-headertext="Plant" e-width="100"></div>
+                                <div e-column e-type="string" e-field="OrderYear" e-headertext="Order Year" e-width="80"></div>
+                                <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Order#" e-width="120"></div>
+                                <div e-column e-type="string" e-field="OrderType" e-headertext="Order Type" e-width="100"></div>
+                                <div e-column e-type="string" e-field="OrderStatusId" e-headertext="Order Status" e-width="80"></div>
+                                <div e-column e-type="string" e-field="NoOfLineItem" e-headertext="Line Item No" e-width="80"></div>
+                                <div e-column e-type="string" e-field="OrderCategory" e-headertext="Order Category" e-width="80"></div>
+                                <div e-column e-type="string" e-field="InvoicingPartyPlant" e-headertext="Bill To" e-width="180"></div>
+                                <div e-column e-type="string" e-field="DeliveryPartyPlant" e-headertext="Ship To" e-width="180"></div>
+                                <div e-column e-type="string" e-field="BuyerReferenceNoItem" e-headertext="Buyer Ref. No-Item" e-width="120"></div>
+                                <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Item#" e-width="120"></div>
+                                <div e-column e-type="string" e-field="ContractNo" e-headertext="ContractNo" e-width="120"></div>
+                                <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="120"></div>
+                                <div e-column e-type="string" e-field="AddedBy" e-headertext="Created By" e-width="120"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="MOIPopUpNew" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <i class="glyphicon glyphicon-info-sign"></i> Master Order Item Info
+                </h4>
+            </div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row" ng-form name="MOInfoform">
+                    <div class="col-xs-12">
+                        <div style="color:black;" id="GridMOI" ej-grid e-datasource="moiList" e-recorddoubleclick="SetMOI"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-gridlines="vertical"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
+                                <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order No" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="180"></div>
+                                <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="MaterialMasterName" e-width="180"></div>
+                                <div e-column e-type="string" e-field="ArticleName" e-headertext="ArticleName" e-width="100"></div>
+                                <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Buyer Item#" e-width="120"></div>
+                                <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Item#" e-width="120"></div>
+                                <div e-column e-type="string" e-field="TotalQty" e-headertext="Total Quantity" e-width="90"></div>
+                                <div e-column e-type="string" e-field="ProductionGrouping" e-headertext="ProductionGrouping" e-width="180"></div>
+                                <div e-column e-type="string" e-field="Type" e-headertext="Type" e-width="100"></div>
+                                <div e-column e-type="string" e-field="ProductMaster" e-headertext="ProductMaster" e-width="100"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
