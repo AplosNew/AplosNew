@@ -2692,7 +2692,7 @@ WHERE PP.PartyId='" + partyId + @"' ORDER BY 2";
             }
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult SaveMOData(IEnumerable<MasterOrder> dataList)
         {
             try
@@ -2766,7 +2766,7 @@ WHERE PP.PartyId='" + partyId + @"' ORDER BY 2";
                         dr["OrderType"] = entity.OrderType;
                         dr["PartyId"] = entity.PartyId;
                         dr["BuyerId"] = entity.BuyerId;
-                        dr["BuyerBrandId"] = entity.BuyerBrandId == null ? DBNull.Value : entity.BuyerBrandId;
+                        dr["BuyerBrandId"] =  entity.BuyerBrandId;
                         dr["BuyerDivisionId"] = entity.BuyerDivisionId;
                         dr["MasterOrderNo"] = _Id;
                         dr["OrderStatusId"] = entity.OrderStatusId;
@@ -2817,6 +2817,303 @@ WHERE PP.PartyId='" + partyId + @"' ORDER BY 2";
             {
                 throw ex;
             }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetMOISampleFile(ReportFormat reportFormat)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            IWorkbook workbook = MasterOrder.GetMOISampleFile(identity.Name);
+            var reportFileName = "Master Order Item Upload Template";
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult ImportMOIData(FormCollection form)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                List<MasterOrderItem> data = new List<MasterOrderItem>();
+
+                var file = Request.Files["file"];
+
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                else
+                {
+                    throw new CustomException(Resources.ExcelUploadError);
+                }
+                string path = "";
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetAttendanceRawData(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+                FileInfo docFile;
+                string exception = "\r\n";
+                try
+                {
+                    try
+                    {
+                        string connString = string.Empty;
+                        ExcelEngine excelEngine = null;
+                        IApplication application = null;
+                        IWorkbook workbook = null;
+
+                        excelEngine = new ExcelEngine();
+                        application = excelEngine.Excel;
+                        workbook = excelEngine.Excel.Workbooks.Open(path);
+
+                        DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+                        DataSet dsExcel = new DataSet();
+                        dsExcel.Tables.Add(dt);
+
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            exception += "\r\nTrying to delete";
+                            docFile.Delete();
+                        }
+
+                        if (dsExcel.Tables[0].Rows.Count > 0)
+                        {
+                            for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
+                            {
+                                Library.Model.OrderManagements.MasterOrderItem vm = new Library.Model.OrderManagements.MasterOrderItem();
+
+                                vm.MaterialMasterId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.ArticleId = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                vm.BuyerReferenceNo = dsExcel.Tables[0].Rows[i][2].ToString();
+                                vm.OwnReferenceNo = dsExcel.Tables[0].Rows[i][3].ToString();                               
+                                vm.TotalQty = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][4].ToString());
+                                vm.OrderWastagePercentage = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][5].ToString());
+                                vm.ExtraOrderPercentage = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][6].ToString());
+                                vm.Type = dsExcel.Tables[0].Rows[i][7].ToString();
+                                vm.ProductionGrouping = dsExcel.Tables[0].Rows[i][8].ToString();
+                                vm.UOMId = dsExcel.Tables[0].Rows[i][9].ToString();
+                                data.Add(vm);
+
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Please Select File");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            docFile.Delete();
+                        }
+                        throw (ex);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    //throw ex;
+                }
+                finally
+                {
+                }
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+
+        [HttpPost]
+        public JsonResult SaveMOIData(IEnumerable<MasterOrderItem> dataList, string masterId)
+        {
+            _masterOrderService.SaveMOIData(dataList, masterId);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetSOSampleFile(ReportFormat reportFormat)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            IWorkbook workbook = MasterOrder.GetSOSampleFile(identity.Name);
+            var reportFileName = "Sales Order Upload Template";
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult ImportSOData(FormCollection form)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                List<SalesOrderMaster> data = new List<SalesOrderMaster>();
+
+                var file = Request.Files["file"];
+
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                else
+                {
+                    throw new CustomException(Resources.ExcelUploadError);
+                }
+                string path = "";
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetAttendanceRawData(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+                FileInfo docFile;
+                string exception = "\r\n";
+                try
+                {
+                    try
+                    {
+                        string connString = string.Empty;
+                        ExcelEngine excelEngine = null;
+                        IApplication application = null;
+                        IWorkbook workbook = null;
+
+                        excelEngine = new ExcelEngine();
+                        application = excelEngine.Excel;
+                        workbook = excelEngine.Excel.Workbooks.Open(path);
+
+                        DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+                        DataSet dsExcel = new DataSet();
+                        dsExcel.Tables.Add(dt);
+
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            exception += "\r\nTrying to delete";
+                            docFile.Delete();
+                        }
+
+                        if (dsExcel.Tables[0].Rows.Count > 0)
+                        {
+                            for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
+                            {
+                                SalesOrderMaster vm = new SalesOrderMaster();
+
+                                vm.OrderCategoryId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.DeliveryDate =Convert.ToDateTime(dsExcel.Tables[0].Rows[i][1].ToString().Trim());
+                                vm.ShipmentModeId = dsExcel.Tables[0].Rows[i][2].ToString();
+                                vm.DestinationId = dsExcel.Tables[0].Rows[i][3].ToString();
+                                vm.Qty = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][4].ToString());
+                                vm.PackingTypeId = dsExcel.Tables[0].Rows[i][5].ToString();
+                                vm.ResponsiblePersonId = dsExcel.Tables[0].Rows[i][6].ToString();
+                                vm.LSD = Convert.ToDateTime(dsExcel.Tables[0].Rows[i][7].ToString());
+                                vm.MainRawMaterialInhouseDate = Convert.ToDateTime(dsExcel.Tables[0].Rows[i][8].ToString());
+                                vm.OtherRawMaterialInhouseDate = Convert.ToDateTime(dsExcel.Tables[0].Rows[i][8].ToString());
+                                data.Add(vm);
+
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Please Select File");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            docFile.Delete();
+                        }
+                        throw (ex);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    //throw ex;
+                }
+                finally
+                {
+                }
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+
+        [HttpPost]
+        public JsonResult SaveSOData(IEnumerable<SalesOrderMaster> dataList, string masterId)
+        {
+            _masterOrderService.SaveSOData(dataList, masterId);
+            return Json(new { Message = AplosMessage.Insert });
         }
 
     }

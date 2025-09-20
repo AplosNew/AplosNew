@@ -100,5 +100,7 @@ namespace Library.Service.OrderManagements
         void UpdateSORate(SalesOrderMaster salesOrderMaster);
         void UpdateSOQTY(SalesOrderMaster salesOrderMaster);
         void UpdateSOStatus(SalesOrderMaster salesOrderMaster);
+        void SaveMOIData(IEnumerable<MasterOrderItem> dataList, string masterId);
+        void SaveSOData(IEnumerable<SalesOrderMaster> dataList, string masterId);
     }
 }

@@ -684,7 +684,7 @@ namespace Library.Service.OrderManagements
                         LEFT JOIN dbo.ProductLibrary PL ON PL.Id=MOI.ProductLibraryId
                         LEFT JOIN dbo.OrderCostingMasterTemplate OCT ON OCT.Id=MOI.OrderCostingMasterTemplateId
                         WHERE MOI.MasterOrderId='" + masterOrderId + @"' AND MOI.Id IN(Select distinct SO.MasterOrderItemId from  TRN.SalesOrder SO
-Where SO.CheckByStatus = 'Checked' AND ApprovedStatus = 'To Be Approve' AND SO.ApproveBy = '"+ empId + "')";
+Where SO.CheckByStatus = 'Checked' AND ApprovedStatus = 'To Be Approve' AND SO.ApproveBy = '" + empId + "')";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -868,7 +868,7 @@ Where SO.CheckByStatus = 'Checked' AND ApprovedStatus = 'To Be Approve' AND SO.A
             }
         }
 
-       
+
 
         public IEnumerable<object> GetpackingTypeList(string SOId, string PackingType)
         {
@@ -1375,7 +1375,7 @@ Where SO.CheckByStatus = 'Checked' AND ApprovedStatus = 'To Be Approve' AND SO.A
                 }
                 base.Insert(entity);
 
-                
+
                 if (userRemarksControl.RemarkControlId != null)
                 {
                     userRemarksControl.Id = entity.Id;
@@ -1399,7 +1399,7 @@ Where SO.CheckByStatus = 'Checked' AND ApprovedStatus = 'To Be Approve' AND SO.A
 
                 TaskScheduler.TaskScheduler schedule = new TaskScheduler.TaskScheduler(_sqlRepository);
                 schedule.CopyTaskTemplate(entity.Id);
-                
+
             }
             catch (Exception ex)
             {
@@ -1729,7 +1729,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
                         {
                             count++;
                             item.ProductionGrouping = RemoveSpace(item.ProductionGrouping);
-                            item.Id =MakePK(masterId, count, 2);
+                            item.Id = MakePK(masterId, count, 2);
                             item.MasterOrderId = masterId;
                             AuditService.AddedLog(item);
                             _itemRepository.Insert(item);
@@ -1932,7 +1932,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
                                 INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
                                 WHERE mo.id='" + entity.Id + "' and os.Id<>'" + Library.Model.Enums.OrderStatusEnum.Closed.ToString() + @"' AND ISNULL(mo.TaskTemplateMasterId,'')='" + dtm.Rows[0]["TaskTemplateMasterId"].ToString() + "'";
 
-               DataTable dtMasterReferenceData = _sqlRepository.GetDataTable(sql);
+                DataTable dtMasterReferenceData = _sqlRepository.GetDataTable(sql);
                 for (int i = 0; i < dtMasterReferenceData.Rows.Count; i++)
                 {
                     try
@@ -2362,7 +2362,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
                 var itemQty = _itemRepository.Query(t => t.Id == salesOrderMaster.MasterOrderItemId).Select(t => t.TotalQty).FirstOrDefault();
                 var soTotalQty = _salesOrderRepository.Query(t => t.Id != salesOrderMaster.Id && t.MasterOrderItemId == salesOrderMaster.MasterOrderItemId).Select(t => t.Qty).Sum() + salesOrderMaster.Qty;
 
-               
+
 
                 if (soTotalQty > itemQty)
                     throw new CustomException("Sum of sales order quantity can't be greater than " + itemQty);
@@ -2445,14 +2445,14 @@ WHERE MOI.MasterOrderId='" + id + "'";
         {
             try
             {
-               
+
                 if (!string.IsNullOrEmpty(salesOrderMaster.Id))
                 {
                     var sodata = _salesOrderRepository.Find(salesOrderMaster.Id);
                     AuditService.UpdatedLog(sodata);
                     sodata.CheckByStatus = salesOrderMaster.CheckByStatus;
                     sodata.ApproveBy = salesOrderMaster.ApproveBy;
-                    if (sodata.CheckByStatus=="Checked")
+                    if (sodata.CheckByStatus == "Checked")
                     {
                         sodata.ApprovedStatus = "To Be Approve";
                     }
@@ -2460,7 +2460,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
 
                     _salesOrderRepository.Update(sodata);
                 }
-             
+
                 _unitOfWork.SaveChanges();
 
             }
@@ -2485,12 +2485,12 @@ WHERE MOI.MasterOrderId='" + id + "'";
                 CmdText = @"Select distinct MA.OrderStatusId from  TRN.SalesOrder S 
 left  join TRN.MasterOrderItem M ON M.Id=S.MasterOrderItemId
 left  join TRN.MasterOrder MA ON MA.Id=M.MasterOrderId
-Where S.MasterOrderItemId='"+ moItemId + "'"
+Where S.MasterOrderItemId='" + moItemId + "'"
             };
             return _sqlRepository.GetGridData(parameters).Source;
         }
 
-        public void ApproveSOGraph(MasterOrder entity,SalesOrderMaster salesOrderMaster)
+        public void ApproveSOGraph(MasterOrder entity, SalesOrderMaster salesOrderMaster)
         {
             try
             {
@@ -4873,7 +4873,7 @@ Where S.MasterOrderItemId='"+ moItemId + "'"
                         sodata.CheckByDate = salesOrderMaster.CheckByDate;
                         sodata.ApproveBy = salesOrderMaster.ApproveBy;
                         sodata.ApprovedStatus = salesOrderMaster.ApprovedStatus;
-                        sodata.ApproveByDate  = salesOrderMaster.ApproveByDate;
+                        sodata.ApproveByDate = salesOrderMaster.ApproveByDate;
 
                     }
 
@@ -4897,8 +4897,70 @@ Where S.MasterOrderItemId='"+ moItemId + "'"
             }
         }
 
+        public void SaveMOIData(IEnumerable<MasterOrderItem> dataList, string masterId)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var count = _itemRepository.SqlQuery<int>($"SELECT CAST((RIGHT(ISNULL(MAX(CAST(Id AS INT)), 0),2)) AS INT) Id FROM [TRN].[MasterOrderItem] WHERE MasterOrderId='{masterId}'").First();
+                foreach (var item in dataList)
+                {
+                    if (item.TotalQty == 0) throw new CustomException("Add Qty");
+                    if (string.IsNullOrEmpty(item.Id))
+                    {
+                        count++;
+                        item.ProductionGrouping = RemoveSpace(item.ProductionGrouping);
+                        item.Id = MakePK(masterId, count, 2);
+                        item.MasterOrderId = masterId;
+                        AuditService.AddedLog(item);
+                        _itemRepository.Insert(item);
+                    }
 
+                }
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
+        public void SaveSOData(IEnumerable<SalesOrderMaster> dataList, string masterId)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var count = _salesOrderRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[SalesOrder] WHERE MasterOrderItemId='{masterId}'").First();
+                foreach (var item in dataList)
+                {
+                    if (item.DestinationId=="NULL")
+                    {
+                        item.DestinationId = null;
+                    }
+                    count++;
+                    item.Id = MakePK(masterId, count, 2);
+                    item.MasterOrderItemId = masterId;
+                    item.OrderStatusId = null;
+                    item.CheckByStatus = "To Be Check";
+                    AuditService.AddedLog(item);
+                    _salesOrderRepository.Insert(item);
+
+                }
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 
 
