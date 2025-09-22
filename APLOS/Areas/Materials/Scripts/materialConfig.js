@@ -134,6 +134,10 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/MachineBudget/',
             controller: 'machineBudgetController'
         })
+        .when('/machine-transfer', {
+            templateUrl: 'materials/MachineBudget/MachineTransfer',
+            controller: 'machineTransferController'
+        })
         .when('/material-storage', {
             templateUrl: 'materials/materialStorage/',
             controller: 'materialStorageController'

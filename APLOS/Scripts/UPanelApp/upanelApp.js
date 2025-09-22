@@ -779,6 +779,7 @@ upanelApp.controller('ConfirmationController', ConfirmationController);
 upanelApp.controller('ApprovalController', ApprovalController);
 upanelApp.controller('CropRateLocationController', CropRateLocationController);
 upanelApp.controller('machineBudgetController', machineBudgetController);
+upanelApp.controller('machineTransferController', machineTransferController);
 upanelApp.controller('DailyCropRateController', DailyCropRateController);
 upanelApp.controller('FarmingCategoryController', FarmingCategoryController);
 upanelApp.controller('TransactionTypeController', TransactionTypeController);
