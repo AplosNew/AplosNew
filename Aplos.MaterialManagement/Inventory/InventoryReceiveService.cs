@@ -19446,7 +19446,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
             string strSQL;
             try
             {
-                strSQL = @"SELECT IR.Id IssueNo
+                strSQL = @"SELECT IR.Id IssueNo,IR.Id SalesNo
                 ,IR.CompanyGroupId
 				,HSNC.Code HSNCode
                 ,IR.CompanyId
@@ -19454,7 +19454,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 ,null PODepended
                 ,IR.Id PONumber
                 ,IR.IssueRequestMasterId
-                ,REPLACE(Convert(VARCHAR(11), IR.SalesDate, 106), ' ', '-') AS PODate
+                ,REPLACE(Convert(VARCHAR(11), IR.SalesDate, 106), ' ', '-') AS SalesDate
                 ,null BaseOnDueDate
                 ,NULL AS MatureDate
                 ,null InvoicingPartyPlantId
@@ -19530,7 +19530,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 ,E4.EmployeeName ReceivedBy
                 ,CC.UserName CostCenter
                 ,IRD.Comments
-               ,BILLADD.Address1 BillTo
+               ,BILLADD.Address1 BillTo,PPI.GSTIN CustomerGSTINO
                 ,ShipADD.Address1 ShipTo
                 ,IRD.InventorySalesId
                 ,Pr.UserName CustomerName
