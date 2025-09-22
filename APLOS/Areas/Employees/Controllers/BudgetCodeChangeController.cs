@@ -144,7 +144,7 @@ DesignationId=(select DesignationId from  ORG.Position where Id =(select Positio
         [HttpGet, Authorize]
         public ActionResult GetCurrentFileList()
         {
-            var str = @"Select EmployeeCode, EmployeeName , BudgetCode from dbo.EmployeeInformation";
+            var str = @"Select EmployeeCode, EmployeeName , BudgetCode from dbo.EmployeeInformation Where EmployeeStatus='Active' AND EmpType<>'Guest'";
             return Json(_sqlRepository.GetDataCollection(str),JsonRequestBehavior.AllowGet);
         }
 

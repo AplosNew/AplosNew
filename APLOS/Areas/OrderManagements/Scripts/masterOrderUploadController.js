@@ -240,6 +240,9 @@ function masterOrderUploadController(commonMessage, $scope, $rootScope, baseServ
 
     $scope.SaveMOIData = function () {
         try {
+            if (baseService.isUndefinedOrNull($scope.fileNew.MasterOrderNo)) {
+                throw "MasterOrderNo is required.";
+            }
             $scope.ShowSaveBtn = true;
             $http({
                 method: 'POST',
@@ -339,6 +342,9 @@ function masterOrderUploadController(commonMessage, $scope, $rootScope, baseServ
 
     $scope.SaveSOData = function () {
         try {
+            if (baseService.isUndefinedOrNull($scope.fileNew.ItemNo)) {
+                throw "ItemNo is required.";
+            }
             $scope.ShowSaveBtn = true;
             $http({
                 method: 'POST',
