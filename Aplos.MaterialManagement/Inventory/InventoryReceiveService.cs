@@ -19583,8 +19583,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=IR.DeliveryPartyPlantId
 				LEFT JOIN [MST].[AddressMaster] AS ShipADD ON ShipADD.Id=PPI1.AddressMasterId
                 LEFT JOIN [HKP].[Party] AS Pr ON Pr.Id=IR.CustomerId
-
-                         WHERE IR.Id ='" + OrderMasterID + "'";
+                WHERE IR.Id ='" + OrderMasterID + "'";
 
                 return _sqlRepository.GetDataTable(strSQL);
 
