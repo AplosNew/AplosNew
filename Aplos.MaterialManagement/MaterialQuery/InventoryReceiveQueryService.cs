@@ -3585,10 +3585,10 @@ namespace Aplos.MaterialManagement
                 ,round(SUM(isnull(TAxInfo.TaxAmount,0)),2) CGST					
 						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST
 						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST
-						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS
+						,round(isnull(TAxInfo3.TaxAmount,0),2)+VPTDS.TDSAmount TDS
 						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS
                     ,SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4)) as Payment
-                    ,( ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0)+Isnull(IRD.ChargesTaxTranAmount,0),2)+round(isnull(TAxInfo6.TaxAmount,0),2))-(SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4))) as Balance
+                    ,( ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0)+Isnull(IRD.ChargesTaxTranAmount,0),2)+round(isnull(TAxInfo6.TaxAmount,0),2))-(SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4)))- ISNULL(VPTDS.TDSAmount,0) as Balance
                     ,IR.Id GRNNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate, IR.GateEntryNo
                     ,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
                     ,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
@@ -3610,7 +3610,21 @@ namespace Aplos.MaterialManagement
 					LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
 					LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
 					LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
-                    left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id  AND I.Voucherid=IR.VoucherId		
+                     left JOIN (SELECT IV.InventoryReceiveId,IV.EntityId,IV.PostingDate,IV.VoucherId,IV.CompanyCurrencyRate,SUM(IWD.Amount*IV.CompanyCurrencyRate) WrittenOffAmount 
+										FROM  trn.Invoice IV 
+										LEFT JOIN TRN.InvoiceWriteOffDetail IWD ON IWD.InvoiceId=IV.Id 
+										LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IWD.InvoiceWriteOffId
+										WHERE  ISNULL(iw.PaymentSource,'') not in ('Tax')
+										GROUP BY IV.InventoryReceiveId,IV.EntityId,IV.PostingDate,IV.VoucherId,IV.CompanyCurrencyRate
+										) as I ON I.InventoryReceiveId=IR.Id  AND I.Voucherid=IR.VoucherId
+					left JOIN (SELECT IV.InventoryReceiveId,IV.EntityId,IV.PostingDate,IV.VoucherId,IV.CompanyCurrencyRate
+					,SUM(IWD.Amount*IV.CompanyCurrencyRate) TDSAmount 
+										FROM  trn.Invoice IV 
+										LEFT JOIN TRN.InvoiceWriteOffDetail IWD ON IWD.InvoiceId=IV.Id 
+										LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IWD.InvoiceWriteOffId
+										WHERE  ISNULL(iw.PaymentSource,'')  in ('Tax')
+										GROUP BY IV.InventoryReceiveId,IV.EntityId,IV.PostingDate,IV.VoucherId,IV.CompanyCurrencyRate
+										) as VPTDS ON VPTDS.InventoryReceiveId=IR.Id  AND VPTDS.Voucherid=IR.VoucherId			
                     left join org.Entity EN ON EN.Id=I.EntityId
 					left join trn.Voucher V on V.Id=I.VoucherId
                     left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
@@ -3707,7 +3721,7 @@ namespace Aplos.MaterialManagement
                     AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN','GRNBYBOQ')
 
 					group by IR.PartyId,IR.GRNDate,IR.Id,IR.GateEntryNo,p.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount,IRD.ChargesTaxTranAmount
-					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType,PAG.UserName
+					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType,PAG.UserName ,VPTDS.TDSAmount
 					,PC.UserName,PSC.UserName,PG.UserName,IR.ToCurrencyRate,EI.EmployeeName,IR.DocDate,EN.UserName,TAxInfo.TaxAmount,TAxInfo1.TaxAmount,TAxInfo2.TaxAmount,TAxInfo3.TaxAmount,TAxInfo4.TaxAmount,TAxInfo6.TaxAmount
                     UNION ALL
 					SELECT   IR.PartyId,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') TaxID,CU.Code Currency
