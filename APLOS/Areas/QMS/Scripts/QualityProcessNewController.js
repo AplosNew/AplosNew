@@ -35,11 +35,13 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
     $scope.employee = [];
     $scope.getPopUpData = function () {
         $scope.employee = [];
+        $scope.popUpEmpDataList = [];
         $http({
             method: 'GET',
             url: 'QMS/QualityProcess/getemployeelist'
         }).then(function successCallback(response) {
             $scope.employee = response.data;
+            $scope.popUpEmpDataList = response.data;
         });
     }
     $scope.getPopUpData();
@@ -566,8 +568,6 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
 
     $scope.operationList = [];
 
-
-
     //#region BudgetCode
 
     $scope.name = null;
@@ -669,13 +669,12 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
         return false;
     }
 
-
     $scope.closePopUp = function () {
         $scope.valueData = '';
         angular.element(document.querySelector('#popUpId')).modal('hide');
         angular.element(document.querySelector('#LDPopUp')).modal('hide');
     };
-       
+
     $scope.BCSave = function () {
         try {
             $http({
@@ -708,7 +707,7 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
             url: "QMS/QualityProcess/GetQualityProcessManpowerBudget?masterId=" + $scope.ModelNew.Id
         }).then(function (response) {
             $scope.BudgetCodeList = response.data;
-            //$scope.GetBudgetedEmployee();
+            $scope.GetQPEmpData();
         });
     }
 
@@ -740,4 +739,133 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
 
     //#endregion BudgetCode
 
+    //#region Employee
+
+    $scope.GetEmployeeData = function () {
+        for (var i = 0; i < $scope.popUpEmpDataList.length; i++) {
+            $scope.popUpEmpDataList[i].chkitm = false;
+        }
+        angular.element(document.querySelector('#popUpEmp')).modal('show');
+    }
+
+    $scope.refreshTemplateEmp = function (args) {
+        $("#headchkEmp").ejCheckBox({ "change": CheckBoxSelectEmp });
+    };
+    function CheckBoxSelectEmp(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridEPopUp").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.popUpEmpDataList.length; i++) {
+                $scope.popUpEmpDataList[i].chkitm = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].chkitm = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEPopUp").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.EmpList = [];
+    $scope.selectEmp= function () {
+        try {
+            var ob = {};
+            for (var i = 0; i < $scope.popUpEmpDataList.length; i++) {
+                if ($scope.popUpEmpDataList[i].chkitm == true) {
+                    if (checkDoubleEmp($scope.EmpList, $scope.popUpEmpDataList[i].SystemID) === false) {
+                        ob.Id = Math.floor(Math.random() * 9) - 10;
+                        ob.EmpSystemId = $scope.popUpEmpDataList[i].SystemID;
+                        ob.QualityProcessMasterId = $scope.ModelNew.Id;
+                        $scope.EmpList.push(ob);
+                        ob = {};
+                    }
+                }
+            }
+            $scope.SaveEmp();
+            angular.element(document.querySelector('#popUpEmp')).modal('hide');
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    function checkDoubleEmp(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EmpSystemId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    
+
+    $scope.SaveEmp = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: "QMS/QualityProcess/CreateEmployee",
+                data: {
+                    'data': $scope.EmpList
+                    , 'masterId': $scope.ModelNew.Id
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetQPEmpData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.EmployeeList = [];
+    $scope.GetQPEmpData = function () {
+        $http({
+            method: 'GET',
+            url: "QMS/QualityProcess/GetQualityProcessEmployee?masterId=" + $scope.ModelNew.Id
+        }).then(function (response) {
+            $scope.EmployeeList = response.data
+        });
+    }
+
+    $scope.removeEmp = function (obj) {
+        $scope.EmpNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.EmpNew.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.EmpNew.EmployeeCode + ' ]';
+        angular.element(document.querySelector('#confirmEmpPopUp')).modal('show');
+    }
+
+    $scope.DeleteEmp = function () {
+        $http({
+            method: 'POST',
+            url: 'QMS/QualityProcess/DeleteQualityProcessEmployee?id=' + $scope.EmpNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetQPEmpData();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
+    //#endregion Employee
 }

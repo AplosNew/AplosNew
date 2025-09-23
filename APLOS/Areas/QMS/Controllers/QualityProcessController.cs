@@ -730,6 +730,115 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='"+ masterId + "'";
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult CreateEmployee(List<Dictionary<string, object>> data, string masterId)
+        {
+            try
+            {
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string sql = "";
+
+                sql = "SELECT * FROM [dbo].[QualityProcessEmployee] WHERE 1=2";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                foreach (var item in data)
+                {
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+                        dr["QualityProcessMasterId"] = item["QualityProcessMasterId"];
+                        dr["EmpSystemId"] = item["EmpSystemId"];
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+
+                }
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetQualityProcessEmployee(string masterId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                string CmdText = @"SELECT QE.Id,QE.EmpSystemId,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,PR.SectionId,SS.UserName SubSection
+                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
+                                        EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
+                                        FROM [dbo].[QualityProcessEmployee] QE
+                                        LEFT JOIN EmployeeInformation EMP ON EMP.SystemId=QE.EmpSystemId
+                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
+                                        LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
+                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                                        LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
+                                        LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
+                                        LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EMP.GivenDesignationId
+										LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+                                        LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
+                                        WHERE  EMP.EmployeeStatus='Active' AND QE.QualityProcessMasterId='"+masterId+@"' AND EMP.PlantId='" + identity.PlantId + @"'
+                                        ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+                var json = Json(_sqlRepository.GetDataCollection(CmdText, null), JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public ActionResult DeleteQualityProcessEmployee(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from QualityProcessEmployee where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
 
         #endregion
 
