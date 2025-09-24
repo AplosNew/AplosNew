@@ -68,7 +68,7 @@ function TaskCloserMasterController($window, $timeout, cboService, commonMessage
         }
         else {
             for (var j = 0; j < filtered.length; j++) {
-                filtered[j].CheckBoxSelect = ChkOrUnchk;
+                filtered[j].isSelected = ChkOrUnchk;
             }
         }
         var gridObj = $("#Grid").data("ejGrid");
@@ -97,7 +97,7 @@ function TaskCloserMasterController($window, $timeout, cboService, commonMessage
         }
         else {
             for (var j = 0; j < filtered.length; j++) {
-                filtered[j].CheckBoxSelect = ChkOrUnchk;
+                filtered[j].isSelected = ChkOrUnchk;
             }
         }
         var gridObj = $("#gridIssue").data("ejGrid");

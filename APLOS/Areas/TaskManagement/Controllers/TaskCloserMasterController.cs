@@ -150,7 +150,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                where ta.authorizationtype='AssignTo'
                             )as AssignMaster on AssignMaster.TaskManagerMasterId=TM.ID
 
-                            where TM.CurrentStatus <> 'Closed' and TM.AddedDate between '" + fromdate+ " 00:00:59' and  '" + todate+ " 12:00:00'";
+                            where TM.CurrentStatus <> 'Closed' AND AssignMaster.DueDate between '" + fromdate+ " 00:00:59' and  '" + todate+ " 12:00:00'";
 
 
                     }
@@ -169,7 +169,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                             FROM IssueTransaction IT 
                             LEFT JOIN EmployeeInformation ABI on ABI.SystemId = IT.AssignById
                             left join EmployeeInformation ATI on ATI.SystemId = IT.AssignToId
-                            WHERE IT.FinalStatus <> 'ToClose' and IT.AddedDate between '" + fromdate + " 00:00:59' and  '" + todate + " 12:00:00'" ;
+                            WHERE IT.FinalStatus <> 'ToClose' and IT.CloseDate between '" + fromdate + " 00:00:59' and  '" + todate + " 12:00:00'" ;
                     }
                         
                 }

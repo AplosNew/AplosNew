@@ -72,7 +72,7 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetGivenDesignationByLegalDesignationCbo(string legalDesignationId,string BudgetCode)
+        public JsonResult GetGivenDesignationByLegalDesignationCbo(string legalDesignationId, string BudgetCode)
         {
             string strSQL;
 
@@ -102,7 +102,7 @@ DesignationId=(select DesignationId from  ORG.Position where Id =(select Positio
         public JsonResult GetInActiveLegalDesignaion(string legalDesignationId)
         {
             string sql;
-          
+
             try
             {
                 sql = @"SELECT Active FROM  [HKP].[LegalDesignation] WHERE id='" + legalDesignationId + "'";
@@ -145,7 +145,7 @@ DesignationId=(select DesignationId from  ORG.Position where Id =(select Positio
         public ActionResult GetCurrentFileList()
         {
             var str = @"Select EmployeeCode, EmployeeName , BudgetCode from dbo.EmployeeInformation Where EmployeeStatus='Active' AND EmpType<>'Guest'";
-            return Json(_sqlRepository.GetDataCollection(str),JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
         #endregion
@@ -252,7 +252,6 @@ DesignationId=(select DesignationId from  ORG.Position where Id =(select Positio
 
         public List<Dictionary<string, string>> ReadData(string path)
         {
-
             DataSet dsExcel = null;
             try
             {
@@ -268,9 +267,11 @@ DesignationId=(select DesignationId from  ORG.Position where Id =(select Positio
                 {
                     for (int i = 0; i < data.Count; i++)
                     {
+
+
                         dtId.DefaultView.RowFilter = @"BudgetCode='" + data[i].BudgetCode + "'";
                         dtEd.DefaultView.RowFilter = @"EmployeeCode='" + data[i].EmployeeCode + "'";
-                        if (dtId.DefaultView.Count > 0)
+                        if (dtEd.DefaultView.Count > 0)
                         {
                             Dictionary<string, string> jj = new Dictionary<string, string>();
                             jj.Add("BudgetId", dtId.DefaultView[0]["BudgetId"].ToString());
@@ -281,7 +282,8 @@ DesignationId=(select DesignationId from  ORG.Position where Id =(select Positio
                         }
                         else
                         {
-                            throw new Exception("The Employee Code or the BudgetCode at Line no - " + i + 1 + " doesn't exist!! Please Check Again!!");
+                            //throw new Exception("The Employee Code or the BudgetCode at Line no - " + i + 1 + " doesn't exist!! Please Check Again!!");
+                            throw new Exception("The Employee Code '" + data[i].EmployeeCode + "' at Line no - " + i + " doesn't exist!! Please Check Again!!");
                         }
 
                     }
@@ -408,7 +410,7 @@ DesignationId=(select DesignationId from  ORG.Position where Id =(select Positio
             {
 
                 string empsList = "''";
-                for(int i =0;i<data.Count;i++)
+                for (int i = 0; i < data.Count; i++)
                 {
                     empsList += ",'" + data[i]["EmployeeId"] + "'";
                 }
@@ -419,9 +421,9 @@ DesignationId=(select DesignationId from  ORG.Position where Id =(select Positio
                 string TableName = "dbo.EmployeeInformation";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where SystemId in ("+empsList+")", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where SystemId in (" + empsList + ")", out dsMaster, false, "1");
 
-                for(int i =0;i<data.Count;i++)
+                for (int i = 0; i < data.Count; i++)
                 {
                     dsMaster.Tables[0].DefaultView.RowFilter = @"SystemId='" + data[i]["EmployeeId"] + "'";
 
@@ -432,7 +434,7 @@ DesignationId=(select DesignationId from  ORG.Position where Id =(select Positio
                     //dsMaster.Tables[0].DefaultView[0]["UpdatedFromIP"] = identity.IPAddress;
                     dsMaster.Tables[0].DefaultView[0].Row.EndEdit();
                 }
-                
+
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
             }
