@@ -12889,7 +12889,7 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
 
         #endregion
 
-        #region TDS Deduction
+        #region TCS Deduction
         public IWorkbook GetTCSDeductionReport(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string name)
         {
             clsReport objRpt = null;
@@ -14247,6 +14247,347 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
             {
                 throw (ex);
             }
+
+        }
+
+        #endregion
+
+        #region Non TDS Invoice
+        public IWorkbook GetNonTDSInvoiceReport(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string name)
+        {
+            clsReport objRpt = null;
+            clsReport objRptSR = null;
+            try
+            {
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                excelEngine.Excel.DefaultVersion = ExcelVersion.Excel2013;
+                var reportUtility = new ReportUtility();
+                var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2013;
+                var sheet1 = workbook.Worksheets[0];
+
+                #region Logo
+                string strPath = "";
+                Image companyLogo = null;
+                try
+                {
+                    DataTable dtCompanyImage = _sqlRepository.GetDataTable("SELECT * FROM ORG.COMPANY WHERE ID = '" + companyId + @"'");
+
+                    strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), dtCompanyImage.Rows[0]["Image"].ToString());  // IDCardEng.xlsx
+                    companyLogo = Image.FromFile(strPath);
+                }
+                catch (Exception)
+                {
+                }
+                #endregion
+                objRpt = new clsReport();
+
+                objRptSR = new clsReport(_sqlRepository);
+
+                DataTable dtRCMPayable = null;
+                string taxyearId = GetTaxYearId(fromDate, toDate, companyId);
+
+
+                dtRCMPayable = GetNonTdsInvoiceData(companyGroupId, companyId, plantId, plantName, fromDate, toDate, taxyearId);
+                if (dtRCMPayable.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found....");
+                }
+
+                DataTable dtCmp = objRptSR.SelectedCompanyDT(plantId);
+
+                DataTable dtFactory = objRptSR.SelectedPlantDT(plantId);
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+                string FactoryName = "";
+                string CmpName = "";
+                xlsRow = 6;
+                 
+
+                int PartyName = xlsCol; // Party
+                sheet1.Range[xlsRow, xlsCol].Text = "Suppliers Name";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40;
+                xlsCol++;
+
+                sheet1[xlsRow, xlsCol].Text = "PAN No";
+                int colPenNO = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 7;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                xlsCol++;
+
+
+                int GSTIN = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "GSTIN";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int igRNNo = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "GRN No";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+                xlsCol++;
+
+                int iInvoiceVoucherNo = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Voucher No";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+                xlsCol++;
+                int iInvoicePostingDate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Posting Date";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+                xlsCol++;
+                int iInvoiceDocDate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Doc Date";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+                xlsCol++;
+                int iInvoiceDocRefNo = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "DocRef No";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+                //VoucherNo
+               
+
+                int iInvoiceAmount = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Invoice Amount";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                endXlsCol = xlsCol;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+
+
+
+
+                string voucherNo = "";
+                string Percentage = "";
+                int startRow = 0;
+                int perStartRow = 0;
+                string formula = "";
+                string formula2 = "";
+                string totalFormula = "";
+                string totalFormula2 = "";
+
+                string lineItemPercentageType = "";
+                string ValueOfFixedNew = "";
+                xlsRow++;
+                startRow = xlsRow;
+                perStartRow = xlsRow;
+                bool isFirst = true;
+                int sl = 0;
+
+                //int SerialNumber = 0;
+                for (int i = 0; i < dtRCMPayable.Rows.Count; i++)
+                {
+
+                        sheet1.Range[xlsRow, PartyName].Text = dtRCMPayable.Rows[i]["PartyName"].ToString();
+                        sheet1.Range[xlsRow, GSTIN].Text = dtRCMPayable.Rows[i]["GSTIN"].ToString();
+                        sheet1.Range[xlsRow, colPenNO].Text = dtRCMPayable.Rows[i]["PanNo"].ToString();
+                        sheet1.Range[xlsRow, igRNNo].Text = dtRCMPayable.Rows[i]["InventoryReceiveId"].ToString();
+                        sheet1.Range[xlsRow, iInvoiceVoucherNo].Text = dtRCMPayable.Rows[i]["VoucherNo"].ToString();
+                        sheet1.Range[xlsRow, iInvoicePostingDate].DateTime = Convert.ToDateTime(dtRCMPayable.Rows[i]["PostingDate"].ToString());
+                        //sheet1.Range[xlsRow, iInvoicePostingDate].Text = clsStaticInfo.GetDateTaxFormate(dtRCMPayable.Rows[i]["InvoicePostingDate"].ToString());
+                        sheet1.Range[xlsRow, iInvoiceDocRefNo].Text = dtRCMPayable.Rows[i]["DocRefNo"].ToString();
+                        sheet1.Range[xlsRow, iInvoiceDocDate].DateTime = Convert.ToDateTime(dtRCMPayable.Rows[i]["DocDate"].ToString());
+                    sheet1.Range[xlsRow, iInvoiceAmount].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["Amount"].ToString());//TaxableAmount
+                        sheet1.Range[xlsRow, iInvoiceAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                        xlsRow++;
+                }
+                #region ******************Report Header******************
+
+
+
+                xlsRow = 1;
+                xlsCol = 3;
+                try
+                {
+                    if (companyLogo != null)
+                    {
+
+                        double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(GSTIN);
+                        int totalWidthPixel = (int)(totalWidth * 7.5);
+                        int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) + sheet1.GetRowHeight(3) + sheet1.GetRowHeight(3)) * 1.50);
+
+                        companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                        IPictureShape pic = null;
+
+                        pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
+                        //pic.Height = 80;
+                        //pic.Width = 220;
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
+
+                FactoryName = string.Empty;
+
+                string FactoryAddress = string.Empty;
+
+                if (dtCmp.Rows.Count > 0)
+                {
+                    CmpName = dtCmp.Rows[0]["CompanyName"].ToString();
+                }
+                else
+                {
+                    CmpName = "";
+                }
+                sheet1.Range[xlsRow, 3].Text = CmpName;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 17;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                if (dtFactory.Rows.Count > 0)
+                {
+                    //FactoryName = dsFactory.Tables[0].Rows[0]["PlantName"].ToString();
+                    FactoryName = dtFactory.Rows[0]["UserName"].ToString();
+                }
+                else
+                {
+                    FactoryName = "";
+                }
+                sheet1.Range[xlsRow, 3].Text = FactoryName;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 14;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 18;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                if (dtFactory.Rows.Count > 0)
+                {
+                    FactoryAddress = dtFactory.Rows[0]["Address1"].ToString();
+                }
+                else
+                {
+                    FactoryAddress = "";
+                }
+                sheet1.Range[xlsRow, 3].Text = FactoryAddress;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                //sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 22;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                sheet1.Range[xlsRow, 3].Text = "TDS Deduction Report From " + fromDate + " To " + toDate;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+
+                #endregion ******************Report Header******************
+
+                #region Freeze Panes
+
+                sheet1.IsDisplayZeros = false;
+                sheet1.UsedRange["A7"].FreezePanes();
+                sheet1.FirstVisibleColumn = 1;
+                sheet1.FirstVisibleRow = 6;
+
+                #endregion Freeze Panes
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = false;
+                sheet1.UsedRange.CellStyle.Font.Size = 10;
+                sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                sheet1.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                #endregion Page Setup
+
+
+                sheet1.Name = "TDS Deduction";
+                return workbook;
+            }
+            catch (System.Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        private DataTable GetNonTdsInvoiceData(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string taxyearId)
+        {
+            string strSql = "";
+            strSql = @"Declare @fromDate varchar(15)='"+ fromDate + "',@todate varchar(15)='"+ toDate + @"'
+                       SELECT  V.SourceType,P.UserName PartyName,P.VATResistrationNo PanNo,P.TINNO GSTIN,V.VoucherNo,IR.Id InventoryReceiveId,v.DocRefNo
+						,Format(IR.GRNDate,'dd-MMM-yyyy') DocDate,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate, B.UserName TaxCategoryName,B.Code ,IV.Amount  
+						FROM TRN.InventoryReceive IR 
+						LEFT JOIN TRN.AdditionalTax  A ON A.InventoryReceiveId=IR.Id
+						Left join TRN.AdditionalTaxdetail AD  ON  AD.AdditionalTaxId=A.Id
+						LEFT JOIN  [MST].[TaxCategory] B ON AD.TaxCategoryId=B.Id  
+						LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
+						LEFT JOIN TRN.Invoice IV ON IV.InventoryReceiveId=IR.Id
+						LEFT JOIN HKP.Party P ON P.Id=IR.PartyId
+						WHERE   IR.GRNDate BETWEEN @fromDate AND @todate  AND IR.PlantId='" + plantId + @"' AND IR.VoucherId<>''
+						AND IR.ID NOT IN (
+						        SELECT  IR.Id InventoryReceiveId 
+						        FROM TRN.InventoryReceive IR 
+						        LEFT JOIN TRN.AdditionalTax  A ON A.InventoryReceiveId=IR.Id
+						        Left join TRN.AdditionalTaxdetail AD  ON  AD.AdditionalTaxId=A.Id
+						        LEFT JOIN  [MST].[TaxCategory] B ON AD.TaxCategoryId=B.Id  
+						        LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
+						        WHERE B.Code='TDS'    AND IR.GRNDate BETWEEN @fromDate AND @todate  
+						        UNION ALL
+						        SELECT  IR.Id InventoryReceiveId 
+						        FROM TRN.Invoice IV 
+						        LEFT JOIN TRN.InventoryReceive IR ON IV.InventoryReceiveId=IR.Id
+						        LEFT JOIN TRN.InvoiceWriteOffDetail IWD ON IWD.InvoiceId=IV.Id 
+						        LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IWD.InvoiceWriteOffId
+						        LEFT JOIN TRN.AdditionalTax  A ON A.InvoiceWriteOffId=IW.Id
+						        Left join TRN.AdditionalTaxdetail AD  ON  AD.AdditionalTaxId=A.Id
+						        LEFT JOIN  [MST].[TaxCategory] B ON AD.TaxCategoryId=B.Id  
+						        LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
+						        WHERE  ISNULL(iw.PaymentSource,'')  in ('Tax')   AND IR.GRNDate BETWEEN @fromDate AND @todate
+						)
+				";
+
+            return _sqlRepository.GetDataTable(strSql);
 
         }
 

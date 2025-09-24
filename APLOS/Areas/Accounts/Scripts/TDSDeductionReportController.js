@@ -7,6 +7,8 @@ function TDSDeductionReportController(addressService, cboService, $scope, $rootS
         ReportFormat: "Excel",
         FromDate: $filter("dateFiltering")(Date.now()),
         ToDate: $filter("dateFiltering")(Date.now()),
+        NONTDSFromDate: $filter("dateFiltering")(Date.now()),
+        NONTDSToDate: $filter("dateFiltering")(Date.now()),
         TCSFromDate: $filter("dateFiltering")(Date.now()),
         TCSToDate: $filter("dateFiltering")(Date.now())
     };
@@ -45,6 +47,25 @@ function TDSDeductionReportController(addressService, cboService, $scope, $rootS
         }
         else {
             var url = "Accounts/TaxReport/GetTCSDeductionReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.TCSFromDate + "&toDate=" + $scope.report.TCSToDate /*+ "&taxCategoryId=" + $scope.report.TaxCategoryId*/;
+            $window.open(url, "_blank");
+        }
+    };
+
+    $scope.getNonTDSReport = function () {
+        if (baseService.isUndefinedOrNull($scope.report.FromDate)) {
+            manualValidation("div_FromDate", true, "From Date is required.");
+        }
+        else if (baseService.isUndefinedOrNull($scope.report.NONTDSToDate)) {
+            manualValidation("div_ToDate", true, "To Date is required.");
+        }
+        else if (new Date($scope.report.FromDate) > new Date($scope.report.NONTDSToDate)) {
+            manualValidation("div_FromDate", true, "From date must be below or equal to To Date");
+        }
+        else if (new Date($scope.report.NONTDSToDate) < new Date($scope.report.NONTDSFromDate)) {
+            manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
+        }
+        else {
+            var url = "Accounts/TaxReport/GetNonTDSInvoiceReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.NONTDSFromDate + "&toDate=" + $scope.report.NONTDSToDate /*+ "&taxCategoryId=" + $scope.report.TaxCategoryId*/;
             $window.open(url, "_blank");
         }
     };

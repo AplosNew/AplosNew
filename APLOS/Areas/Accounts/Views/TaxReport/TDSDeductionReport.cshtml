@@ -50,9 +50,35 @@
                 </ul>
             </div>
         </fieldset>
-        
-    </div>
-        <div class="common-btn">
 
-        </div>
+    </div>
+    <div class="col-xs-6 col-sm-6 col-md-6">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Non TDS Invoice</span></legend>
+            <div class="col-xs-6 col-sm-6 col-md-6">
+                <div class="form-group" show-errors id="div_FromDate">
+                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-9 show-message">
+                        <input type="text" name="From Date" ng-model="report.NONTDSFromDate" datepicker class="form-control" required tabindex="5">
+                    </div>
+                </div>
+                <div class="form-group" show-errors id="div_ToDate">
+                    <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-9 show-message">
+                        <input type="text" name="To Date" ng-model="report.NONTDSToDate" datepicker class="form-control" required tabindex="6">
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button ng-click="getNonTDSReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                </ul>
+            </div>
+        </fieldset>
+    </div>
+    <div class="common-btn">
+
+    </div>
 </div>
