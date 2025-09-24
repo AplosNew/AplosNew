@@ -1,6 +1,7 @@
-﻿<h3 class="site-heading">
+﻿@*<h3 class="site-heading">
     <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Separation Application
-</h3>
+</h3>*@
+<togglable name="Separation Application"></togglable>
 <style>
     * {
         box-sizing: border-box;
@@ -286,6 +287,29 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div class="GridResignationAppliedEmployee" id="GridResignationAppliedEmployeeList" ej-grid e-datasource="appliedList"
+         e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"  e-recorddoubleclick="Get"
+         e-allowscrolling="true" e-minheight="400" e-gridlines="none"
+         e-actioncomplete="actionCompleteSingleEmployee" e-height="400px"
+         e-filtersettings-filterType="excel">
+        <div e-columns>
+            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+            <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
+            <div e-column e-field="ResignationDate" e-headertext="Separation Date" e-width="100"></div>
+            <div e-column e-field="EffectiveDate" e-headertext="Effective Date" e-width="100"></div>
+            <div e-column e-template="#actiondwonloadUrl" e- e-headertext="Separation Letter" e-width="80"></div>
+
+            <div e-column e-field="DisciplinaryAction" e-headertext="Disciplinary Action" e-width="80"></div>
+            <div e-column e-field="CaseNo" e-headertext="Case No" e-width="80"></div>
+            <div e-column e-field="Letter" e-headertext="Letter" e-width="80"></div>
+        </div>
+        <script type="text/template" id="actiondwonloadUrl">
+            <a href="{{filePath+data.AttachLetter}}" style="text-decoration:underline" download="{{data.AttachLetter}}" target="_self">{{data.AttachLetter}}</a>
+        </script>
     </div>
 </div>
 <confirm-modal></confirm-modal>

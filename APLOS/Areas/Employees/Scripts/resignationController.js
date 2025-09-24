@@ -40,6 +40,42 @@ function resignationController(cboService, commonMessage, $scope, $rootScope, ba
         Entity: null,
         SeparationTypeId:null
     };
+
+    $scope.appliedList = [];
+    $scope.getPendingistData = function () {
+        try {
+            $scope.Url = 'employees/resignationapprovalmultiple/MultipleResignationAppliedList';
+            $scope.LoadList = function (pageno) {
+
+                $http({
+                    method: 'GET',
+                    url: $scope.Url,
+                    params: {},
+                    dataType: 'JSON'
+                })
+                    .then(function (response) {
+                        $scope.appliedList = response.data;
+                    }, function () {
+                        ShowResult(commonMessage.NetworkError, 'failure');
+                    }).finally(function () {
+                    });
+            };
+            $scope.LoadList();
+        } catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+    $scope.getPendingistData();
+
+
+    $scope.Get = function (args) {
+        $scope.Resignation = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
     $scope.getSeparationType = function () {
         $http({
             method: 'Get',
@@ -80,33 +116,17 @@ function resignationController(cboService, commonMessage, $scope, $rootScope, ba
             .then(function (result) {
                 $scope.imageSrc = result;
             });
-    };
-
-    //$scope.showEntity = function () {
-    //    $http.get('employees/resignation/getentitybyemployee')
-    //        .then(function (response) {
-    //            $scope.entityList = response.data;
-    //        });
-    //    angular.element(document.querySelector('#entityPopUp')).modal('show');
-    //};
-    //$scope.roleWiseMessage = function () {
-    //    $http.get('employees/resignation/getEntity')
-    //        .then(function successCallback(response) {
-    //            if (!baseService.isUndefinedOrNull(response.data.Message)) {
-    //                $scope.message = response.data.Message;
-    //            }
-    //            else {
-    //                $scope.message = response.data;
-    //            }
-    //        }
-    //        ), function errorCallBack(response) {
-    //            showResult(response.data.Message, 'failure');
-    //        };
-    //};
-    //$scope.roleWiseMessage();
+    };   
 
     $scope.Save = function () {
         try {
+            $scope.url = 'employees/resignation/create';
+            if ($scope.Action == 'Update') {
+                $scope.url = 'employees/resignation/edit';
+            }
+            else {
+                $scope.url = 'employees/resignation/create';
+            }
             Validate();
             if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
                 throw $scope.filedata.name + ' File size must be below 2 mb';
@@ -120,7 +140,7 @@ function resignationController(cboService, commonMessage, $scope, $rootScope, ba
             var formData = new FormData();
             $http({
                 method: 'POST',
-                url: 'employees/resignation/create',
+                url: $scope.url,
                 headers: { 'Content-Type': undefined },
                 transformRequest: function (data) {
                     formData.append('Resignation', angular.toJson(data.Resignation));
@@ -138,6 +158,8 @@ function resignationController(cboService, commonMessage, $scope, $rootScope, ba
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.getPendingistData();
+
                     $scope.Clear();
                     $scope.filedata = {};
                     document.getElementById('abc').value = ''

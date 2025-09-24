@@ -106,7 +106,7 @@ namespace Library.Service.Employees
         {
             try
             {
-                var sql = @"SELECT Id,UserName  FROM HKP.SeparationType where PlantId='"+ PlantId + @"'";
+                var sql = @"SELECT Id,UserName  FROM HKP.SeparationType where PlantId='" + PlantId + @"'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -374,7 +374,7 @@ namespace Library.Service.Employees
                 ConnectionManager.DAL.ConManager objCon;
                 DataSet dsMaster;
 
-                
+
                 string sql = "SELECT * FROM [trn].[Resignation] WHERE EmployeeId='" + from_ui.EmployeeId + @"'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
@@ -384,7 +384,7 @@ namespace Library.Service.Employees
 
                 DataView dv = new DataView(dsMaster.Tables[0]);
                 dv.RowFilter = "Id='" + from_ui.Id + @"'";
-                if (dv.Count==0)
+                if (dv.Count == 0)
                 {
                     DataRow dr = dsMaster.Tables[0].NewRow();
                     ID = GetPK();
@@ -392,19 +392,19 @@ namespace Library.Service.Employees
                     dr["CompanyGroupId"] = identity.CompanyGroupId;
                     dr["CompanyId"] = identity.CompanyId;
                     dr["PlantId"] = from_ui.PlantId;
-                    dr["EmployeeId"]  = from_ui.EmployeeId;
+                    dr["EmployeeId"] = from_ui.EmployeeId;
                     dr["SeparationTypeId"] = from_ui.SeparationTypeId;
-                    dr["ResignationDate"]  = from_ui.ResignationDate;
-                    dr["Reason"]  = from_ui.Reason;
-                    dr["AttachLetter"]  = from_ui.AttachLetter;
+                    dr["ResignationDate"] = from_ui.ResignationDate;
+                    dr["Reason"] = from_ui.Reason;
+                    dr["AttachLetter"] = from_ui.AttachLetter;
                     dr["EffectiveDate"] = from_ui.EffectiveDate;
-                    if (from_ui.ApprovedEffectiveDate!=null)
+                    if (from_ui.ApprovedEffectiveDate != null)
                     {
                         dr["ApprovedEffectiveDate"] = from_ui.ApprovedEffectiveDate;
                     }
-                    
-                    dr["Remarks"]  = from_ui.Remarks;
-                    dr["ApprovalStatus"]   = "Pending";
+
+                    dr["Remarks"] = from_ui.Remarks;
+                    dr["ApprovalStatus"] = "Pending";
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
                     dr["AddedFromIP"] = identity.IPAddress;
@@ -470,21 +470,21 @@ namespace Library.Service.Employees
                     DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                     dr.BeginEdit();
                     ID = dr["Id"].ToString();
-                    dr["CompanyGroupId"]  = identity.CompanyGroupId;
-                    dr["CompanyId"]  = identity.CompanyId;
-                    dr["PlantId"]  = from_ui.PlantId;
-                    dr["EmployeeId"]  = from_ui.EmployeeId;
-                    dr["ResignationDate"]  = from_ui.ResignationDate;
-                    dr["Reason"]  = from_ui.Reason;
-                    dr["AttachLetter"]  = from_ui.AttachLetter;
-                    dr["EffectiveDate"]  = from_ui.EffectiveDate;
+                    dr["CompanyGroupId"] = identity.CompanyGroupId;
+                    dr["CompanyId"] = identity.CompanyId;
+                    dr["PlantId"] = from_ui.PlantId;
+                    dr["EmployeeId"] = from_ui.EmployeeId;
+                    dr["ResignationDate"] = from_ui.ResignationDate;
+                    dr["Reason"] = from_ui.Reason;
+                    dr["AttachLetter"] = from_ui.AttachLetter;
+                    dr["EffectiveDate"] = from_ui.EffectiveDate;
                     //dr["ApprovedEffectiveDate"] = from_ui.ApprovedEffectiveDate;
                     if (from_ui.ApprovedEffectiveDate != null)
                     {
                         dr["ApprovedEffectiveDate"] = from_ui.ApprovedEffectiveDate;
                     }
-                    dr["Remarks"]  = from_ui.Remarks;
-                    dr["ApprovalStatus"]  = "Pending";
+                    dr["Remarks"] = from_ui.Remarks;
+                    dr["ApprovalStatus"] = "Pending";
                     dr["SeparationTypeId"] = from_ui.SeparationTypeId;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now;
@@ -739,10 +739,10 @@ namespace Library.Service.Employees
             try
             {
                 //OutMaster(ui);
-               
+
 
                 masterid = OutMaster(ui);
-                
+
             }
             catch (Exception ex)
             {
@@ -752,6 +752,64 @@ namespace Library.Service.Employees
             {
                 //if (flag)
                 //    _unitOfWork.Rollback();
+            }
+        }
+
+        public void Update(Resignation from_ui)
+        {
+            string ID = string.Empty;
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+
+
+                string sql = "SELECT * FROM [trn].[Resignation] WHERE Id='" + from_ui.Id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+
+                //from_db = Find(from_ui.Id);
+
+                DataView dv = new DataView(dsMaster.Tables[0]);
+                dv.RowFilter = "Id='" + from_ui.Id + @"'";
+                if (dv.Count > 0)
+                {
+                   
+                    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                    dr.BeginEdit();
+                    ID = dr["Id"].ToString();
+                    dr["CompanyGroupId"] = identity.CompanyGroupId;
+                    dr["CompanyId"] = identity.CompanyId;
+                    dr["PlantId"] = from_ui.PlantId;
+                    dr["EmployeeId"] = from_ui.EmployeeId;
+                    dr["ResignationDate"] = from_ui.ResignationDate;
+                    dr["Reason"] = from_ui.Reason;
+                    dr["AttachLetter"] = from_ui.AttachLetter;
+                    dr["EffectiveDate"] = from_ui.EffectiveDate;
+                    //dr["ApprovedEffectiveDate"] = from_ui.ApprovedEffectiveDate;
+                    if (from_ui.ApprovedEffectiveDate != null)
+                    {
+                        dr["ApprovedEffectiveDate"] = from_ui.ApprovedEffectiveDate;
+                    }
+                    dr["Remarks"] = from_ui.Remarks;
+                    dr["ApprovalStatus"] = "Pending";
+                    dr["SeparationTypeId"] = from_ui.SeparationTypeId;
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = DateTime.Now;
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+                    dr["DisciplinaryActionDetailsId"] = from_ui.DisciplinaryActionDetailsId;
+                    dr.EndEdit();
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -1003,7 +1061,7 @@ namespace Library.Service.Employees
                     if (db != null && db.ApprovalStatus == "Approved")
                     {
                         DateTime ed = (DateTime)item.ApprovedEffectiveDate;
-                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
+                        AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                         obj.SaveTotal(_plantId, ed.ToString("dd-MMM-yyyy"), item.EmployeeId, false);//Main Function for attendace Process
                     }
                 }
@@ -1181,7 +1239,7 @@ namespace Library.Service.Employees
                 {
                     _plantId = entities[i]["PlantId"].ToString();
                     AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
-                    obj.SaveTotal(_plantId, entities[i]["ApprovedEffectiveDate"].ToString(), "'"+entities[i]["EmployeeId"]+"'", false, true);
+                    obj.SaveTotal(_plantId, entities[i]["ApprovedEffectiveDate"].ToString(), "'" + entities[i]["EmployeeId"] + "'", false, true);
                 }
 
                 //foreach (var item in entities)
@@ -1595,13 +1653,14 @@ namespace Library.Service.Employees
                                                  ,Replace(CONVERT(VARCHAR(11), r.ApprovedEffectiveDate, 106), ' ', '-') ApprovedEffectiveDateOld
 												 ,r.SeparationTypeId SeparationType
 												 ,'' SeparationTypeOld
+                                                 ,r.SeparationTypeId
                                                  ,r.Remarks
                                                  ,r.Remarks RemarksOld
                                                  ,emp.SystemId EmployeeId
                                                  ,emp.EmployeeCode
                                                  ,emp.PlantId,E.UserName as Entity
                                                  ,r.AttachLetter
-                                                 ,d.UserName as Designation
+                                                 ,d.UserName as GivenDesignation,DG.UserName Designation
                                                  ,Replace(CONVERT(VARCHAR(11), emp.DOJ, 106), ' ', '-') DOJ
                                                  ,Replace(CONVERT(VARCHAR(11), emp.DOC, 106), ' ', '-') DOC
                                                  ,c.UserName as EmployeeCategory
@@ -1615,16 +1674,16 @@ namespace Library.Service.Employees
                                                  ,DD.Description Letter
 
                                                 FROM dbo.EmployeeInformation AS EMP
+												LEFT OUTER JOIN [MST].[ManpowerBudget]  PMB on PMB.id=emp.BudgetCode
+		                                        LEFT OUTER JOIN [ORG].[Position] PR ON PMB.PositionId=PR.Id
                                                 LEFT OUTER JOIN
                                                 [TRN].[Resignation] r ON r.EmployeeId=EMP.SystemId
                                                 LEFT OUTER JOIN
                                                 [HKP].[Designation] d ON d.id=EMP.GivenDesignationId
-                                                
+                                                LEFT OUTER JOIN [HKP].[Designation] DG ON PR.DesignationId=DG.Id
                                                 LEFT JOIN MST.DesignationMaster dm ON EMP.GivenDesignationId = dm.DesignationId
                                                 LEFT JOIN HKP.EmployeeCategory C ON C.Id=DM.EmployeeCategoryId
-                                                LEFT OUTER JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                                 LEFT OUTER JOIN ORG.Entity E ON PMB.EntityId=E.Id
-
 
 												left join EmployeeDisciplinaryActionDetails DAD on DAD.Id=r.DisciplinaryActionDetailsId
 												left join [HKP].[DisciplinaryActionCategory] DC on DC.id=DAD.DisciplinaryActionCategoryId
@@ -1632,7 +1691,7 @@ namespace Library.Service.Employees
 
 
                                                 WHERE ISNULL(r.id,'') <> ''
-											    AND ISNULL(r.ApprovalStatus,'') = 'Pending' AND E.PlantId='" + PlantId+@"'
+											    AND ISNULL(r.ApprovalStatus,'') = 'Pending' AND E.PlantId='" + PlantId + @"'
 											    " + str;
                 return _sqlRepository.GetDataCollection(strSql);
             }
@@ -1873,7 +1932,7 @@ namespace Library.Service.Employees
                     strkey = column + " like '%" + value + "%'";
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                
+
                 string sql = @"SELECT RT.* FROM HKP.ResignationType RT order by Sequence";
 
                 return _sqlRepository.GetDataCollection(sql, null);
@@ -1914,7 +1973,7 @@ namespace Library.Service.Employees
                     genid.GenID(TableNameHead, out _Id);
 
                     data["Id"] = _Id;
-                    
+
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else

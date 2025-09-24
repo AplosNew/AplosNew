@@ -56,24 +56,6 @@ namespace Aplos.Areas.Employees.Controllers
         #region -- Operations
 
 
-        ////[HttpGet, Authorize]
-        //public ActionResult GetEntity()
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    if ((!identity.IsControlAdmin && !identity.IsSysAdmin))
-        //    {
-        //        if (string.IsNullOrEmpty(identity.EmployeeId))
-        //            throw new CustomException(string.Format(ServiceResources.EmployeeNotMap));
-        //        var entity = _preRecruitmentEmployeeService.GetEntityByEmployee("HKP.ApprovalConfiguration", "ResignationApply", identity.EmployeeId);
-        //        if (entity == null || !entity.Any())
-        //            throw new CustomException(String.Format(ServiceResources.EmployeeNotMapWithEntity));
-        //    }
-        //    string message = null;
-        //    if (identity.IsSysAdmin)
-        //        message = ServiceResources.PreRecruitmentSysAdmin;
-        //    return Json(message, JsonRequestBehavior.AllowGet);
-        //}
-
         [HttpGet, Authorize]
         public ActionResult NewList(GridParameter parameters, string plantId)
         {
@@ -166,6 +148,62 @@ namespace Aplos.Areas.Employees.Controllers
                 }
             }
             return Json(new { Resignation = reg, Message = AplosMessage.Success });
+        }
+
+        [HttpPost]
+        public JsonResult Edit(FormCollection form, HttpPostedFileBase[] file)
+        {
+
+            var pre = form["Resignation"];
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            var reg = JsonConvert.DeserializeObject<Resignation>(pre, settings);
+            var directory = ResourcesPathReader.GetEmployeeResignationLetterPath(); //new AppSettingsReader().GetValue("RESIGNATION_LETTER", typeof(string)).ToString(); //get pic url from web config
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+            string path = Path.Combine(directory);
+            string _id = "";
+            var fileName = "";
+            var filedata = _ResignationService.GetFile(reg.Id);
+            if (file.IsNotNull())
+            {
+                for (int i = 0; i < file.Length; i++)
+                {
+                    ResourcesPathReader.IsValidFileExtention(Path.GetExtension(file[i].FileName));
+                }
+            }
+
+            _ResignationService.Update(reg);
+
+
+            if (filedata.Count > 0)
+            {
+                if (
+                    !string.IsNullOrEmpty(filedata["AttachLetter"].ToString()))
+                    fileName = filedata["AttachLetter"].ToString();
+
+                if (fileName != reg.AttachLetter)
+                    if (System.IO.File.Exists(path + _id + Path.GetExtension(fileName)))
+                        System.IO.File.Delete(path + _id + Path.GetExtension(fileName));
+            }
+
+            if (file.IsNotNull())
+            {
+                foreach (var item in file)
+                {
+                    if (item != null)
+                    {
+                        if (System.IO.File.Exists(path + item.FileName))
+                            System.IO.File.Delete(path + _id + Path.GetExtension(item.FileName));
+                        item.SaveAs(path + _id + Path.GetExtension(item.FileName));
+                    }
+                }
+            }
+            return Json(new { Resignation = reg, Message = AplosMessage.Updated });
         }
 
         [HttpPost]
