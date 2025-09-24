@@ -25,7 +25,7 @@ namespace Library.Service.Employees
         //GridModel MultipleResignationPendingList(GridParameter parameters, bool isControlAdmin, bool isSysAdmin, string companyGroupId, string companyId, string employeeId);
         IEnumerable<object> MultipleResignationAppliedPendingList(bool isControlAdmin, bool isSysAdmin, string companyGroupId, string companyId, string employeeId);
         void Save(Resignation ui, out string masterid);
-
+        void Update(Resignation from_ui);
         void ApprovalUpdate(IEnumerable<Resignation> entities, string name, string ipAddress, string companyGroupId, string companyId);
         void UpdateApprovalStatusUpdate(List<Dictionary<string, string>> entities, string name, string ipAddress, string companyGroupId, string companyId);
         void GetExperience(string empid, out int tYear, out int tMonth);

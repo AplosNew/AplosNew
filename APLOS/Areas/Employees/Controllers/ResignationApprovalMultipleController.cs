@@ -43,23 +43,7 @@ namespace Aplos.Areas.Employees.Controllers
         #endregion
 
         #region -- Operations
-        //[HttpGet, Authorize]
-        //public ActionResult GetEntity()
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    if ((!identity.IsControlAdmin && !identity.IsSysAdmin))
-        //    {
-        //        if (string.IsNullOrEmpty(identity.EmployeeId))
-        //            throw new CustomException(String.Format(ServiceResources.EmployeeNotMap.ToString()));
-        //        var entity = _preRecruitmentEmployeeService.GetEntityByEmployee("HKP.ApprovalConfiguration", "ResignationApproval", identity.EmployeeId);
-        //        if (entity == null || entity.Count() == 0)
-        //            throw new CustomException(String.Format(ServiceResources.EmployeeNotMapWithEntity.ToString()));
-        //    }
-        //    string message = null;
-        //    if (identity.IsSysAdmin)
-        //        message = ServiceResources.PreRecruitmentSysAdmin.ToString();
-        //    return Json(message, JsonRequestBehavior.AllowGet);
-        //}
+      
 
         [HttpGet,Authorize]
         public ActionResult MultipleResignationAppliedList()
@@ -67,12 +51,7 @@ namespace Aplos.Areas.Employees.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_ResignationService.MultipleResignationAppliedList(identity.IsControlAdmin, identity.IsSysAdmin, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.EmployeeId), JsonRequestBehavior.AllowGet);
         }
-        //[HttpGet, Authorize]
-        //public ActionResult MultipleResignationAppliedList(GridParameter parameters)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    return Json(_ResignationService.MultipleResignationAppliedList(identity.IsControlAdmin, identity.IsSysAdmin, identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
-        //}
+     
 
         [HttpGet, Authorize]
         public ActionResult MultipleResignationPendingList()
