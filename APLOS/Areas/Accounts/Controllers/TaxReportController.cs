@@ -377,6 +377,23 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetNonTDSInvoiceReport(ReportFormat reportFormat, string fromDate, string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _taxReportServiceService.GetNonTDSInvoiceReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, identity.Name);
+            var reportFileName = DateTime.Now.ToString("yyMMdd") + "Non TDS Invoice Report";
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetTCSDeductionReport(ReportFormat reportFormat, string fromDate, string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
