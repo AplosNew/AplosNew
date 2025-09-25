@@ -20,6 +20,7 @@ using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using Aplos.HumanResource;
 using bplib;
+using Library.Model.HumanResources;
 
 namespace Aplos.Areas.Employees.Controllers
 {
@@ -677,7 +678,7 @@ namespace Aplos.Areas.Employees.Controllers
         
 
         [HttpPost]
-        public JsonResult CreateNew(EmployeeInformation entity, string EmployeeCodeCheckLevel, EmpReferenceInformation empRef, Dictionary<string, object> empBank)
+        public JsonResult CreateNew(EmployeeInformation entity, string EmployeeCodeCheckLevel, EmpReferenceInformation empRef, Dictionary<string, object> empBank, EmployeeWeekOffByDay employeeWeek)
         {
             try
             {
@@ -730,7 +731,7 @@ namespace Aplos.Areas.Employees.Controllers
                         }
                     }
                 }
-                employeeProfile.SaveData(entity, para, EmployeeCodeCheckLevel, empRef,empBank); //, WeekOff, OT
+                employeeProfile.SaveData(entity, para, EmployeeCodeCheckLevel, empRef,empBank, employeeWeek); //, WeekOff, OT
 
                 return Json(new { EmployeeInformation = entity, Message = AplosMessage.Insert + "Employee Code: " + entity.EmployeeCode + "" });
             }
