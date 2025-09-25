@@ -17,7 +17,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     };
 
     //baseService.init("Productions/PackingInvoice/GetList", null, null, "DESC", "InvoiceNo", "InvoiceNo");
-    baseService.init("Productions/PackingInvoice/GetList", null, null, "DESC", "AddedDate", "InvoiceNo");
+    baseService.init("Productions/PackingInvoice/GetList", null, null, "DESC", "InvoiceNo,InvoiceDate", "InvoiceNo");
     $scope.getData = function (pageno) {
         baseService.pagination(pageno)
             .then(function (result) {

@@ -478,8 +478,8 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
         {
             try
             {
-                parameters.sort = "CAST(AddedDate AS datetime)";
-                //parameters.sort = "TAB.AddedDate,TAB.InvoiceNo";
+                //parameters.sort = "CAST(InvoiceDate AS datetime)";
+                parameters.sort = "CAST(InvoiceDate AS datetime) desc,InvoiceNo ";
                 parameters.CmdText = @"SELECT S.Id,S.Id AS SalesId, S.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, S.CurrencyId,CO.BaseCurrencyId, C.Code AS CurrencyCode, S.DocRefNo, ISNULL(SM.Amount,0) + ISNULL(SS.Amount,0) AS Amount,
 									 Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') InvoiceDate,
 									Replace(CONVERT(VARCHAR(11), S.EntryDate, 106), ' ', '-') VoucherDate, Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') PostingDate
@@ -761,7 +761,7 @@ WHERE s.Id " + Ids + "";
             try
             {
                 var sql = @"SELECT CAST(0 AS BIT) Active,sm.Id SalesMaterialId,'B2B'SupplyTypeCode,'No'ReverseCharge,''eCommGSTIN,''IgstOnIntra,'Tax Invoice' DocumentType,S.Id DocumentNumber,FORMAT(s.InvoiceDate,'dd/MM/yyyy')DocumentDate
-,p.TINNO BuyerGSTIN,P.UserName BuyerLegalName,P.UserName BuyerTradeName,ST.UserName BuyerPOS,s.DeliveryByAddress ShippingAddr1
+,PPI.GSTIN BuyerGSTIN ,P.UserName BuyerLegalName,P.UserName BuyerTradeName,ST.UserName BuyerPOS,s.DeliveryByAddress ShippingAddr1
 ,am.Address2 BuyerAddr2,BD.UserName BuyerLocation,P.PINCode BuyerPinCode,ST.UserName BuyerState, am.Phone BuyerPhoneNumber,am.Email BuyerEmailId
 ,'' DispatchName,'' DispatchAddr1,''DispatchAddr2,''DispatchLocation,''DispatchPinCode,''DispatchState,PPD.GSTIN ShippingGSTIN, PPD.UserName ShippingLegalName, PPD.UserName ShippingTradeName
 ,S.InvoicingByAddress BuyerAddr1,''ShippingAddr2,SBD.UserName ShippingLocation,''ShippingPinCode,STD.UserName ShippingState,''SlNo,mma.StandardName ProductDescription,''IsService,ISNULL(ha.Code,h.Code) HSNcode   
