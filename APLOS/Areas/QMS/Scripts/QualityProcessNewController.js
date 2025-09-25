@@ -1,7 +1,8 @@
 ﻿'use strict';
-QualityProcessNewController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function QualityProcessNewController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+QualityProcessNewController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$controller'];
+function QualityProcessNewController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
     $rootScope.title = 'Quality Process';
+    $rootScope.defecttitle = 'Defect';
     $scope.Action = 'Save';
     $scope.UAction = 'Save';
     $scope.ModelList = [];
@@ -11,6 +12,7 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
     $scope.deleteUrl = $scope.path + 'DeleteQualityProcess/';
     $scope.searchBy = "QualityProcessUserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Process', name: "Process" }, { value: 'QualityProcessUserName', name: "Quality Process User Name" }, { value: 'QualityProcessStandardName', name: "Quality Process Standard Name" }, { value: 'CheckPointUserName', name: "Check Point User Name" }, { value: 'CheckPointStandardName', name: "Check  PointStandard Name" }, { value: 'Remarks', name: "Remarks" }];
+    $controller('DefectController', { $scope: $scope, $http: $http });
 
     $scope.tab = 8;
     $scope.setTab = function (newTab) {
