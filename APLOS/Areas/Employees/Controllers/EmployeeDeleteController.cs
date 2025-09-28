@@ -56,7 +56,9 @@ namespace Aplos.Areas.Employees.Controllers
         public JsonResult getemployeeDelete()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_maternityLeaveTransactionService.getemployeeDelete(identity.PlantId,identity.CompanyId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(_maternityLeaveTransactionService.getemployeeDelete(identity.PlantId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
 
         [HttpGet,Authorize]

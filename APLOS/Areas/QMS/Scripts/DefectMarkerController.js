@@ -1,7 +1,7 @@
 ﻿'use strict';
-DefectController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function DefectController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.defecttitle = 'Defect';
+DefectMarker.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function DefectMarker(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+    $rootScope.defecttitle = 'Defect Marker';
     $scope.Action = 'Save';
     $scope.DefectModelList = [];
     $scope.path = 'QMS/QualityProcess/';

@@ -55,6 +55,11 @@ namespace Aplos.Areas.QMS.Controllers
             return View();
         }
 
+        public ActionResult DefectMarker()
+        {
+            return View();
+        }
+
         [AllowAnonymous]
         public JsonResult GetCbo()
         {
@@ -848,9 +853,9 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='"+ masterId + "'";
         #endregion
 
         //#region   Defect    
-        private double GetDefectSequence()
+        private double GetDefectSequence(string qualityProcessMasterId)
         {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM Defect");
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM Defect Where QualityProcessMasterId='"+ qualityProcessMasterId + "'");
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
@@ -858,14 +863,14 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='"+ masterId + "'";
         }
 
         [HttpPost]
-        public ActionResult GetDefectList(string column, string value)
+        public ActionResult GetDefectList(string column, string value,string qualityProcessMasterId)
         {
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM Defect) AS TEMP WHERE " + strkey + " order by sequence";
+            string sql = @"select top 100 * from (SELECT * FROM Defect where QualityProcessMasterId='"+ qualityProcessMasterId + "') AS TEMP WHERE " + strkey + " order by sequence";
 
 
 
@@ -873,28 +878,28 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='"+ masterId + "'";
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetDefectAutoSequence()
+        public JsonResult GetDefectAutoSequence(string qualityProcessMasterId)
         {
-            return Json(GetDefectSequence(), JsonRequestBehavior.AllowGet);
+            return Json(GetDefectSequence(qualityProcessMasterId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public JsonResult CreateDefect(Dictionary<string, object> data)
+        public JsonResult CreateDefect(Dictionary<string, object> data, string qualityProcessMasterId)
         {
             try
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from Defect where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from Defect where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "' AND QualityProcessMasterId='" + qualityProcessMasterId + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Code already exists!!!");
 
-                con.OpenDataSetThroughAdapter("select * from Defect where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from Defect where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "' AND QualityProcessMasterId='" + qualityProcessMasterId + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same User Name already exists!!!");
 
 
-                con.OpenDataSetThroughAdapter("select * from Defect where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from Defect where Id='" + data["Id"] + "' AND QualityProcessMasterId='" + qualityProcessMasterId + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -905,6 +910,7 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='"+ masterId + "'";
                     genid.GenID(TableName, out _Id);
 
                     data["Id"] =  _Id;
+                    data["QualityProcessMasterId"] = qualityProcessMasterId;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -917,7 +923,7 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='"+ masterId + "'";
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
-                return Json(new { Error = false, Data = data, Sequence = GetDefectSequence(), Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = data, Sequence = GetDefectSequence(qualityProcessMasterId), Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
@@ -928,7 +934,7 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='"+ masterId + "'";
             }
         }
 
-        public ActionResult DeleteDefect(string id)
+        public ActionResult DeleteDefect(string id, string qualityProcessMasterId)
         {
 
             try
@@ -943,7 +949,7 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='"+ masterId + "'";
                 con.executeQuery("delete from dbo.Defect where id='" + id + "'");
                 con.CommitTransaction();
 
-                return Json(new { Error = false, Sequence = GetDefectSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = false, Sequence = GetDefectSequence(qualityProcessMasterId), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)
