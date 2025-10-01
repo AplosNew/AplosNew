@@ -204,6 +204,9 @@
             templateUrl: 'QMS/LWQRUpdate/Aplos',
             controller: 'LWQRUpdateController'
         })
-        
+        .when('/defect-marker', {
+            templateUrl: 'QMS/QualityProcess/DefectMarker',
+            controller: 'DefectMarkerController'
+        })
 }
 qmsConfig.$inject = ['$routeProvider', '$locationProvider'];

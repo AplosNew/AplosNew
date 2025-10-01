@@ -14,7 +14,8 @@ namespace Library.Service.Productions
     {
         //IEnumerable<object> GetPOCust(string POId);
         //IEnumerable<object> GetSOCust(string SOId);
-
+        IEnumerable<ComboModel> GetWCCbo(string plantId, string entityId);
+        IEnumerable<ComboModel> GetShiftCbo(string wcId);
         IEnumerable<ComboModel> GetToWCCbo(string plantId, string ProcessId, string entityId, string CompanyId);
         IEnumerable<object> GetListAPIforProduction(string ProdnDate, string EntityId, string ProcessId, string ShiftId);
         IEnumerable<object> GetDetailProductionList(string ProdnDate, string EntityId, string ProcessId, string ShiftId, string WkCenterId, string ProductionOrderId);

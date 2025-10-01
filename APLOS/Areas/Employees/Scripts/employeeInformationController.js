@@ -178,6 +178,46 @@ function employeeInformationController(addressService, fileReader, cboService, c
     $scope.employeeNew = Object.assign({}, $scope.model);
     $scope.employeeInformation = Object.assign({}, $scope.model);
 
+    $scope.daylist = ["", "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
+    $scope.modelOriginal = {
+        EmpSystemID: null, FixSystemID: null, EffectiveDate: null, AlignWithCC: "1", IndividualWeekOff: "0", FstOffDay: null, FstDayLengthType: "Full Day", SndOffDay: null, SndDayLengthType: "Full Day"
+    };
+    $scope.weekmodel = Object.assign({}, $scope.modelOriginal);
+
+    $scope.ShowEmpWeekOffpopUp = function () {
+        angular.element(document.querySelector('#weekOffPopUp')).modal('show');
+    }
+
+    $scope.CloseEmpWeekOffpopUp = function () {
+        try {
+            if ($scope.weekmodel.AlignWithCC == false) {
+                if (baseService.isUndefinedOrNull($scope.weekmodel.FstOffDay)) {
+                    throw 'Please select first Off Day Date';
+                }
+
+                if (!baseService.isUndefinedOrNull($scope.weekmodel.FstOffDay) && !baseService.isUndefinedOrNull($scope.weekmodel.SndOffDay)) {
+                    if ($scope.weekmodel.FstOffDay == $scope.weekmodel.SndOffDay)
+                        throw "Both weekoff days are same day!!!";
+
+                }
+            }
+            if ($scope.weekmodel.AlignWithCC == "1")
+                $scope.weekmodel.AlignWithCC = true;
+            else
+                $scope.weekmodel.AlignWithCC = false;
+
+            if ($scope.weekmodel.IndividualWeekOff == "1")
+                $scope.weekmodel.IndividualWeekOff = true;
+            else
+                $scope.weekmodel.IndividualWeekOff = false;
+
+            angular.element(document.querySelector('#weekOffPopUp')).modal('hide');
+        } catch (e) {
+
+        }
+    }
+
     $scope.ResidenceGroupList = [];
     $scope.ResidenceGroupCbo = function () {
         $http.get('employees/ResidenceGroup/GetCbo')
@@ -1893,7 +1933,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $http({
                 method: 'POST',
                 url: $scope.saveNewUrl,
-                data: { 'entity': $scope.employeeNew, 'EmployeeCodeCheckLevel': $scope.EmployeeCodeCheckLevel, 'empRef': $scope.empReferenceInformation, 'empBank': $scope.EmpBankInfoModel },
+                data: { 'entity': $scope.employeeNew, 'EmployeeCodeCheckLevel': $scope.EmployeeCodeCheckLevel, 'empRef': $scope.empReferenceInformation, 'empBank': $scope.EmpBankInfoModel, 'employeeWeek': $scope.weekmodel},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -3718,7 +3758,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
                         ob.OperationMasterId = $scope.OperationList[i].OperationMasterId;
                         ob.OperationVariationId = $scope.OperationList[i].Id;
                     }
-                 
+
                     ob.Code = $scope.OperationList[i].Code;
                     ob.ShortName = $scope.OperationList[i].ShortName;
                     ob.StandardName = $scope.OperationList[i].StandardName;

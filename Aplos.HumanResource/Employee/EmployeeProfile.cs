@@ -5,6 +5,7 @@ using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Employees;
+using Library.Model.HumanResources;
 using Library.Service.Helpers;
 using OTSBD;
 using Syncfusion.DocIO;
@@ -359,7 +360,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
         }//End Function
 
 
-        public void SaveData(EmployeeInformation data, IdentityParameter para, string EmployeeCodeCheckLevel, EmpReferenceInformation empRef, Dictionary<string, object> empBank)
+        public void SaveData(EmployeeInformation data, IdentityParameter para, string EmployeeCodeCheckLevel, EmpReferenceInformation empRef, Dictionary<string, object> empBank, EmployeeWeekOffByDay employeeWeek)
         {
             // , Dictionary<string, object> WeekOff, Dictionary<string, object> OT
             #region DataSet Declare
@@ -876,9 +877,9 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                     objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "EMP_SHIFT_ASSIGN", out strShiftAssSystemID);
                     strShiftAssSystemID = "S" + "-" + strShiftAssSystemID;
 
-                    string strWorkOffSystemID = "";
-                    objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "EMP_WEEKOFF_BYDAY", out strWorkOffSystemID);
-                    strWorkOffSystemID = "W" + "-" + strWorkOffSystemID;
+                    //string strWorkOffSystemID = "";
+                    //objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "EMP_WEEKOFF_BYDAY", out strWorkOffSystemID);
+                    //strWorkOffSystemID = "W" + "-" + strWorkOffSystemID;
 
                     string strEmpPinSysId = "";
                     objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "EMP_PIN", out strEmpPinSysId);
@@ -916,11 +917,11 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
 
                     //if (radFixShift.Checked == true)
                     //{
-                    objEmpLoad.SaveEmployeeWeekOffByDay(data.SystemId, strWorkOffSystemID, out dsWeekOffByDay);
-                    dtWeekOffByDay = dsWeekOffByDay.Tables[0];
-                    dvWeekOffByDay = new DataView();
-                    dvWeekOffByDay.Table = dtWeekOffByDay;
-                    dvWeekOffByDay.RowFilter = "SystemID = '" + strWorkOffSystemID + "'";
+                    //objEmpLoad.SaveEmployeeWeekOffByDay(data.SystemId, strWorkOffSystemID, out dsWeekOffByDay);
+                    //dtWeekOffByDay = dsWeekOffByDay.Tables[0];
+                    //dvWeekOffByDay = new DataView();
+                    //dvWeekOffByDay.Table = dtWeekOffByDay;
+                    //dvWeekOffByDay.RowFilter = "SystemID = '" + strWorkOffSystemID + "'";
                     // }
 
                     objEmpLoad.SaveEmployeePIN(data.SystemId, out dsEmpPin);
@@ -1002,22 +1003,76 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
 
                     //if (radFixShift.Checked == true)
                     //{
-                    if (dvWeekOffByDay.Count == 0)
-                    {// Add new block
-                        drWeekOffByDay = dtWeekOffByDay.NewRow();
-                        UpdateEmployeeWeekOffByDayDataRow("ADDNEW", strWorkOffSystemID, data, para, ref drWeekOffByDay);
-                        dtWeekOffByDay.Rows.Add(drWeekOffByDay);
-                    }
-                    else
-                    {//edit block
-                        drWeekOffByDay = dvWeekOffByDay[0].Row;
-                        drWeekOffByDay.BeginEdit();
-                        UpdateEmployeeWeekOffByDayDataRow("EDIT", strWorkOffSystemID, data, para, ref drWeekOffByDay);
-                        drWeekOffByDay.EndEdit();
-                    }
-                    dvWeekOffByDay.RowFilter = null;
+                    //if (dvWeekOffByDay.Count == 0)
+                    //{// Add new block
+                    //    drWeekOffByDay = dtWeekOffByDay.NewRow();
+                    //    UpdateEmployeeWeekOffByDayDataRow("ADDNEW", strWorkOffSystemID, data, para, ref drWeekOffByDay);
+                    //    dtWeekOffByDay.Rows.Add(drWeekOffByDay);
                     //}
+                    //else
+                    //{//edit block
+                    //    drWeekOffByDay = dvWeekOffByDay[0].Row;
+                    //    drWeekOffByDay.BeginEdit();
+                    //    UpdateEmployeeWeekOffByDayDataRow("EDIT", strWorkOffSystemID, data, para, ref drWeekOffByDay);
+                    //    drWeekOffByDay.EndEdit();
+                    //}
+                    //dvWeekOffByDay.RowFilter = null;
+                    ////}
+                    string sql = "";
+                    DataSet dsWeekOff=null;
 
+                    if (employeeWeek!=null)
+                    {
+                        sql = "SELECT * FROM EmployeeWeekOffByDay WHERE EmpSystemID='" + data.SystemId + "'";
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        objCon.OpenDataSetThroughAdapter(sql, out dsWeekOff, false, "1");
+
+                        if (dsWeekOff.Tables[0].Rows.Count == 0)
+                        {
+                            string systemid = "";
+                            bplib.clsGenID id = new bplib.clsGenID();
+                            id.GenID(DateTime.Now.ToShortDateString(), "WeekoffAssign", out systemid);
+
+                            DataRow dr = dsWeekOff.Tables[0].NewRow();
+
+                            dr["SystemID"] = "WN-" + systemid;
+                            dr["EmpSystemID"] = data.SystemId;
+                            dr["EffectiveDate"] = data.DOJ;
+
+
+                            dr["AlignWithCC"] = false;
+                            dr["IndividualWeekOff"] = false;
+
+                            dr["FstOffDay"] = DBNull.Value;
+                            dr["FstDayLengthType"] = DBNull.Value;
+                            dr["SndOffDay"] = DBNull.Value;
+                            dr["SndDayLengthType"] = DBNull.Value;
+
+                            dr["AlignWithCC"] = employeeWeek.AlignWithCC;
+
+                            if (employeeWeek.AlignWithCC == false)
+                            {
+                                dr["IndividualWeekOff"] = true;
+                                if (string.IsNullOrEmpty(employeeWeek.FstOffDay) == false)
+                                {
+                                    dr["FstOffDay"] = employeeWeek.FstOffDay;
+                                    dr["FstDayLengthType"] = employeeWeek.FstDayLengthType;
+                                }
+                                if (string.IsNullOrEmpty(employeeWeek.SndOffDay) == false)
+                                {
+                                    dr["SndOffDay"] = employeeWeek.SndOffDay;
+                                    dr["SndDayLengthType"] = employeeWeek.SndDayLengthType;
+                                }
+                            }
+
+                            dr["AddedBy"] = para.AddedBy;
+                            dr["DateAdded"] = DateTime.Now;
+
+                            dsWeekOff.Tables[0].Rows.Add(dr);
+
+                        }
+
+                    }
                     #endregion Employee Week Off By Day
 
                     #region Employee PIN
@@ -1129,9 +1184,8 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                     #endregion
 
                     #region EmpBank
-                    ConnectionManager.DAL.ConManager objCon;
                     DataSet dsEmpBankMaster;
-                    string sql = "SELECT * FROM [dbo].[EmployeeBankInfo] WHERE RowID='" + empBank["RowID"] + "'";
+                    sql = "SELECT * FROM [dbo].[EmployeeBankInfo] WHERE RowID='" + empBank["RowID"] + "'";
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sql, out dsEmpBankMaster, false, "1");
                     if (dsEmpBankMaster.Tables[0].Rows.Count == 0)
@@ -1156,7 +1210,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
 
                     #endregion EmpBank
 
-                    objApp.SaveDataSets(dsLocal, dsShiftAssign, dsEmpJbLc, dsWeekOffByDay, dsEmpPin, dsEmpRef, dsEmpBankMaster); // , dsWeeklyOff, dsNonOT
+                    objApp.SaveDataSets(dsLocal, dsShiftAssign, dsEmpJbLc, dsWeekOffByDay, dsEmpPin, dsEmpRef, dsEmpBankMaster, dsWeekOff); // , dsWeeklyOff, dsNonOT
 
 
                     #region att process only for new emp

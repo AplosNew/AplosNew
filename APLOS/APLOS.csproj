@@ -2025,6 +2025,7 @@
     <Content Include="Areas\Productions\Scripts\MasterPlanDetailsController.js" />
     <Content Include="Areas\Productions\Scripts\MasterPlanSetUpController.js" />
     <Content Include="Areas\Products\Scripts\IndependentServiceGRNController.js" />
+    <Content Include="Areas\QMS\Scripts\DefectMarkerController.js" />
     <Content Include="Areas\QMS\Scripts\LWQRUpdateController.js" />
     <Content Include="Areas\QMS\Scripts\LWQSummaryReportController.js" />
     <Content Include="Areas\QMS\Scripts\LotWiseQualityReportController.js" />
@@ -5268,6 +5269,8 @@
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\SkillUpload.cshtml" />
     <Content Include="POPResources\Templates\InventorySalesReport202034.docx" />
     <Content Include="Areas\QMS\Views\QualityProcess\AplosNew.cshtml" />
+    <Content Include="Areas\QMS\Views\QualityProcess\Defect.cshtml" />
+    <Content Include="Areas\QMS\Views\QualityProcess\DefectMarker.cshtml" />
     <None Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>PayrollsDataSet.Designer.cs</LastGenOutput>

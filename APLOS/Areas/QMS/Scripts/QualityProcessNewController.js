@@ -1,7 +1,8 @@
 ﻿'use strict';
-QualityProcessNewController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function QualityProcessNewController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+QualityProcessNewController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$controller'];
+function QualityProcessNewController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
     $rootScope.title = 'Quality Process';
+    $rootScope.defecttitle = 'Defect';
     $scope.Action = 'Save';
     $scope.UAction = 'Save';
     $scope.ModelList = [];
@@ -9,9 +10,12 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'CreateQualityProcess';
     $scope.deleteUrl = $scope.path + 'DeleteQualityProcess/';
+    $scope.getDefectSeqUrl = $scope.path + 'getdefectautosequence';
+    $scope.saveDefectUrl = $scope.path + 'createdefect';
+    $scope.deleteDefectUrl = $scope.path + 'deletedefect/';
+
     $scope.searchBy = "QualityProcessUserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Process', name: "Process" }, { value: 'QualityProcessUserName', name: "Quality Process User Name" }, { value: 'QualityProcessStandardName', name: "Quality Process Standard Name" }, { value: 'CheckPointUserName', name: "Check Point User Name" }, { value: 'CheckPointStandardName', name: "Check  PointStandard Name" }, { value: 'Remarks', name: "Remarks" }];
-
     $scope.tab = 8;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -803,8 +807,6 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
         return false;
     }
 
-    
-
     $scope.SaveEmp = function () {
         try {
             $http({
@@ -838,6 +840,7 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
             url: "QMS/QualityProcess/GetQualityProcessEmployee?masterId=" + $scope.ModelNew.Id
         }).then(function (response) {
             $scope.EmployeeList = response.data
+            $scope.getDefectData();
         });
     }
 
@@ -868,4 +871,116 @@ function QualityProcessNewController(cboService, commonMessage, $scope, $rootSco
     };
 
     //#endregion Employee
+
+    //#region Defect
+
+    $rootScope.defecttitle = 'Defect';
+    $scope.DAction = 'Save';
+    $scope.DefectModelList = [];
+    $scope.DefectsearchBy = "UserName"; $scope.Defectsearch = "";
+    $scope.DefectsearchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+
+
+    $scope.getDefectData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetDefectList",
+            data: { column: $scope.DefectsearchBy, value: $scope.Defectsearch, qualityProcessMasterId: $scope.ModelNew.Id},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.DefectModelList = response.data;
+            $scope.GetSequence();
+        });
+    }
+   
+
+    $scope.DefectModelTemp = {
+        Id: null,
+        QualityProcessMasterId: null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Description: null,
+        Remarks: null,
+        Active: true
+    };
+    $scope.DefectModelNew = Object.assign({}, $scope.DefectModelTemp);
+
+    $scope.GetDefectSequence = function () {
+        cboService.getSequence('QMS/QualityProcess/getdefectautosequence?qualityProcessMasterId=' + $scope.ModelNew.Id, function (data) {
+            $scope.DefectModelTemp.Sequence = data;
+            $scope.DefectModelNew.Sequence = data;
+        });
+    };
+    $scope.GetDefectSequence();
+
+    $scope.GetDefect = function (args) {
+        $scope.DefectModelNew = Object.assign({}, args.data);
+        $scope.DAction = 'Update';
+        
+    };
+
+    $scope.SaveDefect = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.DefectModelNewForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveDefectUrl,
+                data: { 'data': $scope.DefectModelNew, 'qualityProcessMasterId': $scope.ModelNew.Id},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearDefectFields(response.data.Sequence);
+                    $scope.getDefectData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.DeleteDefect = function () {
+        if (!baseService.isUndefinedOrNull($scope.DefectModelNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteDefectUrl,
+                data: { 'id': $scope.DefectModelNew.Id, 'qualityProcessMasterId': $scope.ModelNew.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearDefectFields(response.data.Sequence);
+                    $scope.getDefectData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.ClearDefect = function () {
+        ClearDefectFields($scope.GetDefectSequence());
+        return true;
+    };
+
+    function ClearDefectFields(seq) {
+        $scope.DAction = 'Save';
+        $scope.DefectModelNew = Object.assign({}, $scope.DefectModelTemp);
+        $scope.DefectModelNew.Sequence = seq;
+    }
+
+    //#endregion
+
 }

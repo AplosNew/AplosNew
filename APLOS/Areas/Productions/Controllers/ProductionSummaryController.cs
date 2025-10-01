@@ -576,6 +576,19 @@ where PO.ID= '" + POId + "'";
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetWCCbo(string entityId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_ProductionSummaryService.GetWCCbo(identity.PlantId, entityId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetShiftCbo(string wcId)
+        {
+            return Json(_ProductionSummaryService.GetShiftCbo(wcId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetToWCProcessCbo(string processid, string entityId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

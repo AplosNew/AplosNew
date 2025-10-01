@@ -8855,10 +8855,21 @@ LEFT JOIN HKP.Skill S ON S.Id=OM.SkillId
         {
             try
             {
-                var sql = @"SELECT OM.Id,OM.Code,OM.ShortName,OM.StandardName,OM.UserName,MM.UserName MachineMaster,S.UserName Skill,0 CycleTime,[check]=CAST (0 AS bit) FROM MST.OperationMaster OM
-                          LEFT JOIN MST.MachineMaster MM ON MM.Id=OM.MachineMasterId 
-                          LEFT JOIN HKP.Skill S ON S.Id=OM.SkillId
-                          WHERE  OM.CompanyGroupId='" + companyGroupId + "' ORDER BY UserName";
+                var sql = @"
+Select OM.Id,OM.Sequence,OM.Code,OM.ShortName,OM.StandardName,OM.UserName
+,OM.OperationActivityId,OA.UserName OperationActivity,OM.OperationTypeId,OT.UserName OperationType,OM.OperationCategoryId,OC.UserName OperationCategory
+,OM.SkillId,S.UserName Skill,OM.SkillGroupId,SG.UserName SkillGroup,OM.DesignationGroupId,DG.UserName DesignationGroup,OM.LegalDesignationId,LD.UserName LegalDesignation,OM.ProcessId,P.UserName Process
+From MST.OperationMaster OM
+LEFT JOIN HKP.OperationActivity OA ON OA.Id=OM.OperationActivityId
+LEFT JOIN HKP.OperationType OT ON OT.Id=OM.OperationTypeId
+LEFT JOIN HKP.OperationCategory  OC ON OC.Id=OM.OperationCategoryId
+LEFT JOIN HKP.Skill S ON S.Id=OM.SkillId
+LEFT JOIN SCS.SkillGrouping SG ON SG.Id=OM.SkillGroupId
+LEFT JOIN HKP.DesignationGroup DG ON DG.Id=OM.DesignationGroupId
+LEFT JOIN HKP.LegalDesignation LD ON LD.Id=OM.LegalDesignationId
+LEFT JOIN HKP.Process P ON P.Id=OM.ProcessId
+Where OM.Active=1  ORDER BY OM.UserName";
+
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
