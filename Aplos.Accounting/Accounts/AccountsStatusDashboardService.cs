@@ -1512,35 +1512,35 @@ namespace Library.Accounting.Accounts
 										, C.Code CurrencyCode
 										,IV.BaseNoOfDays, REPLACE(CONVERT(VARCHAR(11), IV.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(VARCHAR(11), IV.ActualDueDate, 106), ' ', '-') AS ActualDueDate
 										
-										,Days=DATEDIFF(DAY, GETDATE(),IV.BaseOnDueDate)
-										,AgingInvoice= case 
-													--	when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 OR IV.ActualDueDate IS NULL then 'Overdue'
+										,Days=DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)
+										,AgingInvoice= CASE 
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-1080 OR IV.ActualDueDate IS NULL then 'OverDue More Than 3 Years' 
+														WHEN DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-720  AND DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-1080 OR IV.ActualDueDate IS NULL then 'OverDue 2 Year To 3 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-360 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-720  OR IV.ActualDueDate IS NULL then 'OverDue 1 Year To 2 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-60 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-360  OR IV.ActualDueDate IS NULL then 'OverDue 60 To 1 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-60  OR IV.ActualDueDate IS NULL then 'OverDue 30 To 60'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then 'OverDue 0 To 30'
 
-														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan30'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan15'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then 'OverDueLessThan15'
-
-
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then 'Today'
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '1-7'
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '8-30'
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '31-60'
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '60 Onword'
-															end
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then 'Today'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '1-7'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '8-30'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '31-60'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '60 Onword'
+															END
 										,AgingSorting= case 
-														--when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 OR IV.ActualDueDate IS NULL then '1.Overdue'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-1080 OR IV.ActualDueDate IS NULL then '1.OverDue More Than 3 Years' 
+														WHEN DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-720  AND DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-1080 OR IV.ActualDueDate IS NULL then '2.OverDue 2 Year To 3 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-360 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-720  OR IV.ActualDueDate IS NULL then '3.OverDue 1 Year To 2 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-60 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-360  OR IV.ActualDueDate IS NULL then '4.OverDue 60 To 1 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-60  OR IV.ActualDueDate IS NULL then '5.OverDue 30 To 60'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then '6.OverDue 0 To 30'
 
-														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then '1.OverDueMoreThan30'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then '2.OverDueMoreThan15'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then '3.OverDueLessThan15'
-
-
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then '4.Today'
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '5.1-7'
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '6.8-30'
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '7.31-60'
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '8.60 Onward'
-															end
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then '7.Today'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '8.1-7'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '9.8-30'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '91.31-60'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '92.60 Onword'
+															END
 										, ISNULL(VDC.CrAmount,0)+ISNULL(AID.AdditionalAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteSetOff,ISNULL(IWD.TaxAmount,0) TaxAmount, SetOff=ISNULL(IwV.SetOffBooksAmount, 0)
                                         , ISNULL(ISNULL(VDC.CrAmount,0)+ISNULL(AID.AdditionalAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0) AS Balance								
                                         FROM [TRN].[InvoiceDetail] AS IVD
@@ -1599,34 +1599,36 @@ namespace Library.Accounting.Accounts
 										,replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate ,iv.DocDate  SortDocDate
 										,C.Code CurrencyCode
 										,IV.BaseNoOfDays, REPLACE(CONVERT(VARCHAR(11), IV.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(VARCHAR(11), IV.ActualDueDate, 106), ' ', '-') AS ActualDueDate
-										,Days=DATEDIFF(DAY, GETDATE(),IV.BaseOnDueDate)
+										,Days=DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)
 										
 													,AgingInvoice= case 
-														--when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 OR IV.ActualDueDate IS NULL then 'Overdue'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-1080 OR IV.ActualDueDate IS NULL then 'OverDue More Than 3 Years' 
+														WHEN DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-720  AND DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-1080 OR IV.ActualDueDate IS NULL then 'OverDue 2 Year To 3 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-360 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-720  OR IV.ActualDueDate IS NULL then 'OverDue 1 Year To 2 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-60 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-360  OR IV.ActualDueDate IS NULL then 'OverDue 60 To 1 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-60  OR IV.ActualDueDate IS NULL then 'OverDue 30 To 60'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then 'OverDue 0 To 30'
 
-														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan30'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan15'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then 'OverDueLessThan15'
-
-
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then 'Today'
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '1-7'
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '8-30'
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '31-60'
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '60 Onword'
-															end
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then 'Today'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '1-7'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '8-30'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '31-60'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '60 Onword'
+															END
 										,AgingSorting= case 
-													--	when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 OR IV.ActualDueDate IS NULL then '1.Overdue'
-														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then '1.OverDueMoreThan30'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then '2.OverDueMoreThan15'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then '3.OverDueLessThan15'
+													    WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-1080 OR IV.ActualDueDate IS NULL then '1.OverDue More Than 3 Years' 
+														WHEN DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-720  AND DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-1080 OR IV.ActualDueDate IS NULL then '2.OverDue 2 Year To 3 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-360 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-720  OR IV.ActualDueDate IS NULL then '3.OverDue 1 Year To 2 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-60 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-360  OR IV.ActualDueDate IS NULL then '4.OverDue 60 To 1 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-60  OR IV.ActualDueDate IS NULL then '5.OverDue 30 To 60'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then '6.OverDue 0 To 30'
 
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then '4.Today'
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '5.1-7'
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '6.8-30'
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '7.31-60'
-															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '8.60 Onword'
-															end
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then '7.Today'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '8.1-7'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '9.8-30'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '91.31-60'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '92.60 Onword'
+															END
 										, ISNULL(VDC.CrAmount,0)+ISNULL(AID.AdditionalAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteSetOff,ISNULL(IWD.TaxAmount,0) TaxAmount,SetOff=ISNULL(IwV.SetOffBooksAmount, 0)
                                         , ISNULL(ISNULL(VDC.CrAmount,0)+ISNULL(AID.AdditionalAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0) AS Balance
 
@@ -1684,28 +1686,33 @@ namespace Library.Accounting.Accounts
 										                        ,C.Code CurrencyCode,0 BaseNoOfDays, REPLACE(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') AS ActualDueDate
 																,Days=DATEDIFF(DAY, GETDATE(),IV.PostingDate)
 																,AgingInvoice= case 
-														when DATEDIFF(DAY, GETDATE(),Iv.PostingDate)<-30  OR IV.PostingDate IS NULL then 'OverDueMoreThan30'
-														when DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-30  OR IV.PostingDate IS NULL then 'OverDueMoreThan15'
-														when DATEDIFF(DAY, GETDATE(),IV.PostingDate)<0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-15  OR IV.PostingDate IS NULL then 'OverDueLessThan15'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-1080 OR IV.PostingDate IS NULL then 'OverDue More Than 3 Years' 
+														WHEN DATEDIFF(DAY, GETDATE(),Iv.PostingDate)<-720  AND DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-1080 OR IV.PostingDate IS NULL then 'OverDue 2 Year To 3 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-360 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-720  OR IV.PostingDate IS NULL then 'OverDue 1 Year To 2 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-60 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-360  OR IV.PostingDate IS NULL then 'OverDue 60 To 1 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-30 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-60  OR IV.PostingDate IS NULL then 'OverDue 30 To 60'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-30  OR IV.PostingDate IS NULL then 'OverDue 0 To 30'
 
-
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)=0 then 'Today'
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=7 then '1-7'
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>7 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=30 then '8-30'
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=60 then '31-60'
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>60 then '60 Onword'
-															end
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)=0 then 'Today'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)>0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=7 then '1-7'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)>7 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=30 then '8-30'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=60 then '31-60'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)>60 then '60 Onword'
+															END
 														,AgingSorting= case 
-														when DATEDIFF(DAY, GETDATE(),Iv.PostingDate)<-30  OR IV.PostingDate IS NULL then '1.OverDueMoreThan30'
-														when DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-30  OR IV.PostingDate IS NULL then '2.OverDueMoreThan15'
-														when DATEDIFF(DAY, GETDATE(),IV.PostingDate)<0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-15  OR IV.PostingDate IS NULL then '3.OverDueLessThan15'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-1080 OR IV.PostingDate IS NULL then '1.OverDue More Than 3 Years' 
+														WHEN DATEDIFF(DAY, GETDATE(),Iv.PostingDate)<-720  AND DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-1080 OR IV.PostingDate IS NULL then '2.OverDue 2 Year To 3 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-360 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-720  OR IV.PostingDate IS NULL then '3.OverDue 1 Year To 2 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-60 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-360  OR IV.PostingDate IS NULL then '4.OverDue 60 To 1 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-30 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-60  OR IV.PostingDate IS NULL then '5.OverDue 30 To 60'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-30  OR IV.PostingDate IS NULL then '6.OverDue 0 To 30'
 
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)=0 then '4.Today'
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=7 then '5.1-7'
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>7 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=30 then '6.8-30'
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=60 then '7.31-60'
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>60 then '8.60 Onword'
-															end
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)=0 then '7.Today'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)>0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=7 then '8.1-7'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)>7 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=30 then '9.8-30'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=60 then '91.31-60'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)>60 then '92.60 Onword'
+															END
 										                         , ISNULL(VDC.CrAmount,0) AS Gross,0  DebitNoteSetOff,0 TaxAmount,
                                                                 SetOff=ISNULL(IwV.SetOffBooksAmount, 0) , ISNULL(VDC.CrAmount-isnull(IwV.SetOffBooksAmount,0),0) AS Balance
                                         FROM [TRN].[AdjustmentNoteDetail] AS IVD
@@ -4536,25 +4543,33 @@ namespace Library.Accounting.Accounts
 										, REPLACE(CONVERT(VARCHAR(11), IV.ActualDueDate, 106), ' ', '-') AS ActualDueDate
 										,Days=DATEDIFF(DAY, GETDATE(),IV.DocDate)
 										,AgingInvoice= case 
-														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan30'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan15'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then 'OverDueLessThan15'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then 'Today'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '1-7'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '8-30'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '31-60'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '60 Onword'
-														end
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-1080 OR IV.ActualDueDate IS NULL then 'OverDue More Than 3 Years' 
+														WHEN DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-720  AND DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-1080 OR IV.ActualDueDate IS NULL then 'OverDue 2 Year To 3 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-360 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-720  OR IV.ActualDueDate IS NULL then 'OverDue 1 Year To 2 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-60 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-360  OR IV.ActualDueDate IS NULL then 'OverDue 60 To 1 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-60  OR IV.ActualDueDate IS NULL then 'OverDue 30 To 60'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then 'OverDue 0 To 30'
+
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then 'Today'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '1-7'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '8-30'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '31-60'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '60 Onword'
+															END
 										,AgingSorting= case 
-														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then '1.OverDueMoreThan30'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then '2.OverDueMoreThan15'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then '3.OverDueLessThan15'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then '4.Today'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '5.1-7'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '6.8-30'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '7.31-60'
-														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '8.60 Onward'
-														end
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-1080 OR IV.ActualDueDate IS NULL then '1.OverDue More Than 3 Years' 
+														WHEN DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-720  AND DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-1080 OR IV.ActualDueDate IS NULL then '2.OverDue 2 Year To 3 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-360 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-720  OR IV.ActualDueDate IS NULL then '3.OverDue 1 Year To 2 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-60 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-360  OR IV.ActualDueDate IS NULL then '4.OverDue 60 To 1 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-60  OR IV.ActualDueDate IS NULL then '5.OverDue 30 To 60'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then '6.OverDue 0 To 30'
+
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then '7.Today'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '8.1-7'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '9.8-30'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '91.31-60'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '92.60 Onword'
+															END
 										,ISNULL(IVD.InvoiceBooksAmount,0) AS GrossSales,0 DebitNoteAmount,0 TaxAmount,
                                          TrnReceipt=ISNULL(IVD.SetOffBooksAmount, 0) 
 										 ,ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0) AS TrnBalance
@@ -4604,26 +4619,33 @@ namespace Library.Accounting.Accounts
 										,Days=DATEDIFF(DAY, GETDATE(),IV.DocDate)
 										
 												   	,AgingInvoice= case 
-														when DATEDIFF(DAY, GETDATE(),Iv.PostingDate)<-30  OR IV.PostingDate IS NULL then 'OverDueMoreThan30'
-														when DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-30  OR IV.PostingDate IS NULL then 'OverDueMoreThan15'
-														when DATEDIFF(DAY, GETDATE(),IV.PostingDate)<0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-15  OR IV.PostingDate IS NULL then 'OverDueLessThan15'
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)=0 then 'Today'
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=7 then '1-7'
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>7 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=30 then '8-30'
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=60 then '31-60'
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>60 then '60 Onword'
-															end
-										,AgingSorting = case 
-														when DATEDIFF(DAY, GETDATE(),Iv.PostingDate)<-30  OR IV.PostingDate IS NULL then '1.OverDueMoreThan30'
-														when DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-30  OR IV.PostingDate IS NULL then '2.OverDueMoreThan15'
-														when DATEDIFF(DAY, GETDATE(),IV.PostingDate)<0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-15  OR IV.PostingDate IS NULL then '3.OverDueLessThan15'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-1080 OR IV.PostingDate IS NULL then 'OverDue More Than 3 Years' 
+														WHEN DATEDIFF(DAY, GETDATE(),Iv.PostingDate)<-720  AND DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-1080 OR IV.PostingDate IS NULL then 'OverDue 2 Year To 3 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-360 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-720  OR IV.PostingDate IS NULL then 'OverDue 1 Year To 2 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-60 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-360  OR IV.PostingDate IS NULL then 'OverDue 60 To 1 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-30 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-60  OR IV.PostingDate IS NULL then 'OverDue 30 To 60'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-30  OR IV.PostingDate IS NULL then 'OverDue 0 To 30'
 
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)=0 then '4.Today'
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=7 then '5.1-7'
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>7 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=30 then '6.8-30'
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=60 then '7.31-60'
-															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>60 then '8.60 Onword'
-															end
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)=0 then 'Today'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)>0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=7 then '1-7'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)>7 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=30 then '8-30'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=60 then '31-60'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)>60 then '60 Onword'
+															END
+										,AgingSorting = case 
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-1080 OR IV.PostingDate IS NULL then '1.OverDue More Than 3 Years' 
+														WHEN DATEDIFF(DAY, GETDATE(),Iv.PostingDate)<-720  AND DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-1080 OR IV.PostingDate IS NULL then '2.OverDue 2 Year To 3 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-360 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-720  OR IV.PostingDate IS NULL then '3.OverDue 1 Year To 2 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-60 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-360  OR IV.PostingDate IS NULL then '4.OverDue 60 To 1 Year'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-30 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-60  OR IV.PostingDate IS NULL then '5.OverDue 30 To 60'
+														WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)<0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-30  OR IV.PostingDate IS NULL then '6.OverDue 0 To 30'
+
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)=0 then '7.Today'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)>0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=7 then '8.1-7'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)>7 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=30 then '9.8-30'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=60 then '91.31-60'
+															WHEN DATEDIFF(DAY, GETDATE(),IV.PostingDate)>60 then '92.60 Onword'
+															END
 										 ,ISNULL(IVD.Amount,0) AS GrossSales,0 DebitNoteAmount ,0 TaxAmount
                                          ,TrnReceipt=ISNULL(IVD.WrittenOffAmount, 0) 
 										 ,ISNULL(IVD.Amount,0)-ISNULL(IVD.WrittenOffAmount,0) AS TrnBalance
