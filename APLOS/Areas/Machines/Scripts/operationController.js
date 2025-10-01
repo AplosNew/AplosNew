@@ -536,7 +536,7 @@ function OperationController(cboService, commonMessage, $scope, $rootScope, base
         angular.element(document.querySelector('#processPopUp')).modal('hide');
     };
 
-    $scope.MachineRequired = false;
+    $scope.MachineRequired = true;
     function getOperationProcessList() {
         $http({
             method: 'GET',

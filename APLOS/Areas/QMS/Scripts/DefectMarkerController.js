@@ -99,7 +99,7 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
     }
 
     $scope.SetPO = function ($event) {
-        $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
+        $scope.productionSummaryNew.ProductionOrderId = $event.data.Id;
         $scope.productionSummaryNew.BuyerItem = $event.data.BuyerItem;
         $scope.productionSummaryNew.OwnItem = $event.data.OwnItem;
         $scope.productionSummaryNew.BuyerOrder = $event.data.BuyerOrder;
@@ -184,6 +184,13 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
         return true;
     }
 
+    $scope.ShowDefectMarkingpopUp = function () {
+        angular.element(document.querySelector('#DefectMarkingPopup')).modal('show');
+    }
+
+    $scope.CloseDefectMarkingpopUp = function () {
+        angular.element(document.querySelector('#DefectMarkingPopup')).modal('hide');
+    }
 
 
 

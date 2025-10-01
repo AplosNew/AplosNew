@@ -7,12 +7,17 @@ using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.Model.Setups;
 using Library.Service.Enums;
+using Library.Service.Helpers;
 using Library.Service.Setups;
+using Newtonsoft.Json;
 using OTSBD;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Web;
 using System.Web.Mvc;
 
 #endregion Using
@@ -345,7 +350,7 @@ namespace Aplos.Areas.QMS.Controllers
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-               
+
                 con.OpenDataSetThroughAdapter("select * from dbo.QualityProcessUserName where UserName='" + data["UserName"] + "' AND  QualityProcessMasterId<>'" + masterId + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Quality Process User Name already exists!!!");
@@ -356,7 +361,7 @@ namespace Aplos.Areas.QMS.Controllers
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    
+
                     data["QualityProcessMasterId"] = masterId;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
@@ -711,7 +716,7 @@ FROM [dbo].[QualityProcessManpowerBudget] QMB
 LEFT JOIN [MST].[ManpowerBudget] AS PMB ON PMB.Id=QMB.ManpowerBudgetId
 INNER JOIN ORG.Entity AS ERD ON PMB.EntityId=ERD.Id 
 INNER JOIN ORG.Position AS PRD ON PMB.PositionId = PRD.Id 
-WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='"+ masterId + "'";
+WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='" + masterId + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -811,7 +816,7 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='"+ masterId + "'";
                                         LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EMP.GivenDesignationId
 										LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
-                                        WHERE  EMP.EmployeeStatus='Active' AND QE.QualityProcessMasterId='"+masterId+@"' AND EMP.PlantId='" + identity.PlantId + @"'
+                                        WHERE  EMP.EmployeeStatus='Active' AND QE.QualityProcessMasterId='" + masterId + @"' AND EMP.PlantId='" + identity.PlantId + @"'
                                         ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
                 var json = Json(_sqlRepository.GetDataCollection(CmdText, null), JsonRequestBehavior.AllowGet);
                 json.MaxJsonLength = int.MaxValue;
@@ -855,7 +860,7 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='"+ masterId + "'";
         //#region   Defect    
         private double GetDefectSequence(string qualityProcessMasterId)
         {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM Defect Where QualityProcessMasterId='"+ qualityProcessMasterId + "'");
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM Defect Where QualityProcessMasterId='" + qualityProcessMasterId + "'");
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
@@ -863,14 +868,14 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='"+ masterId + "'";
         }
 
         [HttpPost]
-        public ActionResult GetDefectList(string column, string value,string qualityProcessMasterId)
+        public ActionResult GetDefectList(string column, string value, string qualityProcessMasterId)
         {
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM Defect where QualityProcessMasterId='"+ qualityProcessMasterId + "') AS TEMP WHERE " + strkey + " order by sequence";
+            string sql = @"select top 100 * from (SELECT * FROM Defect where QualityProcessMasterId='" + qualityProcessMasterId + "') AS TEMP WHERE " + strkey + " order by sequence";
 
 
 
@@ -909,7 +914,7 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='"+ masterId + "'";
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] =  _Id;
+                    data["Id"] = _Id;
                     data["QualityProcessMasterId"] = qualityProcessMasterId;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
@@ -962,6 +967,240 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='"+ masterId + "'";
 
         }
 
-        //#endregion
+        [HttpPost]
+        public JsonResult SaveDefects([System.Web.Http.FromBody] DefectData data)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                if (data == null || data.Defects == null || data.Defects.Count == 0)
+                    return Json(new { Error = true, Message = "No defect data received." });
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                DataSet dsMaster;
+
+                string tableName = "ImageDefects";
+
+                // Load schema only once
+                con.OpenDataSetThroughAdapter($"SELECT * FROM {tableName} WHERE 1=0", out dsMaster, false, "1");
+
+                foreach (var d in data.Defects)
+                {
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "Id='" + d.Id + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+                        dr["ImageFile"] = data.ImageFile;
+                        dr["Width"] = data.ImageDimensions.Width;
+                        dr["Height"] = data.ImageDimensions.Height;
+                        dr["XNormalized"] = d.XNormalized;
+                        dr["YNormalized"] = d.YNormalized;
+                        dr["Description"] = d.Description;
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+
+                }
+
+               
+                // Save all at once
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new
+                {
+                    Error = false,
+                    Count = data.Defects.Count,
+                    Message = $"{data.Defects.Count} defects saved successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult SaveImageAndDefects(HttpPostedFileBase imageFile, string defectsJson)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                if (imageFile == null || imageFile.ContentLength == 0)
+                    return Json(new { Success = false, Message = "No image file provided." });
+
+                // 1️⃣ Save image to physical folder
+                //string uploadsFolder = Path.Combine(Server.MapPath("~/Uploads"));
+                string uploadsFolder = Path.Combine(ResourcesPathReader.GetDefectPicPath());
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                string filePath = Path.Combine(uploadsFolder, Path.GetFileName(imageFile.FileName));
+                imageFile.SaveAs(filePath);
+
+                // 2️⃣ Deserialize JSON
+                var defectData = JsonConvert.DeserializeObject<DefectData>(defectsJson);
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                DataSet dsMaster;
+
+                string tableName = "ImageDefects";
+
+                // Load schema only once
+                con.OpenDataSetThroughAdapter($"SELECT * FROM {tableName} WHERE 1=0", out dsMaster, false, "1");
+
+                foreach (var d in defectData.Defects)
+                {
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "Id='" + d.Id + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+                        dr["ImageFile"] = defectData.ImageFile;
+                        dr["Width"] = defectData.ImageDimensions.Width;
+                        dr["Height"] = defectData.ImageDimensions.Height;
+                        dr["XNormalized"] = d.XNormalized;
+                        dr["YNormalized"] = d.YNormalized;
+                        dr["Description"] = d.Description;
+                        dr["Type"] = d.Type;
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+
+                }
+
+
+                // Save all at once
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Success = true, Message = "Image and defects saved successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Success = false, Message = ex.Message });
+            }
+        }
+
+
+        // ---------- GET: Retrieve Defects ----------
+        //[HttpGet]
+        //public JsonResult GetDefects(string imageFile)
+        //{
+        //    try
+        //    {
+        //        if (string.IsNullOrEmpty(imageFile))
+        //            return Json(new { Error = true, Message = "Image file name is required." });
+
+        //        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+        //        DataSet dsDefects;
+
+        //        string tableName = "ImageDefects";
+
+        //        // Load all defects for this image
+        //        con.OpenDataSetThroughAdapter(
+        //            $"SELECT * FROM {tableName} WHERE ImageFile='{imageFile}'",
+        //            out dsDefects, false, "1");
+
+        //        if (dsDefects.Tables[0].Rows.Count == 0)
+        //        {
+        //            return Json(new
+        //            {
+        //                Error = false,
+        //                Message = "No defects found.",
+        //                Data = new DefectData
+        //                {
+        //                    ImageFile = imageFile,
+        //                    ImageDimensions = new ImageDimensions { Width = 0, Height = 0 },
+        //                    Defects = new List<Defect>()
+        //                }
+        //            });
+        //        }
+
+        //        // Read dimensions (assuming all defects have same Width/Height)
+        //        var firstRow = dsDefects.Tables[0].Rows[0];
+        //        var dimensions = new ImageDimensions
+        //        {
+        //            Width = Convert.ToInt32(firstRow["Width"]),
+        //            Height = Convert.ToInt32(firstRow["Height"])
+        //        };
+
+        //        // Map defects
+        //        var defectList = dsDefects.Tables[0].AsEnumerable()
+        //            .Select(r => new Defect
+        //            {
+        //                Id =Convert.ToInt32(r["Id"].ToString()),
+        //                XNormalized = Convert.ToDecimal(r["XNormalized"]),
+        //                YNormalized = Convert.ToDecimal(r["YNormalized"]),
+        //                Description = r["Description"]?.ToString()
+        //            })
+        //            .ToList();
+
+        //        var defectData = new DefectData
+        //        {
+        //            ImageFile = imageFile,
+        //            ImageDimensions = dimensions,
+        //            Defects = defectList
+        //        };
+
+        //        return Json(new { Error = false, Data = defectData });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { Error = true, Message = ex.Message });
+        //    }
+        //}
+
+
+
+
+
+    }
+    public class ImageDefect
+    {
+        public int Id { get; set; }
+        public string ImageFile { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public decimal XNormalized { get; set; }
+        public decimal YNormalized { get; set; }
+        public string Description { get; set; }
+    }
+    public class DefectData
+    {
+        public string ImageFile { get; set; }
+
+        public ImageDimensions ImageDimensions { get; set; }
+
+        public List<Defect> Defects { get; set; }
+    }
+
+    public class ImageDimensions
+    {
+        public int Width { get; set; }
+        public int Height { get; set; }
+    }
+
+    public class Defect
+    {
+        public long Id { get; set; }
+        public decimal XNormalized { get; set; }
+        public decimal YNormalized { get; set; }
+        public string Description { get; set; }
+        public string Type { get; set; }   // added defect type
     }
 }
+
+
