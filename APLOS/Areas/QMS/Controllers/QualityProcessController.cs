@@ -1066,8 +1066,8 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='" + masterId + "'";
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
                         dr["ImageFile"] = defectData.ImageFile;
-                        dr["Width"] = defectData.ImageDimensions.Width;
-                        dr["Height"] = defectData.ImageDimensions.Height;
+                        dr["Width"] = d.Width;
+                        dr["Height"] = d.Height;
                         dr["XNormalized"] = d.XNormalized;
                         dr["YNormalized"] = d.YNormalized;
                         dr["Description"] = d.Description;
@@ -1195,11 +1195,13 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='" + masterId + "'";
 
     public class Defect
     {
-        public long Id { get; set; }
+        public long? Id { get; set; }
         public decimal XNormalized { get; set; }
         public decimal YNormalized { get; set; }
         public string Description { get; set; }
         public string Type { get; set; }   // added defect type
+        public int Width { get; set; }
+        public int Height { get; set; }
     }
 }
 
