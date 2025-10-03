@@ -77,6 +77,21 @@ namespace Aplos.Areas.QMS.Controllers
             return Json(_sqlRepository.GetDataCollection("Select Id as Value,UserName As Text from HKP.Process Where Active=1"), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public ActionResult GetColorSizeCbo(string soId)
+        {
+            string sql = @"select  CV.Id ValueId,CV.UserName from TRN.FirstCharacteristics FS
+LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id=FS.CharacteristicsValueId 
+ Where FS.SalesOrderId='"+ soId + "'";
+            var colorItem = _sqlRepository.GetDataCollection(sql);
+            sql = @"select distinct CV.Id ValueId,CV.UserName from TRN.SecondCharacteristics FS
+LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id=FS.CharacteristicsValueId 
+ Where FS.SalesOrderId='" + soId + "'";
+
+            var sizeItem = _sqlRepository.GetDataCollection(sql);
+            return Json(new { colorItem, sizeItem }, JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetEmployeeList()
         {
@@ -886,6 +901,56 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='" + masterId + "'";
         public JsonResult GetDefectAutoSequence(string qualityProcessMasterId)
         {
             return Json(GetDefectSequence(qualityProcessMasterId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult CreateMaster(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Code already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    data["Id"] = "DZ" + _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
         }
 
         [HttpPost]

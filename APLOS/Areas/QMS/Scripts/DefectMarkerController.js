@@ -107,65 +107,6 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
     }
 
-    $scope.SOItemList = [];
-
-    $scope.SearchSOItemList = [];
-    $scope.AddSO = function () {
-        $scope.itemList = [];
-        $http.get('Materials/MaterialIssueControl/GetSOItemList?entityid=' + $scope.productionSummaryNew.EntityId + '&ProductionOrderId=' + $scope.productionSummaryNew.ProductionOrderId)
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.SearchSOItemList = response.data;
-
-                        if (baseService.arrayLength($scope.SOItemList) > 0) {
-                            for (var i = 0; i < $scope.SOItemList.length; i++) {
-                                for (var j = 0; j < $scope.SearchSOItemList.length; j++) {
-                                    if ($scope.SOItemList[i].LineItemId == $scope.SearchSOItemList[j].LineItemId) {
-                                        $scope.SearchSOItemList.splice(j, 1);
-                                    }
-                                }
-                            }
-                        }
-                        var ob = { Value: null, Text: null };
-                        for (var i = 0; i < $scope.SearchSOItemList.length; i++) {
-                            ob.Value = $scope.SearchSOItemList[i].LineItemId;
-                            ob.Text = $scope.SearchSOItemList[i].LineItemId;
-                            $scope.itemList.push(ob);
-                            ob = {};
-                        }
-                    }
-
-
-                    angular.element(document.querySelector('#SOpopUp')).modal('show');
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
-    };
-
-    $scope.itemList = [];
-    $scope.closeSOPopUp = function () {
-        try {
-            for (var i = 0; i < $scope.SearchSOItemList.length; i++) {
-
-                if ($scope.SearchSOItemList[i].Flag) {
-                    if (checkExistsItem($scope.SOItemList, $scope.SearchSOItemList[i].LineItemId)) {
-                        $scope.SOItemList.push($scope.SearchSOItemList[i]);
-                    }
-                    else {
-                        $scope.SOItemList = [];
-                        throw "Select same Line Item";
-                    }
-                }
-            }
-            $scope.GetQBOQCostingData();
-            angular.element(document.querySelector('#SOpopUp')).modal('hide');
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    }
-
     function checkExists(list, id) {
         for (var i = 0; i < list.length; i++) {
             if (list[i].SOId === id) {
@@ -192,13 +133,63 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
         angular.element(document.querySelector('#DefectMarkingPopup')).modal('hide');
     }
 
+    $scope.SalesOrderListForProductionOrderId = [];
+    $scope.getSalesOrderByProdOrderList = function () {
+        /*$scope.openPopup('dialogSOItemsFromProductionOrder');*/
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/ProductionOrder/GetProductionRecipeMaterialList?productionOrderId=' + $scope.productionSummaryNew.ProductionOrderId
+        }).then(function successCallback(response) {
+            $scope.SalesOrderListForProductionOrderId = response.data;
+            angular.element(document.querySelector('#SOItemPopup')).modal('show');
 
+        });
+    }
+    $scope.SetSO = function ($event) {
+        $scope.productionSummaryNew.SalesOrderId = $event.data.SalesOrderId;
+        $scope.getSalesOrderColorSizeList();
+        angular.element(document.querySelector('#SOItemPopup')).modal('hide');
+    }
+    $scope.CloseSOpopUp = function () {
+        angular.element(document.querySelector('#SOItemPopup')).modal('hide');
+    }
 
+    $scope.colorList = [];
+    $scope.sizeList = [];
+    $scope.getSalesOrderColorSizeList = function () {
+        $http({
+            method: 'GET',
+            url: 'QMS/QualityProcess/GetColorSizeCbo?soId=' + $scope.productionSummaryNew.SalesOrderId
+        }).then(function successCallback(response) {
+            $scope.colorList = response.data.colorItem;
+            $scope.sizeList = response.data.sizeItem;
 
+        });
+    }
 
+    $scope.Save = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.ModelNewForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'data': $scope.productionSummaryNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getData();
 
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
 
-
+        }
+    };
 
 
 }
