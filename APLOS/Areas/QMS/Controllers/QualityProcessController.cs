@@ -1032,7 +1032,7 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='" + masterId + "'";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
 
-            string sql = @"select top 100 * from (SELECT DM.*,E.UserName Entity,W.UserName WorkCenterMaster,SD.UserName ProductionShift,CV.UserName Color,SV.UserName Size,ResponsiblePerson=(EI.EmployeeCode+''+ EI.EmployeeName)   
+            string sql = @"select top 100 * from (SELECT DM.*,E.UserName Entity,W.UserName WorkCenterMaster,SD.UserName ProductionShift,CV.UserName Color,SV.UserName Size,ResponsiblePerson=(EI.EmployeeCode+'-'+ EI.EmployeeName)   
 FROM  dbo.DefectMarkerMaster DM
 LEFT JOIN ORG.Entity E ON E.Id=DM.EntityId
 LEFT JOIN SCS.WorkCenterMaster W ON W.Id=DM.WorkCenterMasterId

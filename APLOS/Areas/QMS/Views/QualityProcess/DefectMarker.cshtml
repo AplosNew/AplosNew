@@ -1,8 +1,10 @@
 ﻿@*<h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span> Defect Marker</h3>*@
 <togglable name="{{title}}"></togglable>
 @*<label class="col-sm-12 control-label" style="color:blue">Only Running order will be consider for defect mark.</label>*@
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+@*<script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">*@
+<link rel="stylesheet" href="/Content/tailwind-lite.css" />
+
 <style>
     body {
         font-family: 'Inter', sans-serif;
@@ -76,6 +78,132 @@
         padding: 15px;
         display: none;
     }
+
+    .btn {
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        transition: background-color 0.2s ease;
+        color: white;
+        display: inline-block;
+    }
+
+    .btn-blue {
+        background-color: #4f46e5; /* indigo-600 */
+    }
+
+        .btn-blue:hover {
+            background-color: #4338ca; /* indigo-700 */
+        }
+
+    .btn-green {
+        background-color: #16a34a; /* green-600 */
+    }
+
+        .btn-green:hover {
+            background-color: #15803d; /* green-700 */
+        }
+
+    .btn-red {
+        background-color: #ef4444; /* red-500 */
+    }
+
+        .btn-red:hover {
+            background-color: #dc2626; /* red-600 */
+        }
+
+    /* ======= Tailwind Lite Styles ======= */
+
+    /* Background colors */
+    .bg-indigo-600 {
+        background-color: #4f46e5;
+    }
+
+        .bg-indigo-600:hover {
+            background-color: #4338ca;
+        }
+
+    .bg-green-600 {
+        background-color: #16a34a;
+    }
+
+        .bg-green-600:hover {
+            background-color: #15803d;
+        }
+
+    .bg-red-600 {
+        background-color: #dc2626;
+    }
+
+        .bg-red-600:hover {
+            background-color: #b91c1c;
+        }
+
+    /* Text */
+    .text-white {
+        color: #fff;
+    }
+
+    .font-semibold {
+        font-weight: 600;
+    }
+
+    /* Padding */
+    .px-4 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .py-2 {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+
+    /* Border radius */
+    .rounded-lg {
+        border-radius: 0.5rem;
+    }
+
+    /* Shadows */
+    .shadow {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Transitions */
+    .transition {
+        transition: all 0.2s ease;
+    }
+
+    .duration-150 {
+        transition-duration: 150ms;
+    }
+
+    /* Utility layouts */
+    .hidden {
+        display: none;
+    }
+
+    .mt-4 {
+        margin-top: 1rem;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    /* Preview box */
+    .preview-box {
+        background: #f9fafb;
+        border: 2px dashed #d1d5db;
+        border-radius: 0.75rem;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 1rem;
+        padding: 1rem;
+    }
 </style>
 
 
@@ -83,7 +211,7 @@
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-6">
-            <input type="hidden" id="masterId" ng-model="productionSummaryNew.Id"value="{{productionSummaryNew.Id}}">
+            <input type="hidden" id="masterId" ng-model="productionSummaryNew.Id" value="{{productionSummaryNew.Id}}">
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
@@ -211,7 +339,7 @@
             </div>
             <div class="form-group">
                 <span class="input-group-btn">
-                    <button ng-click="ShowDefectMarkingpopUp();" ng-disabled="productionSummaryNew.Id==null" class="btn single-small-btn"><i class="glyphicon glyphicon-plus-sign"></i>Defect Marking</button>
+                    <button ng-click="ShowDefectMarkingpopUp();" @*ng-disabled="productionSummaryNew.Id==null"*@ class="btn single-small-btn"><i class="glyphicon glyphicon-plus-sign"></i>Defect Marking</button>
                 </span>
             </div>
         </div>
@@ -265,8 +393,83 @@
     </div>
 </div>
 
-
 <div class="modal site-modal in" id="DefectMarkingPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Defect Marking
+                <button type="button" class="close" ng-click="closePopup()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-xs-12 col-sm-8 col-md-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Defect Marking Area</h2>
+                    <div class="preview-box relative">
+                        <img ng-if="imageSrc" ng-src="{{imageSrc}}" id="garmentImage" style="max-width:100%; max-height:100%;" />
+                        <canvas id="defectCanvas" ng-if="imageSrc"ng-click="onCanvasClick($event)" style="position:absolute; top:0; left:0; cursor:pointer;"></canvas>
+
+                        <p ng-if="!imageSrc">Click "Import Image" to load a garment image.</p>
+                    </div>
+
+                    <input type="file" id="imageInput" accept="image/*"
+                           style="display:none" onchange="angular.element(this).scope().loadImage(this)" />
+
+                    <button ng-click="triggerImageUpload()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">Import Image</button>
+                    <button ng-click="saveDefects()" class="bg-green-600 text-white px-4 py-2 rounded-lg">Save</button>
+                    <button ng-click="clearDefects()" class="bg-red-600 text-white px-4 py-2 rounded-lg">Clear</button>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    
+                    <!-- Defect List -->
+                    <h3 class="mt-4 font-semibold text-gray-700">Defect List:</h3>
+                    <ul>
+                        <li ng-repeat="defect in defects track by defect.id" class="mb-2">
+                            X: {{defect.x | number:2}}, Y: {{defect.y | number:2}},
+                            Type: {{defect.Type || '—'}}, Desc: {{defect.Description || '—'}}
+                            <button ng-click="editDefect(defect, $event)" class="text-blue-600 ml-2">Edit</button>
+                            <button ng-click="deleteDefect(defect.id)" class="text-red-600 ml-1">×</button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="mt-4">
+                    <h3 class="font-semibold text-gray-700 mb-2">Instructions:</h3>
+                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                        <li>1. Click "Import Image" to select a garment photo.</li>
+                        <li>2. Click anywhere on the image to mark a defect point.</li>
+                        <li>3. Click "Save Defects".</li>
+                    </ul>
+                </div>
+
+                <div class="common-btn mt-2">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closePopup()" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Floating popup -->
+                <div ng-show="showDefectModal"style="position: absolute; background: white; border: 1px solid #ccc; border-radius: 8px; padding: 30px; z-index: 999; top: 200px; left: 600px;">
+                    <label class="block text-sm">Type</label>
+                    <input type="text" ng-model="currentDefect.Type" class="border rounded px-2 py-1 w-40 mb-2" placeholder="e.g., Stain" />
+
+                    <label class="block text-sm">Description</label>
+                    <textarea ng-model="currentDefect.Description" class="border rounded px-2 py-1 w-40 h-16 mb-2"></textarea>
+
+                    <div class="flex justify-between">
+                        <button ng-click="saveDefect()" class="bg-green-600 text-white px-2 py-1 rounded">Save</button>
+                        <button ng-click="closeDefectModal()" class="bg-gray-400 text-white px-2 py-1 rounded">Close</button>
+                        <button ng-click="deleteCurrentDefect()" class="bg-red-600 text-white px-2 py-1 rounded">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal site-modal in" id="_DefectMarkingPopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">Defect Marking<button type="button" class="close" data-dismiss="modal">&times;</button></div>
@@ -357,6 +560,15 @@
         </div>
     </div>
 </div>
+
+
+
+
+
+
+
+
+
 
 <div class="modal site-modal" id="employeeNewPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -511,475 +723,475 @@
     </div>
 </div>
 
-<script>
+@*<script>
 
-    const imageInput = document.getElementById('imageInput');
-    const garmentImage = document.getElementById('garmentImage');
-    const defectCanvas = document.getElementById('defectCanvas');
-    const ctx = defectCanvas.getContext('2d');
-    const defectsList = document.getElementById('defectsList');
-    const placeholderText = document.getElementById('placeholderText');
-    const emptyListText = document.getElementById('emptyListText');
-    const saveButton = document.getElementById('saveButton');
-    const clearButton = document.getElementById('clearButton');
-    const messageContainer = document.getElementById('messageContainer');
+        const imageInput = document.getElementById('imageInput');
+        const garmentImage = document.getElementById('garmentImage');
+        const defectCanvas = document.getElementById('defectCanvas');
+        const ctx = defectCanvas.getContext('2d');
+        const defectsList = document.getElementById('defectsList');
+        const placeholderText = document.getElementById('placeholderText');
+        const emptyListText = document.getElementById('emptyListText');
+        const saveButton = document.getElementById('saveButton');
+        const clearButton = document.getElementById('clearButton');
+        const messageContainer = document.getElementById('messageContainer');
 
 
-    let defects = [];
-    let imageLoaded = false;
-    let originalImageWidth = 0;
-    let originalImageHeight = 0;
+        let defects = [];
+        let imageLoaded = false;
+        let originalImageWidth = 0;
+        let originalImageHeight = 0;
 
-    // --- Utility Functions ---
+        // --- Utility Functions ---
 
-    function alertMessage(message, type) {
-        const alertDiv = document.createElement('div');
-        const color = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700';
+        function alertMessage(message, type) {
+            const alertDiv = document.createElement('div');
+            const color = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700';
 
-        alertDiv.className = `max-w-md mx-auto border px-4 py-3 rounded-lg relative shadow-lg ${color} mb-2`;
-        alertDiv.innerHTML = `<span class="block sm:inline font-medium">${message}</span>`;
+            alertDiv.className = `max-w-md mx-auto border px-4 py-3 rounded-lg relative shadow-lg ${color} mb-2`;
+            alertDiv.innerHTML = `<span class="block sm:inline font-medium">${message}</span>`;
 
-        messageContainer.appendChild(alertDiv);
+            messageContainer.appendChild(alertDiv);
 
-        setTimeout(() => {
-            alertDiv.remove();
-        }, 5000);
-    }
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
 
-    // --- Core Logic Functions ---
+        // --- Core Logic Functions ---
 
-    /**
-     * Loads the selected image into the UI and prepares the canvas.
-     */
-    function loadImage() {
-        const file = imageInput.files[0];
-        if (!file) return;
+        /**
+         * Loads the selected image into the UI and prepares the canvas.
+         */
+        function loadImage() {
+            const file = imageInput.files[0];
+            if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            garmentImage.src = e.target.result;
-            garmentImage.style.display = 'block';
-            defectCanvas.style.display = 'block';
-            placeholderText.style.display = 'none';
-            imageLoaded = false;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                garmentImage.src = e.target.result;
+                garmentImage.style.display = 'block';
+                defectCanvas.style.display = 'block';
+                placeholderText.style.display = 'none';
+                imageLoaded = false;
 
-            garmentImage.onload = () => {
-                originalImageWidth = garmentImage.naturalWidth;
-                originalImageHeight = garmentImage.naturalHeight;
+                garmentImage.onload = () => {
+                    originalImageWidth = garmentImage.naturalWidth;
+                    originalImageHeight = garmentImage.naturalHeight;
 
-                resizeCanvas();
+                    resizeCanvas();
 
-                defectCanvas.removeEventListener('click', handleImageClick);
-                defectCanvas.addEventListener('click', handleImageClick);
+                    defectCanvas.removeEventListener('click', handleImageClick);
+                    defectCanvas.addEventListener('click', handleImageClick);
 
-                imageLoaded = true;
-                drawDefects();
-                updateControlButtons();
+                    imageLoaded = true;
+                    drawDefects();
+                    updateControlButtons();
+                };
             };
-        };
-        reader.readAsDataURL(file);
-    }
-
-    /**
-     * Resizes the canvas to match the current dimensions of the displayed image.
-     */
-    function resizeCanvas() {
-        const container = document.getElementById('imageContainer');
-        const rect = garmentImage.getBoundingClientRect();
-
-        defectCanvas.width = rect.width;
-        defectCanvas.height = rect.height;
-        defectCanvas.style.width = `${rect.width}px`;
-        defectCanvas.style.height = `${rect.height}px`;
-
-        const imgRect = garmentImage.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-
-        const xOffset = imgRect.left - containerRect.left;
-        const yOffset = imgRect.top - containerRect.top;
-
-        defectCanvas.style.left = `${xOffset}px`;
-        defectCanvas.style.top = `${yOffset}px`;
-    }
-
-    /**
-     * Handles clicks on the canvas to mark a defect.
-     */
-    function handleImageClick(event) {
-        if (!imageLoaded) return;
-
-        const rect = defectCanvas.getBoundingClientRect();
-        const clickX = event.clientX - rect.left;
-        const clickY = event.clientY - rect.top;
-
-        // Calculate Normalized Coordinates (0.0 to 1.0)
-        const normalizedX = clickX / defectCanvas.width;
-        const normalizedY = clickY / defectCanvas.height;
-
-        const defect = {
-            id: Date.now(),
-            x: parseFloat(normalizedX.toFixed(3)),
-            y: parseFloat(normalizedY.toFixed(3)),
-            description: 'General Defect'
-        };
-
-        defects.push(defect);
-        drawDefects();
-        renderDefectList();
-    }
-
-    /**
-     * Redraws all defect markers on the canvas.
-     */
-    function drawDefects() {
-        if (!imageLoaded) return;
-        ctx.clearRect(0, 0, defectCanvas.width, defectCanvas.height);
-
-        defects.forEach(defect => {
-            // Convert Normalized Coordinates back to Canvas Pixels
-            const pixelX = defect.x * defectCanvas.width;
-            const pixelY = defect.y * defectCanvas.height;
-
-            // Draw the defect marker (Red circle)
-            ctx.beginPath();
-            ctx.arc(pixelX, pixelY, 8, 0, Math.PI * 2, false); // Radius 8
-            ctx.fillStyle = '#ef4444'; // Red-500
-            ctx.fill();
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = '#b91c1c'; // Red-700
-            ctx.stroke();
-        });
-    }
-
-    /**
-     * Renders the list of defects in the sidebar.
-     */
-    function renderDefectList() {
-        defectsList.innerHTML = '';
-        if (defects.length === 0) {
-            emptyListText.style.display = 'block';
-        } else {
-            emptyListText.style.display = 'none';
-            defects.forEach((defect, index) => {
-                const listItem = document.createElement('li');
-                listItem.className = 'flex justify-between items-center p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-indigo-50 transition duration-150';
-                listItem.innerHTML = `
-                                <span class="text-sm font-mono text-gray-700">
-                                    <strong class="text-indigo-600">${index + 1}.</strong>
-                                    X: ${defect.x}, Y: ${defect.y}
-                                </span>
-                                <button onclick="deleteDefect(${defect.id})" class="text-red-500 hover:text-red-700 font-bold ml-4 p-1 rounded-full hover:bg-red-100 transition duration-150" title="Delete Defect">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                    </svg>
-                                </button>
-                            `;
-             
-                defectsList.appendChild(listItem);
-            });
-        }
-        updateControlButtons();
-    }
-
-    /**
-     * Deletes a defect by its ID.
-     */
-    function deleteDefect(id) {
-        defects = defects.filter(defect => defect.id !== id);
-        drawDefects();
-        renderDefectList();
-    }
-
-    /**
-     * Clears all marked defects.
-     */
-    function clearDefects() {
-        defects = [];
-        drawDefects();
-        renderDefectList();
-    }
-
-    /**
-     * Updates the state of the Save and Clear buttons.
-     */
-    function updateControlButtons() {
-        const isDisabled = defects.length === 0 || !imageLoaded;
-        saveButton.disabled = isDisabled;
-        clearButton.disabled = isDisabled;
-        if (isDisabled) {
-            saveButton.classList.replace('bg-green-600', 'bg-gray-400');
-            saveButton.classList.replace('hover:bg-green-700', 'hover:bg-gray-400');
-            clearButton.classList.replace('bg-red-500', 'bg-gray-400');
-            clearButton.classList.replace('hover:bg-red-600', 'hover:bg-gray-400');
-        } else {
-            saveButton.classList.replace('bg-gray-400', 'bg-green-600');
-            saveButton.classList.replace('hover:bg-gray-400', 'hover:bg-green-700');
-            clearButton.classList.replace('bg-gray-400', 'bg-red-500');
-            clearButton.classList.replace('hover:bg-gray-400', 'hover:bg-red-600');
-        }
-    }
-
-    /**
-     * Sends the defects array to the C# backend API.
-     */
-
-
-
-    async function saveDefects() {
-        debugger;
-        const imageInput = document.getElementById("imageInput");
-
-        if (!imageInput.files[0]) {
-            alert("Please select an image first.");
-            return;
+            reader.readAsDataURL(file);
         }
 
-        if (defects.length === 0) {
-            alert("No defects to save.");
-            return;
+        /**
+         * Resizes the canvas to match the current dimensions of the displayed image.
+         */
+        function resizeCanvas() {
+            const container = document.getElementById('imageContainer');
+            const rect = garmentImage.getBoundingClientRect();
+
+            defectCanvas.width = rect.width;
+            defectCanvas.height = rect.height;
+            defectCanvas.style.width = `${rect.width}px`;
+            defectCanvas.style.height = `${rect.height}px`;
+
+            const imgRect = garmentImage.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+
+            const xOffset = imgRect.left - containerRect.left;
+            const yOffset = imgRect.top - containerRect.top;
+
+            defectCanvas.style.left = `${xOffset}px`;
+            defectCanvas.style.top = `${yOffset}px`;
         }
 
+        /**
+         * Handles clicks on the canvas to mark a defect.
+         */
+        function handleImageClick(event) {
+            if (!imageLoaded) return;
 
-        const saveButtonElement = document.getElementById("saveButton");
-        const originalText = saveButtonElement.textContent;
-        saveButtonElement.textContent = "Sending...";
-        saveButtonElement.disabled = true;
+            const rect = defectCanvas.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const clickY = event.clientY - rect.top;
 
-        const id = document.getElementById("defectId").value;
-        const defectType = document.getElementById("defectType").value;
-        const notes = document.getElementById("defectNotes").value;
+            // Calculate Normalized Coordinates (0.0 to 1.0)
+            const normalizedX = clickX / defectCanvas.width;
+            const normalizedY = clickY / defectCanvas.height;
 
-        try {
-            // Prepare defects JSON
-            const dataToSave = {
-                imageFile: imageInput.files[0].name,
-                imageDimensions: {
-                    Width: originalImageWidth,
-                    Height: originalImageHeight
-                },
-
-                defects: defects.map(d => ({
-                    id: d.id,
-                    XNormalized: d.x,
-                    YNormalized: d.y,
-                    //Description: d.description
-                    Description: notes,
-                    Type: defectType
-                }))
+            const defect = {
+                id: Date.now(),
+                x: parseFloat(normalizedX.toFixed(3)),
+                y: parseFloat(normalizedY.toFixed(3)),
+                description: 'General Defect'
             };
 
-            // FormData to send image + defects
-            const formData = new FormData();
-            formData.append("imageFile", imageInput.files[0]);
-            formData.append("defectsJson", JSON.stringify(dataToSave));
-
-            const response = await fetch("/QMS/QualityProcess/SaveImageAndDefects", {
-                method: "POST",
-                body: formData
-            });
-
-            const result = await response.json();
-
-            if (!result.Success) {
-                ShowResult(result.Message, 'failure');
-            } else {
-                ShowResult(result.Message, 'success');
-
-                // Optional: reload saved defects for this image
-                //await loadDefects(dataToSave.imageFile);
-            }
-        } catch (error) {
-            ShowResult(result.Message, 'failure');
-        } finally {
-            saveButtonElement.textContent = originalText;
-            saveButtonElement.disabled = false;
-        }
-    }
-
-
-
-    // --- Event Listeners for Responsiveness ---
-    window.addEventListener('resize', () => {
-        if (imageLoaded) {
-            resizeCanvas();
+            defects.push(defect);
             drawDefects();
+            renderDefectList();
         }
-    });
 
-    // Initialize button states
-    updateControlButtons();
+        /**
+         * Redraws all defect markers on the canvas.
+         */
+        function drawDefects() {
+            if (!imageLoaded) return;
+            ctx.clearRect(0, 0, defectCanvas.width, defectCanvas.height);
 
+            defects.forEach(defect => {
+                // Convert Normalized Coordinates back to Canvas Pixels
+                const pixelX = defect.x * defectCanvas.width;
+                const pixelY = defect.y * defectCanvas.height;
 
-    async function loadDefects(imageFile) {
-        try {
-            const response = await fetch(`QMS/QualityProcess/GetDefects?imageFile=${encodeURIComponent(imageFile)}`);
-            const result = await response.json();
+                // Draw the defect marker (Red circle)
+                ctx.beginPath();
+                ctx.arc(pixelX, pixelY, 8, 0, Math.PI * 2, false); // Radius 8
+                ctx.fillStyle = '#ef4444'; // Red-500
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#b91c1c'; // Red-700
+                ctx.stroke();
+            });
+        }
 
-            if (!result.Error) {
-                console.log("Defects loaded:", result.Data.defects);
-                // here you can render markers back on canvas
+        /**
+         * Renders the list of defects in the sidebar.
+         */
+        function renderDefectList() {
+            defectsList.innerHTML = '';
+            if (defects.length === 0) {
+                emptyListText.style.display = 'block';
             } else {
-                alertMessage(result.Message, "warning");
+                emptyListText.style.display = 'none';
+                defects.forEach((defect, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'flex justify-between items-center p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-indigo-50 transition duration-150';
+                    listItem.innerHTML = `
+                                    <span class="text-sm font-mono text-gray-700">
+                                        <strong class="text-indigo-600">${index + 1}.</strong>
+                                        X: ${defect.x}, Y: ${defect.y}
+                                    </span>
+                                    <button onclick="deleteDefect(${defect.id})" class="text-red-500 hover:text-red-700 font-bold ml-4 p-1 rounded-full hover:bg-red-100 transition duration-150" title="Delete Defect">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                `;
+
+                    defectsList.appendChild(listItem);
+                });
             }
-        } catch (err) {
-            console.error("Network Error:", err);
-            alertMessage("Could not load defects.", "error");
+            updateControlButtons();
         }
-    }
 
-    let currentClick = { x: 0, y: 0 };
+        /**
+         * Deletes a defect by its ID.
+         */
+        function deleteDefect(id) {
+            defects = defects.filter(defect => defect.id !== id);
+            drawDefects();
+            renderDefectList();
+        }
 
-    const img = document.getElementById("garmentImage");
-    const modal = document.getElementById("defectModal");
+        /**
+         * Clears all marked defects.
+         */
+        function clearDefects() {
+            defects = [];
+            drawDefects();
+            renderDefectList();
+        }
 
-    defectCanvas.addEventListener("click", function (e) {
-        debugger;
-        const rect = e.target.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width;
-        const y = (e.clientY - rect.top) / rect.height;
+        /**
+         * Updates the state of the Save and Clear buttons.
+         */
+        function updateControlButtons() {
+            const isDisabled = defects.length === 0 || !imageLoaded;
+            saveButton.disabled = isDisabled;
+            clearButton.disabled = isDisabled;
+            if (isDisabled) {
+                saveButton.classList.replace('bg-green-600', 'bg-gray-400');
+                saveButton.classList.replace('hover:bg-green-700', 'hover:bg-gray-400');
+                clearButton.classList.replace('bg-red-500', 'bg-gray-400');
+                clearButton.classList.replace('hover:bg-red-600', 'hover:bg-gray-400');
+            } else {
+                saveButton.classList.replace('bg-gray-400', 'bg-green-600');
+                saveButton.classList.replace('hover:bg-gray-400', 'hover:bg-green-700');
+                clearButton.classList.replace('bg-gray-400', 'bg-red-500');
+                clearButton.classList.replace('hover:bg-gray-400', 'hover:bg-red-600');
+            }
+        }
 
-        currentClick = { x, y };
-        document.getElementById("defectId").value = ""; // new defect
-        document.getElementById("defectType").value = "Stain";
-        document.getElementById("defectNotes").value = "";
+        /**
+         * Sends the defects array to the C# backend API.
+         */
 
-        modal.style.left = e.pageX + "px";
-        modal.style.top = e.pageY + "px";
-        modal.style.display = "block";
-    });
 
-    // Save or Update defect
-    document.getElementById("saveDefect").addEventListener("click", function () {
-        try {
+
+        async function saveDefects() {
             debugger;
-            const id = document.getElementById("defectId").value;
-            const defectType = document.getElementById("defectType").value;
-            const notes = document.getElementById("defectNotes").value;
-            var masterIdValue = document.getElementById('masterId').value;
-
-            let defectData = {
-                Id: id || null,
-                DefectMarkerMasterId: masterIdValue,
-                XNormalized: currentClick.x,
-                YNormalized: currentClick.y,
-                Description: notes,
-                Type: defectType,
-                Width: originalImageWidth,
-                Height: originalImageHeight
-            };
-
-            // ✅ fetch the selected image file
             const imageInput = document.getElementById("imageInput");
+
             if (!imageInput.files[0]) {
-                throw "Please select an image first.";
+                alert("Please select an image first.");
                 return;
             }
 
-            let formData = new FormData();
-            formData.append("imageFile", imageInput.files[0]); // ✅ attach actual image
-            formData.append("defectsJson", JSON.stringify({
-                ImageFile: imageInput.files[0].name,  // ✅ use actual filename
-                Defects: [defectData]
-            }));
+            if (defects.length === 0) {
+                alert("No defects to save.");
+                return;
+            }
 
-            fetch("/QualityProcess/SaveImageAndDefects", {
-                method: "POST",
-                body: formData
-            })
-                .then(r => r.json())
-                .then(res => {
-                    ShowResult(res.Message, "success");
-                    modal.style.display = "none";
-                    loadDefects(); // reload markers
-                })
-                .catch(err => ShowResult(err, 'failure'));
-        } catch (e) {
-            ShowResult(e, 'failure');
+
+            const saveButtonElement = document.getElementById("saveButton");
+            const originalText = saveButtonElement.textContent;
+            saveButtonElement.textContent = "Sending...";
+            saveButtonElement.disabled = true;
+
+            const id = document.getElementById("defectId").value;
+            const defectType = document.getElementById("defectType").value;
+            const notes = document.getElementById("defectNotes").value;
+
+            try {
+                // Prepare defects JSON
+                const dataToSave = {
+                    imageFile: imageInput.files[0].name,
+                    imageDimensions: {
+                        Width: originalImageWidth,
+                        Height: originalImageHeight
+                    },
+
+                    defects: defects.map(d => ({
+                        id: d.id,
+                        XNormalized: d.x,
+                        YNormalized: d.y,
+                        //Description: d.description
+                        Description: notes,
+                        Type: defectType
+                    }))
+                };
+
+                // FormData to send image + defects
+                const formData = new FormData();
+                formData.append("imageFile", imageInput.files[0]);
+                formData.append("defectsJson", JSON.stringify(dataToSave));
+
+                const response = await fetch("/QMS/QualityProcess/SaveImageAndDefects", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!result.Success) {
+                    ShowResult(result.Message, 'failure');
+                } else {
+                    ShowResult(result.Message, 'success');
+
+                    // Optional: reload saved defects for this image
+                    //await loadDefects(dataToSave.imageFile);
+                }
+            } catch (error) {
+                ShowResult(result.Message, 'failure');
+            } finally {
+                saveButtonElement.textContent = originalText;
+                saveButtonElement.disabled = false;
+            }
         }
 
-        document.getElementById("defectModal").style.display = "none";
-
-    });
-
-    document.getElementById("closeDefectModal").addEventListener("click", function () {
-        document.getElementById("defectModal").style.display = "none";
-    });
 
 
-    // Delete defect
-    document.getElementById("deleteDefect").addEventListener("click", function () {
-        const id = document.getElementById("defectId").value;
-        if (!id) { alert("No defect selected."); return; }
+        // --- Event Listeners for Responsiveness ---
+        window.addEventListener('resize', () => {
+            if (imageLoaded) {
+                resizeCanvas();
+                drawDefects();
+            }
+        });
 
-        fetch("/QualityProcess/DeleteDefect?id=" + id, { method: "POST" })
-            .then(r => r.json())
-            .then(res => {
-                alert(res.Message);
-                modal.style.display = "none";
-                loadDefects(); // reload markers
-            });
-    });
+        // Initialize button states
+        updateControlButtons();
 
-    function addMarker(defect) {
-        const container = document.getElementById("image-container");
-        const marker = document.createElement("div");
-        marker.className = "marker";
+
+        async function loadDefects(imageFile) {
+            try {
+                const response = await fetch(`QMS/QualityProcess/GetDefects?imageFile=${encodeURIComponent(imageFile)}`);
+                const result = await response.json();
+
+                if (!result.Error) {
+                    console.log("Defects loaded:", result.Data.defects);
+                    // here you can render markers back on canvas
+                } else {
+                    alertMessage(result.Message, "warning");
+                }
+            } catch (err) {
+                console.error("Network Error:", err);
+                alertMessage("Could not load defects.", "error");
+            }
+        }
+
+        let currentClick = { x: 0, y: 0 };
 
         const img = document.getElementById("garmentImage");
-        marker.style.left = (defect.XNormalized * img.width) + "px";
-        marker.style.top = (defect.YNormalized * img.height) + "px";
+        const modal = document.getElementById("defectModal");
 
-        marker.title = defect.Type + " - " + defect.Description;
+        defectCanvas.addEventListener("click", function (e) {
+            debugger;
+            const rect = e.target.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = (e.clientY - rect.top) / rect.height;
 
-        // click marker to edit defect
-        marker.addEventListener("click", (e) => {
-            e.stopPropagation(); // prevent triggering new point
-            document.getElementById("defectId").value = defect.Id;
-            document.getElementById("defectType").value = defect.Type;
-            document.getElementById("defectNotes").value = defect.Description;
+            currentClick = { x, y };
+            document.getElementById("defectId").value = ""; // new defect
+            document.getElementById("defectType").value = "Stain";
+            document.getElementById("defectNotes").value = "";
 
             modal.style.left = e.pageX + "px";
             modal.style.top = e.pageY + "px";
             modal.style.display = "block";
-
-            currentClick = { x: defect.XNormalized, y: defect.YNormalized };
         });
 
-        container.appendChild(marker);
-    }
+        // Save or Update defect
+        document.getElementById("saveDefect").addEventListener("click", function () {
+            try {
+                debugger;
+                const id = document.getElementById("defectId").value;
+                const defectType = document.getElementById("defectType").value;
+                const notes = document.getElementById("defectNotes").value;
+                var masterIdValue = document.getElementById('masterId').value;
 
-    // Load defects from DB
-    //async function loadDefects() {
-    //    const container = document.getElementById("image-container");
-    //    // clear old markers
-    //    container.querySelectorAll(".marker").forEach(m => m.remove());
+                let defectData = {
+                    Id: id || null,
+                    DefectMarkerMasterId: masterIdValue,
+                    XNormalized: currentClick.x,
+                    YNormalized: currentClick.y,
+                    Description: notes,
+                    Type: defectType,
+                    Width: originalImageWidth,
+                    Height: originalImageHeight
+                };
 
-    //    let res = await fetch("/QualityProcess/GetDefects?imageFile=garment1.jpg");
-    //    let data = await res.json();
-    //    data.Defects.forEach(d => addMarker(d));
-    //}
+                // ✅ fetch the selected image file
+                const imageInput = document.getElementById("imageInput");
+                if (!imageInput.files[0]) {
+                    throw "Please select an image first.";
+                    return;
+                }
 
-   // loadDefects();
+                let formData = new FormData();
+                formData.append("imageFile", imageInput.files[0]); // ✅ attach actual image
+                formData.append("defectsJson", JSON.stringify({
+                    ImageFile: imageInput.files[0].name,  // ✅ use actual filename
+                    Defects: [defectData]
+                }));
+
+                fetch("/QualityProcess/SaveImageAndDefects", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(r => r.json())
+                    .then(res => {
+                        ShowResult(res.Message, "success");
+                        modal.style.display = "none";
+                        loadDefects(); // reload markers
+                    })
+                    .catch(err => ShowResult(err, 'failure'));
+            } catch (e) {
+                ShowResult(e, 'failure');
+            }
+
+            document.getElementById("defectModal").style.display = "none";
+
+        });
+
+        document.getElementById("closeDefectModal").addEventListener("click", function () {
+            document.getElementById("defectModal").style.display = "none";
+        });
+
+
+        // Delete defect
+        document.getElementById("deleteDefect").addEventListener("click", function () {
+            const id = document.getElementById("defectId").value;
+            if (!id) { alert("No defect selected."); return; }
+
+            fetch("/QualityProcess/DeleteDefect?id=" + id, { method: "POST" })
+                .then(r => r.json())
+                .then(res => {
+                    alert(res.Message);
+                    modal.style.display = "none";
+                    loadDefects(); // reload markers
+                });
+        });
+
+        function addMarker(defect) {
+            const container = document.getElementById("image-container");
+            const marker = document.createElement("div");
+            marker.className = "marker";
+
+            const img = document.getElementById("garmentImage");
+            marker.style.left = (defect.XNormalized * img.width) + "px";
+            marker.style.top = (defect.YNormalized * img.height) + "px";
+
+            marker.title = defect.Type + " - " + defect.Description;
+
+            // click marker to edit defect
+            marker.addEventListener("click", (e) => {
+                e.stopPropagation(); // prevent triggering new point
+                document.getElementById("defectId").value = defect.Id;
+                document.getElementById("defectType").value = defect.Type;
+                document.getElementById("defectNotes").value = defect.Description;
+
+                modal.style.left = e.pageX + "px";
+                modal.style.top = e.pageY + "px";
+                modal.style.display = "block";
+
+                currentClick = { x: defect.XNormalized, y: defect.YNormalized };
+            });
+
+            container.appendChild(marker);
+        }
+
+        // Load defects from DB
+        //async function loadDefects() {
+        //    const container = document.getElementById("image-container");
+        //    // clear old markers
+        //    container.querySelectorAll(".marker").forEach(m => m.remove());
+
+        //    let res = await fetch("/QualityProcess/GetDefects?imageFile=garment1.jpg");
+        //    let data = await res.json();
+        //    data.Defects.forEach(d => addMarker(d));
+        //}
+
+        // loadDefects();
 
 
 
-    function openDefectPopup(x, y) {
-        const modal = document.getElementById("defectModal");
-        const backdrop = document.getElementById("popupBackdrop");
+        function openDefectPopup(x, y) {
+            const modal = document.getElementById("defectModal");
+            const backdrop = document.getElementById("popupBackdrop");
 
-        modal.style.left = x + "px";
-        modal.style.top = y + "px";
-        modal.style.display = "block";
-        backdrop.style.display = "block";
-    }
+            modal.style.left = x + "px";
+            modal.style.top = y + "px";
+            modal.style.display = "block";
+            backdrop.style.display = "block";
+        }
 
-    function closeDefectPopup() {
-        document.getElementById("defectModal").style.display = "none";
-        document.getElementById("popupBackdrop").style.display = "none";
+        function closeDefectPopup() {
+            document.getElementById("defectModal").style.display = "none";
+            document.getElementById("popupBackdrop").style.display = "none";
 
-        defectModal.style.display = "none";
-        modalBackdrop.style.display = "none";
-    }
+            defectModal.style.display = "none";
+            modalBackdrop.style.display = "none";
+        }
 
 
-</script>
+    </script>*@

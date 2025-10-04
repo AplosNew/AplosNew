@@ -1,6 +1,6 @@
 ﻿'use strict';
-DefectMarkerController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+DefectMarkerController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$timeout', 'fileReader'];
+function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $timeout, fileReader) {
     $rootScope.title = 'Defect Marker';
     $scope.Action = 'Save';
     $scope.DefectMasterModelList = [];
@@ -10,7 +10,7 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.searchBy = "Entity"; $scope.search = "";
     $scope.searchByList = [{ value: 'Entity', name: "Entity" }, { value: 'WorkCenterMaster', name: "WorkCenterMaster" }, { value: 'ProductionOrder', name: "ProductionOrder" }];
-    $scope.productionSummaryNew = {Id:null, EntityId: null, WorkCenterMasterId: null, MarkDate: null, ProductionOrderId: null, BuyerItem: null, OwnItem: null, BuyerOrder: null, OwnOrder: null, Remarks: null, ProductionShiftId: null, SalesOrderId: null, ResponsiblePersonId: null, ResponsiblePerson: null }
+    $scope.productionSummaryNew = { Id: null, EntityId: null, WorkCenterMasterId: null, MarkDate: null, ProductionOrderId: null, BuyerItem: null, OwnItem: null, BuyerOrder: null, OwnOrder: null, Remarks: null, ProductionShiftId: null, SalesOrderId: null, ResponsiblePersonId: null, ResponsiblePerson: null }
 
 
     $scope.getData = function () {
@@ -215,6 +215,630 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
 
         }
     };
+
+    //// Trigger hidden input  
+
+    $scope.defects = [];
+    $scope.imageSrc = null;
+    $scope.imageLoaded = false;
+
+    $scope.triggerImageUpload = function () {
+        const input = document.getElementById('imageInput');
+        if (input) input.click(); // open dialog
+    };
+
+    // load image from file input
+    $scope.loadImage = function (element) {
+        const file = element.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            $scope.$apply(function () {
+                $scope.imageSrc = e.target.result;
+                $scope.imageLoaded = true;
+                $timeout($scope.prepareCanvas, 100);
+            });
+        };
+        reader.readAsDataURL(file);
+    };
+
+    // set up canvas overlay
+    $scope.prepareCanvas = function () {
+        const img = document.getElementById('garmentImage');
+        const canvas = document.getElementById('defectCanvas');
+        if (!img || !canvas) return;
+
+        canvas.width = img.clientWidth;
+        canvas.height = img.clientHeight;
+        $scope.drawDefects();
+    };
+
+    // add point on click
+    $scope.onCanvasClick = function (event) {
+        if (!$scope.imageLoaded) return;
+
+        const canvas = document.getElementById('defectCanvas');
+        const rect = canvas.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width;
+        const y = (event.clientY - rect.top) / rect.height;
+
+        $scope.defects.push({ x, y, id: Date.now() });
+        $scope.drawDefects();
+    };
+
+    // draw red markers
+    $scope.drawDefects = function () {
+        const canvas = document.getElementById('defectCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        $scope.defects.forEach(d => {
+            const px = d.x * canvas.width;
+            const py = d.y * canvas.height;
+            ctx.beginPath();
+            ctx.arc(px, py, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#ef4444';
+            ctx.fill();
+            ctx.strokeStyle = '#b91c1c';
+            ctx.stroke();
+        });
+    };
+
+    // clear everything
+    $scope.clearDefects = function () {
+        $scope.defects = [];
+        $scope.imageSrc = null;
+        $scope.imageLoaded = false;
+    };
+
+    // save example
+    $scope.saveDefects = function () {
+        console.log("Defects:", $scope.defects);
+    };
+
+    $scope.defects = [];
+    $scope.imageSrc = null;
+    $scope.imageLoaded = false;
+
+    $scope.showDefectModal = false;
+    $scope.modalPosition = { x: 0, y: 0 };
+    $scope.currentDefect = {};
+
+    // trigger hidden input
+    $scope.triggerImageUpload = function () {
+        const input = document.getElementById('imageInput');
+        if (input) input.click();
+    };
+
+    // load image file
+    $scope.loadImage = function (element) {
+        const file = element.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            $scope.$apply(function () {
+                $scope.imageSrc = e.target.result;
+                $scope.imageLoaded = true;
+                $timeout($scope.prepareCanvas, 100);
+            });
+        };
+        reader.readAsDataURL(file);
+    };
+
+    // prepare canvas overlay
+    $scope.prepareCanvas = function () {
+        const img = document.getElementById('garmentImage');
+        const canvas = document.getElementById('defectCanvas');
+        if (!img || !canvas) return;
+
+        canvas.width = img.clientWidth;
+        canvas.height = img.clientHeight;
+        $scope.drawDefects();
+    };
+
+    // handle click to add or edit defect
+    $scope.onCanvasClick = function (event) {
+        if (!$scope.imageLoaded) return;
+
+        const canvas = document.getElementById('defectCanvas');
+        const rect = canvas.getBoundingClientRect();
+        const clickX = (event.clientX - rect.left) / rect.width;
+        const clickY = (event.clientY - rect.top) / rect.height;
+
+        // detect if clicking an existing defect
+        const clickedDefect = $scope.defects.find(d => {
+            const px = d.x * rect.width;
+            const py = d.y * rect.height;
+            const dx = (event.clientX - rect.left) - px;
+            const dy = (event.clientY - rect.top) - py;
+            return Math.sqrt(dx * dx + dy * dy) < 10;
+        });
+
+        if (clickedDefect) {
+            // open editor for existing defect
+            $scope.editDefect(clickedDefect, event);
+        } else {
+            // create new defect
+            $scope.currentDefect = { x: clickX, y: clickY, Type: '', Description: '', id: Date.now() };
+            $scope.modalPosition = { x: event.pageX, y: event.pageY };
+            $scope.showDefectModal = true;
+            $scope.$applyAsync();
+        }
+    };
+
+    // save current defect (create or update)
+    $scope.saveDefect = function () {
+        const idx = $scope.defects.findIndex(d => d.id === $scope.currentDefect.id);
+        if (idx >= 0) $scope.defects[idx] = angular.copy($scope.currentDefect);
+        else $scope.defects.push(angular.copy($scope.currentDefect));
+        $scope.showDefectModal = false;
+        $scope.drawDefects();
+    };
+
+    // delete current defect (from popup)
+    $scope.deleteCurrentDefect = function () {
+        $scope.defects = $scope.defects.filter(d => d.id !== $scope.currentDefect.id);
+        $scope.showDefectModal = false;
+        $scope.drawDefects();
+    };
+
+    // delete from list
+    $scope.deleteDefect = function (id) {
+        $scope.defects = $scope.defects.filter(d => d.id !== id);
+        $scope.drawDefects();
+    };
+
+    // edit from list
+    $scope.editDefect = function (defect, event) {
+        $scope.currentDefect = angular.copy(defect);
+        $scope.modalPosition = { x: event.pageX, y: event.pageY };
+        $scope.showDefectModal = true;
+    };
+
+    // draw all markers
+    $scope.drawDefects = function () {
+        const canvas = document.getElementById('defectCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        $scope.defects.forEach(d => {
+            const px = d.x * canvas.width;
+            const py = d.y * canvas.height;
+            ctx.beginPath();
+            ctx.arc(px, py, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#ef4444';
+            ctx.fill();
+            ctx.strokeStyle = '#b91c1c';
+            ctx.stroke();
+        });
+    };
+
+    // close popup without saving
+    $scope.closeDefectModal = function () {
+        $scope.showDefectModal = false;
+    };
+
+    // clear all
+    $scope.clearDefects = function () {
+        $scope.defects = [];
+        $scope.imageSrc = null;
+        $scope.imageLoaded = false;
+    };
+
+    // save example
+
+    $scope.saveDefects = function () {
+        try {
+            if (!$scope.defects || $scope.defects.length === 0) {
+                throw "No defects to save!";
+                return;
+            }
+
+            const imageInput = document.getElementById("imageInput");
+            if (!imageInput || !imageInput.files[0]) {
+                throw "Please import an image first!";
+                return;
+            }
+
+            const imageFile = imageInput.files[0];
+
+            // ✅ Prepare data structure that matches your C# model
+            const defectPayload = {
+                ImageFile: imageFile.name,
+                Width: $scope.originalImageWidth,
+                Height: $scope.originalImageHeight,
+                Defects: $scope.defects.map(d => ({
+                    Id: d.id || 0,
+                    DefectMarkerMasterId: $scope.productionSummaryNew.Id, // if you have master ID in hidden field
+                    Width: $scope.originalImageWidth,
+                    Height: $scope.originalImageHeight,
+                    XNormalized: d.x,
+                    YNormalized: d.y,
+                    Type: d.Type || "Unknown",
+                    Description: d.Description || ""
+                }))
+            };
+
+            // ✅ Build FormData for multipart upload
+            const formData = new FormData();
+            formData.append("imageFile", imageFile);
+            formData.append("defectsJson", JSON.stringify(defectPayload));
+
+            console.log("Uploading data:", defectPayload);
+
+            // ✅ Send to MVC controller
+            $http.post("/QMS/QualityProcess/SaveImageAndDefects", formData, {
+                transformRequest: angular.identity,
+                headers: { "Content-Type": undefined }
+            })
+                .then(function (response) {
+                    if (response.data.Success) {
+                        ShowResult(response.data.Message, 'success');
+                    } else {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                })
+                .catch(function (error) {
+                    ShowResult(error, 'failure');
+                });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+
+
+    // keep canvas updated on resize
+    window.addEventListener('resize', function () {
+        if ($scope.imageLoaded) $scope.prepareCanvas();
+    });
+
+    /// last work
+
+    //$scope.defects = [];
+    //$scope.imageSrc = null;
+    //$scope.imageLoaded = false;
+    //$scope.originalImageWidth = 0;
+    //$scope.originalImageHeight = 0;
+
+    //let defectCanvas, garmentImage, ctx;
+
+    //// Trigger image upload
+    //$scope.triggerImageUpload = function () {
+    //    const input = document.getElementById("imageInput");
+    //    if (input) input.click();
+    //};
+
+    //// Load and prepare image
+    //$scope.loadImage = function (element) {
+    //    const file = element.files[0];
+    //    if (!file) return;
+
+    //    const reader = new FileReader();
+    //    reader.onload = function (e) {
+    //        $scope.$apply(function () {
+    //            $scope.imageSrc = e.target.result;
+    //            $scope.imageLoaded = true;
+
+    //            $timeout($scope.prepareCanvas, 100);
+    //        });
+    //    };
+    //    reader.readAsDataURL(file);
+    //};
+
+    //// Prepare canvas over the image
+    //$scope.prepareCanvas = function () {
+    //    garmentImage = document.getElementById("garmentImage");
+    //    defectCanvas = document.getElementById("defectCanvas");
+
+    //    if (!garmentImage || !defectCanvas) return;
+
+    //    ctx = defectCanvas.getContext("2d");
+
+    //    // Match canvas to image size
+    //    defectCanvas.width = garmentImage.clientWidth;
+    //    defectCanvas.height = garmentImage.clientHeight;
+
+    //    $scope.originalImageWidth = garmentImage.naturalWidth;
+    //    $scope.originalImageHeight = garmentImage.naturalHeight;
+
+    //    // Add click listener only once
+    //    defectCanvas.onclick = $scope.onCanvasClick;
+
+    //    $scope.drawDefects();
+    //};
+
+    //// Handle click to mark defects
+    //$scope.onCanvasClick = function (event) {
+    //    if (!$scope.imageLoaded) return;
+
+    //    const rect = defectCanvas.getBoundingClientRect();
+
+    //    // Get normalized coordinates (0–1)
+    //    const x = (event.clientX - rect.left) / rect.width;
+    //    const y = (event.clientY - rect.top) / rect.height;
+
+    //    const defect = {
+    //        id: Date.now(),
+    //        x: x,
+    //        y: y,
+    //        Type: "Stain",
+    //        Description: "N/A"
+    //    };
+
+    //    $scope.$apply(function () {
+    //        $scope.defects.push(defect);
+    //        $scope.drawDefects();
+    //    });
+    //};
+
+    ////// handle click to add or edit defect
+    //$scope.onCanvasClick = function (event) {
+    //    if (!$scope.imageLoaded) return;
+
+    //    const canvas = document.getElementById('defectCanvas');
+    //    const rect = canvas.getBoundingClientRect();
+    //    const clickX = (event.clientX - rect.left) / rect.width;
+    //    const clickY = (event.clientY - rect.top) / rect.height;
+
+    //    // detect if clicking an existing defect
+    //    const clickedDefect = $scope.defects.find(d => {
+    //        const px = d.x * rect.width;
+    //        const py = d.y * rect.height;
+    //        const dx = (event.clientX - rect.left) - px;
+    //        const dy = (event.clientY - rect.top) - py;
+    //        return Math.sqrt(dx * dx + dy * dy) < 10;
+    //    });
+
+    //    if (clickedDefect) {
+    //        // open editor for existing defect
+    //        $scope.editDefect(clickedDefect, event);
+    //    } else {
+    //        // create new defect
+    //        $scope.currentDefect = { x: clickX, y: clickY, Type: '', Description: '', id: Date.now() };
+    //        $scope.modalPosition = { x: event.pageX, y: event.pageY };
+    //        $scope.showDefectModal = true;
+    //        $scope.$applyAsync();
+    //    }
+    //};
+
+
+    //// Draw defects on canvas
+    //$scope.drawDefects = function () {
+    //    if (!ctx || !$scope.imageLoaded) return;
+
+    //    ctx.clearRect(0, 0, defectCanvas.width, defectCanvas.height);
+
+    //    $scope.defects.forEach(d => {
+    //        const px = d.x * defectCanvas.width;
+    //        const py = d.y * defectCanvas.height;
+
+    //        ctx.beginPath();
+    //        ctx.arc(px, py, 6, 0, Math.PI * 2);
+    //        ctx.fillStyle = "#ef4444"; // red
+    //        ctx.fill();
+    //        ctx.strokeStyle = "#b91c1c";
+    //        ctx.stroke();
+    //    });
+    //};
+
+    //// Save image + defects to MVC controller
+    //$scope.saveDefects = function () {
+    //    if (!$scope.defects || $scope.defects.length === 0) {
+    //        alert("No defects to save!");
+    //        return;
+    //    }
+
+    //    const imageInput = document.getElementById("imageInput");
+    //    if (!imageInput || !imageInput.files[0]) {
+    //        alert("Please import an image first!");
+    //        return;
+    //    }
+
+    //    const imageFile = imageInput.files[0];
+
+    //    // Build payload structure that matches your C# model
+    //    const defectPayload = {
+    //        ImageFile: imageFile.name,
+    //        Width: $scope.originalImageWidth,
+    //        Height: $scope.originalImageHeight,
+    //        Defects: $scope.defects.map(d => ({
+    //            Id: d.id,
+    //            DefectMarkerMasterId: $scope.masterId || 0,
+    //            Width: $scope.originalImageWidth,
+    //            Height: $scope.originalImageHeight,
+    //            XNormalized: d.x,
+    //            YNormalized: d.y,
+    //            Type: d.Type,
+    //            Description: d.Description
+    //        }))
+    //    };
+
+    //    const formData = new FormData();
+    //    formData.append("imageFile", imageFile);
+    //    formData.append("defectsJson", JSON.stringify(defectPayload));
+
+    //    $http.post("/QMS/QualityProcess/SaveImageAndDefects", formData, {
+    //        transformRequest: angular.identity,
+    //        headers: { "Content-Type": undefined }
+    //    })
+    //        .then(function (response) {
+    //            if (response.data.Success) {
+    //                alert("✅ Image and defects saved successfully!");
+    //            } else {
+    //                alert("⚠️ Failed: " + response.data.Message);
+    //            }
+    //        })
+    //        .catch(function (error) {
+    //            console.error("Error while saving:", error);
+    //            alert("❌ Error saving image and defects.");
+    //        });
+    //};
+
+    //// Clear image + defects
+    //$scope.clearDefects = function () {
+    //    $scope.defects = [];
+    //    $scope.imageSrc = null;
+    //    ctx && ctx.clearRect(0, 0, defectCanvas.width, defectCanvas.height);
+    //};
+
+    //// Handle resizing
+    //window.addEventListener("resize", function () {
+    //    if ($scope.imageLoaded) {
+    //        $scope.prepareCanvas();
+    //        $scope.drawDefects();
+    //    }
+    //});
+    /// 2nd work
+
+    //$scope.defects = [];
+    //$scope.imageSrc = null;
+    //$scope.imageLoaded = false;
+    //$scope.originalImageWidth = 0;
+    //$scope.originalImageHeight = 0;
+    //$scope.showDefectPopup = false;
+    //$scope.popupPosition = { x: 0, y: 0 };
+    //$scope.newDefect = {};
+
+    //// canvas variables
+    //let defectCanvas, garmentImage, ctx;
+
+    //// trigger file upload
+    //$scope.triggerImageUpload = function () {
+    //    const input = document.getElementById("imageInput");
+    //    if (input) input.click();
+    //};
+
+    //// load image
+    //$scope.loadImage = function (element) {
+    //    const file = element.files[0];
+    //    if (!file) return;
+
+    //    const reader = new FileReader();
+    //    reader.onload = function (e) {
+    //        $scope.$apply(function () {
+    //            $scope.imageSrc = e.target.result;
+    //            $scope.imageLoaded = true;
+    //            $timeout($scope.prepareCanvas, 100);
+    //        });
+    //    };
+    //    reader.readAsDataURL(file);
+    //};
+
+    //// prepare canvas
+    //$scope.prepareCanvas = function () {
+    //    garmentImage = document.getElementById("garmentImage");
+    //    defectCanvas = document.getElementById("defectCanvas");
+
+    //    if (!garmentImage || !defectCanvas) return;
+
+    //    ctx = defectCanvas.getContext("2d");
+    //    defectCanvas.width = garmentImage.clientWidth;
+    //    defectCanvas.height = garmentImage.clientHeight;
+
+    //    $scope.originalImageWidth = garmentImage.naturalWidth;
+    //    $scope.originalImageHeight = garmentImage.naturalHeight;
+
+    //    defectCanvas.onclick = $scope.onCanvasClick;
+    //    $scope.drawDefects();
+    //};
+
+    //// handle canvas click
+    //$scope.onCanvasClick = function (event) {
+    //    if (!$scope.imageLoaded) return;
+
+    //    const rect = defectCanvas.getBoundingClientRect();
+    //    const xNorm = (event.clientX - rect.left) / rect.width;
+    //    const yNorm = (event.clientY - rect.top) / rect.height;
+
+    //    // popup position (on screen)
+    //    $scope.$apply(function () {
+    //        $scope.showDefectPopup = true;
+    //        $scope.popupPosition = {
+    //            x: event.clientX - rect.left + 10,
+    //            y: event.clientY - rect.top + 10
+    //        };
+    //        $scope.newDefect = {
+    //            x: xNorm,
+    //            y: yNorm,
+    //            Type: "",
+    //            Description: ""
+    //        };
+    //    });
+    //};
+
+    //// confirm defect
+    //$scope.saveDefectFromPopup = function () {
+    //    const d = angular.copy($scope.newDefect);
+    //    d.id = Date.now();
+
+    //    $scope.defects.push(d);
+    //    $scope.showDefectPopup = false;
+    //    $scope.drawDefects();
+    //};
+
+    //// cancel popup
+    //$scope.cancelDefectPopup = function () {
+    //    $scope.showDefectPopup = false;
+    //};
+
+    //// draw markers
+    //$scope.drawDefects = function () {
+    //    if (!ctx || !$scope.imageLoaded) return;
+    //    ctx.clearRect(0, 0, defectCanvas.width, defectCanvas.height);
+
+    //    $scope.defects.forEach(d => {
+    //        const px = d.x * defectCanvas.width;
+    //        const py = d.y * defectCanvas.height;
+
+    //        ctx.beginPath();
+    //        ctx.arc(px, py, 6, 0, Math.PI * 2);
+    //        ctx.fillStyle = "#ef4444";
+    //        ctx.fill();
+    //        ctx.strokeStyle = "#b91c1c";
+    //        ctx.stroke();
+    //    });
+    //};
+
+    //// save to MVC controller
+    //$scope.saveDefects = function () {
+    //    if (!$scope.defects || $scope.defects.length === 0) {
+    //        alert("No defects to save!");
+    //        return;
+    //    }
+
+    //    const imageInput = document.getElementById("imageInput");
+    //    if (!imageInput || !imageInput.files[0]) {
+    //        alert("Please import an image first!");
+    //        return;
+    //    }
+
+    //    const imageFile = imageInput.files[0];
+
+    //    const defectPayload = {
+    //        ImageFile: imageFile.name,
+    //        Width: $scope.originalImageWidth,
+    //        Height: $scope.originalImageHeight,
+    //        Defects: $scope.defects
+    //    };
+
+    //    const formData = new FormData();
+    //    formData.append("imageFile", imageFile);
+    //    formData.append("defectsJson", JSON.stringify(defectPayload));
+
+    //    $http.post("/QMS/QualityProcess/SaveImageAndDefects", formData, {
+    //        transformRequest: angular.identity,
+    //        headers: { "Content-Type": undefined }
+    //    })
+    //        .then(res => alert("✅ Saved successfully!"))
+    //        .catch(err => alert("❌ Save failed!"));
+    //};
+
+
 
 
 }
