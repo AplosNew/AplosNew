@@ -903,56 +903,7 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='" + masterId + "'";
             return Json(GetDefectSequence(qualityProcessMasterId), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
-        public JsonResult CreateMaster(Dictionary<string, object> data)
-        {
-            try
-            {
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Code already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same User Name already exists!!!");
-
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-
-                #region data update
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
-
-                    data["Id"] = "DZ" + _Id;
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
-                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
-
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message });
-
-            }
-        }
-
+        
         [HttpPost]
         public JsonResult CreateDefect(Dictionary<string, object> data, string qualityProcessMasterId)
         {
@@ -1031,6 +982,71 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='" + masterId + "'";
 
 
         }
+
+        [HttpPost]
+        public JsonResult CreateDefectMarkerMaster(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from dbo.DefectMarkerMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("DefectMaster", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost]
+        public ActionResult GetDefectMarkerMasterList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            string sql = @"select top 100 * from (SELECT DM.*,E.UserName Entity,W.UserName WorkCenterMaster,SD.UserName ProductionShift,CV.UserName Color,SV.UserName Size,ResponsiblePerson=(EI.EmployeeCode+''+ EI.EmployeeName)   
+FROM  dbo.DefectMarkerMaster DM
+LEFT JOIN ORG.Entity E ON E.Id=DM.EntityId
+LEFT JOIN SCS.WorkCenterMaster W ON W.Id=DM.WorkCenterMasterId
+LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=DM.ProductionShiftId
+LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id=DM.ColorId
+LEFT JOIN HKP.CharacteristicsValue SV ON SV.Id=DM.SizeId
+LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
+) AS TEMP WHERE " + strkey + "";
+
+
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
 
         [HttpPost]
         public JsonResult SaveDefects([System.Web.Http.FromBody] DefectData data)

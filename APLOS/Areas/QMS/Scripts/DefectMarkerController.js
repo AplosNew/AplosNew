@@ -1,17 +1,37 @@
 ﻿'use strict';
 DefectMarkerController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.defecttitle = 'Defect Marker';
+    $rootScope.title = 'Defect Marker';
     $scope.Action = 'Save';
-    $scope.DefectModelList = [];
+    $scope.DefectMasterModelList = [];
     $scope.path = 'QMS/QualityProcess/';
-    $scope.saveUrl = $scope.path + 'createdefect';
+    $scope.saveUrl = $scope.path + 'CreateDefectMarkerMaster';
     $scope.deleteUrl = $scope.path + 'deletedefect/';
-    baseService.init($scope.getListUrl);
-    $scope.searchBy = "UserName"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
-    $scope.productionSummaryNew = { EntityId: null, WorkCenterMasterId: null, MarkDate: null, ProductionOrderId: null, BuyerItem: null, OwnItem: null, BuyerOrder: null, OwnOrder: null, Remarks: null, ProductionShiftId: null, SalesOrderId: null, ResponsiblePersonId: null, ResponsiblePersonName: null }
+    $scope.searchBy = "Entity"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Entity', name: "Entity" }, { value: 'WorkCenterMaster', name: "WorkCenterMaster" }, { value: 'ProductionOrder', name: "ProductionOrder" }];
+    $scope.productionSummaryNew = {Id:null, EntityId: null, WorkCenterMasterId: null, MarkDate: null, ProductionOrderId: null, BuyerItem: null, OwnItem: null, BuyerOrder: null, OwnOrder: null, Remarks: null, ProductionShiftId: null, SalesOrderId: null, ResponsiblePersonId: null, ResponsiblePerson: null }
+
+
+    $scope.getData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetDefectMarkerMasterList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.DefectMasterModelList = response.data;
+        });
+    }
+    $scope.getData();
+
+    $scope.Get = function (args) {
+        $scope.productionSummaryNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
 
     $scope.entityList = [];
     $scope.getAllEntities = function () {
@@ -107,24 +127,6 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
     }
 
-    function checkExists(list, id) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].SOId === id) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    function checkExistsItem(list, id) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].LineItemId !== id) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     $scope.ShowDefectMarkingpopUp = function () {
         angular.element(document.querySelector('#DefectMarkingPopup')).modal('show');
     }
@@ -135,7 +137,6 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.SalesOrderListForProductionOrderId = [];
     $scope.getSalesOrderByProdOrderList = function () {
-        /*$scope.openPopup('dialogSOItemsFromProductionOrder');*/
         $http({
             method: 'GET',
             url: 'OrderManagements/ProductionOrder/GetProductionRecipeMaterialList?productionOrderId=' + $scope.productionSummaryNew.ProductionOrderId
@@ -167,6 +168,27 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
 
+    $scope.employee = [];
+    $scope.getPopUpData = function () {
+        $scope.employee = [];
+        $scope.popUpEmpDataList = [];
+        $http({
+            method: 'GET',
+            url: 'QMS/QualityProcess/getemployeelist'
+        }).then(function successCallback(response) {
+            $scope.employee = response.data;
+            $scope.popUpEmpDataList = response.data;
+        });
+    }
+    $scope.getPopUpData();
+
+    $scope.setEmpData = function (obj) {
+        $scope.productionSummaryNew.ResponsiblePersonId = obj.data.SystemID;
+        $scope.productionSummaryNew.ResponsiblePerson = obj.data.EmployeeCode + "-" + obj.data.EmployeeName;
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    };
+
+
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
@@ -181,6 +203,7 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.productionSummaryNew.Id = response.data.Data.Id;
                     $scope.getData();
 
                 }
