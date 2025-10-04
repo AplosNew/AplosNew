@@ -1147,6 +1147,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
                         dr["ImageFile"] = defectData.ImageFile;
+                        dr["DefectMarkerMasterId"] = d.DefectMarkerMasterId;
                         dr["Width"] = d.Width;
                         dr["Height"] = d.Height;
                         dr["XNormalized"] = d.XNormalized;
@@ -1258,6 +1259,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
         public decimal XNormalized { get; set; }
         public decimal YNormalized { get; set; }
         public string Description { get; set; }
+        public string DefectMarkerMasterId { get; set; }
     }
     public class DefectData
     {
@@ -1283,6 +1285,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
         public string Type { get; set; }   // added defect type
         public int Width { get; set; }
         public int Height { get; set; }
+        public string DefectMarkerMasterId { get; set; }
     }
 }
 

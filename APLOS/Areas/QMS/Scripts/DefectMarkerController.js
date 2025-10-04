@@ -27,6 +27,8 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.Get = function (args) {
         $scope.productionSummaryNew = Object.assign({}, args.data);
+        $scope.loadWC();
+        $scope.GetShiftList();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();

@@ -1,8 +1,8 @@
 ﻿@*<h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span> Defect Marker</h3>*@
 <togglable name="{{title}}"></togglable>
 @*<label class="col-sm-12 control-label" style="color:blue">Only Running order will be consider for defect mark.</label>*@
-@*<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">*@
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
     body {
         font-family: 'Inter', sans-serif;
@@ -83,6 +83,7 @@
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-6">
+            <input type="hidden" id="masterId" ng-model="productionSummaryNew.Id"value="{{productionSummaryNew.Id}}">
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
@@ -170,7 +171,7 @@
                 <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.ProductionShiftId" name="Shift" ng-options="item.Value as item.Text for item in shiftList" required>
+                        <select class="form-control" ng-model="productionSummaryNew.ProductionShiftId" name="Shift" ng-options="item.Value as item.Text for item in shiftList" required>
                             <option value=""></option>
                         </select>
                     </div>
@@ -259,7 +260,7 @@
             <div e-column e-field="ProductionShift" e-headertext="ProductionShift" e-width="4"></div>
             <div e-column e-field="Color" e-headertext="Color" e-width="2"></div>
             <div e-column e-field="Size" e-headertext="Size" e-width="2"></div>
-            <div e-column e-field="ResponsiblePerson" e-headertext="ResponsiblePerson" e-width="2"></div>
+            <div e-column e-field="ResponsiblePerson" e-headertext="ResponsiblePerson" e-width="5"></div>
         </div>
     </div>
 </div>
@@ -345,9 +346,9 @@
                     <label>Notes:</label><br />
                     <textarea id="defectNotes" style="width:200px; height:60px;"></textarea><br /><br />
 
-                    <button id="saveDefect">Save</button>
+                    <button id="saveDefect" style="background: #3e445a none repeat scroll 0 0; border: 1px solid #3e445a; color: #fff; font-size: 15px; ">Save</button>
                     <button id="deleteDefect" style="background: #3e445a none repeat scroll 0 0; border: 1px solid #3e445a; color: #fff; font-size: 15px; ">Delete</button>
-                    <button id="closeDefectModal" style="margin-left:10px;">Close</button>
+                    <button id="closeDefectModal" style="background: #3e445a none repeat scroll 0 0; border: 1px solid #3e445a; color: #fff; font-size: 15px; ">Close</button>
                 </div>
 
 
@@ -511,6 +512,7 @@
 </div>
 
 <script>
+
     const imageInput = document.getElementById('imageInput');
     const garmentImage = document.getElementById('garmentImage');
     const defectCanvas = document.getElementById('defectCanvas');
@@ -672,7 +674,7 @@
                                     </svg>
                                 </button>
                             `;
-                debugger;
+             
                 defectsList.appendChild(listItem);
             });
         }
@@ -849,12 +851,15 @@
     // Save or Update defect
     document.getElementById("saveDefect").addEventListener("click", function () {
         try {
+            debugger;
             const id = document.getElementById("defectId").value;
             const defectType = document.getElementById("defectType").value;
             const notes = document.getElementById("defectNotes").value;
+            var masterIdValue = document.getElementById('masterId').value;
 
             let defectData = {
                 Id: id || null,
+                DefectMarkerMasterId: masterIdValue,
                 XNormalized: currentClick.x,
                 YNormalized: currentClick.y,
                 Description: notes,
@@ -944,17 +949,17 @@
     }
 
     // Load defects from DB
-    async function loadDefects() {
-        const container = document.getElementById("image-container");
-        // clear old markers
-        container.querySelectorAll(".marker").forEach(m => m.remove());
+    //async function loadDefects() {
+    //    const container = document.getElementById("image-container");
+    //    // clear old markers
+    //    container.querySelectorAll(".marker").forEach(m => m.remove());
 
-        let res = await fetch("/QualityProcess/GetDefects?imageFile=garment1.jpg");
-        let data = await res.json();
-        data.Defects.forEach(d => addMarker(d));
-    }
+    //    let res = await fetch("/QualityProcess/GetDefects?imageFile=garment1.jpg");
+    //    let data = await res.json();
+    //    data.Defects.forEach(d => addMarker(d));
+    //}
 
-    loadDefects();
+   // loadDefects();
 
 
 
