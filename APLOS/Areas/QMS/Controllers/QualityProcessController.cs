@@ -1109,7 +1109,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
         }
 
         [HttpPost]
-        public JsonResult SaveImageAndDefects(HttpPostedFileBase imageFile, string defectsJson)
+        public JsonResult _SaveImageAndDefects(HttpPostedFileBase imageFile, string defectsJson)
         {
             try
             {
@@ -1142,6 +1142,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                 {
                     DataView dv = new DataView(dsMaster.Tables[0]);
                     dv.RowFilter = "Id='" + d.Id + "'";
+                    //dv.RowFilter = "Id='" + d.Id + "' AND DefectMarkerMasterId='" + defectData.DefectMarkerMasterId + "'";
 
                     if (dv.Count == 0)
                     {
@@ -1167,6 +1168,98 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                 // Save all at once
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
+
+                return Json(new { Success = true, Message = "Image and defects saved successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Success = false, Message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult SaveImageAndDefects(HttpPostedFileBase imageFile, string defectsJson, int masterId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                // Deserialize the payload
+                var defectData = JsonConvert.DeserializeObject<DefectData>(defectsJson);
+
+                string finalFileName = defectData.ImageFile;
+
+                // ✅ If a new image is uploaded, save it
+                if (imageFile != null && imageFile.ContentLength > 0)
+                {
+                    string uploadsFolder = Path.Combine(ResourcesPathReader.GetDefectPicPath());
+                    if (!Directory.Exists(uploadsFolder))
+                        Directory.CreateDirectory(uploadsFolder);
+
+                    finalFileName = Path.GetFileName(imageFile.FileName);
+                    string filePath = Path.Combine(uploadsFolder, finalFileName);
+                    imageFile.SaveAs(filePath);
+                }
+                else
+                {
+                    // ✅ No new image uploaded — reuse existing file name
+                    if (string.IsNullOrEmpty(finalFileName))
+                        throw new Exception("No image provided and no existing file found.");
+                }
+
+                defectData.ImageFile = finalFileName;
+
+                // Save defects in database
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                DataSet dsMaster;
+                string tableName = "ImageDefects";
+
+                con.OpenDataSetThroughAdapter($"SELECT * FROM {tableName} WHERE DefectMarkerMasterId="+ masterId + "", out dsMaster, false, "1");
+
+                foreach (var d in defectData.Defects)
+                {
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "Id=" + d.Id + " AND DefectMarkerMasterId='" + masterId + "'";
+
+
+                    if (dv.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+                        dr["ImageFile"] = defectData.ImageFile;
+                        dr["DefectMarkerMasterId"] = masterId;
+                        dr["Width"] = d.Width;
+                        dr["Height"] = d.Height;
+                        dr["XNormalized"] = d.XNormalized;
+                        dr["YNormalized"] = d.YNormalized;
+                        dr["Description"] = d.Description;
+                        dr["Type"] = d.Type;
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        DataRow dr = dv[0].Row;
+
+                        dr.BeginEdit();
+                        dr["ImageFile"] = defectData.ImageFile;
+                        dr["DefectMarkerMasterId"] = masterId;
+                        dr["Width"] = d.Width;
+                        dr["Height"] = d.Height;
+                        dr["XNormalized"] = d.XNormalized;
+                        dr["YNormalized"] = d.YNormalized;
+                        dr["Description"] = d.Description;
+                        dr["Type"] = d.Type;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr.EndEdit();
+                    }
+                }
+
+                clsStaticInfo info = new clsStaticInfo();
+                info.SaveDataSets(dsMaster);
 
                 return Json(new { Success = true, Message = "Image and defects saved successfully." });
             }

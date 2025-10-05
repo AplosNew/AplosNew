@@ -221,6 +221,7 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.defects = [];
     $scope.imageSrc = null;
+    $scope.ImageFile = null;
     $scope.imageLoaded = false;
     $scope.originalImageWidth = 0;
     $scope.originalImageHeight = 0;
@@ -370,79 +371,12 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
         $scope.imageLoaded = false;
     };
 
-    // save example
-
-    $scope.saveDefects = function () {
-        try {
-            if (!$scope.defects || $scope.defects.length === 0) {
-                throw "No defects to save!";
-                return;
-            }
-
-            const imageInput = document.getElementById("imageInput");
-            if (!imageInput || !imageInput.files[0]) {
-                throw "Please import an image first!";
-                return;
-            }
-
-            const imageFile = imageInput.files[0];
-
-            // ✅ Prepare data structure that matches your C# model
-            const defectPayload = {
-                ImageFile: imageFile.name,
-                Width: $scope.originalImageWidth,
-                Height: $scope.originalImageHeight,
-                Defects: $scope.defects.map(d => ({
-                    Id: d.id || 0,
-                    DefectMarkerMasterId: $scope.productionSummaryNew.Id, // if you have master ID in hidden field
-                    Width: $scope.originalImageWidth,
-                    Height: $scope.originalImageHeight,
-                    XNormalized: d.x,
-                    YNormalized: d.y,
-                    Type: d.Type || "Unknown",
-                    Description: d.Description || ""
-                }))
-            };
-
-            // ✅ Build FormData for multipart upload
-            const formData = new FormData();
-            formData.append("imageFile", imageFile);
-            formData.append("defectsJson", JSON.stringify(defectPayload));
-
-            console.log("Uploading data:", defectPayload);
-
-            // ✅ Send to MVC controller
-            $http.post("/QMS/QualityProcess/SaveImageAndDefects", formData, {
-                transformRequest: angular.identity,
-                headers: { "Content-Type": undefined }
-            })
-                .then(function (response) {
-                    if (response.data.Success) {
-                        ShowResult(response.data.Message, 'success');
-                    } else {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                })
-                .catch(function (error) {
-                    ShowResult(error, 'failure');
-                });
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
-
-
-
-    // keep canvas updated on resize
-    window.addEventListener('resize', function () {
-        if ($scope.imageLoaded) $scope.prepareCanvas();
-    });
-
     $scope.loadExistingDefects = function (masterId) {
         $http.get("/QMS/QualityProcess/GetImageAndDefects", { params: { masterId: masterId } })
             .then(function (response) {
                 if (response.data.Success) {
                     // Construct full image path (adjust your path here)
+                    $scope.ImageFile = response.data.ImageFile;
                     const imagePath = virtualPath.GarmentPic + response.data.ImageFile;
 
                     $scope.imageSrc = imagePath;
@@ -458,13 +392,91 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
                     // Wait for image render then draw defects
                     $timeout($scope.prepareCanvas, 300);
                 } else {
-                    alert("⚠️ " + response.data.Message);
+                    ShowResult(response.data.Message, 'failure');
                 }
             })
             .catch(function (error) {
-                console.error("Error loading defects:", error);
+                ShowResult(error, 'failure');
             });
     };
+
+    // save example
+
+    
+
+    $scope.saveDefects = function () {
+        try {
+            if (!$scope.defects || $scope.defects.length === 0) {
+                throw "No defects to save!";
+                return;
+            }
+
+            const input = document.getElementById("imageInput");
+            const hasNewImage = input && input.files && input.files.length > 0;
+
+            // 🟢 Extract existing filename from imageSrc (for edit mode)
+            let existingFileName = null;
+            if ($scope.imageSrc) {
+                const parts = $scope.imageSrc.split('/');
+                existingFileName = parts[parts.length - 1];
+            }
+
+            // Prepare payload
+            const payload = {
+                DefectMarkerMasterId: $scope.productionSummaryNew.Id,
+                ImageFile: hasNewImage ? input.files[0].name : existingFileName, // ✅ use existing file name in edit mode
+                Width: $scope.originalImageWidth,
+                Height: $scope.originalImageHeight,
+                Defects: $scope.defects.map(d => ({
+                    Id: d.id || 0,
+                    DefectMarkerMasterId: $scope.productionSummaryNew.Id,
+                    Width: $scope.originalImageWidth,
+                    Height: $scope.originalImageHeight,
+                    XNormalized: d.x,
+                    YNormalized: d.y,
+                    Type: d.Type,
+                    Description: d.Description
+                }))
+            };
+
+            const formData = new FormData();
+
+            formData.append("masterId", $scope.productionSummaryNew.Id);
+            formData.append("defectsJson", JSON.stringify(payload));
+
+            // ✅ Only attach image file if a new one is selected
+            if (hasNewImage) {
+                formData.append("imageFile", input.files[0]);
+            }
+
+            // Send to MVC
+            $http.post("/QMS/QualityProcess/SaveImageAndDefects", formData, {
+                transformRequest: angular.identity,
+                headers: { "Content-Type": undefined }
+            })
+                .then(function (response) {
+                    if (response.data.Success) {
+                        ShowResult(response.data.Message, 'success');
+                    } else {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                })
+                .catch(function (error) {
+                    ShowResult(error, 'failure');
+                });
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+
+    // keep canvas updated on resize
+    window.addEventListener('resize', function () {
+        if ($scope.imageLoaded) $scope.prepareCanvas();
+    });
+
+  
 
 
 

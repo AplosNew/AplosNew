@@ -389,10 +389,12 @@ namespace Library.Service.OrderManagements
 					LEFT JOIN TRN.SalesOrder SO on SO.ContractId = C.Id
                     WHERE SO.MasterOrderItemId=MOI.Id
                     FOR XML PATH('')
-                    ), 1, 1, '')
+                    ), 1, 1, ''),AA.ArticlePartyName
                             FROM [TRN].[MasterOrder] AS A
                             LEFT JOIN [ORG].[Company] AS CO ON CO.Id=A.CompanyId
 							JOIN TRN.MasterOrderItem MOI ON MOI.MasterOrderId=A.Id
+                               LEFT JOIN ArticleAlias AA ON AA.MasterOrderItemId=MOI.Id
+							AND AA.Id=(Select top 1 Id from ArticleAlias A Where A.MasterOrderItemId=MOI.Id Order By AddedDate DESC)
                             JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
                             LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=A.PartyId  AND CP.PlantId=A.PlantId AND CP.PartyType='Customer'
                             LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
