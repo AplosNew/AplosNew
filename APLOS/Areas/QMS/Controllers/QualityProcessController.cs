@@ -1245,6 +1245,41 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
         //    }
         //}
 
+        [HttpGet]
+        public JsonResult GetImageAndDefects(int masterId)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                DataSet ds = null;
+                string tableName = "ImageDefects";
+                string sql = $"SELECT * FROM {tableName} WHERE DefectMarkerMasterId = {masterId}";
+                con.OpenDataSetThroughAdapter(sql, out ds, false, "1");
+                if (ds.Tables[0].Rows.Count == 0)
+                {
+                    return Json(new { Success = false, Message = "No image found." }, JsonRequestBehavior.AllowGet);
+                }
+
+                // Assuming all defects share same image
+                var firstRow = ds.Tables[0].Rows[0];
+                string imageFile = Convert.ToString(firstRow["ImageFile"]);
+
+                var defects = ds.Tables[0].AsEnumerable().Select(r => new
+                {
+                    Id = r["Id"],
+                    XNormalized = r["XNormalized"],
+                    YNormalized = r["YNormalized"],
+                    Type = r["Type"],
+                    Description = r["Description"]
+                });
+
+                return Json(new{Success = true,ImageFile = imageFile,Defects = defects}, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Success = false, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
 
 

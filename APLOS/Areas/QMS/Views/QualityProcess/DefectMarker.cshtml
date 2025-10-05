@@ -339,7 +339,7 @@
             </div>
             <div class="form-group">
                 <span class="input-group-btn">
-                    <button ng-click="ShowDefectMarkingpopUp();" @*ng-disabled="productionSummaryNew.Id==null"*@ class="btn single-small-btn"><i class="glyphicon glyphicon-plus-sign"></i>Defect Marking</button>
+                    <button ng-click="ShowDefectMarkingpopUp();" ng-disabled="productionSummaryNew.Id==null" class="btn single-small-btn"><i class="glyphicon glyphicon-plus-sign"></i>Defect Marking</button>
                 </span>
             </div>
         </div>
@@ -398,14 +398,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 Defect Marking
-                <button type="button" class="close" ng-click="closePopup()">&times;</button>
+                <button type="button" class="close" ng-click="CloseDefectMarkingpopUp()">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="col-xs-12 col-sm-8 col-md-8">
                     <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Defect Marking Area</h2>
                     <div class="preview-box relative">
                         <img ng-if="imageSrc" ng-src="{{imageSrc}}" id="garmentImage" style="max-width:100%; max-height:100%;" />
-                        <canvas id="defectCanvas" ng-if="imageSrc"ng-click="onCanvasClick($event)" style="position:absolute; top:0; left:0; cursor:pointer;"></canvas>
+                        <canvas id="defectCanvas" ng-if="imageSrc" ng-click="onCanvasClick($event)" style="position:absolute; top:0; left:0; cursor:pointer;"></canvas>
 
                         <p ng-if="!imageSrc">Click "Import Image" to load a garment image.</p>
                     </div>
@@ -413,23 +413,65 @@
                     <input type="file" id="imageInput" accept="image/*"
                            style="display:none" onchange="angular.element(this).scope().loadImage(this)" />
 
-                    <button ng-click="triggerImageUpload()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">Import Image</button>
+                    @*<button ng-click="triggerImageUpload()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">Import Image</button>
                     <button ng-click="saveDefects()" class="bg-green-600 text-white px-4 py-2 rounded-lg">Save</button>
-                    <button ng-click="clearDefects()" class="bg-red-600 text-white px-4 py-2 rounded-lg">Clear</button>
+                    <button ng-click="clearDefects()" class="bg-red-600 text-white px-4 py-2 rounded-lg">Clear</button>*@
+
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="triggerImageUpload();" class="btn" tabindex="9"><i class="fa fa-paperclip"></i> Import Image</button></li>
+                            <li> <button ng-click="saveDefects();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            <li> <button ng-click="clearDefects();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+
                 </div>
 
                 <div class="col-xs-12 col-sm-4 col-md-4">
-                    
+
                     <!-- Defect List -->
                     <h3 class="mt-4 font-semibold text-gray-700">Defect List:</h3>
-                    <ul>
+                    @*<ul>
                         <li ng-repeat="defect in defects track by defect.id" class="mb-2">
                             X: {{defect.x | number:2}}, Y: {{defect.y | number:2}},
                             Type: {{defect.Type || '—'}}, Desc: {{defect.Description || '—'}}
                             <button ng-click="editDefect(defect, $event)" class="text-blue-600 ml-2">Edit</button>
                             <button ng-click="deleteDefect(defect.id)" class="text-red-600 ml-1">×</button>
                         </li>
-                    </ul>
+                    </ul>*@
+
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>X</th>
+                                <th>Y</th>
+                                <th>Type</th>
+                                <th>Desc</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="defect in defects track by defect.id">
+                                <td>{{defect.x | number:2}}</td>
+                                <td>{{defect.y | number:2}}</td>
+                                <td>{{defect.Type}}</td>
+                                <td>{{defect.Description}}</td>
+                                <td class="text-right table-td">
+                                    <ul class="list-inline action-list">
+                                        <li>
+                                            <button ng-click="editDefect(defect, $event)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Edit"><i class="glyphicon glyphicon-pencil"></i></button>
+                                        </li>
+                                        <li>
+                                            <button ng-click="deleteDefect(defect.id)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
                 </div>
 
                 <div class="mt-4">
@@ -444,16 +486,20 @@
                 <div class="common-btn mt-2">
                     <ul class="list-inline text-right">
                         <li>
-                            <button ng-click="closePopup()" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button>
+                            <button ng-click="CloseDefectMarkingpopUp()" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button>
                         </li>
                     </ul>
                 </div>
 
                 <!-- Floating popup -->
-                <div ng-show="showDefectModal"style="position: absolute; background: white; border: 1px solid #ccc; border-radius: 8px; padding: 30px; z-index: 999; top: 200px; left: 600px;">
+                <div ng-show="showDefectModal" style="position: absolute; background: white; border: 1px solid #ccc; border-radius: 8px; padding: 30px; z-index: 999; top: 200px; left: 600px;">
                     <label class="block text-sm">Type</label>
-                    <input type="text" ng-model="currentDefect.Type" class="border rounded px-2 py-1 w-40 mb-2" placeholder="e.g., Stain" />
-
+                    @*<input type="text" ng-model="currentDefect.Type" class="border rounded px-2 py-1 w-40 mb-2" placeholder="e.g., Stain" />*@
+                    <select id="defectType"ng-model="currentDefect.Type">
+                        <option value="Stain">Stain</option>
+                        <option value="Hole">Hole</option>
+                        <option value="Loose Thread">Loose Thread</option>
+                    </select>
                     <label class="block text-sm">Description</label>
                     <textarea ng-model="currentDefect.Description" class="border rounded px-2 py-1 w-40 h-16 mb-2"></textarea>
 
@@ -560,15 +606,6 @@
         </div>
     </div>
 </div>
-
-
-
-
-
-
-
-
-
 
 <div class="modal site-modal" id="employeeNewPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
