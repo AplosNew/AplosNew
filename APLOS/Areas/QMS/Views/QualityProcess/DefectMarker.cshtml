@@ -1,126 +1,637 @@
-﻿<h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span> Defect Marker</h3>
+﻿@*<h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span> Defect Marker</h3>*@
+<togglable name="{{title}}"></togglable>
 @*<label class="col-sm-12 control-label" style="color:blue">Only Running order will be consider for defect mark.</label>*@
-<div class="form-element-ctrl form-horizontal row" ng-form="modelForm" id="mainform">
-    <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="productionSummaryNew.EntityId" ng-change="loadWC();" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
-                        <option value=""></option>
-                    </select>
+@*<script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">*@
+<link rel="stylesheet" href="/Content/tailwind-lite.css" />
+
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f0f4f8;
+    }
+    /* Custom scrollbar for defect list */
+    .defect-list::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .defect-list::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+
+        .defect-list::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    /* Canvas is overlaid on the image, capturing clicks */
+    #defectCanvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        cursor: crosshair;
+    }
+
+    #image-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .marker {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: red;
+        border: 2px solid white;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        cursor: pointer;
+    }
+
+    /*#defectModal {
+        display: none;
+        position: absolute;
+        width: 200px;*/ /* should match JS modalWidth */
+    /*background: #fff;
+        border: 1px solid #333;
+        border-radius: 6px;
+        padding: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        z-index: 10000;*/ /* ensures above canvas */
+    /*}*/
+
+    #popupBackdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 998;
+        display: none;
+    }
+
+    #defectModal {
+        position: absolute;
+        z-index: 999;
+        background: #fff;
+        border: 1px solid #ccc;
+        padding: 15px;
+        display: none;
+    }
+
+    .btn {
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        transition: background-color 0.2s ease;
+        color: white;
+        display: inline-block;
+    }
+
+    .btn-blue {
+        background-color: #4f46e5; /* indigo-600 */
+    }
+
+        .btn-blue:hover {
+            background-color: #4338ca; /* indigo-700 */
+        }
+
+    .btn-green {
+        background-color: #16a34a; /* green-600 */
+    }
+
+        .btn-green:hover {
+            background-color: #15803d; /* green-700 */
+        }
+
+    .btn-red {
+        background-color: #ef4444; /* red-500 */
+    }
+
+        .btn-red:hover {
+            background-color: #dc2626; /* red-600 */
+        }
+
+    /* ======= Tailwind Lite Styles ======= */
+
+    /* Background colors */
+    .bg-indigo-600 {
+        background-color: #4f46e5;
+    }
+
+        .bg-indigo-600:hover {
+            background-color: #4338ca;
+        }
+
+    .bg-green-600 {
+        background-color: #16a34a;
+    }
+
+        .bg-green-600:hover {
+            background-color: #15803d;
+        }
+
+    .bg-red-600 {
+        background-color: #dc2626;
+    }
+
+        .bg-red-600:hover {
+            background-color: #b91c1c;
+        }
+
+    /* Text */
+    .text-white {
+        color: #fff;
+    }
+
+    .font-semibold {
+        font-weight: 600;
+    }
+
+    /* Padding */
+    .px-4 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .py-2 {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+
+    /* Border radius */
+    .rounded-lg {
+        border-radius: 0.5rem;
+    }
+
+    /* Shadows */
+    .shadow {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Transitions */
+    .transition {
+        transition: all 0.2s ease;
+    }
+
+    .duration-150 {
+        transition-duration: 150ms;
+    }
+
+    /* Utility layouts */
+    .hidden {
+        display: none;
+    }
+
+    .mt-4 {
+        margin-top: 1rem;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    /* Preview box */
+    .preview-box {
+        background: #f9fafb;
+        border: 2px dashed #d1d5db;
+        border-radius: 0.75rem;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 1rem;
+        padding: 1rem;
+    }
+</style>
+
+
+@*<div class="form-element-ctrl form-horizontal row" ng-form="modelForm" id="mainform">*@
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <input type="hidden" id="masterId" ng-model="productionSummaryNew.Id" value="{{productionSummaryNew.Id}}">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="productionSummaryNew.EntityId" ng-change="loadWC();" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Mark Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" ng-model="productionSummaryNew.MarkDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" name="ProductionOrder" ng-model="productionSummaryNew.ProductionOrderId" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="getPOData();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Color<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="productionSummaryNew.ColorId" name="Color" ng-options="item.ValueId as item.UserName for item in colorList">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Buyer Item</label>
+                <div class="col-sm-4">
+                    <label class="control-label">{{productionSummaryNew.BuyerItem}}</label>
+                </div>
+
+                <label class="col-sm-2 control-label">Own Item</label>
+                <div class="col-sm-4">
+                    <label class="control-label">{{productionSummaryNew.OwnItem}}</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Buyer Order</label>
+                <div class="col-sm-4">
+                    <label class="control-label">{{productionSummaryNew.BuyerOrder}}</label>
+                </div>
+
+                <label class="col-sm-2 control-label">Own Order</label>
+                <div class="col-sm-4">
+                    <label class="control-label">{{productionSummaryNew.OwnOrder}}</label>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="2" ng-model="productionSummaryNew.Remarks" name="Remarks" maxlength="250" tabindex="6"></textarea>
                 </div>
             </div>
         </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Mark Date<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" ng-disabled="IsGo" ng-model="productionSummaryNew.MarkDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
-            </div>
-
-        </div>
-
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
-            <div class="col-sm-8">
-                <div class="input-group">
-                    <input type="text" name="ProductionOrder" ng-model="productionSummaryNew.ProductionOrderId" class="form-control" readonly>
-                    <span class="input-group-btn">
-                        <button ng-click="getPOData();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                        <button ng-click="getSalesOrderByProdOrderList(productionSummaryNew.ProductionOrderId);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
-                    </span>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Work Center<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="productionSummaryNew.WorkCenterMasterId" name="Work Center" ng-options="item.Value as item.Text for item in wcList" ng-change="GetShiftList()" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
                 </div>
             </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="productionSummaryNew.ProductionShiftId" name="Shift" ng-options="item.Value as item.Text for item in shiftList" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Sales Order<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" name="SalesOrder" ng-model="productionSummaryNew.SalesOrderId" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="getSalesOrderByProdOrderList();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Size<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="productionSummaryNew.SizeId" name="Size" ng-options="item.ValueId as item.UserName for item in sizeList">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <input type="text" name="ResponsiblePerson" ng-model="productionSummaryNew.ResponsiblePerson" required class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="openPopupAngular('employeeNewPopUp')" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <span class="input-group-btn">
+                    <button ng-click="ShowDefectMarkingpopUp();" ng-disabled="productionSummaryNew.Id==null" class="btn single-small-btn"><i class="glyphicon glyphicon-plus-sign"></i>Defect Marking</button>
+                </span>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label class="col-sm-2 control-label">Buyer Item</label>
-            <div class="col-sm-4">
-                <label class="control-label">{{productionSummaryNew.BuyerItem}}</label>
-            </div>
-
-            <label class="col-sm-2 control-label">Own Item</label>
-            <div class="col-sm-4">
-                <label class="control-label">{{productionSummaryNew.OwnItem}}</label>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-2 control-label">Buyer Order</label>
-            <div class="col-sm-4">
-                <label class="control-label">{{productionSummaryNew.BuyerOrder}}</label>
-            </div>
-
-            <label class="col-sm-2 control-label">Own Order</label>
-            <div class="col-sm-4">
-                <label class="control-label">{{productionSummaryNew.OwnOrder}}</label>
-            </div>
-        </div>
-
-
-        <div class="form-group">
-            <label class="col-sm-3 control-label">Remarks</label>
-            <div class="col-sm-9">
-                <textarea class="form-control" rows="1" ng-model="productionSummaryNew.Remarks" name="Remarks" maxlength="250" tabindex="6"></textarea>
-            </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
         </div>
     </div>
-    <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Work Center<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="productionSummaryNew.WorkCenterMasterId" name="Work Center" ng-options="item.Value as item.Text for item in wcList" ng-change="GetShiftList()" required>
-                        <option value=""></option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.ProductionShiftId" name="Shift" ng-options="item.Value as item.Text for item in shiftList" required>
-                        <option value=""></option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Sales Order<sup>*</sup></label>
-            <div class="col-sm-8">
-                <div class="input-group">
-                    <input type="text" name="SalesOrder"  ng-model="productionSummaryNew.SalesOrderId" class="form-control" eadonly>
-                    <span class="input-group-btn">
-                        <button ng-click="getMaterialMasterbyTypePopUp('');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Responsible Person</label>
-            <div class="col-sm-8 show-message">
-                <div class="input-group">
-                    <input type="text" name="Responsible Person" ng-model="productionSummaryNew.ResponsiblePersonName" class="form-control" readonly>
-                    <span class="input-group-btn">
-                        <button ng-click="showEmployeeListPopUp('ResponsiblePerson');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                        <button ng-click="ClearEmployee('ResponsiblePerson')" class="btn single-small-btn" tabindex="6"><i class="glyphicon glyphicon-refresh"></i></button>
-                    </span>
-                </div>
-            </div>
-        </div>
-
-
-    </div>
-
-
 
 
 </div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="DefectMasterModelList" e-recorddoubleclick="Get"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Entity" e-headertext="Entity" e-width="3"></div>
+            <div e-column e-field="MarkDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="Mark Date" e-width="3"></div>
+            <div e-column e-field="WorkCenterMaster" e-headertext="WorkCenterMaster" e-width="4"></div>
+            <div e-column e-field="ProductionOrderId" e-headertext="ProductionOrderId" e-width="3"></div>
+            <div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="5"></div>
+            <div e-column e-field="ProductionShift" e-headertext="ProductionShift" e-width="4"></div>
+            <div e-column e-field="Color" e-headertext="Color" e-width="2"></div>
+            <div e-column e-field="Size" e-headertext="Size" e-width="2"></div>
+            <div e-column e-field="ResponsiblePerson" e-headertext="ResponsiblePerson" e-width="5"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal site-modal in" id="DefectMarkingPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Defect Marking
+                <button type="button" class="close" ng-click="CloseDefectMarkingpopUp()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-xs-12 col-sm-8 col-md-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Defect Marking Area</h2>
+                    <div class="preview-box relative">
+                        <img ng-if="imageSrc" ng-src="{{imageSrc}}" id="garmentImage" style="max-width:100%; max-height:100%;" />
+                        <canvas id="defectCanvas" ng-if="imageSrc" ng-click="onCanvasClick($event)" style="position:absolute; top:0; left:0; cursor:pointer;"></canvas>
+
+                        <p ng-if="!imageSrc">Click "Import Image" to load a garment image.</p>
+                    </div>
+
+                    <input type="file" id="imageInput" accept="image/*"
+                           style="display:none" onchange="angular.element(this).scope().loadImage(this)" />
+
+                    @*<button ng-click="triggerImageUpload()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">Import Image</button>
+                        <button ng-click="saveDefects()" class="bg-green-600 text-white px-4 py-2 rounded-lg">Save</button>
+                        <button ng-click="clearDefects()" class="bg-red-600 text-white px-4 py-2 rounded-lg">Clear</button>*@
+
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="triggerImageUpload();" class="btn" tabindex="9"><i class="fa fa-paperclip"></i> Import Image</button></li>
+                            <li> <button ng-click="saveDefects();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            <li> <button ng-click="clearDefects();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+
+                    <!-- Defect List -->
+                    <h3 class="mt-4 font-semibold text-gray-700">Defect List:</h3>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>X</th>
+                                    <th>Y</th>
+                                    <th>Type</th>
+                                    <th>Desc</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="defect in defects track by defect.id">
+                                    <td>{{defect.x | number:2}}</td>
+                                    <td>{{defect.y | number:2}}</td>
+                                    <td>{{defect.Type}}</td>
+                                    <td>{{defect.Description}}</td>
+                                    <td class="text-right table-td">
+                                        <ul class="list-inline action-list">
+                                            <li>
+                                                <button ng-click="editDefect(defect, $event)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Edit"><i class="glyphicon glyphicon-pencil"></i></button>
+                                            </li>
+                                            <li>
+                                                <button ng-click="deleteDefect(defect.id)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-trash"></i></button>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+                <div class="mt-4">
+                    <h3 class="font-semibold text-gray-700 mb-2">Instructions:</h3>
+                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                        <li>1. Click "Import Image" to select a garment photo.</li>
+                        <li>2. Click anywhere on the image to mark a defect point.</li>
+                        <li>3. Click "Save Defects".</li>
+                    </ul>
+                </div>
+
+                <div class="common-btn mt-2">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="CloseDefectMarkingpopUp()" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Floating popup -->
+                <div ng-show="showDefectModal" style="position: absolute; background: white; border: 1px solid #ccc; border-radius: 8px; padding: 30px; z-index: 999; top: 200px; left: 600px;">
+                    <label class="block text-sm">Type</label>
+                    @*<input type="text" ng-model="currentDefect.Type" class="border rounded px-2 py-1 w-40 mb-2" placeholder="e.g., Stain" />*@
+                    <select id="defectType" ng-model="currentDefect.Type">
+                        <option value="Stain">Stain</option>
+                        <option value="Hole">Hole</option>
+                        <option value="Loose Thread">Loose Thread</option>
+                    </select>
+                    <label class="block text-sm">Description</label>
+                    <textarea ng-model="currentDefect.Description" class="border rounded px-2 py-1 w-40 h-16 mb-2"></textarea>
+
+                    @*<div class="flex justify-between">
+                        <button ng-click="saveDefect()" class="bg-green-600 text-white px-2 py-1 rounded">Save</button>
+                        <button ng-click="closeDefectModal()" class="bg-gray-400 text-white px-2 py-1 rounded">Close</button>
+                        <button ng-click="deleteCurrentDefect()" class="bg-red-600 text-white px-2 py-1 rounded">Delete</button>
+                    </div>*@
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="saveDefect();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i></button></li>
+                            <li> <button ng-click="closeDefectModal();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i></button></li>
+                            <li> <button ng-click="deleteCurrentDefect();" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i></button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
+<div class="modal site-modal in" id="_DefectMarkingPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Defect Marking<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                @*<body class="p-4 md:p-8 min-h-screen flex items-center justify-center">*@
+
+                <!-- Message Container for Non-Intrusive Notifications -->
+                <div id="messageContainer" class="fixed top-0 left-0 w-full p-4 z-50"></div>
+
+                <div class="w-full max-w-6xl bg-white rounded-xl shadow-2xl p-6 md:p-8 flex flex-col lg:flex-row gap-6">
+
+                    <!-- Image and Canvas Area -->
+                    <div class="lg:w-3/5">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Defect Marking Area</h2>
+                        <div class="relative bg-gray-200 border-2 border-dashed border-gray-400 rounded-lg overflow-hidden flex items-center justify-center" id="imageContainer" style="min-height: 400px;">
+                            <img id="garmentImage" class="max-w-full max-h-full object-contain" style="display: none;" src="" alt="Garment Image">
+                            <canvas id="defectCanvas" style="display: none;"></canvas>
+                            <p id="placeholderText" class="text-gray-500 font-medium p-4">Click "Import Image" to load a garment image.</p>
+                        </div>
+
+                        <!-- Controls -->
+
+
+                        <div class="mt-4 flex flex-wrap gap-3">
+                            <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="loadImage()">
+                            <button onclick="document.getElementById('imageInput').click()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150">
+                                Import Image
+                            </button>
+                            <button id="saveButton" onclick="saveDefects()" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150" disabled>
+                                Save Defects
+                            </button>
+                            <button id="clearButton" onclick="clearDefects()" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150" disabled>
+                                Clear All
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Defect List and Management -->
+                    <div class="lg:w-2/5">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Defect List</h2>
+                        <div class="h-80 overflow-y-auto defect-list p-2 bg-gray-50 rounded-lg border border-gray-200">
+                            <ul id="defectsList" class="space-y-2">
+                                <!-- Defect items will be added here -->
+                            </ul>
+                            <p id="emptyListText" class="text-gray-400 text-sm mt-2 text-center">No defects marked yet.</p>
+                        </div>
+
+                        <div class="mt-4">
+                            <h3 class="font-semibold text-gray-700 mb-2">Instructions:</h3>
+                            <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                                <li>1. Click "Import Image" to select a garment photo.</li>
+                                <li>2. Click anywhere on the image to mark a defect point.</li>
+                                <li>3. Click "Save Defects".</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseDefectMarkingpopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+                @*</body>*@
+                <!-- Popup Modal -->
+                <div id="popupBackdrop"></div>
+
+                <div id="defectModal" style="display:none; position:absolute; background:#fff; border:1px solid #ccc; padding:10px; z-index:999;">
+                    <input type="hidden" id="defectId" />
+
+                    <label>Defect Type:</label>
+                    <select id="defectType">
+                        <option value="Stain">Stain</option>
+                        <option value="Hole">Hole</option>
+                        <option value="Loose Thread">Loose Thread</option>
+                    </select><br /><br />
+
+                    <label>Notes:</label><br />
+                    <textarea id="defectNotes" style="width:200px; height:60px;"></textarea><br /><br />
+
+                    <button id="saveDefect" style="background: #3e445a none repeat scroll 0 0; border: 1px solid #3e445a; color: #fff; font-size: 15px; ">Save</button>
+                    <button id="deleteDefect" style="background: #3e445a none repeat scroll 0 0; border: 1px solid #3e445a; color: #fff; font-size: 15px; ">Delete</button>
+                    <button id="closeDefectModal" style="background: #3e445a none repeat scroll 0 0; border: 1px solid #3e445a; color: #fff; font-size: 15px; ">Close</button>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal site-modal" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closePopup('employeeNewPopUp');">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color: black;" id="Grid" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-type="string" e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal site-modal in" id="POItemPopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -179,57 +690,543 @@
                             </div>
 
                         </div>
-                        @*<script type="text/template" id="SOCount">
-                    <div class="text-left" style="width:100%">
-                        <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.GetSOItemList(data);">{{data.SOCount}}</a>
-                    </div>
-                </script>
-                <script type="text/template" id="ItemCount">
-                    <div class="text-left" style="width:100%">
-                        <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.GetMOIItemList(data);">{{data.ItemCount}}</a>
-                    </div>
-                </script>*@
-                    </div>
-                </div>
-                @*<div class="row">
-            <div style="color:black;" id="GridPO" ej-grid e-datasource="ProductionOrderList" e-allowscrolling="true"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="SetPrOData"
-                 e-allowselection="true" e-filtersettings-filterType="excel">
-                <div e-columns>
-                    <div e-column e-template="#showSOList" e-headertext="" e-width="30"></div>
-                    <div e-column e-type="string" e-field="POId" e-headertext="PrO" e-width="80"></div>
-                    <div e-column e-type="string" e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
-                    <div e-column e-type="string" e-field="OwnOrder" e-headertext="Own Ord#" e-width="80"></div>
-                    <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
-                    <div e-column e-type="number" e-format="{0:0.00}" e-field="Qty" e-headertext="Qty" e-width="80" e-textalign="right"></div>
-                    <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="LSD" e-headertext="LSD" e-width="80"></div>
-                    <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
-                    <div e-column e-type="string" e-field="ProductionStatus" e-headertext="Production Status" e-width="80"></div>
-                    <div e-column e-type="string" e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
-                    <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
-                    <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Category" e-width="80"></div>
-                    <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="80"></div>
-                    <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
-                    <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
-                    <div e-column e-type="string" e-field="PONumber" e-headertext="PO Number" e-width="80"></div>
-                    <div e-column e-type="string" e-field="RequiredTimeUnit" e-headertext="Required Time Unit" e-width="80"></div>
 
+                    </div>
                 </div>
-            </div>
-            <script type="text/template" id="showSOList">
-                <div class="common-btn">
-                    <ul class="list-inline text-right small">
 
-                        <li>
-                            <button ng-click="$parent.getSalesOrderOfProdOrderList(this);" class="btn small" style="height: 20px;width: 20px;padding: 0px;margin: 0px;">
-                                <i class="glyphicon glyphicon-th-list"></i>
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-            </script>
-        </div>*@
             </div>
         </div>
     </div>
 </div>
+
+<div class="modal site-modal in" id="SOItemPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Sales Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-xs-12" style="color:black;">
+                        <div id="GridSOItemsForProductionOrder" ng-init="chkinit()" ej-grid e-datasource="SalesOrderListForProductionOrderId" e-recorddoubleclick="SetSO"
+                             e-allowscrolling="true" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-showsummary="true" e-allowselection="true" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-field="ProductName" e-headertext="Product" e-width="180" e></div>
+                                <div e-column e-field="ArticleName" e-headertext="Article" e-width="180"></div>
+                                <div e-column e-field="SONo" e-headertext="SO. ID" e-width="120"></div>
+
+                                <div e-column e-field="DestinationName" e-headertext="Dest." e-width="80"></div>
+                                <div e-column e-field="DestinationDescription" e-headertext="Dest. Description" e-width="80"></div>
+                                <div e-column e-field="BuyerOrderNo" e-headertext="Customer Order#" e-width="100"></div>
+                                <div e-column e-field="BuyerReferenceNo" e-headertext="Customer Item#" e-width="100"></div>
+                                <div e-column e-field="DeliveryWeek" e-headertext="Del. Week" e-width="80"></div>
+                                <div e-column e-field="DeliveryDate" e-headertext="Del. Date" e-width="80"></div>
+                                <div e-column e-type="string" e-field="LineItemReference" e-headertext="LineItemReference" e-width="80"></div>
+                                <div e-column e-field="CommitmentDate" e-headertext="Commi.Date" e-width="80"></div>
+                                <div e-column e-field="Description" e-headertext="Description" e-width="80" e-textalign="right"></div>
+                                <div e-column e-field="MasterOrderNo" e-headertext="M. Order No" e-width="120"></div>
+                                <div e-column e-field="Qty" e-headertext="Qty" e-width="80" e-textalign="right"></div>
+                                <div e-column e-field="Customer" e-headertext="Customer" e-width="180"></div>
+                                <div e-column e-field="Buyer" e-headertext="Buyer" e-width="180"></div>
+                                <div e-column e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100"></div>
+
+                                <div e-column e-field="OwnReferenceNo" e-headertext="Own Item#" e-width="100"></div>
+                                <div e-column e-field="ProductionGrouping" e-headertext="Product Grouping" e-width="120" e></div>
+                                <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="180" e></div>
+                                <div e-column e-field="ShipmentModeName" e-headertext="Ship.Mode" e-width="80"></div>
+                                <div e-column e-field="ProductionOrderId" e-headertext="PO No" e-width="80"></div>
+                                <div e-column e-field="OrderStatusName" e-headertext="Ord. Status" e-width="80"></div>
+                                <div e-column e-field="OrderCategoryName" e-headertext="Ord. Cat." e-width="80"></div>
+                                <div e-column e-field="LSD" e-headertext="LSD" e-width="80"></div>
+
+                                <div e-column e-type="boolean" e-field="Consignment" e-headertext="Consignment" e-width="60"></div>
+                                <div e-column e-type="string" e-field="OrderOwner" e-headertext="Order Owner" e-width="180"></div>
+                                <div e-column e-type="string" e-field="Type" e-headertext="Type" e-width="80"></div>
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <span class="input-group-btn">
+                                <button ng-click="CloseSOpopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-folder-close"></i>Close</button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@*<script>
+
+        const imageInput = document.getElementById('imageInput');
+        const garmentImage = document.getElementById('garmentImage');
+        const defectCanvas = document.getElementById('defectCanvas');
+        const ctx = defectCanvas.getContext('2d');
+        const defectsList = document.getElementById('defectsList');
+        const placeholderText = document.getElementById('placeholderText');
+        const emptyListText = document.getElementById('emptyListText');
+        const saveButton = document.getElementById('saveButton');
+        const clearButton = document.getElementById('clearButton');
+        const messageContainer = document.getElementById('messageContainer');
+
+
+        let defects = [];
+        let imageLoaded = false;
+        let originalImageWidth = 0;
+        let originalImageHeight = 0;
+
+        // --- Utility Functions ---
+
+        function alertMessage(message, type) {
+            const alertDiv = document.createElement('div');
+            const color = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700';
+
+            alertDiv.className = `max-w-md mx-auto border px-4 py-3 rounded-lg relative shadow-lg ${color} mb-2`;
+            alertDiv.innerHTML = `<span class="block sm:inline font-medium">${message}</span>`;
+
+            messageContainer.appendChild(alertDiv);
+
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // --- Core Logic Functions ---
+
+        /**
+         * Loads the selected image into the UI and prepares the canvas.
+         */
+        function loadImage() {
+            const file = imageInput.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                garmentImage.src = e.target.result;
+                garmentImage.style.display = 'block';
+                defectCanvas.style.display = 'block';
+                placeholderText.style.display = 'none';
+                imageLoaded = false;
+
+                garmentImage.onload = () => {
+                    originalImageWidth = garmentImage.naturalWidth;
+                    originalImageHeight = garmentImage.naturalHeight;
+
+                    resizeCanvas();
+
+                    defectCanvas.removeEventListener('click', handleImageClick);
+                    defectCanvas.addEventListener('click', handleImageClick);
+
+                    imageLoaded = true;
+                    drawDefects();
+                    updateControlButtons();
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        /**
+         * Resizes the canvas to match the current dimensions of the displayed image.
+         */
+        function resizeCanvas() {
+            const container = document.getElementById('imageContainer');
+            const rect = garmentImage.getBoundingClientRect();
+
+            defectCanvas.width = rect.width;
+            defectCanvas.height = rect.height;
+            defectCanvas.style.width = `${rect.width}px`;
+            defectCanvas.style.height = `${rect.height}px`;
+
+            const imgRect = garmentImage.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+
+            const xOffset = imgRect.left - containerRect.left;
+            const yOffset = imgRect.top - containerRect.top;
+
+            defectCanvas.style.left = `${xOffset}px`;
+            defectCanvas.style.top = `${yOffset}px`;
+        }
+
+        /**
+         * Handles clicks on the canvas to mark a defect.
+         */
+        function handleImageClick(event) {
+            if (!imageLoaded) return;
+
+            const rect = defectCanvas.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const clickY = event.clientY - rect.top;
+
+            // Calculate Normalized Coordinates (0.0 to 1.0)
+            const normalizedX = clickX / defectCanvas.width;
+            const normalizedY = clickY / defectCanvas.height;
+
+            const defect = {
+                id: Date.now(),
+                x: parseFloat(normalizedX.toFixed(3)),
+                y: parseFloat(normalizedY.toFixed(3)),
+                description: 'General Defect'
+            };
+
+            defects.push(defect);
+            drawDefects();
+            renderDefectList();
+        }
+
+        /**
+         * Redraws all defect markers on the canvas.
+         */
+        function drawDefects() {
+            if (!imageLoaded) return;
+            ctx.clearRect(0, 0, defectCanvas.width, defectCanvas.height);
+
+            defects.forEach(defect => {
+                // Convert Normalized Coordinates back to Canvas Pixels
+                const pixelX = defect.x * defectCanvas.width;
+                const pixelY = defect.y * defectCanvas.height;
+
+                // Draw the defect marker (Red circle)
+                ctx.beginPath();
+                ctx.arc(pixelX, pixelY, 8, 0, Math.PI * 2, false); // Radius 8
+                ctx.fillStyle = '#ef4444'; // Red-500
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#b91c1c'; // Red-700
+                ctx.stroke();
+            });
+        }
+
+        /**
+         * Renders the list of defects in the sidebar.
+         */
+        function renderDefectList() {
+            defectsList.innerHTML = '';
+            if (defects.length === 0) {
+                emptyListText.style.display = 'block';
+            } else {
+                emptyListText.style.display = 'none';
+                defects.forEach((defect, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'flex justify-between items-center p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-indigo-50 transition duration-150';
+                    listItem.innerHTML = `
+                                    <span class="text-sm font-mono text-gray-700">
+                                        <strong class="text-indigo-600">${index + 1}.</strong>
+                                        X: ${defect.x}, Y: ${defect.y}
+                                    </span>
+                                    <button onclick="deleteDefect(${defect.id})" class="text-red-500 hover:text-red-700 font-bold ml-4 p-1 rounded-full hover:bg-red-100 transition duration-150" title="Delete Defect">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                `;
+
+                    defectsList.appendChild(listItem);
+                });
+            }
+            updateControlButtons();
+        }
+
+        /**
+         * Deletes a defect by its ID.
+         */
+        function deleteDefect(id) {
+            defects = defects.filter(defect => defect.id !== id);
+            drawDefects();
+            renderDefectList();
+        }
+
+        /**
+         * Clears all marked defects.
+         */
+        function clearDefects() {
+            defects = [];
+            drawDefects();
+            renderDefectList();
+        }
+
+        /**
+         * Updates the state of the Save and Clear buttons.
+         */
+        function updateControlButtons() {
+            const isDisabled = defects.length === 0 || !imageLoaded;
+            saveButton.disabled = isDisabled;
+            clearButton.disabled = isDisabled;
+            if (isDisabled) {
+                saveButton.classList.replace('bg-green-600', 'bg-gray-400');
+                saveButton.classList.replace('hover:bg-green-700', 'hover:bg-gray-400');
+                clearButton.classList.replace('bg-red-500', 'bg-gray-400');
+                clearButton.classList.replace('hover:bg-red-600', 'hover:bg-gray-400');
+            } else {
+                saveButton.classList.replace('bg-gray-400', 'bg-green-600');
+                saveButton.classList.replace('hover:bg-gray-400', 'hover:bg-green-700');
+                clearButton.classList.replace('bg-gray-400', 'bg-red-500');
+                clearButton.classList.replace('hover:bg-gray-400', 'hover:bg-red-600');
+            }
+        }
+
+        /**
+         * Sends the defects array to the C# backend API.
+         */
+
+
+
+        async function saveDefects() {
+            debugger;
+            const imageInput = document.getElementById("imageInput");
+
+            if (!imageInput.files[0]) {
+                alert("Please select an image first.");
+                return;
+            }
+
+            if (defects.length === 0) {
+                alert("No defects to save.");
+                return;
+            }
+
+
+            const saveButtonElement = document.getElementById("saveButton");
+            const originalText = saveButtonElement.textContent;
+            saveButtonElement.textContent = "Sending...";
+            saveButtonElement.disabled = true;
+
+            const id = document.getElementById("defectId").value;
+            const defectType = document.getElementById("defectType").value;
+            const notes = document.getElementById("defectNotes").value;
+
+            try {
+                // Prepare defects JSON
+                const dataToSave = {
+                    imageFile: imageInput.files[0].name,
+                    imageDimensions: {
+                        Width: originalImageWidth,
+                        Height: originalImageHeight
+                    },
+
+                    defects: defects.map(d => ({
+                        id: d.id,
+                        XNormalized: d.x,
+                        YNormalized: d.y,
+                        //Description: d.description
+                        Description: notes,
+                        Type: defectType
+                    }))
+                };
+
+                // FormData to send image + defects
+                const formData = new FormData();
+                formData.append("imageFile", imageInput.files[0]);
+                formData.append("defectsJson", JSON.stringify(dataToSave));
+
+                const response = await fetch("/QMS/QualityProcess/SaveImageAndDefects", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!result.Success) {
+                    ShowResult(result.Message, 'failure');
+                } else {
+                    ShowResult(result.Message, 'success');
+
+                    // Optional: reload saved defects for this image
+                    //await loadDefects(dataToSave.imageFile);
+                }
+            } catch (error) {
+                ShowResult(result.Message, 'failure');
+            } finally {
+                saveButtonElement.textContent = originalText;
+                saveButtonElement.disabled = false;
+            }
+        }
+
+
+
+        // --- Event Listeners for Responsiveness ---
+        window.addEventListener('resize', () => {
+            if (imageLoaded) {
+                resizeCanvas();
+                drawDefects();
+            }
+        });
+
+        // Initialize button states
+        updateControlButtons();
+
+
+        async function loadDefects(imageFile) {
+            try {
+                const response = await fetch(`QMS/QualityProcess/GetDefects?imageFile=${encodeURIComponent(imageFile)}`);
+                const result = await response.json();
+
+                if (!result.Error) {
+                    console.log("Defects loaded:", result.Data.defects);
+                    // here you can render markers back on canvas
+                } else {
+                    alertMessage(result.Message, "warning");
+                }
+            } catch (err) {
+                console.error("Network Error:", err);
+                alertMessage("Could not load defects.", "error");
+            }
+        }
+
+        let currentClick = { x: 0, y: 0 };
+
+        const img = document.getElementById("garmentImage");
+        const modal = document.getElementById("defectModal");
+
+        defectCanvas.addEventListener("click", function (e) {
+            debugger;
+            const rect = e.target.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = (e.clientY - rect.top) / rect.height;
+
+            currentClick = { x, y };
+            document.getElementById("defectId").value = ""; // new defect
+            document.getElementById("defectType").value = "Stain";
+            document.getElementById("defectNotes").value = "";
+
+            modal.style.left = e.pageX + "px";
+            modal.style.top = e.pageY + "px";
+            modal.style.display = "block";
+        });
+
+        // Save or Update defect
+        document.getElementById("saveDefect").addEventListener("click", function () {
+            try {
+                debugger;
+                const id = document.getElementById("defectId").value;
+                const defectType = document.getElementById("defectType").value;
+                const notes = document.getElementById("defectNotes").value;
+                var masterIdValue = document.getElementById('masterId').value;
+
+                let defectData = {
+                    Id: id || null,
+                    DefectMarkerMasterId: masterIdValue,
+                    XNormalized: currentClick.x,
+                    YNormalized: currentClick.y,
+                    Description: notes,
+                    Type: defectType,
+                    Width: originalImageWidth,
+                    Height: originalImageHeight
+                };
+
+                // ✅ fetch the selected image file
+                const imageInput = document.getElementById("imageInput");
+                if (!imageInput.files[0]) {
+                    throw "Please select an image first.";
+                    return;
+                }
+
+                let formData = new FormData();
+                formData.append("imageFile", imageInput.files[0]); // ✅ attach actual image
+                formData.append("defectsJson", JSON.stringify({
+                    ImageFile: imageInput.files[0].name,  // ✅ use actual filename
+                    Defects: [defectData]
+                }));
+
+                fetch("/QualityProcess/SaveImageAndDefects", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(r => r.json())
+                    .then(res => {
+                        ShowResult(res.Message, "success");
+                        modal.style.display = "none";
+                        loadDefects(); // reload markers
+                    })
+                    .catch(err => ShowResult(err, 'failure'));
+            } catch (e) {
+                ShowResult(e, 'failure');
+            }
+
+            document.getElementById("defectModal").style.display = "none";
+
+        });
+
+        document.getElementById("closeDefectModal").addEventListener("click", function () {
+            document.getElementById("defectModal").style.display = "none";
+        });
+
+
+        // Delete defect
+        document.getElementById("deleteDefect").addEventListener("click", function () {
+            const id = document.getElementById("defectId").value;
+            if (!id) { alert("No defect selected."); return; }
+
+            fetch("/QualityProcess/DeleteDefect?id=" + id, { method: "POST" })
+                .then(r => r.json())
+                .then(res => {
+                    alert(res.Message);
+                    modal.style.display = "none";
+                    loadDefects(); // reload markers
+                });
+        });
+
+        function addMarker(defect) {
+            const container = document.getElementById("image-container");
+            const marker = document.createElement("div");
+            marker.className = "marker";
+
+            const img = document.getElementById("garmentImage");
+            marker.style.left = (defect.XNormalized * img.width) + "px";
+            marker.style.top = (defect.YNormalized * img.height) + "px";
+
+            marker.title = defect.Type + " - " + defect.Description;
+
+            // click marker to edit defect
+            marker.addEventListener("click", (e) => {
+                e.stopPropagation(); // prevent triggering new point
+                document.getElementById("defectId").value = defect.Id;
+                document.getElementById("defectType").value = defect.Type;
+                document.getElementById("defectNotes").value = defect.Description;
+
+                modal.style.left = e.pageX + "px";
+                modal.style.top = e.pageY + "px";
+                modal.style.display = "block";
+
+                currentClick = { x: defect.XNormalized, y: defect.YNormalized };
+            });
+
+            container.appendChild(marker);
+        }
+
+        // Load defects from DB
+        //async function loadDefects() {
+        //    const container = document.getElementById("image-container");
+        //    // clear old markers
+        //    container.querySelectorAll(".marker").forEach(m => m.remove());
+
+        //    let res = await fetch("/QualityProcess/GetDefects?imageFile=garment1.jpg");
+        //    let data = await res.json();
+        //    data.Defects.forEach(d => addMarker(d));
+        //}
+
+        // loadDefects();
+
+
+
+        function openDefectPopup(x, y) {
+            const modal = document.getElementById("defectModal");
+            const backdrop = document.getElementById("popupBackdrop");
+
+            modal.style.left = x + "px";
+            modal.style.top = y + "px";
+            modal.style.display = "block";
+            backdrop.style.display = "block";
+        }
+
+        function closeDefectPopup() {
+            document.getElementById("defectModal").style.display = "none";
+            document.getElementById("popupBackdrop").style.display = "none";
+
+            defectModal.style.display = "none";
+            modalBackdrop.style.display = "none";
+        }
+
+
+    </script>*@

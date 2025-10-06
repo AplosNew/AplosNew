@@ -1054,6 +1054,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 con.BeginTransaction();
                 con.executeQuery("delete from MasterOrderTaskTemplateSubTasks where MasterOrderTaskTemplateId='" + id + "'");
                 con.executeQuery("delete from MasterOrderTaskTemplateDependency where TaskTemplateId='" + id + "'");
+                con.executeQuery("delete from dbo.TNATasks where TaskTemplateId='" + id + "'");
                 con.executeQuery("delete from MasterOrderTaskTemplate where id='" + id + "'");
                 con.CommitTransaction();
 

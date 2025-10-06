@@ -2364,6 +2364,10 @@ namespace Library.Service.TaskScheduler
 	                                                                                    trn.SalesOrder XSO 
 		                                                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 			                                                                      where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                           ', LineItem#:',STUFF((select distinct ','+XSO.LineItemReference from 
+	                                                                                    trn.SalesOrder XSO 
+		                                                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+			                                                                      where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 			                                ', SO Desc:',STUFF((select distinct ','+XSO.[Description] from 
 	                                                                                    trn.SalesOrder XSO 
 		                                                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id

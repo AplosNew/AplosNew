@@ -619,6 +619,17 @@ namespace Library.Service.Helpers
 				throw new CustomException(ServiceResources.FilePathNotFound);
 			}
 		}
+		public static string GetDefectPicPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/DefectPic/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
 
 		public static string GetManualAttendanceFilePath()
 		{
