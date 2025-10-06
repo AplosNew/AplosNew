@@ -80,29 +80,7 @@ namespace Aplos.Areas.Materials.Controllers
 
         #endregion
 
-        #region Machine Transfer
-        [HttpPost, Authorize]
-        public ActionResult GetMachineBudgetByFromEntity(string EntityId)
-        {
-            try
-            {
-                string strSQL = string.Empty;
-                strSQL = @"SELECT MB.*,MM.UserName Material,P.UserName Plant,ISNULL(E.UserName,'ALL') Entity,MMA.StandardName Article 
-                            FROM [dbo].[MachineBudget] MB
-                            LEFT JOIN ORG.Plant P ON P.Id=MB.PlantId
-                            LEFT JOIN ORG.Entity E ON E.Id=MB.EntityId
-                            LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
-                            LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MB.ArticleId
-                            LEFT JOIN MST.MaterialMaster  MM ON MM.Id=MMA.MaterialMasterId
-                            Where MB.EntityId='" + EntityId + "'";
-                return Json(_sqlRepository.GetDataCollection(strSQL), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
+      
         //#region  ---Budget  
 
         [HttpGet, Authorize]
@@ -598,5 +576,165 @@ namespace Aplos.Areas.Materials.Controllers
 
 
         //#endregion
+
+        #region Machine Transfer
+        [HttpPost, Authorize]
+        public ActionResult GetMachineBudgetByFromEntity(string EntityId)
+        {
+            try
+            {
+                string strSQL = string.Empty;
+                strSQL = @"SELECT MB.*,MM.UserName Material,P.UserName Plant,ISNULL(E.UserName,'ALL') Entity,MMA.StandardName Article ,MMA.MaterialMasterId
+                            FROM [dbo].[MachineBudget] MB
+                            LEFT JOIN ORG.Plant P ON P.Id=MB.PlantId
+                            LEFT JOIN ORG.Entity E ON E.Id=MB.EntityId
+                            LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
+                            LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MB.ArticleId
+                            LEFT JOIN MST.MaterialMaster  MM ON MM.Id=MMA.MaterialMasterId
+                            Where MB.EntityId='" + EntityId + "'";
+                return Json(_sqlRepository.GetDataCollection(strSQL), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost]
+        public JsonResult CreateMachineTransfer(Dictionary<string, object> data, List<Dictionary<string, object>> childData)
+        {
+            try
+            {
+                if (data != null)
+                {
+                    // var IsDuplicateEntryAllowed = CheckCombination(data);
+
+                    //if (IsDuplicateEntryAllowed)
+                    //{
+
+                    //var IsDuplicateEntityEntryAllowed = CheckEntityCombination(data);
+                    //if (!IsDuplicateEntityEntryAllowed)
+                    //{
+                    //    throw new Exception("All Entity has been taken...");
+                    //}
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                    DataSet dsMaster;
+                        DataSet dsChild;
+                        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                        con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[MachineTransferMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                        con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[MachineTransferChild] WHERE MachineTransferMasterId='" + data["Id"] + "'", out dsChild, false, "1");
+
+                        string _Id = "";
+
+                        #region data update
+                        if (dsMaster.Tables[0].Rows.Count == 0)
+                        {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MachineTransferMaster", out _Id);
+
+                        data["Id"] =  _Id;
+                        data["PlantId"] = identity.PlantId;
+                        AddNewRow(dsMaster.Tables[0], data);
+
+                        for (int i = 0; i < childData.Count; i++)
+                        {
+                            dsChild.Tables[0].DefaultView.RowFilter = "MachineTransferMasterId='" + _Id + "'";
+                            if (dsChild.Tables[0].DefaultView.Count == 0)
+                            {
+                                DataRow dr = dsChild.Tables[0].NewRow();
+                                dr["MachineTransferMasterId"] = data["Id"];
+                                dr["MaterialMasterId"] = childData[i]["MaterialMasterId"];
+                                dr["ArticleId"] = childData[i]["ArticleId"];
+                                dr["AddedBy"] = identity.Name;
+                                dr["AddedDate"] = System.DateTime.Now.ToString();
+                                dr["AddedFromIP"] = identity.IPAddress;
+                                dr["ScanId"] = null;
+                                dr["Remarks"] = childData[i]["Remarks"];
+                                dr["Qty"] = Convert.ToDecimal(Convert.ToDecimal(childData[i]["Qty"]));// * Convert.ToDecimal(ToCurrencyRate)
+                                dsChild.Tables[0].Rows.Add(dr);
+                            }
+                        }
+                    }
+                    else
+                        {
+                            _Id = data["Id"].ToString();
+                            EditRow(dsMaster.Tables[0].Rows[0], data);
+                        }
+                        #endregion data update
+
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsMaster, dsChild);
+                    //}
+                    //else
+                    //{
+                    //    throw new Exception("Selected combination already exists...");
+                    //}
+                }
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+        [HttpPost]
+        public JsonResult EditMachineTransfer(Dictionary<string, object> data)
+        {
+            try
+            {
+                if (data != null)
+                {
+                    //var IsDuplicateEntryAllowed = CheckCombination(data);
+
+                    //if (IsDuplicateEntryAllowed)
+                    //{
+
+                    //    var IsDuplicateEntityEntryAllowed = CheckEntityCombination(data);
+                    //    if (!IsDuplicateEntityEntryAllowed)
+                    //    {
+                    //        throw new Exception("All Entity has been taken...");
+                    //    }
+
+                        DataSet dsMaster;
+                        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                        con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[MachineTransferMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                        string _Id = "";
+
+                        #region data update
+                        if (dsMaster.Tables[0].Rows.Count == 0)
+                        {
+                            AddNewRow(dsMaster.Tables[0], data);
+                        }
+                        else
+                        {
+                            _Id = data["Id"].ToString();
+                            EditRow(dsMaster.Tables[0].Rows[0], data);
+                        }
+                        #endregion data update
+
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsMaster);
+                    //}
+                    //else
+                    //{
+                    //    throw new Exception("Selected combination already exists...");
+                    //}
+                }
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+        #endregion
     }
 }

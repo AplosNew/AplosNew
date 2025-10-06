@@ -7,12 +7,17 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
     $scope.path = 'materials/MachineBudget/';
      
 
-    //Variables
-    $scope.FromEntityId = null;
-    $scope.ToEntityId = null;
-
-    $scope.responsiblePerson = null;
-    $scope.responsiblePersonId = null;
+    $scope.model = {
+        EntityId :null,
+        ToEntityId: null,
+        TransferType: null,
+        ResponsiblePersonId:null,
+        ResponsiblePerson:null,
+        ApprovedBy: null,
+        Days: null,
+        Remarks:null,
+        Id:null
+    }
 
     var show = document.getElementById("ShowForm");
 
@@ -75,8 +80,8 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
             params: {'WKId' : $scope.workCenterId},
         }).then(function succ(resp) {
             if (resp.data.length > 0) {
-                $scope.responsiblePerson = resp.data[0].EmployeeName;
-                $scope.responsiblePersonId = resp.data[0].ResponsiblePersonId;
+                $scope.model.ResponsiblePerson = resp.data[0].EmployeeName;
+                $scope.model.ResponsiblePersonId = resp.data[0].ResponsiblePersonId;
             }
             else {
                 $scope.responsiblePerson =null;
@@ -98,8 +103,8 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
     $scope.getPopUpData();
 
     $scope.setEmpData = function (obj) {
-        $scope.responsiblePersonId = obj.data.SystemID;
-        $scope.responsiblePerson = obj.data.EmployeeName;
+        $scope.model.ResponsiblePersonId = obj.data.SystemID;
+        $scope.model.ResponsiblePerson = obj.data.EmployeeName;
 
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     };
@@ -147,7 +152,7 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
         $http({
             method: 'POST',
             url: $scope.path + 'GetMachineBudgetByFromEntity',
-            data: { 'EntityId': $scope.FromEntityId},
+            data: { 'EntityId': $scope.model.EntityId},
         }).then(function succ(resp) {
             $scope.ModelList = resp.data;
             for (var i = 0; i < $scope.ModelList.length; i++) {
@@ -173,40 +178,6 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
    // While Changing the Places
     $scope.changeInData = function (e, col) {
         e.isChanged = 1;
-
-        if (col == 'emp') {
-            //const results = $scope.EmployeeList.filter(object => Object.values($scope.EmployeeList).some(i => i.includes(e.EmployeeCode)));
-            //console.log(results);
-
-            for (var i = 0; i < $scope.EmployeeList.length; i++) {
-                if ($scope.EmployeeList[i].EmployeeCode == e.EmployeeCode) {
-                    e.EmpName = $scope.EmployeeList[i].EmployeeName;
-                }
-            }
-        }
-
-        if (col === 'qty' && e.Sequence != 1) {
-            let prevQty = 0;
-            for (var i = 0; i < $scope.ModelList.length; i++) {
-                if ($scope.ModelList[i].Sequence == e.Sequence - 1) {
-                    prevQty = prevQty + parseFloat($scope.ModelList[i].Qty);
-                }
-            }
-            let currQty = 0;
-            for (var i = 0; i < $scope.ModelList.length; i++) {
-                if ($scope.ModelList[i].Sequence == e.Sequence) {
-                    currQty = currQty + parseFloat($scope.ModelList[i].Qty);
-                }
-            }
-
-            if (currQty > prevQty) {
-                e.Qty = 0;
-                ShowResult('Value Exceeds than WIP in ' + e.OperationCode + '!!', 'failure');
-            }
-            
-        }
-       // refresh();
-
     }
 
     $scope.isSaveBtnDisable = false;
@@ -216,25 +187,19 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
         $scope.NewList = [];
 
        /* $scope.checkWIP();*/
-
+        $scope.model.ApprovedBy = '1234';
+        $scope.model.EntityId = $scope.model.EntityId;
         for (var i = 0; i < $scope.ModelList.length; i++) {
             if ($scope.ModelList[i].isChanged == true && $scope.ModelList[i].Qty > 0) {
                 $scope.NewList.push($scope.ModelList[i]);
             }
         }
-
-        $scope.ModelList = $scope.PrevAllList;
-
         $http({
             method: 'POST',
-            url: $scope.path + 'saveData',
+            url: $scope.path + 'CreateMachineTransfer',
             data: {
-                'data': $scope.NewList, 'WorkCenter': $scope.workCenterId,
-                'ProcessId': $scope.ProcessId,
-                'ShiftId': $scope.shiftId,
-                'POId': $scope.POId ,
-                'Date': $scope.Date, 'PeriodId': $scope.periodId,
-                'ResponsiblePersonId': $scope.responsiblePersonId,
+                'data': $scope.model,
+                'childData': $scope.NewList
                   },
         }).then(function succ(resp) {
 
