@@ -1937,7 +1937,7 @@ LEFT JOIN (
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND ISNULL(IM.CountryId,'')='" + entity.CountryId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
-					AND IRD.BaseQty !=(ISNULL(II.IssueQty,0))
+					AND (IRD.BaseQty+ISNULL(IRD.IssueReturnQty,0)) !=(ISNULL(II.IssueQty,0))
                     AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE)
                     AND IRD.Id NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
                     AND ISNULL(IRD.PODetailsId,'') not in (SELECT PODetailId FROM TRN.POBOQMAP  pbmap 
@@ -2011,7 +2011,7 @@ LEFT JOIN (
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND ISNULL(IM.CountryId,'')='" + entity.CountryId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
-					AND IRD.BaseQty !=ISNULL(II.IssueQty,0)
+					AND (IRD.BaseQty+ISNULL(IRD.IssueReturnQty,0)) !=ISNULL(II.IssueQty,0)
                     AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE)
                     AND IRD.Id NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)
                     AND IRD.PODetailsId not in (select podetailId from trn.poboqmap)
@@ -2068,7 +2068,7 @@ LEFT JOIN (
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND ISNULL(IM.CountryId,'')='" + entity.CountryId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
-					AND IRD.BaseQty !=IRD.BaseIssueQty
+					AND (IRD.BaseQty+ISNULL(IRD.IssueReturnQty,0)) !=IRD.BaseIssueQty
                     AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE)  AND IRD.Id NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL)							
                     AND IRD.PODetailsId not in (select podetailId from trn.poboqmap)
 					UNION ALL
@@ -2115,7 +2115,7 @@ LEFT JOIN (
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND ISNULL(IM.CountryId,'')='" + entity.CountryId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
-					AND IRD.BaseQty !=IRD.BaseIssueQty
+					AND (IRD.BaseQty+ISNULL(IRD.IssueReturnQty,0)) !=IRD.BaseIssueQty
                     AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) AND IRD.Id NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL))x WHERE x.BalanceStock>0 
                     order by x.GRNDate desc
 					";
@@ -2188,7 +2188,7 @@ LEFT JOIN (
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND ISNULL(IM.CountryId,'')='" + entity.CountryId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
 					--And ((((((ISNULL(IRD.BaseQty,0) - ISNULL(IRD.BaseIssueQty, 0)-ISNULL(IRD.PurchaseReturnQty,0))+ISNULL(IRD.IssueReturnQty,0))-ISNULL(IRD.ReductionByAdjustmentQty,0))-ISNULL(IRD.InventorySalesQty,0))-ISNULL(IRD.InventoryScrapQty,0))-ISNULL(IRD.InventoryTransferQty,0))>0
-					AND IRD.BaseQty !=IRD.BaseIssueQty
+					AND (IRD.BaseQty+ISNULL(IRD.IssueReturnQty,0)) !=IRD.BaseIssueQty
                     AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + "' AS DATE) AND allocation.SalesOrderId in('" + entity.SalesOrderId + @"')  group by IRD.InventoryReceiveId,allocation.SalesOrderId, IRD.POId, IRD.PODetailsId, IRD.Id , IRD.InventoryMaterialId
                     , P.Code , P.UserName, CASE WHEN IR.[Status] IS NULL THEN 0 else 1 END,CASE WHEN IR.IsApproved = 0 THEN 0 else 1 END,CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END,C.Id,C.UserName,IM.MaterialMasterId,IM.ArticleId
                     ,IM.FirstCharacteristicsValueId,IM.SecondCharacteristicsValueId,IM.ThirdCharacteristicsValueId,IM.CountryId,IM.FirstCharacteristicsId,IM.SecondCharacteristicsId,IM.ThirdCharacteristicsId,CASE WHEN MM.IssueByUoM = 0 THEN 'No' ELSE 'Yes' END
