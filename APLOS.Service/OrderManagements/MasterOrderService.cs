@@ -358,7 +358,7 @@ namespace Library.Service.OrderManagements
                                     --,ISNULL(CNT.ContractNo,'')ContractNo,ISNULL(MLC.LCRef,'')LCRef
 									,B.UserName Buyer,ISNULL(A.BuyerReferenceNo,'')BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'')OwnReferenceNo,ISNULL(MOI.BuyerReferenceNo,'') StyleNo
 									,ISNULL(MOI.OwnReferenceNo,'') OwnStyleNo
-                                    ,MM.UserName MaterialMaster,MMA.StandardName Article,MOI.TotalQty ItemQty--,SO.ContractId
+                                    ,MM.UserName MaterialMaster,MMA.StandardName Article,ISNULL(AA.ArticlePartyName,P.UserName) CustomerArticle,MOI.TotalQty ItemQty--,SO.ContractId
                                     , CP.PaymentTermId, PT.Code AS PaymentTermCode, PT.UserName AS PaymentTermName, CP.IsPaymentTermChangeable
                                     ,PONumber=  REPLACE(REPLACE(
 										            STUFF((SELECT DISTINCT ','+CPO.PONumber from 
@@ -406,6 +406,7 @@ namespace Library.Service.OrderManagements
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId 
                             LEFT JOIN MST.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId
+                            LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id AND AA.MasterOrderItemId=MOI.Id
                             WHERE A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' ORDER BY P.Id";
                 return _sqlRepository.GetDataCollection(sql);
             }

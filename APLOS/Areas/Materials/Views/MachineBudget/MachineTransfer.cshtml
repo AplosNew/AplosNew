@@ -21,7 +21,7 @@
                                 <label class="col-sm-4 control-label">From Entity</label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="FromEntityId" name="Entity"
+                                        <select class="form-control" ng-model="model.EntityId" name="Entity"
                                                 ng-options="item.Value as item.Text for item in EntityList">
                                             <option value="">--Select--</option>
                                         </select>
@@ -32,7 +32,7 @@
                                 <label class="col-sm-4 control-label">Transfer Type</label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select name="voucherType" ng-model="TransferType" class="col-sm-3 form-control">
+                                        <select name="voucherType" ng-model="model.TransferType" class="col-sm-3 form-control">
                                             <option value="Permanent"> Permanent</option>
                                             <option value="Temporary">Temporary</option>
 
@@ -49,7 +49,7 @@
                                 <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <div class="input-group">
-                                        <input type="text" name="ResponsiblePerson" ng-model="responsiblePerson" @*style="width:200px;"*@ class="form-control" readonly>
+                                        <input type="text" name="ResponsiblePerson" ng-model="model.ResponsiblePerson" @*style="width:200px;"*@ class="form-control" readonly>
                                         <span class="input-group-btn">
                                             <button name="submit" ng-click="openPopupAngular('employeeNewPopUp')" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                         </span>
@@ -60,7 +60,7 @@
                                 <label class="col-sm-4 control-label">Approved By</label>
                                 <div class="col-sm-8 ">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="periodId" name="PeriodList"
+                                        <select class="form-control" ng-model="model.ApprovedBy" name="PeriodList"
                                                 ng-options="item.Value as item.Text for item in PeriodList">
                                             <option value="">--Select--</option>
                                         </select>
@@ -74,7 +74,7 @@
                                 <label class="col-sm-4 control-label">To Entity</label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="ToEntityId" name="Entity"
+                                        <select class="form-control" ng-model="model.ToEntityId" name="Entity"
                                                 ng-options="item.Value as item.Text for item in EntityList">
                                             <option value="">--Select--</option>
                                         </select>
@@ -84,14 +84,14 @@
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Days<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="Days" ng-model="Days" class="form-control" tabindex="4">
+                                    <input type="text" name="Days" ng-model="model.Days" class="form-control" tabindex="4">
 
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Remarks<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <textarea name="Remarks" class="form-control" rows="2" maxlength="500" ng-model="Remarks" tabindex="7"></textarea>
+                                    <textarea name="Remarks" class="form-control" rows="2" maxlength="500" ng-model="model.Remarks" tabindex="7"></textarea>
                                 </div>
                             </div>
 
@@ -124,7 +124,7 @@
                 </div>
 
                 <script type="text/template" id="qty">
-                    <input type="number" onkeypress="return isNumber(event)" id="pp1" ng-model="data.Qty" ng-keydown="$event.keyCode === 13 && $parent.changeInData(data,'qty')" style="color:black; text-align:center" />
+                    <input type="number" onkeypress="return isNumber(event)" id="pp1" ng-model="data.Qty" ng-keyup="$parent.changeInData(data,'qty')" style="color:black; text-align:center" />
                 </script>
 
                 <script type="text/template" id="btnAction">
