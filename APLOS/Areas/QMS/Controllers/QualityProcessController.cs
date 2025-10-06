@@ -1025,7 +1025,7 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='" + masterId + "'";
             }
         }
 
-        [HttpPost]
+        [HttpPost,Authorize]
         public ActionResult GetDefectMarkerMasterList(string column, string value)
         {
             string strkey = "1=1";
@@ -1047,135 +1047,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-
-        [HttpPost]
-        public JsonResult SaveDefects([System.Web.Http.FromBody] DefectData data)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-                if (data == null || data.Defects == null || data.Defects.Count == 0)
-                    return Json(new { Error = true, Message = "No defect data received." });
-
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                DataSet dsMaster;
-
-                string tableName = "ImageDefects";
-
-                // Load schema only once
-                con.OpenDataSetThroughAdapter($"SELECT * FROM {tableName} WHERE 1=0", out dsMaster, false, "1");
-
-                foreach (var d in data.Defects)
-                {
-                    DataView dv = new DataView(dsMaster.Tables[0]);
-                    dv.RowFilter = "Id='" + d.Id + "'";
-
-                    if (dv.Count == 0)
-                    {
-                        DataRow dr = dsMaster.Tables[0].NewRow();
-                        dr["ImageFile"] = data.ImageFile;
-                        dr["Width"] = data.ImageDimensions.Width;
-                        dr["Height"] = data.ImageDimensions.Height;
-                        dr["XNormalized"] = d.XNormalized;
-                        dr["YNormalized"] = d.YNormalized;
-                        dr["Description"] = d.Description;
-
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = DateTime.Now;
-                        dr["AddedFromIP"] = identity.IPAddress;
-
-                        dsMaster.Tables[0].Rows.Add(dr);
-                    }
-
-                }
-
                
-                // Save all at once
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
-                return Json(new
-                {
-                    Error = false,
-                    Count = data.Defects.Count,
-                    Message = $"{data.Defects.Count} defects saved successfully."
-                });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-        }
-
-        [HttpPost]
-        public JsonResult _SaveImageAndDefects(HttpPostedFileBase imageFile, string defectsJson)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-                if (imageFile == null || imageFile.ContentLength == 0)
-                    return Json(new { Success = false, Message = "No image file provided." });
-
-                // 1️⃣ Save image to physical folder
-                //string uploadsFolder = Path.Combine(Server.MapPath("~/Uploads"));
-                string uploadsFolder = Path.Combine(ResourcesPathReader.GetDefectPicPath());
-                if (!Directory.Exists(uploadsFolder))
-                    Directory.CreateDirectory(uploadsFolder);
-
-                string filePath = Path.Combine(uploadsFolder, Path.GetFileName(imageFile.FileName));
-                imageFile.SaveAs(filePath);
-
-                // 2️⃣ Deserialize JSON
-                var defectData = JsonConvert.DeserializeObject<DefectData>(defectsJson);
-
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                DataSet dsMaster;
-
-                string tableName = "ImageDefects";
-
-                // Load schema only once
-                con.OpenDataSetThroughAdapter($"SELECT * FROM {tableName} WHERE 1=0", out dsMaster, false, "1");
-
-                foreach (var d in defectData.Defects)
-                {
-                    DataView dv = new DataView(dsMaster.Tables[0]);
-                    dv.RowFilter = "Id='" + d.Id + "'";
-                    //dv.RowFilter = "Id='" + d.Id + "' AND DefectMarkerMasterId='" + defectData.DefectMarkerMasterId + "'";
-
-                    if (dv.Count == 0)
-                    {
-                        DataRow dr = dsMaster.Tables[0].NewRow();
-                        dr["ImageFile"] = defectData.ImageFile;
-                        dr["DefectMarkerMasterId"] = d.DefectMarkerMasterId;
-                        dr["Width"] = d.Width;
-                        dr["Height"] = d.Height;
-                        dr["XNormalized"] = d.XNormalized;
-                        dr["YNormalized"] = d.YNormalized;
-                        dr["Description"] = d.Description;
-                        dr["Type"] = d.Type;
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = DateTime.Now;
-                        dr["AddedFromIP"] = identity.IPAddress;
-
-                        dsMaster.Tables[0].Rows.Add(dr);
-                    }
-
-                }
-
-
-                // Save all at once
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
-                return Json(new { Success = true, Message = "Image and defects saved successfully." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Success = false, Message = ex.Message });
-            }
-        }
 
         [HttpPost]
         public JsonResult SaveImageAndDefects(HttpPostedFileBase imageFile, string defectsJson, int masterId)
@@ -1268,77 +1140,9 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                 return Json(new { Success = false, Message = ex.Message });
             }
         }
+                      
 
-
-        // ---------- GET: Retrieve Defects ----------
-        //[HttpGet]
-        //public JsonResult GetDefects(string imageFile)
-        //{
-        //    try
-        //    {
-        //        if (string.IsNullOrEmpty(imageFile))
-        //            return Json(new { Error = true, Message = "Image file name is required." });
-
-        //        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-        //        DataSet dsDefects;
-
-        //        string tableName = "ImageDefects";
-
-        //        // Load all defects for this image
-        //        con.OpenDataSetThroughAdapter(
-        //            $"SELECT * FROM {tableName} WHERE ImageFile='{imageFile}'",
-        //            out dsDefects, false, "1");
-
-        //        if (dsDefects.Tables[0].Rows.Count == 0)
-        //        {
-        //            return Json(new
-        //            {
-        //                Error = false,
-        //                Message = "No defects found.",
-        //                Data = new DefectData
-        //                {
-        //                    ImageFile = imageFile,
-        //                    ImageDimensions = new ImageDimensions { Width = 0, Height = 0 },
-        //                    Defects = new List<Defect>()
-        //                }
-        //            });
-        //        }
-
-        //        // Read dimensions (assuming all defects have same Width/Height)
-        //        var firstRow = dsDefects.Tables[0].Rows[0];
-        //        var dimensions = new ImageDimensions
-        //        {
-        //            Width = Convert.ToInt32(firstRow["Width"]),
-        //            Height = Convert.ToInt32(firstRow["Height"])
-        //        };
-
-        //        // Map defects
-        //        var defectList = dsDefects.Tables[0].AsEnumerable()
-        //            .Select(r => new Defect
-        //            {
-        //                Id =Convert.ToInt32(r["Id"].ToString()),
-        //                XNormalized = Convert.ToDecimal(r["XNormalized"]),
-        //                YNormalized = Convert.ToDecimal(r["YNormalized"]),
-        //                Description = r["Description"]?.ToString()
-        //            })
-        //            .ToList();
-
-        //        var defectData = new DefectData
-        //        {
-        //            ImageFile = imageFile,
-        //            ImageDimensions = dimensions,
-        //            Defects = defectList
-        //        };
-
-        //        return Json(new { Error = false, Data = defectData });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { Error = true, Message = ex.Message });
-        //    }
-        //}
-
-        [HttpGet]
+        [HttpGet,Authorize]
         public JsonResult GetImageAndDefects(int masterId)
         {
             try
