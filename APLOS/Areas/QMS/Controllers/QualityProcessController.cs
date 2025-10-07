@@ -1143,7 +1143,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
 
 
         [HttpGet, Authorize]
-        public JsonResult GetImageAndDefects(int masterId)
+        public ActionResult GetImageAndDefects(int masterId)
         {
             try
             {
