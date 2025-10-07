@@ -82,7 +82,7 @@ namespace Aplos.Areas.QMS.Controllers
         {
             string sql = @"select  CV.Id ValueId,CV.UserName from TRN.FirstCharacteristics FS
 LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id=FS.CharacteristicsValueId 
- Where FS.SalesOrderId='"+ soId + "'";
+ Where FS.SalesOrderId='" + soId + "'";
             var colorItem = _sqlRepository.GetDataCollection(sql);
             sql = @"select distinct CV.Id ValueId,CV.UserName from TRN.SecondCharacteristics FS
 LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id=FS.CharacteristicsValueId 
@@ -903,7 +903,7 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='" + masterId + "'";
             return Json(GetDefectSequence(qualityProcessMasterId), JsonRequestBehavior.AllowGet);
         }
 
-        
+
         [HttpPost]
         public JsonResult CreateDefect(Dictionary<string, object> data, string qualityProcessMasterId)
         {
@@ -1025,7 +1025,7 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='" + masterId + "'";
             }
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public ActionResult GetDefectMarkerMasterList(string column, string value)
         {
             string strkey = "1=1";
@@ -1047,7 +1047,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-               
+
 
         [HttpPost]
         public JsonResult SaveImageAndDefects(HttpPostedFileBase imageFile, string defectsJson, int masterId)
@@ -1086,7 +1086,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                 DataSet dsMaster;
                 string tableName = "ImageDefects";
 
-                con.OpenDataSetThroughAdapter($"SELECT * FROM {tableName} WHERE DefectMarkerMasterId="+ masterId + "", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter($"SELECT * FROM {tableName} WHERE DefectMarkerMasterId=" + masterId + "", out dsMaster, false, "1");
 
                 foreach (var d in defectData.Defects)
                 {
@@ -1140,9 +1140,9 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                 return Json(new { Success = false, Message = ex.Message });
             }
         }
-                      
 
-        [HttpGet,Authorize]
+
+        [HttpGet, Authorize]
         public JsonResult GetImageAndDefects(int masterId)
         {
             try
@@ -1156,21 +1156,23 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                 {
                     return Json(new { Success = false, Message = "No image found." }, JsonRequestBehavior.AllowGet);
                 }
-
-                // Assuming all defects share same image
-                var firstRow = ds.Tables[0].Rows[0];
-                string imageFile = Convert.ToString(firstRow["ImageFile"]);
-
-                var defects = ds.Tables[0].AsEnumerable().Select(r => new
+                else
                 {
-                    Id = r["Id"],
-                    XNormalized = r["XNormalized"],
-                    YNormalized = r["YNormalized"],
-                    Type = r["Type"],
-                    Description = r["Description"]
-                });
+                    // Assuming all defects share same image
+                    var firstRow = ds.Tables[0].Rows[0];
+                    string imageFile = Convert.ToString(firstRow["ImageFile"]);
 
-                return Json(new{Success = true,ImageFile = imageFile,Defects = defects}, JsonRequestBehavior.AllowGet);
+                    var defects = ds.Tables[0].AsEnumerable().Select(r => new
+                    {
+                        Id = r["Id"],
+                        XNormalized = r["XNormalized"],
+                        YNormalized = r["YNormalized"],
+                        Type = r["Type"],
+                        Description = r["Description"]
+                    });
+
+                    return Json(new { Success = true, ImageFile = imageFile, Defects = defects }, JsonRequestBehavior.AllowGet);
+                }
             }
             catch (Exception ex)
             {
