@@ -1256,6 +1256,72 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.selectedEmployee = null;
     };
 
+    $scope.empearch = "";
+    $scope.searchByEmp = "EmployeeCode"; $scope.empearch = "";
+    $scope.searchEmpByList = [{ value: 'EmployeeCode', name: "Employee Code" }, { value: 'EmployeeName', name: "Employee Name" }];
+
+    $scope.popUpEmpDataList = [];
+    $scope.employee = [];
+    $scope.tag = "";
+
+    $scope.getEmpPopUpData = function (tag) {
+        try {
+            $scope.tag = tag;
+
+            if (baseService.isUndefinedOrNull($scope.fileNew.PlantId)) {
+                throw 'Select Plant';
+            }
+
+            $scope.employee = [];
+            $scope.popUpEmpDataList = [];
+            $http({
+                method: 'POST',
+                url: 'QMS/QualityProcess/getemployeelist',
+                data: { column: $scope.searchByEmp, value: $scope.empearch, plantId: $scope.fileNew.PlantId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.employee = response.data;
+                $scope.popUpEmpDataList = response.data;
+                angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    }
+
+    $scope.getEmpData = function () {
+        $scope.employee = [];
+        $scope.popUpEmpDataList = [];
+        $http({
+            method: 'POST',
+            url: 'QMS/QualityProcess/getemployeelist',
+            data: { column: $scope.searchByEmp, value: $scope.empearch, plantId: $scope.fileNew.PlantId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.employee = response.data;
+            $scope.popUpEmpDataList = response.data;
+        });
+    }
+
+    $scope.setEmpData = function (obj) {
+        if ($scope.tag == 'mo') {
+            $scope.fileNew.ResponsiblePersonId = obj.data.SystemID;
+            $scope.fileNew.ResponsiblePersonName = obj.data.EmployeeCode + "-" + obj.data.EmployeeName;
+        }
+        else if ($scope.tag == 'so') {
+            $scope.soModel.ResponsiblePersonId = obj.data.SystemID;
+            $scope.soModel.ResponsiblePersonName = obj.data.EmployeeCode + "-" + obj.data.EmployeeName;
+        }
+        else {
+            $scope.soSplitModel.ResponsiblePersonId = obj.data.SystemID;
+            $scope.soSplitModel.ResponsiblePersonName = obj.data.EmployeeCode + "-" + obj.data.EmployeeName;
+        }
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    };
+
+
+
     $scope.getLineItemType = function () {
         if (baseService.isUndefinedOrNull($scope.fileNew.Type)) {
             $scope.linetypeList = [
@@ -1599,7 +1665,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             Remark: null,
             OrderStatusId: null,
             UOMId: $scope.fileNew.TotalQtyUOMId,
-            ItemCategory:null
+            ItemCategory: null
         });
     };
 

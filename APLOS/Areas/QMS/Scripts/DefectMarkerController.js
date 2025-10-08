@@ -1,6 +1,6 @@
 ﻿'use strict';
-DefectMarkerController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$timeout', 'fileReader'];
-function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $timeout, fileReader) {
+DefectMarkerController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$timeout', 'fileReader','$window'];
+function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $timeout, fileReader,$window) {
     $rootScope.title = 'Defect Marker';
     $scope.Action = 'Save';
     $scope.DefectMasterModelList = [];
@@ -171,19 +171,40 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
 
+    $scope.empearch = "";
+    $scope.searchByEmp = "EmployeeCode"; $scope.search = "";
+    $scope.searchEmpByList = [{ value: 'SystemID', name: "SystemID" }, { value: 'EmployeeCode', name: "Employee Code" }, { value: 'EmployeeName', name: "EmployeeName" }];
+
+
     $scope.employee = [];
     $scope.getPopUpData = function () {
         $scope.employee = [];
         $scope.popUpEmpDataList = [];
         $http({
-            method: 'GET',
-            url: 'QMS/QualityProcess/getemployeelist'
+            method: 'POST',
+            url: 'QMS/QualityProcess/getemployeelist',
+            data: { column: $scope.searchByEmp, value: $scope.empearch, plantId: $window.plantId },
+            dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.employee = response.data;
             $scope.popUpEmpDataList = response.data;
         });
     }
     $scope.getPopUpData();
+
+    $scope.getEmpData = function () {
+        $scope.employee = [];
+        $scope.popUpEmpDataList = [];
+        $http({
+            method: 'POST',
+            url: 'QMS/QualityProcess/getemployeelist',
+            data: { column: $scope.searchByEmp, value: $scope.empearch, plantId: $window.plantId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.employee = response.data;
+            $scope.popUpEmpDataList = response.data;
+        });
+    }
 
     $scope.setEmpData = function (obj) {
         $scope.productionSummaryNew.ResponsiblePersonId = obj.data.SystemID;
