@@ -2025,7 +2025,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                 con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[ProductionPlanningArchive] WHERE 1=2", out dsToData, false, "1");
-                DataTable dtFromData = _sqlRepository.GetDataTable(@"select * FROM ProductionPlanningType1 where EntityId IN (" + ProcessingEntities + @") AND ISNULL(UpdatedDate,AddedDate)<=GetDate()");
+                DataTable dtFromData = _sqlRepository.GetDataTable(@"select * FROM ProductionPlanningType1 where EntityId IN (" + ProcessingEntities + @") AND ISNULL(UpdatedDate,AddedDate)>=GetDate()");
                 for (int j = 0; j < dtFromData.DefaultView.Count; j++)
                 {
                     DataRow drData = dsToData.Tables[0].NewRow();
