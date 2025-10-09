@@ -2021,20 +2021,20 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                     new Exception("The following production orders are running but no workcenter was defined: " + ids);
                 }
 
-                DataSet dsToData;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                //DataSet dsToData;
+                //ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[ProductionPlanningArchive] WHERE 1=2", out dsToData, false, "1");
-                DataTable dtFromData = _sqlRepository.GetDataTable(@"select * FROM ProductionPlanningType1 where EntityId IN (" + ProcessingEntities + @") AND ISNULL(UpdatedDate,AddedDate)<=GetDate()");
-                for (int j = 0; j < dtFromData.DefaultView.Count; j++)
-                {
-                    DataRow drData = dsToData.Tables[0].NewRow();
-                    CopyRow(dtFromData.DefaultView[j].Row, ref drData);
-                    dsToData.Tables[0].Rows.Add(drData);
-                }
+                //con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[ProductionPlanningArchive] WHERE 1=2", out dsToData, false, "1");
+                //DataTable dtFromData = _sqlRepository.GetDataTable(@"select * FROM ProductionPlanningType1 where EntityId IN (" + ProcessingEntities + @") AND ISNULL(UpdatedDate,AddedDate)<=GetDate()");
+                //for (int j = 0; j < dtFromData.DefaultView.Count; j++)
+                //{
+                //    DataRow drData = dsToData.Tables[0].NewRow();
+                //    CopyRow(dtFromData.DefaultView[j].Row, ref drData);
+                //    dsToData.Tables[0].Rows.Add(drData);
+                //}
 
-                clsStaticInfo clsStatic = new clsStaticInfo();
-                clsStatic.SaveDataSets(dsToData);
+                //clsStaticInfo clsStatic = new clsStaticInfo();
+                //clsStatic.SaveDataSets(dsToData);
 
                 _sqlRepository.ExecuteSqlCommand(@"delete FROM ProductionPlanningType1 where EntityId IN (" + ProcessingEntities + @")");
 
