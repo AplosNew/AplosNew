@@ -2140,7 +2140,7 @@ Group By OLS.OTreductionFactor,B.Basic
  ) AS varchar(100))
 
  WHEN OL.UserName='OverTime' THEN CAST((
-Select CAST(((sum(gd.AdditionalOT)/60)*(B.Basic/26/8)) AS decimal(18,0)) from dbo.AttdnProcessData GD
+Select CAST(((sum(gd.AdditionalOT)/60)*(B.Basic/104)) AS decimal(18,0)) from dbo.AttdnProcessData GD
 left join EmployeeInformation ei on ei.SystemId=GD.EmpSystemId
 left join (Select top 1* from [dbo].[OTLimitSetting])OLS ON OLS.PlantID=ei.PlantId
 LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = GD.EmpSystemId
@@ -2152,7 +2152,7 @@ left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.
 FROM SalaryInfoDefine SID 
 LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
 WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
-Where GD.GWPaymentAdviseId IS NULL-- IN(select PaymentAdviseId from [dbo].[GoodWorkPaymentAdviseDetail] Where PaymentAdviseId in (select Id from [dbo].[GoodWorkPaymentAdvise] Where EmpSystemId ='" + empId + @"') and DisbursementVoucherId IS NULL)
+Where GD.GWPaymentAdviseId IS NULL
 AND GD.EmpSystemId='" + empId + @"' 
 AND GD.EmpSystemID NOT IN(Select EmployeeId from dbo.ExceptionGoodWorkEmployee) AND GD.AdditionalOT<>0 AND ISNULL(PastOTDisbursed,0)=0 AND IsOTEntitled=1
 Group By OLS.OTreductionFactor,B.Basic
