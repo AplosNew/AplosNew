@@ -1,10 +1,6 @@
 ﻿@*<h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span> Defect Marker</h3>*@
 <togglable name="{{title}}"></togglable>
 @*<label class="col-sm-12 control-label" style="color:blue">Only Running order will be consider for defect mark.</label>*@
-@*<script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">*@
-<link rel="stylesheet" href="/Content/tailwind-lite.css" />
-
 <style>
     body {
         font-family: 'Inter', sans-serif;
@@ -613,6 +609,25 @@
                 <button type="button" class="close" ng-click="closePopup('employeeNewPopUp');">&times;</button>
             </div>
             <div class="modal-body">
+                <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="searchByEmp">
+                                        <option ng-repeat="option in searchEmpByList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="empearch" ng-enter="getEmpData()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="getEmpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="content-container-fluid" style="color:black;">
                     <div style="color: black;" id="Grid" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                          e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">

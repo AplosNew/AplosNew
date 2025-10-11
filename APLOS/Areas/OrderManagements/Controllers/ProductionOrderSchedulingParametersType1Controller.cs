@@ -1952,6 +1952,22 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
         public void ProductionPlanSimulationAlgorithm(string entityid, string ProcessingEntities, string processid)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            DataSet dsToData;
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+            con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[ProductionPlanningArchive] WHERE 1=2", out dsToData, false, "1");
+            DataTable dtFromData = _sqlRepository.GetDataTable(@"select * FROM ProductionPlanningType1 where EntityId IN (" + ProcessingEntities + @") AND CAST(AddedDate AS DATE) < CAST(GETDATE() AS DATE)");
+            for (int j = 0; j < dtFromData.DefaultView.Count; j++)
+            {
+                DataRow drData = dsToData.Tables[0].NewRow();
+                CopyRow(dtFromData.DefaultView[j].Row, ref drData);
+                dsToData.Tables[0].Rows.Add(drData);
+            }
+
+            clsStaticInfo clsStatic = new clsStaticInfo();
+            clsStatic.SaveDataSets(dsToData);
+
             Library.General.Setups.ProcessLock _lock = new Library.General.Setups.ProcessLock(identity.Name, Library.General.Setups.ProcessLockId.PlanningType1, entityid);
             _lock.LockProcess();
             try
@@ -2019,22 +2035,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                     }
 
                     new Exception("The following production orders are running but no workcenter was defined: " + ids);
-                }
-
-                DataSet dsToData;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-                con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[ProductionPlanningArchive] WHERE 1=2", out dsToData, false, "1");
-                DataTable dtFromData = _sqlRepository.GetDataTable(@"select * FROM ProductionPlanningType1 where EntityId IN (" + ProcessingEntities + @") AND ISNULL(UpdatedDate,AddedDate)<=GetDate()");
-                for (int j = 0; j < dtFromData.DefaultView.Count; j++)
-                {
-                    DataRow drData = dsToData.Tables[0].NewRow();
-                    CopyRow(dtFromData.DefaultView[j].Row, ref drData);
-                    dsToData.Tables[0].Rows.Add(drData);
-                }
-
-                clsStaticInfo clsStatic = new clsStaticInfo();
-                clsStatic.SaveDataSets(dsToData);
+                }                
 
                 _sqlRepository.ExecuteSqlCommand(@"delete FROM ProductionPlanningType1 where EntityId IN (" + ProcessingEntities + @")");
 
@@ -2053,7 +2054,6 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                 DataTable productionOrders = dtProductionParameters(ProcessingEntities);
                 for (int i = 0; i < productionOrders.Rows.Count; i++)
                 {
-
                     dtCalendar = dicCalendar[productionOrders.Rows[i]["EntityId"].ToString()];
 
                     sbLog = new StringBuilder();
@@ -2764,6 +2764,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
         }
         private void saveProductionPlan(List<ProductionBlock> entry, string productionOrderID, string entityid, string processid)
         {
+            
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             DataSet dsMaster;
@@ -3470,7 +3471,7 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId
 							
 
                             WHERE 
-                            po.EntityId IN(" + entityid + @")  AND ps.UserName IN ('" + PlanningStatus.ACTIVE.ToString() + @"','" + PlanningStatus.RUNNING.ToString() + @"')
+                        po.EntityId IN(" + entityid + @")  AND ps.UserName IN ('" + PlanningStatus.ACTIVE.ToString() + @"','" + PlanningStatus.RUNNING.ToString() + @"')
                             ORDER BY ps.UserName DESC, t1.ProductionPriority ASC";
             DataTable _dtProductionParameters = _sqlRepository.GetDataTable(sql);
 

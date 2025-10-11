@@ -92,14 +92,21 @@ LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id=FS.CharacteristicsValueId
             return Json(new { colorItem, sizeItem }, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
-        public ActionResult GetEmployeeList()
+        [HttpPost, Authorize]
+        public ActionResult GetEmployeeList(string column, string value,string plantId)
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
 
-                string CmdText = @"SELECT Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                if (string.IsNullOrEmpty(plantId))
+                {
+                    plantId = identity.PlantId;
+                }
+                string CmdText = @"select * from (SELECT Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,PR.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
                                         EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
@@ -117,8 +124,28 @@ LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id=FS.CharacteristicsValueId
                                         LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EMP.GivenDesignationId
 										LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
-                                        WHERE  EMP.EmployeeStatus='Active' AND EMP.EmpType<>'Guest'AND EMP.PlantId='" + identity.PlantId + @"'
-                                        ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+                                        WHERE  EMP.EmployeeStatus='Active' AND EMP.EmpType<>'Guest' AND EMP.PlantId='" + plantId + @"'
+UNION ALL
+SELECT Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,PR.SectionId,SS.UserName SubSection
+                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
+                                        EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
+                                        FROM EmployeeInformation EMP
+                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
+                                        LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
+                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                                        LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
+                                        LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
+                                        LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EMP.GivenDesignationId
+										LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+                                        LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
+                                        WHERE  EMP.EmployeeStatus='Active' AND EMP.EmpType<>'Guest' AND EMP.IsGlobalEmployee=1 
+                                        ) AS TEMP WHERE " + strkey + " ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
                 var json = Json(_sqlRepository.GetDataCollection(CmdText, null), JsonRequestBehavior.AllowGet);
                 json.MaxJsonLength = int.MaxValue;
                 return json;
@@ -1142,8 +1169,8 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
         }
 
 
-        [HttpGet, Authorize]
-        public JsonResult GetImageAndDefects(int masterId)
+        [HttpPost, Authorize]
+        public ActionResult GetImageAndDefects(int masterId)
         {
             try
             {

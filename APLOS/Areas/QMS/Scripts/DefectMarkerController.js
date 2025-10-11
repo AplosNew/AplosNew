@@ -1,6 +1,6 @@
 ﻿'use strict';
-DefectMarkerController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$timeout', 'fileReader'];
-function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $timeout, fileReader) {
+DefectMarkerController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$timeout', 'fileReader','$window'];
+function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $timeout, fileReader,$window) {
     $rootScope.title = 'Defect Marker';
     $scope.Action = 'Save';
     $scope.DefectMasterModelList = [];
@@ -171,19 +171,40 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
 
+    $scope.empearch = "";
+    $scope.searchByEmp = "EmployeeCode"; $scope.search = "";
+    $scope.searchEmpByList = [{ value: 'SystemID', name: "SystemID" }, { value: 'EmployeeCode', name: "Employee Code" }, { value: 'EmployeeName', name: "EmployeeName" }];
+
+
     $scope.employee = [];
     $scope.getPopUpData = function () {
         $scope.employee = [];
         $scope.popUpEmpDataList = [];
         $http({
-            method: 'GET',
-            url: 'QMS/QualityProcess/getemployeelist'
+            method: 'POST',
+            url: 'QMS/QualityProcess/getemployeelist',
+            data: { column: $scope.searchByEmp, value: $scope.empearch, plantId: $window.plantId },
+            dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.employee = response.data;
             $scope.popUpEmpDataList = response.data;
         });
     }
     $scope.getPopUpData();
+
+    $scope.getEmpData = function () {
+        $scope.employee = [];
+        $scope.popUpEmpDataList = [];
+        $http({
+            method: 'POST',
+            url: 'QMS/QualityProcess/getemployeelist',
+            data: { column: $scope.searchByEmp, value: $scope.empearch, plantId: $window.plantId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.employee = response.data;
+            $scope.popUpEmpDataList = response.data;
+        });
+    }
 
     $scope.setEmpData = function (obj) {
         $scope.productionSummaryNew.ResponsiblePersonId = obj.data.SystemID;
@@ -253,7 +274,7 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
         reader.readAsDataURL(file);
     };
 
-    
+
     $scope.prepareCanvas = function () {
         garmentImage = document.getElementById("garmentImage");
         defectCanvas = document.getElementById("defectCanvas");
@@ -371,38 +392,66 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
         $scope.imageLoaded = false;
     };
 
-    $scope.loadExistingDefects = function (masterId) {
-        $http.get("/QMS/QualityProcess/GetImageAndDefects", { params: { masterId: masterId } })
-            .then(function (response) {
-                if (response.data.Success) {
-                    // Construct full image path (adjust your path here)
-                    $scope.ImageFile = response.data.ImageFile;
-                    const imagePath = virtualPath.GarmentPic + response.data.ImageFile;
+    $scope.loadExistingDefects = function () {
+        $http({
+            method: 'POST',
+            url: 'QMS/QualityProcess/GetImageAndDefects',
+            data: { masterId: $scope.productionSummaryNew.Id },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            if (response.data.length > 0) {
+                // Construct full image path (adjust your path here)
+                $scope.ImageFile = response.data.ImageFile;
+                const imagePath = virtualPath.GarmentPic + response.data.ImageFile;
 
-                    $scope.imageSrc = imagePath;
-                    $scope.imageLoaded = true;
-                    $scope.defects = response.data.Defects.map(d => ({
-                        id: d.Id,
-                        x: parseFloat(d.XNormalized),
-                        y: parseFloat(d.YNormalized),
-                        Type: d.Type,
-                        Description: d.Description
-                    }));
+                $scope.imageSrc = imagePath;
+                $scope.imageLoaded = true;
+                $scope.defects = response.data.Defects.map(d => ({
+                    id: d.Id,
+                    x: parseFloat(d.XNormalized),
+                    y: parseFloat(d.YNormalized),
+                    Type: d.Type,
+                    Description: d.Description
+                }));
 
-                    // Wait for image render then draw defects
-                    $timeout($scope.prepareCanvas, 300);
-                } else {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            })
-            .catch(function (error) {
-                ShowResult(error, 'failure');
-            });
+                // Wait for image render then draw defects
+                $timeout($scope.prepareCanvas, 300);
+            }
+        });
     };
+
+    //$scope.loadExistingDefects = function (masterId) {
+    //    $http.post("/QMS/QualityProcess/GetImageAndDefects", { params: { masterId: masterId } })
+    //        .then(function (response) {
+    //            if (response.data.Success) {
+    //                // Construct full image path (adjust your path here)
+    //                $scope.ImageFile = response.data.ImageFile;
+    //                const imagePath = virtualPath.GarmentPic + response.data.ImageFile;
+
+    //                $scope.imageSrc = imagePath;
+    //                $scope.imageLoaded = true;
+    //                $scope.defects = response.data.Defects.map(d => ({
+    //                    id: d.Id,
+    //                    x: parseFloat(d.XNormalized),
+    //                    y: parseFloat(d.YNormalized),
+    //                    Type: d.Type,
+    //                    Description: d.Description
+    //                }));
+
+    //                // Wait for image render then draw defects
+    //                $timeout($scope.prepareCanvas, 300);
+    //            } else {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //        })
+    //        .catch(function (error) {
+    //            ShowResult(error, 'failure');
+    //        });
+    //};
 
     // save example
 
-    
+
 
     $scope.saveDefects = function () {
         try {
@@ -476,7 +525,7 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
         if ($scope.imageLoaded) $scope.prepareCanvas();
     });
 
-  
+
 
 
 
