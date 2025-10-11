@@ -1169,6 +1169,5 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
             $scope.purchaseLCNew.Amount = Math.round(($filter('sumByKey')($filter('filter')($scope.selectedPOList), 'Amount') * 1000 + Number.EPSILON) / 1000);
         }
     }
-
     // #endregion
 }
