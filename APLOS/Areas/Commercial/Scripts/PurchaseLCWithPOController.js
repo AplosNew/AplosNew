@@ -1149,8 +1149,18 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
         }
         $scope.dindex = -1;
     };
-
+    function refresh() {
+        var gridObj = $("#Grid45").data("ejGrid");
+        gridObj.dataSource($scope.selectedPOList);
+    }
     $scope.CalculateAmount = function (data) {
+        data.data.BalanceAmount = data.data.TransactionAmount - data.data.LCAmount - data.data.Amount
+        for (var i = 0; i < $scope.selectedPOList.length; i++) {
+            if ($scope.selectedPOList[i].Id == data.data.Id) {
+                $scope.selectedPOList[i].BalanceAmount = data.data.TransactionAmount - data.data.LCAmount - data.data.Amount;
+                refresh();
+            }
+        }
         if (data.data.BalanceAmount < data.data.Amount) {
             ShowResult('Amount can not greater than Balance Amount !!')
             $scope.purchaseLCNew.Amount = data.data.BalanceAmount;
