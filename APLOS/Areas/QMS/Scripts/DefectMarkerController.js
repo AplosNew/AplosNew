@@ -360,8 +360,9 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
 
     // save current defect (create or update)
     $scope.saveDefect = function () {
+        $scope.currentDefect.Type = $("#dtype option:selected").text();
         const idx = $scope.defects.findIndex(d => d.id === $scope.currentDefect.id);
-        if (idx >= 0) $scope.defects[idx] = angular.copy($scope.currentDefect);
+        if (idx >= 0) $scope.defects[idx] = angular.copy($scope.currentDefect);       
         else $scope.defects.push(angular.copy($scope.currentDefect));
         $scope.showDefectModal = false;
         $scope.drawDefects();

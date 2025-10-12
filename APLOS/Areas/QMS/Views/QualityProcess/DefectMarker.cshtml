@@ -465,25 +465,13 @@
 
                 <!-- Floating popup -->
                 <div ng-show="showDefectModal" style="position: absolute; background: white; border: 1px solid #ccc; border-radius: 8px; padding: 30px; z-index: 999; top: 200px; left: 600px;">
-                    @*<label class="block text-sm">Type</label>
-                        <select id="defectType" ng-model="currentDefect.Type">
-                            <option value="Stain">Stain</option>
-                            <option value="Hole">Hole</option>
-                            <option value="Loose Thread">Loose Thread</option>
-                        </select>
-                        <label class="block text-sm">Description</label>
-                        <textarea ng-model="currentDefect.Description" class="border rounded px-2 py-1 w-40 h-16 mb-2"></textarea>*@
+                    
                     <div class="form-elements form-horizontal">
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Type</label>
                             <div class="col-sm-8">
                                 <div class="select-style">
-                                    @*<select id="defectType" ng-model="currentDefect.Type">
-                                            <option value="Stain">Stain</option>
-                                            <option value="Hole">Hole</option>
-                                            <option value="Loose Thread">Loose Thread</option>
-                                        </select>*@
-                                    <select class="form-control" ng-model="currentDefect.Type" name="Type" ng-options="item.Value as item.Text for item in defectTypeList">
+                                    <select class="form-control" ng-model="currentDefect.DefectTypeId" id="dtype" name="Defect Type" ng-options="item.Value as item.Text for item in defectTypeList">
                                     </select>
                                 </div>
                             </div>
