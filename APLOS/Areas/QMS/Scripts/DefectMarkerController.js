@@ -1,6 +1,6 @@
 ﻿'use strict';
-DefectMarkerController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$timeout', 'fileReader','$window'];
-function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $timeout, fileReader,$window) {
+DefectMarkerController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$timeout', 'fileReader', '$window'];
+function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $timeout, fileReader, $window) {
     $rootScope.title = 'Defect Marker';
     $scope.Action = 'Save';
     $scope.DefectMasterModelList = [];
@@ -72,6 +72,16 @@ function DefectMarkerController(cboService, commonMessage, $scope, $rootScope, b
                 }
             });
     }
+
+    $scope.defectTypeList = [];
+    $scope.GetDefectTypeCbo = function () {
+        $scope.shiftList = [];
+        $http.get('QMS/DefectType/GetCbo')
+            .then(function (response) {
+                $scope.defectTypeList = response.data;
+            });
+    }
+    $scope.GetDefectTypeCbo();
 
     $scope.modelFilterByList = [
         { 'name': 'Prod. Order#', 'value': 'Id' },
