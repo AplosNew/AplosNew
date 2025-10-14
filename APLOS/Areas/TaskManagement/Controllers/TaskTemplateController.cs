@@ -73,7 +73,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"
-                      select top 100 * from (  SELECT distinct Emp.SystemID AS Id,
+                      select top 100 * from (SELECT distinct Emp.SystemID AS Id,
                         EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,
                         EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
@@ -92,7 +92,26 @@ namespace Aplos.Areas.TaskManagement.Controllers
                             LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
     
     
-                        WHERE emp.CompanyId='" + identity.CompanyId + @"' AND EMP.EmployeeStatus='Active' OR (emp.EmpType='GUEST' AND emp.EmployeeStatus='Active' AND emp.GroupID='" + identity.CompanyGroupId + @"') ) AS TEMP where " + strkey + " Order By Id";
+                        WHERE emp.CompanyId='" + identity.CompanyId + @"' AND EMP.EmployeeStatus='Active' OR (emp.EmpType='GUEST' AND emp.EmployeeStatus='Active' AND emp.GroupID='" + identity.CompanyGroupId + @"') 
+UNION ALL						
+                     SELECT distinct Emp.SystemID AS Id,
+                        EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,
+                        EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
+                            PR.UserName PositionName,
+                            DEPT.UserName Department,S.UserName Section,
+                            PR.SectionId,SS.UserName SubSection
+                            ,PL.UserName Plant
+                            FROM EmployeeInformation EMP
+                            LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                            LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                            LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
+                            LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
+                            LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                            LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                            LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id  
+                        WHERE emp.CompanyId='" + identity.CompanyId + @"' AND EMP.EmployeeStatus='Active' AND emp.IsGlobalEmployee=1) AS TEMP where " + strkey + " Order By Id";
 
 
 
