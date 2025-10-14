@@ -3488,7 +3488,7 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId
 							
 
                             WHERE 
-                       PO.Id=460 AND po.EntityId IN(" + entityid + @")  AND ps.UserName IN ('" + PlanningStatus.ACTIVE.ToString() + @"','" + PlanningStatus.RUNNING.ToString() + @"')
+                       po.EntityId IN(" + entityid + @")  AND ps.UserName IN ('" + PlanningStatus.ACTIVE.ToString() + @"','" + PlanningStatus.RUNNING.ToString() + @"')
                             ORDER BY ps.UserName DESC, t1.ProductionPriority ASC";
             DataTable _dtProductionParameters = _sqlRepository.GetDataTable(sql);
 
