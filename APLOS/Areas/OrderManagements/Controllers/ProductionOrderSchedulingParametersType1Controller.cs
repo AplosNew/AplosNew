@@ -2441,6 +2441,23 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
 
                     //saving final PR data
                     saveProductionPlan(_ProductionBlock, productionOrders.Rows[i]["ProductionOrderID"].ToString(), entityid, processid);
+
+
+                    Library.Service.TaskScheduler.TaskScheduler schedule = new Library.Service.TaskScheduler.TaskScheduler(_sqlRepository);
+                    schedule.UpdateTaskStatus();
+                    //Production Order Related Tasks
+
+                    string sql = @"SELECT TaskTemplateMasterId FROM trn.MasterOrder AS mo 
+                                INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                                INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
+                           WHERE so.id IN(Select SalesOrderId From TRN.ProductionOrderDetail Where ProductionOrderId='"+ productionOrders.Rows[i]["ProductionOrderID"].ToString() + "')";
+                    DataTable dtSO = _sqlRepository.GetDataTable(sql);
+                    string TaskTemplateMasterId = dtSO.Rows[0]["TaskTemplateMasterId"].ToString();
+
+                    DataTable dt = schedule.GetDataSourceMasterOrderNew(productionOrders.Rows[i]["ProductionOrderID"].ToString(), TaskAppliedOnEnum.ProductionOrder);
+                    if (dt.Rows.Count > 0)
+                        schedule.MakeTNAMaster(dt, productionOrders.Rows[i]["ProductionOrderID"].ToString(), TaskAppliedOnEnum.ProductionOrder);
+
                 }
                 SendNotification("Distributing production quantity in sales orders and calculating expected completion date");
                 Library.OrderManagement.Production.ExpectedSOWiseDateService expectedSO = new Library.OrderManagement.Production.ExpectedSOWiseDateService();
