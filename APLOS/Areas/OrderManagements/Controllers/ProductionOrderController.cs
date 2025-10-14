@@ -591,34 +591,9 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                 DataTable dtSO = _sqlRepository.GetDataTable(sql);
                string TaskTemplateMasterId = dtSO.Rows[0]["TaskTemplateMasterId"].ToString();
 
-
-                sql = @"SELECT DISTINCT  PO.* FROM trn.MasterOrder AS mo 
-                                INNER JOIN hkp.OrderStatus AS os ON os.Id=mo.OrderStatusId
-                                INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
-                                INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
-                                INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
-                                INNER JOIN trn.SalesOrder AS so2 ON so2.Id=pod.SalesOrderId
-                                INNER JOIN trn.ProductionOrder AS po ON po.Id=pod.ProductionOrderId
-                                INNER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
-                    WHERE ISNULL(mo.TaskTemplateMasterId,'')='"+ TaskTemplateMasterId + "' AND so.Id IN(" + s + ") AND ps.StandardName<>'CLOSED'";
-
-                DataTable dtMasterReferenceData = _sqlRepository.GetDataTable(sql);
-                for (int i = 0; i < dtMasterReferenceData.Rows.Count; i++)
-                {
-                    try
-                    {
-
-                        DataTable dt = schedule.GetDataSourceMasterOrderNew(dtMasterReferenceData.Rows[i]["Id"].ToString(), TaskAppliedOnEnum.ProductionOrder);
-                        if (dt.Rows.Count > 0)
-                            schedule.MakeTNAMaster(dt, dtMasterReferenceData.Rows[i]["Id"].ToString(), TaskAppliedOnEnum.ProductionOrder);
-                    }
-                    catch (Exception ex)
-                    {
-
-
-                    }
-
-                }
+                DataTable dt = schedule.GetDataSourceMasterOrderNew(master.Id, TaskAppliedOnEnum.ProductionOrder);
+                if (dt.Rows.Count > 0)
+                    schedule.MakeTNAMaster(dt, master.Id, TaskAppliedOnEnum.ProductionOrder);
 
 
                 return Json(new { Message = AplosMessage.Insert, DATA = master.Id });

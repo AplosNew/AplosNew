@@ -93,7 +93,7 @@ LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id=FS.CharacteristicsValueId
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetEmployeeList(string column, string value,string plantId)
+        public ActionResult GetEmployeeList(string column, string value, string plantId)
         {
             try
             {
@@ -1131,7 +1131,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                         dr["XNormalized"] = d.XNormalized;
                         dr["YNormalized"] = d.YNormalized;
                         dr["Description"] = d.Description;
-                        dr["Type"] = d.Type;
+                        dr["DefectTypeId"] = d.DefectTypeId;
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = DateTime.Now;
                         dr["AddedFromIP"] = identity.IPAddress;
@@ -1149,7 +1149,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                         dr["XNormalized"] = d.XNormalized;
                         dr["YNormalized"] = d.YNormalized;
                         dr["Description"] = d.Description;
-                        dr["Type"] = d.Type;
+                        dr["DefectTypeId"] = d.DefectTypeId;
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
@@ -1176,8 +1176,8 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
             {
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 DataSet ds = null;
-                string tableName = "ImageDefects";
-                string sql = $"SELECT * FROM {tableName} WHERE DefectMarkerMasterId = {masterId}";
+                string sql = @"Select ID.*,DT.UserName Type from [dbo].[ImageDefects] ID
+LEFT JOIN HKP.DefectType DT ON DT.Id=ID.DefectTypeId WHERE DefectMarkerMasterId = " + masterId + "";
                 con.OpenDataSetThroughAdapter(sql, out ds, false, "1");
                 if (ds.Tables[0].Rows.Count == 0)
                 {
@@ -1243,7 +1243,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
         public decimal XNormalized { get; set; }
         public decimal YNormalized { get; set; }
         public string Description { get; set; }
-        public string Type { get; set; }   // added defect type
+        public string DefectTypeId { get; set; }   // added defect type
         public int Width { get; set; }
         public int Height { get; set; }
         public string DefectMarkerMasterId { get; set; }
