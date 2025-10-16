@@ -2242,7 +2242,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
 
                                 double tempQty = TotalOrderQuantity;
                                 int tempDayCount = 0;
-
+                             
                                 //determining how many days to take to finish the production
                                 while (tempQty > 0)
                                 {

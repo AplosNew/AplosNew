@@ -1640,10 +1640,11 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         {
             try
             {
-                var str = @"select ld.Username as Text ,ld.Id as Value,format(ld.fromdate,'dd-MMM-yyyy')FromDate,format(ld.Todate,'dd-MMM-yyyy')ToDate from 
-                leaveyeardefination ld 
+                var str = @"select  A.* from(select distinct ld.Id as Value,ld.Username as Text ,format(ld.fromdate,'dd-MMM-yyyy')FromDate,format(ld.Todate,'dd-MMM-yyyy')ToDate,ld.Sequence 
+from leaveyeardefination ld 
 				left join LeaveYearDefinationPlantChild lpc on lpc.LeaveYearDefinationId=ld.Id
-                where lpc.plantid='" + PlantId + "'";
+                where lpc.plantid='" + PlantId + @"')A
+				order by A.Sequence";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
