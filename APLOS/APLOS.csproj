@@ -1852,6 +1852,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Accounts\Scripts\employeeOperationUploadController.js" />
+    <Content Include="Areas\Accounts\Scripts\directorRemunerationController.js" />
     <Content Include="Areas\Accounts\Scripts\voucherPrintController.js" />
     <Content Include="Areas\Accounts\Scripts\voucherTypeAdditionalInfoController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceReviseMaturedateController.js" />
@@ -5083,6 +5084,7 @@
     <Content Include="Areas\Accounts\Views\_GLBudgetActivityOtherChargesPopUp.cshtml" />
     <Content Include="Areas\OrderManagements\Views\MasterOrder\Upload.cshtml" />
     <Content Include="Areas\Materials\Views\MachineBudget\MachineTransfer.cshtml" />
+    <Content Include="Areas\Accounts\Views\DirectorRemuneration.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

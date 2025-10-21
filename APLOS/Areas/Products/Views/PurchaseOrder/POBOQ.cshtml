@@ -725,6 +725,9 @@
                     <li><button ng-click="detailPopUp();" ng-show="productNew.Id!=null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add BOQ Material</button></li>
                     <li><button ng-click="GetBOQItemList();" ng-show="productNew.Id!=null && (productNew.OrderSpecific=='Yes' && isProcurementOnBoM==true)" class="btn"><i class="glyphicon glyphicon-plus"></i> Add BOQ Material</button></li>
                 </ul>
+                <ul class="col-md-6 common-btn list-inline text-right">
+                    <li ng-show="ActionPOBOQ=='Update'" style="background-color:gold">{{UpdateNotificationMessage}}</li>
+                </ul>
                 <div class="clearfix"></div>
                 <div class="table-responsive modal-table" ng-show="poBoqItemListNew.length>0">
                     <table class="table table-striped">
@@ -816,10 +819,10 @@
                 </div>
                 <div class="clearfix"></div>
                 @*<div class="common-btn">
-                        <ul class="list-inline text-right">
-                            <li><button ng-click="detailPopUpEdit();" class="btn" ng-show="poBoqItemListNew.length>0"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>
-                        </ul>
-                    </div>*@
+            <ul class="list-inline text-right">
+                <li><button ng-click="detailPopUpEdit();" class="btn" ng-show="poBoqItemListNew.length>0"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>
+            </ul>
+        </div>*@
             </div>
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">

@@ -94,6 +94,11 @@ namespace Aplos.Areas.Accounts.Controllers
             return View("~/Areas/Accounts/Views/multipleVP.cshtml");
         }
 
+        public ActionResult DirectorRemuneration()
+        {
+            return View("~/Areas/Accounts/Views/DirectorRemuneration.cshtml");
+        }
+
 
         [HttpGet, Authorize]
         public ActionResult GetMultiVendorPaymentReport(ReportFormat reportFormat, string mpdId)

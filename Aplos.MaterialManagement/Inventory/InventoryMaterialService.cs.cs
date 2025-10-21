@@ -1933,7 +1933,7 @@ LEFT JOIN (
                     left JOIN SCS.Country C On C.Id=IM.CountryId
                     LEFT JOIN [HKP].[MaterialStorage] MS ON MS.Id=IRD.MaterialStorageId
                     WHERE " + tempsql + @"
-                    AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"' AND IR.[Status]='Posting' AND IR.IsFOC=0
+                    AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"' AND IR.[Status]='Posting' AND IR.IsFOC=0  AND IRD.IsAsset=0
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND ISNULL(IM.CountryId,'')='" + entity.CountryId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
@@ -2007,7 +2007,7 @@ LEFT JOIN (
                     left JOIN SCS.Country C On C.Id=IM.CountryId
                     LEFT JOIN [HKP].[MaterialStorage] MS ON MS.Id=IRD.MaterialStorageId
                     WHERE " + tempsql + @"
-                    AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"' AND IR.IsApproved=1 AND IR.IsFOC=1
+                    AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"' AND IR.IsApproved=1 AND IR.IsFOC=1  AND IRD.IsAsset=0
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND ISNULL(IM.CountryId,'')='" + entity.CountryId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
@@ -2115,7 +2115,7 @@ LEFT JOIN (
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND ISNULL(IM.CountryId,'')='" + entity.CountryId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
-					AND (IRD.BaseQty+ISNULL(IRD.IssueReturnQty,0)) !=IRD.BaseIssueQty
+					AND (IRD.BaseQty+ISNULL(IRD.IssueReturnQty,0)) !=IRD.BaseIssueQty  AND IRD.IsAsset=0
                     AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) AND IRD.Id NOT IN (SELECT ISNULL(InventoryReceiveDetailId,'') FROM TRN.CapitalizationMasterDetail WHERE InventoryIssueHistoryId IS NULL))x WHERE x.BalanceStock>0 
                     order by x.GRNDate desc
 					";

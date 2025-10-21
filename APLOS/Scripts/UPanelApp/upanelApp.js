@@ -466,6 +466,7 @@ upanelApp.controller("vendorAdvanceController", vendorAdvanceController);
 upanelApp.controller("vendorAdvanceOpeningBalanceController", vendorAdvanceOpeningBalanceController);
 upanelApp.controller("vendorAdvanceWriteOffController", vendorAdvanceWriteOffController);
 upanelApp.controller("vendorInvoiceController", vendorInvoiceController);
+upanelApp.controller("directorRemunerationController", directorRemunerationController);
 upanelApp.controller("vendorInvoiceOpeningBalanceController", vendorInvoiceOpeningBalanceController);
 upanelApp.controller("vendorPaymentController", vendorPaymentController);
 upanelApp.controller("weeklyAbsentismAssignmentController", weeklyAbsentismAssignmentController);
