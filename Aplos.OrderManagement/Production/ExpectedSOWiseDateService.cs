@@ -38,16 +38,25 @@ namespace Library.OrderManagement.Production
 
                 for (int i = 0; i < dtSOComplete.Rows.Count; i++)
                 {
-                    DataRow dr = GetExpectedSOCompletionDate(clsStaticInfo.dbl(dtSOComplete.Rows[i]["SoCommqty"].ToString()), dtSOComplete.Rows[i]["ProductionOrderId"].ToString(), dtOrderMaster);
-
-                    if (dr != null)
+                    try
                     {
-                        ExpectedDate = GetDate(dr["Date"].ToString());
-                        dtSOComplete.Rows[i]["ExDate"] = ExpectedDate;
-                        dtSOComplete.Rows[i]["Quantity"] =Convert.ToInt32(dr["Quantity"]);
+                        
+                        DataRow dr = GetExpectedSOCompletionDate(clsStaticInfo.dbl(dtSOComplete.Rows[i]["SoCommqty"].ToString()), dtSOComplete.Rows[i]["ProductionOrderId"].ToString(), dtOrderMaster);
 
-                        TimeSpan dts = Convert.ToDateTime(ExpectedDate) - Convert.ToDateTime(dtSOComplete.Rows[i]["DeliveryDate"].ToString());
-                        dtSOComplete.Rows[i]["EarlyOrLateBy"] = dts.Days;
+                        if (dr != null)
+                        {
+                            ExpectedDate = GetDate(dr["Date"].ToString());
+                            dtSOComplete.Rows[i]["ExDate"] = ExpectedDate;
+                            dtSOComplete.Rows[i]["Quantity"] = Convert.ToInt32(dr["Quantity"]);
+
+                            TimeSpan dts = Convert.ToDateTime(ExpectedDate) - Convert.ToDateTime(dtSOComplete.Rows[i]["DeliveryDate"].ToString());
+                            dtSOComplete.Rows[i]["EarlyOrLateBy"] = dts.Days;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                        throw ex;
                     }
 
                 }
@@ -159,7 +168,7 @@ Group BY PO.Id,T1.ProductionDate
 )B Where ISNULL(B.Date,'')<>'' 
 )A ON A.POId=PO.Id
 
-Where SO.OrderStatusId NOT IN('Cancelled','Closed') and pod.ProductionOrderId<>'' AND PRD.EntityId='" + entityid + @"'
+Where SO.OrderStatusId NOT IN('Cancelled','Closed') and pod.ProductionOrderId<>'' AND PRD.EntityId='" + entityid + @"'  AND A.Date<>''
 GROUP BY po.Id,BASEP.BaseProcProdStartDate,BASEP.BaseProductionEndDate,Type1.BaseProcPlanStartDate,Type1.BaseProcPlanEndDate
 ,A.Date,sc.ID,PS.UserName,PO.AddedDate,A.ProdQty,A.PlanQty)x";
                 dtOrderMaster = _sqlRepository.GetDataTable(sql);

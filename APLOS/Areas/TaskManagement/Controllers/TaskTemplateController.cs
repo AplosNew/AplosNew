@@ -93,7 +93,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
     
     
                         WHERE emp.CompanyId='" + identity.CompanyId + @"' AND EMP.EmployeeStatus='Active' OR (emp.EmpType='GUEST' AND emp.EmployeeStatus='Active' AND emp.GroupID='" + identity.CompanyGroupId + @"') 
-UNION ALL						
+UNION						
                      SELECT distinct Emp.SystemID AS Id,
                         EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,
                         EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
@@ -111,7 +111,7 @@ UNION ALL
                             LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                             LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                             LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id  
-                        WHERE emp.CompanyId='" + identity.CompanyId + @"' AND EMP.EmployeeStatus='Active' AND emp.IsGlobalEmployee=1) AS TEMP where " + strkey + " Order By Id";
+                        WHERE EMP.EmployeeStatus='Active' AND emp.IsGlobalEmployee=1) AS TEMP where " + strkey + " Order By Id";
 
 
 

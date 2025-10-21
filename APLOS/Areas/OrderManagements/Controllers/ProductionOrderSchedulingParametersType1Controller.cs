@@ -2035,7 +2035,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                     }
 
                     new Exception("The following production orders are running but no workcenter was defined: " + ids);
-                }                
+                }
 
                 _sqlRepository.ExecuteSqlCommand(@"delete FROM ProductionPlanningType1 where EntityId IN (" + ProcessingEntities + @")");
 
@@ -2242,7 +2242,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
 
                                 double tempQty = TotalOrderQuantity;
                                 int tempDayCount = 0;
-
+                             
                                 //determining how many days to take to finish the production
                                 while (tempQty > 0)
                                 {
@@ -2459,6 +2459,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                     //    schedule.MakeTNAMaster(dt, productionOrders.Rows[i]["ProductionOrderID"].ToString(), TaskAppliedOnEnum.ProductionOrder);
 
                 }
+
                 SendNotification("Distributing production quantity in sales orders and calculating expected completion date");
                 Library.OrderManagement.Production.ExpectedSOWiseDateService expectedSO = new Library.OrderManagement.Production.ExpectedSOWiseDateService();
                 expectedSO.ExpectedSOWiseProductionCompletionSave(entityid);
