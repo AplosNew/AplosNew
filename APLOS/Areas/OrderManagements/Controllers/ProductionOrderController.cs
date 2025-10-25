@@ -113,7 +113,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT distinct P.Id,P.UserName FROM PlanningTypes AS pt 
 INNER JOIN hkp.Process AS p ON p.Id=pt.BaseProcessId
-WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "' AND pt.PlantId='"+identity.PlantId+"'";
+WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "' AND pt.PlantId='" + identity.PlantId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -135,7 +135,7 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT DISTINCT E.Id,E.UserName FROM PlanningTypes AS pt 
 INNER JOIN org.Entity E on e.Id=pt.EntityId
-WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "' AND PT.BaseProcessId='"+ processId + "'";
+WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "' AND PT.BaseProcessId='" + processId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -459,7 +459,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                 DataTable dtRunningOrderPreference = new DataTable();
 
 
-                DataTable dtUserDefineLotNo = _sqlRepository.GetDataTable("SELECT * FROM TRN.ProductionOrder where  Id <> '" + master.Id + "' AND UserDefineLotNo = '" + master.UserDefineLotNo+ "'");
+                DataTable dtUserDefineLotNo = _sqlRepository.GetDataTable("SELECT * FROM TRN.ProductionOrder where  Id <> '" + master.Id + "' AND UserDefineLotNo = '" + master.UserDefineLotNo + "'");
                 if (dtUserDefineLotNo.Rows.Count > 0)
                 {
                     throw new CustomException("This Lot No is already exists.");
@@ -587,9 +587,9 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                 string sql = @"SELECT TaskTemplateMasterId FROM trn.MasterOrder AS mo 
                                 INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
                                 INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
-                           WHERE so.id IN("+ s + ")";
+                           WHERE so.id IN(" + s + ")";
                 DataTable dtSO = _sqlRepository.GetDataTable(sql);
-               string TaskTemplateMasterId = dtSO.Rows[0]["TaskTemplateMasterId"].ToString();
+                string TaskTemplateMasterId = dtSO.Rows[0]["TaskTemplateMasterId"].ToString();
 
                 DataTable dt = schedule.GetDataSourceMasterOrderNew(master.Id, TaskAppliedOnEnum.ProductionOrder);
                 if (dt.Rows.Count > 0)
@@ -1027,7 +1027,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                              GF.UserName GaugeFolder, OC.UserName OperationConsumption, OT.UserName OperationType, OV.OperationId, MMA.StandardName MachineName
                             ,0 AvgAllotedTime, OperationSPT=BTD.TotalSPT-BTD.AdditionalSPT, MM.UserName MaterialMaster, 0 IsMaxAllottedTime 
                             , OM.UserName AS SkillName,OPP.BasicProcessTime,OPP.AssociateProcessTime,OPP.PersonalAllowance,OV.MachineAllowance,OPP.Frequency,OPP.SPI OperationSPI,OV.TotalSAM, OV.AdditionalSAMSymbol,OV.SubOperationSAM,OV.AdditionalSAM
-                            ,BTD.SPI,BTD.NoOfStitch,BTD.OperationLength,BTD.StitchCodeId,BTD.FabricWidth,OV.AdditionalAllowance,ISNULL(OV.VASSAMSOURCE,'') VASSAMSOURCE,0 DelFlag
+                            ,BTD.SPI,BTD.NoOfStitch,BTD.OperationLength,BTD.StitchCodeId,BTD.FabricWidth,OV.AdditionalAllowance,ISNULL(OV.VASSAMSOURCE,'') VASSAMSOURCE,0 DelFlag,CONVERT(NUMERIC(10,2),BTD.AdditionalWorkstation) AdditionalWorkstation, CONVERT(NUMERIC(10,2),BTD.AdditionalManpower) AdditionalManpower
                              FROM [TRN].[ProductionBulletinTemplateDetail] BTD
                              LEFT JOIN [MST].[OperationVariation] OV ON OV.Id=BTD.OperationVariationId
                              LEFT JOIN (SELECT OP.Id,ISNULL(OP.BasicProcessTime, 0) AS BasicProcessTime, ISNULL(OP.AssociateProcessTime, 0) AS AssociateProcessTime
@@ -1235,6 +1235,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
             DataSet BulletinTemplate;
             DataSet BulletinTemplateMaster;
             DataSet BulletinTemplateDetail;
+            DataSet BulletinCalculation;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string NewId = "";
             try
@@ -1245,10 +1246,12 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                 con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionBulletinTemplate] where 1=2", out BulletinTemplate, false, "1");
                 con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionBulletinTemplateMaster] where 1=2", out BulletinTemplateMaster, false, "1");
                 con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionBulletinTemplateDetail] where 1=2", out BulletinTemplateDetail, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [dbo].[ProducitonBulletinCalculation] where 1=2", out BulletinCalculation, false, "1");
 
                 DataTable Master = _sqlRepository.GetDataTable("select * from [MST].[BulletinTemplate] WHERE Id='" + entity.Id + "'");
                 DataTable Detail = _sqlRepository.GetDataTable("select * from [MST].[BulletinTemplateMaster] WHERE BulletinTemplateId='" + entity.Id + "'");
                 DataTable Process = _sqlRepository.GetDataTable("select * from [MST].[BulletinTemplateDetail] WHERE BulletinTemplateMasterId IN (SELECT Id FROM [MST].[BulletinTemplateMaster] WHERE BulletinTemplateId='" + entity.Id + "')");
+                DataTable ProBulCal = _sqlRepository.GetDataTable("select * from [dbo].[BulletinCalculation] WHERE BulletinTemplateMasterId IN (SELECT Id FROM [MST].[BulletinTemplateMaster] WHERE BulletinTemplateId='" + entity.Id + "')");
 
                 NewId = GetGeneralPK();
                 DataRow drBOMDestination = BulletinTemplate.Tables[0].NewRow();
@@ -1267,6 +1270,11 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                     drDetailDestination["ProductionBulletinTemplateId"] = NewId;
                     BulletinTemplateMaster.Tables[0].Rows.Add(drDetailDestination);
 
+
+                    DataRow drBCDestination = BulletinCalculation.Tables[0].NewRow();
+                    CopyRow(ProBulCal.Rows[0], ref drBCDestination);
+                    drBCDestination["ProductionBulletinTemplateMasterId"] = drDetailDestination["Id"];
+                    BulletinCalculation.Tables[0].Rows.Add(drBCDestination);
 
                     Process.DefaultView.RowFilter = "BulletinTemplateMasterId='" + Detail.Rows[i]["Id"].ToString() + "'";
                     for (int K = 0; K < Process.DefaultView.Count; K++)
@@ -1293,7 +1301,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                 }
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(BulletinTemplate, BulletinTemplateMaster, BulletinTemplateDetail);
+                _info.SaveDataSets(BulletinTemplate, BulletinTemplateMaster, BulletinCalculation, BulletinTemplateDetail);
 
                 MoveImage(entity.Id, entity.PicFileName, NewId);
             }
@@ -1442,11 +1450,11 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
         }
 
         [HttpPost, Authorize]
-        public JsonResult CreateOperation(IEnumerable<ProductionBulletinTemplateDetail> entities, string productionBulletinTemplateMasterId)
+        public JsonResult CreateOperation(IEnumerable<ProductionBulletinTemplateDetail> entities, string productionBulletinTemplateMasterId, Dictionary<string, object> calculateddata)
         {
             try
             {
-                SaveOperationData(entities, productionBulletinTemplateMasterId);
+                SaveOperationData(entities, productionBulletinTemplateMasterId, calculateddata);
                 return Json(new { Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -1543,17 +1551,37 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
             }
 
         }
+        public void GetBulletinCalculation(string bulletinTemplateMasterId, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager Obj;
 
-        private void SaveOperationData(IEnumerable<ProductionBulletinTemplateDetail> data, string productionBulletinTemplateMasterId)
+            try
+            {
+                string sql = @"SELECT * FROM [dbo].[ProducitonBulletinCalculation] Where ProductionBulletinTemplateMasterId='" + bulletinTemplateMasterId + "'";
+                Obj = new ConnectionManager.DAL.ConManager("1");
+                Obj.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        private void SaveOperationData(IEnumerable<ProductionBulletinTemplateDetail> data, string productionBulletinTemplateMasterId, Dictionary<string, object> bulletinCalculation)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             try
             {
+                DataSet dsBC = null;
+                DataSet dsMaster = null;
+                GetBulletinCalculation(productionBulletinTemplateMasterId, out dsBC);
+
                 if (data != null)
                 {
                     ConnectionManager.DAL.ConManager objCon;
-                    DataSet dsMaster;
+
 
                     DataSet dsSeq;
                     GetAutoSequence(productionBulletinTemplateMasterId, out dsSeq);
@@ -1563,15 +1591,15 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                         seq--;
                     }
                     EvaluateSPI(data);
+                    string sql = "SELECT * FROM [TRN].[ProductionBulletinTemplateDetail] WHERE ProductionBulletinTemplateMasterId='" + productionBulletinTemplateMasterId + "'";
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+                    objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
                     foreach (var item in data)
                     {
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item.Id + "' AND ProductionBulletinTemplateMasterId='" + productionBulletinTemplateMasterId + "'";
 
-                        string sql = "SELECT * FROM [TRN].[ProductionBulletinTemplateDetail] WHERE Id='" + item.Id + "'";
-                        objCon = new ConnectionManager.DAL.ConManager("1");
-                        objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-
-
-                        if (dsMaster.Tables[0].Rows.Count == 0)
+                        if (dv.Count == 0)
                         {
                             seq++;
                             DataRow dr = dsMaster.Tables[0].NewRow();
@@ -1591,6 +1619,8 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                             dr["AvgAllotedTime"] = item.AvgAllotedTime;
                             dr["AllotedWorkstation"] = item.AllotedWorkstation;
                             dr["AllotedManpower"] = item.AllotedManpower;
+                            dr["AdditionalWorkstation"] = item.AdditionalWorkstation;
+                            dr["AdditionalManpower"] = item.AdditionalManpower;
                             dr["AttachmentId"] = item.AttachmentId;
                             dr["GaugeFolderId"] = item.GaugeFolderId;
                             dr["OperationConsumptionId"] = item.OperationConsumptionId;
@@ -1633,7 +1663,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                         else
                         {
                             //edit
-                            DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                            DataRow dr = dv[0].Row;
 
                             dr.BeginEdit();
 
@@ -1650,6 +1680,8 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                             dr["AvgAllotedTime"] = item.AvgAllotedTime;
                             dr["AllotedWorkstation"] = item.AllotedWorkstation;
                             dr["AllotedManpower"] = item.AllotedManpower;
+                            dr["AdditionalWorkstation"] = item.AdditionalWorkstation;
+                            dr["AdditionalManpower"] = item.AdditionalManpower;
                             dr["AttachmentId"] = item.AttachmentId;
                             dr["GaugeFolderId"] = item.GaugeFolderId;
                             dr["OperationConsumptionId"] = item.OperationConsumptionId;
@@ -1690,13 +1722,24 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
 
                             dr.EndEdit();
                         }
-                        clsStaticInfo obj = new clsStaticInfo();
-                        obj.SaveDataSets(dsMaster);
+
                     }
 
                 }
 
-
+                if (bulletinCalculation != null)
+                {
+                    if (dsBC.Tables[0].Rows.Count == 0)
+                    {
+                        AddNewRow(dsBC.Tables[0], bulletinCalculation);
+                    }
+                    else
+                    {
+                        EditRow(dsBC.Tables[0].Rows[0], bulletinCalculation);
+                    }
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsBC);
             }
             catch (Exception ex)
             {
@@ -2065,6 +2108,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
             DataSet ProductionBulletinTemplate;
             DataSet ProductionBulletinTemplateMaster;
             DataSet ProductionBulletinTemplateDetail;
+            DataSet ProductionBulletinTemplateCal;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string NewId = "";
             try
@@ -2075,10 +2119,12 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                 con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionBulletinTemplate] where 1=2", out ProductionBulletinTemplate, false, "1");
                 con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionBulletinTemplateMaster] where 1=2", out ProductionBulletinTemplateMaster, false, "1");
                 con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionBulletinTemplateDetail] where 1=2", out ProductionBulletinTemplateDetail, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [dbo].[ProducitonBulletinCalculation] where 1=2", out ProductionBulletinTemplateCal, false, "1");
 
                 DataTable Master = _sqlRepository.GetDataTable("select * from [TRN].[ProductionBulletinTemplate] WHERE Id='" + MasterId + "'");
                 DataTable Detail = _sqlRepository.GetDataTable("select * from [TRN].[ProductionBulletinTemplateMaster] WHERE ProductionBulletinTemplateId='" + MasterId + "'");
                 DataTable Process = _sqlRepository.GetDataTable("select * from [TRN].[ProductionBulletinTemplateDetail] WHERE ProductionBulletinTemplateMasterId IN (SELECT Id FROM [TRN].[ProductionBulletinTemplateMaster] WHERE ProductionBulletinTemplateId='" + MasterId + "')");
+                DataTable btcal = _sqlRepository.GetDataTable("select * from [dbo].[ProducitonBulletinCalculation] WHERE ProductionBulletinTemplateMasterId IN (SELECT Id FROM [TRN].[ProductionBulletinTemplateMaster] WHERE ProductionBulletinTemplateId='" + MasterId + "')");
 
                 NewId = GetGeneralPK();
                 DataRow drBOMDestination = ProductionBulletinTemplate.Tables[0].NewRow();
@@ -2096,6 +2142,11 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                     drDetailDestination["Id"] = NewId + "-" + (i + 1);
                     drDetailDestination["ProductionBulletinTemplateId"] = NewId;
                     ProductionBulletinTemplateMaster.Tables[0].Rows.Add(drDetailDestination);
+
+                    DataRow drBCDestination = ProductionBulletinTemplateCal.Tables[0].NewRow();
+                    CopyRow(btcal.Rows[0], ref drBCDestination);
+                    drBCDestination["ProductionBulletinTemplateMasterId"] = drDetailDestination["Id"];
+                    ProductionBulletinTemplateCal.Tables[0].Rows.Add(drBCDestination);
 
                     Process.DefaultView.RowFilter = "ProductionBulletinTemplateMasterId='" + Detail.Rows[i]["Id"].ToString() + "'";
                     for (int K = 0; K < Process.DefaultView.Count; K++)
@@ -2432,6 +2483,8 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                         dr["TotalSPT"] = dataSet.Tables[0].Rows[i]["TotalSAM"];
                         dr["AllotedWorkstation"] = 0;
                         dr["AllotedManpower"] = 0;
+                        dr["AdditionalWorkstation"] = 0;
+                        dr["AdditionalManpower"] = 0;
                         dr["AvgAllotedTime"] = 0;
                         dr["AttachmentId"] = null;
                         dr["GaugeFolderId"] = null;
@@ -2563,6 +2616,8 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                     dr["TotalSPT"] = dataSet.Tables[0].Rows[i]["TotalSAM"];
                     dr["AllotedWorkstation"] = 0;
                     dr["AllotedManpower"] = 0;
+                    dr["AdditionalWorkstation"] = 0;
+                    dr["AdditionalManpower"] = 0;
                     dr["AvgAllotedTime"] = 0;
                     dr["AttachmentId"] = null;
                     dr["GaugeFolderId"] = null;
@@ -2682,8 +2737,8 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
             {
                 string sql = "SELECT * FROM TRN.ProductionOrder WHERE Id='" + poId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM TRN.ProductionOrder where  Id<>'" + poId + "' AND UserDefineLotNo='"+userLotNo+"'", out dsUserDefineLotNo, false, "1");
-                if (dsUserDefineLotNo.Tables[0].Rows.Count>0)
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM TRN.ProductionOrder where  Id<>'" + poId + "' AND UserDefineLotNo='" + userLotNo + "'", out dsUserDefineLotNo, false, "1");
+                if (dsUserDefineLotNo.Tables[0].Rows.Count > 0)
                 {
                     throw new CustomException("This Lot No is already exists.");
                 }
@@ -2877,7 +2932,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                             string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
                             item["Id"] = detailid;
                             item["ProductionOrderId"] = _MasterId;
-                            
+
 
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
                         }

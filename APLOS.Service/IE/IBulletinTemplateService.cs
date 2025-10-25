@@ -21,7 +21,7 @@ namespace Library.Service.IEnumerable
         IEnumerable<object> GetProcessQtyAndNoWSData(string processId, string productMasterId);
         IEnumerable<object> GetOperationData(string companyGroupId, string processId, string bulletinTemplateId, string productMasterId);
         IEnumerable<object> GetBulletinOperation(string bulletinTemplateMasterId);
-        void InsertOrUpdateOperation(IEnumerable<BulletinTemplateDetail> entities, string bulletinTemplateMasterId);
+        void InsertOrUpdateOperation(IEnumerable<BulletinTemplateDetail> entities, string bulletinTemplateMasterId, BulletinCalculation bulletinCalculation);
         decimal GetAutoSequence();
         void InsertOrUpdateProcess(BulletinTemplateMaster entity);
         void DeleteProcess(string id);

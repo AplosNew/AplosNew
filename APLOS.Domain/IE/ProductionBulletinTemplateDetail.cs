@@ -21,6 +21,8 @@ namespace Library.Model.IE
         public decimal AvgAllotedTime { get; set; }
         public decimal AllotedWorkstation { get; set; }
         public decimal AllotedManpower { get; set; }
+        public decimal AdditionalWorkstation { get; set; }
+        public decimal AdditionalManpower { get; set; }
         public string AttachmentId { get; set; }
         public string GaugeFolderId { get; set; }
         public string OperationConsumptionId { get; set; }

@@ -29,12 +29,14 @@ namespace Library.Service.IEnumerable
         private readonly IRepositoryAsync<BulletinTemplateMaster> _bulletinProcessRepository;
         private readonly IRepositoryAsync<BulletinTemplateDetail> _bulletinDetailRepository;
         private readonly IRepositoryAsync<BulletinTemplateBuyerInfo> _bulletinBuyerRepository;
+        private readonly IRepositoryAsync<BulletinCalculation> _bulletinCalculationRepository;
 
         public BulletinTemplateService(
             IRepositoryAsync<BulletinTemplate> bulletinTemplateRepository
             , IRepositoryAsync<BulletinTemplateMaster> bulletinProcessRepository
             , IRepositoryAsync<BulletinTemplateDetail> bulletinDetailRepository
             , IRepositoryAsync<BulletinTemplateBuyerInfo> bulletinBuyerRepository
+            , IRepositoryAsync<BulletinCalculation> bulletinCalculationRepository
             , IUnitOfWork unitOfWork
             , IPKGeneratorService pkGeneratorService
             , ISqlRepository sqlRepository) : base(bulletinTemplateRepository, unitOfWork, pkGeneratorService)
@@ -42,6 +44,7 @@ namespace Library.Service.IEnumerable
             _bulletinProcessRepository = bulletinProcessRepository;
             _bulletinDetailRepository = bulletinDetailRepository;
             _bulletinBuyerRepository = bulletinBuyerRepository;
+            _bulletinCalculationRepository = bulletinCalculationRepository;
             _unitOfWork = unitOfWork;
             _pkGeneratorService = pkGeneratorService;
             _sqlRepository = sqlRepository;
@@ -69,10 +72,10 @@ namespace Library.Service.IEnumerable
         {
             try
             {
-                
+
                 object ob = base.Query(r => r.Id != entity.Id && r.BulletinName == entity.BulletinName && r.AlternativeName == entity.AlternativeName).Select().FirstOrDefault();
 
-                if (ob!=null)
+                if (ob != null)
                 {
                     throw new CustomException("Same combination is exists.");
                 }
@@ -91,7 +94,7 @@ namespace Library.Service.IEnumerable
         {
             try
             {
-                
+
                 object ob = base.Query(r => r.Id != entity.Id && r.BulletinName == entity.BulletinName && r.AlternativeName == entity.AlternativeName).Select().FirstOrDefault();
                 if (ob != null)
                 {
@@ -464,14 +467,29 @@ namespace Library.Service.IEnumerable
             }
         }
 
-        
+        public void GetBulletinCalculation(string bulletinTemplateMasterId, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager Obj;
 
-        public void InsertOrUpdateOperation(IEnumerable<BulletinTemplateDetail> entities, string bulletinTemplateMasterId)
+            try
+            {
+                string sql = @"SELECT * FROM [dbo].[BulletinCalculation] Where BulletinTemplateMasterId='" + bulletinTemplateMasterId + "'";
+                Obj = new ConnectionManager.DAL.ConManager("1");
+                Obj.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void InsertOrUpdateOperation(IEnumerable<BulletinTemplateDetail> entities, string bulletinTemplateMasterId, BulletinCalculation bulletinCalculation)
         {
             try
             {
-                DataSet dsSeq, dsSq;
+                DataSet dsSeq, dsSq, dsBC;
                 GetAutoSequence(bulletinTemplateMasterId, out dsSeq);
+                GetBulletinCalculation(bulletinTemplateMasterId, out dsBC);
                 decimal seq = Convert.ToDecimal(dsSeq.Tables[0].Rows[0]["Sequence"].ToString());
                 if (seq != 0)
                 {
@@ -508,6 +526,22 @@ namespace Library.Service.IEnumerable
                     }
                 }
 
+                if (bulletinCalculation != null)
+                {
+                    if (dsBC.Tables[0].Rows.Count == 0)
+                    {
+                        AuditService.AddedLog(bulletinCalculation);
+                        _bulletinCalculationRepository.Insert(bulletinCalculation);
+                        _unitOfWork.SaveChanges();
+                    }
+                    else
+                    {
+                        bulletinCalculation.Id = Convert.ToInt32(dsBC.Tables[0].Rows[0]["Id"].ToString());
+                        AuditService.UpdatedLog(bulletinCalculation);
+                        _bulletinCalculationRepository.Update(bulletinCalculation);
+                        _unitOfWork.SaveChanges();
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -522,29 +556,29 @@ namespace Library.Service.IEnumerable
             string StitchCodeIds = "''"; string SPIs = "NULL";
             foreach (var item in ItemDetail)
             {
-                if(string.IsNullOrEmpty(item.StitchCodeId)==false)
+                if (string.IsNullOrEmpty(item.StitchCodeId) == false)
                 {
                     StitchCodeIds += ",'" + item.StitchCodeId + "'";
                     SPIs += "," + item.SPI + "";
-                    
+
                 }
-                   
+
             }
 
-          DataTable dtFormula=  _sqlRepository.GetDataTable(@" SELECT f.*,SC.Needle,sc.Bobbin,sc.Looper FROM   [dbo].[SPIFormula]  F
+            DataTable dtFormula = _sqlRepository.GetDataTable(@" SELECT f.*,SC.Needle,sc.Bobbin,sc.Looper FROM   [dbo].[SPIFormula]  F
                                     inner join hkp.StitchCode SC ON SC.id=f.StitchCodeId  WHERE f.StitchCodeId in (" + StitchCodeIds + ") and f.SPI IN (" + SPIs + ")");
 
-            string Formula ;
+            string Formula;
             double SPI, FabricWht, SPIConsumption, NeedleConsumption, BobbinConsumption, LooperConsumption;
             decimal Consumption;
             foreach (var item in ItemDetail)
             {
-                dtFormula.DefaultView.RowFilter = "StitchCodeId='"+item.StitchCodeId+"' AND SPI="+item.SPI;
+                dtFormula.DefaultView.RowFilter = "StitchCodeId='" + item.StitchCodeId + "' AND SPI=" + item.SPI;
                 if (dtFormula.DefaultView.Count > 0)
                 {
-                    Formula =bplib.clsWebLib.GetBoolData(dtFormula.DefaultView[0]["isFormula"].ToString())==true? dtFormula.DefaultView[0]["Formula"].ToString(): dtFormula.DefaultView[0]["FixedValue"].ToString();
+                    Formula = bplib.clsWebLib.GetBoolData(dtFormula.DefaultView[0]["isFormula"].ToString()) == true ? dtFormula.DefaultView[0]["Formula"].ToString() : dtFormula.DefaultView[0]["FixedValue"].ToString();
                     SPI = item.SPI;
-                    FabricWht =(double)item.FabricWidth;
+                    FabricWht = (double)item.FabricWidth;
 
                     Library.Service.Helpers.ThreadConsumption threadConsumption = new Helpers.ThreadConsumption(
                         new Helpers.ThreadConsumption.FKeys { Key = Helpers.ThreadConsumption.FxKeys.SPI, Value = SPI },
@@ -563,16 +597,16 @@ namespace Library.Service.IEnumerable
 
 
 
-                    item.SPIConsumption =(decimal) SPIConsumption;
-                    item.Consumption =(decimal) Consumption;
-                    item.NeedleConsumption =(decimal) NeedleConsumption;
+                    item.SPIConsumption = (decimal)SPIConsumption;
+                    item.Consumption = (decimal)Consumption;
+                    item.NeedleConsumption = (decimal)NeedleConsumption;
                     item.BobbinConsumption = (decimal)BobbinConsumption;
                     item.LooperConsumption = (decimal)LooperConsumption;
                     //item.PerOperationConsumption = (decimal)PerOperationConsumption;
 
                 }
             }
-        
+
         }
 
         public void UpdateMachine(BulletinTemplateDetail entity)
@@ -626,7 +660,7 @@ namespace Library.Service.IEnumerable
             }
         }
 
-        
+
 
         public IEnumerable<object> GetBulletinOperation(string bulletinTemplateMasterId)
         {
@@ -646,6 +680,7 @@ namespace Library.Service.IEnumerable
                             ,BTD.BobbinDescription,BTD.BobbinMaterialMasterId,BTD.BobbinArticleId
                             ,BTD.LooperDescription,BTD.LooperMaterialMasterId,BTD.LooperArticleId	
                             ,BTD.SPIConsumption,BTD.NeedleConsumption,BTD.BobbinConsumption,BTD.LooperConsumption,BTD.Consumption,0 DelFlag
+                            ,CONVERT(NUMERIC(10,2),BTD.AdditionalWorkstation) AdditionalWorkstation, CONVERT(NUMERIC(10,2),BTD.AdditionalManpower) AdditionalManpower
                              FROM [MST].[BulletinTemplateDetail] BTD
                              LEFT JOIN [MST].[OperationVariation] OV ON OV.Id=BTD.OperationVariationId
                              LEFT JOIN (SELECT OP.Id,ISNULL(OP.BasicProcessTime, 0) AS BasicProcessTime, ISNULL(OP.AssociateProcessTime, 0) AS AssociateProcessTime
@@ -707,7 +742,7 @@ namespace Library.Service.IEnumerable
                            LEFT JOIN [HKP].[OperationCategory] OCT ON OCT.Id = O.OperationCategoryId
                            LEFT JOIN [HKP].[StitchCode] SC ON SC.Id = A.StitchCodeId
 						   INNER JOIN (Select * from [MST].[OperationProcess] WHERE ProcessId='" + processId + @"')OP ON OP.OperationId=OV.OperationId
-                           WHERE OV.CompanyGroupId = '" + companyGroupId + @"' AND OV.Id IN(Select OperationVariationId FROM dbo.OperationVariationProductMaster Where ProductMasterId='"+ productMasterId + @"')
+                           WHERE OV.CompanyGroupId = '" + companyGroupId + @"' AND OV.Id IN(Select OperationVariationId FROM dbo.OperationVariationProductMaster Where ProductMasterId='" + productMasterId + @"')
                            --AND OV.Id NOT IN (SELECT BTD.OperationVariationId FROM [MST].[BulletinTemplateDetail] BTD
 					       --LEFT JOIN [MST].[BulletinTemplateMaster] BTM ON BTM.Id=BTD.BulletinTemplateMasterId
 					       --Where BTM.BulletinTemplateId='" + bulletinTemplateId + @"') 
@@ -875,7 +910,7 @@ namespace Library.Service.IEnumerable
                            WHERE OV.CompanyGroupId = '" + companyGroupId + @"' AND OV.Code IN (" + Code + @") "
                 };
 
-            
+
                 return _sqlRepository.GetGridData(parameters).Source;
             }
             catch (Exception ex)
@@ -886,7 +921,7 @@ namespace Library.Service.IEnumerable
             }
         }
 
-        private void SaveBulletinDetailData(DataSet dataSet, IdentityParameter para,string BulletinTemplateMasterId)
+        private void SaveBulletinDetailData(DataSet dataSet, IdentityParameter para, string BulletinTemplateMasterId)
         {
             ConnectionManager.DAL.ConManager objCon;
             var id = "BTD" + GetOperationPK();
@@ -898,7 +933,7 @@ namespace Library.Service.IEnumerable
             DataSet dsSeq;
             GetAutoSequence(BulletinTemplateMasterId, out dsSeq);
             decimal seq = Convert.ToDecimal(dsSeq.Tables[0].Rows[0]["Sequence"].ToString());
-            if (seq>0)
+            if (seq > 0)
             {
                 seq--;
             }
@@ -912,7 +947,7 @@ namespace Library.Service.IEnumerable
                 for (int i = 0; i < dataSet.Tables[0].Rows.Count; i++)
                 {
                     count++;
-                     seq++;
+                    seq++;
                     var sq = seq++;
                     DataRow dr = dsOperation.Tables[0].NewRow();
 
@@ -965,7 +1000,7 @@ namespace Library.Service.IEnumerable
                     dr["AddedBy"] = para.AddedBy;
                     dr["AddedDate"] = DateTime.Now;
                     dr["AddedFromIP"] = para.AddedFromIP;
-                 
+
 
                     dsOperation.Tables[0].Rows.Add(dr);
                 }
@@ -977,7 +1012,7 @@ namespace Library.Service.IEnumerable
             {
                 throw new Exception("Wrong Operation Code !!!.");
             }
-            
+
         }
 
         public GridModel GetCbo(string processId)
@@ -1084,7 +1119,7 @@ namespace Library.Service.IEnumerable
 
                     dr["Id"] = "B-" + GetPK();
                     dr["CompanyGroupId"] = data.CompanyGroupId;
-                    dr["BulletinName"] = data.BulletinName+"-"+"Copy";
+                    dr["BulletinName"] = data.BulletinName + "-" + "Copy";
                     dr["AlternativeName"] = data.AlternativeName;
                     dr["ByWhom"] = data.ByWhom;
                     dr["ProductMasterId"] = data.ProductMasterId;
