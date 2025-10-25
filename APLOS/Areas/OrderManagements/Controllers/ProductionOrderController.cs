@@ -1271,10 +1271,13 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                     BulletinTemplateMaster.Tables[0].Rows.Add(drDetailDestination);
 
 
-                    DataRow drBCDestination = BulletinCalculation.Tables[0].NewRow();
-                    CopyRow(ProBulCal.Rows[0], ref drBCDestination);
-                    drBCDestination["ProductionBulletinTemplateMasterId"] = drDetailDestination["Id"];
-                    BulletinCalculation.Tables[0].Rows.Add(drBCDestination);
+                    if (ProBulCal.Rows.Count > 0)
+                    {
+                        DataRow drBCDestination = BulletinCalculation.Tables[0].NewRow();
+                        CopyRow(ProBulCal.Rows[0], ref drBCDestination);
+                        drBCDestination["ProductionBulletinTemplateMasterId"] = drDetailDestination["Id"];
+                        BulletinCalculation.Tables[0].Rows.Add(drBCDestination);
+                    }
 
                     Process.DefaultView.RowFilter = "BulletinTemplateMasterId='" + Detail.Rows[i]["Id"].ToString() + "'";
                     for (int K = 0; K < Process.DefaultView.Count; K++)
@@ -1925,12 +1928,15 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
 
         public void DeleteProductionBulletinData(string ProductionOrderId)
         {
-            string strSQL, strBSQL, strOSQL;
+            string strSQL, strBSQL, strOSQL, strBCSQL;
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
                 string PBId = GetProductionBulletinTemplate(ProductionOrderId);
                 strOSQL = @"DELETE FROM TRN.ProductionBulletinTemplateDetail WHERE[ProductionBulletinTemplateMasterId] 
+                            in (SELECT Id FROM TRN.ProductionBulletinTemplateMaster WHERE ProductionBulletinTemplateId = '" + PBId + "')";
+
+                strBCSQL = @"DELETE FROM dbo.ProducitonBulletinCalculation WHERE[ProductionBulletinTemplateMasterId] 
                             in (SELECT Id FROM TRN.ProductionBulletinTemplateMaster WHERE ProductionBulletinTemplateId = '" + PBId + "')";
 
                 strBSQL = @"DELETE FROM TRN.ProductionBulletinTemplateMaster WHERE ProductionBulletinTemplateId = '" + PBId + "'";
@@ -1941,6 +1947,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
                 objCon.ExecuteNonQueryWrapper(strOSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strBCSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strBSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
                 objCon.CommitTransaction();
@@ -2143,10 +2150,13 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                     drDetailDestination["ProductionBulletinTemplateId"] = NewId;
                     ProductionBulletinTemplateMaster.Tables[0].Rows.Add(drDetailDestination);
 
-                    DataRow drBCDestination = ProductionBulletinTemplateCal.Tables[0].NewRow();
-                    CopyRow(btcal.Rows[0], ref drBCDestination);
-                    drBCDestination["ProductionBulletinTemplateMasterId"] = drDetailDestination["Id"];
-                    ProductionBulletinTemplateCal.Tables[0].Rows.Add(drBCDestination);
+                    if (btcal.Rows.Count > 0)
+                    {
+                        DataRow drBCDestination = ProductionBulletinTemplateCal.Tables[0].NewRow();
+                        CopyRow(btcal.Rows[0], ref drBCDestination);
+                        drBCDestination["ProductionBulletinTemplateMasterId"] = drDetailDestination["Id"];
+                        ProductionBulletinTemplateCal.Tables[0].Rows.Add(drBCDestination);
+                    }
 
                     Process.DefaultView.RowFilter = "ProductionBulletinTemplateMasterId='" + Detail.Rows[i]["Id"].ToString() + "'";
                     for (int K = 0; K < Process.DefaultView.Count; K++)
