@@ -802,6 +802,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/Invoice/VendorInvoice",
             controller: "vendorInvoiceController"
         })
+        .when("/director-remuneration", {
+            templateUrl: "Accounts/Invoice/DirectorRemuneration",
+            controller: "directorRemunerationController"
+        })
         .when("/invoice-overhead", {
             templateUrl: "Accounts/Invoice/InvoiceOverhead",
             controller: "invoiceOverheadController"

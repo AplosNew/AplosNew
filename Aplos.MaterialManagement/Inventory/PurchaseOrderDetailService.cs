@@ -2924,12 +2924,12 @@ namespace Library.MaterialManagement.Inventory
                                     Id = GetPOBOQPK(),
                                     PODetailId = NewId1,
                                     BOQDetailId = POReqDetail.BOQId,
-                                    TransactionQty = POReqDetail.TransactionQty,
+                                    TransactionQty = POReqDetail.BalanceQty,
                                     TransactionUoMId = POReqDetail.TransactionUoMId,
-                                    BaseQty = Convert.ToDecimal(itemDetail.BaseUoMFactor * POReqDetail.TransactionQty),
+                                    BaseQty = Convert.ToDecimal(itemDetail.BaseUoMFactor * POReqDetail.BalanceQty),
                                     BaseUoMId = itemDetail.BaseUOMId,
                                     POUoMId = itemDetail.POUoMId,
-                                    POBOQQty = Convert.ToDecimal(conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.POUoMId.ToString(), Convert.ToDouble(POReqDetail.TransactionQty)).ToString("F2")),
+                                    POBOQQty = Convert.ToDecimal(conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.POUoMId.ToString(), Convert.ToDouble(POReqDetail.BalanceQty)).ToString("F2")),
                                 };
                                 AuditService.AddedLog(PoBOQDetail);
                                 _POBOQMapRepository.Insert(PoBOQDetail);

@@ -610,10 +610,10 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                                 poboqlist[i].TransactionQty = Math.round((poboqlist[i].TransactionQty) * 100 + Number.EPSILON) / 100
 
                                 if (baseService.isUndefinedOrNull(poboqlist[i].BaseTaxAmount)) {
-                                    poboqlist[i].BaseAmount = poboqlist[i].TrnAmount + 0;
+                                    poboqlist[i].BaseAmount = Math.round((poboqlist[i].TrnAmount + 0) * 100 + Number.EPSILON) / 100;
                                 }
                                 else {
-                                    poboqlist[i].BaseAmount = poboqlist[i].TrnAmount + poboqlist[i].BaseTaxAmount;
+                                    poboqlist[i].BaseAmount = Math.round((poboqlist[i].TrnAmount + poboqlist[i].BaseTaxAmount) * 100 + Number.EPSILON) / 100;
                                 }
 
                                 $scope.poBoqItemListNew.push(poboqlist[i]);
@@ -1383,9 +1383,11 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     $scope.CloseMaterialPopUp = function () {
         angular.element(document.querySelector('#AddMaterialPopUp')).modal('hide');
     }
+    $scope.UpdateNotificationMessage = 'Before update please delete all line item then add your expected item from Popup';
     $scope.UpdatesubmitBOQItem = function () {
         try {
             $scope.poBoqItemListNew;
+            $scope.tempList = [];
             for (var i = 0; i < $scope.UpdatepoBoqItemList.length; i++) {
                 if ($scope.UpdatepoBoqItemList[i].CheckedStatus) {
                     if ((parseFloat($scope.UpdatepoBoqItemList[i].TransactionQty) + parseFloat($scope.UpdatepoBoqItemList[i].OtherPOQty)) > parseFloat($scope.UpdatepoBoqItemList[i].RequiredQtyPO)) {
@@ -1417,39 +1419,72 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                     if ($scope.UpdatepoBoqItemList[i].IncompleteMaterial === 'Yes') {
                         throw ('This is incomplete material.So you can not take this material');
                     }
-                    else {
-                        var Done = 0;
-                        var getRow3 = $filter("filter")($scope.updatePOBOQListS, {
-                            "BOQDetailId": $scope.UpdatepoBoqItemList[i].BOQId, "MaterialMasterId": $scope.UpdatepoBoqItemList[i].MaterialMasterId
-                            , "ArticleId": $scope.UpdatepoBoqItemList[i].ArticleId, "FirstCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].FirstCharacteristicsValueId
-
+                   
+                    if ($scope.isSubmitted == 'Yes') {
+                        var getRow = $filter("filter")($scope.poBoqItemListNew, {
+                            "MaterialMasterId": $scope.UpdatepoBoqItemList[i].MaterialMasterId, "ArticleId": $scope.UpdatepoBoqItemList[i].ArticleId
+                            , "FirstCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].FirstCharacteristicsValueId
+                            , "FirstCharacteristicsValue": $scope.UpdatepoBoqItemList[i].FirstCharacteristicsValue
+                            , "SecondCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].SecondCharacteristicsValueId
+                            , "SecondCharacteristicsValue": $scope.UpdatepoBoqItemList[i].SecondCharacteristicsValue
+                            , "ThitrdCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].ThitrdCharacteristicsValueId
+                            , "GroupId": $scope.UpdatepoBoqItemList[i].GroupId
                         });
-                        if (getRow3.length > 0) {
-                            throw "Already taken";
+
+                        if (getRow.length == 0) {
+                            $scope.UpdatepoBoqItemList[i].TrnAmount = Math.round(($scope.UpdatepoBoqItemList[i].TransactionQty * $scope.UpdatepoBoqItemList[i].TransactionRate) * 100 + Number.EPSILON) / 100
+                            $scope.UpdatepoBoqItemList[i].TransactionQty = Math.round(($scope.UpdatepoBoqItemList[i].TransactionQty) * 100 + Number.EPSILON) / 100
+
+                            if (baseService.isUndefinedOrNull($scope.UpdatepoBoqItemList[i].BaseTaxAmount)) {
+                                $scope.UpdatepoBoqItemList[i].BaseAmount = Math.round(($scope.UpdatepoBoqItemList[i].TrnAmount + 0) * 100 + Number.EPSILON) / 100;
+                            }
+                            else {
+                                $scope.UpdatepoBoqItemList[i].BaseAmount = Math.round(($scope.UpdatepoBoqItemList[i].TrnAmount + $scope.UpdatepoBoqItemList[i].BaseTaxAmount) * 100 + Number.EPSILON) / 100;
+                            }
+                            $scope.UpdatepoBoqItemList[i].Id = null;
+                            $scope.poBoqItemListNew.push($scope.UpdatepoBoqItemList[i]);
                         }
                         else {
-                            $scope.UpdatepoBoqItemList[i].Id = null;
-                            $scope.UpdatepoBoqItemList[i].TrnAmount = Math.round(($scope.UpdatepoBoqItemList[i].TransactionQty * $scope.UpdatepoBoqItemList[i].TransactionRate) * 100 + Number.EPSILON) / 100
-                            $scope.poBoqItemListNew.push($scope.UpdatepoBoqItemList[i]);
-                            Done = 1;
-                            var getRow = $filter("filter")($scope.tempList, {
-                                "MaterialMasterId": $scope.UpdatepoBoqItemList[i].MaterialMasterId, "ArticleId": $scope.UpdatepoBoqItemList[i].ArticleId
-                                , "FirstCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].FirstCharacteristicsValueId
-                                , "SecondCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].SecondCharacteristicsValueId
-                                , "ThitrdCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].ThitrdCharacteristicsValueId
-                                , "GroupId": $scope.UpdatepoBoqItemList[i].GroupId
-                            });
-                            if (getRow.length == 0) {
-                                $scope.tempList.push($scope.UpdatepoBoqItemList[i]);
-                            }
+                            for (var j = 0; j < $scope.poBoqItemListNew.length; j++) {
+                                var row = $scope.poBoqItemListNew[j];
+                                if (row.MaterialMasterId == getRow[0].MaterialMasterId
+                                    && row.ArticleId == getRow[0].ArticleId
+                                    && row.FirstCharacteristicsValueId == getRow[0].FirstCharacteristicsValueId
+                                    && row.FirstCharacteristicsValue == getRow[0].FirstCharacteristicsValue
+                                    && row.SecondCharacteristicsValueId == getRow[0].SecondCharacteristicsValueId
+                                    && row.SecondCharacteristicsValue == getRow[0].SecondCharacteristicsValue
+                                    && row.ThitrdCharacteristicsValueId == getRow[0].ThitrdCharacteristicsValueId
+                                    && row.GroupId == getRow[0].GroupId
+                                ) {
+                                    var currentqty = Math.round($scope.UpdatepoBoqItemList[i].TransactionQty * 100 + Number.EPSILON) / 100;
+                                    var currentamt = Math.round(($scope.UpdatepoBoqItemList[i].TransactionQty * $scope.UpdatepoBoqItemList[i].TransactionRate) * 100 + Number.EPSILON) / 100;
+                                    $scope.poBoqItemListNew[j].TransactionQty = Math.round($scope.poBoqItemListNew[j].TransactionQty * 100 + Number.EPSILON) / 100 + currentqty;
+                                    $scope.poBoqItemListNew[j].TrnAmount = Math.round(($scope.poBoqItemListNew[j].TrnAmount) * 100 + Number.EPSILON) / 100 + currentamt;
+                                    currentqty = 0;
+                                    currentamt = 0;
+                                }
 
+                            }
                         }
-                        if (Done == 1) {
-                            angular.element(document.querySelector('#AddMaterialPopUp')).modal('hide');
+
+                        for (var a = 0; a < $scope.UpdatepoBoqItemList.length; a++) {
+                            if ($scope.UpdatepoBoqItemList[a].MaterialMasterId == $scope.UpdatepoBoqItemList[i].MaterialMasterId
+                                && $scope.UpdatepoBoqItemList[a].ArticleId == $scope.UpdatepoBoqItemList[i].ArticleId
+                                && $scope.UpdatepoBoqItemList[a].FirstCharacteristicsValueId == $scope.UpdatepoBoqItemList[i].FirstCharacteristicsValueId
+                                && $scope.UpdatepoBoqItemList[a].FirstCharacteristicsValue == $scope.UpdatepoBoqItemList[i].FirstCharacteristicsValue
+                                && $scope.UpdatepoBoqItemList[a].SecondCharacteristicsValueId == $scope.UpdatepoBoqItemList[i].SecondCharacteristicsValueId
+                                && $scope.UpdatepoBoqItemList[a].ThitrdCharacteristicsValueId == $scope.UpdatepoBoqItemList[i].ThitrdCharacteristicsValueId
+                                && $scope.UpdatepoBoqItemList[a].GroupId == $scope.UpdatepoBoqItemList[i].GroupId
+                                && $scope.UpdatepoBoqItemList[a].BOQId == $scope.UpdatepoBoqItemList[i].BOQId
+                            ) {
+                                $scope.UpdatepoBoqItemList[a].Id = null;
+                                $scope.tempList.push($scope.UpdatepoBoqItemList[a]);
+                            }
                         }
                     }
                 }
             }
+            angular.element(document.querySelector('#AddMaterialPopUp')).modal('hide');
         } catch (e) {
             ShowResult(e, 'info', 'AddMaterialPopUp');
         }
