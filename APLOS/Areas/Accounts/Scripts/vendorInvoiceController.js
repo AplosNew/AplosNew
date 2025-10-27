@@ -1600,10 +1600,10 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.VendorInvoiceReport = function (reportFormat, voucherId, beneficiaryType) {
         if (beneficiaryType == 'Vendor') {
-            $window.open('Accounts/Invoice/ReportVendorInvoice?reportFormat=' + reportFormat + '&voucherId=' + voucherId, '_blank');
+            $window.open('Accounts/Invoice/ReportVendorInvoice?reportFormat=' + reportFormat + '&voucherId=' + voucherId + '&sourceType=' + 'VendorInvoice', '_blank');
         }
         else
-            $window.open('Employees/EmployeeReport/GetEmployeePayableExpenseReport?reportFormat=' + reportFormat + '&voucherId=' + voucherId, '_blank');
+            $window.open('Employees/EmployeeReport/GetEmployeePayableExpenseReport?reportFormat=' + reportFormat + '&voucherId=' + voucherId + '&sourceType=' + 'VendorInvoice', '_blank');
 
     }
     $scope.ExpenseDistributionReport = function (reportFormat, voucherId) {

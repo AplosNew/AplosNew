@@ -486,7 +486,7 @@ namespace Library.Service.Invoices
        
 
         //Vendor Invoice report new
-        public IWorkbook GetVendorInvoiceReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId)
+        public IWorkbook GetVendorInvoiceReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId,string sourceType)
         {
             var reportUtility = new ReportUtility();
             var excelEngine = new ExcelEngine();
@@ -495,7 +495,7 @@ namespace Library.Service.Invoices
             var sheet = workbook.Worksheets[0];
             sheet.Name = "Voucher";
 
-            var header = GetVendorInvoiceHeader(companyGroupId, companyId, plantId, voucherId, SourceType.VendorInvoice);
+            var header = GetVendorInvoiceHeader(companyGroupId, companyId, plantId, voucherId, sourceType);
 
             reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];
 
@@ -780,8 +780,8 @@ namespace Library.Service.Invoices
             workbook.Version = ExcelVersion.Excel2016;
             var sheet = workbook.Worksheets[0];
             sheet.Name = "Voucher";
-
-            var header = GetVendorInvoiceHeader(companyGroupId, companyId, plantId, voucherId, SourceType.ReceivableFromOthers);
+            string sourceType = SourceType.ReceivableFromOthers.ToString();
+            var header = GetVendorInvoiceHeader(companyGroupId, companyId, plantId, voucherId, sourceType);
 
             reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];
 
@@ -1055,8 +1055,9 @@ namespace Library.Service.Invoices
             workbook.Version = ExcelVersion.Excel2016;
             var sheet = workbook.Worksheets[0];
             sheet.Name = "Voucher";
+            string sourceType = SourceType.InvoiceOverhead.ToString();
 
-            var header = GetVendorInvoiceHeader(companyGroupId, companyId, plantId, voucherId, SourceType.InvoiceOverhead);
+            var header = GetVendorInvoiceHeader(companyGroupId, companyId, plantId, voucherId, sourceType);
 
             reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];
 
@@ -1279,7 +1280,7 @@ namespace Library.Service.Invoices
             }
             return workbook;
         }
-        private Dictionary<string, object> GetVendorInvoiceHeader(string companyGroupId, string companyId, string plantId, string voucherId, SourceType sourceType)
+        private Dictionary<string, object> GetVendorInvoiceHeader(string companyGroupId, string companyId, string plantId, string voucherId, string sourceType)
         {
             var cmdText = @"
                             SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate

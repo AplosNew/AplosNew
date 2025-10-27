@@ -6,8 +6,8 @@ function directorRemunerationController(cboService, commonMessage, $scope, $root
     $scope.taxCodDataList = [];
     $scope.Action = "Save";
     $scope.url = "Accounts/Invoice";
-    $scope.listUrl = $scope.url + "/GetVendorInvoiceList";
-    $scope.saveUrl = $scope.url + "/InsertVendorInvoice";
+    $scope.listUrl = $scope.url + "/GetDirectorRemunaretionList";
+    $scope.saveUrl = $scope.url + "/InsertDirectorRemunaretion";
     $scope.updateUrl = $scope.url + "/UpdateVendorInvoice";
     $scope.postUrl = $scope.url + "/PostVoucher";
     $scope.reportUrl = $scope.url + "/ReportCustomerAdvance?voucherId=";
@@ -699,8 +699,8 @@ function directorRemunerationController(cboService, commonMessage, $scope, $root
         $scope.voucherDetail = {};
     }
 
-    $scope.getCboVoucherTypeAccountPayableList = function () {
-        cboService.getCboVoucherTypeAccountPayableList(function (result) {
+    $scope.getCboVoucherTypeDirectorRemunerationList = function () {
+        cboService.getCboVoucherTypeDirectorRemunerationList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
@@ -710,7 +710,7 @@ function directorRemunerationController(cboService, commonMessage, $scope, $root
             }
         });
     };
-    $scope.getCboVoucherTypeAccountPayableList();
+    $scope.getCboVoucherTypeDirectorRemunerationList();
 
     $scope.Clear = function () {
         var voucherTypeId = $scope.voucher.VoucherId;
@@ -1212,16 +1212,15 @@ function directorRemunerationController(cboService, commonMessage, $scope, $root
     $scope.Save = function () {
         $scope.InvoiceDetailChargesList();
         $scope.$broadcast("show-errors-check-validity");
-        $scope.checkDocDate();
         $scope.checkPostingDate();
         if ($scope.TDSList.length > 0) {
             $scope.popUpTDSMessage = true;
         } else $scope.popUpTDSMessage = false;
-        if ($scope.form1.$valid && !$scope.validation() && !$scope.invalidDocDate && !$scope.invalidPostingDate) {
+        if ($scope.form1.$valid && !$scope.validation() && !$scope.invalidPostingDate) {
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
-                    url: "accounts/Invoice/InsertVendorInvoice",
+                    url: "accounts/Invoice/InsertDirectorRemunaretion",
                     data: {
                         "voucherVM": $scope.voucher,
                         "voucherDetailVMList": $scope.voucherDetailList,
@@ -1598,10 +1597,10 @@ function directorRemunerationController(cboService, commonMessage, $scope, $root
 
     $scope.VendorInvoiceReport = function (reportFormat, voucherId, beneficiaryType) {
         if (beneficiaryType == 'Vendor') {
-            $window.open('Accounts/Invoice/ReportVendorInvoice?reportFormat=' + reportFormat + '&voucherId=' + voucherId, '_blank');
+            $window.open('Accounts/Invoice/ReportVendorInvoice?reportFormat=' + reportFormat + '&voucherId=' + voucherId + '&sourceType=' +'DirectorRemuneration', '_blank');
         }
         else
-            $window.open('Employees/EmployeeReport/GetEmployeePayableExpenseReport?reportFormat=' + reportFormat + '&voucherId=' + voucherId, '_blank');
+            $window.open('Employees/EmployeeReport/GetEmployeePayableExpenseReport?reportFormat=' + reportFormat + '&voucherId=' + voucherId + '&sourceType=' + 'DirectorRemuneration', '_blank');
 
     }
     $scope.ExpenseDistributionReport = function (reportFormat, voucherId) {

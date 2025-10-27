@@ -475,7 +475,11 @@
                 <th>Short Name</th>
                 <th>Standard Name</th>
                 <th>User Name</th>
+                <th>GL</th>
+                <th>Budget</th>
+                <th>Activity</th>
                 <th>Active</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -485,12 +489,77 @@
                 <td>{{x.ShortName}}</td>
                 <td>{{x.StandardName}}</td>
                 <td>{{x.UserName}}</td>
+                <td>{{x.GLGeneralInfoName}}</td>
+                <td>{{x.BudgetName}}</td>
+                <td>{{x.ActivityName}}</td>
                 <td>{{x.Active? 'Yes':'No'}}</td>
+                <td><button class="btn" ng-click="GetDirectorGlList(x)"><i class="fa fa-search"></i></button></td>
             </tr>
         </tbody>
     </table>
     <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
 </div>
+
+<div class="modal fade site-modal in" id="DirectorListPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">GL List</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="DirectorListParameters.searchBy">
+                                            <option ng-repeat="option in searchDirectorByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="DirectorListParameters.search" ng-enter="GetDirectorGlList()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetDirectorGlList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in DirectorGLList |itemsPerPage:DirectorListParameters.pageSize" pagination-id="metaData.name + 'DirectorGLList'" total-items="DirectorListParameters.total_count" ng-dblclick="SelectItemGL(x);">
+                                <td>{{x.GLGeneralInfoCode}} - {{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'DirectorGLList'" direction-links="true" boundary-links="true" on-page-change="getDirectorListData(newPageNumber)"></dir-pagination-controls>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn" style="float:right">
+                    <button class="btn" ng-click="Done()"> Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <confirm-modal></confirm-modal>
 <toaster-container toaster-options="{'close-button':true, 'animation-class': 'toast-top-center'}"></toaster-container>
 <confirm-archive-generic data-modalid="confirmContactdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeContactMasterRow()"></confirm-archive-generic>

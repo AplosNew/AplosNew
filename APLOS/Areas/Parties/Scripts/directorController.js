@@ -519,4 +519,95 @@ function directorController(addressService, commonMessage, $scope, $rootScope, b
         return $scope.tab === tabNum;
     };
     // #endregion
+
+    $scope.DirectorGLList = [];
+    $scope.searchDirectorByList = [
+
+        {
+            'name': 'Account Group',
+            'value': 'AccountGroupName'
+        },
+        {
+            'name': 'GL',
+            'value': 'GLGeneralInfoName'
+        }
+    ];
+    $scope.DirectorListParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'GLGeneralInfoCode',
+        searchBy: "GLGeneralInfoName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.GetDirectorGlList = function (data) {
+        $scope.PartyId = data.Id;
+        $scope.GLUrl1 = 'parties/party/GetDirectorGLList';
+        $scope.getDirectorListData = function (pageno) {
+            baseService.paginationBase($scope.GLUrl1, pageno, $scope.DirectorListParameters)
+                .then(function (data) {
+                    $scope.DirectorGLList = data.Rows;
+                    $scope.DirectorListParameters.total_count = data.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#DirectorListPopUp')).modal('show');
+        $scope.modalShow = true;
+        $scope.getDirectorListData();
+    };
+    $scope.closeDirectorListPopUpSelected = function () {
+        if ($scope.rowSelected !== null) {
+            angular.element(document.querySelector('#DirectorListPopUp')).modal('hide');
+        }
+    };
+    $scope.SelectItemGL = function (x) {
+        $scope.rowSelected = x.GLGeneralInfoCode;
+        $scope.GLSelectedData = x;
+        $scope.GLSelectedData.PartyId = $scope.PartyId;
+        $scope.DirectorGLAction = 'Save';
+        $scope.SaveDirectorGL();
+    };
+    $scope.SaveDirectorGL = function () {
+        /*$scope.$broadcast('show-errors-check-validity');*/
+        try {
+            //if (baseService.isUndefinedOrNull($scope.GLSelectedData.Bank)) {
+            //    throw "Bank is required.";
+            //}
+            //if (baseService.isUndefinedOrNull($scope.GLSelectedData.BankBranch)) {
+            //    throw "Bank Branch is required.";
+            //}
+            //if (baseService.isUndefinedOrNull($scope.GLSelectedData.BankAccountNo)) {
+            //    throw "Bank AccountNo is required.";
+            //}
+
+            if ($scope.DirectorGLAction == 'Save') {
+                    $http({
+                        method: 'POST',
+                        url: 'Parties/Party/CreateDirectorGL',
+                        data: { 'data': $scope.GLSelectedData },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure', 'DirectorListPopUp');
+
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success', 'DirectorListPopUp');
+                            angular.element(document.querySelector('#DirectorListPopUp')).modal('hide');
+                            $scope.getData();
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure', 'BankPopUp');
+                    }
+                }
+                 
+        } catch (e) {
+            ShowResult(e, 'failure', 'BankPopUp');
+        }
+    };
 }

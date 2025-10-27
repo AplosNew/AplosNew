@@ -20,6 +20,7 @@ using System.Linq;
 using System.Web.Mvc;
 using System.Linq.Expressions;
 using Library.Service.Properties;
+using Library.Accounting.Accounts;
 
 namespace Aplos.Areas.Parties.Controllers
 {
@@ -1200,7 +1201,7 @@ namespace Aplos.Areas.Parties.Controllers
         public ActionResult GetDirectorList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_partyService.Query(parameters, identity.CompanyGroupId, PartyType.Director), JsonRequestBehavior.AllowGet);
+            return Json(_partyService.QueryDirector(parameters, identity.CompanyGroupId, PartyType.Director), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -1219,6 +1220,65 @@ namespace Aplos.Areas.Parties.Controllers
             _partyService.Update(party, addressMaster, contactmasters);
             party.PartyType = PartyType.Director.ToString();
             return Json(new { Party = party, Sequence = _partyService.GetAutoSequence(), Message = AplosMessage.Updated });
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetDirectorGLList(GridParameter parameters)
+        {
+            AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);
+            return Json(_accountsGLService.GetDirectorGLList(parameters), JsonRequestBehavior.AllowGet);
+        }
+
+        private static string MakePK(string masterId, int currentId, int padLeft)
+        {
+            return masterId + currentId.ToString().PadLeft(padLeft, '0');
+        }
+        [HttpPost]
+        public JsonResult CreateDirectorGL(Dictionary<string, object> data)
+        {
+            try
+            {
+                if (data != null)
+                {
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM [HKP].[CompanyPartyGL] WHERE PartyId='" + data["PartyId"] + "' and PartyGLType='ReconciliationGL'", out dsMaster, false, "1");
+
+                    string _Id = "";
+
+                    #region data update
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        data["Id"] = MakePK(data["PartyId"].ToString(), 1, 2);
+                        data["PlantId"] = identity.PlantId;
+                        AddNewRow(dsMaster.Tables[0], data);
+                        
+                    }
+                    else
+                    {
+                          data["Id"]= dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], data);
+                    }
+                    #endregion data update
+
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsMaster);
+                    //}
+                    //else
+                    //{
+                    //    throw new Exception("Selected combination already exists...");
+                    //}
+                }
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
         }
 
         #endregion Director
