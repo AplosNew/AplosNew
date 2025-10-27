@@ -3824,6 +3824,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                 }
             }
         }
+        $scope.CalculateGroup();
     }
 
 
@@ -3835,12 +3836,28 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         }
         return false;
     }
+    $scope.calculatedBulletinModel = { Id: Math.floor(Math.random() * 9) - 10, TotalSPT: 0, TotalManpower: 0, TotalWorkStation: 0, MCtotalspt: 0, MCtotalMP: 0, NonMCtotalspt: 0, NonMCtotalMP: 0, PitchTime: 0, ProductionEfficiencyPerHour: 0, MaxAllottedTime: 0, ProductionEfficiencyPerDay: 0, OrganizationEfficiency: 0, LineTargetPerHour: 0 };
 
     $scope.SaveOperation = function () {
         try {
             if (baseService.arrayLength($scope.operationList) < 0) {
                 throw "Select Opearation.";
             }
+            $scope.calculatedBulletinModel.TotalSPT = $scope.TotalSPT;
+            $scope.calculatedBulletinModel.TotalManpower = $scope.TotalManpower;
+            $scope.calculatedBulletinModel.TotalWorkStation = $scope.TotalWorkStation;
+            $scope.calculatedBulletinModel.MCtotalspt = $scope.MCtotalspt;
+            $scope.calculatedBulletinModel.MCtotalMP = $scope.MCtotalMP;
+            $scope.calculatedBulletinModel.NonMCtotalspt = $scope.NonMCtotalspt;
+            $scope.calculatedBulletinModel.NonMCtotalMP = $scope.NonMCtotalMP;
+            $scope.calculatedBulletinModel.PitchTime = $scope.PitchTime;
+            $scope.calculatedBulletinModel.ProductionEfficiencyPerHour = $scope.ProductionEfficiencyPerHour;
+            $scope.calculatedBulletinModel.MaxAllottedTime = $scope.MaxAllottedTime;
+            $scope.calculatedBulletinModel.ProductionEfficiencyPerDay = $scope.ProductionEfficiencyPerDay;
+            $scope.calculatedBulletinModel.OrganizationEfficiency = $scope.OrganizationEfficiency;
+            $scope.calculatedBulletinModel.LineTargetPerHour = $scope.LineTargetPerHour;
+            $scope.calculatedBulletinModel.ProductionBulletinTemplateMasterId = $scope.BulletinTemplateMasterId;
+
             CheckSequence();
             for (var i = 0; i < $scope.operationList.length; i++) {
                 $scope.operationList[i].ProductionBulletinTemplateMasterId = $scope.BulletinTemplateMasterId;
@@ -3848,7 +3865,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             $http({
                 method: 'POST',
                 url: $scope.saveOperationUrl,
-                data: { 'entities': $scope.operationList, 'productionBulletinTemplateMasterId': $scope.BulletinTemplateMasterId },
+                data: { 'entities': $scope.operationList, 'productionBulletinTemplateMasterId': $scope.BulletinTemplateMasterId, 'calculateddata': $scope.calculatedBulletinModel },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

@@ -181,9 +181,9 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         [HttpPost]
-        public JsonResult CreateOperation(IEnumerable<BulletinTemplateDetail> bulletinTemplateDetails, string bulletinTemplateMasterId)
+        public JsonResult CreateOperation(IEnumerable<BulletinTemplateDetail> bulletinTemplateDetails, string bulletinTemplateMasterId, BulletinCalculation calculatedBulletinModel)
         {
-            _bulletinTemplateService.InsertOrUpdateOperation(bulletinTemplateDetails, bulletinTemplateMasterId);
+            _bulletinTemplateService.InsertOrUpdateOperation(bulletinTemplateDetails, bulletinTemplateMasterId, calculatedBulletinModel);
             return Json(new { Message = AplosMessage.Success });
         }
 

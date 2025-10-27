@@ -55,7 +55,7 @@
 </style>
 <togglable name="Production Order"></togglable>
 <div class="form-horizontal form-elements" ng-form="modelNewForm" id="mainPOContainer">
-    <div class="col-xs-6 col-sm-6 col-md-6" id="ProductionEntity">
+    <div class="col-xs-12 col-sm-6 col-md-6" id="ProductionEntity">
 
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Planning Type Process<sup>*</sup></label>
@@ -99,7 +99,7 @@
         </div>
 
     </div>
-    <div class="col-xs-6 col-sm-6 col-md-6">
+    <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -572,6 +572,8 @@
                                             <div e-column e-template="#RequiredManPower" e-headertext="Required ManPower" e-width="50" style="height: 20px;"></div>
                                             <div e-column e-template="#AllotedManpower" e-headertext="Alloted Manpower" e-width="80" style="height: 20px;"></div>
                                             <div e-column e-template="#AllotedWorkstation" e-headertext="Alloted Work Station" e-width="50" style="height: 20px;"></div>
+                                            <div e-column e-template="#AdditionalManpower" e-headertext="Additional Manpower" e-width="80" style="height: 20px;"></div>
+                                            <div e-column e-template="#AdditionalWorkstation" e-headertext="Additional Work Station" e-width="80" style="height: 20px;"></div>
                                             <div e-column e-template="#OperationGroup" e-headertext="Operation Group" e-width="40" style="height: 20px;"></div>
                                             <div e-column e-template="#AvgAllotedTime" e-headertext="Avg Alloted Time" e-width="50" style="height: 20px;"></div>
                                             <div e-column e-template="#OperationTarget" e-headertext="OperationTarget/Hr" e-width="50" style="height: 20px;"></div>
@@ -661,6 +663,17 @@
                                     <script type="text/template" id="AllotedManpower">
                                         <div class="col-sm-10" style="padding:0px; width:70px;">
                                             <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AllotedManpower" e-width="80" />
+                                        </div>
+                                    </script>
+                                    <script type="text/template" id="AdditionalWorkstation">
+                                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                                            <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AdditionalWorkstation" e-width="80" />
+                                            @*<input type="text" ng-model="data.AllotedWorkstation" only-numbers style="color:black;" class="form-control" />*@
+                                        </div>
+                                    </script>
+                                    <script type="text/template" id="AdditionalManpower">
+                                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                                            <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AdditionalManpower" e-width="80" />
                                         </div>
                                     </script>
                                     <script type="text/template" id="AvgAllotedTime">
@@ -1112,10 +1125,10 @@
                             <div e-column e-field="CommitmentDate" e-headertext="Commi.Date" e-width="80"></div>
                             <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Customer Item#" e-width="100"></div>
                             <div e-column e-type="string" e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100"></div>
-                            <div e-column e-type="string"e-field="DestinationName" e-headertext="Dest." e-width="80"></div>
-                            <div e-column e-type="string"e-field="DestinationDescription" e-headertext="Dest. Description" e-width="80"></div>
-                            <div e-column e-type="string"e-field="DeliveryWeek" e-headertext="Del. Week" e-width="80"></div>
-                            <div e-column e-type="string"e-field="MasterOrderNo" e-headertext="M. Order No" e-width="70"></div>
+                            <div e-column e-type="string" e-field="DestinationName" e-headertext="Dest." e-width="80"></div>
+                            <div e-column e-type="string" e-field="DestinationDescription" e-headertext="Dest. Description" e-width="80"></div>
+                            <div e-column e-type="string" e-field="DeliveryWeek" e-headertext="Del. Week" e-width="80"></div>
+                            <div e-column e-type="string" e-field="MasterOrderNo" e-headertext="M. Order No" e-width="70"></div>
 
                             <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="180"></div>
                             <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="180"></div>

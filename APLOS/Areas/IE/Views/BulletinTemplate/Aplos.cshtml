@@ -273,6 +273,10 @@
                             <div e-column e-template="#RequiredManPower" e-headertext="Required ManPower" e-width="50" style="height: 20px;"></div>
                             <div e-column e-template="#AllotedManpower" e-headertext="Alloted Manpower" e-width="80" style="height: 20px;"></div>
                             <div e-column e-template="#AllotedWorkstation" e-headertext="Alloted Work Station" e-width="80" style="height: 20px;"></div>
+
+                            <div e-column e-template="#AdditionalManpower" e-headertext="Additional Manpower" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#AdditionalWorkstation" e-headertext="Additional Work Station" e-width="80" style="height: 20px;"></div>
+
                             <div e-column e-template="#OperationGroup" e-headertext="Operation Group" e-width="40" style="height: 20px;"></div>
                             <div e-column e-template="#AvgAllotedTime" e-headertext="Avg Alloted Time" e-width="50" style="height: 20px;"></div>
                             <div e-column e-template="#OperationTarget" e-headertext="OperationTarget/Hr" e-width="50" style="height: 20px;"></div>
@@ -287,9 +291,9 @@
                             <div e-column e-template="#Quality" e-headertext="Quality Level" e-width="40" style="height: 20px;"></div>
 
                             @*<div e-column e-template="#SPI" e-headertext="SPI" e-width="50" style="height: 20px;"></div>
-                                <div e-column e-template="#NoOfStitch" e-headertext="No Of Rows" e-width="50" style="height: 20px;"></div>
-                                <div e-column e-template="#OperationLength" e-headertext="Operation Length-cm" e-width="50" style="height: 20px;"></div>
-                                <div e-column e-template="#FabWdth" e-headertext="Fabric Width-inch" e-width="50" style="height: 20px;"></div>*@
+        <div e-column e-template="#NoOfStitch" e-headertext="No Of Rows" e-width="50" style="height: 20px;"></div>
+        <div e-column e-template="#OperationLength" e-headertext="Operation Length-cm" e-width="50" style="height: 20px;"></div>
+        <div e-column e-template="#FabWdth" e-headertext="Fabric Width-inch" e-width="50" style="height: 20px;"></div>*@
                             @*<div e-column e-template="#StitchCode" e-headertext="Stitch Code" e-width="80" style="height: 20px;"></div>*@
                             <div e-column e-template="#Frequency" e-headertext="Frequency" e-width="40" style="height: 20px;"></div>
 
@@ -320,8 +324,8 @@
                     </script>
                     <script type="text/template" id="OperationCategory">
                         @*<div class="col-sm-10" style="padding:0px; width:90px;margin:-12px;">
-                                <input ej-dropdownlist e-datasource="$parent.OperationCategoryList" e-value="data.OperationCategoryId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
-                            </div>*@
+                <input ej-dropdownlist e-datasource="$parent.OperationCategoryList" e-value="data.OperationCategoryId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+            </div>*@
                         <div class="select-style">
                             <select class="form-control" ng-model="data.OperationCategoryId" name="Operation Category">
                                 <option value="">--Select--</option>
@@ -367,6 +371,17 @@
                     <script type="text/template" id="AllotedManpower">
                         <div class="col-sm-10" style="padding:0px; width:70px;">
                             <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AllotedManpower" e-width="80" />
+                        </div>
+                    </script>
+                    <script type="text/template" id="AdditionalWorkstation">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AdditionalWorkstation" e-width="80" />
+                            @*<input type="text" ng-model="data.AllotedWorkstation" only-numbers style="color:black;" class="form-control" />*@
+                        </div>
+                    </script>
+                    <script type="text/template" id="AdditionalManpower">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AdditionalManpower" e-width="80" />
                         </div>
                     </script>
                     <script type="text/template" id="AvgAllotedTime">

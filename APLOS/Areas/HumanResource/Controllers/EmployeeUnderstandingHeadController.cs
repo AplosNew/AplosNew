@@ -90,7 +90,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             string sql = @"SELECT ''Id,ei.SystemId EmployeeId,ei.EmployeeCode, ei.EmployeeName,B.Code MBCode,P.Code PCode,P.Id PositionCode,ei.BudgetCode
                          FROM  EmployeeInformation AS ei 
                         LEFT OUTER JOIN mst.ManpowerBudget B ON B.Id=ei.BudgetCode
-                        LEFT OUTER JOIN org.Position P ON P.Id=MB.PositionId
+                        LEFT OUTER JOIN org.Position P ON P.Id=B.PositionId
                         WHERE ei.SystemId='" + EmployeeId + @"'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }

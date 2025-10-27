@@ -236,6 +236,7 @@
     <Compile Include="Configurations\IE\BulletinDetailConfiguration.cs" />
     <Compile Include="Configurations\IE\BulletinMasterConfiguration.cs" />
     <Compile Include="Configurations\IE\BulletinProcessConfiguration.cs" />
+    <Compile Include="Configurations\IE\BulletinCalculationConfiguration.cs" />
     <Compile Include="Configurations\IE\ProductionBulletinTemplateDetailConfiguration.cs" />
     <Compile Include="Configurations\IE\ProductionBulletinTemplateMasterConfiguration.cs" />
     <Compile Include="Configurations\IE\ProductionBulletinTemplateConfiguration.cs" />
@@ -663,6 +664,7 @@
     <Compile Include="HumanResource\WorkGroup.cs" />
     <Compile Include="IE\Attachment.cs" />
     <Compile Include="IE\BulletinProcess.cs" />
+    <Compile Include="IE\BulletinCalculation.cs" />
     <Compile Include="IE\ProductionBulletinTemplateMaster.cs" />
     <Compile Include="IE\ProductionBulletinTemplateDetail.cs" />
     <Compile Include="IE\ProductionBulletinTemplate.cs" />

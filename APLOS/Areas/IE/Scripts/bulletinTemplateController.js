@@ -390,7 +390,7 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
         $scope.machineOperationList = [];
         $scope.BulletinTemplateMasterId = null;
         $scope.PicFileName = virtualPath.BulletinTemplateImage + '';
-        $scope.bulletinTemplateNew.PBCount= 0;
+        $scope.bulletinTemplateNew.PBCount = 0;
     }
 
     // #endregion bulletinTemplate
@@ -747,7 +747,7 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
         $scope.searchdata = [];
         $http({
             method: 'GET',
-            url: 'ie/bulletintemplate/getoperationdata?processId=' + $scope.ProcessId + '&bulletinTemplateId=' + $scope.bulletinTemplateNew.Id +'&productMasterId='+$scope.bulletinTemplateNew.ProductMasterId
+            url: 'ie/bulletintemplate/getoperationdata?processId=' + $scope.ProcessId + '&bulletinTemplateId=' + $scope.bulletinTemplateNew.Id + '&productMasterId=' + $scope.bulletinTemplateNew.ProductMasterId
         }).then(function successCallback(response) {
             $scope.searchdata = response.data;
         });
@@ -782,7 +782,7 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
                     ob.Symbol = $scope.searchdata[i].AdditionalSAMSymbol;
                     ob.AdditionalSPT = 0;
                     ob.AvgAllotedTime = 0,
-                    ob.VASSAMSOURCE = $scope.searchdata[i].VASSAMSOURCE;
+                        ob.VASSAMSOURCE = $scope.searchdata[i].VASSAMSOURCE;
                     ob.TotalSPT = $scope.searchdata[i].TotalSAM;
                     ob.OperationSPT = $scope.searchdata[i].TotalSAM;
                     ob.AllotedWorkstation = 0;
@@ -882,47 +882,6 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
         }
         return false;
     }
-
-    //$scope.Go = function () {
-    //    try {
-    //        if (baseService.isUndefinedOrNull($scope.bulletinTemplateDetailNew.OperationCode)) {
-    //            throw "Code is required.";
-    //        }
-    //        if (checkCodeExists($scope.operationList, $scope.bulletinTemplateDetailNew.OperationCode) === false) {
-    //            $http({
-    //                method: 'POST',
-    //                url: 'IE/BulletinTemplate/InsertOperation',
-    //                data: { 'Code': $scope.bulletinTemplateDetailNew.OperationCode, 'processId': $scope.ProcessId, 'bulletinTemplateMasterId': $scope.BulletinTemplateMasterId },
-    //                dataType: 'JSON'
-    //            }).then(function successCallback(response) {
-    //                if (response.data.Error === true) {
-    //                    ShowResult(response.data.Message, 'failure');
-    //                }
-    //                else {
-    //                    ShowResult(response.data.Message, 'success');
-    //                    $scope.getSavedOperationData($scope.BulletinTemplateMasterId);
-    //                }
-    //            }), function errorCallBack(response) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            };
-    //        }
-    //        else {
-    //            throw "This Operation Code " + $scope.bulletinTemplateDetailNew.OperationCode + " is already taken.";
-    //        }
-
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //};
-
-    //function checkCodeExists(list, OperationCode) {
-    //    for (var i = 0; i < list.length; i++) {
-    //        if (list[i].OperationCode === OperationCode) {
-    //            return true;
-    //        }
-    //    }
-    //    return false;
-    //}
 
     $scope.machineOperationList = [];
     $scope.getSavedMacnineOperationData = function (bulletinTemplateMasterId) {
@@ -1123,7 +1082,7 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
         //$scope.operationVariationNew.AdditionalAllowance = data.AdditionalAllowance;
 
         $scope.machine.MachineVarientId = $scope.operationVariationNew.ArticleId;
-       // $scope.machine.SkillId = $scope.operationVariationNew.SkillId;
+        // $scope.machine.SkillId = $scope.operationVariationNew.SkillId;
 
         // getOperationVariationUtilityData($scope.operationId, $scope.operationVariationNew.ArticleId, $scope.operationVariationNew.SkillId);
 
@@ -1457,6 +1416,7 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
                 }
             }
         }
+        $scope.CalculateGroup();
     }
 
     function checkExistsSS(list, id) {
@@ -1468,13 +1428,28 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
         return false;
     }
 
+    $scope.calculatedBulletinModel = { Id: Math.floor(Math.random() * 9) - 10, TotalSPT: 0, TotalManpower: 0, TotalWorkStation: 0, MCtotalspt: 0, MCtotalMP: 0, NonMCtotalspt: 0, NonMCtotalMP: 0, PitchTime: 0, ProductionEfficiencyPerHour: 0, MaxAllottedTime: 0, ProductionEfficiencyPerDay: 0, OrganizationEfficiency: 0, LineTargetPerHour:0};
+
     $scope.SaveOperation = function () {
         try {
             if (baseService.arrayLength($scope.operationList) < 0) {
                 throw "Select Opearation.";
             }
             CheckSequence();
-
+            $scope.calculatedBulletinModel.TotalSPT = $scope.TotalSPT;
+            $scope.calculatedBulletinModel.TotalManpower = $scope.TotalManpower;
+            $scope.calculatedBulletinModel.TotalWorkStation = $scope.TotalWorkStation;
+            $scope.calculatedBulletinModel.MCtotalspt = $scope.MCtotalspt;
+            $scope.calculatedBulletinModel.MCtotalMP = $scope.MCtotalMP;
+            $scope.calculatedBulletinModel.NonMCtotalspt = $scope.NonMCtotalspt;
+            $scope.calculatedBulletinModel.NonMCtotalMP = $scope.NonMCtotalMP;
+            $scope.calculatedBulletinModel.PitchTime = $scope.PitchTime;
+            $scope.calculatedBulletinModel.ProductionEfficiencyPerHour = $scope.ProductionEfficiencyPerHour;
+            $scope.calculatedBulletinModel.MaxAllottedTime = $scope.MaxAllottedTime;
+            $scope.calculatedBulletinModel.ProductionEfficiencyPerDay = $scope.ProductionEfficiencyPerDay;
+            $scope.calculatedBulletinModel.OrganizationEfficiency = $scope.OrganizationEfficiency;
+            $scope.calculatedBulletinModel.LineTargetPerHour = $scope.LineTargetPerHour;
+            $scope.calculatedBulletinModel.BulletinTemplateMasterId = $scope.BulletinTemplateMasterId;
 
             for (var i = 0; i < $scope.operationList.length; i++) {
                 $scope.operationList[i].BulletinTemplateMasterId = $scope.BulletinTemplateMasterId;
@@ -1482,7 +1457,7 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
             $http({
                 method: 'POST',
                 url: $scope.saveOperationUrl,
-                data: { 'bulletinTemplateDetails': $scope.operationList, 'bulletinTemplateMasterId': $scope.BulletinTemplateMasterId },
+                data: { 'bulletinTemplateDetails': $scope.operationList, 'bulletinTemplateMasterId': $scope.BulletinTemplateMasterId, 'calculatedBulletinModel': $scope.calculatedBulletinModel},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
