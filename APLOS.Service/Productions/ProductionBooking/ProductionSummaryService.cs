@@ -1172,7 +1172,7 @@ LEFT JOIN (select SUM(PP.Quantity)TotalProductionQty, PP.ProductionOrderId from 
  ) AS PPP ON PPP.ProductionOrderId = PO.Id
 LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId from [TRN].[ProductionSummary] FP where FP.ProcessId = 
 (select ProcessId from TRN.ProductionOrderProcessSet B where B.ProductionOrderId=FP.ProductionOrderId  and B.Sequence = 
-(select top 1 Sequence from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=FP.ProductionOrderId)) GROUP BY FP.ProductionOrderId 
+(select (Sequence-1) from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=FP.ProductionOrderId AND ProcessId='" + processId + @"')) GROUP BY FP.ProductionOrderId 
  ) AS FPP ON FPP.ProductionOrderId = PO.Id
                             LEFT JOIN
                             (SELECT SUM(SO.Qty) OrderQty, PD.ProductionOrderId

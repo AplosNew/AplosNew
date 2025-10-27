@@ -283,7 +283,6 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         try {
             $scope.Name = name;
             if ($scope.Name == 'mo') {
-                $scope.Clear();
                 $scope.employeeUrl = 'OrderManagements/masterorder/GetEmployeeListResponsible';
             } else {
                 $scope.employeeUrl = 'OrderManagements/masterorder/GetPreparedEmployeeList?employeeId=' + $window.employeeId
