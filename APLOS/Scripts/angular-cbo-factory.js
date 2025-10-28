@@ -217,6 +217,7 @@ function cboService($http, $window, $rootScope, baseService) {
         , getCboVoucherTypeBanksReceiptList: getCboVoucherTypeBanksReceiptList
         , getCboVoucherTypeSuspensePayableList: getCboVoucherTypeSuspensePayableList
         , getCboVoucherTypeAccountPayableList: getCboVoucherTypeAccountPayableList
+        , getCboVoucherTypeDirectorRemunerationList: getCboVoucherTypeDirectorRemunerationList
         , getCboVoucherTypeFGInventoryList: getCboVoucherTypeFGInventoryList
         , getCboVoucherTypePostInvoiceList: getCboVoucherTypePostInvoiceList
         , getCboVoucherTypeReceivableFromOthersList: getCboVoucherTypeReceivableFromOthersList
@@ -1493,6 +1494,9 @@ function cboService($http, $window, $rootScope, baseService) {
 
     function getCboVoucherTypeAccountPayableList(callback) {
         base('accounts/VoucherTypeMatrix/GetCboVoucherTypeAccountPayableList', callback);
+    }
+    function getCboVoucherTypeDirectorRemunerationList(callback) {
+        base('accounts/VoucherTypeMatrix/GetCboVoucherTypeDirectorRemunerationList', callback);
     }
     function getCboVoucherTypeFGInventoryList(callback) {
         base('accounts/VoucherTypeMatrix/GetCboVoucherTypeFGInventoryList', callback);

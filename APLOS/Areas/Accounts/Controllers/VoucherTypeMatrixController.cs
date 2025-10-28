@@ -154,6 +154,13 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetCboVoucherTypeDirectorRemunerationList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_voucherTypeMatrixService.GetCboVoucherTypeList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.DirectorRemuneration), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetCboVoucherTypeFGInventoryList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

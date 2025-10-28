@@ -279,6 +279,14 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsInvoiceService.InvoiceQuery(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.VendorInvoice), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetDirectorRemunaretionList(GridParameter parameters)
+        {
+            AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsInvoiceService.InvoiceQuery(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.DirectorRemuneration), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpGet]
         public JsonResult GetInvoiceSetOffDetailByInvoice(string invoiceId)
         {
@@ -378,6 +386,59 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceService.InsertVendorInvoiceBeneficiaryEmployee(voucherVM, voucherDetailVMList, taxDetailVMList, tdsVMList)) });
 
         }
+
+        [HttpPost]
+        public JsonResult InsertDirectorRemunaretion(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
+            , IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<MachineMasterAssetSeviceDistribution> machineMasterAssetSeviceDistributionList)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = true;
+            var TaxAmount = 0.0M;
+            if (taxDetailVMList != null)
+            {
+                TaxAmount = taxDetailVMList.Sum(r => r.TaxAmount);
+            }
+            if (voucherVM.CompanyCurrencyRate == 0)
+                throw new CustomException("Rate can not Empty!");
+            if (voucherVM.PaymentSource == PaymentSource.GL.ToString())
+            {
+                  if (voucherVM.IsExcludingTax == true && voucherVM.Amount != voucherDetailVMList.Sum(r => r.Amount) + TaxAmount)
+                    throw new CustomException("Net Amount and Invoice Amount not match!");
+            }
+            if (voucherVM.PaymentSource == PaymentSource.Loan.ToString())
+            {
+                if (voucherVM.CurrencyId == existingLoanList.FirstOrDefault().CurrencyId)
+                {
+                    if (voucherVM.IsExcludingTax == false && voucherVM.Amount != existingLoanList.Sum(r => r.LoanSetOffAmount))
+                        throw new CustomException("Total Amount and Loan SetOff Amount not match!");
+                }
+                else
+                {
+                    if (voucherVM.IsExcludingTax == false && (Math.Round((voucherVM.Amount * voucherVM.CompanyCurrencyRate), 2) != existingLoanList.Sum(r => r.LoanSetOffAmount)))
+                        throw new CustomException("Total Amount and Loan SetOff Amount not match!");
+                }
+
+            }
+            if (voucherVM.ApprovedById != null)
+            {
+                voucherVM.ApprovedByStatus = "ToBeApproved";
+            }
+            if (voucherVM.PaymentSource == PaymentSource.Cash.ToString() && voucherVM.CashMasterId == null)
+                throw new CustomException(Resources.SelectCash);
+            if (voucherVM.PaymentSource == PaymentSource.Bank.ToString() && voucherVM.BankMasterId == null)
+                throw new CustomException(Resources.SelectBank);
+            voucherVM.SourceType = SourceType.DirectorRemuneration.ToString();
+            if (voucherVM.DocRefNo == null)
+                voucherVM.DocRefNo = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + DateTime.Now.Day.ToString();
+            //if (voucherVM.DocDate == null)
+                voucherVM.DocDate = voucherVM.PostingDate;
+             
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceService.InsertDirectorRemunaretion(voucherVM, voucherDetailVMList, taxDetailVMList, tdsVMList, invoiceDetailChargesList, existingLoanList, machineMasterAssetSeviceDistributionList)) });
+              }
         [HttpPost, Authorize]
         public JsonResult InsertIncentiveReceivableInvoice(VoucherViewModel voucherVM, IEnumerable<IncentiveReceivableMap> incentiveReceivableMapList)
         {
@@ -506,10 +567,10 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult ReportVendorInvoice(ReportFormat reportFormat, string voucherId)
+        public ActionResult ReportVendorInvoice(ReportFormat reportFormat, string voucherId,string sourceType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = _invoiceReportService.GetVendorInvoiceReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+            var workbook = _invoiceReportService.GetVendorInvoiceReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, sourceType);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -522,6 +583,8 @@ namespace Aplos.Areas.Accounts.Controllers
                     return RenderReportAsExcel(workbook, reportFileName);
             }
         }
+
+
         [HttpGet, Authorize]
         public ActionResult ReportIncentiveReceivableInvoice(ReportFormat reportFormat, string voucherId)
         {

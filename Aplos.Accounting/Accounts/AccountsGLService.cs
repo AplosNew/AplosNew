@@ -1072,5 +1072,30 @@ where x.TrnType='"+ trnType + @"'
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+
+        public GridModel GetDirectorGLList(GridParameter parameters)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT CPGL.Id ControlId, BM.GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                            , CPGL.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, CPGL.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
+                            FROM MST.BudgetMasterActivity AS CPGL
+                            LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=CPGL.BudgetMasterId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=BM.GLGeneralInfoId
+                            LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
+							LEFT JOIN [HKP].[GLAccountType] CAT ON CAT.GLGeneralInfoId=GLGI.Id
+							LEFT JOIN [HKP].[AccountGroup] AG ON AG.Id=GLGI.AccountGroupId
+							LEFT JOIN [HKP].[AccountType] ACT ON ACT.Id=AG.AccountTypeId
+							WHERE ACT.Id='Liability' and cpgl.Active=1";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+            }
+        }
     }
 }

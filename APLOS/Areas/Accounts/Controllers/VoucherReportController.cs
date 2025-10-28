@@ -219,7 +219,7 @@ namespace Aplos.Areas.Accounts.Controllers
             // workbook = _bankReportService.GetBankJournalReport(out reportFileName, compnayGroupId, companyId, plantId, plantName, voucherId, SourceType.BankJournal);
             /*6*/
             if (sourceType.ToUpper() == SourceType.VendorInvoice.ToString().ToUpper())
-                workbook = _invoiceReportService.GetVendorInvoiceReport(out reportFileName, compnayGroupId, companyId, plantId, plantName, voucherId);
+                workbook = _invoiceReportService.GetVendorInvoiceReport(out reportFileName, compnayGroupId, companyId, plantId, plantName, voucherId, sourceType);
             /*7*/
             if (sourceType.ToUpper() == SourceType.CustomerInvoice.ToString().ToUpper())
                 workbook = _invoiceReportService.GetCustomerInvoiceReport(out reportFileName, compnayGroupId, companyId, plantId, plantName, voucherId);
