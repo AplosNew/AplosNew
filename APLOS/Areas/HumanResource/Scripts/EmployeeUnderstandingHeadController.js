@@ -58,7 +58,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     }
     $scope.activityNew = Object.assign({}, $scope.activity);
     $scope.documentActivity = {
-        Id: null, EmpUnderstandingActivityId: null, DocumentCategoryId: null, EmployeeId: null, DocumentPreprationFrequency: null, DocumentType: null, DocumentFormat: null, DocumentClass: null, DocumentCode: null, DocumentName: null, Remarks: null, Attachment: null, FileName: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, DocumentGeneration: null, PreparedBy: null
+        Id: null, EmpUnderstandingActivityId: null, DocumentCategoryId: null, EmployeeId: null, DocumentPreprationFrequency: null, DocumentType: null, DocumentFormat: null, DocumentClass: null, DocumentCode: null, DocumentName: null, Remarks: null, Attachment: null, FileName: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, DocumentGeneration: null, PreparedBy: null, DocNo: null, DocumentNo:null
     }
     $scope.documentActivityNew = Object.assign({}, $scope.documentActivity);
 
@@ -283,6 +283,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         try {
             $scope.Name = name;
             if ($scope.Name == 'mo') {
+                $scope.Clear();
                 $scope.employeeUrl = 'OrderManagements/masterorder/GetEmployeeListResponsible';
             } else {
                 $scope.employeeUrl = 'OrderManagements/masterorder/GetPreparedEmployeeList?employeeId=' + $window.employeeId
@@ -361,6 +362,9 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     $scope.GetDocument = function (args) {
         $scope.filedata = {};
         $scope.documentActivityNew = Object.assign({}, args.data);
+        let str = $scope.documentActivityNew.DocumentNo;
+        let afterLastHyphen = str.substring(str.lastIndexOf("-") + 1);
+        $scope.documentActivityNew.DocNo = afterLastHyphen;
         $scope.filedata.name = $scope.documentActivityNew.FileName;
         var filename = document.getElementById("uploadFile").value = $scope.documentActivityNew.FileName;
 
@@ -392,6 +396,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
 
     function ValidationActivity() {
         try {
+            CheckField($scope.activityNew.EmpUnderstandingHeadId, "First Save General Tab data");
             CheckField($scope.activityNew.ActivityName, "Activity");
             CheckField($scope.activityNew.ActivityDetail, "Activity Detail");
             CheckField($scope.activityNew.ActivityCategory, "Activity Category");
@@ -466,6 +471,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     $scope.savebtndisable = false;
     $scope.SaveActivity = function () {
         try {
+            $scope.activityNew.EmpUnderstandingHeadId = $scope.ModelNew.Id;
             ValidationActivity();
             $scope.savebtndisable = true;
             $http({
@@ -563,6 +569,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
 
     $scope.SaveDocument = function () {
         try {
+            $scope.documentActivityNew.DocumentNo = $scope.ModelNew.PCode + '-' + $scope.ModelNew.EmployeeCode +'-'+ $scope.documentActivityNew.DocNo;
             ValidationDocument();
             if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
                 throw $scope.filedata.name + ' File size must be below 2 mb';
@@ -678,6 +685,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     };
 
     $scope.Clear = function () {
+        $scope.ActivityList = [];
         ClearFields();
         return true;
     };

@@ -1,4 +1,28 @@
-﻿<!-- #region modal tbl -->
+﻿<div class="form-group" show-errors>
+    <label class="col-sm-4 control-label">Customer<sup>*</sup></label>
+    <div class="col-sm-8 show-message">
+        <div class="input-group">
+            <input type="text" name="Customer" ng-model="modelNew.CustomerName" class="form-control" readonly required>
+            <span class="input-group-btn">
+                <button ng-click="ShowCustomerPopUpNew();" ng-disabled="SelectedSalesOrderList.length>0" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="form-group">
+    <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+        <span class="input-group-addon">{{x.EmployeeId}}</span>
+        <input type="text" ng-model="x.EmployeeName" class="form-control" readonly>
+        <span class="input-group-btn">
+            <button ng-click="popUp('EmployeeInfo',$index)" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+            <button ng-click="clearEmployeeInfo()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+        </span>
+    </div>
+</div>
+
+<!-- #region modal tbl -->
 <modal-table modalid="popUpId"
              data-title={{popUpTitle}}
              data-search-parameters="popUpParameters"
