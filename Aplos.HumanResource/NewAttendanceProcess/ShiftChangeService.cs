@@ -567,6 +567,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                             dr["AddedDate"] = DateTime.Now.ToString();
                             dr["WorkDate"] = item.WorkDate;
                             dr["IsConfirmed"] = false;
+                            dr["ShiftId"] = item.ShiftId;
+                            dr["Lineno"] = item.Lineno;
+                            dr["SupervisorId"] = item.SupervisorId;
 
                             dsMaster.Tables[0].Rows.Add(dr);
                         }
@@ -588,6 +591,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                             dr["UpdatedBy"] = item.AddedBy;
                             dr["UpdatedDate"] = DateTime.Now.ToString();
                             dr["WorkDate"] = item.WorkDate;
+                            dr["ShiftId"] = item.ShiftId;
+                            dr["Lineno"] = item.Lineno;
+                            dr["SupervisorId"] = item.SupervisorId;
 
                             dr.EndEdit();
 
