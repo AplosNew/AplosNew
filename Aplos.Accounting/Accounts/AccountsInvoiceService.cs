@@ -1390,7 +1390,7 @@ namespace Library.Accounting.Accounts
 									) AS HC ON HC.VoucherDetailId=VD.Id 
                                         WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0  AND V.IsPark=0 AND IVD.IsBlock=0 
                                         --AND ISNULL(IV.PurchaseLCId,'')=''
-                                        AND IV.SourceType in ('" + SourceType.VendorInvoice + "','" + SourceType.PurchaseDocAcceptance + "','" + SourceType.SuspensePayable + "','" + SourceType.ServicePayable + "','" + SourceType.EmployeePayable + "','" + SourceType.PostInvoice + "','" + SourceType.InvoiceToAcceptance + @"')
+                                        AND IV.SourceType in ('" + SourceType.VendorInvoice + "','" + SourceType.DirectorRemuneration + "','" + SourceType.PurchaseDocAcceptance + "','" + SourceType.SuspensePayable + "','" + SourceType.ServicePayable + "','" + SourceType.EmployeePayable + "','" + SourceType.PostInvoice + "','" + SourceType.InvoiceToAcceptance + @"')
                                         AND IV.CompanyGroupId='" + companyGroupId + @"' AND IV.CompanyId='" + companyId + @"' AND IV.PartyId='" + partyId + @"' 
                                     UNION ALL
                                     SELECT IVD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, IVD.BudgetMasterId, B.UserName AS BudgetName, IVD.ActivityId, EN.UserName AS EntityName, A.UserName AS ActivityName,
