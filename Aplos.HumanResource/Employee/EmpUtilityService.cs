@@ -1110,6 +1110,9 @@ where SPC.EmpInfoSystemID = '" + EmpId+ "' and SPM.MonthNo = '" + Month+ "' and 
         public string Remarks { get; set; }
         public string WorkDate { get; set; }
         public string Id { get; set; }
+        public string ShiftId { get; set; }
+        public string Lineno { get; set; }
+        public string SupervisorId { get; set; }
     }
     
     public class AttdnManualData
