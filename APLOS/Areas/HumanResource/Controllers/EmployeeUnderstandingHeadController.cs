@@ -405,7 +405,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     dr["EmpUnderstandingActivityId"] = data.EmpUnderstandingActivityId;
                     dr["EmployeeId"] = data.EmployeeId;
                     dr["DocumentPreprationFrequency"] = data.DocumentPreprationFrequency;
-                    dr["DocumentType"] = data.DocumentType;
+                    dr["DocumentNo"] = data.DocumentNo;
                     dr["DocumentType"] = data.DocumentType;
                     dr["DocumentFormat"] = data.DocumentFormat;
                     dr["DocumentClass"] = data.DocumentClass;
@@ -436,6 +436,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     dr["EmpUnderstandingActivityId"] = data.EmpUnderstandingActivityId;
                     dr["DocumentPreprationFrequency"] = data.DocumentPreprationFrequency;
                     dr["DocumentType"] = data.DocumentType;
+                    dr["DocumentNo"] = data.DocumentNo;
                     dr["DocumentFormat"] = data.DocumentFormat;
                     dr["DocumentClass"] = data.DocumentClass;
                     dr["DocumentCode"] = data.DocumentCode;
@@ -568,6 +569,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         public string DocumentClass { get; set; }
         public string DocumentCode { get; set; }
         public string DocumentName { get; set; }
+        public string DocumentNo { get; set; }
         public string Remarks { get; set; }
         public string Attachment { get; set; }
         public string FileName { get; set; }
