@@ -301,6 +301,11 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             .then(function (response) {
                 $scope.brandList = response.data;
             });
+
+        $http.get("OrderManagements/MasterOrder/GetFirstAccountHolder?buyerId=" + $scope.fileNew.BuyerId)
+            .then(function (response) {
+                $scope.fileNew.ResponsiblePersonName = response.data[0].FirstAccountHolder; $scope.fileNew.ResponsiblePersonId = response.data[0].FirstAccountHolderId;
+            });
         cboService.getBuyerDivisionCboByBuyer($scope.fileNew.BuyerId, function (result) {
             $scope.divisionList = result;
             if ($scope.divisionList.length == 1) {
