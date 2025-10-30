@@ -655,6 +655,9 @@ namespace Library.HumanResource.NewAttendanceProcess
         public string FutureDayFlag { get; set; }
         public string PrevDayFlag { get; set; }
         public string SandwichFlag { get; set; }
+        public string ShiftId { get; set; }
+        public string Lineno { get; set; }
+        public string SupervisorId { get; set; }
     }
 
     public class RTx
