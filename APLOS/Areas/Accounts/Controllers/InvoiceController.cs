@@ -326,9 +326,11 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsInvoiceService.GetInvoiceGLBudgetActivityDetail(voucherId), JsonRequestBehavior.AllowGet);
         }
 
+
         [HttpGet, Authorize]
         public JsonResult GetInvoiceTaxDetail(string invoiceId)
         {
+
             AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
             return Json(_accountsInvoiceService.GetInvoiceTaxDetail(invoiceId), JsonRequestBehavior.AllowGet);
         }
