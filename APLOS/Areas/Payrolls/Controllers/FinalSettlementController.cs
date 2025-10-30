@@ -2211,7 +2211,7 @@ ORDER BY OL.Sequence";
             try
             {
 
-                DataSet dsMaster, dsID, dsEmpID = null;
+                DataSet dsMaster, dsID, dsEmpID, dsEmpTenure = null;
                 DataSet dsEmpMaster = null;
                 DataSet dsEmpSL = null;
                 DataSet dsEmpGW = null;
@@ -2416,6 +2416,35 @@ ORDER BY OL.Sequence";
 
                     foreach (var itm in itemdata)
                     {
+
+                        con.OpenDataSetThroughAdapter(@"SELECT FORMAT(ROUND(DATEDIFF(MONTH, E.DOJ, E.DOS) / 12.0, 1), '0.#') AS ServiceYears,PolicyYear= (P.TenureYear+'.'+P.TenureMonth)
+FROM dbo.EmployeeInformation E
+LEFT JOIN dbo.IndividualGratuityPolicy P ON P.EmployeeSystemId = E.SystemId
+AND P.Id = (SELECT top 1 Id FROM dbo.IndividualGratuityPolicy Where EmployeeSystemId = E.SystemId  Order By AddedDate Desc)
+Where E.SystemId = '" + itm["EmpSystemId"] + "'", out dsEmpTenure, false, "1");
+
+                        con.OpenDataSetThroughAdapter(@"select * from dbo.IndividualGratuityPolicy Where EmployeeSystemId= '" + itm["EmpSystemId"] + "'", out DataSet dsPolicy, false, "1");
+
+
+                        if (itm["UserName"].ToString() == "Gratuity")
+                        {
+                            if (dsPolicy.Tables[0].Rows.Count == 0)
+                            {
+                                itm["Value"] = 0;
+                                
+                            }
+                            else
+                            {
+                                if (dsEmpTenure.Tables[0].Rows.Count > 0 && Convert.ToDecimal(dsEmpTenure.Tables[0].Rows[0]["PolicyYear"].ToString()) > 0)
+                                {
+                                    if (Convert.ToDecimal(dsEmpTenure.Tables[0].Rows[0]["ServiceYears"].ToString()) < Convert.ToDecimal(dsEmpTenure.Tables[0].Rows[0]["PolicyYear"].ToString()))
+                                    {
+                                        itm["Value"] = 0;
+                                    }
+                                }
+                            }
+                        }
+
                         DataView dv = new DataView(dsEmpMaster.Tables[0]);
                         dv.RowFilter = "Id='" + itm["Id"] + "' AND EmployeeSeperationItemId = '" + itm["EmployeeSeperationItemId"] + "' AND EmpSystemId = '" + itm["EmpSystemId"] + "'";
 
@@ -2424,6 +2453,7 @@ ORDER BY OL.Sequence";
                             DataRow drmo = dv[0].Row;
 
                             drmo.BeginEdit();
+
 
                             drmo["UserName"] = itm["UserName"];
                             drmo["Value"] = itm["Value"];

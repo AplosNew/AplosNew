@@ -24,7 +24,10 @@ function BuyerMasterController(commonMessage, $scope, $rootScope, baseService, $
         RepeatOrderLeadTime: null,
         RepeatProductionLeadTime: null,
         NormalOrderLeadTime: null,
-        NormalProductionLeadTime: null
+        NormalProductionLeadTime: null,
+        FirstAccountHolderId: null,
+        SecondAccountHolderId: null
+
     };
     $scope.buyerMasterNew = Object.assign({}, $scope.buyerMaster);
 
@@ -45,6 +48,49 @@ function BuyerMasterController(commonMessage, $scope, $rootScope, baseService, $
         EmployeeFiveId: null,
         Active: true
     };
+
+    //#region Employee Search
+
+    $scope.empearch = "";
+    $scope.searchByEmp = "EmployeeCode"; $scope.search = "";
+    $scope.searchEmpByList = [{ value: 'SystemID', name: "SystemID" }, { value: 'EmployeeCode', name: "Employee Code" }, { value: 'EmployeeName', name: "EmployeeName" }];
+
+
+    $scope.employee = [];
+    $scope.name = null;
+    $scope.getEmpData = function (name) {
+        if (!baseService.isUndefinedOrNull(name)) {
+            $scope.name = name;
+        }
+        $scope.employee = [];
+        $scope.popUpEmpDataList = [];
+        $http({
+            method: 'POST',
+            url: 'QMS/QualityProcess/getemployeelist',
+            data: { column: $scope.searchByEmp, value: $scope.empearch, plantId: $window.plantId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.employee = response.data;
+            $scope.popUpEmpDataList = response.data;
+            angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
+
+        });
+    }
+
+    $scope.setEmpData = function (obj) {
+        if ($scope.name == "First") {
+            $scope.buyerMasterNew.FirstAccountHolderId = obj.data.SystemID;
+            $scope.buyerMasterNew.FirstAccountHolder = obj.data.EmployeeCode + "-" + obj.data.EmployeeName;
+        }
+        else {
+            $scope.buyerMasterNew.SecondAccountHolderId = obj.data.SystemID;
+            $scope.buyerMasterNew.SecondAccountHolder = obj.data.EmployeeCode + "-" + obj.data.EmployeeName;
+        }
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    };
+
+
+    //#endregion 
 
     // #region cbo
 
