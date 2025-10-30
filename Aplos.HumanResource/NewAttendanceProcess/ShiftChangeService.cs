@@ -688,6 +688,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr["BudgetCode"] = clsWebLib.RetValidLen(item.BudgetCode);
                                     dr["AddedBy"] = item.AddedBy;
                                     dr["AddedDate"] = DateTime.Now;
+                                    dr["ShiftId"] = item.ShiftId;
+                                    dr["Lineno"] = item.Lineno;
+                                    dr["SupervisorId"] = item.SupervisorId;
                                     dr["AddedFromIP"] = item.AddedFromIP;
                                     i++;
                                 }
@@ -704,6 +707,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr["AddedBy"] = item.AddedBy;
                                     dr["AddedDate"] = DateTime.Now;
                                     dr["AddedFromIP"] = item.AddedFromIP;
+                                    dr["ShiftId"] = item.ShiftId;
+                                    dr["Lineno"] = item.Lineno;
+                                    dr["SupervisorId"] = item.SupervisorId;
                                     i++;
                                 }
 
@@ -724,6 +730,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr["UpdatedBy"] = item.AddedBy;
                                     dr["UpdatedDate"] = DateTime.Now;
                                     dr["UpdatedFromIP"] = item.AddedFromIP;
+                                    dr["ShiftId"] = item.ShiftId;
+                                    dr["Lineno"] = item.Lineno;
+                                    dr["SupervisorId"] = item.SupervisorId;
                                     i++;
                                 }
                                 else
@@ -738,6 +747,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr["UpdatedBy"] = item.AddedBy;
                                     dr["UpdatedDate"] = DateTime.Now;
                                     dr["UpdatedFromIP"] = item.AddedFromIP;
+                                    dr["ShiftId"] = item.ShiftId;
+                                    dr["Lineno"] = item.Lineno;
+                                    dr["SupervisorId"] = item.SupervisorId;
                                     i++;
                                 }
 
