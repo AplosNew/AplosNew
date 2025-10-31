@@ -570,6 +570,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             dr["ShiftId"] = item.ShiftId;
                             dr["Lineno"] = item.Lineno;
                             dr["SupervisorId"] = item.SupervisorId;
+                            dr["EntityId"] = item.EntityId;
 
                             dsMaster.Tables[0].Rows.Add(dr);
                         }
@@ -594,6 +595,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             dr["ShiftId"] = item.ShiftId;
                             dr["Lineno"] = item.Lineno;
                             dr["SupervisorId"] = item.SupervisorId;
+                            dr["EntityId"] = item.EntityId;
 
                             dr.EndEdit();
 
@@ -691,6 +693,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr["ShiftId"] = item.ShiftId;
                                     dr["Lineno"] = item.Lineno;
                                     dr["SupervisorId"] = item.SupervisorId;
+                                    dr["EntityId"] = item.EntityId;
+
                                     dr["AddedFromIP"] = item.AddedFromIP;
                                     i++;
                                 }
@@ -710,6 +714,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr["ShiftId"] = item.ShiftId;
                                     dr["Lineno"] = item.Lineno;
                                     dr["SupervisorId"] = item.SupervisorId;
+                                    dr["EntityId"] = item.EntityId;
+
                                     i++;
                                 }
 
@@ -733,6 +739,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr["ShiftId"] = item.ShiftId;
                                     dr["Lineno"] = item.Lineno;
                                     dr["SupervisorId"] = item.SupervisorId;
+                                    dr["EntityId"] = item.EntityId;
+
                                     i++;
                                 }
                                 else
@@ -750,6 +758,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr["ShiftId"] = item.ShiftId;
                                     dr["Lineno"] = item.Lineno;
                                     dr["SupervisorId"] = item.SupervisorId;
+                                    dr["EntityId"] = item.EntityId;
+
                                     i++;
                                 }
 
