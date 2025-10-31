@@ -2602,6 +2602,21 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
             }
         }
 
+        public IEnumerable<object> GetFirstAccountHolder(string buyerId)
+        {
+            try
+            {
+                string sql = @"Select B.FirstAccountHolderId,FirstAccountHolder=(E.EmployeeCode+'-'+E.EmployeeName) from MST.BuyerMaster B
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=B.FirstAccountHolderId
+Where BuyerId='"+ buyerId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         //public IWorkbook GetMOSampleFile(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName)
         //{
         //    #region declare

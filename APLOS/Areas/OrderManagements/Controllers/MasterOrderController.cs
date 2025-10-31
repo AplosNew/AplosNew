@@ -156,6 +156,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetFirstAccountHolder(string buyerId)
+        {
+            return Json(MasterOrder.GetFirstAccountHolder(buyerId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetCostingSOFormulaData(string masterOrderItemId)
         {
             return Json(MasterOrder.GetCostingSOFormulaData(masterOrderItemId), JsonRequestBehavior.AllowGet);
