@@ -609,6 +609,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         public string Department { get; set; } = "";
         public string Designation { get; set; } = "";
         public string Entity { get; set; } = "";
+        public string EntityId { get; set; } = "";
         public string LTSystemID { get; set; } = "";
         public string LTSystemIDOriginal { get; set; } = "";
         public bool IsOD { get; set; } = false;
