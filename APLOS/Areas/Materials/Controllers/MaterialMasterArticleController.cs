@@ -277,7 +277,7 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult CreateArticleAlias(Dictionary<string, object> data)
+        public JsonResult CreateMOIArticleAlias(Dictionary<string, object> data)
         {
             try
             {
@@ -317,6 +317,49 @@ namespace Aplos.Areas.Materials.Controllers
 
             }
         }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateArticleAlias(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM ArticleAlias where ArticleId='" + data["ArticleId"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ArticleAlias", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Error = false, Id = _Id, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {

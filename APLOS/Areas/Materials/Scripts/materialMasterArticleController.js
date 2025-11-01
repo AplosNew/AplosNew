@@ -1,5 +1,5 @@
 ﻿'use strict';
-materialMasterArticleController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService', '$controller','$window'];
+materialMasterArticleController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService', '$controller', '$window'];
 function materialMasterArticleController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $controller, $window) {
     $rootScope.title = "Material Master Article";
     $scope.Action = 'Save';
@@ -180,7 +180,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         , OrderLevel: null
         , ProductionGroupingId: null
         , ProcessSetId: null
-        , IsDefaultProductionGrouping: false, IsDefaultProcessSet: false, CFT: 0, GrossWeight: 0, NetWeight:0
+        , IsDefaultProductionGrouping: false, IsDefaultProcessSet: false, CFT: 0, GrossWeight: 0, NetWeight: 0
     };
     $scope.articleNew = Object.assign({}, $scope.article);
 
@@ -923,7 +923,9 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             url: $scope.path + 'getArticleAliaslist?articleId=' + $scope.articleId
         }).then(function successCallback(response) {
             //  $scope.aliasList = response.data;
-            $scope.articleAlias = Object.assign({}, response.data[0]);
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.articleAlias = Object.assign({}, response.data[0]);
+            }
         });
     }
     $scope.articleAliasModel = {
