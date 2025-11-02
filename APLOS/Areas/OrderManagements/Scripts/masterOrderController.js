@@ -6640,7 +6640,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
             $http({
                 method: 'POST',
-                url: 'Materials/materialmasterarticle/CreateArticleAlias',
+                url: 'Materials/materialmasterarticle/CreateMOIArticleAlias',
                 data: { 'data': $scope.articleAlias },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
