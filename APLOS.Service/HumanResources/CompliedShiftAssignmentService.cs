@@ -1718,7 +1718,7 @@ namespace Library.Service.HumanResources
             return dicShift;
         }
 
-        private Dictionary<string, List<DataRow>> GetMonthlyDailyAttendancedec(string attdnType, ParaMontlyAttendance objm)
+        private Dictionary<string, List<DataRow>> _GetMonthlyDailyAttendancedec(string attdnType, ParaMontlyAttendance objm)
         {
             string strSql = @" SELECT A.* FROM
 	                                (SELECT E.systemId EmployeePK,E.FatherName,E.EmployeeCode, E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ,
@@ -1779,6 +1779,77 @@ namespace Library.Service.HumanResources
 
             return dicShift;
         }
+
+        private Dictionary<string, List<DataRow>> GetMonthlyDailyAttendancedec(string attdnType, ParaMontlyAttendance objm)
+        {
+            string strSql = @" SELECT A.* FROM
+	                                (SELECT E.systemId EmployeePK,E.FatherName,E.EmployeeCode, E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ,
+                                            LD.UserName Designation, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
+                                            S.UserName Section, SB.UserName SubSection, L.UserName Line,  REPLACE(CONVERT(VARCHAR(11), APD.WorkDate, 113), ' ', '-') PDate,
+                                              APD.DayStatus,DT.Category,
+											  ISNULL(Case when DT.Category = 'Late' then  'P' 
+											  when DT.Category = 'Present' and APD.DayStatus <> 'OD' then 'P' 
+											  else case when DT.Category = 'Present' and APD.DayStatus = 'OD' THEN  'OD' else APD.DayStatus END
+											  end,'') as Dstatus										 
+											   ,DATEPART(day,APD.WorkDate) AS D	
+											 , CS.Code ShiftCode
+											 	,Convert(Datetime,CONCAT(Format(APD.WorkDate,'dd-MMM-yyyy'),' ', CONVERT(VARCHAR(5), CS.InTime, 108))) ShiftInTime
+									--,Convert(Datetime,CONCAT(Format(APD.WorkDate,'dd-MMM-yyyy'),' ', CONVERT(VARCHAR(5), CS.OutTime, 108))) ShiftOutTime
+						
+									,Case When Convert(Datetime,CONCAT(Format(APD.WorkDate,'dd-MMM-yyyy'),' ', CONVERT(VARCHAR(5), CS.OutTime, 108))) < Convert(Datetime,CONCAT(Format(APD.WorkDate,'dd-MMM-yyyy'),' ', CONVERT(VARCHAR(5), CS.InTime, 108))) then DateAdd(day,1,Convert(Datetime,CONCAT(Format(APD.WorkDate,'dd-MMM-yyyy'),' ', CONVERT(VARCHAR(5), CS.OutTime, 108)))) Else Convert(Datetime,CONCAT(Format(APD.WorkDate,'dd-MMM-yyyy'),' ', CONVERT(VARCHAR(5), CS.OutTime, 108))) END ShiftOutTime
+								 --, CONVERT(VARCHAR(5), APD.InTime, 108) InTime,  CONVERT(VARCHAR(5), APD.OutTime, 108) OutTime,
+,FORMAT(APD.InTime, 'hh:mm tt') AS InTime
+								 ,FORMAT(
+        CASE 
+            WHEN DATEDIFF(HOUR, APD.InTime, APD.OutTime) >= 8 THEN DATEADD(HOUR, 8, APD.InTime)
+            ELSE APD.OutTime 
+        END, 
+        'hh:mm tt'
+    ) AS OutTime,
+                                             LT.UserName LvShortName, LT.Code LEAVE
+											, APD.WorkDate, DD.UserName GivenDesignation
+                                    FROM dbo.EmployeeInformation E
+ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                            LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity EN ON MB.EntityId=EN.Id
+                                                --INNER JOIN AttdnProcessFinalData AD ON E.SystemID = AD.EmpSystemID
+                                                INNER JOIN AttdnProcessData APD ON E.SystemID = APD.EmpSystemID --and APD.WorkDate = AD.WorkDate
+												left Join DayType DT oN DT.DayType = APD.DayStatus
+                                                LEFT JOIN dbo.LeaveType LT ON APD.LTSystemID = LT.Id												
+												 LEFT JOIN HKP.CompliedShift CS ON APD.ShiftSystemID = CS.Id
+                                                --LEFT JOIN dbo.LeaveType LT ON APD.LTSystemID = LT.Id
+                                                LEFT JOIN ORG.Unit U ON En.UnitID = U.Id
+                                                LEFT JOIN ORG.Division Dv ON pr.DivisionID = Dv.Id
+                                                LEFT JOIN ORG.Department Dp ON pr.DepartmentID = Dp.Id
+                                                LEFT JOIN ORG.Section S ON pr.SectionID = S.Id
+                                                LEFT JOIN ORG.SubSection SB ON pr.SubSectionID = SB.Id
+                                                LEFT JOIN ORG.Line L ON mb.LineID = L.Id
+                                                Left join HKP.LegalDesignation LD ON LD.Id = e.LegalDesignationId
+												LEFT JOIN HKP.Designation DD ON E.GivenDesignationId = DD.Id
+                                    WHERE APD.PlantID = '" + objm.PlantId + @"' AND APD.WorkDate BETWEEN '" + objm.FDate + @"' AND '" + objm.TDate + @"' --AND e.SystemId=1800001
+                                    AND (E.EmployeeStatus='Active' or E.dos>'" + objm.FDate + @"' or e.dos is null)  ";
+
+            strSql = strSql + @") A  order by A.EmployeeCode,A.WorkDate";
+            DataTable dt = _sqlRepository.GetDataTable(strSql);
+
+            Dictionary<string, List<DataRow>> dicShift = new Dictionary<string, List<DataRow>>();
+            List<DataRow> _data = new List<DataRow>();
+            string empId = "";
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                if (empId != dt.Rows[i]["EmployeePK"].ToString())
+                {
+                    _data = new List<DataRow>();
+                    dicShift.Add(dt.Rows[i]["EmployeePK"].ToString(), _data);
+                }
+                _data.Add(dt.Rows[i]);
+
+                empId = dt.Rows[i]["EmployeePK"].ToString();
+            }
+
+            return dicShift;
+        }
+
 
         private Dictionary<string, List<DataRow>> GetMonthlyLeaveDetail(ParaMontlyAttendance objm)
         {
