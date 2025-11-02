@@ -32,10 +32,9 @@
                                 <label class="col-sm-4 control-label">Transfer Type</label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select name="voucherType" ng-model="model.TransferType" class="col-sm-3 form-control">
+                                        <select name="voucherType" ng-model="model.TransferType" class="col-sm-3 form-control"  ng-change="changeTransferType(model.TransferType)">
                                             <option value="Permanent"> Permanent</option>
                                             <option value="Temporary">Temporary</option>
-
                                         </select>
                                     </div>
                                 </div>
@@ -60,8 +59,8 @@
                                 <label class="col-sm-4 control-label">Approved By</label>
                                 <div class="col-sm-8 ">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="model.ApprovedBy" name="PeriodList"
-                                                ng-options="item.Value as item.Text for item in PeriodList">
+                                        <select class="form-control" ng-model="model.ResponsiblePersonId" name="PeriodList"
+                                                ng-options="item.Id as item.Value for item in approvedByList">
                                             <option value="">--Select--</option>
                                         </select>
                                     </div>
@@ -84,7 +83,7 @@
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Days<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="Days" ng-model="model.Days" class="form-control" tabindex="4">
+                                    <input type="text" name="Days" ng-model="model.Days" class="form-control" tabindex="4" ng-disabled="isPermanentType">
 
                                 </div>
                             </div>
@@ -114,6 +113,7 @@
                             <div e-column e-field="Article" e-headertext="Article" e-width="100" ></div>
                             <div e-column e-field="ProductionMachineQty" e-headertext="ProductionMachineQty" e-width="80"></div>
                             <div e-column e-field="SampleMachineQty" e-headertext="SampleMachineQty" e-width="30"></div>
+                            <div e-column e-field="TransferedQty" e-headertext="TransferedQty" e-width="30"></div>
 
                             <div e-column e-headertext="TransferQty" e-template="#qty" e-textalign="center" e-width="80"></div>
 

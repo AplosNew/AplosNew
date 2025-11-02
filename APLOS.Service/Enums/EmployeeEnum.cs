@@ -248,6 +248,8 @@ namespace Library.Service.Enums
         [Description("Marker CheckedBy")]
         MarkerCheckedBy,
         [Description("Marker ApproveBy")]
-        MarkerApproveBy
+        MarkerApproveBy,
+        [Description("MachineTransfer ApproveBy")]
+        MachineTransferApproveBy
     }
 }

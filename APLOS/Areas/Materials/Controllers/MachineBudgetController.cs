@@ -584,14 +584,16 @@ namespace Aplos.Areas.Materials.Controllers
             try
             {
                 string strSQL = string.Empty;
-                strSQL = @"SELECT MB.*,MM.UserName Material,P.UserName Plant,ISNULL(E.UserName,'ALL') Entity,MMA.StandardName Article ,MMA.MaterialMasterId
+                strSQL = @"SELECT MB.*,MB.Id MachineBudgetId,MM.UserName Material,P.UserName Plant,ISNULL(E.UserName,'ALL') Entity,MMA.StandardName Article ,MMA.MaterialMasterId,MTC.TransferedQty
                             FROM [dbo].[MachineBudget] MB
                             LEFT JOIN ORG.Plant P ON P.Id=MB.PlantId
                             LEFT JOIN ORG.Entity E ON E.Id=MB.EntityId
                             LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
                             LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MB.ArticleId
                             LEFT JOIN MST.MaterialMaster  MM ON MM.Id=MMA.MaterialMasterId
-                            Where MB.EntityId='" + EntityId + "'";
+							LEFT JOIN (select MaterialMasterId,ArticleId,MachineBudgetId,SUM(Qty) TransferedQty from [dbo].[MachineTransferChild] Group By MachineBudgetId,MaterialMasterId,ArticleId ) MTC 
+                                ON MTC.MaterialMasterId=MM.Id AND MTC.ArticleId=MB.ArticleId AND MTC.MachineBudgetId=MB.Id
+                            WHERE MB.EntityId='" + EntityId + "'";
                 return Json(_sqlRepository.GetDataCollection(strSQL), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -622,7 +624,7 @@ namespace Aplos.Areas.Materials.Controllers
                     DataSet dsMaster;
                         DataSet dsChild;
                         ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                        con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[MachineTransferMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                        con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[MachineTransferMaster] WHERE PlantId='" + identity.PlantId + "' AND EntityId='"+data["EntityId"]+ "' AND ToEntityId='" + data["ToEntityId"] + "' AND TransferType='" + data["TransferType"] + "' AND Days='" + data["Days"] + "'", out dsMaster, false, "1");
                         con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[MachineTransferChild] WHERE MachineTransferMasterId='" + data["Id"] + "'", out dsChild, false, "1");
 
                         string _Id = "";
@@ -646,6 +648,7 @@ namespace Aplos.Areas.Materials.Controllers
                                 dr["MachineTransferMasterId"] = data["Id"];
                                 dr["MaterialMasterId"] = childData[i]["MaterialMasterId"];
                                 dr["ArticleId"] = childData[i]["ArticleId"];
+                                dr["MachineBudgetId"] = childData[i]["MachineBudgetId"];
                                 dr["AddedBy"] = identity.Name;
                                 dr["AddedDate"] = System.DateTime.Now.ToString();
                                 dr["AddedFromIP"] = identity.IPAddress;
@@ -658,9 +661,28 @@ namespace Aplos.Areas.Materials.Controllers
                     }
                     else
                         {
-                            _Id = data["Id"].ToString();
+                        data["Id"]  = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                             EditRow(dsMaster.Tables[0].Rows[0], data);
+                        for (int i = 0; i < childData.Count; i++)
+                        {
+                            dsChild.Tables[0].DefaultView.RowFilter = "MachineTransferMasterId='" + _Id + "'";
+                            if (dsChild.Tables[0].DefaultView.Count == 0)
+                            {
+                                DataRow dr = dsChild.Tables[0].NewRow();
+                                dr["MachineTransferMasterId"] = data["Id"];
+                                dr["MaterialMasterId"] = childData[i]["MaterialMasterId"];
+                                dr["MachineBudgetId"] = childData[i]["MachineBudgetId"];
+                                dr["ArticleId"] = childData[i]["ArticleId"];
+                                dr["AddedBy"] = identity.Name;
+                                dr["AddedDate"] = System.DateTime.Now.ToString();
+                                dr["AddedFromIP"] = identity.IPAddress;
+                                dr["ScanId"] = null;
+                                dr["Remarks"] = childData[i]["Remarks"];
+                                dr["Qty"] = Convert.ToDecimal(Convert.ToDecimal(childData[i]["Qty"]));// * Convert.ToDecimal(ToCurrencyRate)
+                                dsChild.Tables[0].Rows.Add(dr);
+                            }
                         }
+                    }
                         #endregion data update
 
                         clsStaticInfo _info = new clsStaticInfo();
