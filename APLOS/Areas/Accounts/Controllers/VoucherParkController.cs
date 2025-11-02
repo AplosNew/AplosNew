@@ -509,10 +509,10 @@ namespace Aplos.Areas.Accounts.Controllers
                     objCon1 = new ConnectionManager.DAL.ConManager("1");
                     objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
 
-                    if (dsMaster1.Tables[0].Rows.Count > 0)
-                    {
-                        throw new CustomException("Voucher Park Mode not allowed,  Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
-                    }
+                    //if (dsMaster1.Tables[0].Rows.Count > 0)
+                    //{
+                    //    throw new CustomException("Voucher Park Mode not allowed,  Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    //}
 
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     var invoiceSql = @"UPDATE TRN.FinancingSubsequentTransaction SET ISPark=1 WHERE VoucherId='" + voucherId + "'";

@@ -5,18 +5,18 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'materials/MachineBudget/';
-     
+
 
     $scope.model = {
-        EntityId :null,
+        EntityId: null,
         ToEntityId: null,
         TransferType: null,
-        ResponsiblePersonId:null,
-        ResponsiblePerson:null,
+        ResponsiblePersonId: null,
+        ResponsiblePerson: null,
         ApprovedBy: null,
         Days: null,
-        Remarks:null,
-        Id:null
+        Remarks: null,
+        Id: null
     }
 
     var show = document.getElementById("ShowForm");
@@ -42,7 +42,7 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
 
     };
     $scope.isSet = function (tabNum) {
-      
+
         return $scope.tab === tabNum;
     };
 
@@ -52,7 +52,7 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
 
         $http({
             method: 'POST',
-            url:'Productions/EmployeeOperations/GetEntity'
+            url: 'Productions/EmployeeOperations/GetEntity'
         }).then(function succ(resp) {
             $scope.EntityList = resp.data;
         });
@@ -69,7 +69,7 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
 
     $scope.getStartUp();
     //Getting the Process
-   
+
 
     //Getting the Responsible Persons
     $scope.getResponsiblePerson = function () {
@@ -77,15 +77,15 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
         $http({
             method: 'GET',
             url: 'Productions/EmployeeOperationsGetResp',
-            params: {'WKId' : $scope.workCenterId},
+            params: { 'WKId': $scope.workCenterId },
         }).then(function succ(resp) {
             if (resp.data.length > 0) {
                 $scope.model.ResponsiblePerson = resp.data[0].EmployeeName;
                 $scope.model.ResponsiblePersonId = resp.data[0].ResponsiblePersonId;
             }
             else {
-                $scope.responsiblePerson =null;
-                $scope.responsiblePersonId =null;
+                $scope.responsiblePerson = null;
+                $scope.responsiblePersonId = null;
             }
         });
     }
@@ -109,7 +109,7 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     };
 
-    
+
     //Getting the Responsible Person
     $scope.selectResp = function () {
         angular.element(document.querySelector('#employeesModal')).modal('show');
@@ -123,8 +123,7 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
 
     // Refreshing the serials
     function refreshSerial() {
-        for (var j = 0; j < $scope.ModelList.length ; j++)
-        {
+        for (var j = 0; j < $scope.ModelList.length; j++) {
             $scope.ModelList[j].Serial = j;
         }
     }
@@ -139,24 +138,24 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
         ob.EmployeeId = null;
         ob.PeriodId = e.PeriodId;
         ob.Qty = 0;
-       
+
         ob.Remarks = null;
         ob.isChanged = 0;
-        $scope.ModelList.splice(e.Serial+1, 0, ob);
+        $scope.ModelList.splice(e.Serial + 1, 0, ob);
         refreshSerial();
     }
-    
+
     //Getting All the Data For the Saving
     $scope.PrevAllList = [];
     $scope.getAllData = function () {
         $http({
             method: 'POST',
             url: $scope.path + 'GetMachineBudgetByFromEntity',
-            data: { 'EntityId': $scope.model.EntityId},
+            data: { 'EntityId': $scope.model.EntityId },
         }).then(function succ(resp) {
             $scope.ModelList = resp.data;
             for (var i = 0; i < $scope.ModelList.length; i++) {
-                Object.assign($scope.ModelList[i], {'Serial': parseInt(i) ,'isChanged': 0 , 'Remarks':null });
+                Object.assign($scope.ModelList[i], { 'Serial': parseInt(i), 'isChanged': 0, 'Remarks': null });
                 //$scope.refreshPage();
                 if ($scope.ModelList[i].Sequence in wipNos) {
                     continue;
@@ -175,7 +174,7 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
         gridObj.dataSource($scope.ModelList);
     }
 
-   // While Changing the Places
+    // While Changing the Places
     $scope.changeInData = function (e, col) {
         e.isChanged = 1;
     }
@@ -186,7 +185,7 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
 
         $scope.NewList = [];
 
-       /* $scope.checkWIP();*/
+        /* $scope.checkWIP();*/
         $scope.model.ApprovedBy = '1234';
         $scope.model.EntityId = $scope.model.EntityId;
         for (var i = 0; i < $scope.ModelList.length; i++) {
@@ -200,7 +199,7 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
             data: {
                 'data': $scope.model,
                 'childData': $scope.NewList
-                  },
+            },
         }).then(function succ(resp) {
 
             if (resp.data.Error === true) {
@@ -219,7 +218,7 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
             if ($scope.ModelList[i].Sequence == data.Sequence + 1) {
                 var NextoperationVariationId = $scope.ModelList[i].OperationId;
             }
-        } 
+        }
 
         $scope.NewList = [];
         for (var j = 0; j < $scope.ModelList.length; j++) {
@@ -227,7 +226,7 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
                 $scope.NewList.push($scope.ModelList[j]);
             }
         }
-        
+
         $scope.ModelList = $scope.PrevAllList;
 
         $http({
@@ -257,10 +256,29 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
     }
 
     //Clearing the grid
-    $scope.ClearGrid = function(){
+    $scope.ClearGrid = function () {
         $scope.ModelList = [];
     }
 
+    $scope.approvedByList = [];
+    $scope.getCboCheckedByList = function () {
+        cboService.getAuthorizationConfigCbo('MachineTransferApproveBy', function (result) {
+            $scope.approvedByList = result;
+            if ($scope.approvedByList.length == 1) {
+                $scope.model.ResponsiblePersonId = $scope.approvedByList[0].Id;
+            }
+        });
+    };
+    $scope.getCboCheckedByList();
+    $scope.isPermanentType = false;
+    $scope.changeTransferType = function (type) {
+        if (type == 'Permanent') {
+            $scope.isPermanentType = true;
+            $scope.model.Days = 0;
+        }
+        else
+        $scope.isPermanentType = false;
+    }
 
     // Download Button Functionality
     $scope.FromDate = null;
@@ -269,7 +287,7 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
         $http({
             method: 'POST',
             url: $scope.path + "getReportDownload",
-            data: { 'Date': $scope.Date, 'Wkc': $scope.workCenterId},
+            data: { 'Date': $scope.Date, 'Wkc': $scope.workCenterId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -288,7 +306,7 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
             method: 'POST',
             url: $scope.path + "getProcessDownload",
             data: {
-                'FromDate': $scope.FromDate , 'ToDate':$scope.ToDate,
+                'FromDate': $scope.FromDate, 'ToDate': $scope.ToDate,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -303,7 +321,7 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
         });
     }
 
-   $scope.getEmployeeWorkDurationReport = function () {
+    $scope.getEmployeeWorkDurationReport = function () {
         $http({
             method: 'POST',
             url: $scope.path + "getEmployeeWorkDurationReport",
@@ -322,5 +340,5 @@ function machineTransferController(cboService, commonMessage, $scope, $rootScope
             ShowResult(response.data.Message, 'failure');
         });
     }
-    
+
 }
