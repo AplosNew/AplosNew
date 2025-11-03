@@ -14,12 +14,6 @@ namespace Aplos.Areas.HumanResource.Controllers
 {
     public class HRReportMasterController : Controller
     {
-        
-        public ActionResult Aplos()
-        {
-            return View();
-        }
-
         private readonly SqlRepository _sqlRepository;
         #region Constructor
         public HRReportMasterController()
@@ -27,6 +21,12 @@ namespace Aplos.Areas.HumanResource.Controllers
             _sqlRepository = new SqlRepository();
         }
         #endregion Constructor
+
+        public ActionResult Aplos()
+        {
+            return View();
+        }
+
 
 
         public ActionResult GetMaster(string Id)
@@ -48,9 +48,9 @@ namespace Aplos.Areas.HumanResource.Controllers
             {
                 var sql = @"select isSelected=CAST (CASE WHEN UG.Id IS NULL THEN 0 ELSE 1 END AS bit), GM.Id UserGroupId, GM.UserGroup, GM.UserSubGroup, UG.Id, ug.HRReportMasterChildId, ug.Grade, ug.AddedBy, UG.AddedFromIP, UG.AddedDate, UG.UpdatedBy, UG.UpdatedFromIP, UG.UpdatedDate
                            from HKP.HRReportGroupMaster GM
-                            outer apply (select * from  [TRN].[HRReportMasterBudgetUserGroup] where UserGroupId=GM.Id AND  HRReportMasterChildId = '"+ id + @"') UG";
+                            outer apply (select * from  [TRN].[HRReportMasterBudgetUserGroup] where UserGroupId=GM.Id AND  HRReportMasterChildId = '" + id + @"') UG";
 
-                
+
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -64,7 +64,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                var sql = @"select Id Value, UserSubGroup Text from HKP.HRReportGroupMaster where Id = '"+ userId + "'";
+                var sql = @"select Id Value, UserSubGroup Text from HKP.HRReportGroupMaster where Id = '" + userId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -110,9 +110,9 @@ order by Sequence
             return Json(_sqlRepository.GetDataCollection(entityQry), JsonRequestBehavior.AllowGet);
         }
 
-        public  ActionResult ViewAllBudgetCode()
+        public ActionResult ViewAllBudgetCode()
         {
-          string  bgtQuery = @"select BGT.Id, E.UserName Entity, D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
+            string bgtQuery = @"select BGT.Id, E.UserName Entity, D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
                             , DSG.UserName Designation, A.UserName Activity,SDF.UserName [Shift], P.Code PositionCode
                             , P.UserName Position ,BGT.Code BudgetCode, BGT.Id ManpowerBudgetId 
                             from  MST.ManpowerBudget BGT 
@@ -152,7 +152,7 @@ order by Sequence
             //    whereClause = $"where BGT.EntityId = ({Entity}) or HMC.HRReportMasterId = '{id}'";
             //}
 
-            
+
 
             bgtQuery = @"select BGT.Id--, HMC.Active 
 , E.UserName Entity, D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
@@ -171,8 +171,8 @@ left join ORG.SubSection SS on P.SubSectionId = SS.Id
 left join ORG.Division DSN on P.DivisionId = DSN.Id
 left join HKP.Designation DSG ON P.DesignationId = DSG.Id
 --left join [TRN].[HRReportMasterChild] HMC on HMC.ManpowerBudgetId = BGT.Id
-where BGT.EntityId in ("+Entity+ @") and BGT.Active = 1 
---and BGT.Id not in(select ManpowerBudgetId from [TRN].[HRReportMasterChild] where HMC.HRReportMasterId = '"+id+@"')
+where BGT.EntityId in (" + Entity + @") and BGT.Active = 1 
+--and BGT.Id not in(select ManpowerBudgetId from [TRN].[HRReportMasterChild] where HMC.HRReportMasterId = '" + id + @"')
 ";
 
             return Json(_sqlRepository.GetDataCollection(bgtQuery), JsonRequestBehavior.AllowGet);
@@ -181,7 +181,7 @@ where BGT.EntityId in ("+Entity+ @") and BGT.Active = 1
         [HttpPost]
         public ActionResult GetAllSavedBudgetCode(string id)
         {
-           string bgtQuery = @"select HMC.Id ,E.UserName Entity, HMC.Active ,D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
+            string bgtQuery = @"select HMC.Id ,E.UserName Entity, HMC.Active ,D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
 , DSG.UserName Designation, A.UserName Activity,SDF.UserName [Shift], P.Code PositionCode
 , P.UserName Position ,BGT.Code BudgetCode, BGT.Id ManpowerBudgetId, isSelected = HMC.Active, HMC.Active
 from  [TRN].[HRReportMasterChild] HMC
@@ -197,17 +197,21 @@ left join ORG.Section S on P.SectionId = S.Id
 left join ORG.SubSection SS on P.SubSectionId = SS.Id
 left join ORG.Division DSN on P.DivisionId = DSN.Id
 left join HKP.Designation DSG ON P.DesignationId = DSG.Id
-where HMC.HRReportMasterId = '" + id+ @"' and HMC.Active = 1
+where HMC.HRReportMasterId = '" + id + @"' and HMC.Active = 1
 order by HMC.ManpowerBudgetId DESC";
 
             return Json(_sqlRepository.GetDataCollection(bgtQuery), JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult GetEmployee(string headerid)
+        public ActionResult GetEmployee(string column, string value, string headerid)
         {
             try
             {
-                var str = @"select ''Id, ei.SystemId, ei.EmployeeName, ei.EmployeeId , FORMAT(ei.DOJ, 'dd-MMM-yyyy') as DOJ, x.UserName as category,
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+
+                var str = @"select top 500 * from (select ''Id, ei.SystemId, ei.EmployeeName, ei.EmployeeId , FORMAT(ei.DOJ, 'dd-MMM-yyyy') as DOJ, x.UserName as category,
                             FORMAT(ei.DOB, 'dd-MMM-yyyy') as DOB ,ei.EmployeeCode, DP.UserName as Department ,
                             LDSG.StandardName as Designation, SC.UserName as Section,
                             SBC.UserName as SubSection --, isSelected=CAST (CASE WHEN HRP.Id IS NULL THEN 0 ELSE 1 END AS bit)
@@ -230,8 +234,11 @@ AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudget
                             left join ResidenceGroup RG on RG.Id = ei.ResidenceGroupId
                             left join TransportGroup TG on TG.Id = ei.TransportGroupId 
 							--left join TRN.HRReportMasterResponsiblePerson HRP on HRP.EmpSystemId = ei.SystemId
-                            where ei.EmployeeStatus = 'Active' and ei.SystemId not in (select EmpSystemId from TRN.HRReportMasterResponsiblePerson where HRReportMasterId = '" + headerid + "')";
-                return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+                            where ei.EmployeeStatus = 'Active' and ei.SystemId not in (select EmpSystemId from TRN.HRReportMasterResponsiblePerson where HRReportMasterId = '" + headerid + "')) AS TEMP WHERE " + strkey + " ORDER BY EmployeeCode";
+
+                var json = Json(_sqlRepository.GetDataCollection(str, null), JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
             }
             catch (Exception ex)
             {
@@ -282,14 +289,14 @@ AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudget
         {
             try
             {
-                
+
                 string TableName = "HKP.HRReportMaster";
                 DataSet dsMaster;
 
-               
+
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                
+
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + datas["Id"] + "'", out dsMaster, false, "1");
 
@@ -302,13 +309,13 @@ AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudget
                     genid.GenID(TableName, out _Id);
 
                     datas["Id"] = _Id;
-                   
+
                     AddNewRow(dsMaster.Tables[0], datas);
                 }
                 else
                 {
                     _Id = datas["Id"].ToString();
-                    
+
                     EditRow(dsMaster.Tables[0].Rows[0], datas);
                 }
                 #endregion data update
@@ -320,7 +327,7 @@ AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudget
             }
             catch (Exception ex)
             {
-               return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -410,15 +417,15 @@ AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudget
             ConnectionManager.DAL.ConManager objCon;
 
             DataSet dsMaster, dsChild;
-            
-            
+
+
             try
             {
 
                 string sql = "SELECT * FROM [TRN].[HRReportMasterChild] WHERE Id='" + chkBgtList["Id"] + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
                 string id = string.Empty;
 
@@ -426,34 +433,34 @@ AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudget
                 string _UserGroupId = string.Empty;
 
                 if (dsMaster.Tables[0].Rows.Count == 0)
-                    {
+                {
 
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableName, out _Id);
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
 
-                        chkBgtList["Id"] = _Id;
-                        chkBgtList["HRReportMasterId"] = headerId;
-                        chkBgtList["Active"] = chkBgtList["isSelected"];
+                    chkBgtList["Id"] = _Id;
+                    chkBgtList["HRReportMasterId"] = headerId;
+                    chkBgtList["Active"] = chkBgtList["isSelected"];
 
 
-                        AddNewRow(dsMaster.Tables[0], chkBgtList);
+                    AddNewRow(dsMaster.Tables[0], chkBgtList);
 
-                    }
+                }
                 else
                 {
                     chkBgtList["Active"] = 0;
                     EditRow(dsMaster.Tables[0].Rows[0], chkBgtList);
                 }
-               
+
                 contId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-                
+
 
                 objCon.OpenDataSetThroughAdapter("select * from TRN.HRReportMasterBudgetUserGroup  where HRReportMasterChildId = '" + contId + "'", out dsChild, false, "1");
                 foreach (var item in usergroup)
                 {
                     DataView dv = new DataView(dsChild.Tables[0]);
-                    
+
                     dv.RowFilter = "Id='" + item["Id"] + "'";
                     if (dv.Count > 0)
                     {
@@ -469,7 +476,7 @@ AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudget
 
                     }
                     else
-                    {                      
+                    {
                         DataRow dr = dsChild.Tables[0].NewRow();
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("TRN.HRReportMasterBudgetUserGroup", out _UserGroupId);
@@ -488,7 +495,7 @@ AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudget
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsChild);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -500,7 +507,7 @@ AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudget
         {
             try
             {
-               SaveData(chkBgtList, headerId, out string contractId, usergroup);
+                SaveData(chkBgtList, headerId, out string contractId, usergroup);
 
 
                 return Json(new { Id = contractId, Message = AplosMessage.Insert });
@@ -512,7 +519,7 @@ AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudget
 
         }
 
-        public ActionResult DeleteBudgetCode(List<Dictionary<string,object>> groupId , string bgtId)
+        public ActionResult DeleteBudgetCode(List<Dictionary<string, object>> groupId, string bgtId)
         {
             try
             {
@@ -526,7 +533,7 @@ AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudget
                         userGroupId = "'" + item["Id"] + "'";
                     else
                         userGroupId = userGroupId + ",'" + item["Id"] + "'";
-                    
+
                 }
 
                 if (string.IsNullOrEmpty(userGroupId))
@@ -574,7 +581,7 @@ AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudget
                     {
 
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        
+
 
                         DataRow dr = dv[0].Row;
                         dr.BeginEdit();
@@ -616,7 +623,7 @@ AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudget
             }
         }
 
-        
+
 
         #region 2nd Tab
 
@@ -665,13 +672,13 @@ AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudget
                     genid.GenID(TableName, out _Id);
 
                     datas["Id"] = _Id;
-                   
+
                     AddNewRow(dsMaster.Tables[0], datas);
                 }
                 else
                 {
                     _Id = datas["Id"].ToString();
-                    
+
                     EditRow(dsMaster.Tables[0].Rows[0], datas);
                 }
                 #endregion data update
@@ -710,7 +717,7 @@ AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudget
             }
         }
 
-        public JsonResult DeleteResponsiblePerson(List<Dictionary<string,object>> data)
+        public JsonResult DeleteResponsiblePerson(List<Dictionary<string, object>> data)
         {
             try
             {
@@ -745,5 +752,5 @@ AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudget
 
     }
 
- 
+
 }

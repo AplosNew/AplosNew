@@ -895,6 +895,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     //    }
     //};
 
+    //PTD.[Sequence]='3' AND PT.Active=1 AND PT.Archive=0 AND PT.IsCustomer=1
     $scope.paymentTermList = [];
     $http({
         method: 'GET',

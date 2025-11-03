@@ -522,12 +522,18 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     }
     // #region Responsible person Tab
 
+
+    $scope.empearch = "";
+    $scope.searchByEmp = "EmployeeCode"; $scope.search = "";
+    $scope.searchEmpByList = [{ value: 'SystemID', name: "SystemID" }, { value: 'EmployeeCode', name: "Employee Code" }, { value: 'EmployeeName', name: "EmployeeName" }];
+
+
     $scope.EmployeeList = [];
     $scope.getEmployee = function (headerId) {
         $http({
             method: 'POST',
             url: $scope.path + "getEmployee",
-            data: { 'headerid': headerId},
+            data: { column: $scope.searchByEmp, value: $scope.empearch, 'headerid': headerId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.EmployeeList = response.data;
