@@ -1671,9 +1671,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,ISNULL(IR.DocRefNo,'') DocRefNo ,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
 					,p.UserName AS PartyName ,IR.PartyId ,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
 					,IR.DeliveryPartyPlantId,PPD.UserName DeliveryPartyPlant
-					,'' MaterialType ,'' AS MaterialGroupMasterName
-					,'' MaterialMasterId ,SM.UserName MaterialMasterName
-					,'' ArticleName , '' FirstCharacteristicsValue , '' SecondCharacteristicsValue , '' ThirdCharacteristicsValue ,'' UOM
+					,'Service' MaterialType ,'Service' AS MaterialGroupMasterName
+					,'Service' MaterialMasterId ,SM.UserName MaterialMasterName
+					,'Service' ArticleName , '' FirstCharacteristicsValue , '' SecondCharacteristicsValue , '' ThirdCharacteristicsValue ,'' UOM
 					,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
 					,0 TransactionQty,0 ReceiptQty,0 RejectionQty
 					,0 BalanceQty,0 Tolerance ,0 TransactionRate ,IM.Amount TransactionAmount

@@ -601,7 +601,7 @@ namespace Aplos.Areas.Products.Controllers
         #endregion
         #region Issue Return
         [Authorize, HttpGet]
-        public JsonResult IssueSlipMaterialAndArticleList(string fromDate, string toDate, string CostCenterId, string MaterialStorageId)
+        public JsonResult IssueSlipMaterialAndArticleList(string fromDate, string toDate, string CostCenterId, string MaterialStorageId,string IssueType)
         {
             string paramter = "";
             try
