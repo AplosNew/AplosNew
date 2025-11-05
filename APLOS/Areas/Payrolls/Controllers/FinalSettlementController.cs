@@ -2539,7 +2539,7 @@ Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.
 LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
 left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 AND VD.AccountsGroupId=SL.AccountsGroupId 
 WHERE  spc.EmpInfoSystemID IN (" + empIds + @") AND sh.HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0))
-AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastBonusDisbursed,0)=0 AND ISNULL(sl.IsBonusDisbursed,0) = 0";
+AND PayableVoucherId<>'' AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastBonusDisbursed,0)=0 AND ISNULL(IsBonusDisbursed,0) = 0";
                 con.OpenDataSetThroughAdapter(elockBNsql, out dsEmpBN, false, "1");
 
 

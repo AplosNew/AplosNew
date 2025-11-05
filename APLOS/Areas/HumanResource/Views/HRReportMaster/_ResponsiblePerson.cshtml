@@ -1,30 +1,45 @@
-﻿<div class="modal fade site-modal in" id="EmployeePop" role="dialog" data-backdrop="static">
+﻿
+<div class="modal fade site-modal in" id="EmployeePop" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">Employee Detail <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-
-                <div class="content-container-fluid" style="color:black;overflow:scroll">
-                    <div class="form-elements form-horizontal">
-                        <p>Please Select Employee Detail .</p>
-                        <div class="row">
-
-                            <div style="color:black;" id="GridEmployee" ej-grid e-datasource="EmployeeList" e-recorddoubleclick="selectEmpDetail"
-                                 e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
-                                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
-                                <div e-columns>
-                                    <div e-column e-headertext="Check / Uncheck" e-template="#checkboxRPTemplate" e-textalign="center" e-width="100"></div>
-
-                                    <div e-column e-field="SystemId" e-headertext="System Id" e-width="100"></div>
-
-                                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
-                                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
-                                    <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
-
-                                    <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
-                                    <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
-                                    <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+            <div class="modal-header">Employee List<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="searchByEmp">
+                                        <option ng-repeat="option in searchEmpByList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
                                 </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="empearch" ng-enter="getEmployee()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="getEmployee()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12" style="color:black;">
+                        <div id="GridEmployee" ej-grid e-datasource="EmployeeList" e-recorddoubleclick="selectEmpDetail"
+                             e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-templaterefresh="refreshTemplatebudget"
+                             e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound"
+                             e-allowscrolling="true" e-minwidth="450" e-minheight="400" e-allowselection="false" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-headertext="Check / Uncheck" e-template="#checkboxRPTemplate" e-textalign="center" e-width="100"></div>
+
+                                <div e-column e-field="SystemId" e-headertext="System Id" e-width="100"></div>
+
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
+                                <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
+
+                                <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
                             </div>
                             <script type="text/template" id="checkboxRPTemplate">
                                 <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
@@ -35,22 +50,17 @@
 
                             </script>
 
-                            <div class="common-btn">
-                                <ul class="list-inline text-right">
-                                    <li> <button ng-click="Save_One_or_MultipleResPers();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionC}}</button></li>
-                                    @*<li> <button ng-click="UpdateSavedBudgetCode();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>*@
-
-                                </ul>
-
-                            </div>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="Save_One_or_MultipleResPers();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionC}}</button></li>
+                            </ul>
                         </div>
 
                     </div>
                 </div>
 
             </div>
-
         </div>
     </div>
 </div>
-
