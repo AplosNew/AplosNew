@@ -1,411 +1,397 @@
 ﻿<div>
-	<input type="text" value="Inventory" id="SlipAssetIssueUI" ng-hide="true" />
+    <input type="text" value="Inventory" id="SlipAssetIssueUI" ng-hide="true" />
 </div>
 
 
 
 <togglable name="Material Issue Return"></togglable>
 <div class="form-elements form-horizontal row" ng-form="productNewForm">
-	<fieldset class="scheduler-border">
-		<legend class="scheduler-border">Search Article For Issue Return</legend>
-		<div class="col-xs-12 col-sm-12 col-md-12">
-			<div class="form-group" show-errors>
-				<label class="col-sm-2 control-label">From Date<sup>*</sup></label>
-				<div class="col-sm-4 show-message">
-					<input type="text" name="From Date" ng-model="productNew.FromDate1" datepicker class="form-control" required tabindex="1">
-				</div>
-				<label class="col-sm-2 control-label">To Date<sup>*</sup></label>
-				<div class="col-sm-4 show-message">
-					<input type="text" name="To Date" ng-model="productNew.ToDate" datepicker class="form-control" required tabindex="2">
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border">Search Article For Issue Return</legend>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="From Date" ng-model="productNew.FromDate1" datepicker class="form-control" required tabindex="1">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Cost Center<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="Cost Center" ng-model="productNew.CostCenterId" ng-options="item.Value as item.Text for item in costCenterList" required></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="To Date" ng-model="productNew.ToDate" datepicker class="form-control" required tabindex="2">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Issue Type<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="paymentTermId" class="form-control" name="IssueType" ng-model="productNew.IssueType" tabindex="12" required>
+                            <option value="NormalIssue">NormalIssue </option>
+                            <option value="BOQIssue">BOQIssue</option>
+                        </select>
+                    </div>
+                </div>
 
-				</div>				
-			</div>
+                </div>
+            </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Storage Location</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select name="Storage" ng-model="productNew.MaterialStorageId" class="form-control" ng-options="item.Value as item.Text for item in storageList" tabindex="1" ng-disabled="detailList.length>0">
+                            <option value=""></option>
+                        </select>
 
-		</div>
-		<div class="clearfix"></div>
-		@*<div class="col-xs-6 col-sm-6 col-md-6">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group div_Cost_Center">
+                <label class="col-sm-4 control-label">View</label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <span class="input-group-btn">
+                            <button name="submit" ng-disabled="productNew.FromDate ='null' && productNew.ToDate ==='null'" ng-click="POPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+                
+            </div>
+            
+        </div>
+    </fieldset>
+    <div class="modal fade site-modal in" id="POPopUp1" role="dialog" data-backdrop="static">
+        <div class="modal-dialog" style="width:1200px;">
+            <div class="modal-content">
+                <div class="modal-header">Search Article<button type="button" class="close" ng-click="POPopUp();">@*&times;*@</button></div>
+                <div class="modal-body form-elements form-horizontal">
+                    <div class="col-lg-12">
+                        <div class="content-container-fluid" style="color:black;">
+                            <div style="color:black;" id="GridTest" ej-grid e-datasource="GetArticleList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                                 @*e-recorddoubleclick="recorddoubleclickloadArticleDetails"*@ e-filtersettings-filterType="excel"
+                                 e-enabletouch="true" e-allowselection="true"
+                                 e-scrollsettings="scroll">
+                                <div e-columns>
+                                    <div e-column e-template="#chkbox1" e-headertext="" e-width="20" textAlign='center'></div>
 
-			<div class="form-group" show-errors>
-				<label class="col-sm-4 control-label"><span style="color:maroon;font-weight:bold;">Search Slip No:<sup>*</sup></span></label>
-				<div class="col-sm-8 show-message">
-					<div class="input-group">
-						<input type="text" name="IssueSlipNo" ng-model="issueId" class="form-control" readonly required>
-						<input type="text" ng-hide="POId1==null" name="Vendor1" ng-model="POId1" class="form-control">
-						<span class="input-group-btn">
-							<button name="submit" ng-disabled="inventoryMaterialList.length>0" ng-click="POPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-						</span>
-					</div>
-				</div>
-
-			</div>
-		</div>*@
-
-
-
-		<div class="col-xs-12 col-sm-12 col-md-12">
-
-			<div class="form-group" show-errors>
-				<label class="col-sm-2 col-md-2 control-label">Storage Location</label>
-				<div class="col-sm-4 show-message">
-					<div class="select-style">
-						<select name="Storage" ng-model="productNew.MaterialStorageId" class="form-control" ng-options="item.Value as item.Text for item in storageList" tabindex="1" ng-disabled="detailList.length>0">
-							<option value=""></option>
-						</select>
-
-					</div>
-
-				</div>
-
-				<div class="form-group div_Cost_Center">
-					<label class="col-sm-2 control-label">Cost Center<sup>*</sup></label>
-					<div class="col-sm-3 show-message">
-						<div class="select-style">
-							<select class="form-control" name="Cost Center" ng-model="productNew.CostCenterId" ng-options="item.Value as item.Text for item in costCenterList" required></select>
-						</div>
-					</div>
-					<div class="input-group">
-						<span class="input-group-btn">
-							<button name="submit" ng-disabled="productNew.FromDate ='null' && productNew.ToDate ==='null'" ng-click="POPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-						</span>
-					</div>
-				</div>
-
-			</div>
-
-			@*<div class="form-group" show-errors>
-				<label class="col-sm-4 control-label">Slip Date<sup></sup></label>
-				<div class="col-sm-8 show-message">
-					<div class="form-group">
-						<div class="col-sm-8 show-message">
-							<input type="text" name="PoDate" ng-model="isuuedate" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3" readonly>
-						</div>
-					</div>
-				</div>
-			</div>*@
-		</div>
-	</fieldset>
-	<div class="modal fade site-modal in" id="POPopUp1" role="dialog" data-backdrop="static">
-		<div class="modal-dialog" style="width:1200px;">
-			<div class="modal-content">
-				<div class="modal-header">Search Article<button type="button" class="close" ng-click="POPopUp();">@*&times;*@</button></div>
-				<div class="modal-body form-elements form-horizontal">
-					<div class="col-lg-12">
-						<div class="content-container-fluid" style="color:black;">
-							<div style="color:black;" id="GridTest" ej-grid e-datasource="GetArticleList"
-								 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
-								 @*e-recorddoubleclick="recorddoubleclickloadArticleDetails"*@ e-filtersettings-filterType="excel"
-								 e-enabletouch="true" e-allowselection="true"
-								 e-scrollsettings="scroll">
-								<div e-columns>
-									<div e-column e-template="#chkbox1" e-headertext="" e-width="20" textAlign='center'></div>
-
-									@*<div e-column e-field="CostCenterName" e-headertext="Cost Center" e-width="50"></div>*@
-									<div e-column e-field="MaterialType" e-headertext="Material Type" e-width="50"></div>
-									<div e-column e-field="MaterialGroupMasterName" e-headertext="Material Group" e-width="50"></div>
-									<div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="50"></div>
-									<div e-column e-field="ArticleName" e-headertext="Article" e-width="50"></div>
-									<div e-column e-field="FirstCharacteristicsValue" e-headertext="Sku1" e-width="50"></div>
-									<div e-column e-field="SecondCharacteristicsValue" e-headertext="Sku2" e-width="50"></div>
-									<div e-column e-field="ThirdCharacteristicsValue" e-headertext="Sku3" e-width="50"></div>
-									@*<div e-column e-field="ArticleType" e-headertext="ArticleType" e-width="50"></div>*@
-
-									
-								</div>
-
-							</div>
-
-						</div>
-
-						<script type="text/template" id="chkbox1">
-							<input type="checkbox" e-change="$parent.getTaxCategoryList1" e-value="data.Active" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
-						</script>
-
-					</div>
-					<div class="clearfix"></div>
-					<div class="common-btn">
-						<ul class="list-inline text-right">
-							<li><button ng-click="recorddoubleclickloadArticleDetails();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Select</button></li>
-							<li><button ng-click="CloseArticlePopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
-						</ul>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+                                    @*<div e-column e-field="CostCenterName" e-headertext="Cost Center" e-width="50"></div>*@
+                                    <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="50"></div>
+                                    <div e-column e-field="MaterialGroupMasterName" e-headertext="Material Group" e-width="50"></div>
+                                    <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="50"></div>
+                                    <div e-column e-field="ArticleName" e-headertext="Article" e-width="50"></div>
+                                    <div e-column e-field="FirstCharacteristicsValue" e-headertext="Sku1" e-width="50"></div>
+                                    <div e-column e-field="SecondCharacteristicsValue" e-headertext="Sku2" e-width="50"></div>
+                                    <div e-column e-field="ThirdCharacteristicsValue" e-headertext="Sku3" e-width="50"></div>
+                                    @*<div e-column e-field="ArticleType" e-headertext="ArticleType" e-width="50"></div>*@
 
 
-	<div class="col-xs-6 col-sm-6-md-6">
-		@*<div class="form-group" show-errors>
-				<label class="col-sm-4 col-md-4 control-label">Storage Location<sup>*</sup></label>
-				<div class="col-sm-8 show-message">
-					<div class="select-style">
-						<select name="Storage" ng-model="productNew.MaterialStorageId" class="form-control" ng-options="item.Value as item.Text for item in storageList" tabindex="1" required ng-disabled="detailList.length>0">
-							<option value=""></option>
-						</select>
-					</div>
-				</div>
-			</div>*@
-		<div class="form-group" show-errors>
-			<label class="col-sm-4 control-label">Issue Return Date<sup>*</sup></label>
-			<div class="col-sm-8 show-message">
-				<input type="text" name="Issue Date" ng-model="productNew.IssueDate" datepicker end-date="currentDate" class="form-control" placeholder="dd-mmm-yyyy" required tabindex="2">
-			</div>
-		</div>
-		@*<div class="form-group" show-errors>
-				<label class="col-sm-4 control-label">Issue Type<sup>*</sup></label>
-				<div class="col-sm-8 show-message">
-					<div class="select-style">
-						<select id="paymentTermId" class="form-control" name="Requisition Type" ng-change="changeType(productNew.IssueType)" ng-model="productNew.IssueType" tabindex="12" required>
-							<option value="Capital">Capital </option>
-							<option value="Revenue">Revenue</option>
-						</select>
-					</div>
-				</div>
-			</div>*@
-		<div class="form-group" show-errors>
-			<label class="col-sm-4 control-label">Remarks</label>
-			<div class="col-sm-8">
-				<textarea type="text" name="remarks" class="form-control" maxlength="250" rows="2" ng-model="productNew.Remarks" tabindex="4" capitalize></textarea>
-			</div>
-		</div>
-		@*<div class="form-group" id="div_docNo1">
-				<label class="col-sm-4 control-label">Order Ref No<sup></sup></label>
-				<div class="col-sm-8 show-message">
-					<input type="text" name="Order Ref No" ng-model="productNew.OrderRefNo" class="form-control" maxlength="300" tabindex="2" autocomplete="on">
-				</div>
-			</div>*@
-	</div>
-	<div class="col-xs-6 col-sm-6-md-6">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <script type="text/template" id="chkbox1">
+                            <input type="checkbox" e-change="$parent.getTaxCategoryList1" e-value="data.Active" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
+                        </script>
+
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li><button ng-click="recorddoubleclickloadArticleDetails();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Select</button></li>
+                            <li><button ng-click="CloseArticlePopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
-		<div class="form-group" show-errors>
-			<label class="col-sm-4 control-label">Issue Return Id</label>
-			<div class="col-sm-8 show-message">
-				<input type="text" ng-model="productNew.Id" disabled class="form-control text-left" />
-			</div>
-		</div>
+    <div class="col-xs-6 col-sm-6-md-6">
+        @*<div class="form-group" show-errors>
+                <label class="col-sm-4 col-md-4 control-label">Storage Location<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select name="Storage" ng-model="productNew.MaterialStorageId" class="form-control" ng-options="item.Value as item.Text for item in storageList" tabindex="1" required ng-disabled="detailList.length>0">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>*@
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Issue Return Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Issue Date" ng-model="productNew.IssueDate" datepicker end-date="currentDate" class="form-control" placeholder="dd-mmm-yyyy" required tabindex="2">
+            </div>
+        </div>
+        @*<div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Issue Type<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="paymentTermId" class="form-control" name="Requisition Type" ng-change="changeType(productNew.IssueType)" ng-model="productNew.IssueType" tabindex="12" required>
+                            <option value="Capital">Capital </option>
+                            <option value="Revenue">Revenue</option>
+                        </select>
+                    </div>
+                </div>
+            </div>*@
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea type="text" name="remarks" class="form-control" maxlength="250" rows="2" ng-model="productNew.Remarks" tabindex="4" capitalize></textarea>
+            </div>
+        </div>
+        @*<div class="form-group" id="div_docNo1">
+                <label class="col-sm-4 control-label">Order Ref No<sup></sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Order Ref No" ng-model="productNew.OrderRefNo" class="form-control" maxlength="300" tabindex="2" autocomplete="on">
+                </div>
+            </div>*@
+    </div>
+    <div class="col-xs-6 col-sm-6-md-6">
 
 
-	</div>
-	<div class="col-xs-6 col-sm-6-md-6">
-		@*<div class="form-group" show-errors>
-				<label class="col-sm-4 control-label">Entity<sup>*</sup></label>
-				<div class="col-sm-8 show-message">
-					<div class="select-style">
-						<select id="paymentTermId" ng-disabled="detailModel.CostCenterId!=null" class="form-control" name="Entity" ng-model="productNew.EntityId" tabindex="1" required>
-							<option ng-repeat="option in EntityList" value="{{option.Value}}">{{option.Text}}</option>
-
-						</select>
-					</div>
-				</div>
-			</div>*@
-	</div>
-	@*<div class="col-xs-6 col-sm-6-md-6">
-			<div class="form-group" show-errors>
-				<label class="col-sm-4 control-label">Employee<sup>*</sup></label>
-				<div class="col-sm-8 show-message">
-					<div class="input-group">
-						<input type="text" name="EmployeeName" ng-model="productNew.EmployeeName" class="form-control" readonly required>
-						<span class="input-group-btn">
-							<button ng-click="showEmployeeListPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-							<button ng-click="clearEmployee()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-						</span>
-					</div>
-				</div>
-			</div>
-		</div>*@
-	<div class="clearfix"></div>
-	@*<div class="col-xs-12 col-sm-6 col-md-6">
-			<ul class="common-btn list-inline text-left">
-				<li><button ng-click="detailPopUp();" class="btn" ng-disabled="productNew.Id!=null">Issue Material</button></li>
-			</ul>
-		</div>*@
-
-	<div class="col-xs-12 col-sm-6 col-md-6">
-		@*<ul class="common-btn list-inline text-left">
-				<li><button ng-click="ViewSlipDetail();" class="btn">View Issue slip Detail</button></li>
-			</ul>*@
-	</div>
-	<div class="col-xs-12 col-sm-6 col-md-6">
-		<ul class="common-btn list-inline text-right">
-			<li><button ng-click="SaveSlipIssue();" class="btn" ng-disabled=""><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-			<li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-		</ul>
-	</div>
-	<div class="clearfix"></div>
-	<div class="table-responsive modal-table col-md-12">
-		@*<table class="table table-striped">
-			<thead>
-				<tr>
-					<th>Chk</th>
-					<th>Cost Center</th>
-					<th>GRN Row Id</th>
-					<th>Material</th>
-					<th>ArticleName</th>
-					<th>SKU1</th>
-					<th>SKU2</th>
-					<th>SKU3</th>
-					<th>UOM</th>
-					<th>Issued Qty</th>
-					<th>Other Issued Qty</th>
-					<th>Current Return Qty</th>
-					<th>Balance Qty</th>
-					<td>IssuedId</td>
-					<td>IssueDate</td>
-					<td>IssueRequestDetailId</td>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Issue Return Id</label>
+            <div class="col-sm-8 show-message">
+                <input type="text" ng-model="productNew.Id" disabled class="form-control text-left" />
+            </div>
+        </div>
 
 
-				</tr>
-			</thead>
-			<tbody>
-				<tr ng-repeat="x in detailListForArticle">
-					<td>
-						<div class="checkbox-site">
-							<label>
-								<input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.check">
-								<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-							</label>
-						</div>
-					</td>
-					<td>
-						{{x.CostCenterName}}
+    </div>
+    <div class="col-xs-6 col-sm-6-md-6">
+        @*<div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="paymentTermId" ng-disabled="detailModel.CostCenterId!=null" class="form-control" name="Entity" ng-model="productNew.EntityId" tabindex="1" required>
+                            <option ng-repeat="option in EntityList" value="{{option.Value}}">{{option.Text}}</option>
 
-					</td>
+                        </select>
+                    </div>
+                </div>
+            </div>*@
+    </div>
+    @*<div class="col-xs-6 col-sm-6-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <input type="text" name="EmployeeName" ng-model="productNew.EmployeeName" class="form-control" readonly required>
+                        <span class="input-group-btn">
+                            <button ng-click="showEmployeeListPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="clearEmployee()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+    <div class="clearfix"></div>
+    @*<div class="col-xs-12 col-sm-6 col-md-6">
+            <ul class="common-btn list-inline text-left">
+                <li><button ng-click="detailPopUp();" class="btn" ng-disabled="productNew.Id!=null">Issue Material</button></li>
+            </ul>
+        </div>*@
 
-					<td>{{x.InventoryReceiveDetailId}}</td>
-					<td>{{x.MaterialMasterName}}</td>
-					<td>{{x.ArticleName}}</td>
-					<td>{{x.Sku1}}</td>
-					<td>{{x.Sku2}}</td>
-					<td>{{x.Sku3}}</td>
-					<td>{{x.TransactionUoM}}</td>
-					<td>{{x.IssuedQty}}</td>
-					<td>{{x.OtherIssuedQty}}</td>
-					<td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.CurrentReturn" ng-change="qtyFunc(x, $index)" ;></td>
-					<td>{{x.Balance}}</td>
-					<td>{{x.IssuedId}}</td>
-					<td>{{x.IssueDate}}</td>
-					<td>{{x.IssueRequestDetailId}}</td>
-				</tr>
-			</tbody>
-		</table>*@
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        @*<ul class="common-btn list-inline text-left">
+                <li><button ng-click="ViewSlipDetail();" class="btn">View Issue slip Detail</button></li>
+            </ul>*@
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <ul class="common-btn list-inline text-right">
+            <li><button ng-click="SaveSlipIssue();" class="btn" ng-disabled=""><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+    <div class="clearfix"></div>
+    <div class="table-responsive modal-table col-md-12">
+        @*<table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Chk</th>
+                        <th>Cost Center</th>
+                        <th>GRN Row Id</th>
+                        <th>Material</th>
+                        <th>ArticleName</th>
+                        <th>SKU1</th>
+                        <th>SKU2</th>
+                        <th>SKU3</th>
+                        <th>UOM</th>
+                        <th>Issued Qty</th>
+                        <th>Other Issued Qty</th>
+                        <th>Current Return Qty</th>
+                        <th>Balance Qty</th>
+                        <td>IssuedId</td>
+                        <td>IssueDate</td>
+                        <td>IssueRequestDetailId</td>
 
 
-		<div class="col-lg-12">
-			<div class="content-container-fluid" style="color:black;">
-				<div style="color:black;" id="GridTest1" ej-grid e-datasource="detailListForArticle"
-					 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
-					 @*e-recorddoubleclick="recorddoubleclickloadArticleDetails"*@ e-filtersettings-filterType="excel"
-					 e-enabletouch="true" e-allowselection="true"
-					 e-scrollsettings="scroll">
-					<div e-columns>
-						<div e-column e-template="#chkbox" e-headertext="" e-width="20" textAlign='center'></div>
-						<div e-column e-field="CostCenterName" e-headertext="CostCenterName" e-width="50"></div>
-						<div e-column e-field="MaterialStorage" e-headertext="MaterialStorage" e-width="50"></div>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in detailListForArticle">
+                        <td>
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.check">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </td>
+                        <td>
+                            {{x.CostCenterName}}
 
-						<div e-column e-field="InventoryReceiveDetailId" e-headertext="InventoryReceiveDetailId" e-width="50"></div>
-						<div e-column e-field="MaterialMasterName" e-headertext="MaterialMasterName" e-width="50"></div>
-						<div e-column e-field="ArticleName" e-headertext="ArticleName" e-width="100"></div>
-						<div e-column e-field="Sku1" e-headertext="Sku1" e-width="50"></div>
-						<div e-column e-field="Sku2" e-headertext="Sku2" e-width="50"></div>
-						<div e-column e-field="Sku3" e-headertext="Sku3" e-width="50"></div>
-						<div e-column e-field="TransactionUoM" e-headertext="UoM" e-width="50"></div>
-						<div e-column e-field="IssuedQty" e-headertext="IssuedQty" e-width="50"></div>
-						<div e-column e-field="IssueReturnQty" e-headertext="OtherReturnQty" e-width="50"></div>
-						<div e-column e-template="#CurrentText" e-field="TransactionQty" textAlign='right' e-headertext="CurrentQty" e-width="50"></div>
-						<div e-column e-field="BaseRate" e-headertext="Rate" e-width="50"></div>
-						<div e-column e-field="Balance" e-headertext="Balance" e-width="50"></div>
-						<div e-column e-field="InventoryIssueId" e-headertext="Issued No" e-width="50"></div>
-						<div e-column e-field="IssueDate" e-headertext="IssueDate" e-width="50"></div>
-						<div e-column e-field="IssueRequestDetailId" e-headertext="IssueRequestDetailId" e-width="50"></div>
-					</div>
+                        </td>
 
-				</div>
-				<script type="text/template" id="chkbox">
-					<input type="checkbox" e-change="$parent.getTaxCategoryList1" e-value="data.Active" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
-				</script>
-				<script type="text/template" id="CurrentText">
-					<input type="text" class="input ejinputtext form-control"  style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" ng-change="$parent.calculateRequisitionData(this)" />
+                        <td>{{x.InventoryReceiveDetailId}}</td>
+                        <td>{{x.MaterialMasterName}}</td>
+                        <td>{{x.ArticleName}}</td>
+                        <td>{{x.Sku1}}</td>
+                        <td>{{x.Sku2}}</td>
+                        <td>{{x.Sku3}}</td>
+                        <td>{{x.TransactionUoM}}</td>
+                        <td>{{x.IssuedQty}}</td>
+                        <td>{{x.OtherIssuedQty}}</td>
+                        <td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.CurrentReturn" ng-change="qtyFunc(x, $index)" ;></td>
+                        <td>{{x.Balance}}</td>
+                        <td>{{x.IssuedId}}</td>
+                        <td>{{x.IssueDate}}</td>
+                        <td>{{x.IssueRequestDetailId}}</td>
+                    </tr>
+                </tbody>
+            </table>*@
 
-				</script>
-			</div>
+
+        <div class="col-lg-12">
+            <div class="content-container-fluid" style="color:black;">
+                <div style="color:black;" id="GridTest1" ej-grid e-datasource="detailListForArticle"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                     @*e-recorddoubleclick="recorddoubleclickloadArticleDetails"*@ e-filtersettings-filterType="excel"
+                     e-enabletouch="true" e-allowselection="true"
+                     e-scrollsettings="scroll">
+                    <div e-columns>
+                        <div e-column e-template="#chkbox" e-headertext="" e-width="20" textAlign='center'></div>
+                        <div e-column e-field="CostCenterName" e-headertext="CostCenterName" e-width="50"></div>
+                        <div e-column e-field="MaterialStorage" e-headertext="MaterialStorage" e-width="50"></div>
+
+                        <div e-column e-field="InventoryReceiveDetailId" e-headertext="InventoryReceiveDetailId" e-width="50"></div>
+                        <div e-column e-field="MaterialMasterName" e-headertext="MaterialMasterName" e-width="50"></div>
+                        <div e-column e-field="ArticleName" e-headertext="ArticleName" e-width="100"></div>
+                        <div e-column e-field="Sku1" e-headertext="Sku1" e-width="50"></div>
+                        <div e-column e-field="Sku2" e-headertext="Sku2" e-width="50"></div>
+                        <div e-column e-field="Sku3" e-headertext="Sku3" e-width="50"></div>
+                        <div e-column e-field="TransactionUoM" e-headertext="UoM" e-width="50"></div>
+                        <div e-column e-field="IssuedQty" e-headertext="IssuedQty" e-width="50"></div>
+                        <div e-column e-field="IssueReturnQty" e-headertext="OtherReturnQty" e-width="50"></div>
+                        <div e-column e-template="#CurrentText" e-field="TransactionQty" textAlign='right' e-headertext="CurrentQty" e-width="50"></div>
+                        <div e-column e-field="BaseRate" e-headertext="Rate" e-width="50"></div>
+                        <div e-column e-field="Balance" e-headertext="Balance" e-width="50"></div>
+                        <div e-column e-field="InventoryIssueId" e-headertext="Issued No" e-width="50"></div>
+                        <div e-column e-field="IssueDate" e-headertext="IssueDate" e-width="50"></div>
+                        <div e-column e-field="IssueRequestDetailId" e-headertext="IssueRequestDetailId" e-width="50"></div>
+                    </div>
+
+                </div>
+                <script type="text/template" id="chkbox">
+                    <input type="checkbox" e-change="$parent.getTaxCategoryList1" e-value="data.Active" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
+                </script>
+                <script type="text/template" id="CurrentText">
+                    <input type="text" class="input ejinputtext form-control" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" ng-change="$parent.calculateRequisitionData(this)" />
+
+                </script>
+            </div>
 
 
 
-		</div>
-	</div>
+        </div>
+    </div>
 </div>
 <div class="aplos-grid-toggle">
-	@*<div class="row text-right">
-			<div class="col-xs-12 col-sm-12 col-sm-12">
-				<div class="search-form">
-					<div class="row">
-						<div class="col-xs-12 col-sm-3 col-md-3">
-							<div class="select-style">
-								<select ng-model="$root.parameters.searchBy">
-									<option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-								</select>
-							</div>
-						</div>
-						<div class="col-xs-12 col-sm-7 col-md-7">
-							<input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData();">
-						</div>
-						<div class="col-xs-12 col-sm-2 col-md-2">
-							<button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="table-responsive modal-table">
-			<table class="table table-striped">
-				<thead>
-					<tr>
-						<th>Issue No</th>
-						<th>Storage Location</th>
-						<th>Issue Date</th>
-						<th>Employee</th>
-						<th>Qty</th>
-						<th>Amount</th>
-						<th>Action</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr dir-paginate="x in issueList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get($index);">
-						<td>{{x.Id}}</td>
-						<td>{{x.MaterialStorage}}</td>
-						<td>{{x.IssueDate}}</td>
-						<td>{{x.EmployeeName}}</td>
-						<td>{{x.Qty}}</td>
-						<td class="text-right">{{x.Amount| number| setDecimal:2}}</td>
-						<td class="text-right table-td">
-							<ul class="list-inline">
-								<li><a class="btn btn-action" ng-click="IssueReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>
-							</ul>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-			<dir-pagination-controls max-size="10"
-									 direction-links="true" boundary-links="true"
-									 on-page-change="getData(newPageNumber)">
-			</dir-pagination-controls>
-		</div>*@
+    @*<div class="row text-right">
+            <div class="col-xs-12 col-sm-12 col-sm-12">
+                <div class="search-form">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="select-style">
+                                <select ng-model="$root.parameters.searchBy">
+                                    <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-7 col-md-7">
+                            <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData();">
+                        </div>
+                        <div class="col-xs-12 col-sm-2 col-md-2">
+                            <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive modal-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Issue No</th>
+                        <th>Storage Location</th>
+                        <th>Issue Date</th>
+                        <th>Employee</th>
+                        <th>Qty</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr dir-paginate="x in issueList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get($index);">
+                        <td>{{x.Id}}</td>
+                        <td>{{x.MaterialStorage}}</td>
+                        <td>{{x.IssueDate}}</td>
+                        <td>{{x.EmployeeName}}</td>
+                        <td>{{x.Qty}}</td>
+                        <td class="text-right">{{x.Amount| number| setDecimal:2}}</td>
+                        <td class="text-right table-td">
+                            <ul class="list-inline">
+                                <li><a class="btn btn-action" ng-click="IssueReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <dir-pagination-controls max-size="10"
+                                     direction-links="true" boundary-links="true"
+                                     on-page-change="getData(newPageNumber)">
+            </dir-pagination-controls>
+        </div>*@
 
 
 
-	<fieldset class="scheduler-border">
-		<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-		<div>
-			<div id='Grid'></div>
-			<div class="content-container-fluid" style="color:black;">
-				@*e-allowselection="true"*@
-				<div style="color:black;" id="GridIIssue" ej-grid e-datasource="GridInventoryIssuedata"
-					 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
-					 e-recorddoubleclick="recorddoubleclickIssueReturnForUpdate" e-filtersettings-filterType="excel"
-					 e-enabletouch="true" e-allowselection="true"
-					 e-detailstemplate="detailTemp"
-					 e-detailsdatabound="detailgrid">
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+        <div>
+            <div id='Grid'></div>
+            <div class="content-container-fluid" style="color:black;">
+                @*e-allowselection="true"*@
+                <div style="color:black;" id="GridIIssue" ej-grid e-datasource="GridInventoryIssuedata"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                     e-recorddoubleclick="recorddoubleclickIssueReturnForUpdate" e-filtersettings-filterType="excel"
+                     e-enabletouch="true" e-allowselection="true"
+                     e-detailstemplate="detailTemp"
+                     e-detailsdatabound="detailgrid">
                     <div e-columns>
                         <div e-column e-field="Id" e-headertext="Issue Return No" e-width="80"></div>
                         <div e-column e-field="IssueDate" e-headertext="Issue Date" e-width="80"></div>
@@ -413,10 +399,10 @@
                         <div e-column e-field="Remarks" e-headertext="Remarks" e-width="80"></div>
                         @*<div e-column e-field="Entity" e-headertext="Entity Name" e-width="80"></div>*@
                         @*<div e-column e-field="OrderRefNo" e-headertext="OrderRefNo" e-width="80"></div>
-        <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="80"></div>*@
+                            <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="80"></div>*@
                         @*<div e-column e-field="MaterialStorage" e-headertext="Storage Location" e-width="80"></div>
 
-        <div e-column e-field="Qty" e-headertext="Qty" e-width="50"></div>*@
+                            <div e-column e-field="Qty" e-headertext="Qty" e-width="50"></div>*@
                         @*<div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>*@
                         <div e-column e-headertext="Actions" e-width="50">
                             <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GridIIssue');" style="margin: -6px;"></i></button>
@@ -424,229 +410,229 @@
 
                     </div>
 
-				</div>
+                </div>
 
-			</div>
-			<script id="tabGridContents" type="text/x-jsrender">
-				<div class="tabcontrol" id="Test">
-					<ul>
-						<li><a href="#gridTab{{:Id}}">Issue Return Details</a></li>
-					</ul>
-					<div id="gridTab{{:Id}}">
-						<div id="detailGrid"></div>
-					</div>
-				</div>
-			</script>
-		</div>
-	</fieldset>
+            </div>
+            <script id="tabGridContents" type="text/x-jsrender">
+                <div class="tabcontrol" id="Test">
+                    <ul>
+                        <li><a href="#gridTab{{:Id}}">Issue Return Details</a></li>
+                    </ul>
+                    <div id="gridTab{{:Id}}">
+                        <div id="detailGrid"></div>
+                    </div>
+                </div>
+            </script>
+        </div>
+    </fieldset>
 </div>
 
 <div class="modal fade site-modal in" id="detailPopUp" role="dialog">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header"> Material Issue Entry<button type="button" class="close" ng-click="closeDetaiPopUp();">&times;</button></div>
-			<div class="modal-body form-elements form-horizontal">
-				<fieldset class="scheduler-border">
-					<legend class="scheduler-border"> Material</legend>
-					<div class="col-xs-12 col-sm-6 col-md-6">
-						<div class="form-group div_mm">
-							<label class="col-sm-4 control-label">Material</label>
-							<div class="col-sm-8 show-message">
-								<div class="input-group">
-									<input type="text" name="Finished Goods" ng-model="detailModel.MaterialMasterName" class="form-control" readonly>
-									<span class="input-group-btn">
-										<button tabindex="1" ng-click="getMaterialMasterbyTypePopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-									</span>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-xs-12 col-sm-6 col-md-6">
-						<div class="form-group div_ar" ng-show="hasArticle">
-							<label class="col-sm-4 control-label">Article</label>
-							<div class="input-group show-message">
-								<input type="text" name="Finished Goods" ng-model="detailModel.ArticleName" class="form-control" readonly>
-								<span class="input-group-btn">
-									<button tabindex="1" ng-click="getArticleSearchList(detailModel.MaterialMasterId);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-								</span>
-							</div>
-						</div>
-					</div>
-					<div class="clearfix"></div>
-					<div class="col-xs-12 col-sm-6 col-md-6">
-						<div class="form-group">
-							<label class="col-sm-4 control-label">Material Group</label>
-							<label class="col-sm-8 control-label">{{detailModel.MaterialGroupMasterName}}</label>
-						</div>
-						<div class="form-group" ng-show="detailModel.IsProductMstRequired">
-							<label class="col-sm-4 control-label">Prd Master</label>
-							<label class="col-sm-8 control-label">{{detailModel.ProductMasterName}}</label>
-						</div>
-					</div>
-					<div class="col-xs-12 col-sm-6 col-md-6" ng-show="char1.CharacteristicsId.length>0;">
-						<div class="form-group">
-							<label class="col-sm-4 control-label">{{char1.Name}}<sup>*</sup></label>
-							<div class="col-sm-8">
-								<div class="input-group">
-									<input type="text" ng-model="char1.FreeText" class="form-control"
-										   ng-keyup="nullByFreeText('char1')" disabled ng-required="char1.IsMandatory">
-									<span class="input-group-btn">
-										<button ng-click="findCharValueSearchData(char1, 'char1')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-										<button ng-click="clearCharValueField('char1');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-									</span>
-								</div>
-								<p class="msg-error" ng-show="IsMandatoryButNull(char1.IsMandatory, char1.FreeText)">value is required.</p>
-							</div>
-						</div>
-					</div>
-					<div class="col-xs-12 col-sm-6 col-md-6" ng-show="char2.CharacteristicsId.length>0;">
-						<div class="form-group">
-							<label class="col-sm-4 control-label">{{char2.Name}}<sup>*</sup></label>
-							<div class="col-sm-8">
-								<div class="input-group">
-									<input type="text" ng-model="char2.FreeText" class="form-control"
-										   ng-keyup="nullByFreeText('char2')" disabled ng-required="char2.IsMandatory">
-									<span class="input-group-btn">
-										<button ng-click="findCharValueSearchData(char2, 'char2')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-										<button ng-click="clearCharValueField('char2');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-									</span>
-								</div>
-								<p class="msg-error" ng-show="IsMandatoryButNull(char2.IsMandatory, char2.FreeText)">value is required.</p>
-							</div>
-						</div>
-					</div>
-					<div class="col-xs-12 col-sm-6 col-md-6" ng-show="char3.CharacteristicsId.length>0;">
-						<div class="form-group">
-							<label class="col-sm-4 control-label">{{char3.Name}}<sup>*</sup></label>
-							<div class="col-sm-8">
-								<div class="input-group">
-									<input type="text" ng-model="char3.FreeText" class="form-control"
-										   ng-keyup="nullByFreeText('char3')" disabled ng-required="char3.IsMandatory">
-									<span class="input-group-btn">
-										<button ng-click="findCharValueSearchData(char3, 'char3')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-										<button ng-click="clearCharValueField('char3');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-									</span>
-								</div>
-								<p class="msg-error" ng-show="IsMandatoryButNull(char3.IsMandatory, char3.FreeText)">value is required.</p>
-							</div>
-						</div>
-					</div>
-					<div class="clearfix"></div>
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Material Issue Entry<button type="button" class="close" ng-click="closeDetaiPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"> Material</legend>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group div_mm">
+                            <label class="col-sm-4 control-label">Material</label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <input type="text" name="Finished Goods" ng-model="detailModel.MaterialMasterName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button tabindex="1" ng-click="getMaterialMasterbyTypePopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group div_ar" ng-show="hasArticle">
+                            <label class="col-sm-4 control-label">Article</label>
+                            <div class="input-group show-message">
+                                <input type="text" name="Finished Goods" ng-model="detailModel.ArticleName" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button tabindex="1" ng-click="getArticleSearchList(detailModel.MaterialMasterId);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Material Group</label>
+                            <label class="col-sm-8 control-label">{{detailModel.MaterialGroupMasterName}}</label>
+                        </div>
+                        <div class="form-group" ng-show="detailModel.IsProductMstRequired">
+                            <label class="col-sm-4 control-label">Prd Master</label>
+                            <label class="col-sm-8 control-label">{{detailModel.ProductMasterName}}</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6" ng-show="char1.CharacteristicsId.length>0;">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">{{char1.Name}}<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" ng-model="char1.FreeText" class="form-control"
+                                           ng-keyup="nullByFreeText('char1')" disabled ng-required="char1.IsMandatory">
+                                    <span class="input-group-btn">
+                                        <button ng-click="findCharValueSearchData(char1, 'char1')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="clearCharValueField('char1');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                                <p class="msg-error" ng-show="IsMandatoryButNull(char1.IsMandatory, char1.FreeText)">value is required.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6" ng-show="char2.CharacteristicsId.length>0;">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">{{char2.Name}}<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" ng-model="char2.FreeText" class="form-control"
+                                           ng-keyup="nullByFreeText('char2')" disabled ng-required="char2.IsMandatory">
+                                    <span class="input-group-btn">
+                                        <button ng-click="findCharValueSearchData(char2, 'char2')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="clearCharValueField('char2');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                                <p class="msg-error" ng-show="IsMandatoryButNull(char2.IsMandatory, char2.FreeText)">value is required.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6" ng-show="char3.CharacteristicsId.length>0;">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">{{char3.Name}}<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" ng-model="char3.FreeText" class="form-control"
+                                           ng-keyup="nullByFreeText('char3')" disabled ng-required="char3.IsMandatory">
+                                    <span class="input-group-btn">
+                                        <button ng-click="findCharValueSearchData(char3, 'char3')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="clearCharValueField('char3');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                                <p class="msg-error" ng-show="IsMandatoryButNull(char3.IsMandatory, char3.FreeText)">value is required.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
 
 
-					<div class="col-xs-12 col-sm-6 col-md-6">
-						<div class="form-group div_Cost_Center">
-							<label class="col-sm-4 control-label">Cost Center<sup>*</sup></label>
-							<div class="col-sm-8 show-message">
-								<div class="select-style">
-									<select class="form-control" name="Cost Center" ng-model="detailModel.CostCenterId" ng-options="item.Value as item.Text for item in costCenterList" required></select>
-								</div>
-							</div>
-						</div>
-					</div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group div_Cost_Center">
+                            <label class="col-sm-4 control-label">Cost Center<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" name="Cost Center" ng-model="detailModel.CostCenterId" ng-options="item.Value as item.Text for item in costCenterList" required></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
 
-					<div class="col-xs-12 col-sm-6 col-md-6">
-						<div class="form-group div_budget">
-							<label class="col-sm-4 control-label">Budget Activity<sup>*</sup></label>
-							<div class="col-sm-8 show-message">
-								<div class="input-group">
-									<input type="text" name="Budget Activity" ng-model="detailModel.BudgetName" class="form-control" readonly required>
-									<span class="input-group-btn">
-										<button tabindex="1" ng-click="GetCOAICodeList();" ng-hide="IssueType=='Capital'" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-										<button tabindex="1" ng-click="GetIssueAUCList();" ng-hide="IssueType=='Revenue'" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-									</span>
-								</div>
-							</div>
-						</div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group div_budget">
+                            <label class="col-sm-4 control-label">Budget Activity<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <input type="text" name="Budget Activity" ng-model="detailModel.BudgetName" class="form-control" readonly required>
+                                    <span class="input-group-btn">
+                                        <button tabindex="1" ng-click="GetCOAICodeList();" ng-hide="IssueType=='Capital'" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button tabindex="1" ng-click="GetIssueAUCList();" ng-hide="IssueType=='Revenue'" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
 
-					</div>
-					<div class="clearfix"></div>
-					<div class="col-xs-12 col-sm-6 col-md-6">
-						<div class="form-group div_budget">
-							<label class="col-sm-4 control-label">Activity<sup>*</sup></label>
-							<div class="col-sm-8 show-message">
-								<div class="select-style">
-									<select class="form-control" ng-model="detailModel.ActivityId" ng-options="item.ActivityId as item.ActivityName for item in activityList">
-										<option></option>
-									</select>
-								</div>
-							</div>
-						</div>
-					</div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group div_budget">
+                            <label class="col-sm-4 control-label">Activity<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="detailModel.ActivityId" ng-options="item.ActivityId as item.ActivityName for item in activityList">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
 
 
-					<sqan class="msg-error" ng-show="errorText!=null">{{errorText}}</sqan>
-				</fieldset>
-				<div class="clearfix"></div>
-				<!--detailModel Entry Rigt-->
+                    <sqan class="msg-error" ng-show="errorText!=null">{{errorText}}</sqan>
+                </fieldset>
+                <div class="clearfix"></div>
+                <!--detailModel Entry Rigt-->
 
-				<div class="col-xs-12 col-sm-12 col-md-12">
-					<div class="form-group">
-						<label class="col-sm-2 control-label">Approved Stock</label>
-						<div class="col-sm-2 form-group">
-							<label class="control-label">{{detailModel.ApprovedQty| number| setDecimal:2}} {{detailModel.BaseUoM}} </label>
-							<button ng-click="getApprovedStock(detailModel);getApprovedStockDetailBeyondIssueDate(detailModel)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Approved Stock List"><i class="glyphicon glyphicon-list"></i></button>
-						</div>
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Approved Stock</label>
+                        <div class="col-sm-2 form-group">
+                            <label class="control-label">{{detailModel.ApprovedQty| number| setDecimal:2}} {{detailModel.BaseUoM}} </label>
+                            <button ng-click="getApprovedStock(detailModel);getApprovedStockDetailBeyondIssueDate(detailModel)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Approved Stock List"><i class="glyphicon glyphicon-list"></i></button>
+                        </div>
 
-						<label class="col-sm-2 control-label">UnApproved Stock</label>
-						<div class="col-sm-2 form-group">
-							<label class="control-label">{{detailModel.UnApprovedQty| number| setDecimal:2}} {{detailModel.BaseUoM}} </label>
-							<button ng-click="getUnApprovedStock(detailModel);getUnApprovedStockDetailBeyondIssueDate(detailModel)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="UnApproved Stock List"><i class="glyphicon glyphicon-list"></i></button>
-						</div>
-						<label class="col-sm-1 control-label">Total Stock</label>
-						<label class="col-sm-1 control-label">{{detailModel.TotalQty| number| setDecimal:2}} {{detailModel.BaseUoM}}</label>
-					</div>
+                        <label class="col-sm-2 control-label">UnApproved Stock</label>
+                        <div class="col-sm-2 form-group">
+                            <label class="control-label">{{detailModel.UnApprovedQty| number| setDecimal:2}} {{detailModel.BaseUoM}} </label>
+                            <button ng-click="getUnApprovedStock(detailModel);getUnApprovedStockDetailBeyondIssueDate(detailModel)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="UnApproved Stock List"><i class="glyphicon glyphicon-list"></i></button>
+                        </div>
+                        <label class="col-sm-1 control-label">Total Stock</label>
+                        <label class="col-sm-1 control-label">{{detailModel.TotalQty| number| setDecimal:2}} {{detailModel.BaseUoM}}</label>
+                    </div>
 
-					<div class="form-group" ng-show="detailModel.IsOurStyleNameRequired">
-						<label class="col-sm-4 control-label">OurStyleName</label>
-						<label class="col-sm-8 control-label">{{detailModel.OurStyleName}}</label>
-					</div>
-				</div>
-				<div class="clearfix"></div>
-				<div class="col-xs-12 col-sm-12 col-md-12">
-					<div class="form-group">
-						<label class="col-sm-2 control-label">Ready For Issue</label>
-						<div class="col-sm-2 form-group">
-							<label class="control-label">{{detailModel.PostingQty| number| setDecimal:2}} {{detailModel.BaseUoM}}</label>
-							<button ng-click="getPostingStock(detailModel);getPostingStockBeyondIssueDate(detailModel);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Ready For Issue List"><i class="glyphicon glyphicon-list"></i></button>
-						</div>
-					</div>
-				</div>
-				<hr style="width:100%;" />
-				<div class="col-xs-12 col-sm-6 col-md-6">
-					@*<div class="form-group div_qty">
-							<label class="col-sm-4 control-label">Issue Qty<sup>*</sup></label>
-							<div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 15px;">
-								<input type="text" only-numbers ng-model="detailModel.TransactionQty" class="form-control text-right" ng-keyup="manualValidationAddRemove('div_qty','TransactionQty');">
-								<span class="input-group-addon">{{detailModel.BaseUoM}}</span>
-							</div>
-						</div>*@
-					<div class="form-group" id="div_qty">
-						<label class="col-sm-4 control-label">Issue Qty<sup>*</sup></label>
-						<div class="col-sm-4 show-message" style="padding-right:0px;">
-							<input type="text" n-decimals="2" ng-model="detailModel.TransactionQty" class="form-control text-right" ng-keyup="manualValidationAddRemove('div_qty','TransactionQty');">
-						</div>
-						<div class="col-sm-4 show-message" style="padding-left:0px;">
-							<div class="select-style">
-								<select name="Isssue UoM" id="issueUoM" class="form-control" ng-model="detailModel.TransactionUoMId" ng-options="item.Value as item.Text for item in uoMList" ng-change="manualValidationAddRemove('div_qty', 'detailModel','TransactionUoMId');">
-									<option value=""></option>
-								</select>
-							</div>
-						</div>
-					</div>
+                    <div class="form-group" ng-show="detailModel.IsOurStyleNameRequired">
+                        <label class="col-sm-4 control-label">OurStyleName</label>
+                        <label class="col-sm-8 control-label">{{detailModel.OurStyleName}}</label>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Ready For Issue</label>
+                        <div class="col-sm-2 form-group">
+                            <label class="control-label">{{detailModel.PostingQty| number| setDecimal:2}} {{detailModel.BaseUoM}}</label>
+                            <button ng-click="getPostingStock(detailModel);getPostingStockBeyondIssueDate(detailModel);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Ready For Issue List"><i class="glyphicon glyphicon-list"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <hr style="width:100%;" />
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    @*<div class="form-group div_qty">
+                            <label class="col-sm-4 control-label">Issue Qty<sup>*</sup></label>
+                            <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 15px;">
+                                <input type="text" only-numbers ng-model="detailModel.TransactionQty" class="form-control text-right" ng-keyup="manualValidationAddRemove('div_qty','TransactionQty');">
+                                <span class="input-group-addon">{{detailModel.BaseUoM}}</span>
+                            </div>
+                        </div>*@
+                    <div class="form-group" id="div_qty">
+                        <label class="col-sm-4 control-label">Issue Qty<sup>*</sup></label>
+                        <div class="col-sm-4 show-message" style="padding-right:0px;">
+                            <input type="text" n-decimals="2" ng-model="detailModel.TransactionQty" class="form-control text-right" ng-keyup="manualValidationAddRemove('div_qty','TransactionQty');">
+                        </div>
+                        <div class="col-sm-4 show-message" style="padding-left:0px;">
+                            <div class="select-style">
+                                <select name="Isssue UoM" id="issueUoM" class="form-control" ng-model="detailModel.TransactionUoMId" ng-options="item.Value as item.Text for item in uoMList" ng-change="manualValidationAddRemove('div_qty', 'detailModel','TransactionUoMId');">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
-				</div>
-				<div class="common-btn">
-					<ul class="list-inline text-right">
-						<li> <button ng-click="detailAdd();" ng-disabled="detailModel.PostingQty==0" class="btn"><i class="glyphicon glyphicon-plus"></i> Add</button></li>
-						<li> <button ng-click="closeDetaiPopUp();" class="btn">Close</button></li>
-					</ul>
-				</div>
-			</div>
-		</div>
-	</div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="detailAdd();" ng-disabled="detailModel.PostingQty==0" class="btn"><i class="glyphicon glyphicon-plus"></i> Add</button></li>
+                        <li> <button ng-click="closeDetaiPopUp();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterPopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
