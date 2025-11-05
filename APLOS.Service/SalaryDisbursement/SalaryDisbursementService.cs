@@ -1928,7 +1928,7 @@ namespace Library.Service.SalaryDisbursement
                     var direct = new System.Text.StringBuilder();
                     var directsql = "";
                     directsql = @"update [dbo].[SalaryLock] set IsDisbursed=1, DisbursementVoucherId='" + directVoucherId + @"'  where EmployeeFinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId IN (" + goodWorkPaymentAdviseDetailIds + @") AND DisbursementVoucherId IS NULL
-                                  update [dbo].[SalaryLock] set IsBonusDisbursed=1, BonusDisbursementVoucherId='" + directVoucherId + @"' where EmployeeFinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId IN (" + goodWorkPaymentAdviseDetailIds + @") AND BonusDisbursementVoucherId IS NULL AND ISNULL(sl.PastBonusDisbursed,0) = 0 AND ISNULL(sl.IsBonusDisbursed,0) = 0
+                                  update [dbo].[SalaryLock] set IsBonusDisbursed=1, BonusDisbursementVoucherId='" + directVoucherId + @"' where EmployeeFinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId IN (" + goodWorkPaymentAdviseDetailIds + @") AND BonusDisbursementVoucherId IS NULL AND ISNULL(PastBonusDisbursed,0) = 0 AND ISNULL(IsBonusDisbursed,0) = 0
                                   update [dbo].[SalaryLock] set FNFSettlementVoucherId='" + directVoucherId + @"'  where EmployeeFinalSettlementId='" + disbursementAdviceId + @"' AND EmpSystemId IN (" + goodWorkPaymentAdviseDetailIds + @") ";
                     direct.Append(directsql);
                     directsql = @"
