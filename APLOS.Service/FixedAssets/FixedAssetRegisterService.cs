@@ -5053,6 +5053,7 @@ GROUP BY FAR.FABudgetMasterId
                     var fixedAssetDisposeDetail = new FixedAssetRegisterDisposedDetail
                     {
                         AssetRegisterId = item.AssetRegisterId,
+                        FixedAssetRegisterId = item.FixedAssetRegisterId,
                         NegotiationValue = Convert.ToDecimal(item.NegotiationValue),
                         BaseNagotiationValue = Convert.ToDecimal(item.NegotiationValue),
 

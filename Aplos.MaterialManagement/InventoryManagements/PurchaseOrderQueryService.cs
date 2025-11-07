@@ -1564,8 +1564,10 @@ namespace Library.MaterialManagement.InventoryManagements
 						,IM.InventoryReceiveId AS PORowId
 						,REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate ,ISNULL(IR.DocRefNo,'') DocRefNo
 						,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate ,p.UserName AS PartyName
-						,IR.PartyId ,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
-						,IR.DeliveryPartyPlantId,PPD.UserName DeliveryPartyPlant
+						,IR.PartyId ,InvoicingPartyPlantId=case when IR.InvoicingPartyPlantId<>'' then IR.InvoicingPartyPlantId else IR.PartyId end 
+						,InvoicingPartyPlant=case when PP.UserName<>'' then PP.UserName else P.UserName end 
+						,DeliveryPartyPlantId=case when IR.DeliveryPartyPlantId<>'' then IR.DeliveryPartyPlantId else IR.PartyId end 
+						,DeliveryPartyPlant=case when PPD.UserName<>'' then PPD.UserName else P.UserName end  
 						,MT.UserName MaterialType ,MGM.UserName AS MaterialGroupMasterName ,IM.InventoryMaterialId MaterialMasterId
 						,MM.UserName MaterialMasterName , ART.StandardName ArticleName , ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
 						, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue , ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue ,TUoM.UserName AS UOM
@@ -1669,8 +1671,10 @@ namespace Library.MaterialManagement.InventoryManagements
 					 when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode else '' end
 					,IM.Id AS PORowId ,REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
 					,ISNULL(IR.DocRefNo,'') DocRefNo ,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-					,p.UserName AS PartyName ,IR.PartyId ,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
-					,IR.DeliveryPartyPlantId,PPD.UserName DeliveryPartyPlant
+					,p.UserName AS PartyName ,IR.PartyId ,InvoicingPartyPlantId=case when IR.InvoicingPartyPlantId<>'' then IR.InvoicingPartyPlantId else IR.PartyId end 
+						,InvoicingPartyPlant=case when PP.UserName<>'' then PP.UserName else P.UserName end 
+						,DeliveryPartyPlantId=case when IR.DeliveryPartyPlantId<>'' then IR.DeliveryPartyPlantId else IR.PartyId end 
+						,DeliveryPartyPlant=case when PPD.UserName<>'' then PPD.UserName else P.UserName end  
 					,'Service' MaterialType ,'Service' AS MaterialGroupMasterName
 					,'Service' MaterialMasterId ,SM.UserName MaterialMasterName
 					,'Service' ArticleName , '' FirstCharacteristicsValue , '' SecondCharacteristicsValue , '' ThirdCharacteristicsValue ,'' UOM
