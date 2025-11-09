@@ -311,7 +311,7 @@
                     <input type="checkbox" e-change="$parent.getTaxCategoryList1" e-value="data.Active" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
                 </script>
                 <script type="text/template" id="CurrentText">
-                    <input type="text" class="input ejinputtext form-control" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" ng-change="$parent.calculateRequisitionData(this)" />
+                    <input type="text" class="input ejinputtext form-control" ng-disabled="productNew.IssueType=='BOQIssue'" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" ng-change="$parent.calculateRequisitionData(this)" />
 
                 </script>
             </div>

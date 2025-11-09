@@ -600,13 +600,25 @@ namespace Aplos.Areas.Products.Controllers
 
         #endregion
         #region Issue Return
+
         [Authorize, HttpGet]
-        public JsonResult IssueSlipMaterialAndArticleList(string fromDate, string toDate, string CostCenterId, string MaterialStorageId,string IssueType)
+        public JsonResult IssueSlipMaterialAndArticleList(string fromDate, string toDate, string CostCenterId, string MaterialStorageId, string IssueType)
         {
-            string paramter = "";
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            var jsondata = Json(IssueSlipMaterialAndArticleListDate(fromDate, toDate, CostCenterId, MaterialStorageId, IssueType), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        
+        public IEnumerable<object> IssueSlipMaterialAndArticleListDate(string fromDate, string toDate, string CostCenterId, string MaterialStorageId,string IssueType)
+        {
+            string sql = "";
             try
             {
-                var sql = @"select distinct CC.Id CostCenterId,CC.UserName AS CostCenterName ,MT.UserName MaterialType
+                if (IssueType == "NormalIssue")
+                {
+                     sql = @"select distinct CC.Id CostCenterId,CC.UserName AS CostCenterName ,MT.UserName MaterialType
                             ,MGM.UserName AS MaterialGroupMasterName
                             ,IM.MaterialMasterId
                             ,MM.UserName MaterialMasterName
@@ -639,9 +651,54 @@ namespace Aplos.Areas.Products.Controllers
                             LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
                             LEFT JOIN [TRN].[InventoryIssue] IRM ON  IRM.Id=IID.InventoryIssueId
                             LEFT join [ORG].[CostCenter] CC On CC.Id=IID.CostCenterId
-                            LEFT JOIN (SELECT DISTINCT InventoryIssueDetailId,MaterialStorageId FROM TRN.InventoryIssueHistory WHERE MaterialStorageId='"+ MaterialStorageId + @"' )IIH ON IIH.InventoryIssueDetailId=IID.Id
+                            LEFT JOIN (SELECT DISTINCT InventoryIssueDetailId,MaterialStorageId FROM TRN.InventoryIssueHistory WHERE MaterialStorageId='" + MaterialStorageId + @"' )IIH ON IIH.InventoryIssueDetailId=IID.Id
                             Where CAST(IRM.IssueDate AS DATE) between '" + fromDate + @"' and '" + toDate + "' and CC.Id='" + CostCenterId + "' AND IIH.MaterialStorageId='" + MaterialStorageId + "'";
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                     sql = @"select distinct CC.Id CostCenterId, CC.UserName AS CostCenterName ,MT.UserName MaterialType, IIH.MaterialStorageId,CC.Id
+                            ,MGM.UserName AS MaterialGroupMasterName
+                            ,IM.MaterialMasterId
+                            ,MM.UserName MaterialMasterName
+                            , IM.ArticleId
+                            , ART.StandardName ArticleName
+                            , IM.FirstCharacteristicsId
+                            , FC.UserName AS FirstCharacteristics
+                            , IM.FirstCharacteristicsValueId
+                            , ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
+                             , IM.SecondCharacteristicsId
+                            , SC.UserName AS SecondCharacteristics
+                            , IM.SecondCharacteristicsValueId
+                            , ISNULL(SCV.UserName, '') AS SecondCharacteristicsValue
+                             , IM.ThirdCharacteristicsId
+                            , TC.UserName AS ThirdCharacteristics
+                            , IM.ThirdCharacteristicsValueId
+                            , ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
+                             ,0 Active,'Slip Article' ArticleType
+                             From TRN.InventoryMaterial AS IM
+                             Left join TRN.InventoryIssueDetail IID ON IID.InventoryMaterialId = IM.Id
+                            left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+                            LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                            LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                            LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+                            LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+                            LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+                            LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+                            LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+                            LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+                            LEFT JOIN[HKP].[MaterialType] AS MT On MGM.MaterialTypeId = MT.Id
+                            LEFT JOIN[TRN].[InventoryIssue] IRM ON  IRM.Id = IID.InventoryIssueId
+                            LEFT join[ORG].[CostCenter] CC On CC.Id = IID.CostCenterId
+                            LEFT JOIN(SELECT DISTINCT IIH.InventoryIssueDetailId, IIH.MaterialStorageId
+                            FROM TRN.InventoryIssueHistory IIH
+                             JOIN TRN.InventoryIssueHistoryBOQ IHB ON IHB.InventoryIssueHistoryId= IIH.Id
+                             JOIN TRN.InventoryIssueDetail IID ON IID.Id= IIH.InventoryIssueDetailId
+                             JOIN TRN.InventoryIssue II ON II.Id= IID.InventoryIssueId
+                            WHERE IIH.MaterialStorageId= '" + MaterialStorageId + @"' AND CAST(II.IssueDate AS DATE) between '" + fromDate + @"' and '" + toDate + @"' )IIH ON IIH.InventoryIssueDetailId = IID.Id
+                            Where CAST(IRM.IssueDate AS DATE) between '" + fromDate + @"' and '" + toDate + "' AND IIH.MaterialStorageId = '" + MaterialStorageId + @"' and CC.Id = '" + CostCenterId + "'";
+                }
+                return _sqlRepository.GetDataCollection(sql);
+
             }
             catch (Exception ex)
             {
@@ -652,7 +709,7 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult IssueSlipMaterialAndArticleListForIssued(string MaterialMasterId, string ArticleId, string FirstCharacteristicsValueId, string SecondCharacteristicsValueId, string ThirdCharacteristicsValueId, string MaterialStorageId, string CostCenterId, string fromDate, string toDate)
+        public JsonResult IssueSlipMaterialAndArticleListForIssued(string MaterialMasterId, string ArticleId, string FirstCharacteristicsValueId, string SecondCharacteristicsValueId, string ThirdCharacteristicsValueId, string MaterialStorageId, string CostCenterId, string fromDate, string toDate,string issueType)
         {
             string paramter = "";
             if (MaterialMasterId != "")
@@ -701,7 +758,7 @@ namespace Aplos.Areas.Products.Controllers
                 var sql = "";
                 if (string.IsNullOrEmpty(MaterialStorageId))
                 {
-
+                    
                     sql = @"select cc.Id CostCenterId,cc.UserName CostCenterName, a.InventoryReceiveDetailId,IM.Id InventoryMaterialId,b.InventoryIssueId, REPLACE(CONVERT(CHAR(11), C.IssueDate, 106),' ','-') AS IssueDate,a.IssueRequestDetailId
                             ,IM.MaterialMasterId, MM.UserName AS MaterialMasterName, IM.ArticleId, AR.StandardName AS ArticleName
 		                    ,IM.FirstCharacteristicsId, CH1.UserName AS Sku1, IM.FirstCharacteristicsValueId, CHV1.UserName AS FirstCharacteristicsValue
@@ -751,8 +808,9 @@ namespace Aplos.Areas.Products.Controllers
                 }
                 else
                 {
-
-                    sql = @"select cc.Id CostCenterId,cc.UserName CostCenterName, a.InventoryReceiveDetailId,IM.Id InventoryMaterialId,b.InventoryIssueId, REPLACE(CONVERT(CHAR(11), C.IssueDate, 106),' ','-') AS IssueDate,a.IssueRequestDetailId
+                if(issueType== "NormalIssue")
+                    {
+                        sql = @"select cc.Id CostCenterId,cc.UserName CostCenterName, a.InventoryReceiveDetailId,IM.Id InventoryMaterialId,b.InventoryIssueId, REPLACE(CONVERT(CHAR(11), C.IssueDate, 106),' ','-') AS IssueDate,a.IssueRequestDetailId
                             ,IM.MaterialMasterId, MM.UserName AS MaterialMasterName, IM.ArticleId, AR.StandardName AS ArticleName
 		                    ,IM.FirstCharacteristicsId, CH1.UserName AS Sku1, IM.FirstCharacteristicsValueId, CHV1.UserName AS FirstCharacteristicsValue
 		                    ,IM.SecondCharacteristicsId, CH2.UserName AS Sku2, IM.SecondCharacteristicsValueId, CHV2.UserName AS SecondCharacteristicsValue
@@ -798,6 +856,56 @@ namespace Aplos.Areas.Products.Controllers
                     --, IM.ThirdCharacteristicsId, CH3.UserName , IM.ThirdCharacteristicsValueId, CHV3.UserName 
                     --, b.BaseUOMId, UoM.UserName,cc.UserName --, b.AvgRate, b.AvgAmount, b.PolicyRate, b.PolicyAmount, b.[Policy]
                     Order by IssueDate,Im.ArticleId DESC";
+                    }
+                    else
+                    {
+                        sql = @"select cc.Id CostCenterId,cc.UserName CostCenterName, a.InventoryReceiveDetailId,IM.Id InventoryMaterialId,b.InventoryIssueId, REPLACE(CONVERT(CHAR(11), C.IssueDate, 106),' ','-') AS IssueDate,a.IssueRequestDetailId
+                            ,IM.MaterialMasterId, MM.UserName AS MaterialMasterName, IM.ArticleId, AR.StandardName AS ArticleName
+		                    ,IM.FirstCharacteristicsId, CH1.UserName AS Sku1, IM.FirstCharacteristicsValueId, CHV1.UserName AS FirstCharacteristicsValue
+		                    ,IM.SecondCharacteristicsId, CH2.UserName AS Sku2, IM.SecondCharacteristicsValueId, CHV2.UserName AS SecondCharacteristicsValue
+		                    ,IM.ThirdCharacteristicsId, CH3.UserName AS Sku3, IM.ThirdCharacteristicsValueId, CHV3.UserName AS ThirdCharacteristicsValue			
+		                    ,b.BaseUOMId, UoM.UserName AS TransactionUoM--, b.AvgRate, b.AvgAmount, b.PolicyRate, b.PolicyAmount, b.[Policy]
+		                    ,a.qty AS IssuedQty
+							,FORMAT(a.Rate,'N4') BaseRate
+							,a.TotalAmount
+                            ,Isnull(a.IssueReturnQty,0)  IssueReturnQty
+                            ,Isnull(a.qty,0)-Isnull(a.IssueReturnQty,0) TransactionQty
+                            ,Isnull(a.qty,0)-Isnull(a.IssueReturnQty,0) Balance
+                            ,0 Active
+		                    --,IRD.TransactionQty Rcvd, IRD.IssueQty IssueQty,PurchaseRerutnQty PurchaseRerutnQty
+		                    --, sum(a.qty) qty 
+		                    --,sum(IRD.TransactionQty) Rcvd, sum(IRD.IssueQty) IssueQty,sum(PurchaseRerutnQty) PurchaseRerutnQty
+                            ,c.MaterialStorageId,MS.UserName MaterialStorage,a.Id InventoryIssueHistoryId,a.InventoryIssueDetailId
+                    from trn.InventoryIssueHistory a
+                    left join trn.InventoryIssueDetail b on b.id=a.InventoryIssueDetailId
+                    left join trn.InventoryIssue c on c.id=b.InventoryIssueId
+                    left join [TRN].[InventoryMaterial] AS IM ON IM.Id=b.InventoryMaterialId
+                    left JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
+                    LEFT JOIN [MST].[MaterialMasterArticle] AS AR ON IM.ArticleId=AR.Id
+                    LEFT JOIN [HKP].[Characteristics] AS CH1 ON IM.FirstCharacteristicsId=CH1.Id
+                    LEFT JOIN [HKP].[CharacteristicsValue] AS CHV1 ON IM.FirstCharacteristicsValueId=CHV1.Id
+                    LEFT JOIN [HKP].[Characteristics] AS CH2 ON IM.SecondCharacteristicsId=CH2.Id
+                    LEFT JOIN [HKP].[CharacteristicsValue] AS CHV2 ON IM.SecondCharacteristicsValueId=CHV2.Id
+                    LEFT JOIN [HKP].[Characteristics] AS CH3 ON IM.ThirdCharacteristicsId=CH3.Id
+                    LEFT JOIN [HKP].[CharacteristicsValue] AS CHV3 ON IM.ThirdCharacteristicsValueId=CHV3.Id
+                    LEFT JOIN [ORG].[CostCenter] AS CC On CC.Id=b.CostCenterId
+                    left JOIN [SCS].[UnitOfMeasurement] AS UoM ON b.BaseUOMId=UoM.Id
+                      left join [HKP].[MaterialStorage] MS on MS.id=c.MaterialStorageId
+                    --Left JOin (Select Id, sum(TransactionQty) TransactionQty,sum(IssueQty) IssueQty,sum(PurchaseRerutnQty) PurchaseRerutnQty,sum(IssueRerutnQty) IssueRerutnQty from trn.InventoryReceiveDetail group by Id) IRD ON IRD.id=a.InventoryReceiveDetailId
+                    --where a.InventoryReceiveDetailId in('19304-1','19429-2','19633-3','19796-1')
+                     --where IM.MaterialMasterId='" + MaterialMasterId + @"' ANd IM.ArticleId='" + ArticleId + @"' AND isnull(FirstCharacteristicsValueId,'')='" + FirstCharacteristicsValueId + @"' and isnull(SecondCharacteristicsValueId,'')='" + SecondCharacteristicsValueId + @"' AND isnull(ThirdCharacteristicsValueId,'')='" + ThirdCharacteristicsValueId + @"'
+                    Where " + paramter + @"
+                    --and a.InventoryReceiveDetailId='19304-1'
+                    AND CC.Id='" + CostCenterId + @"' AND a.MaterialStorageId='" + MaterialStorageId + @"' AND IssueDate Between '" + fromDate + @"' and '" + toDate + @"'
+                    AND Isnull(a.qty,0)-Isnull(a.IssueReturnQty,0)>0 AND Isnull(a.Rate,0)>0
+                    --group by a.InventoryReceiveDetailId
+                    --, IM.MaterialMasterId, MM.UserName , IM.ArticleId, AR.StandardName 
+                    --, IM.FirstCharacteristicsId, CH1.UserName , IM.FirstCharacteristicsValueId, CHV1.UserName 
+                    --, IM.SecondCharacteristicsId, CH2.UserName , IM.SecondCharacteristicsValueId, CHV2.UserName 
+                    --, IM.ThirdCharacteristicsId, CH3.UserName , IM.ThirdCharacteristicsValueId, CHV3.UserName 
+                    --, b.BaseUOMId, UoM.UserName,cc.UserName --, b.AvgRate, b.AvgAmount, b.PolicyRate, b.PolicyAmount, b.[Policy]
+                    Order by IssueDate,Im.ArticleId DESC";
+                    }
                 }
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
