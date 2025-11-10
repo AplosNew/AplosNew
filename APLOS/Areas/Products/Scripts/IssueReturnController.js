@@ -75,7 +75,8 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
         }
         $http({
             method: 'GET',
-            url: 'Products/InventoryIssue/IssueSlipMaterialAndArticleListForIssued?MaterialMasterId=' + MaterialMasterId1 + '&ArticleId=' + ArticleId1 + '&FirstCharacteristicsValueId=' + FirstCharacteristicsValueId1 + '&SecondCharacteristicsValueId=' + SecondCharacteristicsValueId1 + '&ThirdCharacteristicsValueId=' + ThirdCharacteristicsValueId1 + '&MaterialStorageId=' + $scope.productNew.MaterialStorageId + '&CostCenterId=' + $scope.productNew.CostCenterId + '&fromDate=' + $scope.productNew.FromDate1 + '&toDate=' + $scope.productNew.ToDate
+            url: 'Products/InventoryIssue/IssueSlipMaterialAndArticleListForIssued?MaterialMasterId=' + MaterialMasterId1 + '&ArticleId=' + ArticleId1 + '&FirstCharacteristicsValueId=' + FirstCharacteristicsValueId1 + '&SecondCharacteristicsValueId=' + SecondCharacteristicsValueId1 + '&ThirdCharacteristicsValueId=' + ThirdCharacteristicsValueId1 + '&MaterialStorageId=' + $scope.productNew.MaterialStorageId + '&CostCenterId='
+                + $scope.productNew.CostCenterId + '&fromDate=' + $scope.productNew.FromDate1 + '&toDate=' + $scope.productNew.ToDate + '&issueType=' + $scope.productNew.IssueType
         }).then(function (response) {
             $scope.detailListForArticle = response.data;
         });

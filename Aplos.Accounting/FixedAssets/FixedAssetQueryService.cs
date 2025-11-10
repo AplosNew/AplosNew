@@ -1198,79 +1198,78 @@ namespace Library.Accounting.FixedAssets
 							,ActivityId = FAMG.DepreciationActivityId
 							,ActivityCode = A.Code
 							,ActivityName =A.UserName
-							 ,SUM( ISNULL(FR.AdjustmentDepreciationAmount,0)) AS Dr
+							 ,SUM( ISNULL(AR.AdjustmentDepreciationAmount,0)) AS Dr
 							, NULL Cr
-							, SUM( ISNULL(FR.AdjustmentDepreciationAmount,0)) AS Amount
+							, SUM( ISNULL(AR.AdjustmentDepreciationAmount,0)) AS Amount
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
-						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
-						LEFT JOIN HKP.FixedAssetMasterGL AS FAMG  ON FAMG.FixedAssetMasterId=FR.FixedAssetMasterId
+						LEFT JOIN TRN.AssetRegister AR ON AR.Id=FRDD.AssetRegisterId
+						LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+						LEFT JOIN HKP.FixedAssetMasterGL AS FAMG  ON FAMG.FixedAssetMasterId=FAI.FixedAssetMasterId
 						LEFT JOIN[MST].[BudgetMaster] AS BM ON FAMG.DepreciationBudgetMasterId= BM.Id
 						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON FAMG.DepreciationGLId=GL.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON FAMG.DepreciationActivityId= A.Id
-						LEFT JOIN (select SUM(CurrentDepreciationAmount)FixedAssetDepreciationAmount,FixedAssetRegisterId from [TRN].[FixedAssetDepreciationProcess] GROUP BY  FixedAssetRegisterId) FADP ON FADP.FixedAssetRegisterId=FR.Id
 						WHERE FRDD.FixedAssetRegisterDisposedId=@fixedAssetDisposeId
-						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FR.ADBudgetMasterId, B.Code, B.UserName, FR.ADActivityId, A.Code, A.UserName
-						
-					    UNION
-						SELECT  OtherName='LossOnDisposal'
-						
-						,TrnType='Dr'
-
-							,GLGeneralInfoId=FGL.LossOnDisposalAssetGLId   
-							,GLGeneralInfoCode=GL.AccountCode     
-							,GLGeneralInfoName=  GL.UserName    
-							,BudgetMasterId= FGL.LossOnDisposalAssetBudgetMasterId     
-							,BudgetCode=  B.Code    
-							,BudgetName=  B.UserName    
-							,ActivityId=  FGL.LossOnDisposalAssetActivityId     
-							,ActivityCode=  A.Code    
-							,ActivityName=  A.UserName    
-							, Dr=  SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))
-							, Cr=0
-							, Amount= SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))
-						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
-						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
-						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
-						LEFT JOIN HKP.FixedAssetMasterGL FGL ON FGL.FixedAssetMasterId=FR.FixedAssetMasterId
-						LEFT JOIN[MST].[BudgetMaster] AS BM ON FGL.LossOnDisposalAssetBudgetMasterId= BM.Id
-						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON FGL.LossOnDisposalAssetGLId=GL.Id
-						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-						LEFT JOIN [HKP].[Activity] AS A ON FGL.LossOnDisposalAssetActivityId= A.Id
-
-						LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
-						LEFT JOIN (select SUM(CurrentDepreciationAmount)FixedAssetDepreciationAmount,FixedAssetRegisterId from [TRN].[FixedAssetDepreciationProcess] GROUP BY  FixedAssetRegisterId) FADP ON FADP.FixedAssetRegisterId=FR.Id
-						WHERE FRDD.FixedAssetRegisterDisposedId=@fixedAssetDisposeId
-						GROUP BY  FGL.LossOnSaleOfAssetGLId,FGL.LossOnDisposalAssetGLId, GL.AccountCode, GL.UserName, FGL.LossOnDisposalAssetBudgetMasterId, B.Code, B.UserName, FGL.LossOnDisposalAssetActivityId, A.Code, A.UserName
-						,FGL.GainOnSaleOfAssetActivityId,FGL.GainOnSaleOfAssetBudgetMasterId
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, B.Code, B.UserName, A.Code, A.UserName,FAMG.DepreciationBudgetMasterId,FAMG.DepreciationActivityId
 						UNION
-						SELECT  'Asset' AS OtherName, 'Cr' AS TrnType
-							,GLGeneralInfoId =BM.GLGeneralInfoId        
+						SELECT  'LossOnDispose' AS OtherName, 'Dr' AS TrnType
+							,GLGeneralInfoId =GAD.GLGeneralInfoId        
 							,GLGeneralInfoCode =GL.AccountCode 
 							,GLGeneralInfoName =GL.UserName
-							,BudgetMasterId =FR.FABudgetMasterId
+							,BudgetMasterId =GAD.BudgetMasterId
 							,BudgetCode = B.Code
 							,BudgetName =B.UserName 
-							,ActivityId = FR.FAActivityId
+							,ActivityId = GAD.ActivityId
 							,ActivityCode = A.Code
 							,ActivityName =A.UserName
-							
-							, NULL Dr
-							, SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0)) AS Cr
-							, SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0)) AS Amount
+							, SUM(NetAmount-ISNULL(FRDD.NegotiationValue,0)) -SUM( ISNULL(AR.AdjustmentDepreciationAmount,0)) AS Dr
+							, NULL Cr
+							, SUM(NetAmount-ISNULL(FRDD.NegotiationValue,0)) -SUM( ISNULL(AR.AdjustmentDepreciationAmount,0)) AS Amount
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
-						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
-
-						LEFT JOIN[MST].[BudgetMaster] AS BM ON FR.FABudgetMasterId= BM.Id
-						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+						LEFT JOIN TRN.AssetRegister AR ON AR.Id=FRDD.AssetRegisterId
+						LEFT JOIN HKP.GeneralAccountDeterminate GAD ON  GAD.Id='LossOnDisposalFixedAsset'
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON GAD.GLGeneralInfoId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON GAD.BudgetMasterId= BM.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-						LEFT JOIN [HKP].[Activity] AS A ON FR.FAActivityId= A.Id
-						LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
+						LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
+						LEFT JOIN (select SUM(ARC.Amount) AssetAmount,SUM(ISNULL(ARC.DepreciationAmount,0))DepreciationAmount,SUM(ARC.NetAmount)NetAmount,ARC.AssetRegisterId 
+							from [TRN].[AssetRegisterChild] ARC GROUP BY  ARC.AssetRegisterId) ADP ON ADP.AssetRegisterId=AR.Id
 						WHERE FRDD.FixedAssetRegisterDisposedId=@fixedAssetDisposeId
-						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FR.FABudgetMasterId, B.Code, B.UserName, FR.FAActivityId, A.Code, A.UserName
-						) X 
+						GROUP BY  GAD.GLGeneralInfoId,GAD.BudgetMasterId,GAD.ActivityId,GL.AccountCode, GL.UserName, B.Code, B.UserName, A.Code, A.UserName
+						
+						UNION
+						SELECT  'Asset' AS OtherName, 'Cr' AS TrnType
+							,GLGeneralInfoId =ADP.GLGeneralInfoId        
+							,GLGeneralInfoCode =ADP.AccountCode 
+							,GLGeneralInfoName =ADP.GLGeneralInfoName
+							,BudgetMasterId =ADP.BudgetMasterId
+							,BudgetCode = ADP.BudgetCode
+							,BudgetName =ADP.BudgetName 
+							,ActivityId = ADP.ActivityId
+							,ActivityCode = ADP.ActivityCode
+							,ActivityName =ADP.ActivityName
+							, NULL Dr
+							, SUM(ADP.NetAmount) AS Cr
+							, SUM(ADP.NetAmount) AS Amount
+						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
+						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
+						LEFT JOIN TRN.AssetRegister AR ON AR.Id=FRDD.AssetRegisterId
+						LEFT JOIN (select SUM(ARC.NetAmount) NetAmount,ARC.AssetRegisterId ,BM.GLGeneralInfoId, GL.AccountCode, GL.UserName GLGeneralInfoName
+						, VD.BudgetMasterId, B.Code BudgetCode, B.UserName BudgetName, VD.ActivityId, A.Code ActivityCode, A.UserName ActivityName
+											from [TRN].[AssetRegisterChild] ARC 
+											LEFT JOIN [TRN].[VoucherDetail]  VD ON VD.Id=ARC.VoucherDetailId
+											LEFT JOIN [MST].[BudgetMaster] AS BM ON  BM.Id=VD.BudgetMasterId
+											LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON VD.GLGeneralInfoId=GL.Id
+											LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+											LEFT JOIN [HKP].[Activity] AS A ON VD.ActivityId= A.Id
+                                            WHERE ARC.VoucherDetailId IS NOT NULL
+											GROUP BY  ARC.AssetRegisterId ,BM.GLGeneralInfoId, GL.AccountCode, GL.UserName
+						, VD.BudgetMasterId, B.Code, B.UserName, VD.ActivityId, A.Code, A.UserName) ADP ON ADP.AssetRegisterId=AR.Id
+						WHERE FRDD.FixedAssetRegisterDisposedId=@fixedAssetDisposeId
+						GROUP BY  ADP.GLGeneralInfoId, ADP.AccountCode, ADP.GLGeneralInfoName, ADP.BudgetMasterId, ADP.BudgetCode, ADP.BudgetName, ADP.ActivityId, ADP.ActivityCode, ADP.ActivityName
+                        ) X 
                         WHERE X.Amount>0
 						ORDER BY 2 DESC";
             return _sqlRepository.GetDataCollection(sql);
