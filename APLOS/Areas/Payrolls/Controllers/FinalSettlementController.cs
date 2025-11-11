@@ -113,23 +113,7 @@ Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.
 LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
 left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 AND VD.AccountsGroupId=SL.AccountsGroupId 
 Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
-AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL AND ISNULL(sl.PastBonusDisbursed,0) = 0 AND ISNULL(sl.IsBonusDisbursed,0) = 0 AND SPC.EmpInfoSystemID=" + EmpSystemId + @"
-
-UNION ALL
-select sl.YearNo
-,[MonthName]=CASE WHEN sl.MonthNo=1 THEN 'Jan' WHEN sl.MonthNo=2 THEN 'Feb' WHEN sl.MonthNo=3 THEN 'Mar'
-WHEN sl.MonthNo=4 THEN 'Apr' WHEN sl.MonthNo=5 THEN 'May' WHEN sl.MonthNo=6 THEN 'Jun'
-WHEN sl.MonthNo=7 THEN 'Jul' WHEN sl.MonthNo=8 THEN 'Aug' WHEN sl.MonthNo=9 THEN 'Sep'
-WHEN sl.MonthNo=10 THEN 'Oct' WHEN sl.MonthNo=11 THEN 'Nov' ELSE 'Dec' END
-,spc.DisbusmentAmount from SalaryProcChild SPC
-left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
-JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
-Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
-LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
-left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 AND VD.AccountsGroupId=SL.AccountsGroupId 
-Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
-AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL AND ISNULL(sl.PastBonusDisbursed,0) = 0 AND ISNULL(sl.IsBonusDisbursed,0) = 1 AND SPC.EmpInfoSystemID=" + EmpSystemId + @"
-";
+AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL AND ISNULL(sl.PastBonusDisbursed,0) = 0 AND ISNULL(sl.IsBonusDisbursed,0) = 0 AND SPC.EmpInfoSystemID=" + EmpSystemId + @"";
                 var FinalSettlementUndisbursedBonus = _sqlRepository.GetDataCollection(sqlundisbursedbonus);
 
                 return Json(new { SeperationItem, FinalSettlementUndisbursedEarning, FinalSettlementUndisbursedBonus }, JsonRequestBehavior.AllowGet);
@@ -2129,20 +2113,7 @@ LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId  AND V.IsPark=0
 left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 AND VD.AccountsGroupId=SL.AccountsGroupId 
 Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
 AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL AND ISNULL(sl.PastBonusDisbursed,0) = 0 AND ISNULL(sl.IsBonusDisbursed,0) = 0 
-AND SPC.EmpInfoSystemID='" + empId + @"' 
-
-UNION ALL
-
-select BonusAmount=  cast(SUM(spc.DisbusmentAmount)AS decimal(18,0)) from SalaryProcChild SPC
-left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
-JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
-Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
-LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId  AND V.IsPark=0
-left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 AND VD.AccountsGroupId=SL.AccountsGroupId 
-Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
-AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL AND ISNULL(sl.PastBonusDisbursed,0) = 0 AND ISNULL(sl.IsBonusDisbursed,0) = 1 
-AND SPC.EmpInfoSystemID='" + empId + @"'
-)A
+AND SPC.EmpInfoSystemID='" + empId + @"')A
 			 ) AS varchar(100))
            
 WHEN OL.Formula='SeparationDate - ResignDate' THEN CAST(DATEDIFF(Day,
@@ -2570,19 +2541,7 @@ LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId
 left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 AND VD.AccountsGroupId=SL.AccountsGroupId 
 Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
 AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL AND ISNULL(sl.PastBonusDisbursed,0) = 0 
-AND ISNULL(sl.IsBonusDisbursed,0) = 0 AND SPC.EmpInfoSystemID in (" + empIds + @")
-
-UNION ALL
-select  sl.id from SalaryProcChild SPC
-left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
-JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
-Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.YearNo AND sl.MonthNo=SPM.MonthNo
-LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
-left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 AND VD.AccountsGroupId=SL.AccountsGroupId 
-Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
-AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL
-AND ISNULL(sl.PastBonusDisbursed,0) = 0 AND ISNULL(sl.IsBonusDisbursed,0) = 1 AND SPC.EmpInfoSystemID in (" + empIds + @")
-)";
+AND ISNULL(sl.IsBonusDisbursed,0) = 0 AND SPC.EmpInfoSystemID in (" + empIds + @"))";
                 con.OpenDataSetThroughAdapter(elockBNsql, out dsEmpBN, false, "1");
 
 
