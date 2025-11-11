@@ -2992,9 +2992,9 @@ Where E.SystemId = '" + item.EmpSystemId + "'", out dsEmpTenure, false, "1");
 				WHERE  E.VoucherId IS NULL AND CAST(EI.Value AS decimal(18,2))<0 AND E.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
 
                 Union All
-				SELECT  'ShortNoticePeriodDeduction' AS OtherName, 'Cr' AS TrnType
-                , 0 DrAmount 
-                , ABS(CAST(EI.Value AS decimal(18,2)))  CrAmount 
+				SELECT  'ShortNoticePeriodDeduction' AS OtherName,  TrnType =case when EI.Value<0 then 'Dr' else 'Cr' end
+                ,  DrAmount =case when EI.Value<0 then ABS(CAST(EI.Value AS decimal(18,2))) else 0 end
+                ,  CrAmount =case when EI.Value>0 then ABS(CAST(EI.Value AS decimal(18,2))) else 0 end
                 , ABS(CAST(EI.Value AS decimal(18,2))) Amount
                 ,BM.GLGeneralInfoId  ,BMA.BudgetMasterId,BMA.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
                 , B.UserName BudgetName,A.UserName ActivityName ,BMA.Active
