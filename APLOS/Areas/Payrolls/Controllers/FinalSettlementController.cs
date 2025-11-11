@@ -3008,7 +3008,6 @@ Where E.SystemId = '" + item.EmpSystemId + "'", out dsEmpTenure, false, "1");
 
                 X.OtherName,X.TrnType,X.GLName,X.BudgetName,X.ActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId,X.Active
                 ORDER BY X.TrnType DESC";
-
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
