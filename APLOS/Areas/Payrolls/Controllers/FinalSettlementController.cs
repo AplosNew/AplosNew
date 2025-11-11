@@ -2864,6 +2864,22 @@ Where E.SystemId = '" + item.EmpSystemId + "'", out dsEmpTenure, false, "1");
 				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 				LEFT JOIN [HKP].[Activity] AS A ON BMA.ActivityId= A.Id
 				WHERE  E.VoucherId IS NULL AND ISNULL(CAST(EI.Value AS decimal(18,2)),0)<>0 AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
+                Union All
+				SELECT  'Gratuity' AS OtherName, 'Dr' AS TrnType
+                , CAST(EI.Value AS decimal(18,2)) DrAmount 
+                , 0 CrAmount 
+                , CAST(EI.Value AS decimal(18,2)) Amount
+                ,BM.GLGeneralInfoId ,BMA.BudgetMasterId,BMA.ActivityId, GL.AccountCode + ' - ' + GL.UserName GLName
+                , B.UserName BudgetName,A.UserName ActivityName ,BMA.Active
+				FROM EmployeeFullAndFinalSettlement  E
+				LEFT JOIN EmployeeFullAndFinalSettlementItem EI on EI.FinalSettlementId=E.FinalSettlementId AND EI.EmpSystemId=E.EmpSystemId AND EI.UserName='Gratuity'
+				LEFT JOIN [dbo].[EmployeeSeperationItem] ESI ON  ESI.Id=EI.EmployeeSeperationItemId
+				LEFT JOIN [MST].[BudgetMasterActivity] BMA ON  BMA.Id=ESI.DrBudgetMasterActivityId
+				LEFT JOIN[MST].[BudgetMaster] AS BM ON BMA.BudgetMasterId= BM.Id
+				LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+				LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+				LEFT JOIN [HKP].[Activity] AS A ON BMA.ActivityId= A.Id
+				WHERE  E.VoucherId IS NULL AND ISNULL(CAST(EI.Value AS decimal(18,2)),0)<>0 AND EI.FinalSettlementId='" + disbursementAdviceId + @"' AND E.EmpSystemId in (" + empSystemIds + @")
                 
                 Union All
 				SELECT  'ExpensesPayable' AS OtherName, 'Dr' AS TrnType
