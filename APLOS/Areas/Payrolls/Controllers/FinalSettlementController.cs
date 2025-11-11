@@ -2408,12 +2408,15 @@ Where E.SystemId = '" + item["EmpSystemId"] + "'", out dsEmpTenure, false, "1");
                                 }
                                 else
                                 {
-                                    if (dsEmpTenure.Tables[0].Rows.Count > 0 && Convert.ToDecimal(dsEmpTenure.Tables[0].Rows[0]["PolicyYear"].ToString()) > 0)
+                                    if (dsEmpTenure.Tables[0].Rows.Count > 0)
                                     {
-                                        if (Convert.ToDecimal(dsEmpTenure.Tables[0].Rows[0]["ServiceYears"].ToString()) < Convert.ToDecimal(dsEmpTenure.Tables[0].Rows[0]["PolicyYear"].ToString()))
+                                        if (Convert.ToDecimal(dsEmpTenure.Tables[0].Rows[0]["PolicyYear"].ToString()) > 0)
                                         {
-                                            dtData.Rows[i]["Value"] = 0;
-                                            sFormulaResult = 0;
+                                            if (Convert.ToDecimal(dsEmpTenure.Tables[0].Rows[0]["ServiceYears"].ToString()) < Convert.ToDecimal(dsEmpTenure.Tables[0].Rows[0]["PolicyYear"].ToString()))
+                                            {
+                                                dtData.Rows[i]["Value"] = 0;
+                                                sFormulaResult = 0;
+                                            }
                                         }
                                     }
                                 }
@@ -2580,6 +2583,8 @@ AND ISNULL(sl.IsBonusDisbursed,0) = 0 AND SPC.EmpInfoSystemID in (" + empIds + @
         public JsonResult UpdateItemData(IEnumerable<OpenHeadModelNew> datalist)
         {
             DataSet dsEmpMaster = null;
+            DataSet dsEmpTenure=null;
+            DataSet dsPolicy = null;
             DataTable dtValue = new DataTable();
             dtValue.TableName = "TempTable";
             dtValue.Columns.Add("EmployeeSeperationItemId");
@@ -2590,16 +2595,28 @@ AND ISNULL(sl.IsBonusDisbursed,0) = 0 AND SPC.EmpInfoSystemID in (" + empIds + @
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 foreach (var item in datalist)
                 {
                     empIds = item.EmpSystemId;
+
+                    con.OpenDataSetThroughAdapter(@"SELECT FORMAT(ROUND(DATEDIFF(MONTH, E.DOJ, E.DOS) / 12.0, 1), '0.#') AS ServiceYears,PolicyYear= (P.TenureYear+'.'+P.TenureMonth)
+FROM dbo.EmployeeInformation E
+LEFT JOIN dbo.IndividualGratuityPolicy P ON P.EmployeeSystemId = E.SystemId
+AND P.Id = (SELECT top 1 Id FROM dbo.IndividualGratuityPolicy Where EmployeeSystemId = E.SystemId  Order By AddedDate Desc)
+Where E.SystemId = '" + item.EmpSystemId + "'", out dsEmpTenure, false, "1");
+
+                    con.OpenDataSetThroughAdapter(@"select * from dbo.IndividualGratuityPolicy Where EmployeeSystemId= '" + item.EmpSystemId + "'", out dsPolicy, false, "1");
+
                     break;
                 }
 
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 esql = "select * from EmployeeFullAndFinalSettlementItem where EmpSystemId IN(" + empIds + ")";
                 con.OpenDataSetThroughAdapter(esql, out dsEmpMaster, false, "1");
                 DataSet dtData = Library.Service.Helpers.DataTableExtensions.ToDataSet<OpenHeadModelNew>(datalist);
+
+
+
 
                 for (int i = 0; i < dtData.Tables[0].Rows.Count; i++)
                 {
@@ -2634,6 +2651,30 @@ AND ISNULL(sl.IsBonusDisbursed,0) = 0 AND SPC.EmpInfoSystemID in (" + empIds + @
                     {
                         ReLoadFormulaWithValue(dtData.Tables[0].Rows[i]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
                         sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("###0");
+
+                        if (dtData.Tables[0].Rows[i]["UserName"].ToString() == "Gratuity")
+                        {
+                            if (dsPolicy.Tables[0].Rows.Count == 0)
+                            {
+                                dtData.Tables[0].Rows[i]["Value"] = 0;
+                                sFormulaResult = "0";
+                            }
+                            else
+                            {
+                                if (dsEmpTenure.Tables[0].Rows.Count > 0)
+                                {
+                                    if (Convert.ToDecimal(dsEmpTenure.Tables[0].Rows[0]["PolicyYear"].ToString()) > 0)
+                                    {
+                                        if (Convert.ToDecimal(dsEmpTenure.Tables[0].Rows[0]["ServiceYears"].ToString()) < Convert.ToDecimal(dsEmpTenure.Tables[0].Rows[0]["PolicyYear"].ToString()))
+                                        {
+                                            dtData.Tables[0].Rows[i]["Value"] = 0;
+                                            sFormulaResult = "0";
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
 
                         DataRow dtValueRow = dtValue.NewRow();
 
