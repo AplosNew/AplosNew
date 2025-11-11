@@ -113,7 +113,7 @@ Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.
 LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
 left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 AND VD.AccountsGroupId=SL.AccountsGroupId 
 Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
-AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL AND ISNULL(sl.PastBonusDisbursed,0) = 0 AND ISNULL(sl.IsBonusDisbursed,0) = 0 AND SPC.EmpInfoSystemID=" + EmpSystemId + @"";
+AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL AND ISNULL(sl.PastBonusDisbursed,0) = 0 AND ISNULL(sl.IsBonusDisbursed,0) = 1 AND SPC.EmpInfoSystemID=" + EmpSystemId + @"";
                 var FinalSettlementUndisbursedBonus = _sqlRepository.GetDataCollection(sqlundisbursedbonus);
 
                 return Json(new { SeperationItem, FinalSettlementUndisbursedEarning, FinalSettlementUndisbursedBonus }, JsonRequestBehavior.AllowGet);
@@ -2112,7 +2112,7 @@ Left join SalaryLock sl on sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=SPM.
 LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId  AND V.IsPark=0
 left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 AND VD.AccountsGroupId=SL.AccountsGroupId 
 Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
-AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL AND ISNULL(sl.PastBonusDisbursed,0) = 0 AND ISNULL(sl.IsBonusDisbursed,0) = 0 
+AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL AND ISNULL(sl.PastBonusDisbursed,0) = 0 AND ISNULL(sl.IsBonusDisbursed,0) = 1 
 AND SPC.EmpInfoSystemID='" + empId + @"')A
 			 ) AS varchar(100))
            
@@ -2544,7 +2544,7 @@ LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId
 left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Annual Bonus' and vd.SalaryHeadId=SPC.SalaryHeadID and vd.CrAmount>0 AND VD.AccountsGroupId=SL.AccountsGroupId 
 Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!=0
 AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL AND ISNULL(sl.PastBonusDisbursed,0) = 0 
-AND ISNULL(sl.IsBonusDisbursed,0) = 0 AND SPC.EmpInfoSystemID in (" + empIds + @"))";
+AND ISNULL(sl.IsBonusDisbursed,0) = 1 AND SPC.EmpInfoSystemID in (" + empIds + @"))";
                 con.OpenDataSetThroughAdapter(elockBNsql, out dsEmpBN, false, "1");
 
 
