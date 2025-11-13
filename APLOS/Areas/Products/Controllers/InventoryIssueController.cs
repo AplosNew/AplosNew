@@ -869,14 +869,13 @@ namespace Aplos.Areas.Products.Controllers
 							,FORMAT(a.Rate,'N4') BaseRate
 							,a.TotalAmount
                             ,Isnull(a.IssueReturnQty,0)  IssueReturnQty
-                            ,Isnull(a.qty,0)-Isnull(a.IssueReturnQty,0) TransactionQty
+                            ,0 TransactionQty
                             ,Isnull(a.qty,0)-Isnull(a.IssueReturnQty,0) Balance
                             ,0 Active
-		                    --,IRD.TransactionQty Rcvd, IRD.IssueQty IssueQty,PurchaseRerutnQty PurchaseRerutnQty
-		                    --, sum(a.qty) qty 
-		                    --,sum(IRD.TransactionQty) Rcvd, sum(IRD.IssueQty) IssueQty,sum(PurchaseRerutnQty) PurchaseRerutnQty
+		                   
                             ,c.MaterialStorageId,MS.UserName MaterialStorage,a.Id InventoryIssueHistoryId,a.InventoryIssueDetailId
                     from trn.InventoryIssueHistory a
+					join trn.InventoryIssueHistoryBOQ IIBOQ ON IIBOQ.InventoryIssueHistoryId=a.Id
                     left join trn.InventoryIssueDetail b on b.id=a.InventoryIssueDetailId
                     left join trn.InventoryIssue c on c.id=b.InventoryIssueId
                     left join [TRN].[InventoryMaterial] AS IM ON IM.Id=b.InventoryMaterialId
@@ -891,19 +890,9 @@ namespace Aplos.Areas.Products.Controllers
                     LEFT JOIN [ORG].[CostCenter] AS CC On CC.Id=b.CostCenterId
                     left JOIN [SCS].[UnitOfMeasurement] AS UoM ON b.BaseUOMId=UoM.Id
                       left join [HKP].[MaterialStorage] MS on MS.id=c.MaterialStorageId
-                    --Left JOin (Select Id, sum(TransactionQty) TransactionQty,sum(IssueQty) IssueQty,sum(PurchaseRerutnQty) PurchaseRerutnQty,sum(IssueRerutnQty) IssueRerutnQty from trn.InventoryReceiveDetail group by Id) IRD ON IRD.id=a.InventoryReceiveDetailId
-                    --where a.InventoryReceiveDetailId in('19304-1','19429-2','19633-3','19796-1')
-                     --where IM.MaterialMasterId='" + MaterialMasterId + @"' ANd IM.ArticleId='" + ArticleId + @"' AND isnull(FirstCharacteristicsValueId,'')='" + FirstCharacteristicsValueId + @"' and isnull(SecondCharacteristicsValueId,'')='" + SecondCharacteristicsValueId + @"' AND isnull(ThirdCharacteristicsValueId,'')='" + ThirdCharacteristicsValueId + @"'
                     Where " + paramter + @"
-                    --and a.InventoryReceiveDetailId='19304-1'
                     AND CC.Id='" + CostCenterId + @"' AND a.MaterialStorageId='" + MaterialStorageId + @"' AND IssueDate Between '" + fromDate + @"' and '" + toDate + @"'
                     AND Isnull(a.qty,0)-Isnull(a.IssueReturnQty,0)>0 AND Isnull(a.Rate,0)>0
-                    --group by a.InventoryReceiveDetailId
-                    --, IM.MaterialMasterId, MM.UserName , IM.ArticleId, AR.StandardName 
-                    --, IM.FirstCharacteristicsId, CH1.UserName , IM.FirstCharacteristicsValueId, CHV1.UserName 
-                    --, IM.SecondCharacteristicsId, CH2.UserName , IM.SecondCharacteristicsValueId, CHV2.UserName 
-                    --, IM.ThirdCharacteristicsId, CH3.UserName , IM.ThirdCharacteristicsValueId, CHV3.UserName 
-                    --, b.BaseUOMId, UoM.UserName,cc.UserName --, b.AvgRate, b.AvgAmount, b.PolicyRate, b.PolicyAmount, b.[Policy]
                     Order by IssueDate,Im.ArticleId DESC";
                     }
                 }
@@ -915,6 +904,45 @@ namespace Aplos.Areas.Products.Controllers
                 throw new CustomException(ex.Message, ex,
                     Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult GetIssueBOQListForIssueReturn(string InventoryreceiveDetailId)
+        {
+            try
+            {
+                var Sql = @"select   IM.MaterialMasterId, MM.UserName MaterialName
+                                        , IM.ArticleId, MMA.StandardName ArticleName
+                                        , IM.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
+                                        , IM.FirstCharacteristicsValueId, FCV.UserName AS FirstCharacteristicsValue
+                                        , IM.SecondCharacteristicsId, SC.UserName AS SecondCharacteristics
+                                        , IM.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue 
+										, IIHBOQ.Qty BOQQty,TUoM.UserName TUOM 
+                                        , IIHBOQ.*
+										FROM [TRN].[InventoryIssueHistoryBOQ] IIHBOQ
+										LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.Id=IIHBOQ.InventoryIssueHistoryId
+										LEFT JOIN TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
+										LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+										LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+										LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
+										LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=IM.ArticleId
+										LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
+										LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
+										LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
+										LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
+										LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.TransactionUoMId=TUoM.Id
+										WHERE IIHBOQ.InventoryreceiveDetailId='" + InventoryreceiveDetailId + "'";
+                var res = _sqlRepository.GetDataCollection(Sql);
+                var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
             }
         }
 

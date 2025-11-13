@@ -2260,7 +2260,8 @@ namespace Aplos.Areas.Accounts.Controllers
 																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
 																LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
-																WHERE ACT.Id IN('Revenue','Expense') AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] ))
+																WHERE ACT.Id IN('Revenue','Expense') 
+                                            AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] where FiscalYearId not in (select top(1) FiscalYearId from [SCS].[FiscalYearClose] order by FiscalYearId desc )))
                                             GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, 
 											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id,BMA.Id
 											
@@ -2380,7 +2381,8 @@ namespace Aplos.Areas.Accounts.Controllers
 																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
 																LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
-																WHERE ACT.Id IN('Revenue','Expense') AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] ))
+																WHERE ACT.Id IN('Revenue','Expense') 
+                                                        AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] where FiscalYearId not in (select top(1) FiscalYearId from [SCS].[FiscalYearClose] order by FiscalYearId desc )))
                                                     	GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, BUD.UserName, v.PostingDate
                                                     	
                                                     	UNION
@@ -2493,7 +2495,8 @@ namespace Aplos.Areas.Accounts.Controllers
 																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
 																LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
-																WHERE ACT.Id IN('Revenue','Expense') AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] ))
+																WHERE ACT.Id IN('Revenue','Expense')  AND 
+                                            V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] where FiscalYearId not in (select top(1) FiscalYearId from [SCS].[FiscalYearClose] order by FiscalYearId desc )))
                                             GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, 
 											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id, BA.AccountTitle, CM.UserName
 											,VD.BankMasterId, VD.CashMasterId, P.UserName, VD.PartyId,BMA.Id
@@ -2630,7 +2633,8 @@ namespace Aplos.Areas.Accounts.Controllers
 																LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 																LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
 																LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
-																WHERE ACT.Id IN('Revenue','Expense') AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] ))
+																WHERE ACT.Id IN('Revenue','Expense') 
+                                                    AND V.FiscalYearId in(select FiscalYearId from [SCS].[FiscalYearClose] where FiscalYearId not in (select top(1) FiscalYearId from [SCS].[FiscalYearClose] order by FiscalYearId desc )))
 	                                                GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, ACT.BalanceType, ACT.Id, v.PostingDate
 	
 	                                                UNION
