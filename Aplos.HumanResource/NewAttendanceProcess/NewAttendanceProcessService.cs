@@ -1712,7 +1712,10 @@ and	E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+ @"' OR ISNULL(E.DOS,'') = '' OR 
                                 string EmpId = clsWebLib.RetValidLen(OutwithFlag.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
                                 string OutPunchRow = clsWebLib.RetValidLen(OutwithFlag.Tables[0].Rows[i][@"MaxOut"]).ToString();
                                 string OutPunchLimit = clsWebLib.RetValidLen(OutwithFlag.Tables[0].Rows[i][@"OutPunchLimit"]).ToString();
+                                if (EmpId== "24241568")
+                                {
 
+                                }
                                 string RowId = "";
                                 if (OutPunchRow != "")
                                 {
