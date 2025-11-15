@@ -591,7 +591,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                 DataTable dtSO = _sqlRepository.GetDataTable(sql);
                 string TaskTemplateMasterId = dtSO.Rows[0]["TaskTemplateMasterId"].ToString();
 
-                DataTable dt = schedule.GetDataSourceMasterOrderNew(master.Id, TaskAppliedOnEnum.ProductionOrder);
+                DataTable dt = schedule.GetDataSourceProdOrderNew(master.Id, master.EntityId,TaskAppliedOnEnum.ProductionOrder);
                 if (dt.Rows.Count > 0)
                     schedule.MakeTNAMaster(dt, master.Id, TaskAppliedOnEnum.ProductionOrder);
 
