@@ -266,5 +266,60 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
     }
     $scope.CostCenterLoad();    //#endregion
 
+    $scope.IssueBoqList = [];
+    $scope.GetIssueBoqList = function (grnRowId) {
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            url: 'Products/InventoryIssue/GetIssueBOQListForIssueReturn?InventoryreceiveDetailId=' + grnRowId,
+        }).then(function successCallback(response) {
+            $scope.IssueBoqList = response.data;
+        });
+    };
+
+    $scope.GetIssueBoqPopUp = function (grnRowId, index) {
+        $scope.TempIndex = index;
+        $scope.TempGrnRowId = grnRowId;
+        $scope.GetIssueBoqList(grnRowId);
+        angular.element(document.querySelector('#IssueBoqPopUp')).modal('show');
+
+    };
+    $scope.IssueBoqPOPopUpClose = function () {
+        angular.element(document.querySelector('#IssueBoqPopUp')).modal('hide');
+    };
+    $scope.SelectedGRNBoqList = [];
+    $scope.addToBOQList = function () {
+        for (var i = 0; i < $scope.IssueBoqList.length; i++) {
+            if ($scope.IssueBoqList[i].ReturnQty > 0) {
+                var getRow = $filter("filter")($scope.SelectedGRNBoqList, { "InventoryReceiveDetailId": $scope.IssueBoqList[i].InventoryReceiveDetailId, "BOQDetailId": $scope.IssueBoqList[i].BOQDetailId });
+                if (!baseService.isUndefinedOrNull(getRow) && getRow.length > 0 && getRow[0].InventoryReceiveDetailId === $scope.IssueBoqList[i].InventoryReceiveDetailId && getRow[0].BOQDetailId === $scope.IssueBoqList[i].BOQDetailId) {
+                    ShowResult("This BOQ Item have already added!", "failure", "IssueBoqPopUp");
+                }
+                else {
+                    $scope.SelectedGRNBoqList.splice(0, 0, $scope.IssueBoqList[i]);
+                }
+            }
+        }
+        var tempReturnQty = parseFloat($filter("sumByKey")($filter("filter")($scope.SelectedGRNBoqList, { InventoryReceiveDetailId: $scope.TempGrnRowId }), "ReturnQty")).toFixed(2);
+        for (var j = 0; j < $scope.inventoryMaterialList.length; j++) {
+            if ($scope.inventoryMaterialList[j].InventoryReceiveDetailId === $scope.TempGrnRowId) {
+                $scope.inventoryMaterialList[j].TransactionQty = parseFloat(tempReturnQty).toFixed(2);
+                var tempGRNTaxAmount = 0;
+                for (var k = 0; k < $scope.inventoryMaterialList[j].POMaterialTaxList.length; k++) {
+                    if ($scope.inventoryMaterialList[j].POMaterialTaxList[k].InventoryReceiveDetailId == $scope.inventoryMaterialList[j].InventoryReceiveDetailId) {
+                        var tmpTaxAmount = ($scope.inventoryMaterialList[j].POMaterialTaxList[k].TaxAmount / $scope.inventoryMaterialList[j].GRNReceived) * $scope.inventoryMaterialList[j].TransactionQty
+                        $scope.inventoryMaterialList[j].POMaterialTaxList[k].TaxAmount = parseFloat(tmpTaxAmount).toFixed(2);
+                        tempGRNTaxAmount += Math.round((tmpTaxAmount) * 100 + Number.EPSILON) / 100;
+                    }
+                    $scope.inventoryMaterialList[j].BaseTaxAmount = Math.round((tempGRNTaxAmount) * 100 + Number.EPSILON) / 100;
+                }
+            }
+        }
+        //TODO:taxamount calculation
+        angular.element(document.querySelector('#IssueBoqPopUp')).modal('hide');
+        $scope.TempIndex = null;
+        $scope.TempGrnRowId = null;
+        tempReturnQty = 0;
+    }
 
 }
