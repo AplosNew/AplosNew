@@ -3407,7 +3407,7 @@ and	E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+ @"' OR ISNULL(E.DOS,'') = '' OR 
                 {
 
                     #region Previous Day Status Reprocessing               
-                    DayStatusReprocessing(PreviousDay, PlantValue); //Making Localized Columns Null
+                    //DayStatusReprocessing(PreviousDay, PlantValue); //Making Localized Columns Null
                     #endregion
 
                     SaveLog("Nullified Columns Logic Ran Successfully for " + PreviousDay + " ...", PlantValue, false);
