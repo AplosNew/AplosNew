@@ -645,7 +645,7 @@ namespace Library.Service.TaskScheduler
                                                             LEFT OUTER JOIN (SELECT TOP 1 moi.MasterOrderId,IsRepeat FROM trn.MasterOrderItem AS moi 
                                                                             WHERE moi.MasterOrderId='" + MasterOrderId + @"' AND ISNULL(moi.IsRepeat,0)=0) as RPT ON RPT.MasterOrderId=MO.Id
                                                             LEFT OUTER JOIN EntityTask AS et ON et.EntityId=mo.EntityId AND et.TaskMasterId=tt.TaskMasterId AND tt.ResponsiblePersonCategory='Entity'
-                                                            LEFT OUTER JOIN EntityTask AS etk ON etk.EntityId='"+ EntityId + @"' AND etk.TaskMasterId=tt.TaskMasterId AND tt.ResponsiblePersonCategory='Entity'
+                                                            LEFT OUTER JOIN EntityTask AS etk ON etk.EntityId='" + EntityId + @"' AND etk.TaskMasterId=tt.TaskMasterId AND tt.ResponsiblePersonCategory='Entity'
                                                             LEFT OUTER JOIN mst.BuyerMaster AS bm ON isnull(bm.BuyerId,'')=isnull(mo.BuyerId,'')
 										                                                            AND ISNULL(bm.BuyerDepartmentId,isnull(mo.BuyerDepartmentId,''))=isnull(mo.BuyerDepartmentId,'')
 										                                                            AND ISNULL(bm.BuyerDivisionId,isnull(mo.BuyerDivisionId,''))=isnull(mo.BuyerDivisionId,'')
@@ -738,6 +738,10 @@ namespace Library.Service.TaskScheduler
             string MasterOrderId = "";
 
             DataTable dtDependentDates = null;
+            DataTable dtData = null;
+            DataTable dtRelations = null;
+            DataTable dtTaskDelayedEndDate = null;
+            DataTable dtCalendar= null;
             if (ScheduleFor == TaskAppliedOnEnum.MasterOrder)
             {
                 MasterOrderId = TransactionId;
@@ -752,7 +756,16 @@ namespace Library.Service.TaskScheduler
 
 
             Library.Service.Extension.TaskScheduler.TaskScheduler scheduler = new Extension.TaskScheduler.TaskScheduler();
-            scheduler.GetDataSourceMasterOrderNew(MasterOrderId, out DataTable dtData, out DataTable dtRelations, out DataTable dtTaskDelayedEndDate, out DataTable dtCalendar);
+            if (ScheduleFor == TaskAppliedOnEnum.ProductionOrder)
+            {
+                scheduler.GetDataSourceMasterOrderForProdNew(MasterOrderId, out dtData, out dtRelations, out dtTaskDelayedEndDate, out dtCalendar);
+
+            }
+            else
+            {
+                scheduler.GetDataSourceMasterOrderNew(MasterOrderId, out dtData, out dtRelations, out dtTaskDelayedEndDate, out dtCalendar);
+            }
+
 
 
             DataTable dtOriginalData = dtData.DefaultView.ToTable();
@@ -779,6 +792,8 @@ namespace Library.Service.TaskScheduler
             }
             return dtData;
         }
+
+
         public void generateDatesNew(string MasterOrderId, DataTable dtTemplateData, DataTable dtCalendar, DataTable dtTaskData, DataTable dtDependentDates, DataTable dtTaskDelayedEndDate)
         {
 
@@ -789,7 +804,7 @@ namespace Library.Service.TaskScheduler
             dtTemplateData.DefaultView.RowFilter = "isnull(TempStartDate,'')=''";
             while (dtTemplateData.DefaultView.Count > 0)
             {
-                if (dtTemplateData.DefaultView.Count == 7)
+                if (dtTemplateData.DefaultView.Count == 10)
                 {
 
                 }
@@ -1086,6 +1101,10 @@ namespace Library.Service.TaskScheduler
                         {
                             CalendarRowFilter("WorkingDate<=#" + Convert.ToDateTime(ActualStartDate).AddDays(OwnLagDays).ToString("dd-MMM-yyyy") + "#", drCurrentDateRowToBeEdited, dtCalendar);
                             dtCalendar.DefaultView.Sort = "WorkingDate DESC";
+                            if (dtCalendar.DefaultView.Count==0)
+                            {
+
+                            }
                             CalendarRowFilter("WorkingDate>=#" + Convert.ToDateTime(dtCalendar.DefaultView[0]["WorkingDate"].ToString()).AddDays(0).ToString("dd-MMM-yyyy") + "#", drCurrentDateRowToBeEdited, dtCalendar);
 
                         }
@@ -1322,24 +1341,32 @@ namespace Library.Service.TaskScheduler
                                                  WHERE moi.MasterOrderId='" + MasterOrderId + @"') GROUP BY k.Enum
 
 			                                     UNION ALL
-                                     SELECT k.Enum,convert(date,MIN(d.ProductionDate)) AS Dates 
+                                    SELECT k.Enum,convert(date,MIN(d.ProductionDate)) AS Dates 
                                     FROM (SELECT 'ProductionOrderFirstOutputDate' AS Enum) AS K
-                                    LEFT OUTER JOIN (SELECT MIN(ppt.ProductionDate) AS ProductionDate
+                                    LEFT OUTER JOIN (
+									SELECT ProductionDate=CASE WHEN MIN(ppt.ProductionDate) IS NULL THEN MIN(PS.ProductionDate) 
+									WHEN MIN(PS.ProductionDate) IS NULL THEN SO.DeliveryDate
+									ELSE  MIN(ppt.ProductionDate) END
                                                                   FROM trn.ProductionOrderDetail AS pod
-									INNER JOIN ProductionPlanningType1 AS ppt ON ppt.ProductionOrderID=pod.ProductionOrderId
-                                    INNER JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
-                                    INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
-                                                 WHERE moi.MasterOrderId='" + MasterOrderId + @"' ) AS D ON 1=1 GROUP BY k.Enum
+									LEFT  JOIN ProductionPlanningType1 AS ppt ON ppt.ProductionOrderID=pod.ProductionOrderId
+                                    LEFT JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
+									 LEFT JOIN TRN.ProductionSummary PS ON PS.ProductionOrderID=pod.ProductionOrderId
+									  INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+                                                 WHERE moi.MasterOrderId='" + MasterOrderId + @"' Group By SO.DeliveryDate) AS D ON 1=1 GROUP BY k.Enum
                                                  
                                                                 UNION ALL
                                     SELECT k.Enum,convert(date,MAX(d.ProductionDate)) AS Dates 
                                     FROM (SELECT 'ProductionOrderLastoutputdate' AS Enum) AS K
-                                    LEFT OUTER JOIN (SELECT MAX(ppt.ProductionDate) AS ProductionDate
+                                    LEFT OUTER JOIN (
+									SELECT ProductionDate=CASE WHEN MAX(ppt.ProductionDate) IS NULL THEN MAX(PS.ProductionDate) 
+									WHEN MAX(PS.ProductionDate) IS NULL THEN SO.DeliveryDate
+									ELSE  MAX(ppt.ProductionDate) END
                                                                   FROM trn.ProductionOrderDetail AS pod
-									INNER JOIN ProductionPlanningType1 AS ppt ON ppt.ProductionOrderID=pod.ProductionOrderId
-                                    INNER JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
-                                    INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
-                                                 WHERE moi.MasterOrderId='" + MasterOrderId + @"' ) AS D ON 1=1 GROUP BY k.Enum";
+									LEFT  JOIN ProductionPlanningType1 AS ppt ON ppt.ProductionOrderID=pod.ProductionOrderId
+                                    LEFT JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
+									 LEFT JOIN TRN.ProductionSummary PS ON PS.ProductionOrderID=pod.ProductionOrderId
+INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+                                                  WHERE moi.MasterOrderId='" + MasterOrderId + @"' Group By SO.DeliveryDate) AS D ON 1=1 GROUP BY k.Enum";
             DataTable dtData = _sqlRepository.GetDataTable(mm);
             dtData.Columns.Add("HasActualDate");
             // DependentDatesEnum.
@@ -2430,7 +2457,7 @@ LEFT OUTER JOIN (
 
 
                 string sql = @"SELECT TT.Id,MT.TaskDescription,MT.StoryPoint,TT.SequentialStartDate AS TempStartDate,TT.SequentialEndDate AS TempEndDate,tm.TaskCategoryId,tm.TaskSubCategoryId,
-                                    ISNULL(mo.ResponsiblePersonId,ttm.EmployeeId) AS AssignedBy,tt.EmployeeId AS AssignTo,t.MasterOrderId,
+                                    ISNULL(ttm.EmployeeId,mo.ResponsiblePersonId) AS AssignedBy,tt.EmployeeId AS AssignTo,t.MasterOrderId,
                                     t.MasterOrderItemId, t.SalesOrderId, t.ProductionOrderId, t.TNAAppliedOn,
                                     MASO.MDesc,li.STDesc,so.SODesc,po.PODesc
 
@@ -2656,6 +2683,8 @@ LEFT OUTER JOIN (
                         {
                             DataRow drEdit = dsAuditDestination.Tables[0].DefaultView[0].Row;
                             drEdit.BeginEdit();
+                            drEdit["ResponsiblePersonId"] = dtRefTaskMaster.Rows[i]["AssignedBy"].ToString();
+                            drEdit["ResponsiblePersonId"] = dtRefTaskMaster.Rows[i]["AssignTo"].ToString();
                             drEdit["DueDate"] = dtRefTaskMaster.Rows[i]["TempEndDate"].ToString();
                             drEdit.EndEdit();
                         }
