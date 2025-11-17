@@ -700,7 +700,7 @@ namespace Aplos.Areas.Products.Controllers
             inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
             inventoryIssue.CompanyId = identity.CompanyId;
             inventoryIssue.PlantId = identity.PlantId;
-            _inventoryIssueService.InsertGraphIssueReturn(entities, specificStockList, inventoryIssue, IssueTypeStatus);
+            _inventoryIssueService.InsertGraphIssueReturn(entities, specificStockList, inventoryIssue, IssueTypeStatus,null);
             return Json(new { inventoryIssue, Message = AplosMessage.Success + "Issue No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
         }
         public JsonResult IssueReturnForUpdate(string Id, string toDate, string CostCenterId) 

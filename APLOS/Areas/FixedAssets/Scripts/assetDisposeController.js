@@ -549,7 +549,7 @@ function assetDisposeController(commonMessage, $scope, $rootScope, baseService, 
 
     $scope.calBooksNegotiationValue = function (data) {
         var assetNegotiationValue = parseFloat(data.NegotiationValue);
-        if (assetNegotiationValue === 0 || assetNegotiationValue <0) {
+        if ($scope.voucher.Status != 'Scrap' && assetNegotiationValue === 0 || assetNegotiationValue <0) {
             data.NegotiationValue = "";
             ShowResult("Negotiation Amount should be greater than 0(zero).", "failure");
         }

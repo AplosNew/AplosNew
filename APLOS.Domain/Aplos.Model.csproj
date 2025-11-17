@@ -260,6 +260,7 @@
     <Compile Include="Configurations\Inventory\GRNBOQMAPConfiguration.cs" />
     <Compile Include="Configurations\Inventory\GRNAcceptanceMapConfiguration.cs" />
     <Compile Include="Configurations\Inventory\InventoryIssueHistoryBOQConfiguration.cs" />
+    <Compile Include="Configurations\Inventory\InventoryIssueReturnHistoryBOQConfiguration.cs" />
     <Compile Include="Configurations\Inventory\InventorySalesReturnDetailConfiguration.cs" />
     <Compile Include="Configurations\Inventory\InventorySalesReturnConfiguration.cs" />
     <Compile Include="Configurations\Inventory\InventorySalesReturnTaxConfiguration.cs" />
@@ -682,6 +683,7 @@
     <Compile Include="Inventory\FGInventoryReceive.cs" />
     <Compile Include="Inventory\GRNBOQMAP.cs" />
     <Compile Include="Inventory\GRNAcceptanceMap.cs" />
+    <Compile Include="Inventory\InventoryIssueReturnHistoryBOQ.cs" />
     <Compile Include="Inventory\InventoryIssueHistoryBOQ.cs" />
     <Compile Include="Inventory\InventorySalesReturnDetail.cs" />
     <Compile Include="Inventory\InventorySalesReturn.cs" />

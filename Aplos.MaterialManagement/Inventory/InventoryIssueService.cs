@@ -52,6 +52,7 @@ namespace Library.MaterialManagement.Inventory
         private readonly IRepositoryAsync<RequisitionIssueDetail> _requisitionIssueDetailRepository;
         private readonly IRepositoryAsync<InventoryIssueReturn> _InventoryIssueReturnRepository;
         private readonly IRepositoryAsync<InventoryIssueReturnHistory> _InventoryIssueReturnHistoryRepository;
+        private readonly IRepositoryAsync<InventoryIssueReturnHistoryBOQ> _InventoryIssueReturnHistoryBOQRepository;
 
         private readonly IRepositoryAsync<PhysicalStockAdjustmentMaster> _PhysicalStockAdjustmentMasterRepository;
         private readonly IRepositoryAsync<PhysicalStockAdjustmentDetail> _PhysicalStockAdjustmentDetailRepository;
@@ -117,7 +118,7 @@ namespace Library.MaterialManagement.Inventory
             , IRepositoryAsync<IssueDetailAndIssueRequestMap> IssueDetailAndIssueRequestMapRepository
             , IRepositoryAsync<InventorySalesReturn> InventorySalesReturnRepository
             , IRepositoryAsync<InventorySalesReturnDetail> InventorySalesReturnDetailRepository
-
+            , IRepositoryAsync<InventoryIssueReturnHistoryBOQ> InventoryIssueReturnHistoryBOQRepository
             , IRepositoryAsync<InventorySalesReturnTax> InventorySalesReturnTaxRepository
             , IRepositoryAsync<InventorySalesReturnService> InventorySalesReturnServiceRepository
             , IInventoryReceiveService inventoryReveiveService
@@ -149,7 +150,7 @@ namespace Library.MaterialManagement.Inventory
             _InventorySalesHistoryRepository = InventorySalesHistoryRepository;
             _InventorySalesTaxRepository = InventorySalesTaxRepository;
             _InventorySalesServiceRepository = InventorySalesServiceRepository;
-
+            _InventoryIssueReturnHistoryBOQRepository = InventoryIssueReturnHistoryBOQRepository;
             _InventoryScrapRepository = InventoryScrapRepository;
             _InventoryScrapDetailRepository = InventoryScrapDetailRepository;
             _InventoryScrapHistoryRepository = InventoryScrapHistoryRepository;
@@ -1377,7 +1378,8 @@ namespace Library.MaterialManagement.Inventory
 
 
 
-        public void InsertGraphIssueReturn(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssueReturn inventoryIssue, string IssueTypeStatus)
+        public void InsertGraphIssueReturn(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList
+            , InventoryIssueReturn inventoryIssue, string IssueTypeStatus, IEnumerable<InventoryIssueReturnHistoryBOQ> issueboqList)
         {
             var flag = false;
 
@@ -1425,6 +1427,25 @@ namespace Library.MaterialManagement.Inventory
                             };
                             AuditService.AddedLog(history);
                             _InventoryIssueReturnHistoryRepository.Insert(history);
+
+                            if(issueboqList != null)
+                            {
+                                foreach (var item in issueboqList.Where(r=>r.InventoryIssueHistoryId==issue.InventoryIssueHistoryId))
+                                {
+                                    var historyboq = new InventoryIssueReturnHistoryBOQ
+                                    {
+                                        InventoryIssueReturnHistoryId = history.Id,
+                                        InventoryIssueHistoryId = item.InventoryIssueHistoryId,
+                                        InventoryReceiveDetailId = item.InventoryReceiveDetailId,
+                                        BOQDetailId = item.BOQDetailId,
+                                        Qty = item.ReturnQty,
+                                        Rate = item.Rate,
+                                    };
+                            AuditService.AddedLog(historyboq);
+                            _InventoryIssueReturnHistoryBOQRepository.Insert(historyboq);
+
+                                }
+                            }
                             var invMaterial = _InventoryIssueReturnHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + issue.InventoryMaterialId + "'").FirstOrDefault();
                             var invMaterial12 = _InventoryIssueReturnHistoryRepository.SqlQuery<InventoryIssueHistory>(@"SELECT * FROM [TRN].[InventoryIssueHistory] WHERE Id='" + issue.InventoryIssueHistoryId + "'").FirstOrDefault();
                             var invMaterial1 = _InventoryIssueReturnRepository.SqlQuery<InventoryReceiveDetail>(@"SELECT * FROM [TRN].[InventoryReceiveDetail] WHERE Id='" + issue.InventoryReceiveDetailId + "'").FirstOrDefault();

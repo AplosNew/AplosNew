@@ -146,7 +146,7 @@
                             <th class="text-center">Depreciation Amount</th>
                             <th class="text-center">NetAmount</th>
                             <th class="text-center">Adjustment Depreciation Amount</th>
-                            <th class="text-center" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'">Negotiation Amount</th>
+                            <th class="text-center" ng-hide="voucher.Status == 'Theft'">Negotiation Amount</th>
                             <th class="text-center">Tax Amount</th>
                             <th class="text-right">Action</th>
                         </tr>
@@ -167,7 +167,7 @@
                             <td><input type="text" class="form-control text-right" ng-disabled="true" id="DepreciationAmount" ng-model="x.DepreciationAmount " n-decimals="2"></td>
                             <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NetAmount" ng-model="x.NetAmount " n-decimals="2"></td>
                             <td><input type="text" style="width:100px" class="form-control text-right" id="AdjustmentDepreciationAmount" ng-model="x.AdjustmentDepreciationAmount" ng-keyup="calBooksAdjustmentDepreciation(x)" n-decimals="2" autocomplete="off"></td>
-                            <td ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><input type="text" style="width:100px" class="form-control text-right" id="NegotiationValue" ng-model="x.NegotiationValue" ng-keyup="calBooksNegotiationValue(x,$index)" n-decimals="2" autocomplete="off"></td>
+                            <td ng-hide="voucher.Status == 'Theft'"><input type="text" style="width:100px" class="form-control text-right" id="NegotiationValue" ng-model="x.NegotiationValue" ng-keyup="calBooksNegotiationValue(x,$index)" n-decimals="2" autocomplete="off"></td>
                             <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="TaxAmount" ng-model="x.TaxAmount " n-decimals="2"></td>
                             <td class="text-right">
                                 <ul class="list-inline action-list">

@@ -25,7 +25,7 @@ namespace Library.MaterialManagement.Inventory
 
         void InsertGraphInventorySales(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventorySales inventoryIssue, string IssueTypeStatus,  string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<InventorySalesTax> taxCategoryList,string productNewId, decimal ToCurrencyRate); 
 
-        void InsertGraphIssueReturn(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssueReturn inventoryIssue, string IssueTypeStatus);
+        void InsertGraphIssueReturn(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssueReturn inventoryIssue, string IssueTypeStatus, IEnumerable<InventoryIssueReturnHistoryBOQ> issueboqList);
 
 
         IWorkbook CreateIssueRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate,string Type);

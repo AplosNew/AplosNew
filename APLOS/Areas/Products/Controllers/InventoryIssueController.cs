@@ -908,7 +908,7 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpPost]
-        public JsonResult GetIssueBOQListForIssueReturn(string InventoryreceiveDetailId)
+        public JsonResult GetIssueBOQListForIssueReturn(string InventoryreceiveDetailId,string inventoryIssueHistoryId)
         {
             try
             {
@@ -919,7 +919,7 @@ namespace Aplos.Areas.Products.Controllers
                                         , IM.SecondCharacteristicsId, SC.UserName AS SecondCharacteristics
                                         , IM.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue 
 										, IIHBOQ.Qty BOQQty,TUoM.UserName TUOM 
-                                        , IIHBOQ.*
+                                        , IIHBOQ.*,0 Active
 										FROM [TRN].[InventoryIssueHistoryBOQ] IIHBOQ
 										LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.Id=IIHBOQ.InventoryIssueHistoryId
 										LEFT JOIN TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
@@ -932,7 +932,7 @@ namespace Aplos.Areas.Products.Controllers
 										LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
 										LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 										LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.TransactionUoMId=TUoM.Id
-										WHERE IIHBOQ.InventoryreceiveDetailId='" + InventoryreceiveDetailId + "'";
+										WHERE IIHBOQ.InventoryreceiveDetailId='" + InventoryreceiveDetailId + "' AND IIHBOQ.InventoryIssueHistoryId='"+ inventoryIssueHistoryId + "'";
                 var res = _sqlRepository.GetDataCollection(Sql);
                 var jsondata = Json(res, JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
@@ -947,14 +947,14 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [HttpPost]
-        public JsonResult CreateIssueReturn(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssueReturn inventoryIssue, string IssueTypeStatus)
+        public JsonResult CreateIssueReturn(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssueReturn inventoryIssue, string IssueTypeStatus,IEnumerable<InventoryIssueReturnHistoryBOQ> issueboqList)
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
             inventoryIssue.CompanyId = identity.CompanyId;
             inventoryIssue.PlantId = identity.PlantId;
-            _inventoryIssueService.InsertGraphIssueReturn(entities, specificStockList, inventoryIssue, IssueTypeStatus);
+            _inventoryIssueService.InsertGraphIssueReturn(entities, specificStockList, inventoryIssue, IssueTypeStatus,issueboqList);
             return Json(new { inventoryIssue, Message = AplosMessage.Success + "Issue No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpPost]

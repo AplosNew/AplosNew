@@ -11,7 +11,8 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.currentDate = new Date(Date.now());
-    $scope.storageList = [];    $scope.costCenterList = [];
+    $scope.storageList = [];
+    $scope.costCenterList = [];
 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $controller("employeeBaseController", { $scope: $scope, $http: $http });
@@ -37,7 +38,10 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
     };
     $scope.IssueType = 'Revenue';
     $scope.productNew = Object.assign({}, $scope.product);
-    //#region Material Issue icon Detail        $scope.POPopUp = function () {
+    //#region Material Issue icon Detail
+    
+
+    $scope.POPopUp = function () {
         if (baseService.isUndefinedOrNull($scope.productNew.CostCenterId)) {
             ShowResult('Select Cost center', 'failure');
             return false;
@@ -52,9 +56,60 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
     $scope.GetArticleList = [];
     $scope.GetApprovedIssueSlipListGrid = function () {
         //debugger;
-        try {            $http({                method: 'GET',                url: 'Products/InventoryIssue/IssueSlipMaterialAndArticleList?fromDate=' + $scope.productNew.FromDate1 + '&toDate=' + $scope.productNew.ToDate + '&CostCenterId=' + $scope.productNew.CostCenterId + '&MaterialStorageId=' + $scope.productNew.MaterialStorageId + '&IssueType=' + $scope.productNew.IssueType,                dataType: 'JSON'            }).then(function successCallback(response) {                if (response.data.Error == true) {                    ShowResult(response.data.Message, 'failure');                }                else {                    $scope.GetArticleList = response.data;                }            }, function errorCallback(response) {                ShowResult(response.status.Message, 'failure');            });        } catch (e) {            ShowResult(e, 'failure');        }
+        try {
 
-    };    $scope.lst = [];    $scope.POListDetails = function () {        //debugger;        $http({            method: 'GET',            //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData            url: 'Products/InventoryIssue/MaterialIssueDetailsData'        }).then(function successCallback(response) {            $scope.lst = response.data;            //$scope.detailgrid($scope.lst);            window.lst = response.data;        });    }    $scope.POListDetails();    $scope.data1 = $scope.lst;    $scope.detailTemp = "#tabGridContents";    //$scope.detailgrid = "detailGridData(e)";    $scope.detailgrid = function detailGridData(e) {        //debugger;        var filteredData = e.data["Id"];        var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("IssueNo", "equal", parseInt(filteredData), true).take(200));        e.detailsElement.find("#detailGrid").ejGrid({            dataSource: data,            columns: ["CostCenter", "StorageLocation", "Materials", "Article", "SKU1", "SKU2", "SKU3", "Qty", "UOM"]//"UOM", "TransactionRate", "CurrencyName", "TotalMaterialTranAmount"        });        e.detailsElement.find(".tabcontrol").ejTab();    }    $scope.detailListForArticle = [];    $scope.recorddoubleclickloadArticleDetails = function ($event) {
+            $http({
+                method: 'GET',
+                url: 'Products/InventoryIssue/IssueSlipMaterialAndArticleList?fromDate=' + $scope.productNew.FromDate1 + '&toDate=' + $scope.productNew.ToDate + '&CostCenterId=' + $scope.productNew.CostCenterId + '&MaterialStorageId=' + $scope.productNew.MaterialStorageId + '&IssueType=' + $scope.productNew.IssueType,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $scope.GetArticleList = response.data;
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    };
+    $scope.lst = [];
+    $scope.POListDetails = function () {
+        //debugger;
+        $http({
+            method: 'GET',
+            //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
+            url: 'Products/InventoryIssue/MaterialIssueDetailsData'
+        }).then(function successCallback(response) {
+            $scope.lst = response.data;
+            //$scope.detailgrid($scope.lst);
+            window.lst = response.data;
+
+        });
+    }
+    $scope.POListDetails();
+    $scope.data1 = $scope.lst;
+    $scope.detailTemp = "#tabGridContents";
+    //$scope.detailgrid = "detailGridData(e)";
+    $scope.detailgrid = function detailGridData(e) {
+        //debugger;
+
+        var filteredData = e.data["Id"];
+        var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("IssueNo", "equal", parseInt(filteredData), true).take(200));
+        e.detailsElement.find("#detailGrid").ejGrid({
+
+            dataSource: data,
+            columns: ["CostCenter", "StorageLocation", "Materials", "Article", "SKU1", "SKU2", "SKU3", "Qty", "UOM"]//"UOM", "TransactionRate", "CurrencyName", "TotalMaterialTranAmount"
+        });
+        e.detailsElement.find(".tabcontrol").ejTab();
+    }
+    $scope.detailListForArticle = [];
+    $scope.recorddoubleclickloadArticleDetails = function ($event) {
         //debugger;
         var x = $event;
         //var Id = x.data.Id;
@@ -85,9 +140,12 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
         $scope.POPopUpClose();
 
 
-    }    $scope.CloseArticlePopUp = function () {
+    }
+    $scope.CloseArticlePopUp = function () {
         $scope.POPopUpClose();
-    }        $scope.staus = true;
+    }
+    
+    $scope.staus = true;
     $scope.enableid = true;
     $scope.Change = function (event, index, x) {
         //debugger;
@@ -118,8 +176,14 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
             }
         }
 
-    }    $scope.detailListForArticleNew = [];    $scope.SaveSlipIssue = function () {
+    }
+
+    $scope.detailListForArticleNew = [];
+    $scope.SelectedIssueBoqListNew = [];
+    $scope.SaveSlipIssue = function () {
         $scope.detailListForArticleNew = [];
+        $scope.SelectedIssueBoqListNew = [];
+
         //debugger;
         var gridObj = $("#GridTest1").data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
@@ -145,6 +209,11 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
             }
 
         }
+        for (var k = 0; k < $scope.SelectedIssueBoqList.length; k++) {
+            if ($scope.SelectedIssueBoqList[k].ReturnQty>0) {
+                $scope.SelectedIssueBoqListNew.push($scope.SelectedIssueBoqList[k])
+            }
+        }
 
         $scope.productNew.IssueRequestMasterId = $scope.issueId;
         if ($scope.Action === "Save") {
@@ -156,6 +225,7 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
                     , specificStockList: $scope.detailListForArticleNew
                     , inventoryIssue: $scope.productNew
                     , IssueTypeStatus: null
+                    , issueboqList: $scope.SelectedIssueBoqListNew
 
                 }
                 , dataType: 'JSON'
@@ -217,7 +287,11 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
         $scope.detailList = [];
         $scope.specificStockList = [];
         $scope.IssueType = 'Revenue';
-    }    $scope.GridInventoryIssuedata = [];
+    }
+
+
+
+    $scope.GridInventoryIssuedata = [];
     $scope.getdataInventoryIssue = function () {
         //debugger;
         $http({
@@ -231,7 +305,9 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
         });
 
     };
-    $scope.getdataInventoryIssue(); 
+    $scope.getdataInventoryIssue(); 
+
+
     $scope.recorddoubleclickIssueReturnForUpdate = function ($event) {
         //debugger;
         var x = $event;
@@ -247,72 +323,77 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
         });
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
-    }    $scope.AllTabPrint = function (z) {
+    }
+    $scope.AllTabPrint = function (z) {
         //debugger;
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
         location.href = "Products/InventoryIssue/InventoryIssueReturnReport?grnId=" + data.Id;
 
-    };    $http({
+    };
+
+    $http({
     method: 'GET',
     url: 'Materials/MaterialStorage/getcbo'
     }).then(function (response) {
         $scope.storageList = response.data;
-    });     $scope.CostCenterLoad = function () {
+    });
+
+     $scope.CostCenterLoad = function () {
         cboService.getCostCenterCbo(function (result) {
             $scope.costCenterList = result;
         });
     }
-    $scope.CostCenterLoad();    //#endregion
+    $scope.CostCenterLoad();
+    //#endregion
 
     $scope.IssueBoqList = [];
-    $scope.GetIssueBoqList = function (grnRowId) {
+    $scope.GetIssueBoqList = function (grnRowId, inventoryIssueHistoryId) {
         $http({
             method: "POST",
             dataType: 'JSON',
-            url: 'Products/InventoryIssue/GetIssueBOQListForIssueReturn?InventoryreceiveDetailId=' + grnRowId,
+            url: 'Products/InventoryIssue/GetIssueBOQListForIssueReturn?InventoryreceiveDetailId=' + grnRowId + '&inventoryIssueHistoryId=' + inventoryIssueHistoryId,
         }).then(function successCallback(response) {
             $scope.IssueBoqList = response.data;
         });
     };
 
-    $scope.GetIssueBoqPopUp = function (grnRowId, index) {
+    $scope.GetIssueBoqPopUp = function (grnRowId, inventoryIssueHistoryId, index) {
         $scope.TempIndex = index;
         $scope.TempGrnRowId = grnRowId;
-        $scope.GetIssueBoqList(grnRowId);
+        $scope.GetIssueBoqList(grnRowId, inventoryIssueHistoryId);
         angular.element(document.querySelector('#IssueBoqPopUp')).modal('show');
-
     };
     $scope.IssueBoqPOPopUpClose = function () {
         angular.element(document.querySelector('#IssueBoqPopUp')).modal('hide');
     };
-    $scope.SelectedGRNBoqList = [];
+    $scope.SelectedIssueBoqList = [];
     $scope.addToBOQList = function () {
         for (var i = 0; i < $scope.IssueBoqList.length; i++) {
             if ($scope.IssueBoqList[i].ReturnQty > 0) {
-                var getRow = $filter("filter")($scope.SelectedGRNBoqList, { "InventoryReceiveDetailId": $scope.IssueBoqList[i].InventoryReceiveDetailId, "BOQDetailId": $scope.IssueBoqList[i].BOQDetailId });
+                var getRow = $filter("filter")($scope.SelectedIssueBoqList, { "InventoryReceiveDetailId": $scope.IssueBoqList[i].InventoryReceiveDetailId, "BOQDetailId": $scope.IssueBoqList[i].BOQDetailId });
                 if (!baseService.isUndefinedOrNull(getRow) && getRow.length > 0 && getRow[0].InventoryReceiveDetailId === $scope.IssueBoqList[i].InventoryReceiveDetailId && getRow[0].BOQDetailId === $scope.IssueBoqList[i].BOQDetailId) {
                     ShowResult("This BOQ Item have already added!", "failure", "IssueBoqPopUp");
                 }
                 else {
-                    $scope.SelectedGRNBoqList.splice(0, 0, $scope.IssueBoqList[i]);
+                    $scope.SelectedIssueBoqList.splice(0, 0, $scope.IssueBoqList[i]);
                 }
             }
         }
-        var tempReturnQty = parseFloat($filter("sumByKey")($filter("filter")($scope.SelectedGRNBoqList, { InventoryReceiveDetailId: $scope.TempGrnRowId }), "ReturnQty")).toFixed(2);
-        for (var j = 0; j < $scope.inventoryMaterialList.length; j++) {
-            if ($scope.inventoryMaterialList[j].InventoryReceiveDetailId === $scope.TempGrnRowId) {
-                $scope.inventoryMaterialList[j].TransactionQty = parseFloat(tempReturnQty).toFixed(2);
-                var tempGRNTaxAmount = 0;
-                for (var k = 0; k < $scope.inventoryMaterialList[j].POMaterialTaxList.length; k++) {
-                    if ($scope.inventoryMaterialList[j].POMaterialTaxList[k].InventoryReceiveDetailId == $scope.inventoryMaterialList[j].InventoryReceiveDetailId) {
-                        var tmpTaxAmount = ($scope.inventoryMaterialList[j].POMaterialTaxList[k].TaxAmount / $scope.inventoryMaterialList[j].GRNReceived) * $scope.inventoryMaterialList[j].TransactionQty
-                        $scope.inventoryMaterialList[j].POMaterialTaxList[k].TaxAmount = parseFloat(tmpTaxAmount).toFixed(2);
-                        tempGRNTaxAmount += Math.round((tmpTaxAmount) * 100 + Number.EPSILON) / 100;
-                    }
-                    $scope.inventoryMaterialList[j].BaseTaxAmount = Math.round((tempGRNTaxAmount) * 100 + Number.EPSILON) / 100;
-                }
+        var tempReturnQty = parseFloat($filter("sumByKey")($filter("filter")($scope.SelectedIssueBoqList, { InventoryReceiveDetailId: $scope.TempGrnRowId }), "ReturnQty")).toFixed(2);
+        for (var j = 0; j < $scope.detailListForArticle.length; j++) {
+            if ($scope.detailListForArticle[j].InventoryReceiveDetailId === $scope.TempGrnRowId) {
+                $scope.detailListForArticle[j].TransactionQty = parseFloat(tempReturnQty).toFixed(2);
+                //var tempGRNTaxAmount = 0;
+                //for (var k = 0; k < $scope.detailListForArticle[j].POMaterialTaxList.length; k++) {
+                //    if ($scope.detailListForArticle[j].POMaterialTaxList[k].InventoryReceiveDetailId == $scope.detailListForArticle[j].InventoryReceiveDetailId) {
+                //        var tmpTaxAmount = ($scope.detailListForArticle[j].POMaterialTaxList[k].TaxAmount / $scope.detailListForArticle[j].GRNReceived) * $scope.detailListForArticle[j].TransactionQty
+                //        $scope.detailListForArticle[j].POMaterialTaxList[k].TaxAmount = parseFloat(tmpTaxAmount).toFixed(2);
+                //        tempGRNTaxAmount += Math.round((tmpTaxAmount) * 100 + Number.EPSILON) / 100;
+                //    }
+                //    $scope.detailListForArticle[j].BaseTaxAmount = Math.round((tempGRNTaxAmount) * 100 + Number.EPSILON) / 100;
+                //}
             }
         }
         //TODO:taxamount calculation

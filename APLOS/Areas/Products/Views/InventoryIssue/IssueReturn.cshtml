@@ -313,11 +313,11 @@
                 
                 <script type="text/template" id="CurrentText">
                         <input type="text" class="input ejinputtext form-control" ng-disabled="productNew.IssueType='BOQIssue'" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="100" @*ng-change="$parent.calculateRequisitionData(this)"*@ />
-                    <div class="form-group">
+                            <button name="submit"  ng-click="$parent.GetIssueBoqPopUp(data.InventoryReceiveDetailId,data.InventoryIssueHistoryId,$index)" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    @*<div class="form-group">
                         <span class="input-group-btn" ng-show="productNew.IssueType='BOQIssue'">
-                            <button name="submit"  ng-click="GetIssueBoqPopUp(x.InventoryReceiveDetailId,$index)" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         </span>
-                    </div>
+                    </div>*@
                 </script>
             </div>
 
