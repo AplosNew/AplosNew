@@ -362,6 +362,7 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
     $scope.GetIssueBoqPopUp = function (grnRowId, inventoryIssueHistoryId, index) {
         $scope.TempIndex = index;
         $scope.TempGrnRowId = grnRowId;
+        $scope.TempHistoryId = inventoryIssueHistoryId;
         $scope.GetIssueBoqList(grnRowId, inventoryIssueHistoryId);
         angular.element(document.querySelector('#IssueBoqPopUp')).modal('show');
     };
@@ -372,8 +373,8 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
     $scope.addToBOQList = function () {
         for (var i = 0; i < $scope.IssueBoqList.length; i++) {
             if ($scope.IssueBoqList[i].ReturnQty > 0) {
-                var getRow = $filter("filter")($scope.SelectedIssueBoqList, { "InventoryReceiveDetailId": $scope.IssueBoqList[i].InventoryReceiveDetailId, "BOQDetailId": $scope.IssueBoqList[i].BOQDetailId });
-                if (!baseService.isUndefinedOrNull(getRow) && getRow.length > 0 && getRow[0].InventoryReceiveDetailId === $scope.IssueBoqList[i].InventoryReceiveDetailId && getRow[0].BOQDetailId === $scope.IssueBoqList[i].BOQDetailId) {
+                var getRow = $filter("filter")($scope.SelectedIssueBoqList, { "InventoryReceiveDetailId": $scope.IssueBoqList[i].InventoryReceiveDetailId, "BOQDetailId": $scope.IssueBoqList[i].BOQDetailId, "InventoryIssueHistoryId": $scope.IssueBoqList[i].InventoryIssueHistoryId });
+                if (!baseService.isUndefinedOrNull(getRow) && getRow.length > 0 && getRow[0].InventoryReceiveDetailId === $scope.IssueBoqList[i].InventoryReceiveDetailId && getRow[0].BOQDetailId === $scope.IssueBoqList[i].BOQDetailId && getRow[0].InventoryIssueHistoryId === $scope.IssueBoqList[i].InventoryIssueHistoryId) {
                     ShowResult("This BOQ Item have already added!", "failure", "IssueBoqPopUp");
                 }
                 else {
@@ -381,9 +382,9 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
                 }
             }
         }
-        var tempReturnQty = parseFloat($filter("sumByKey")($filter("filter")($scope.SelectedIssueBoqList, { InventoryReceiveDetailId: $scope.TempGrnRowId }), "ReturnQty")).toFixed(2);
+        var tempReturnQty = parseFloat($filter("sumByKey")($filter("filter")($scope.SelectedIssueBoqList, { InventoryReceiveDetailId: $scope.TempGrnRowId, InventoryIssueHistoryId: $scope.TempHistoryId }), "ReturnQty")).toFixed(2);
         for (var j = 0; j < $scope.detailListForArticle.length; j++) {
-            if ($scope.detailListForArticle[j].InventoryReceiveDetailId === $scope.TempGrnRowId) {
+            if ($scope.detailListForArticle[j].InventoryReceiveDetailId === $scope.TempGrnRowId && $scope.detailListForArticle[j].InventoryIssueHistoryId === $scope.TempHistoryId) {
                 $scope.detailListForArticle[j].TransactionQty = parseFloat(tempReturnQty).toFixed(2);
                 //var tempGRNTaxAmount = 0;
                 //for (var k = 0; k < $scope.detailListForArticle[j].POMaterialTaxList.length; k++) {

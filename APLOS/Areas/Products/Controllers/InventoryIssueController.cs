@@ -810,7 +810,7 @@ namespace Aplos.Areas.Products.Controllers
                 {
                 if(issueType== "NormalIssue")
                     {
-                        sql = @"select cc.Id CostCenterId,cc.UserName CostCenterName, a.InventoryReceiveDetailId,IM.Id InventoryMaterialId,b.InventoryIssueId, REPLACE(CONVERT(CHAR(11), C.IssueDate, 106),' ','-') AS IssueDate,a.IssueRequestDetailId
+                        sql = @"select distinct cc.Id CostCenterId,cc.UserName CostCenterName, a.InventoryReceiveDetailId,IM.Id InventoryMaterialId,b.InventoryIssueId, REPLACE(CONVERT(CHAR(11), C.IssueDate, 106),' ','-') AS IssueDate,a.IssueRequestDetailId
                             ,IM.MaterialMasterId, MM.UserName AS MaterialMasterName, IM.ArticleId, AR.StandardName AS ArticleName
 		                    ,IM.FirstCharacteristicsId, CH1.UserName AS Sku1, IM.FirstCharacteristicsValueId, CHV1.UserName AS FirstCharacteristicsValue
 		                    ,IM.SecondCharacteristicsId, CH2.UserName AS Sku2, IM.SecondCharacteristicsValueId, CHV2.UserName AS SecondCharacteristicsValue
@@ -859,7 +859,7 @@ namespace Aplos.Areas.Products.Controllers
                     }
                     else
                     {
-                        sql = @"select cc.Id CostCenterId,cc.UserName CostCenterName, a.InventoryReceiveDetailId,IM.Id InventoryMaterialId,b.InventoryIssueId, REPLACE(CONVERT(CHAR(11), C.IssueDate, 106),' ','-') AS IssueDate,a.IssueRequestDetailId
+                        sql = @"select distinct cc.Id CostCenterId,cc.UserName CostCenterName, a.InventoryReceiveDetailId,IM.Id InventoryMaterialId,b.InventoryIssueId, REPLACE(CONVERT(CHAR(11), C.IssueDate, 106),' ','-') AS IssueDate,a.IssueRequestDetailId
                             ,IM.MaterialMasterId, MM.UserName AS MaterialMasterName, IM.ArticleId, AR.StandardName AS ArticleName
 		                    ,IM.FirstCharacteristicsId, CH1.UserName AS Sku1, IM.FirstCharacteristicsValueId, CHV1.UserName AS FirstCharacteristicsValue
 		                    ,IM.SecondCharacteristicsId, CH2.UserName AS Sku2, IM.SecondCharacteristicsValueId, CHV2.UserName AS SecondCharacteristicsValue
