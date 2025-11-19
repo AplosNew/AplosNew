@@ -116,7 +116,38 @@ Where HeadCategory IN('Annual Bonus Retain') AND ISNULL(SPC.DisbusmentAmount,0)!
 AND ISNULL(sl.PayableVoucherId,'')<>'' and sl.islocked=1 AND sl.BonusDisbursementVoucherId IS NULL AND ISNULL(sl.PastBonusDisbursed,0) = 0 AND ISNULL(sl.IsBonusDisbursed,0) = 1 AND SPC.EmpInfoSystemID=" + EmpSystemId + @"";
                 var FinalSettlementUndisbursedBonus = _sqlRepository.GetDataCollection(sqlundisbursedbonus);
 
-                return Json(new { SeperationItem, FinalSettlementUndisbursedEarning, FinalSettlementUndisbursedBonus }, JsonRequestBehavior.AllowGet);
+                string ot = @"Select AdditionalOT= CAST(gd.AdditionalOT/60 AS decimal(18,2)),Rate=CAST(B.Basic/104 AS decimal(18,2)),WorkDate=FORMAT(gd.WorkDate,'dd-MMM-yyyy') from dbo.AttdnProcessData GD
+left join EmployeeInformation ei on ei.SystemId=GD.EmpSystemId
+left join (Select top 1* from [dbo].[OTLimitSetting])OLS ON OLS.PlantID=ei.PlantId
+LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = GD.EmpSystemId
+
+left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.SalaryID
+FROM SalaryInfoDefine SID 
+LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
+Where GD.GWPaymentAdviseId IS NULL
+AND GD.EmpSystemId=" + EmpSystemId + @" 
+AND GD.EmpSystemID NOT IN(Select EmployeeId from dbo.ExceptionGoodWorkEmployee) AND GD.AdditionalOT<>0 AND ISNULL(PastOTDisbursed,0)=0 AND IsOTEntitled=1";
+
+                var otdetail = _sqlRepository.GetDataCollection(ot);
+
+                string gw = @"Select [Hour]=cast(gd.Minute/60 AS decimal(18,2)),Rate=cast((B.Basic/26/8)AS decimal(18,2)),WorkDate=FORMAT(gw.WorkDate,'dd-MMM-yyyy')
+ from dbo.GoodWorkDetail GD
+left join EmployeeInformation ei on ei.SystemId=GD.EmpSystemId
+left join  dbo.GoodWork GW ON GW.Id=GD.GoodWorkId
+LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = GD.EmpSystemId
+
+left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.SalaryID
+FROM SalaryInfoDefine SID 
+LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
+Where GWPaymentAdviseId IN(select PaymentAdviseId from [dbo].[GoodWorkPaymentAdviseDetail] 
+Where EmpSystemId =" + EmpSystemId + @"  and DisbursementVoucherId IS NULL) 
+AND EmpSystemId=" + EmpSystemId + @"  AND GD.Minute<>0";
+
+                var gwdetail = _sqlRepository.GetDataCollection(gw);
+
+                return Json(new { SeperationItem, FinalSettlementUndisbursedEarning, FinalSettlementUndisbursedBonus, otdetail, gwdetail }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -2125,29 +2156,19 @@ AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.Empl
 WHEN OL.UserName='GoodWork' THEN CAST((
 Select cast(((sum(gd.Minute)/60)*(B.Basic/26/8)) AS decimal(18,0)) from dbo.GoodWorkDetail GD
 left join EmployeeInformation ei on ei.SystemId=GD.EmpSystemId
-left join (Select top 1* from [dbo].[OTLimitSetting])OLS ON OLS.PlantID=ei.PlantId
 LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = GD.EmpSystemId
-LEFT JOIN(SELECT SID.SalaryID,SID.DefineAmount Gross,SH.SalaryHeadID GrossSalaryHeadID
-FROM SalaryInfoDefine SID 
-LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
-WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
 left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.SalaryID
 FROM SalaryInfoDefine SID 
 LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
 WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
 Where GWPaymentAdviseId IN(select PaymentAdviseId from [dbo].[GoodWorkPaymentAdviseDetail] Where EmpSystemId ='" + empId + @"' and DisbursementVoucherId IS NULL) AND EmpSystemId='" + empId + @"' AND GD.Minute<>0
-Group By OLS.OTreductionFactor,B.Basic
+Group By B.Basic
  ) AS varchar(100))
 
  WHEN OL.UserName='OverTime' THEN CAST((
 Select CAST(((sum(gd.AdditionalOT)/60)*(B.Basic/104)) AS decimal(18,0)) from dbo.AttdnProcessData GD
 left join EmployeeInformation ei on ei.SystemId=GD.EmpSystemId
-left join (Select top 1* from [dbo].[OTLimitSetting])OLS ON OLS.PlantID=ei.PlantId
 LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = GD.EmpSystemId
-LEFT JOIN(SELECT SID.SalaryID,SID.DefineAmount Gross,SH.SalaryHeadID GrossSalaryHeadID
-FROM SalaryInfoDefine SID 
-LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
-WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
 left  join (SELECT SID.DefineAmount Basic,SH.SalaryHeadID BasicSalaryHeadID,SID.SalaryID
 FROM SalaryInfoDefine SID 
 LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
@@ -2155,7 +2176,7 @@ WHERE SH.HeadCategory='Basic') B ON B.SalaryID=SIDM.SystemID
 Where GD.GWPaymentAdviseId IS NULL
 AND GD.EmpSystemId='" + empId + @"' 
 AND GD.EmpSystemID NOT IN(Select EmployeeId from dbo.ExceptionGoodWorkEmployee) AND GD.AdditionalOT<>0 AND ISNULL(PastOTDisbursed,0)=0 AND IsOTEntitled=1
-Group By OLS.OTreductionFactor,B.Basic
+Group By B.Basic
  ) AS varchar(100))
 
 ElSE CAST(A.Value as varchar(100)) END,0)

@@ -486,7 +486,7 @@ namespace Aplos.Areas.Productions.Controllers
 							from TRN.ProductionSummary GROUP BY ProductionOrderId) PFLB ON PFLB.ProductionOrderId=POR.Id
 							left join HKP.ProductionStatus PST on PST.Id=POR.ProductionStatusId
 
-                            where SO.Id <> 'ms20241392' and  SO.Id in(" + parameters["SOId"] + @")
+                            where SO.Id in(" + parameters["SOId"] + @")
                             AND ISNULL(OS.UserName,'') in(" + parameters["OrderStatus"] + @")
                             AND SO.OrderCategoryId in(" + parameters["OrderCategoryId"] + @")
                             AND SO.ResponsiblePersonId in(" + parameters["ResponsiblePersonId"] + @")

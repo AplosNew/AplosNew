@@ -187,13 +187,13 @@
                                         </thead>
                                         <tbody>
                                             <tr ng-repeat="x in FormulaList">
-                                                <td><label class="control-label" ng-click="showBonus(x);">{{x.SandardName}}</label></td>
+                                                <td><label class="control-label" ng-click="showBonus(x,$index);">{{x.SandardName}}</label></td>
                                                 <td>{{x.EntryState}}</td>
                                                 @*<td><input class="form-control text-right" ng-disabled="x.FieldDisable==true" type="text" n-decimals="2" ng-model="x.Value" /></td>*@
                                                 <td>
                                                     @*<label ng-click="showBonus();">{{x.Value}}</label>*@
 
-                                                    <input class="form-control text-right" ng-click="showBonus();" ng-disabled="{{(x.EntryState=='Auto' && x.UserName=='EarnLeave')?'false':x.EntryState=='Entry'?'false' :(x.EntryState=='Auto'||x.EntryState=='Calculate')?'true':'true'}}" type="text" n-decimals="6" ng-model="x.Value" />
+                                                    <input class="form-control text-right" ng-click="showBonus(x);" ng-disabled="{{(x.EntryState=='Auto' && x.UserName=='EarnLeave')?'false':x.EntryState=='Entry'?'false' :(x.EntryState=='Auto'||x.EntryState=='Calculate')?'true':'true'}}" type="text" n-decimals="6" ng-model="x.Value" />
                                                     @*<a style="text-decoration:underline;color:blue; cursor:pointer;" ng-click="showBonus();">*@
                                                 </td>
                                                 <td><textarea class="form-control" rows="1" ng-model="x.Remarks" maxlength="250"></textarea></td>
@@ -281,3 +281,79 @@
     </div>
 </ej-dialog>
 
+<ej-dialog id="otInfo" title="Over Time" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-minwidth="20%" e-target="#FormulaInfo"
+           e-close="onDialogClose" e-minheight="50" e-open="enableBtn">
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border">Over Time Info</legend>
+        <div class="table-responsive modal-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Work Date</th>
+                        <th>Additional OT</th>
+                        <th>Rate</th>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in otList">
+                        <td>{{x.WorkDate}}</td>
+                        <td class="text-right">{{x.AdditionalOT}}</td>
+                        <td class="text-right">{{x.Rate}}</td>
+                    </tr>
+                    <tr>
+                        <td>Total</td>
+                        <td class="text-right">
+                            {{otList | sumByKey : 'AdditionalOT'|number:2}}
+                        </td>
+                        <td></td>
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </fieldset>
+    <div class="common-btn" style="padding-right: 15px;">
+        <ul class="list-inline text-right">
+            <li><button ng-click="closeOT();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Close</button></li>
+        </ul>
+    </div>
+</ej-dialog>
+
+<ej-dialog id="gwInfo" title="Good Work" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-minwidth="20%" e-target="#FormulaInfo"
+           e-close="onDialogClose" e-minheight="50" e-open="enableBtn">
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border">Good Work Info</legend>
+        <div class="table-responsive modal-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Work Date</th>
+                        <th>Hour</th>
+                        <th>Rate</th>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in gwList">
+                        <td>{{x.WorkDate}}</td>
+                        <td class="text-right">{{x.Hour}}</td>
+                        <td class="text-right">{{x.Rate}}</td>
+                    </tr>
+                    <tr>
+                        <td>Total</td>
+                        <td class="text-right">
+                            {{gwList | sumByKey : 'Hour'|number:2}}
+                        </td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </fieldset>
+    <div class="common-btn" style="padding-right: 15px;">
+        <ul class="list-inline text-right">
+            <li><button ng-click="closeGW();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Close</button></li>
+        </ul>
+    </div>
+</ej-dialog>
