@@ -237,8 +237,8 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
         else {
             for (var i = 0; i < $scope.SelectedEmployeeList.length; i++) {
                 if ($scope.SelectedEmployeeList[i].EmpSystemId == $scope.DG.EmpSystemId) {
-                        $scope.SelectedEmployeeList.splice(i, 1);
-                        break;
+                    $scope.SelectedEmployeeList.splice(i, 1);
+                    break;
                 }
             }
         }
@@ -341,6 +341,8 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
     $scope.EmpSysId = null;
     $scope.FormulaList = [];
     $scope.FinalSettlementUndisbursedEarningList = [];
+    $scope.gwList = [];
+    $scope.otList = [];
     $scope.bonusList = [];
     $scope.GetEmployeeItems = function (obj) {
         $scope.FormulaList = [];
@@ -355,16 +357,31 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
                 $scope.FormulaList = response.data.SeperationItem;
                 $scope.FinalSettlementUndisbursedEarningList = response.data.FinalSettlementUndisbursedEarning;
                 $scope.bonusList = response.data.FinalSettlementUndisbursedBonus;
+                $scope.otList = response.data.otdetail;
+                $scope.gwList = response.data.gwdetail;
 
                 angular.element(document.querySelector('#FormulaInfo')).modal('show');
             }
         });
     }
 
-    $scope.showBonus = function (data) {
+    $scope.ItemIndex = -1;
+    $scope.showBonus = function (data, index) {
+        $scope.ItemIndex = index;
+        data = $scope.FormulaList[$scope.ItemIndex];
         if (data.SandardName == "Bonus" && data.Value != "0") {
             $("#BonusInfo").ejDialog("setTitle", "Bonus");
             var eDialog = $("#BonusInfo").data("ejDialog");
+            eDialog.open();
+        }
+        if (data.SandardName == "GoodWork" && data.Value != "0") {
+            $("#gwInfo").ejDialog("setTitle", "Good Work");
+            var eDialog = $("#gwInfo").data("ejDialog");
+            eDialog.open();
+        }
+        if (data.SandardName == "OverTime" && data.Value != "0") {
+            $("#otInfo").ejDialog("setTitle", "Over Time");
+            var eDialog = $("#otInfo").data("ejDialog");
             eDialog.open();
         }
         /*angular.element(document.querySelector('#BonusInfo')).modal('show');*/
@@ -372,6 +389,16 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
     $scope.closeBonus = function () {
         // angular.element(document.querySelector('#BonusInfo')).modal('hide');
         var eDialog = $("#BonusInfo").data("ejDialog");
+        eDialog.close();
+    }
+    $scope.closeOT = function () {
+        // angular.element(document.querySelector('#BonusInfo')).modal('hide');
+        var eDialog = $("#otInfo").data("ejDialog");
+        eDialog.close();
+    }
+    $scope.closeGW = function () {
+        // angular.element(document.querySelector('#BonusInfo')).modal('hide');
+        var eDialog = $("#gwInfo").data("ejDialog");
         eDialog.close();
     }
 
@@ -426,7 +453,7 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
 
     $scope.PrintDataReport = function (obj) {
         try {
-          
+
             var datum = obj.data;
             var url = 'Payrolls/FinalSettlement/EmployeeSattlementReport?empSystemId=' + datum.EmpSystemId;
             $rootScope.report(url);
