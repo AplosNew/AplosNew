@@ -221,11 +221,11 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
             con.OpenDataSetThroughAdapter("select EmployeeOperationBackDateAllow from dbo.PlantWiseHRMSSetting Where PlantID='" + identity.PlantId + "' ", out dsPS, false, "1");
             int ad = Convert.ToInt32(dsPS.Tables[0].Rows[0]["EmployeeOperationBackDateAllow"]);
-            var str = @"select OP.ID as OperationId, OP.OperationMasterId as MasterOperationId  ,OP.Code as OperationCode ,OP.UserName as OperationName, bt.Sequence , owe.EmployeeId , isnull(o.WIP,0) as WIP,
+            var str = @"select OP.ID as OperationId,OO.UserName OperationName, OP.OperationMasterId as MasterOperationId  ,OP.Code as OperationCode ,OP.UserName as OperationName, bt.Sequence , owe.EmployeeId , isnull(o.WIP,0) as WIP,
                         isnull(Sum(owe.Qty),0) as Qty ,
                       
                         ei.EmployeeCode , ei.EmployeeName as EmpName
-                        from mst.OperationVariation OP
+                        from mst.OperationVariation OP left join mst.Operation OO on OO.Id=op.OperationId
                         left join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
                         left join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
                         left join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
@@ -237,7 +237,7 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
                         left join dbo.EmployeeOperationWip o on o.OperationVariationId = op.Id and o.ProductionOrderId = pb.ProductionOrderId and o.ProcessId = pt.ProcessId
 						where pb.ProductionOrderId='" + PId + @"' and pt.ProcessId ='" + ProcessId + @"'
 						
-						group by OP.Id , op.Code , op.UserName , bt.Sequence , owe.EmployeeId , ei.EmployeeCode , op.OperationMasterId , o.WIP , ei.EmployeeName
+						group by OP.Id , op.Code , op.UserName,OO.UserName , bt.Sequence , owe.EmployeeId , ei.EmployeeCode , op.OperationMasterId , o.WIP , ei.EmployeeName
                         order by Sequence";
 
             //      var str = @"select OP.ID as OperationId, OP.Code as OperationCode ,OP.UserName as OperationName, bt.Sequence , owe.EmployeeId , 

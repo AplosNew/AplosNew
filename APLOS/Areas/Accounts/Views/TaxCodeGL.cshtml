@@ -40,6 +40,26 @@
                     </li>
                 </ul>
             </div>
+            <div class="col-xs-12" ng-show="taxCodeGLWithCombineList.length>0">
+                <div class="search-form">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="select-style">
+                                <select ng-model="$root.parameters.searchBy">
+                                    <option ng-repeat="option in searchtaxcodeByList" value="{{option.value}}">{{option.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-7 col-md-7">
+                            <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                        </div>
+                        <div class="col-xs-12 col-sm-2 col-md-2">
+                            <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                
             <div class="table-responsive modal-table col-xs-12" ng-show="taxCodeGLWithCombineList.length>0">
                 <table class="table table-striped">
                     <thead>
