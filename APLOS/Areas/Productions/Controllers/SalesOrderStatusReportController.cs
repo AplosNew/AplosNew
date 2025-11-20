@@ -256,7 +256,10 @@ namespace Aplos.Areas.Productions.Controllers
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "LC Expiry Date", 12, ExcelHAlign.HAlignLeft);
-            int ColLCExpiryDate = COL;
+            int ColLCExpiryDate = COL; COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Country", 12, ExcelHAlign.HAlignLeft);
+            int ColCountry = COL;
             
 
             endCol = COL;
@@ -379,6 +382,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColItem].Text = data.Rows[i]["ItemId"].ToString();
                 sheet[ROW, ColOrderStatus].Text = data.Rows[i]["OrderStatus"].ToString();
                 sheet[ROW, ColLCNumber].Text = data.Rows[i]["LC Number"].ToString();
+                sheet[ROW, ColCountry].Text = data.Rows[i]["Country"].ToString();
                 //sheet[ROW, ColLCShipmentDate].DateTime = Convert.ToDateTime(data.Rows[i]["LCShipmentDate"].ToString());   
                
 
@@ -447,7 +451,7 @@ namespace Aplos.Areas.Productions.Controllers
                             ,OrderFromStock = case when so.ShipmentFromStock=1 then 'Yes' else 'No' end
 							,PT.UserName PackingType,so.ProductionType,PFLB.ProdStartDate,PFLB.ProdEndDate
 							,SOCompletionDate=case when OS.UserName='Closed' then format(so.OrderStatusChangedDate,'dd-MMM-yyyy') else NULL end
-							,0 FOB,PST.UserName PRStatus,mo.[Type]  OrderType 
+							,0 FOB,PST.UserName PRStatus,mo.[Type]  OrderType,PCN.UserName Country  
 
                             from trn.SalesOrder so
                             left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
@@ -476,6 +480,8 @@ namespace Aplos.Areas.Productions.Controllers
                     group by PLI.SOId) OtherDispatchQty on OtherDispatchQty.SOId = SO.Id
 
                             left join hkp.Party p on p.Id = mo.PartyId
+							LEFT JOIN MST.AddressMaster AM ON AM.Id=P.AddressMasterId
+							LEFT JOIN SCS.Country PCN ON PCN.ID=AM.CountryId
                             LEFT JOIN [HKP].[CompanyParty] AS COMP ON COMP.PartyId=P.Id AND COMP.PartyType='Customer'
                              LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=COMP.PartyAccountGroupId
                              left join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
