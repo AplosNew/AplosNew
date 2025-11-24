@@ -533,7 +533,9 @@ namespace Aplos.Areas.Parties.Controllers
                                         AND P.Id IN(SELECT IV.PartyId FROM [TRN].[Invoice] AS IV
                                         LEFT JOIN[TRN].[Voucher] AS V ON V.Id = IV.VoucherId
                                         WHERE IV.SourceType IN ('InventoryPayable','VendorInvoice','SuspensePayable','ServicePayable','EmployeePayable','PostInvoice')
-                                        AND IV.Archive = 0 AND IV.IsWrittenOff = 0 AND ISNULL(IV.PurchaseLCId,'')='' AND V.IsPark = 0)                                    
+                                        AND IV.Archive = 0 AND IV.IsWrittenOff = 0 AND ISNULL(IV.PurchaseLCId,'')='' AND V.IsPark = 0)   
+                                        OR P.Id  IN (SELECT AN.PartyId FROM TRN.AdjustmentNote AN  
+											JOIN TRN.Voucher V ON V.Id=AN.VoucherId where AN.SourceType='CreditNote' AND NoteType='VendorCreditNote' AND AN.IsWrittenOff=0) 
                                     ) AS TEMP WHERE " + strkey + " order by Code ";
                 return _sqlRepository.GetDataCollection(sql);
             }
