@@ -804,7 +804,7 @@ namespace Library.Service.TaskScheduler
             dtTemplateData.DefaultView.RowFilter = "isnull(TempStartDate,'')=''";
             while (dtTemplateData.DefaultView.Count > 0)
             {
-                if (dtTemplateData.DefaultView.Count == 10)
+                if (dtTemplateData.DefaultView.Count == 1)
                 {
 
                 }
