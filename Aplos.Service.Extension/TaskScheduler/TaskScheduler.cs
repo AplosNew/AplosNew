@@ -163,7 +163,7 @@ Left join trn.ProductionOrderdetail d on d.ProductionOrderId=P.Id
 LEFT JOIN TRN.Salesorder S on s.Id=d.SalesOrderId
 LEFT JOIN TRN.MasterOrderItem I ON I.Id=s.MasterOrderItemId
 Where I.MasterOrderId='" + MasterOrderId + @"' 
-) AS etk ON etk.TaskMasterId=tt.TaskMasterId AND tt.ResponsiblePersonCategory='Entity'
+)) AS etk ON etk.TaskMasterId=tt.TaskMasterId AND tt.ResponsiblePersonCategory='Entity'
                                                             LEFT OUTER JOIN mst.BuyerMaster AS bm ON isnull(bm.BuyerId,'')=isnull(mo.BuyerId,'')
 										                                                            AND ISNULL(bm.BuyerDepartmentId,isnull(mo.BuyerDepartmentId,''))=isnull(mo.BuyerDepartmentId,'')
 										                                                            AND ISNULL(bm.BuyerDivisionId,isnull(mo.BuyerDivisionId,''))=isnull(mo.BuyerDivisionId,'')
