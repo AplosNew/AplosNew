@@ -1528,7 +1528,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                 concat(TM.TaskType,'/',MO.Dependency) AS TaskType,
                                 datediff(day," + DueDate + @",TM.closingDate) AS EarlyOrLateBy,
 	                            tm.TaskDescription AS Task,format(ISNULL(ATO.RevisedCommitmentDate,ISNULL(ATO.CommitmentDate,NULL)),'dd-MMM-yyyy') AS CommitmentDate,
-								EAB.EmployeeName AS AssignBy,EATO.EmployeeName AS AssignTo,
+								EAB.EmployeeName AS AssignBy,EATO.EmployeeName AS AssignTo,TTD.DependentDatesEnum,TTD.TaskDependentOn,FORMAT(TT.DependentDate,'dd-MMM-yyyy')DependentDate,
                                 MO.*
                                  FROM TaskManagerMaster AS tm
                                     inner join (" + TNATasks() + @") AS MO on MO.TaskMasterId=tm.Id
@@ -1554,6 +1554,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                                 LEFT OUTER JOIN hkp.Process AS p ON p.Id=TAM.ProcessId
                                 INNER JOIN hkp.TaskAppliedOn AS tao ON tao.Id=tam.TaskAppliedOnId
+                                left join  HKP.TaskDependentDates AS TTD on TTD.id=mott.TaskDependentDatesId
                                     " + TaskTypeFilter + @"
                                 ) AS K " + FilterText + @"  ORDER BY Buyer,StyleNo,SONo,PRNo";
 
@@ -2022,6 +2023,9 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 int colTaskType = 0;
                 int colTask = 0;
                 int colAssignBy = 0;
+                int colTaskDependentOn = 0;
+                int colDependentDt = 0;
+                int colDependentDatesOn = 0;
                 int colAssignTo = 0;
                 int colDueDate = 0;
                 int colCommitmentDate = 0;
@@ -2106,7 +2110,20 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1.Range[xlsRow, colAssignBy].Text = "Assigned By";
                 sheet1.Range[xlsRow, colAssignBy].ColumnWidth = 25;
 
+                xlsCol += 1;
+                colDependentDt = xlsCol;
+                sheet1.Range[xlsRow, colDependentDt].Text = "Dependent Date";
+                sheet1.Range[xlsRow, colDependentDt].ColumnWidth = 12;
 
+                xlsCol += 1;
+                colDependentDatesOn = xlsCol;
+                sheet1.Range[xlsRow, colDependentDatesOn].Text = "Dependent DatesOn";
+                sheet1.Range[xlsRow, colDependentDatesOn].ColumnWidth = 25;
+
+                xlsCol += 1;
+                colTaskDependentOn = xlsCol;
+                sheet1.Range[xlsRow, colTaskDependentOn].Text = "Task DependentOn";
+                sheet1.Range[xlsRow, colTaskDependentOn].ColumnWidth = 25;
 
 
                 xlsCol += 1;
@@ -2218,6 +2235,9 @@ namespace Aplos.Areas.TaskManagement.Controllers
                     sheet1.Range[xlsRow, colTaskType].Text = dtTNA.Rows[i]["TaskType"].ToString();
                     sheet1.Range[xlsRow, colTask].Text = dtTNA.Rows[i]["Task"].ToString();
                     sheet1.Range[xlsRow, colAssignBy].Text = dtTNA.Rows[i]["AssignBy"].ToString();
+                    sheet1.Range[xlsRow, colDependentDt].Text = dtTNA.Rows[i]["DependentDate"].ToString();
+                    sheet1.Range[xlsRow, colDependentDatesOn].Text = dtTNA.Rows[i]["DependentDatesEnum"].ToString();
+                    sheet1.Range[xlsRow, colTaskDependentOn].Text = dtTNA.Rows[i]["TaskDependentOn"].ToString();
                     sheet1.Range[xlsRow, colAssignTo].Text = dtTNA.Rows[i]["AssignTo"].ToString();
                     sheet1.Range[xlsRow, colClosedBy].Text = dtTNA.Rows[i]["ClosedBy"].ToString();
                     

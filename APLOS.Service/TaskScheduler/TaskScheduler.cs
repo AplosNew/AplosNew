@@ -804,7 +804,7 @@ namespace Library.Service.TaskScheduler
             dtTemplateData.DefaultView.RowFilter = "isnull(TempStartDate,'')=''";
             while (dtTemplateData.DefaultView.Count > 0)
             {
-                if (dtTemplateData.DefaultView.Count == 10)
+                if (dtTemplateData.DefaultView[0]["TaskTemplateId"].ToString() == "20259325")
                 {
 
                 }
@@ -2683,7 +2683,6 @@ LEFT OUTER JOIN (
                         {
                             DataRow drEdit = dsAuditDestination.Tables[0].DefaultView[0].Row;
                             drEdit.BeginEdit();
-                            drEdit["ResponsiblePersonId"] = dtRefTaskMaster.Rows[i]["AssignedBy"].ToString();
                             drEdit["ResponsiblePersonId"] = dtRefTaskMaster.Rows[i]["AssignTo"].ToString();
                             drEdit["DueDate"] = dtRefTaskMaster.Rows[i]["TempEndDate"].ToString();
                             drEdit.EndEdit();

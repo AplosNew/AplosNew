@@ -196,6 +196,9 @@ namespace Aplos.Areas.HumanResource.Controllers
             report.SetHeaderText(ref sheet, ROW, COL, "Unit", 13, ExcelHAlign.HAlignCenter);
             int ColUnit = COL;
             COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Line", 13, ExcelHAlign.HAlignCenter);
+            int ColLine = COL;
+            COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Plant", 13, ExcelHAlign.HAlignCenter);
             int ColPlant = COL;
@@ -276,6 +279,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColDepartment].Text = dtData.Rows[i]["Department"].ToString();
                 sheet[ROW, ColEntity].Text = dtData.Rows[i]["Entity"].ToString();
                 sheet[ROW, ColUnit].Text = dtData.Rows[i]["Unit"].ToString();
+                sheet[ROW, ColLine].Text = dtData.Rows[i]["Line"].ToString();
                 sheet[ROW, ColPlant].Text = dtData.Rows[i]["Plant"].ToString();
                 sheet[ROW, ColScan].Text = dtData.Rows[i]["ScanName"].ToString();
                 sheet[ROW, ColSDept].Text = dtData.Rows[i]["SDept"].ToString();

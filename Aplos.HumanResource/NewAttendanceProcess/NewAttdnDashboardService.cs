@@ -593,12 +593,13 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName,  
                             FORMAT(CAST(pv.InTime AS DATETIME),'hh:mm tt') as PVIn ,FORMAT(CAST(pv.OutTime AS DATETIME),'hh:mm tt') as PVOut 
                             , DATEDIFF(MINUTE, apd.InTime, pv.InTime) as InDuration --, DATEDIFF(MINUTE, apd.OutTime, pv.OutTime) as OutDuration
                              ,TG.UserName Transport,RG.UserName Residence,ei.EntryLevel EntryType,ei.CellPhnNo MobileNo
-                             ,mb.ROBudgetCode,mb.PRBudgetCode,EC.userName EmployeeCategory
+                             ,mb.ROBudgetCode,mb.PRBudgetCode,EC.userName EmployeeCategory,L.UserName Line
                             from dbo.AttdnProcessData apd
                              left join org.Plant plant on plant.Id = apd.PlantID
                             left join org.Company company on company.Id = plant.CompanyId
                             left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
                             left join org.Position pos on pos.Id = mb.PositionId
+							LEFT JOIN ORG.Line L ON L.Id=MB.LineId
                             left join org.Division division on division.Id = pos.DivisionId
                             left join org.SubDivision subdivision on subdivision.id = pos.SubDivisionId
                             left join dbo.EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
@@ -685,7 +686,7 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
                             (Case when  isnull(Budget.TotalNumber,0) >  isnull(OnRole.OnRole,0) then isnull(Budget.TotalNumber,0)-isnull(OnRole.OnRole,0) else 0 end ) as Short, 
                             (Case when  isnull(Budget.TotalNumber,0) <  isnull(OnRole.OnRole,0) then isnull(OnRole.OnRole,0)-isnull(Budget.TotalNumber,0) else 0 end ) as Excess,
                             company.UserName as Company,plant.UserName as PLant , Division.UserName as Division  , UNit.UserName as Unit, e.UserName as Entity , section.UserName as Section ,
-                            subsection.UserName as subSection , department.UserName as Department
+                            subsection.UserName as subSection , department.UserName as Department,L.UserName Line
                             from
                             (
                             Select * from (
@@ -705,6 +706,7 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
 
                             ) OnRole on OnRole.BudgetId = mb.Id
                              left join org.Position pos on pos.Id = mb.PositionId
+							LEFT JOIN ORG.Line L ON L.Id=MB.LineId
                             left join org.Entity e on e.Id = mb.EntityId
                             left join org.Plant plant on plant.Id = e.PlantId
                             left join org.Company company on company.Id = plant.CompanyId
@@ -864,12 +866,13 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
                             unit.UserName as Unit , dess.UserName as LDesignation,
                            FORMAT(CAST(pv.InTime AS DATETIME),'hh:mm tt') as PVIn ,FORMAT(CAST(pv.OutTime AS DATETIME),'hh:mm tt') as PVOut , Pv.AddedBy as ScannedBy , uu.FullName as ScanName  , departmentu.UserName as SDept
 							, sectionu.UserName as SSec , subsectionu.UserName as SSubSec, DATEDIFF(MINUTE, apd.InTime, pv.InTime) as InDuration , DATEDIFF(MINUTE, apd.OutTime, pv.OutTime) as OutDuration, pv.OThour
-                            ,TG.UserName Transport,RG.UserName Residence,ei.EntryLevel EntryType,ei.CellPhnNo MobileNo,EC.userName EmployeeCategory
+                            ,TG.UserName Transport,RG.UserName Residence,ei.EntryLevel EntryType,ei.CellPhnNo MobileNo,EC.userName EmployeeCategory,L.UserName Line
                             from dbo.AttdnProcessData apd
                              left join org.Plant plant on plant.Id = apd.PlantID
                             left join org.Company company on company.Id = plant.CompanyId
                             left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
                             left join org.Position pos on pos.Id = mb.PositionId
+							LEFT JOIN ORG.Line L ON L.Id=MB.LineId
                             left join org.Division division on division.Id = pos.DivisionId
                             left join org.SubDivision subdivision on subdivision.id = pos.SubDivisionId
                             left join dbo.EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
