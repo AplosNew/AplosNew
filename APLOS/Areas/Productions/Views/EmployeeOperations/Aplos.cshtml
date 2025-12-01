@@ -190,7 +190,7 @@
                             <div e-column e-headertext="Qty" e-template="#qty" e-textalign="center" e-width="80"></div>
 
                             <div e-column e-headertext="Remarks" e-template="#rem" e-textalign="center" e-width="80"></div>
-                            <div e-column e-template="#btnAction" e-headertext="Actions" e-width="40"></div>
+                            <div e-column e-template="#btnAction" e-headertext="Actions" e-width="80"></div>
 
                         </div>
                     </div>
@@ -200,7 +200,7 @@
                     <div class="input-group">
                         <input type="text" class="form-control" ng-model="data.EmployeeCode" ng-keydown="$event.keyCode === 13 && $parent.changeInData(data,'emp')" style="color:black; text-align:center" />
                         <span class="input-group-btn">
-                            <button name="submit" ng-click="$parent.getEmployeeClick(data)" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            <button name="submit" ng-click="$parent.changeInData(data,'emp')" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         </span>
                     </div>
                 </script>
