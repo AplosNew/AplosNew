@@ -133,7 +133,6 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
     //Getting the Responsible Persons
     $scope.getResponsiblePerson = function () {
-
         $http({
             method: 'GET',
             url: $scope.path + 'GetResp',
@@ -165,8 +164,26 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     $scope.setEmpData = function (obj) {
         $scope.responsiblePersonId = obj.data.SystemID;
         $scope.responsiblePerson = obj.data.EmployeeName;
-
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    };
+    $scope.getEmployeeClick = function (data) {
+        $scope.tempMasterOperationId = data.MasterOperationId;
+        $scope.tempOperationId = data.OperationId;
+        $scope.tempSequence = data.Sequence;
+        $scope.tempSerial = data.Serial;
+        angular.element(document.querySelector('#employeeCodePopUp')).modal('show');
+    }
+    $scope.setEmpCodeData = function (obj) {
+        for (var i = 0; i < $scope.ModelList.length; i++) {
+            if ($scope.ModelList[i].MasterOperationId == $scope.tempMasterOperationId
+                && $scope.ModelList[i].OperationId == $scope.tempOperationId
+                && $scope.ModelList[i].Sequence == $scope.tempSequence && $scope.ModelList[i].Serial == $scope.tempSerial) {
+                $scope.ModelList[i].EmpName = obj.data.EmployeeName;
+                  $scope.ModelList[i].EmployeeCode = obj.data.EmployeeCode;
+                  $scope.ModelList[i].EmployeeId = obj.data.EmployeeId;
+            }
+        }
+        angular.element(document.querySelector('#employeeCodePopUp')).modal('hide');
     };
 
     // Getting the POs
@@ -247,7 +264,6 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
                     wipNos[$scope.ModelList[i].Sequence] = 0;
                 }
             }
-
             $scope.PrevAllList = $scope.ModelList;
         });
     }
@@ -296,20 +312,6 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
     }
 
-    //Check WIP
-    //$scope.checkWIP = function () {
-    //    for (var i = 0; i < $scope.ModelList.length; i++) {
-    //        wipNos[$scope.ModelList[i].Sequence] += $scope.ModelList[i].Qty;
-    //        let ind = Object.keys(wipNos)
-    //        let index = ind.indexOf($scope.ModelList[i].Sequence.toString());
-    //        let prevVal = Object.values(wipNos)[index - 1];
-    //        if ($scope.ModelList[i].Sequence != 0 && wipNos[$scope.ModelList[i].Sequence] > (prevVal + $scope.ModelList[i].WIP)) {
-    //            wipNos[$scope.ModelList[i].Sequence] -= $scope.ModelList[i].Qty;
-    //            ShowResult('Value Exceeds than WIP in ' + $scope.ModelList[i].OperationCode+ '!!', 'failure');
-    //        }
-    //    }
-
-    //}
 
     $scope.isSaveBtnDisable = false;
     //Saving of the Data
@@ -363,14 +365,14 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         for (var j = 0; j < $scope.ModelList.length; j++) {
             if ($scope.ModelList[j].Sequence == data.Sequence) {
                 $scope.tempQty = parseFloat($filter("sumByKey")($filter("filter")($scope.ModelList, { Sequence: data.Sequence }), "Qty") * 100 + Number.EPSILON) / 100;
-                if ($scope.ModelList[j].WIP < $scope.tempQty && $scope.ModelList[j].Sequence!=1) {
+                if ($scope.ModelList[j].WIP < $scope.tempQty && $scope.ModelList[j].Sequence != 1) {
                     $scope.invalidqty = true;
                     ShowResult('Qty can not greater than WIP !!', 'failure')
                     break;
                 }
                 else {
 
-                $scope.NewList.push($scope.ModelList[j]);
+                    $scope.NewList.push($scope.ModelList[j]);
                 }
             }
         }
@@ -441,7 +443,6 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
                 allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowSelection: true, allowTextWrap: true, allowScrolling: true,
                 filterSettings: { filterType: "excel" },
                 columns: ColumnList
-                //queryCellInfo: $scope.cellColorChange
             });
 
             var gridObj = $("#summaryGrid").data("ejGrid");
@@ -521,15 +522,12 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
                 'Date': $scope.ProcessDate
             },
         }).then(function succ(resp) {
-
             if (resp.data.Error === true) {
                 ShowResult(resp.data.Message, 'failure');
             }
             else {
                 ShowResult(resp.data.Message, 'success');
-
             }
-
         });
     }
 }

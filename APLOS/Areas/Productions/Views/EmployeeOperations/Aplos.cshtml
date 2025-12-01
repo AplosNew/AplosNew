@@ -78,7 +78,7 @@
                 <label class="col-sm-4 control-label">Work Center</label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="workCenterId"  name="WorkCenter"
+                        <select class="form-control" ng-model="workCenterId" name="WorkCenter"
                                 ng-options="item.Value as item.Text for item in workCenterList">
                             <option value="">--Select--</option>
                         </select>
@@ -87,17 +87,17 @@
             </div>
 
             @*<div class="form-group">
-            <label class="col-sm-4 control-label" >Responsible Person<sup>*</sup></label>
-            <div class="col-sm-6 show-message" >
-                <input type="text" name="Location" ng-model="responsiblePerson" ng-click="selectResp()" class="form-control" maxlength="200" tabindex="5">
+                    <label class="col-sm-4 control-label" >Responsible Person<sup>*</sup></label>
+                    <div class="col-sm-6 show-message" >
+                        <input type="text" name="Location" ng-model="responsiblePerson" ng-click="selectResp()" class="form-control" maxlength="200" tabindex="5">
 
-            </div>
-            <div class="col-sm-1" style="margin-top:10px">
-                <button ng-click="selectResp()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-            </div>
-        </div>*@
+                    </div>
+                    <div class="col-sm-1" style="margin-top:10px">
+                        <button ng-click="selectResp()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>*@
 
-            
+
 
             <div class="form-group">
                 <label class="col-sm-4 control-label">PO</label>
@@ -171,19 +171,19 @@
 
                         <li> <button ng-click="saveData();" class="btn" ng-disabled="isSaveBtnDisable" tabindex="9"><i class="glyphicon glyphicon-download"></i> Save </button></li>
                         @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+                            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
                     </ul>
                 </div>
                 <div class="table-responsive ">
                     <div id="EmpEditsGrid" ej-grid e-datasource="ModelList" e-queryCellInfo="PeriodValidation" e-actionComplete="refreshPage"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" >
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                         <div e-columns>
                             <div e-column e-field="Sequence" e-headertext="Seq" e-width="20" e-isprimarykey="true"></div>
                             <div e-column e-field="OperationCode" e-headertext="Operation Code" e-width="50" e-isprimarykey="true"></div>
                             <div e-column e-field="OperationName" e-headertext="Operation Name" e-width="80"></div>
                             <div e-column e-field="WIP" e-headertext="WIP" e-width="30"></div>
-                            <div e-column e-headertext="Employee Code" e-template="#emp" e-textalign="center" e-width="80"></div>
+                            <div e-column e-headertext="Employee Code" e-template="#emp" e-textalign="center" e-width="100"></div>
                             <div e-column e-headertext="Employee Name" e-template="#empName" e-textalign="center" e-width="80"></div>
                             @*<div e-column e-field="EmpName" e-headertext="Employee Name" e-textalign="center" e-width="80"></div>*@
 
@@ -197,28 +197,35 @@
                 </div>
 
                 <script type="text/template" id="emp">
-                    <input type="text" ng-model="data.EmployeeCode" ng-keydown="$event.keyCode === 13 && $parent.changeInData(data,'emp')" style="color:black; text-align:center" />
+                    <div class="input-group">
+                        <input type="text" class="form-control" ng-model="data.EmployeeCode" ng-keydown="$event.keyCode === 13 && $parent.changeInData(data,'emp')" style="color:black; text-align:center" />
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="$parent.getEmployeeClick(data)" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
                 </script>
 
                 <script type="text/template" id="empName">
-                    <input type="text" ng-model="data.EmpName" disabled style="color:black; text-align:center" />
+                    <input type="text" class="form-control" ng-model="data.EmpName" disabled style="color:black; text-align:center" />
                 </script>
 
                 <script type="text/template" id="qty">
-                    <input type="number" onkeypress="return isNumber(event)" id="pp1" ng-model="data.Qty" ng-keydown="$event.keyCode === 13 && $parent.changeInData(data,'qty')" style="color:black; text-align:center" />
+                    <input type="number" class="form-control" onkeypress="return isNumber(event)" id="pp1" ng-model="data.Qty" ng-keydown="$event.keyCode === 13 && $parent.changeInData(data,'qty')" style="color:black; text-align:center" />
                 </script>
 
                 <script type="text/template" id="rem">
-                    <input type="text" ng-model="data.Remarks" ng-keypress="$parent.changeInData(data,'rem');" style="color:black; text-align:center" />
+                    <input type="text" class="form-control" ng-model="data.Remarks" ng-keypress="$parent.changeInData(data,'rem');" style="color:black; text-align:center" />
                 </script>
 
                 <script type="text/template" id="btnAction">
-                    <div class="common-btn">
-                        <ul class="list-inline text-center">
-                            <li><button ng-click="$parent.saveRowItemData(data);" class="btn"><i class="glyphicon glyphicon-floppy-save"></i></button></li>
-                            <li><button ng-click="$parent.AddTile(data);" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i></button></li>
+                    <div class="row">
+                        <div class="common-btn">
+                            <ul class="list-inline text-center">
+                                <li><button ng-click="$parent.saveRowItemData(data);" class="btn"><i class="glyphicon glyphicon-floppy-save"></i></button></li>
+                                <li><button ng-click="$parent.AddTile(data);" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i></button></li>
 
-                        </ul>
+                            </ul>
+                        </div>
                     </div>
                 </script>
 
@@ -269,7 +276,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="common-btn" style="margin-bottom:10px">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="processAll();" class="btn" tabindex="9"><i class="glyphicon glyphicon-repeat"></i> Process </button></li>
@@ -298,7 +305,7 @@
 
                                 </div>
                             </div>
-                        </div>                        
+                        </div>
                     </div>
                 </div>
                 <div class="common-btn">
@@ -346,7 +353,7 @@
 
                     <div id="getCustomers" ej-grid e-datasource="EmployeeList" e-templaterefresh="refreshTemplate"
                          e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                          e-allowtextwrap="true" e-responsive="true"
+                         e-allowtextwrap="true" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
                          e-recorddoubleclick="doubleResp">
                         <div e-columns>
@@ -355,8 +362,6 @@
 
                         </div>
                     </div>
-
-
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary" data-dismiss="modal">Close</button>
@@ -377,6 +382,34 @@
                 <div class="content-container-fluid" style="color:black;">
                     <div style="color: black;" id="Grid" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                          e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-type="string" e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal site-modal" id="employeeCodePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closePopup('employeeCodePopUp');">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color: black;" id="Grid_EmployeeCode" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setEmpCodeData" e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-type="string" e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
                             <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>

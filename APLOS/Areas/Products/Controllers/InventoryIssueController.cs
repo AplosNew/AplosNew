@@ -1102,7 +1102,7 @@ namespace Aplos.Areas.Products.Controllers
 
 							WHERE II.PlantId= '" + identity.PlantId + @"' 
 			                         AND II.CheckedByStatus='For Checking'
-							AND ISNULL(II.[Status],'') <>'Posting' 
+							AND ISNULL(II.[Status],'') <>'Posting' and ISNULL(ISH.Qty,0)>0
 							GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 							,II.SalesDate, MS.UserName
 							,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
@@ -1140,7 +1140,7 @@ namespace Aplos.Areas.Products.Controllers
 							WHERE II.PlantId= '" + identity.PlantId + @"' 
 			                         AND II.CheckedByStatus IS NULL
 			                         AND II.ApprovedByStatus IS NULL
-							AND ISNULL(II.[Status],'') <>'Posting' 
+							AND ISNULL(II.[Status],'') <>'Posting' and ISNULL(ISH.Qty,0)>0
 							GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 							,II.SalesDate, MS.UserName
 							,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
@@ -1179,7 +1179,7 @@ namespace Aplos.Areas.Products.Controllers
 							WHERE II.PlantId= '" + identity.PlantId + @"' 
 			                         AND II.CheckedByStatus IS NULL
 			                         AND II.ApprovedByStatus ='For Approval'
-							AND ISNULL(II.[Status],'') <>'Posting' 
+							AND ISNULL(II.[Status],'') <>'Posting' and ISNULL(ISH.Qty,0)>0
 							GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 							,II.SalesDate, MS.UserName
 							,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
@@ -1217,7 +1217,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId
 							WHERE II.PlantId= '" + identity.PlantId + @"' 
 							AND (II.CheckedByStatus='Hold' OR II.CheckedByStatus='Reject')                           
-							AND ISNULL(II.[Status],'') <>'Posting' 
+							AND ISNULL(II.[Status],'') <>'Posting' and ISNULL(ISH.Qty,0)>0
 							GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 							,II.SalesDate, MS.UserName,II.ToCurrencyRate 
 							,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
@@ -1255,7 +1255,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId
 							WHERE II.PlantId= '" + identity.PlantId + @"' 
 							AND II.CheckedByStatus='Checked' AND II.ApprovedByStatus='For Approval'    
-							AND ISNULL(II.[Status],'') <>'Posting' 
+							AND ISNULL(II.[Status],'') <>'Posting' and ISNULL(ISH.Qty,0)>0
 							GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 							,II.SalesDate, MS.UserName,II.ToCurrencyRate 
 							,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
@@ -1294,7 +1294,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId
 							WHERE II.PlantId= '" + identity.PlantId + @"'
 							AND II.CheckedByStatus='Checked' AND (II.ApprovedByStatus='Hold' OR II.ApprovedByStatus='Reject')
-							AND ISNULL(II.[Status],'') <>'Posting' 
+							AND ISNULL(II.[Status],'') <>'Posting' and ISNULL(ISH.Qty,0)>0
 							GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 							,II.SalesDate, MS.UserName,II.ToCurrencyRate 
 							,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
@@ -1332,7 +1332,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId
 							WHERE II.PlantId=  '" + identity.PlantId + @"'
 							AND II.CheckedByStatus='Checked' AND II.ApprovedByStatus='Approved' 
-							AND ISNULL(II.[Status],'') <>'Posting' 
+							AND ISNULL(II.[Status],'') <>'Posting' and ISNULL(ISH.Qty,0)>0
 							GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 							,II.SalesDate, MS.UserName,II.ToCurrencyRate 
 							,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
@@ -1368,7 +1368,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId
 							WHERE II.PlantId=  '" + identity.PlantId + @"'
 							AND II.CheckedByStatus IS NULL AND II.ApprovedByStatus='Approved' 
-							AND ISNULL(II.[Status],'') <>'Posting' 
+							AND ISNULL(II.[Status],'') <>'Posting' and ISNULL(ISH.Qty,0)>0
 							GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 							,II.SalesDate, MS.UserName,II.ToCurrencyRate 
 							,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
@@ -1404,7 +1404,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId
 							WHERE II.PlantId=  '" + identity.PlantId + @"'
 							AND II.CheckedByStatus IS NULL AND II.ApprovedByStatus IS NULL
-							AND ISNULL(II.[Status],'') <>'Posting' 
+							AND ISNULL(II.[Status],'') <>'Posting' and ISNULL(ISH.Qty,0)>0
 							GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 							,II.SalesDate, MS.UserName,II.ToCurrencyRate 
 							,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
@@ -1444,7 +1444,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId
 							WHERE II.PlantId=  '" + identity.PlantId + @"'
 							AND II.CheckedByStatus='Checked' AND II.ApprovedByStatus='Approved' 
-							AND ISNULL(II.[Status],'') ='Posting' 
+							AND ISNULL(II.[Status],'') ='Posting' and ISNULL(ISH.Qty,0)>0
 							GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 							,II.SalesDate, MS.UserName,II.ToCurrencyRate 
 							,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
