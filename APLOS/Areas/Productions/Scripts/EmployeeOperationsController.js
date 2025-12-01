@@ -312,20 +312,6 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
     }
 
-    //Check WIP
-    //$scope.checkWIP = function () {
-    //    for (var i = 0; i < $scope.ModelList.length; i++) {
-    //        wipNos[$scope.ModelList[i].Sequence] += $scope.ModelList[i].Qty;
-    //        let ind = Object.keys(wipNos)
-    //        let index = ind.indexOf($scope.ModelList[i].Sequence.toString());
-    //        let prevVal = Object.values(wipNos)[index - 1];
-    //        if ($scope.ModelList[i].Sequence != 0 && wipNos[$scope.ModelList[i].Sequence] > (prevVal + $scope.ModelList[i].WIP)) {
-    //            wipNos[$scope.ModelList[i].Sequence] -= $scope.ModelList[i].Qty;
-    //            ShowResult('Value Exceeds than WIP in ' + $scope.ModelList[i].OperationCode+ '!!', 'failure');
-    //        }
-    //    }
-
-    //}
 
     $scope.isSaveBtnDisable = false;
     //Saving of the Data
@@ -457,7 +443,6 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
                 allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowSelection: true, allowTextWrap: true, allowScrolling: true,
                 filterSettings: { filterType: "excel" },
                 columns: ColumnList
-                //queryCellInfo: $scope.cellColorChange
             });
 
             var gridObj = $("#summaryGrid").data("ejGrid");
