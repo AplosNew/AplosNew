@@ -364,7 +364,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         $scope.NewList = [];
         for (var j = 0; j < $scope.ModelList.length; j++) {
             if ($scope.ModelList[j].Sequence == data.Sequence) {
-                $scope.tempQty = parseFloat($filter("sumByKey")($filter("filter")($scope.ModelList, { Sequence: data.Sequence }), "Qty") * 100 + Number.EPSILON) / 100;
+                $scope.tempQty = parseFloat($filter("sumByKey")($filter("filter")($scope.ModelList, { Sequence: data.Sequence, OperationId: data.OperationId }), "Qty") * 100 + Number.EPSILON) / 100;
                 if ($scope.ModelList[j].WIP < $scope.tempQty && $scope.ModelList[j].Sequence != 1) {
                     $scope.invalidqty = true;
                     ShowResult('Qty can not greater than WIP !!', 'failure')
