@@ -32,6 +32,12 @@ namespace Aplos.Areas.Materials.Controllers
         #region -- Pages
 
         [HttpGet]
+        public ActionResult Main()
+        {
+            return View();
+        }
+
+        [Authorize]
         public ActionResult Aplos()
         {
             return View();

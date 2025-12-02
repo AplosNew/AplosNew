@@ -3,14 +3,14 @@
     <div class="tab-design" id="tab_show">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Detention Type</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Budget Code</a></li>
+                <li role="presentation" ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Detention Type</a></li>
+                <li role="presentation" ng-class="{ active: isSet2(2) }"><a ng-click="setTab2(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Budget Code</a></li>
 
             </ul>
 
         </div>
         <div class="tab-content">
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
                 <input type="hidden" ng-model="ModelNew.Id">
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group" show-errors>
@@ -71,14 +71,14 @@
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        <li> <button ng-click="SaveDT();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
                         <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                         <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                     </ul>
                 </div>
             </div>
 
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
                 <div class="row">
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="common-btn">

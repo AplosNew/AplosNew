@@ -1,7 +1,7 @@
 ﻿'use strict';
 DetentionTypeController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function DetentionTypeController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Detention Type';
+    $scope.title = 'Detention Type';
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'IE/DetentionType/';
@@ -14,14 +14,14 @@ function DetentionTypeController(cboService, commonMessage, $scope, $rootScope, 
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
 
-    $scope.tab = 1;
-    $scope.setTab = function (newTab) {
-        $scope.tab = newTab;
+    $scope.tab2 = 1;
+    $scope.setTab2 = function (newTab) {
+        $scope.tab2 = newTab;
 
 
     };
-    $scope.isSet = function (tabNum) {
-        return $scope.tab === tabNum;
+    $scope.isSet2 = function (tabNum) {
+        return $scope.tab2 === tabNum;
     };
 
     $scope.getData = function () {
@@ -70,7 +70,7 @@ function DetentionTypeController(cboService, commonMessage, $scope, $rootScope, 
         }
     };
 
-    $scope.Save = function () {
+    $scope.SaveDT = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
             $http({

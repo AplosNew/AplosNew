@@ -1,6 +1,6 @@
 ﻿'use strict';
-DetentionMasterController.$inject = ["cboService","commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter"];
-function DetentionMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+DetentionMasterController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter","$controller"];
+function DetentionMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
     $rootScope.title = "DetentionMaster";
     $scope.Action = 'Save';
     $scope.path = 'Materials/DetentionMaster/';
@@ -17,6 +17,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.ResponsibleSaveUrl = $scope.path + 'CreateResponsible';
     $scope.employeeUrl = $scope.path + 'GetEmployeeListInChargePerson';
     $scope.saveProcessParameterUrl = $scope.path + 'CreateProcessParameter';
+    $controller("DetentionTypeController", { $scope: $scope, $http: $http });
 
     $scope.detention = {
         Id: null
@@ -143,27 +144,16 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         }    
     };
 
-    //$scope.Delete = function () {
-    //    if (!baseService.isUndefinedOrNull($scope.rackNew.Id)) {
-    //        $http({
-    //            method: 'POST'
-    //            , url: $scope.path + 'Delete?Id=' + $scope.rackNew.Id
-    //            , dataType: 'JSON'
-    //        }).then(function successCallback(response) {
-    //            if (response.data.Error === true) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //            else {
-    //                ShowResult(response.data.Message, 'success');                   
-    //                ClearFields(response.data.Sequence);
-    //                $scope.LoadRackList();
-    //            }
-    //            function errorCallBack(response) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //        });
-    //    }
-    //};
+    $scope.tab3 = 1;
+    $scope.setTab3 = function (newTab) {
+        $scope.tab3 = newTab;
+
+
+    };
+    $scope.isSet3 = function (tabNum) {
+        return $scope.tab3 === tabNum;
+    };
+
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -173,6 +163,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
+
     $scope.GetDetails = function (args) {
         $scope.DetentionMasterId = args.data.Id;
        /* $scope.DetentionTest = args.data.InchargePerson;*/
@@ -1182,44 +1173,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             return manualValidation(divId, false);
     };
     $scope.masterId = null;
-    //$scope.Save = function () {
-    //    try {
-    //        $scope.$broadcast('show-errors-check-validity');
-    //        if ($scope.modelNewForm.$valid) {
-    //            if ($scope.ModelNew.InPutOutPutRatio <= -1) {
-    //                return manualValidation('div_Ratio', true, "InPutOutPutRatio value can't less than -1 or -1.");
-
-    //            }
-    //            if ($scope.ModelNew.InPutOutPutRatio > 1) {
-    //                return manualValidation('div_Ratio', true, "InPutOutPutRatio value can't greater than 1.");
-    //            }
-
-    //            $http({
-    //                method: 'POST',
-    //                url: $scope.saveUrl,
-    //                data: { 'data': $scope.ModelNew },
-    //                dataType: 'JSON'
-    //            }).then(function successCallback(response) {
-    //                if (response.data.Error === true) {
-    //                    ShowResult(response.data.Message, 'failure');
-    //                }
-    //                else {
-    //                    ShowResult(response.data.Message, 'success');
-    //                    $scope.ModelNew.Id = response.data.Id;
-    //                    $scope.masterId = response.data.Id;
-    //                    $scope.GetData();
-
-    //                }
-    //            }), function errorCallBack(response) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            };
-    //        }
-
-    //    } catch (e) {
-    //        ShowResult(e, "failure");
-    //    }
-    //};
-
+   
     $scope.ProcessParameterList = [];
     $scope.GetProcessParameterData = function () {
         $scope.ProcessParameterList = [];
@@ -1314,5 +1268,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         $scope.FormulaArray = [];
         $scope.FormulaIdArray = [];
     }
+
+    
 
 }
