@@ -265,7 +265,7 @@ namespace Aplos.Areas.IE.Controllers
                     if (dv.Count == 0)
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("DetentionMasterDepartment", out DetentionMasterDepartmentId);
+                        genid.GenID("DetentionTypeBudgetCode", out DetentionMasterDepartmentId);
 
                         item["Id"] = "DMD-" + DetentionMasterDepartmentId + "-" + (1);
                         item["DetentionTypeId"] = detentionTypeId;
