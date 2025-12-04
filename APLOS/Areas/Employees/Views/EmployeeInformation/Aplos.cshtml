@@ -11,52 +11,118 @@
             @Html.Partial("~/Areas/Employees/Views/EmployeeInformation/AplosEmp.cshtml")
         </div>
         @*   TAB -2  *@
-        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li><button ng-click="SaveEmployeeComplianceDocument();" class="btn" title="Compliance Document"><i class="glyphicon glyphicon-save"></i> Generate Document</button></li>
-                    </ul>
-                </div>
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped" ng-show="documentdataList.length>0">
-                        <thead>
-                            <tr>
-                                <th>Document Name</th>
-                                <th>Emp Type</th>
-                                <th>Employee Category</th>
-                                <th>Optional Or Mandatory</th>
-                                <th>Skill Based</th>
-                                <th>Dependate Date</th>
-                                <th>Due Date</th>
-                                <th>File Name</th>
-                                <th>File</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="d in documentdataList">
-                                <td>{{d.DocumentName}}</td>
-                                <td>{{d.EmpType}}</td>
-                                <td>{{d.EmployeeCategory}}</td>
-                                <td>{{d.OptionalOrMandatory}}</td>
-                                <td>{{d.IsSkillBased?'Yes':'No'}}</td>
-                                <td>{{d.DependateDate}}</td>
-                                <td>{{d.DueDate | dateFiltering}}</td>
-                                <td ng-click="DocDownload(d)">@*<a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{d.FileName}}"target="_self"></a>*@<label style="text-decoration:underline">{{d.FileName}}</label> </td>
-                                <td>
-                                    <button ng-click="DocShow(d);" ng-class="getColor(d)" class="btn"><i class="fa fa-paperclip"></i> Document</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li><button ng-click="SaveEmployeeComplianceDocument();" class="btn" title="Compliance Document"><i class="glyphicon glyphicon-save"></i> Generate Document</button></li>
+            </ul>
+        </div>
+        <div class="table-responsive modal-table">
+            <table class="table table-striped" ng-show="documentdataList.length>0">
+                <thead>
+                    <tr>
+                        <th>Document Name</th>
+                        <th>Emp Type</th>
+                        <th>Employee Category</th>
+                        <th>Optional Or Mandatory</th>
+                        <th>Skill Based</th>
+                        <th>Dependate Date</th>
+                        <th>Due Date</th>
+                        <th>File Name</th>
+                        <th>File</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="d in documentdataList">
+                        <td>{{d.DocumentName}}</td>
+                        <td>{{d.EmpType}}</td>
+                        <td>{{d.EmployeeCategory}}</td>
+                        <td>{{d.OptionalOrMandatory}}</td>
+                        <td>{{d.IsSkillBased?'Yes':'No'}}</td>
+                        <td>{{d.DependateDate}}</td>
+                        <td>{{d.DueDate | dateFiltering}}</td>
+                        <td ng-click="DocDownload(d)">@*<a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{d.FileName}}"target="_self"></a>*@<label style="text-decoration:underline">{{d.FileName}}</label> </td>
+                        <td>
+                            <button ng-click="DocShow(d);" ng-class="getColor(d)" class="btn"><i class="fa fa-paperclip"></i> Document</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal fade site-modal in" id="EmpDocPopUp" role="dialog" data-backdrop="static">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Add Document</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row form-elements form-horizontal">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Document Name</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="Document Name" ng-model="documentdata.DocumentName" readonly class="form-control" tabindex="72">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Employee Category</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="Employee Category" ng-model="documentdata.EmployeeCategory" readonly class="form-control" tabindex="74">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="inputBtnSection common-btn">
+                                        <label class="fileUpload col-sm-4 ">
+                                            <input id="uploadBtn4" type="file" name="file[]" class="upload" />
+                                            <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Attach</i></span>
+                                        </label>
+                                        <div class="col-sm-6" style="width: 198px;">
+                                            <input type="text" id="uploadFile4" ng-model="documentdata.FileName" name="uploadFile4" class="disableInputField form-control" disabled="disabled" style="width: 183px;" />
+                                        </div>
+                                        <div class="col-sm-2" style="padding-left:0px;">
+                                            <button ng-click="DocumentRemove(documentdata.Id);" class="btn" style="height: 31px;width: 88px;padding-left: 8px;background: #242841;"><i class="fa fa-chain-broken" aria-hidden="true"></i> Detach</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Emp Type</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="Emp Type" ng-model="documentdata.EmpType" readonly class="form-control" tabindex="74">
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="documentdata.DocNumberRequired===true">
+                                    <label class="col-sm-4 control-label">Document Number<sup>*</sup></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="Document Number" ng-model="documentdata.DocNumber" class="form-control" tabindex="72" ng-disabled="fg">
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="documentdata.DocDateRequired===true">
+                                    <label class="col-sm-4 control-label">Document Date<sup>*</sup></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-model="documentdata.DocDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="10">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="SaveDocument();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
+
         @*   TAB -3  *@
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
             @Html.Partial("~/Areas/Employees/Views/EmployeeInformation/TrainingType.cshtml")
         </div>
-        
+
     </div>
 
 </div>

@@ -3519,7 +3519,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 $scope.fg = false;
             }
         }
-        angular.element(document.querySelector('#DocPopUp')).modal('show');
+        angular.element(document.querySelector('#EmpDocPopUp')).modal('show');
     };
 
     $scope.getColor = function (item) {
@@ -3587,19 +3587,19 @@ function employeeInformationController(addressService, fileReader, cboService, c
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     $scope.btnDisable = false;
-                    ShowResult(response.data.Message, "failure", "DocPopUp");
+                    ShowResult(response.data.Message, "failure", "EmpDocPopUp");
                     $scope.savedisable = false;
                 }
                 else {
-                    ShowResult(response.data.Message, "success", "DocPopUp");
+                    ShowResult(response.data.Message, "success", "EmpDocPopUp");
                     $scope.btnDisable = false;
                     $scope.Loaddocumentdatalist();
                     $scope.filedata = {};
                     $scope.savedisable = false;
-                    angular.element(document.querySelector('#DocPopUp')).modal('hide');
+                    angular.element(document.querySelector('#EmpDocPopUp')).modal('hide');
                 }
             }, function errorCallback(response) {
-                ShowResult(response.status.Message, "failure", "DocPopUp");
+                ShowResult(response.status.Message, "failure", "EmpDocPopUp");
                 $scope.savedisable = false;
             });
             return true;
@@ -3607,7 +3607,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         } catch (e) {
             $scope.btnDisable = false;
             $scope.savedisable = false;
-            ShowResult(e, "failure", "DocPopUp");
+            ShowResult(e, "failure", "EmpDocPopUp");
         }
     };
 
@@ -3629,15 +3629,15 @@ function employeeInformationController(addressService, fileReader, cboService, c
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure', "DocPopUp");
+                ShowResult(response.data.Message, 'failure', "EmpDocPopUp");
             }
             else {
-                ShowResult(response.data.Message, 'success', "DocPopUp");
+                ShowResult(response.data.Message, 'success', "EmpDocPopUp");
                 $scope.Loaddocumentdatalist();
                 $scope.documentdata.FileName = "";
             }
         }, function errorCallback(response) {
-            ShowResult(response.status.Message, 'failure', "DocPopUp");
+            ShowResult(response.status.Message, 'failure', "EmpDocPopUp");
         });
         return true;
     };
