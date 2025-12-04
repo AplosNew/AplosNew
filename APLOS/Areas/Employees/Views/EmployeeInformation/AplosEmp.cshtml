@@ -3102,40 +3102,7 @@
     </div>
 </div>
 
-<div class="modal fade site-modal in" id="DocShowPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                Document Information
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                @*<label ng-click="DownloadImageFile(d)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{FileNam}}" target="_self"></a>{{FileNam}}</label>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>File Name</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="d in documentdataList">
-                                <td ng-click="DownloadImageFile(d)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{d.FileName}}"target="_self"></a><label style="text-decoration:underline">{{d.FileName}}</label> </td>
-                            </tr>
-                        </tbody>
-                    </table>*@
-                <p><a href="{{dwonloadUrl}}" ng-click="DownloadImageFile()" style="text-decoration:underline" download="{{FileNam}}" target="_self"></a><label ng-click="DownloadImageFile()" style="text-decoration:underline">{{FileNam}}</label></p>
 
-                <center>
-                    <embed src="{{dwonloadUrl}}" width="500" height="800">
-                </center>
-            </div>
-            <div class="modal-footer common-btn">
-
-
-            </div>
-        </div>
-    </div>
-</div>
 
 
 
