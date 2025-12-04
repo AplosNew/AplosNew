@@ -1,5 +1,5 @@
 ﻿'use strict';
-DetentionMasterController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter","$controller"];
+DetentionMasterController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter", "$controller"];
 function DetentionMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
     $rootScope.title = "DetentionMaster";
     $scope.Action = 'Save';
@@ -28,7 +28,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         , DetentionTypeId: null
         , DetentionCriticality: null
         , InchargePersonId: null
-        , InchargePerson:null
+        , InchargePerson: null
         , DetentionTarget: null
         , DetentionPlan: null
         , IsAvoidable: false
@@ -105,7 +105,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             var employee = $scope.employeeList[$scope.employeeIndex];
             if ($scope.Name === 'ip') {
                 $scope.detentionNew.InchargePersonId = employee.SystemId;
-               /* $scope.detentionNew.InchargePerson = employee.EmployeeName;*/
+                /* $scope.detentionNew.InchargePerson = employee.EmployeeName;*/
                 $scope.DetentionTest = employee.EmployeeName;
             }
         }
@@ -125,7 +125,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'DetentionData': $scope.detentionNew},
+                data: { 'DetentionData': $scope.detentionNew },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -136,12 +136,12 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
                     /*ClearFields(response.data.Sequence);*/
                     $scope.LoadDetentionList();
                     DetentionClearFields();
-                   /* $scope.GetDetails({ data: { Id: response.data.Data.Id } });*/
+                    /* $scope.GetDetails({ data: { Id: response.data.Data.Id } });*/
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-        }    
+        }
     };
 
     $scope.tab3 = 1;
@@ -166,7 +166,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
 
     $scope.GetDetails = function (args) {
         $scope.DetentionMasterId = args.data.Id;
-       /* $scope.DetentionTest = args.data.InchargePerson;*/
+        /* $scope.DetentionTest = args.data.InchargePerson;*/
         $http({
             method: 'Get',
             url: 'Materials/DetentionMaster/LoadEditData?DetentionID=' + args.data.Id
@@ -174,12 +174,6 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             $scope.detentionNew = response.data.detention[0];
             $scope.DetentionTest = response.data.detention[0].InChargePerson;
             $scope.getDetentionMasterProcess();
-            $scope.getDetentionMasterDepartment();
-            $scope.getDetentionMasterMachine();
-            $scope.getDetentionMasterResponsible();
-            $scope.getautosequenceDetention();
-            $scope.GetProcessParameterData();
-            $scope.GetOrderLineCostingItemCbo();
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
@@ -187,7 +181,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         )
     }
     $scope.recorddoubleclick = function ($event) {
-        
+
         var x = $event;
         $scope.DetentionMasterId = x.data.Id;
 
@@ -207,6 +201,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         }).then(function succ(resp) {
             $scope.userProcessList = [];
             $scope.userProcessList = resp.data;
+            $scope.getDetentionMasterDepartment();
         });
     }
     $scope.getDetentionMasterDepartment = function () {
@@ -218,6 +213,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         }).then(function succ(resp) {
             $scope.userDepartMentList = [];
             $scope.userDepartMentList = resp.data;
+            $scope.getDetentionMasterMachine();
         });
     }
     $scope.getDetentionMasterMachine = function () {
@@ -229,6 +225,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         }).then(function succ(resp) {
             $scope.userMachineList = [];
             $scope.userMachineList = resp.data;
+            $scope.getDetentionMasterResponsible();
         });
     }
 
@@ -241,6 +238,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         }).then(function succ(resp) {
             $scope.userResponsibleList = [];
             $scope.userResponsibleList = resp.data;
+            $scope.getautosequenceDetention();
         });
     }
 
@@ -857,6 +855,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             .then(
                 function successCallback(response) {
                     $scope.ModelProcessPara.Sequence = response.data;
+                    $scope.GetProcessParameterData();
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
@@ -1085,7 +1084,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.masterId = $scope.ModelNew.Id;
         $scope.GetSequence();
-        $scope.getautosequenceDetention(); 
+        $scope.getautosequenceDetention();
         $scope.GetProcessParameterData();
         $scope.GetQualityProcessList();
         $scope.GetOrderLineCostingItemCbo();
@@ -1173,7 +1172,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             return manualValidation(divId, false);
     };
     $scope.masterId = null;
-   
+
     $scope.ProcessParameterList = [];
     $scope.GetProcessParameterData = function () {
         $scope.ProcessParameterList = [];
@@ -1181,6 +1180,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             .then(
                 function successCallback(response) {
                     $scope.ProcessParameterList = response.data;
+                    $scope.GetOrderLineCostingItemCbo();
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
@@ -1269,6 +1269,6 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         $scope.FormulaIdArray = [];
     }
 
-    
+
 
 }

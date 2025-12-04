@@ -4,12 +4,10 @@ function DetentionTypeController(cboService, commonMessage, $scope, $rootScope, 
     $scope.title = 'Detention Type';
     $scope.Action = 'Save';
     $scope.ModelList = [];
-    $scope.path = 'IE/DetentionType/';
-    $scope.getListUrl = $scope.path + 'getlist';
-    $scope.getSeqUrl = $scope.path + 'getautosequence';
-    $scope.saveUrl = $scope.path + 'create';
-    $scope.deleteUrl = $scope.path + 'delete/';
-    baseService.init($scope.getListUrl);
+    $scope.dtpath = 'IE/DetentionType/';
+    $scope.getdtSeqUrl = $scope.dtpath + 'getautosequence';
+    $scope.savedtUrl = $scope.dtpath + 'create';
+    $scope.deletedtUrl = $scope.dtpath + 'delete/';
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
@@ -27,7 +25,7 @@ function DetentionTypeController(cboService, commonMessage, $scope, $rootScope, 
     $scope.getData = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "GetList",
+            url: $scope.dtpath + "GetList",
             data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
         }).then(function successCallback(response) {          
@@ -53,7 +51,7 @@ function DetentionTypeController(cboService, commonMessage, $scope, $rootScope, 
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
     $scope.GetSequence = function () {
-        cboService.getSequence($scope.getSeqUrl, function (data) {
+        cboService.getSequence($scope.getdtSeqUrl, function (data) {
             $scope.ModelTemp.Sequence = data;
             $scope.ModelNew.Sequence = data;
         });
@@ -75,7 +73,7 @@ function DetentionTypeController(cboService, commonMessage, $scope, $rootScope, 
         if ($scope.ModelNewForm.$valid) {
             $http({
                 method: 'POST',
-                url: $scope.saveUrl,
+                url: $scope.savedtUrl,
                 data: { 'data': $scope.ModelNew },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -99,7 +97,7 @@ function DetentionTypeController(cboService, commonMessage, $scope, $rootScope, 
         if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.ModelNew.Id,
+                url: $scope.deletedtUrl + $scope.ModelNew.Id,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -135,7 +133,7 @@ function DetentionTypeController(cboService, commonMessage, $scope, $rootScope, 
     $scope.getBudgetCode = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'GetBudgetCode'
+            url: $scope.dtpath + 'GetBudgetCode'
         }).then(function successCallback(response) {
             $scope.BudgetCodeList = response.data;
 
@@ -216,7 +214,7 @@ function DetentionTypeController(cboService, commonMessage, $scope, $rootScope, 
 
             $http({
                 method: 'POST',
-                url: $scope.path + 'SaveBudgetCode',
+                url: $scope.dtpath + 'SaveBudgetCode',
                 data: {
                     'data': $scope.userBudgetCodeList,
                     'detentionTypeId': $scope.ModelNew.Id
@@ -244,7 +242,7 @@ function DetentionTypeController(cboService, commonMessage, $scope, $rootScope, 
     $scope.getBudget = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'getBudget',
+            url: $scope.dtpath + 'getBudget',
             data: { 'detentionTypeId': $scope.ModelNew.Id },
             dataType: 'JSON'
         }).then(function succ(resp) {
