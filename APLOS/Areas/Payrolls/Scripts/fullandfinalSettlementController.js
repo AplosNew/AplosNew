@@ -369,17 +369,17 @@ function fullandfinalSettlementController(commonMessage, $scope, $rootScope, bas
     $scope.showBonus = function (data, index) {
         $scope.ItemIndex = index;
         data = $scope.FormulaList[$scope.ItemIndex];
-        if (data.SandardName == "Bonus" && data.Value != "0") {
+        if (data.UserName == "Bonus" && data.Value != "0") {
             $("#BonusInfo").ejDialog("setTitle", "Bonus");
             var eDialog = $("#BonusInfo").data("ejDialog");
             eDialog.open();
         }
-        if (data.SandardName == "GoodWork" && data.Value != "0") {
+        if (data.UserName == "GoodWork" && data.Value != "0") {
             $("#gwInfo").ejDialog("setTitle", "Good Work");
             var eDialog = $("#gwInfo").data("ejDialog");
             eDialog.open();
         }
-        if (data.SandardName == "OverTime" && data.Value != "0") {
+        if (data.UserName == "OverTime" && data.Value != "0") {
             $("#otInfo").ejDialog("setTitle", "Over Time");
             var eDialog = $("#otInfo").data("ejDialog");
             eDialog.open();

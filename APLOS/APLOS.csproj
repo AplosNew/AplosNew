@@ -5085,6 +5085,7 @@
     <Content Include="Areas\OrderManagements\Views\MasterOrder\Upload.cshtml" />
     <Content Include="Areas\Materials\Views\MachineBudget\MachineTransfer.cshtml" />
     <Content Include="Areas\Accounts\Views\DirectorRemuneration.cshtml" />
+    <Content Include="Areas\Materials\Views\DetentionMaster\Main.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

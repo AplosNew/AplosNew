@@ -1,0 +1,23 @@
+﻿<div class="tab-design">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet3(1) }"><a ng-click="setTab3(1);GetDetentionTypeList();" href="" aria-controls="general" role="tab" data-toggle="tab">Detention Master</a></li>
+            <li role="presentation" ng-class="{ active: isSet3(2) }"><a ng-click="setTab3(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Detention Type</a></li>
+
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet3(1), active: isSet3(1) }">
+            @Html.Partial("~/Areas/Materials/Views/DetentionMaster/Aplos.cshtml")
+
+        </div>
+
+        @*   TAB -2  *@
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet3(2), active: isSet3(2) }">
+        @Html.Partial("~/Areas/IE/Views/DetentionType/Aplos.cshtml")
+
+    </div>
+    </div>
+</div>
+
+

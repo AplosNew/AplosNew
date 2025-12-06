@@ -2276,73 +2276,7 @@
 
 </div>
 <confirm-modal></confirm-modal>
-<div class="modal fade site-modal in" id="DocPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Add Document</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row form-elements form-horizontal">
-                    <div class="col-xs-12 col-sm-6 col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Document Name</label>
-                            <div class="col-sm-8">
-                                <input type="text" name="Document Name" ng-model="documentdata.DocumentName" readonly class="form-control" tabindex="72">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Employee Category</label>
-                            <div class="col-sm-8">
-                                <input type="text" name="Employee Category" ng-model="documentdata.EmployeeCategory" readonly class="form-control" tabindex="74">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="inputBtnSection common-btn">
-                                <label class="fileUpload col-sm-4 ">
-                                    <input id="uploadBtn4" type="file" name="file[]" class="upload" />
-                                    <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Attach</i></span>
-                                </label>
-                                <div class="col-sm-6" style="width: 198px;">
-                                    <input type="text" id="uploadFile4" ng-model="documentdata.FileName" name="uploadFile4" class="disableInputField form-control" disabled="disabled" style="width: 183px;" />
-                                </div>
-                                <div class="col-sm-2" style="padding-left:0px;">
-                                    <button ng-click="DocumentRemove(documentdata.Id);" class="btn" style="height: 31px;width: 88px;padding-left: 8px;background: #242841;"><i class="fa fa-chain-broken" aria-hidden="true"></i> Detach</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-12 col-sm-6 col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Emp Type</label>
-                            <div class="col-sm-8">
-                                <input type="text" name="Emp Type" ng-model="documentdata.EmpType" readonly class="form-control" tabindex="74">
-                            </div>
-                        </div>
-                        <div class="form-group" ng-show="documentdata.DocNumberRequired===true">
-                            <label class="col-sm-4 control-label">Document Number<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <input type="text" name="Document Number" ng-model="documentdata.DocNumber" class="form-control" tabindex="72" ng-disabled="fg">
-                            </div>
-                        </div>
-                        <div class="form-group" ng-show="documentdata.DocDateRequired===true">
-                            <label class="col-sm-4 control-label">Document Date<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <input type="text" ng-model="documentdata.DocDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="10">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="SaveDocument();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <div class="modal fade site-modal in" id="NewEmpEntryPopUp" role="dialog" data-backdrop="static" style="overflow:scroll">
     <div class="modal-dialog modal-lg">
@@ -3100,40 +3034,77 @@
     </div>
 </div>
 
-<div class="modal fade site-modal in" id="DocShowPopUp" role="dialog" data-backdrop="static">
+<div class="modal fade site-modal in" id="DocPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                Document Information
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add Document</h4>
             </div>
             <div class="modal-body">
-                @*<label ng-click="DownloadImageFile(d)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{FileNam}}" target="_self"></a>{{FileNam}}</label>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>File Name</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="d in documentdataList">
-                                <td ng-click="DownloadImageFile(d)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{d.FileName}}"target="_self"></a><label style="text-decoration:underline">{{d.FileName}}</label> </td>
-                            </tr>
-                        </tbody>
-                    </table>*@
-                <p><a href="{{dwonloadUrl}}" ng-click="DownloadImageFile()" style="text-decoration:underline" download="{{FileNam}}" target="_self"></a><label ng-click="DownloadImageFile()" style="text-decoration:underline">{{FileNam}}</label></p>
-
-                <center>
-                    <embed src="{{dwonloadUrl}}" width="500" height="800">
-                </center>
-            </div>
-            <div class="modal-footer common-btn">
-
-
+                <div class="row form-elements form-horizontal">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Document Name</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Document Name" ng-model="documentdata.DocumentName" readonly class="form-control" tabindex="72">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Employee Category</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Employee Category" ng-model="documentdata.EmployeeCategory" readonly class="form-control" tabindex="74">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="inputBtnSection common-btn">
+                                <label class="fileUpload col-sm-4 ">
+                                    <input id="uploadBtn4" type="file" name="file[]" class="upload" />
+                                    <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Attach</i></span>
+                                </label>
+                                <div class="col-sm-6" style="width: 198px;">
+                                    <input type="text" id="uploadFile4" ng-model="documentdata.FileName" name="uploadFile4" class="disableInputField form-control" disabled="disabled" style="width: 183px;" />
+                                </div>
+                                <div class="col-sm-2" style="padding-left:0px;">
+                                    <button ng-click="DocumentRemove(documentdata.Id);" class="btn" style="height: 31px;width: 88px;padding-left: 8px;background: #242841;"><i class="fa fa-chain-broken" aria-hidden="true"></i> Detach</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Emp Type</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Emp Type" ng-model="documentdata.EmpType" readonly class="form-control" tabindex="74">
+                            </div>
+                        </div>
+                        <div class="form-group" ng-show="documentdata.DocNumberRequired===true">
+                            <label class="col-sm-4 control-label">Document Number<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Document Number" ng-model="documentdata.DocNumber" class="form-control" tabindex="72" ng-disabled="fg">
+                            </div>
+                        </div>
+                        <div class="form-group" ng-show="documentdata.DocDateRequired===true">
+                            <label class="col-sm-4 control-label">Document Date<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" ng-model="documentdata.DocDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="10">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveDocument();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+
+
+
 
 <div class="modal fade site-modal in" id="EmpBankPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
