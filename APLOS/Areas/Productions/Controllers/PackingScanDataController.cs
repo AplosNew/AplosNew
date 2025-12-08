@@ -115,7 +115,7 @@ namespace Aplos.Areas.Productions.Controllers
                         AddedDate = item.AddedDate,
                         UpdatedBy = item.UpdatedBy,
                         UpdatedDate = item.UpdatedDate,
-                        LocMasterId = item.LocMasterId,
+                        LocMasterId = packingScanUpload.LocMasterId,
                         IsDespatch = item.IsDespatch,
                         BookedDate = item.BookedDate,
                         InventoryReceiveDetailId = null,
@@ -421,6 +421,142 @@ namespace Aplos.Areas.Productions.Controllers
                     return RenderReportAsExcel(workbook, reportFileName);
             }
 
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult ImportData(FormCollection form)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                List<PackingScanUploadedData> data = new List<PackingScanUploadedData>();
+
+                var pre = form["modelNew"];
+                var file = Request.Files["file"];
+                var _objects = JsonConvert.DeserializeObject<Dictionary<string, object>>(pre);
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                else
+                {
+                    throw new CustomException(Resources.ExcelUploadError);
+                }
+                string path = "";
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetAttendanceRawData(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+                FileInfo docFile;
+                string exception = "\r\n";
+                try
+                {
+                    try
+                    {
+                        string connString = string.Empty;
+                        ExcelEngine excelEngine = null;
+                        IApplication application = null;
+                        IWorkbook workbook = null;
+
+                        excelEngine = new ExcelEngine();
+                        application = excelEngine.Excel;
+                        workbook = excelEngine.Excel.Workbooks.Open(path);
+
+                        DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+                        DataSet dsExcel = new DataSet();
+                        dsExcel.Tables.Add(dt);
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            exception += "\r\nTrying to delete";
+                            docFile.Delete();
+                        }
+
+                        if (dsExcel.Tables[0].Rows.Count > 0)
+                        {
+                            for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
+                            {
+                                string NetWeight = "0.0";
+                                string GWeight = "0.0";
+                                NetWeight = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
+                                GWeight = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                PackingScanUploadedData vm = new PackingScanUploadedData();
+
+                                //vm.MasterId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.ProductCode = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.POId = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                vm.LotNo = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
+                                vm.RefNo = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
+                                vm.Cones = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
+                                vm.NetWeight = Convert.ToDecimal(string.IsNullOrEmpty(NetWeight) ? "0" : NetWeight);
+                                vm.GWeight = Convert.ToDecimal(string.IsNullOrEmpty(GWeight) ? "0" : GWeight);
+                                vm.PackedBy = dsExcel.Tables[0].Rows[i][7].ToString().Trim();
+                                vm.Shade = dsExcel.Tables[0].Rows[i][8].ToString().Trim();
+                                vm.Booked = dsExcel.Tables[0].Rows[i][9].ToString().Trim();
+                                vm.PackingId = dsExcel.Tables[0].Rows[i][10].ToString().Trim();
+                                vm.AddedBy = dsExcel.Tables[0].Rows[i][11].ToString().Trim();
+                                vm.AddedDate = dsExcel.Tables[0].Rows[i][12].ToString().Trim();
+                                vm.UpdatedBy = dsExcel.Tables[0].Rows[i][13].ToString().Trim();
+                                vm.UpdatedDate = dsExcel.Tables[0].Rows[i][14].ToString().Trim();
+                                vm.LocMasterId = dsExcel.Tables[0].Rows[i][15].ToString().Trim();
+                                vm.IsDespatch = dsExcel.Tables[0].Rows[i][16].ToString().Trim();
+                                vm.BookedDate = dsExcel.Tables[0].Rows[i][17].ToString().Trim();
+                                vm.InventoryReceiveDetailId = dsExcel.Tables[0].Rows[i][18].ToString().Trim();
+                                vm.SalesId = dsExcel.Tables[0].Rows[i][19].ToString().Trim();
+                                data.Add(vm);
+
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Please Select File");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            docFile.Delete();
+                        }
+                        throw (ex);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    //throw ex;
+                }
+                finally
+                {
+                }
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
         }
 
         //public class PackingScanUpload : BaseModel
