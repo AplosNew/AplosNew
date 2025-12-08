@@ -4593,6 +4593,11 @@ UNION ALL
                 {
                     ExportType = "DATASET"
                 };
+                string tempEntityId = "";
+                if (string.IsNullOrEmpty(entityId)==false)
+                {
+                     tempEntityId = @" and V.EntityId='" + entityId + @"'";
+                }
                 parameters.CmdText = @"
 
                     SELECT GL.Id AS AccountCodeId,--Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
@@ -4618,8 +4623,8 @@ UNION ALL
                     LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
                     LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
                     where act.IsBalanceSheet=0 AND v.PostingDate < '" + fromDate + @"' AND V.CompanyId='" + companyId + @"' AND V.PlantId='" + plantId + @"'
-                            and V.EntityId='" + entityId + @"'
-                    and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
+                            
+                    and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0 "+ tempEntityId + @"
                     group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
                   --  ,v.PostingDate
 					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName";
@@ -4756,10 +4761,11 @@ UNION ALL
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var parallelCurrency = "";
                 parallelCurrency = parallelCurrencies.Length > 0 ? string.Join(",", parallelCurrencies.Select(item => "'" + item + "'")) : "' '";
-                //parameters = new GridParameter
-                //{
-                //    ExportType = "DATASET"
-                //};
+                string tempEntityId = "";
+                if (string.IsNullOrEmpty(entityId) == false)
+                {
+                    tempEntityId = @" and V.EntityId='" + entityId + @"'";
+                }
                 strSql = @"                   
                     SELECT GL.Id AS AccountCodeId,--Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
                     VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
@@ -4784,8 +4790,7 @@ UNION ALL
                     LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
                     LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
                     where act.IsBalanceSheet=0 AND v.PostingDate between '" + fromDate + @"' and '" + toDate + @"' AND V.CompanyId='" + companyId + @"'
-                            and V.EntityId='" + entityId + @"'
-                    and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0 and  vd.OpeningBalanceDetailId IS NULL
+                    and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0 and  vd.OpeningBalanceDetailId IS NULL "+tempEntityId+@"
                     group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode--,v.PostingDate
 					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName ";
 
