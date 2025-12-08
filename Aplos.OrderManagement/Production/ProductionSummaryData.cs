@@ -1233,6 +1233,194 @@ namespace Library.OrderManagement.Production
             return _sqlRepository.GetDataCollection(CmdText);
         }
 
+        public IEnumerable<object> GetProductionOrderDataListForWC(string entityid, string workCenterMasterId, string productionLevel, string processId, bool ToCloseAllowed)
+        {
+            string wcpr;
+            if (ToCloseAllowed)
+            {
+                wcpr = @"PS.UserName IN('Running','To Close')";
+            }
+            else
+            {
+                wcpr = @"PS.UserName = 'Running'";
+            }
+            string CmdText = @"SELECT distinct PO.Id POId,PS.UserName ProductionStatus,PO.IsWorkCenterValidateApplicable, PO.RequiredTimeUnit--, PD.Product, PD.ProductCategory
+,PD.Buyer,PD.Customer 
+                                   ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity
+								  								   ,PlannedQty=CASE WHEN PQ.Qty=0 THEN PO.PlannedQty ELSE PO.PlannedQty END
+                            --,((CASE WHEN PQ.Qty=0 THEN PO.PlannedQty ELSE PO.PlannedQty END)-ISNULL(CEILING(PRS.TotalProductionQty),0)) RemainingQty
+                             ,ISNULL((CASE WHEN ISNULL(PPS.Qty,0)=0 THEN ISNULL(PQ.Qty,PO.PlannedQty) ELSE PO.PlannedQty*PPS.Qty/100 END)-ISNULL(CEILING(PRS.TotalProductionQty), 0),0) RemainingQty
+                            , ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
+									,SONo=STUFF((select distinct ','+XSO.Id from 
+                                                                 trn.SalesOrder XSO 
+                                                                 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+						                                         LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = XSO.CustomerPOId
+                                                                 WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                ,Material=STUFF((select distinct ','+MM.UserName from 
+                                                                 trn.SalesOrder XSO 
+                                                                 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+						                                         LEFT JOIN trn.MasterOrderItem moi ON moi.Id = XSO.MasterOrderItemId
+						                                         LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+                                                                 WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                             ,Article=STUFF((select distinct ','+MMA.StandardName  from 
+                                                                 trn.SalesOrder XSO 
+                                                                 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+						                                         LEFT JOIN trn.MasterOrderItem moi ON moi.Id = XSO.MasterOrderItemId
+						                                         --LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+																 --LEFT JOIN MST.MaterialMasterArticle AS mma on mma.MaterialMasterId=MM.Id
+                                                                 LEFT JOIN MST.MaterialMasterArticle AS mma on mma.Id=MOI.ArticleId
+                                                                 WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+,Product=  REPLACE(REPLACE(
+										            STUFF((select distinct ','+PM.UserName from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    LEFT JOIN MST.MaterialMaster mm on mm.id=XMOI.MaterialMasterId
+								   LEFT JOIN TRN.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+								   LEFT JOIN [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+			                                                where po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                            ,'&amp;','&'), 'amp;', '')	
+								 ,ProductCategory=  REPLACE(REPLACE(
+										            STUFF((select distinct ','+PC.UserName from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    LEFT JOIN MST.MaterialMaster mm on mm.id=XMOI.MaterialMasterId
+								   LEFT JOIN TRN.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+								   LEFT JOIN [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+								   LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+			                                                where po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                            ,'&amp;','&'), 'amp;', '')	,
+                                   --PRS.LotNumber
+                                   (Case when PO.IsPreDefineLotApplicable = 1 then PLC.UserLotNo else PRS.LotNumber end)  LotNumber,
+                                   PO.IsPreDefineLotApplicable,(Case when PO.IsPreDefineLotApplicable = 1 then 'Yes' else 'No' end) LotPrefefined,
+                                   isnull(CEILING(PLC.ProcessPlanQty),0) LotProcessPlanQty,PPS.IsProductionVerification ProductionVerification
+                                   --,PRS.ResponsiblePerson
+								   FROM TRN.ProductionOrder PO 
+                                  -- 1️⃣ Base Process Sequence
+CROSS APPLY (
+       SELECT TOP 1 Sequence AS BaseSeq
+       FROM TRN.ProductionOrderProcessSet
+       WHERE ProductionOrderID = PO.Id
+         AND IsBaseProcess = 1
+) AS BP
+
+-- 2️⃣ Process Set with Entity Logic
+LEFT JOIN TRN.ProductionOrderProcessSet PPS 
+       ON PPS.ProductionOrderID = PO.Id
+      AND PPS.ProcessId = '" + processId + @"'
+      AND (
+               PPS.Sequence > BP.BaseSeq
+            OR BP.BaseSeq IS NULL
+          )
+
+-- 3️⃣ Lot Control with Entity Logic
+LEFT JOIN ProductionOrderLotControl PLC 
+       ON PLC.ProductionOrderID = PO.Id
+      AND PLC.ProcessId = '" + processId + @"'
+
+LEFT JOIN HKP.ProductionStatus PS ON PS.Id = PO.ProductionStatusId
+LEFT JOIN ORG.Entity E ON E.Id = PO.EntityId
+LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
+
+-- Production Summary
+LEFT JOIN (
+       SELECT SUM(PS.Quantity) AS TotalProductionQty,
+              PS.ProductionOrderId,
+              PS.LotNumber
+       FROM TRN.ProductionSummary PS
+       WHERE PS.ProcessId = '" + processId + @"'
+       GROUP BY PS.ProductionOrderId, PS.LotNumber
+) AS PRS ON PRS.ProductionOrderId = PO.Id
+
+-- PD Block (Buyer/Customer/Item/etc.)
+								   LEFT JOIN 
+								   (select distinct POD.ProductionOrderId--,PM.UserName AS Product,pc.UserName AS ProductCategory--,SO.Qty
+								   
+								   ,Buyer=  REPLACE(REPLACE(
+										            STUFF((select distinct ','+XB.UserName from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+			                                                where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                            ,'&amp;','&'), 'amp;', '')	
+								,Customer= REPLACE(REPLACE(
+										              STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                        ,'&amp;','&'), 'amp;', '')	
+                                ,BuyerOrder = REPLACE(REPLACE(
+										 STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								                		,'&amp;','&'), 'amp;', '')
+                                ,OwnOrder =REPLACE(REPLACE(
+										 STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									                	,'&amp;','&'), 'amp;', '')
+							 ,BuyerItem=REPLACE(REPLACE(
+										 STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                ,'&amp;','&'), 'amp;', '')	                                                
+                              ,OwnItem=REPLACE(REPLACE(
+										STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										,'&amp;','&'), 'amp;', '')	 
+                               ,PONumber=REPLACE(REPLACE(
+										 STUFF((select distinct ','+CPO.PONumber from 
+                                                                 trn.SalesOrder XSO 
+                                                                 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+						                                         LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = XSO.CustomerPOId
+                                                                 WHERE pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										,'&amp;','&'), 'amp;', '')	
+                            , Description=REPLACE(REPLACE(
+										 STUFF((select distinct ','+XSO.Description from 
+                                                                 trn.SalesOrder XSO 
+                                                                 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id						                                        
+                                                                 WHERE pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										,'&amp;','&'), 'amp;', '')	
+								   FROM TRN.SalesOrder SO
+							       LEFT JOIN  TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+								   LEFT JOIN TRN.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+                                   LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+								   ) PD ON PD.ProductionOrderId=PO.Id
+								    WHERE 
+    " + wcpr + @"
+       AND (
+       -- If sequence > base sequence → apply entity filter
+       (PPS.Sequence > BP.BaseSeq AND PO.EntityId = '"+ entityid + @"')
+
+       -- If sequence <= base sequence OR sequence is NULL → ignore entity filter
+       OR (PPS.Sequence <= BP.BaseSeq)
+       OR (PPS.Sequence IS NULL)
+    )
+ORDER BY
+    PD.Description,
+    PD.BuyerOrder";
+
+            return _sqlRepository.GetDataCollection(CmdText);
+        }
+
         public IEnumerable<object> GetProductionOrderList(string entityid, string productionLevel, string processId, bool ToCloseAllowed)
         {
             string wcpr;
