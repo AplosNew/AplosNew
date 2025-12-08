@@ -4593,6 +4593,10 @@ UNION ALL
                 {
                     ExportType = "DATASET"
                 };
+                if (entityId == "null")
+                {
+                    entityId = null;
+                }
                 string tempEntityId = "";
                 if (string.IsNullOrEmpty(entityId)==false)
                 {
@@ -4761,6 +4765,10 @@ UNION ALL
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var parallelCurrency = "";
                 parallelCurrency = parallelCurrencies.Length > 0 ? string.Join(",", parallelCurrencies.Select(item => "'" + item + "'")) : "' '";
+                if (entityId == "null")
+                {
+                    entityId = null;
+                }
                 string tempEntityId = "";
                 if (string.IsNullOrEmpty(entityId) == false)
                 {
