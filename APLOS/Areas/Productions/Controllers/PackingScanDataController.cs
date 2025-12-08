@@ -116,7 +116,7 @@ namespace Aplos.Areas.Productions.Controllers
                         UpdatedBy = item.UpdatedBy,
                         UpdatedDate = item.UpdatedDate,
                         LocMasterId = packingScanUpload.LocMasterId,
-                        IsDespatch = item.IsDespatch,
+                        IsDespatch = "0",
                         BookedDate = item.BookedDate,
                         InventoryReceiveDetailId = null,
                         SalesId = null
