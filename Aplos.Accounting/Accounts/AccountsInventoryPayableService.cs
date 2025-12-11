@@ -4606,6 +4606,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 								,ActivityId=CASE WHEN IRD.ActivityId<>'' THEN IRD.ActivityId ELSE MGGL.ExpenseActivityId END
 								,ActivityCode=CASE WHEN IRD.ActivityId<>'' THEN AI.Code ELSE A.Code END
 								,ActivityName=CASE WHEN IRD.ActivityId<>'' THEN AI.UserName ELSE A.UserName END
+								,ControlIdActive=CASE WHEN IRD.ActivityId<>'' THEN BMAI.Active ELSE BMA.Active END
 								,PostDrGLGeneralInfoId=IH.PostDrGLGeneralInfoId
 								,GAccountCode=IH.GAccountCode
 							    ,GUserName=IH.GUserName
@@ -4615,6 +4616,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                                 , PostDrActivityId=IH.PostDrActivityId
                                 , ACode=IH.ACode
 								, AUserName=IH.AUserName
+								, AActive=IH.Active
 								,JWGLGeneralInfoId=GADJW.GLGeneralInfoId
 								,JWGLGeneralInfoCode=GGLJW.AccountCode
 							    ,JWGLGeneralInfoName=GGLJW.UserName
@@ -4657,28 +4659,34 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                         LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.ExpenseBudgetMasterId= BM.Id
                         LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
                         LEFT JOIN [HKP].[Activity] AS A ON MGGL.ExpenseActivityId= A.Id
+						LEFT JOIN [MST].[BudgetMasterActivity] AS BMA ON MGGL.ExpenseBudgetMasterId= BMA.BudgetMasterId AND MGGL.ExpenseActivityId=BMA.ActivityId
                         LEFT JOIN[MST].[BudgetMaster] AS BMI ON IRD.BudgetMasterId= BMI.Id
                         LEFT JOIN [HKP].[Budget] AS BI ON BMI.BudgetId= BI.Id
 						LEFT JOIN [HKP].[GLGeneralInfo] AS GLI ON BMI.GLGeneralInfoId=GLI.Id
                         LEFT JOIN [HKP].[Activity] AS AI ON IRD.ActivityId= AI.Id
+						LEFT JOIN [MST].[BudgetMasterActivity] AS BMAI ON IRD.BudgetMasterId= BMAI.BudgetMasterId AND IRD.ActivityId=BMAI.ActivityId
+
 						LEFT JOIN HKP.GeneralAccountDeterminate GAD ON GAD.COAId=Cmp.COAId and GAD.Id='IssueOfRawMaterialToAnOrder'
 						 LEFT JOIN [HKP].[GLGeneralInfo] AS GGL ON GGL.Id=GAD.GLGeneralInfoId
                         LEFT JOIN[MST].[BudgetMaster] AS GBM ON GAD.BudgetMasterId= GBM.Id
                         LEFT JOIN [HKP].[Budget] AS GB ON GBM.BudgetId= GB.Id
                         LEFT JOIN [HKP].[Activity] AS GA ON GAD.ActivityId= GA.Id
+						LEFT JOIN [MST].[BudgetMasterActivity] AS GBMA ON GAD.BudgetMasterId= GBMA.BudgetMasterId AND GAD.ActivityId=GBMA.ActivityId
 						LEFT JOIN HKP.GeneralAccountDeterminate GADJW ON GADJW.COAId=Cmp.COAId and GADJW.Id='IssueOfRawMaterialForJobWork'
 						 LEFT JOIN [HKP].[GLGeneralInfo] AS GGLJW ON GGLJW.Id=GADJW.GLGeneralInfoId
                         LEFT JOIN[MST].[BudgetMaster] AS GBMJW ON GADJW.BudgetMasterId= GBMJW.Id
                         LEFT JOIN [HKP].[Budget] AS GBJW ON GBMJW.BudgetId= GBJW.Id
                         LEFT JOIN [HKP].[Activity] AS GAJW ON GADJW.ActivityId= GAJW.Id
+						LEFT JOIN [MST].[BudgetMasterActivity] AS JBMA ON GADJW.BudgetMasterId= JBMA.BudgetMasterId AND GADJW.ActivityId=JBMA.ActivityId
 						LEFT JOIN (select distinct  InventoryIssueDetailId ,ID.PostDrGLGeneralInfoId, GL.AccountCode GAccountCode, GL.UserName GUserName
-						, ID.PostDrBudgetMasterId, B.Code BCode, B.UserName BUserName, ID.PostDrActivityId, A.Code ACode, A.UserName AUserName,SUM(iih.TotalAmount) Amount
+						, ID.PostDrBudgetMasterId, B.Code BCode, B.UserName BUserName, ID.PostDrActivityId,BMA.Active, A.Code ACode, A.UserName AUserName,SUM(iih.TotalAmount) Amount
 						from  [TRN].[InventoryIssueHistory] iih join TRN.InventoryReceiveDetail id on id.Id=iih.InventoryReceiveDetailId
 						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON ID.PostDrGLGeneralInfoId=GL.Id
                         LEFT JOIN [MST].[BudgetMaster] AS BM ON ID.PostDrBudgetMasterId= BM.Id
                         LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
                         LEFT JOIN [HKP].[Activity] AS A ON ID.PostDrActivityId= A.Id
-						group by InventoryIssueDetailId ,ID.PostDrGLGeneralInfoId, GL.AccountCode , GL.UserName 
+						LEFT JOIN [MST].[BudgetMasterActivity] AS BMA ON BMA.BudgetMasterId= ID.PostDrBudgetMasterId AND BMA.ActivityId=ID.PostDrActivityId
+						group by InventoryIssueDetailId ,ID.PostDrGLGeneralInfoId, GL.AccountCode , GL.UserName,BMA.Active 
 						, ID.PostDrBudgetMasterId, B.Code , B.UserName , ID.PostDrActivityId, A.Code , A.UserName 
 						) AS IH ON IH.InventoryIssueDetailId=IRD.Id
                          WHERE IR.Id=@issueId";

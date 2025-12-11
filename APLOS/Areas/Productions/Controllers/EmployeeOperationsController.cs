@@ -133,6 +133,8 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                if(Date=="")
+                    throw new Exception("Please Input Date.");
                 eo.saveRowItemData(data, WorkCenter, ProcessId, ShiftId, POId, Date, PeriodId, ResponsiblePersonId, identity.PlantId, NxtOPVariationId);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
 

@@ -224,7 +224,7 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
             var str = @"select OP.ID as OperationId,OO.UserName OperationName, OP.OperationMasterId as MasterOperationId  ,OP.Code as OperationCode ,OP.UserName as OperationName, bt.Sequence , owe.EmployeeId , isnull(o.WIP,0) as WIP,
                         isnull(Sum(owe.Qty),0) as Qty ,
                       
-                        ei.EmployeeCode , ei.EmployeeName as EmpName
+                        ei.EmployeeCode , ei.EmployeeName as EmpName 
                         from mst.OperationVariation OP left join mst.Operation OO on OO.Id=op.OperationId
                         left join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
                         left join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId

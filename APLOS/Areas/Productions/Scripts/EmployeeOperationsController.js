@@ -352,9 +352,15 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
         });
     }
+
+    $scope.isItemSaveBtnDisable = false;
+    $scope.state = {
+        disableBtn: true
+    };
     $scope.saveRowItemData = function (data) {
         $scope.isSaveBtnDisable = true;
         $scope.invalidqty = false;
+        $scope.state.disableBtn = true;
         for (var i = 0; i < $scope.ModelList.length; i++) {
             if ($scope.ModelList[i].Sequence == data.Sequence + 1) {
                 var NextoperationVariationId = $scope.ModelList[i].OperationId;
@@ -369,10 +375,11 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
                 if ($scope.ModelList[j].WIP < $scope.tempQty && $scope.ModelList[j].Sequence != 1) {
                     $scope.invalidqty = true;
                     ShowResult('Qty can not greater than WIP !!', 'failure')
+                    $scope.state.disableBtn = false;
                     break;
                 }
                 else {
-
+                    $scope.state.disableBtn = false;
                     $scope.NewList.push($scope.ModelList[j]);
                 }
             }
@@ -396,13 +403,14 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
                 if (resp.data.Error === true) {
                     ShowResult(resp.data.Message, 'failure');
+                    $scope.isItemSaveBtnDisable = false;
                 }
                 else {
                     ShowResult(resp.data.Message, 'success');
                     $scope.getAllData();
+                    $scope.isItemSaveBtnDisable = false;
                     //$scope.ClearGrid();
                 }
-
             });
         }
     }

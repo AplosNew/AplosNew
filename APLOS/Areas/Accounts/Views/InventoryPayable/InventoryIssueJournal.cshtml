@@ -182,6 +182,7 @@
                                     <th>GL</th>
                                     <th>Budget</th>
                                     <th>Activity</th>
+                                    <th>Active</th>
                                     <th>Dr</th>
                                     <th>Cr</th>
                                 </tr>
@@ -191,11 +192,12 @@
                                     <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
                                     <td>{{x.BudgetName}}</td>
                                     <td>{{x.ActivityName}}</td>
+                                    <td>{{x.Active?'Yes':'No'}}</td>
                                     <td class="text-right">{{x.Dr | number| setDecimal:2}}</td>
                                     <td class="text-right">{{x.Cr | number| setDecimal:2}}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="3" class="text-right"><strong>Total : </strong></td>
+                                    <td colspan="4" class="text-right"><strong>Total : </strong></td>
                                     <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'Dr'| number| setDecimal:2 }}</strong></td>
                                     <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'Cr'| number| setDecimal:2 }}</strong></td>
                                 </tr>

@@ -472,6 +472,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
                     $scope.invGLDr.ActivityId = $scope.inventoryIssueGLList[d].ActivityId;
                     $scope.invGLDr.ActivityName = $scope.inventoryIssueGLList[d].ActivityName;
                     $scope.invGLDr.CostCenterId = $scope.inventoryIssueGLList[d].CostCenterId;
+                    $scope.invGLDr.Active = $scope.inventoryIssueGLList[d].ControlIdActive;
                     $scope.invGLDr.TrnType = "Dr";
                     $scope.invGLDr.Dr = $scope.inventoryIssueGLList[d].TrnAmount;
                     $scope.invGLDr.Amount = $scope.inventoryIssueGLList[d].TrnAmount;
@@ -503,6 +504,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
                     $scope.invGLDr.BudgetName = $scope.inventoryIssueGLList[d].JWBudgetName;
                     $scope.invGLDr.ActivityId = $scope.inventoryIssueGLList[d].JWActivityId;
                     $scope.invGLDr.ActivityName = $scope.inventoryIssueGLList[d].JWActivityName;
+                    $scope.invGLDr.Active = $scope.inventoryIssueGLList[d].ControlIdActive;
                     $scope.invGLDr.TrnType = "Dr";
                     $scope.invGLDr.Dr = $scope.inventoryIssueGLList[d].TrnAmount;
                     $scope.invGLDr.Amount = $scope.inventoryIssueGLList[d].TrnAmount;
@@ -534,6 +536,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
                     $scope.invGLDr.BudgetName = $scope.inventoryIssueGLList[d].WIPBudgetName;
                     $scope.invGLDr.ActivityId = $scope.inventoryIssueGLList[d].WIPActivityId;
                     $scope.invGLDr.ActivityName = $scope.inventoryIssueGLList[d].WIPActivityName;
+                    $scope.invGLDr.Active = $scope.inventoryIssueGLList[d].ControlIdActive;
                     $scope.invGLDr.TrnType = "Dr";
                     $scope.invGLDr.Dr = $scope.inventoryIssueGLList[d].TrnAmount;
                     $scope.invGLDr.Amount = $scope.inventoryIssueGLList[d].TrnAmount;
@@ -568,6 +571,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
                     $scope.invGL.BudgetName = $scope.inventoryIssueGLList[i].BUserName;
                     $scope.invGL.ActivityId = $scope.inventoryIssueGLList[i].PostDrActivityId;
                     $scope.invGL.ActivityName = $scope.inventoryIssueGLList[i].AUserName;
+                    $scope.invGL.Active = $scope.inventoryIssueGLList[i].AActive;
                     $scope.invGL.TrnType = "Cr";
                     $scope.invGL.Cr = parseFloat($scope.inventoryIssueGLList[i].TrnAmount.toFixed(4));
                     $scope.invGL.Amount = parseFloat($scope.inventoryIssueGLList[i].TrnAmount.toFixed(4));
@@ -599,7 +603,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
                     $scope.invGL.BudgetName = $scope.inventoryIssueGLList[i].BUserName;
                     $scope.invGL.ActivityId = $scope.inventoryIssueGLList[i].PostDrActivityId;
                     $scope.invGL.ActivityName = $scope.inventoryIssueGLList[i].AUserName;
-
+                    $scope.invGL.Active = $scope.inventoryIssueGLList[i].AActive;
                     $scope.invGL.TrnType = "Cr";
                     $scope.invGL.Cr = parseFloat($scope.inventoryIssueGLList[i].TrnAmount.toFixed(4));
                     $scope.invGL.Amount = parseFloat($scope.inventoryIssueGLList[i].TrnAmount.toFixed(4));
@@ -643,6 +647,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
                 $scope.invGLDr.BudgetName = $scope.inventoryIssueList[j].BudgetName;
                 $scope.invGLDr.ActivityId = $scope.inventoryIssueList[j].ActivityId;
                 $scope.invGLDr.ActivityName = $scope.inventoryIssueList[j].ActivityName;
+                $scope.invGLDr.Active = $scope.inventoryIssueList[j].ControlIdActive;
                 $scope.invGLDr.TrnType = "Dr";
                 $scope.invGLDr.Dr = $scope.inventoryIssueList[j].TrnAmount;
                 $scope.invGLDr.Amount = $scope.inventoryIssueList[j].TrnAmount;
@@ -816,6 +821,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
         $scope.inventoryIssueList[$scope.indexMB].BudgetName = data.BudgetName;
         $scope.inventoryIssueList[$scope.indexMB].ActivityId = data.ActivityId;
         $scope.inventoryIssueList[$scope.indexMB].ActivityName = data.ActivityName;
+        $scope.inventoryIssueList[$scope.indexMB].Active = data.Active;
         $scope.EditableissueJournal();
         $scope.closeIssueAUCglListPopUp();
         //$scope.issueJournalNewBudjetAdd($scope.inventoryIssueList[$scope.indexMB]);
@@ -827,6 +833,8 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
         $scope.inventoryIssueList[index].ActivityId = null;
         $scope.inventoryIssueList[index].budgetList = null;
         $scope.inventoryIssueList[index].activityList = null;
+        $scope.inventoryIssueList[index].Active = null;
+
     };
 
 
@@ -839,6 +847,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
         $scope.inventoryIssueList[$scope.indexMB].BudgetName = data.BudgetName;
         $scope.inventoryIssueList[$scope.indexMB].ActivityId = data.ActivityId;
         $scope.inventoryIssueList[$scope.indexMB].ActivityName = data.ActivityName;
+        $scope.inventoryIssueList[$scope.indexMB].Active = data.Active;
         $scope.closeCOAICodeListPopUpMB();
         $scope.EditableissueJournal();
         //$scope.issueJournalNewBudjetAdd($scope.inventoryIssueList[$scope.indexMB]);
@@ -850,6 +859,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
         $scope.inventoryIssueList[index].ActivityId = null;
         $scope.inventoryIssueList[index].budgetList = null;
         $scope.inventoryIssueList[index].activityList = null;
+        $scope.inventoryIssueList[index].Active = null;
     };
 
     $scope.tab = 1;
