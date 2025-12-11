@@ -174,25 +174,26 @@
                             <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
                     </ul>
                 </div>
-                <div class="table-responsive ">
-                    <div id="EmpEditsGrid" ej-grid e-datasource="ModelList" e-queryCellInfo="PeriodValidation" e-actionComplete="refreshPage"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                        <div e-columns>
-                            <div e-column e-field="Sequence" e-headertext="Seq" e-width="20" e-isprimarykey="true"></div>
-                            <div e-column e-field="OperationCode" e-headertext="Operation Code" e-width="50" e-isprimarykey="true"></div>
-                            <div e-column e-field="OperationName" e-headertext="Operation Name" e-width="80"></div>
-                            <div e-column e-field="WIP" e-headertext="WIP" e-width="30"></div>
-                            <div e-column e-headertext="Employee Code" e-template="#emp" e-textalign="center" e-width="100"></div>
-                            <div e-column e-headertext="Employee Name" e-template="#empName" e-textalign="center" e-width="80"></div>
-                            @*<div e-column e-field="EmpName" e-headertext="Employee Name" e-textalign="center" e-width="80"></div>*@
+                @*<div class="table-responsive ">
+                    </div>*@
+                <div id="EmpOVEditsGrid" ej-grid e-datasource="ModelList" e-queryCellInfo="PeriodValidation" e-actionComplete="refreshPage"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="Sequence" e-headertext="Seq" e-width="20" e-isprimarykey="true"></div>
+                        <div e-column e-field="OperationCode" e-headertext="Operation Code" e-width="50" e-isprimarykey="true"></div>
+                        <div e-column e-field="OperationName" e-headertext="Operation Name" e-width="80"></div>
+                        <div e-column e-field="WIP" e-headertext="WIP" e-width="30"></div>
+                        <div e-column e-headertext="Employee Code" e-template="#emp" e-textalign="center" e-width="100"></div>
+                        <div e-column e-headertext="Employee Name" e-template="#empName" e-textalign="center" e-width="80"></div>
+                        @*<div e-column e-field="EmpName" e-headertext="Employee Name" e-textalign="center" e-width="80"></div>*@
 
-                            <div e-column e-headertext="Qty" e-template="#qty" e-textalign="center" e-width="80"></div>
+                        <div e-column e-headertext="Qty" e-template="#qty" e-textalign="center" e-width="80"></div>
 
-                            <div e-column e-headertext="Remarks" e-template="#rem" e-textalign="center" e-width="80"></div>
-                            <div e-column e-template="#btnAction" e-headertext="Actions" e-width="80"></div>
+                        <div e-column e-headertext="Remarks" e-template="#rem" e-textalign="center" e-width="80"></div>
+                        <div e-column e-template="#btnAction" e-headertext="Actions" e-width="80"></div>
 
-                        </div>
+
                     </div>
                 </div>
 
@@ -218,14 +219,15 @@
                 </script>
 
                 <script type="text/template" id="btnAction">
-                    <div class="form-group">
-                        <div class="common-btn">
-                            <ul class="list-inline text-center">
-                                <li><button  ng-click="$parent.saveRowItemData(data);" ng-disabled="data.isBtnDisable" class="btn"><i class="glyphicon glyphicon-floppy-save"></i></button></li>
-                                <li><button ng-click="$parent.AddTile(data);" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i></button></li>
-                            </ul>
-                        </div>
-                    </div>
+                    <button ng-click="$parent.saveRowItemData(data);" ng-disabled="$parent.isItemSaveBtnDisable"  class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-floppy-save"></i></button>
+                    @*<div class="common-btn">
+            <ul class="list-inline text-center">
+                <li><button ng-click="$parent.saveRowItemData(data);" ng-disabled="$parent.isItemSaveBtnDisable" class="btn"><i class="glyphicon glyphicon-floppy-save"></i></button></li>
+                <li><button ng-click="$parent.AddTile(data);" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i></button></li>
+            </ul>
+        </div>*@
+                    @*<div class="form-group">
+        </div>*@
                 </script>
 
             </div>

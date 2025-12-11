@@ -179,8 +179,8 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
                 && $scope.ModelList[i].OperationId == $scope.tempOperationId
                 && $scope.ModelList[i].Sequence == $scope.tempSequence && $scope.ModelList[i].Serial == $scope.tempSerial) {
                 $scope.ModelList[i].EmpName = obj.data.EmployeeName;
-                  $scope.ModelList[i].EmployeeCode = obj.data.EmployeeCode;
-                  $scope.ModelList[i].EmployeeId = obj.data.EmployeeId;
+                $scope.ModelList[i].EmployeeCode = obj.data.EmployeeCode;
+                $scope.ModelList[i].EmployeeId = obj.data.EmployeeId;
             }
         }
         angular.element(document.querySelector('#employeeCodePopUp')).modal('hide');
@@ -357,61 +357,67 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     $scope.state = {
         disableBtn: true
     };
+    $scope.btnckick = 0;
     $scope.saveRowItemData = function (data) {
-        $scope.isSaveBtnDisable = true;
-        $scope.invalidqty = false;
-        $scope.state.disableBtn = true;
-        for (var i = 0; i < $scope.ModelList.length; i++) {
-            if ($scope.ModelList[i].Sequence == data.Sequence + 1) {
-                var NextoperationVariationId = $scope.ModelList[i].OperationId;
-            }
-        }
-
-        $scope.NewList = [];
-        $scope.tempQty = 0;
-        for (var j = 0; j < $scope.ModelList.length; j++) {
-            if ($scope.ModelList[j].Sequence == data.Sequence && $scope.ModelList[j].OperationId == data.OperationId) {
-                $scope.tempQty += parseFloat(($scope.ModelList[j].Qty) * 100 + Number.EPSILON) / 100;//parseFloat($filter("sumByKey")($filter("filter")($scope.ModelList, { Sequence: data.Sequence, OperationId: data.OperationId }), "Qty") * 100 + Number.EPSILON) / 100;
-                if ($scope.ModelList[j].WIP < $scope.tempQty && $scope.ModelList[j].Sequence != 1) {
-                    $scope.invalidqty = true;
-                    ShowResult('Qty can not greater than WIP !!', 'failure')
-                    $scope.state.disableBtn = false;
-                    break;
-                }
-                else {
-                    $scope.state.disableBtn = false;
-                    $scope.NewList.push($scope.ModelList[j]);
+        $scope.btnckick += 1;
+        if ($scope.btnckick == 1) {
+            $scope.isSaveBtnDisable = true;
+            $scope.invalidqty = false;
+            $scope.state.disableBtn = true;
+            for (var i = 0; i < $scope.ModelList.length; i++) {
+                if ($scope.ModelList[i].Sequence == data.Sequence + 1) {
+                    var NextoperationVariationId = $scope.ModelList[i].OperationId;
                 }
             }
-        }
 
-        $scope.ModelList = $scope.PrevAllList;
-        if (!$scope.invalidqty) {
-            $http({
-                method: 'POST',
-                url: $scope.path + 'saveRowItemData',
-                data: {
-                    'data': $scope.NewList, 'WorkCenter': $scope.workCenterId,
-                    'ProcessId': $scope.ProcessId,
-                    'ShiftId': $scope.shiftId,
-                    'POId': $scope.POId,
-                    'Date': $scope.Date, 'PeriodId': $scope.periodId,
-                    'ResponsiblePersonId': $scope.responsiblePersonId,
-                    'NxtOPVariationId': NextoperationVariationId,
-                },
-            }).then(function succ(resp) {
+            $scope.NewList = [];
+            $scope.tempQty = 0;
+            for (var j = 0; j < $scope.ModelList.length; j++) {
+                if ($scope.ModelList[j].Sequence == data.Sequence && $scope.ModelList[j].OperationId == data.OperationId) {
+                    $scope.tempQty += parseFloat(($scope.ModelList[j].Qty) * 100 + Number.EPSILON) / 100;//parseFloat($filter("sumByKey")($filter("filter")($scope.ModelList, { Sequence: data.Sequence, OperationId: data.OperationId }), "Qty") * 100 + Number.EPSILON) / 100;
+                    if ($scope.ModelList[j].WIP < $scope.tempQty && $scope.ModelList[j].Sequence != 1) {
+                        $scope.invalidqty = true;
+                        ShowResult('Qty can not greater than WIP !!', 'failure')
+                        $scope.state.disableBtn = false;
+                        $scope.btnckick = 0;
+                        break;
+                    }
+                    else {
+                        $scope.state.disableBtn = false;
+                        $scope.NewList.push($scope.ModelList[j]);
+                    }
+                }
+            }
+            $scope.ModelList = $scope.PrevAllList;
+            if (!$scope.invalidqty) {
+                $http({
+                    method: 'POST',
+                    url: $scope.path + 'saveRowItemData',
+                    data: {
+                        'data': $scope.NewList, 'WorkCenter': $scope.workCenterId,
+                        'ProcessId': $scope.ProcessId,
+                        'ShiftId': $scope.shiftId,
+                        'POId': $scope.POId,
+                        'Date': $scope.Date, 'PeriodId': $scope.periodId,
+                        'ResponsiblePersonId': $scope.responsiblePersonId,
+                        'NxtOPVariationId': NextoperationVariationId,
+                    },
+                }).then(function succ(resp) {
 
-                if (resp.data.Error === true) {
-                    ShowResult(resp.data.Message, 'failure');
-                    $scope.isItemSaveBtnDisable = false;
-                }
-                else {
-                    ShowResult(resp.data.Message, 'success');
-                    $scope.getAllData();
-                    $scope.isItemSaveBtnDisable = false;
-                    //$scope.ClearGrid();
-                }
-            });
+                    if (resp.data.Error === true) {
+                        ShowResult(resp.data.Message, 'failure');
+                        $scope.isItemSaveBtnDisable = false;
+                        $scope.btnckick = 0;
+                    }
+                    else {
+                        ShowResult(resp.data.Message, 'success');
+                        $scope.btnckick = 0;
+                        $scope.getAllData();
+                        $scope.isItemSaveBtnDisable = false;
+                        //$scope.ClearGrid();
+                    }
+                });
+            }
         }
     }
 
