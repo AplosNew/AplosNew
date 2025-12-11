@@ -516,7 +516,7 @@ namespace Library.OrderManagement.Production
                         left join dbo.ItemScan isch on isch.Id = isc.MasterId
                         left join trn.POLotReference pol on pol.Id = isc.PackingId
                         where isch.WorkDate <= '" + ToDate + @"'
-                        and isc.IsDespatch = 0 and isc.Booked = 0
+                        and ISNULL(isc.IsDespatch,0) = 0 and ISNULL(isc.Booked,0) = 0
                         --and isc.InventoryReceiveDetailId is not null
                          group by isc.ProductCode , POId , isc.LotNo
                         ) StockQty on StockQty.ProductCode = sc.ProductCode and StockQty.POId = sc.POId and StockQty.LotNo = sc.LotNo

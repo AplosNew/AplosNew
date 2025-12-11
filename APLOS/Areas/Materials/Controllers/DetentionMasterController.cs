@@ -46,6 +46,7 @@ namespace Aplos.Areas.Materials.Controllers
         #endregion -- Pages
 
         #region -- Operations
+        [HttpGet, Authorize]
         public JsonResult StorageSql()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
