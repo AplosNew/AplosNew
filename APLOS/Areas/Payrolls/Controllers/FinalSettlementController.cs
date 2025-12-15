@@ -314,10 +314,100 @@ LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
             JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
+        }
 
+        [HttpGet, Authorize]
+        public ActionResult GetResiginedEmployeelist()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = string.Empty;
+            try
+            {
+                sql = @"SELECT Flag=CAST(0 AS bit), EI.SystemId
+                         ,EI.EmployeeCode
+                         ,EI.EmployeeName
+                         , FORMAT(EI.DOB,'dd-MMM-yyyy') DOB
+                         , FORMAT(EI.DOC,'dd-MMM-yyyy') DOC
+                         , FORMAT(EI.DOJ,'dd-MMM-yyyy') DOJ
+                         , FORMAT(EI.DOS,'dd-MMM-yyyy') DOS
+						 ,ResignationDate=FORMAT((SELECT TOP 1 ResignationDate FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=EI.SystemId ORDER BY MR.UpdatedDate DESC),'dd-MMM-yyyy')
+                         , DG.UserName LegalDesignation
+                         , EDG.UserName DesignationGroup
+                         , DP.UserName Department
+                         , PMB.Code,PR.UserName PositionName
+                         , E.UserName EntityName
+                        ,SepType=STUFF((select distinct ','+ST.UserName from [HKP].[SeparationType] ST	  
+											    LEFT JOIN [TRN].[Resignation] R ON R.SeparationTypeId=ST.Id
+												AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)
+							                    where EI.SystemId=R.EmployeeId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),EC.UserName EmployeeCategory
+                         FROM dbo.Employeeinformation EI
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+                         LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
+                         LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
+                         LEFT JOIN ORG.Company COM ON EI.CompanyId=COM.Id
+                         LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
+                         LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
+                         LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
+                         LEFT JOIN HKP.DesignationGroup EDG ON  EDG.Id=DM.DesignationGroupId
+                              WHERE EI.SystemId IN (SELECT EmployeeId FROM TRN.Resignation) 
+							  AND EI.SystemId NOT IN (SELECT EmpSystemId FROM EmployeeFullAndFinalSettlement) AND
+                                    EI.PlantId='" + identity.PlantId + @"' and isnull(DOSDate,'')<>'' 
+									ORDER BY  ei.DOS DESC";
 
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
 
-            //return Json(data, JsonRequestBehavior.AllowGet);
+            }
+
+            var data = _sqlRepository.GetDataCollection(sql);
+            JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetResiginedEmployee(string empId)
+        {
+            var sql = @"SELECT Flag=CAST(0 AS bit), EI.SystemId
+                         ,EI.EmployeeCode
+                         ,EI.EmployeeName
+                         , FORMAT(EI.DOB,'dd-MMM-yyyy') DOB
+                         , FORMAT(EI.DOC,'dd-MMM-yyyy') DOC
+                         , FORMAT(EI.DOJ,'dd-MMM-yyyy') DOJ
+                         , FORMAT(EI.DOS,'dd-MMM-yyyy') DOS
+						 ,ResignationDate=FORMAT((SELECT TOP 1 ResignationDate FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=EI.SystemId ORDER BY MR.UpdatedDate DESC),'dd-MMM-yyyy')
+                         , DG.UserName LegalDesignation
+                         , EDG.UserName DesignationGroup
+                         , DP.UserName Department
+                         , PMB.Code,PR.UserName PositionName
+                         , E.UserName EntityName
+                        ,SepType=STUFF((select distinct ','+ST.UserName from [HKP].[SeparationType] ST	  
+											    LEFT JOIN [TRN].[Resignation] R ON R.SeparationTypeId=ST.Id
+												AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)
+							                    where EI.SystemId=R.EmployeeId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),EC.UserName EmployeeCategory
+                         FROM dbo.Employeeinformation EI
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+                         LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
+                         LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
+                         LEFT JOIN ORG.Company COM ON EI.CompanyId=COM.Id
+                         LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
+                         LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
+                         LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
+                         LEFT JOIN HKP.DesignationGroup EDG ON  EDG.Id=DM.DesignationGroupId
+                              WHERE EI.SystemId='" + empId + "'";
+            var rsql = @"Select top 1 Id, FORMAT(ResignationDate,'dd-MMM-yyyy') ResignationDate, FORMAT(EffectiveDate,'dd-MMM-yyyy') EffectiveDate, FORMAT(ApprovedEffectiveDate,'dd-MMM-yyyy') ApprovedEffectiveDate from  TRN.Resignation Where EmployeeId='" + empId + "' Order By AddedDate DESC";
+            var emp = _sqlRepository.GetDataCollection(sql);
+            var empr = _sqlRepository.GetDataCollection(rsql);
+
+            return Json(new {emp,empr }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -3549,7 +3639,77 @@ where M.AddedDate between '" + fromDate + @"' AND '" + toDate + "'";
             return View();
         }
 
+        [HttpPost]
+        public ActionResult UpdateDOS(Dictionary<string, object> data)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "update dbo.EmployeeInformation set DOS='"+ data["DOS"] + "' Where SystemID="+ data["SystemId"] + "";
 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+            return Json(new { Message = AplosMessage.Success });
+        }
+
+        [HttpPost]
+        public ActionResult UpdateDOR(Dictionary<string, object> data)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "update TRN.Resignation  set ApprovedEffectiveDate='"+data["ApprovedEffectiveDate"] + "',EffectiveDate='" + data["EffectiveDate"] + "',ResignationDate = '" + data["ResignationDate"] + "' Where Id = '"+data["Id"]+"'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+            return Json(new { Message = AplosMessage.Success });
+        }
 
         #endregion
 

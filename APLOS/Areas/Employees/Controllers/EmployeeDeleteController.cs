@@ -46,7 +46,11 @@ namespace Aplos.Areas.Employees.Controllers
         {
             return View();
         }
-        
+        public ActionResult UpdateDOS()
+        {
+            return View();
+        }
+
         #endregion -- Pages
 
         #region -- Operations

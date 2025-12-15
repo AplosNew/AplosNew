@@ -1986,6 +1986,7 @@
     <Content Include="Areas\Commercial\Scripts\ComplianceController.js" />
     <Content Include="Areas\Costings\Scripts\OrderLineCostingItemServiceMasterMappingController.js" />
     <Content Include="Areas\Employees\Scripts\CasteController.js" />
+    <Content Include="Areas\Employees\Scripts\updateEmployeeDOSController.js" />
     <Content Include="Areas\FixedAssets\Scripts\assetDisposeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\assetDisposePostController.js" />
     <Content Include="Areas\HumanResource\Scripts\LeaveTransectionController.js" />
@@ -5086,6 +5087,7 @@
     <Content Include="Areas\Materials\Views\MachineBudget\MachineTransfer.cshtml" />
     <Content Include="Areas\Accounts\Views\DirectorRemuneration.cshtml" />
     <Content Include="Areas\Materials\Views\DetentionMaster\Main.cshtml" />
+    <Content Include="Areas\Employees\Views\EmployeeDelete\UpdateDOS.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

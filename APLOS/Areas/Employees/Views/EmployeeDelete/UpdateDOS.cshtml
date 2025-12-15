@@ -1,0 +1,115 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Update Employee DOS
+</h3>
+<div class="form-elements form-horizontal" ng-form name="maternityLeaveTransactionNewForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <ul class="common-btn list-inline text-left">
+                <li><button class="btn" ng-click="LoadEmployeeList();"><i class="glyphicon glyphicon-search"></i> Search Employee</button></li>
+            </ul>
+        </div>
+        <div class="clearfix"></div>
+
+        <div class="col-xs-12">
+            <div id="GridER" ej-grid e-datasource="empList"
+                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+                <div e-columns>
+                    <div e-column e-headertext="Actions" e-template="#ShowActionBtn" e-width="30"></div>
+                    <div e-column e-field="SystemId" e-headertext="SystemId" e-width="50"></div>
+                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="50"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                    <div e-column e-field="DOJ" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="DOJ" e-width="70"></div>
+
+                    <div e-column e-template="#DOS" e-headertext="DOS" e-width="70" style="height: 20px;"></div>
+                    <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="80"></div>
+                    <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
+                    <div e-column e-field="DesignationGroup" e-headertext="Designation Group" e-width="80"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                </div>
+                <script type="text/template" id="ShowActionBtn">
+                    <button style="color: #f3f3ec;background-color: #1c1f32;" class="btn"><i class="glyphicon glyphicon-floppy-save" ng-click="$parent.SaveEmployeeDOS(this);" style="margin: -6px;"></i></button>
+                </script>
+                <script type="text/template" id="DOS">
+                    <div class="col-sm-12" style="padding:0px;">
+                        <input type="text" name="DOS" ng-model="data.DOS" datepicker placeholder="dd-MMM-yyyy" class="form-control" required tabindex="3">
+                    </div>
+                </script>
+            </div>
+        </div>
+
+        <div class="col-xs-12">
+            <div id="GridERG" ej-grid e-datasource="resigList"
+                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+                <div e-columns>
+                    <div e-column e-headertext="Actions" e-template="#ShowActionBtnR" e-width="20"></div>
+                    <div e-column e-field="EmployeeId" e-headertext="EmployeeId" e-width="50"></div>
+                    <div e-column e-template="#ResignationDate" e-headertext="ResignationDate" e-width="70" style="height: 20px;"></div>
+                    <div e-column e-template="#EffectiveDate" e-headertext="EffectiveDate" e-width="70" style="height: 20px;"></div>
+                    <div e-column e-template="#ApprovedEffectiveDate" e-headertext="ApprovedEffectiveDate" e-width="70" style="height: 20px;"></div>
+                </div>
+                <script type="text/template" id="ShowActionBtnR">
+                    <button style="color: #f3f3ec;background-color: #1c1f32;" class="btn"><i class="glyphicon glyphicon-floppy-save" ng-click="$parent.UpdateEmployeeDOR(this);" style="margin: -6px;"></i></button>
+                </script>
+                <script type="text/template" id="ResignationDate">
+                    <div class="col-sm-12" style="padding:0px;">
+                        <input type="text" name="ResignationDate" ng-model="data.ResignationDate" datepicker placeholder="dd-MMM-yyyy" class="form-control" tabindex="3">
+                    </div>
+                </script>
+                <script type="text/template" id="EffectiveDate">
+                    <div class="col-sm-12" style="padding:0px;">
+                        <input type="text" name="EffectiveDate" ng-model="data.EffectiveDate" datepicker placeholder="dd-MMM-yyyy" class="form-control" tabindex="3">
+                    </div>
+                </script>
+                <script type="text/template" id="ApprovedEffectiveDate">
+                    <div class="col-sm-12" style="padding:0px;">
+                        <input type="text" name="ApprovedEffectiveDate" ng-model="data.ApprovedEffectiveDate" datepicker placeholder="dd-MMM-yyyy" class="form-control" tabindex="3">
+                    </div>
+                </script>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Clear();" class="btn" tabindex="9"><i class="glyphicon glyphicon-refresh"></i> Clear </button></li>
+        </ul>
+    </div>
+
+</div>
+
+
+<div class="modal fade site-modal in" id="dialogEmployeeInfo" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Employee Information<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row">
+                    <div id="GridEmp" ej-grid e-datasource="EmployeeInformationList" e-recorddoubleclick="GetResiginedEmployee"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+                        <div e-columns>
+                            <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="DOJ" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="DOJ" e-width="70"></div>
+                            <div e-column e-field="DOS" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="DOS" e-width="70"></div>
+                            <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
+                            <div e-column e-field="DesignationGroup" e-headertext="Designation Group" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="EntityName" e-headertext="Entity" e-width="80"></div>
+                            <div e-column e-field="SepType" e-headertext="Separation Type" e-width="80"></div>
+                        </div>
+                    </div>
+
+                    <div class="common-btn" style="padding-right: 15px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="Close();" class="btn">Apply</button></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
