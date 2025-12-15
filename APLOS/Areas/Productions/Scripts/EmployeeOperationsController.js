@@ -26,7 +26,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
     $scope.responsiblePerson = null;
     $scope.responsiblePersonId = null;
-
+    $scope.btnckick = 0;
     var show = document.getElementById("ShowForm");
 
     //Arrays
@@ -272,6 +272,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     function refresh() {
         var gridObj = $("#EmpEditsGrid").data("ejGrid");
         gridObj.dataSource($scope.ModelList);
+        $scope.btnckick = 0;
     }
 
     // While Changing the Places
@@ -285,6 +286,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             for (var i = 0; i < $scope.EmployeeList.length; i++) {
                 if ($scope.EmployeeList[i].EmployeeCode == e.EmployeeCode) {
                     e.EmpName = $scope.EmployeeList[i].EmployeeName;
+                    $scope.btnckick = 0;
                 }
             }
         }
@@ -294,12 +296,14 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             for (var i = 0; i < $scope.ModelList.length; i++) {
                 if ($scope.ModelList[i].Sequence == e.Sequence - 1) {
                     prevQty = prevQty + parseFloat($scope.ModelList[i].Qty);
+                    $scope.btnckick = 0;
                 }
             }
             let currQty = 0;
             for (var i = 0; i < $scope.ModelList.length; i++) {
                 if ($scope.ModelList[i].Sequence == e.Sequence) {
                     currQty = currQty + parseFloat($scope.ModelList[i].Qty);
+                    $scope.btnckick = 0;
                 }
             }
 
@@ -355,7 +359,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     }
 
      
-    $scope.btnckick = 0;
+   
     $scope.saveRowItemData = function (data) {
         $scope.btnckick += 1;
         if ($scope.btnckick == 1) {
