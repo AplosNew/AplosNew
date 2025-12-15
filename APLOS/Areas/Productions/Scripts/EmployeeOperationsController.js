@@ -26,7 +26,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
     $scope.responsiblePerson = null;
     $scope.responsiblePersonId = null;
-
+    $scope.btnckick = 0;
     var show = document.getElementById("ShowForm");
 
     //Arrays
@@ -266,11 +266,13 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             }
             $scope.PrevAllList = $scope.ModelList;
         });
+        
     }
 
     function refresh() {
         var gridObj = $("#EmpEditsGrid").data("ejGrid");
         gridObj.dataSource($scope.ModelList);
+        $scope.btnckick = 0;
     }
 
     // While Changing the Places
@@ -284,6 +286,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             for (var i = 0; i < $scope.EmployeeList.length; i++) {
                 if ($scope.EmployeeList[i].EmployeeCode == e.EmployeeCode) {
                     e.EmpName = $scope.EmployeeList[i].EmployeeName;
+                    $scope.btnckick = 0;
                 }
             }
         }
@@ -293,12 +296,14 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             for (var i = 0; i < $scope.ModelList.length; i++) {
                 if ($scope.ModelList[i].Sequence == e.Sequence - 1) {
                     prevQty = prevQty + parseFloat($scope.ModelList[i].Qty);
+                    $scope.btnckick = 0;
                 }
             }
             let currQty = 0;
             for (var i = 0; i < $scope.ModelList.length; i++) {
                 if ($scope.ModelList[i].Sequence == e.Sequence) {
                     currQty = currQty + parseFloat($scope.ModelList[i].Qty);
+                    $scope.btnckick = 0;
                 }
             }
 
@@ -309,7 +314,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
         }
         // refresh();
-
+        $scope.btnckick = 0;
     }
 
 
@@ -353,17 +358,13 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         });
     }
 
-    $scope.isItemSaveBtnDisable = false;
-    $scope.state = {
-        disableBtn: true
-    };
-    $scope.btnckick = 0;
+     
+   
     $scope.saveRowItemData = function (data) {
         $scope.btnckick += 1;
         if ($scope.btnckick == 1) {
             $scope.isSaveBtnDisable = true;
             $scope.invalidqty = false;
-            $scope.state.disableBtn = true;
             for (var i = 0; i < $scope.ModelList.length; i++) {
                 if ($scope.ModelList[i].Sequence == data.Sequence + 1) {
                     var NextoperationVariationId = $scope.ModelList[i].OperationId;
@@ -378,12 +379,10 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
                     if ($scope.ModelList[j].WIP < $scope.tempQty && $scope.ModelList[j].Sequence != 1) {
                         $scope.invalidqty = true;
                         ShowResult('Qty can not greater than WIP !!', 'failure')
-                        $scope.state.disableBtn = false;
                         $scope.btnckick = 0;
                         break;
                     }
                     else {
-                        $scope.state.disableBtn = false;
                         $scope.NewList.push($scope.ModelList[j]);
                     }
                 }
@@ -406,15 +405,11 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
                     if (resp.data.Error === true) {
                         ShowResult(resp.data.Message, 'failure');
-                        $scope.isItemSaveBtnDisable = false;
                         $scope.btnckick = 0;
                     }
                     else {
                         ShowResult(resp.data.Message, 'success');
-                        $scope.btnckick = 0;
                         $scope.getAllData();
-                        $scope.isItemSaveBtnDisable = false;
-                        //$scope.ClearGrid();
                     }
                 });
             }

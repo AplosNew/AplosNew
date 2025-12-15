@@ -199,7 +199,7 @@
 
                 <script type="text/template" id="emp">
                     <div class="input-group">
-                        <input type="text" class="form-control" ng-model="data.EmployeeCode" ng-keydown="$event.keyCode === 13 && $parent.changeInData(data,'emp')" style="color:black; text-align:center" />
+                        <input type="text" class="form-control" ng-model="data.EmployeeCode" ng-keyup="$event.keyCode === 13 && $parent.changeInData(data,'emp')" style="color:black; text-align:center" />
                         <span class="input-group-btn">
                             <button name="submit" ng-click="$parent.changeInData(data,'emp')" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         </span>
@@ -211,7 +211,7 @@
                 </script>
 
                 <script type="text/template" id="qty">
-                    <input type="number" class="form-control" onkeypress="return isNumber(event)" id="pp1" ng-model="data.Qty" ng-keydown="$event.keyCode === 13 && $parent.changeInData(data,'qty')" style="color:black; text-align:center" />
+                    <input type="number" class="form-control" onkeypress="return isNumber(event)" id="pp1" ng-model="data.Qty" ng-keyup="$parent.changeInData(data,'qty')" style="color:black; text-align:center" />
                 </script>
 
                 <script type="text/template" id="rem">
@@ -222,7 +222,7 @@
                     <div class="form-group">
                         <div class="common-btn">
                             <ul class="list-inline text-center">
-                                <li><button ng-click="$parent.saveRowItemData(data);" ng-disabled="$parent.isItemSaveBtnDisable" class="btn"><i class="glyphicon glyphicon-floppy-save"></i></button></li>
+                                <li><button ng-click="$parent.saveRowItemData(data);"  class="btn"><i class="glyphicon glyphicon-floppy-save"></i></button></li>
                                 <li><button ng-click="$parent.AddTile(data);" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i></button></li>
                             </ul>
                         </div>
