@@ -266,7 +266,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             }
             $scope.PrevAllList = $scope.ModelList;
         });
-        $scope.btnckick = 0;
+        
     }
 
     function refresh() {
