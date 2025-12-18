@@ -84,7 +84,7 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
         $http({
             method: 'GET',
             //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
-            url: 'Products/InventoryIssue/MaterialIssueDetailsData'
+            url: 'Products/InventoryIssue/MaterialIssueReturnDetailsData'
         }).then(function successCallback(response) {
             $scope.lst = response.data;
             //$scope.detailgrid($scope.lst);

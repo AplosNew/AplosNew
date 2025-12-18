@@ -411,7 +411,7 @@ namespace Aplos.Areas.Products.Controllers
         public JsonResult MaterialIssueDetailsData(string inveReveiveId, string POID)
         {
             InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
-            var jsondata = Json(inventoryIssueQueryService.MaterialIssueDetailsData(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(inventoryIssueQueryService.MaterialIssueReturnDetailsData(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
 
