@@ -439,6 +439,10 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'employees/EmployeeDelete/Aplos',
             controller: 'employeeDeleteController'
         })
+        .when('/update-dos', {
+            templateUrl: 'employees/EmployeeDelete/UpdateDOS',
+            controller: 'updateEmployeeDOSController'
+        })
         .when('/employee-doj-change', {
             templateUrl: 'employees/EmployeeDOJChange/Aplos',
             controller: 'EmployeeDOJChangeController'

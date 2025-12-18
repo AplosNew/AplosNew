@@ -1320,6 +1320,7 @@ upanelApp.controller("manpowerBudgetReportController", manpowerBudgetReportContr
 upanelApp.controller("QualityProcessNewController", QualityProcessNewController)
 upanelApp.controller("masterOrderUploadController", masterOrderUploadController)
 upanelApp.controller("DefectMarkerController", DefectMarkerController)
+upanelApp.controller("updateEmployeeDOSController", updateEmployeeDOSController)
 
 
 
