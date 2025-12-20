@@ -545,7 +545,6 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
                         foreach (var item in Itemdetails)
                         {
                             ccount++;
-                            //genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmployeeSalaryRuleItem", out _Id);
 
                             drF = dsMaster.Tables[0].NewRow();
 

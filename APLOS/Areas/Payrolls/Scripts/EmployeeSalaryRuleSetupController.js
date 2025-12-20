@@ -672,7 +672,7 @@ function EmployeeSalaryRuleSetupController(cboService, commonMessage, $scope, $r
             else {
                 var newobj = { Id: null, EmployeeSalaryRuleSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: 1, IsReportItem: 0, ViewItem: null, EntryState: null, FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, IsDefault: true }
                 $scope.ProcessParameterNewList = [];
-                for (var i = 1; i < 8; i++) {
+                for (var i = 1; i < 5; i++) {
                     var obj = angular.copy(newobj);
                     obj.Sequence = i;
                     if (i == 1) {
@@ -691,8 +691,8 @@ function EmployeeSalaryRuleSetupController(cboService, commonMessage, $scope, $r
                     }
                     if (i == 3) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
-                        obj.UserName = 'Joining MonthNo Of WeekOff';
-                        obj.SandardName = 'JoiningMonthNoOfWeekOff';
+                        obj.UserName = 'JoiningMonthNoOfWeekOff';
+                        obj.SandardName  = 'Joining MonthNo Of WeekOff';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
