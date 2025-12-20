@@ -407,6 +407,10 @@
             templateUrl: 'payrolls/PaySlipsNew/SalaryAdvice',
             controller: 'SalaryAdviceController'
         })
+        .when('/salaryrulesetup', {
+            templateUrl: 'payrolls/EmployeeSalaryRuleSetup/Aplos',
+            controller: 'EmployeeSalaryRuleSetupController'
+        })
         ;
 
 
