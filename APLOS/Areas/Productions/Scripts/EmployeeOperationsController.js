@@ -62,7 +62,6 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
     //Get Operations
     $scope.getStartUp = function () {
-
         $http({
             method: 'POST',
             url: $scope.path + 'GetEntity'
@@ -78,12 +77,6 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             $scope.periodId = resp.data.Current;
         });
 
-        //$http({
-        //    method: 'GET',
-        //    url: $scope.path + 'GetShift',
-        //}).then(function succ(resp) {
-        //    $scope.ShiftList = resp.data;
-        //});
 
         $http({
             method: 'GET',
@@ -95,9 +88,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.getStartUp();
-    //Getting the Process
     $scope.getProcess = function () {
-
         $http({
             method: 'POST',
             url: $scope.path + 'GetProcess',
@@ -108,7 +99,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.GetShiftList = function () {
-        $http.get('Productions/Productionsummary/GetShiftList?processId=' + $scope.ProcessId)
+        $http.get('Productions/EmployeeOperations/GetShift?processId=' + $scope.ProcessId + '&entityId=' + $scope.EntityId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
                     $scope.ShiftList = response.data;
@@ -426,7 +417,10 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: 'POST',
             url: $scope.path + 'getReportView',
-            data: { 'Date': $scope.Date, 'Wkc': $scope.workCenterId },
+            data: {
+                'Date': $scope.Date, 'Wkc': $scope.workCenterId, 'entityId': $scope.EntityId
+                , 'processId': $scope.ProcessId, 'shiftId': $scope.shiftId, 'periodId': $scope.PeriodId, 'poId': $scope.POId
+            },
         }).then(function succ(response) {
             console.log(response.data.Data);
             console.log(response.data.Cols);

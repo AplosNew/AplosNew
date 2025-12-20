@@ -1892,7 +1892,7 @@ function POWiseMaterialIssueController($window, cboService, commonMessage, $scop
 		$http({
 			method: 'GET',
 			//url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
-			url: 'Products/InventoryIssue/MaterialIssueDetailsData1'
+			url: 'Products/InventoryIssue/MaterialIssueDetailsData'
 		}).then(function successCallback(response) {
 			$scope.lst = response.data;
 			//$scope.detailgrid($scope.lst);
@@ -1910,7 +1910,7 @@ function POWiseMaterialIssueController($window, cboService, commonMessage, $scop
 		//debugger;
 
 		var filteredData = e.data["Id"];
-		var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("IssueNo", "equal", parseInt(filteredData), true).take(200));
+		var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("Id", "equal", parseInt(filteredData), true).take(200));
 		e.detailsElement.find("#detailGrid").ejGrid({
 
 			dataSource: data,
@@ -1919,38 +1919,38 @@ function POWiseMaterialIssueController($window, cboService, commonMessage, $scop
 		e.detailsElement.find(".tabcontrol").ejTab();
 	}
 
-	$scope.lst = [];
-	$scope.POListDetailsReturn = function () {
-		//debugger;
-		$http({
-			method: 'GET',
-			//url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
-			url: 'Products/InventoryIssue/MaterialIssueDetailsData'
-		}).then(function successCallback(response) {
-			$scope.lst = response.data;
-			//$scope.detailgrid($scope.lst);
-			window.lst1 = response.data;
+	//$scope.lst = [];
+	//$scope.POListDetailsReturn = function () {
+	//	//debugger;
+	//	$http({
+	//		method: 'GET',
+	//		//url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
+	//		url: 'Products/InventoryIssue/MaterialIssueReturnDetailsData'
+	//	}).then(function successCallback(response) {
+	//		$scope.lst = response.data;
+	//		//$scope.detailgrid($scope.lst);
+	//		window.lst1 = response.data;
 
-		});
-	}
-	$scope.POListDetailsReturn();
+	//	});
+	//}
+	//$scope.POListDetailsReturn();
 
 
-	$scope.data1 = $scope.lst;
-	$scope.detailTemp = "#tabGridContents";
-	//$scope.detailgrid = "detailGridData(e)";
-	$scope.detailgridReturn = function detailGridData(e) {
-		//debugger;
+	//$scope.data1 = $scope.lst;
+	//$scope.detailTemp = "#tabGridContents";
+	////$scope.detailgrid = "detailGridData(e)";
+	//$scope.detailgridReturn = function detailGridData(e) {
+	//	//debugger;
 
-		var filteredData = e.data["Id"];
-		var data = ej.DataManager(window.lst1).executeLocal(ej.Query().where("IssueNo", "equal", parseInt(filteredData), true).take(200));
-		e.detailsElement.find("#detailGrid").ejGrid({
+	//	var filteredData = e.data["Id"];
+	//	var data = ej.DataManager(window.lst1).executeLocal(ej.Query().where("IssueNo", "equal", parseInt(filteredData), true).take(200));
+	//	e.detailsElement.find("#detailGrid").ejGrid({
 
-			dataSource: data,
-			columns: ["CostCenter", "Materials", "Article", "SKU1", "SKU2", "SKU3", "Qty", "UOM", "TransactionRate", "CurrencyName", "TotalMaterialTranAmount"]
-		});
-		e.detailsElement.find(".tabcontrol").ejTab();
-	}
+	//		dataSource: data,
+	//		columns: ["CostCenter", "Materials", "Article", "SKU1", "SKU2", "SKU3", "Qty", "UOM", "TransactionRate", "CurrencyName", "TotalMaterialTranAmount"]
+	//	});
+	//	e.detailsElement.find(".tabcontrol").ejTab();
+	//}
 	//#endregion
 
 

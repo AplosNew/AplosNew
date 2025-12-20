@@ -11,6 +11,8 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
     $scope.saveUrl = $scope.path + 'create';
     $scope.savePGUrl = $scope.path + 'CreateProductionGrouping';
     $scope.deletePGUrl = $scope.path + 'DeleteProductionGrouping/';
+    $scope.saveParameterUrl = $scope.path + 'CreateParameter';
+    $scope.deleteParameterUrl = $scope.path + 'DeleteParameter/';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.getSeqUrl = $scope.path + 'GetAutoSequence/';
 
@@ -1214,5 +1216,137 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
     }
     //#endregion
 
+
+    //#region Parameter
+    $scope.ParametersearchBy = "UserName"; $scope.Parametersearch = "";
+    $scope.ParametersearchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+    $scope.ParameterModelList = [];
+
+    $scope.getParameterData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetParameterList",
+            data: { column: $scope.ParametersearchBy, value: $scope.Parametersearch },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ParameterModelList = response.data;
+            $scope.GetParameterSequence();
+        });
+    }
+    $scope.getParameterData();
+
+    $scope.ModelParameterTemp = {
+        Id: null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Description: null,
+        Remarks: null,
+        Active: true
+    };
+    $scope.ModelParameter = Object.assign({}, $scope.ModelParameterTemp);
+
+    $scope.GetParameterSequence = function () {
+        cboService.getSequence($scope.getSeqUrl, function (data) {
+            $scope.ModelParameterTemp.Sequence = data;
+            $scope.ModelParameter.Sequence = data;
+        });
+    };
+    $scope.GetParameterSequence();
+
+    $scope.GetParameter = function (args) {
+        $scope.ModelParameter = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    function containsParameterSpecialChars(str) {
+        const specialChars = /[`!@#$%^&*()_+\=\[\]{};':"\\|,.<>\/?~]/;
+        return specialChars.test(str);
+    }
+
+    $scope.ParameterCheckSpecialCharecter = function () {
+        try {
+            if (containsParameterSpecialChars($scope.ModelParameter.UserName)) {
+                $scope.ModelParameter.UserName = $scope.ModelParameter.UserName.substring(0, $scope.ModelParameter.UserName.length - 1);
+                throw "No special characters allowed for Production Group User Name.";
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.SaveParameter = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.ParameterForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveParameterUrl,
+                data: { 'data': $scope.ModelParameter },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearPGFields(response.data.Sequence);
+                    $scope.getParameterData();
+                    $scope.GetParameterCbo();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+    $scope.ParameterCboList = [];
+    $scope.GetParameterCbo = function () {
+        $http.get('Materials/materialmasterarticle/GetParameterCbo')
+            .then(function (response) {
+                $scope.ParameterCboList = response.data;
+            });
+    };
+    $scope.GetParameterCbo();
+
+
+    $scope.DeleteParameter = function () {
+        if (!baseService.isUndefinedOrNull($scope.ModelParameter.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteParameterUrl + $scope.ModelParameter.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearPGFields(response.data.Sequence);
+                    $scope.getParameterData();
+                    $scope.GetParameterCbo();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.ClearPG = function () {
+        ClearPGFields($scope.GetSequence());
+        return true;
+    };
+
+    function ClearPGFields(seq) {
+        $scope.Action = 'Save';
+        $scope.ModelParameter = Object.assign({}, $scope.ModelParameterTemp);
+        $scope.ModelParameter.Sequence = seq;
+    }
+    //#endregion
 
 }

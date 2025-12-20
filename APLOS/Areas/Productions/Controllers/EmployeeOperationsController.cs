@@ -82,9 +82,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetShift()
+        public ActionResult GetShift(string processId,string entityId)
         {
-            return Json(eo.GetShift(), JsonRequestBehavior.AllowGet);
+            return Json(eo.GetShiftList(processId, entityId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
@@ -106,9 +106,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult getReportView(string Date , string Wkc)
+        public ActionResult getReportView(string Date , string Wkc,string entityId,string processId,string shiftId,string periodId,string poId)
         {
-            return Json(new { Data = eo.getReportView(out List<string> Cols , Date , Wkc), Cols = Cols }, JsonRequestBehavior.AllowGet);
+            return Json(new { Data = eo.getReportView(out List<string> Cols , Date , Wkc, entityId, processId, shiftId, periodId, poId), Cols = Cols }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

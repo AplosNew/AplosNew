@@ -2219,7 +2219,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 		{
 			try
 			{
-				var sql = @" SELECT IR.Id IssueNo
+				var sql = @" SELECT top(1000) IR.Id IssueNo,IR.Id
                                 ,IR.CompanyGroupId
                                 ,IR.CompanyId
                                 ,Plant.GSTIN 
@@ -2321,7 +2321,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
                          JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.BaseUOMId = TUoM.Id
 						 LEFT JOIN [ORG].[CostCenter] AS CC On CC.Id=IRD.CostCenterId
                          LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
-						--WHERE IR.Id IS NULL
+						 WHERE IRD.IsAsset=0
+						order by IR.IssueDate Desc
                          ";
 
 				return _sqlRepository.GetDataCollection(sql);
@@ -2333,7 +2334,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
-		public IEnumerable<object> MaterialIssueDetailsData(string inveReveiveId, string POID)
+		public IEnumerable<object> MaterialIssueReturnDetailsData(string inveReveiveId, string POID)
 		{
 			try
 			{
@@ -2435,9 +2436,9 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			try
 			{
-				var sql = @"SELECT * FROM (
+				var sql = @"SELECT top(1500)* FROM(
                                 select x.Id,x.ProcessName,x.SalesOrderId,x.ProductionOrderId,x.PreparedBy,x.BuyerItemReferenceNo,x.OwnItemReferenceNo,x.BuyerOrderReferenceNo,x.OwnOrderReferenceNo,x.CustomerName,x.BUyerName,REPLACE(CONVERT(CHAR(11), x.AddedDate, 106),' ','-') AS AddedDate
-                                ,Sum(x.RequestedQty) RequestedQty ,sum(isnull(x.IssueQty,0)) IssueQty,Balance=Sum(isnull(x.RequestedQty,0))-sum(isnull(x.IssueQty,0)),Sum(x.RejectedQty) RejectedQty
+                                ,Sum(x.RequestedQty) RequestedQty ,sum(isnull(x.IssueQty,0)) IssueQty,Balance=Sum(isnull(x.RequestedQty,0))-sum(isnull(x.IssueQty,0)),Sum(x.RejectedQty) RejectedQty,x.AddedDate SlipOrderingDate
                                 ,Orderspecific=CASE WHEN Orderspecific='Yes' Then 'Yes' else 'No' End from(
                                 SELECT IRM.Id
                                 ,CC.UserName AS CostCenterName
@@ -2666,7 +2667,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             Group by Id ,x.PreparedBy,x.AddedDate ,Orderspecific,x.ProcessName 
 							,x.SalesOrderId,x.ProductionOrderId,x.BuyerItemReferenceNo,x.OwnItemReferenceNo,x.BuyerOrderReferenceNo,x.OwnOrderReferenceNo,x.CustomerName,x.BUyerName
 							) y
-							where y.Balance>0";
+							where y.Balance>0 order by y.SlipOrderingDate desc";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)

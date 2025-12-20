@@ -26,9 +26,11 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var Sql = @"Select distinct e.Id as Value , e.UserName as Text from trn.ProductionOrder po
-                            left join org.Entity e on e.Id = po.EntityId
-                            left join hkp.EntityProcessTag ett on ett.EntityId = e.Id";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var Sql = @"SELECT DISTINCT e.Id as Value , e.UserName as Text from trn.ProductionOrder po
+                            LEFT JOIN ORG.Entity e on e.Id = po.EntityId
+                            LEFT JOIN HKP.EntityProcessTag ett on ett.EntityId = e.Id
+                            WHERE E.PlantId='"+ identity.PlantId + "' ";
                 //where ope.AddedBy='" + AddedBy + "'
                 return _sqlRepository.GetDataCollection(Sql, null);
             }
@@ -42,7 +44,9 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var Sql = @"select distinct Id as Value , UserName as Text from SCS.WorkCenterMaster where ProcessId = '" + PId + "' AND EntityId='"+ entityId + @"'";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var Sql = @"select distinct Id as Value , UserName as Text from SCS.WorkCenterMaster where ProcessId = '" + PId + "' AND EntityId='"+ entityId + @"' AND PlantId='"+identity.PlantId+"'";
                 return _sqlRepository.GetDataCollection(Sql, null);
             }
             catch (Exception ex)
@@ -100,35 +104,23 @@ namespace Library.OrderManagement.Production
                 throw ex;
             }
         }
-
-        public IEnumerable<object> GetShift()
+        public IEnumerable<object> GetShiftList(string processId,string entityId)
         {
-            try
-            {
-                // var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = "Select SystemID as Value , ShiftDefinationDescription as Text from dbo.ShiftDefination";
-                return _sqlRepository.GetDataCollection(str);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            string sql = @"SELECT distinct sd.SystemID [Value],sd.UserName [Text] FROM [dbo].[WorkCenterWiseShift] WCS
+                                        LEFT JOIN dbo.ShiftDefination AS sd ON sd.SystemID = WCS.ShiftDefinationID
+                                        WHERE WorkCenterMasterId IN(SELECT Id FROM SCS.WorkCenterMaster AS wcm WHERE wcm.ProcessId='" + processId + "' and wcm.EntityId='"+ entityId + "')";
+            return _sqlRepository.GetDataCollection(sql);
         }
+        
+
 
         public IEnumerable<object> GetPOs(string entityId)
         {
             try
             {
-                //var dd = @"Select Id from hkp.ProductionStatus where UserName like 'Run%'";
-                //DataTable dtId = _sqlRepository.GetDataTable(dd);
-                //var str = @"Select distinct po.Id
-                //            from Scs.WorkCenterMaster wc
-                //            left join org.Entity e on e.ID = wc.EntityId
-                //            left join trn.ProductionOrder po on po.EntityId = e.Id
-                //            where wc.Id = '" + wk + @"' and po.ProductionStatusId = '" + dtId.Rows[0]["Id"].ToString() + "'";
-                string str = @"select PO.Id from TRN.ProductionOrder PO
-LEFT JOIN HKP.ProductionStatus PS ON PS.id=PO.ProductionStatusId
-Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
+                string str = @"SELECT PO.Id from TRN.ProductionOrder PO
+                                LEFT JOIN HKP.ProductionStatus PS ON PS.id=PO.ProductionStatusId
+                                WHERE PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -741,15 +733,56 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
             return 0;
         }
 
-        public IEnumerable<object> getReportView(out List<string> Cols, string Date , string Wkc)
+        public IEnumerable<object> getReportView(out List<string> Cols, string Date , string Wkc, string entityId, string processId, string shiftId, string periodId, string poId)
         {
             try
             {
-                string wkcS = "1=1";
-                if(Wkc != null)
+                string tempQurey = "1=1";
+                if(entityId !=null && processId!=null && shiftId!=null && Wkc != null && periodId !=null && poId!=null)
                 {
-                    wkcS = "we.WorkCenterId = '"+Wkc+@"'";
+                    tempQurey = "wcm.EntityId='"+ entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + "' AND we.WorkCenterId = '" + Wkc+  "' AND we.PeriodId = '" + periodId + "' AND we.ProductionOrderId='" + poId + @"' ";
                 }
+                else if (entityId != null && processId != null && shiftId != null && Wkc != null && periodId != null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + "' AND we.WorkCenterId = '" + Wkc + "' AND we.PeriodId = '" + periodId + @"' ";
+                }
+                else if (entityId != null && processId != null && shiftId != null && Wkc != null  )
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + "' AND we.WorkCenterId = '" + Wkc + @"'  ";
+                }
+                else if (entityId != null && processId != null && shiftId == null && Wkc != null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "'   AND we.WorkCenterId = '" + Wkc + @"'  ";
+                }
+                else if (entityId != null && processId != null && shiftId != null && poId == null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + @"' ";
+                }
+                else if (entityId != null && processId != null && shiftId != null && poId != null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + @"' AND we.ProductionOrderId='" + poId + @"'  ";
+                }
+                else if (entityId != null && processId != null && shiftId == null && Wkc == null && periodId == null && poId == null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "'   ";
+                }
+                else if (entityId != null && processId == null && shiftId == null && Wkc == null && periodId == null && poId == null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + @"' ";
+                }
+                else if (entityId != null && processId != null && shiftId == null && Wkc == null && periodId == null && poId == null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + @"' ";
+                }
+                else if (entityId != null && processId != null && shiftId != null && Wkc == null && periodId == null && poId == null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + @"' AND we.ShiftId='" + shiftId + @"' ";
+                }
+                else if (entityId != null && processId != null && shiftId == null && Wkc == null && periodId == null && poId != null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + @"'  AND we.ProductionOrderId='" + poId + @"' ";
+                }
+
 
                 var str = @"Select ov.Code as OperationCode , ov.UserName as OperationName, p.UserName as Process , wcm.UserName as WorkCenter ,we.ProductionOrderId , 
                             ei.EmployeeName , ei.EmployeeCode ,
@@ -761,7 +794,7 @@ Where PS.UserName='Running' AND PO.EntityId='"+ entityId + "'";
                             left join SCS.WorkCenterMaster wcm on wcm.Id = we.WorkCenterId
                             left join mst.OperationVariation ov on ov.Id = we.OperationVariationId
                             left join dbo.EmployeeInformation ei on ei.SystemId = we.EmployeeId
-                            where we.Date = '" + Date + @"'  and "+wkcS+@"
+                            WHERE we.Date = '" + Date + @"'  and "+ tempQurey + @"
                             group by ov.Code , ov.UserName , p.UserName , ei.EmployeeName , ei.EmployeeCode , we.Date , we.PeriodId  , pb.UserName, wcm.UserName ,we.ProductionOrderId 
                             order by Dates , ei.EmployeeName asc";
 
