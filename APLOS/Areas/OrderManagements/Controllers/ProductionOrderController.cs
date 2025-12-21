@@ -1453,11 +1453,12 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
         }
 
         [HttpPost, Authorize]
-        public JsonResult CreateOperation(IEnumerable<ProductionBulletinTemplateDetail> entities, string productionBulletinTemplateMasterId, Dictionary<string, object> calculateddata)
+        public JsonResult CreateOperation(IEnumerable<ProductionBulletinTemplateDetail> entities, string productionBulletinTemplateMasterId, Dictionary<string, object> calculateddata,string pId)
         {
             try
             {
-                SaveOperationData(entities, productionBulletinTemplateMasterId, calculateddata);
+                SaveOperationData(entities, productionBulletinTemplateMasterId, calculateddata,pId
+                    );
                 return Json(new { Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -1571,12 +1572,13 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
         }
 
 
-        private void SaveOperationData(IEnumerable<ProductionBulletinTemplateDetail> data, string productionBulletinTemplateMasterId, Dictionary<string, object> bulletinCalculation)
+        private void SaveOperationData(IEnumerable<ProductionBulletinTemplateDetail> data, string productionBulletinTemplateMasterId, Dictionary<string, object> bulletinCalculation, string pId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             try
             {
+                DataSet dsEO = null;
                 DataSet dsBC = null;
                 DataSet dsMaster = null;
                 GetBulletinCalculation(productionBulletinTemplateMasterId, out dsBC);
@@ -1595,8 +1597,10 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                     }
                     EvaluateSPI(data);
                     string sql = "SELECT * FROM [TRN].[ProductionBulletinTemplateDetail] WHERE ProductionBulletinTemplateMasterId='" + productionBulletinTemplateMasterId + "'";
+                    string esql = "select * from dbo.EmployeeOperationWip Where ProductionOrderId='"+pId+"'";
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                    objCon.OpenDataSetThroughAdapter(esql, out dsEO, false, "1");
                     foreach (var item in data)
                     {
                         DataView dv = new DataView(dsMaster.Tables[0]);
@@ -1665,6 +1669,17 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                         }
                         else
                         {
+                            DataView dveo = new DataView(dsEO.Tables[0]);
+                            dveo.RowFilter = "OperationVariationId='" + item.OperationVariationId + "'";
+
+                            if (dveo.Count>0)
+                            {
+                                if (Convert.ToDecimal(dveo[0]["OperationSequence"]) != item.Sequence)
+                                {
+                                    throw new Exception("Operation Sequence " + item.Sequence + " change not accepted as it is used in Employee Production.");
+                                }
+                            }
+
                             //edit
                             DataRow dr = dv[0].Row;
 

@@ -3865,7 +3865,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             $http({
                 method: 'POST',
                 url: $scope.saveOperationUrl,
-                data: { 'entities': $scope.operationList, 'productionBulletinTemplateMasterId': $scope.BulletinTemplateMasterId, 'calculateddata': $scope.calculatedBulletinModel },
+                data: { 'entities': $scope.operationList, 'productionBulletinTemplateMasterId': $scope.BulletinTemplateMasterId, 'calculateddata': $scope.calculatedBulletinModel, 'pId': $scope.model.Id },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

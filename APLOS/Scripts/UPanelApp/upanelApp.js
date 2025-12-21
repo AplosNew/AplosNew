@@ -1321,6 +1321,7 @@ upanelApp.controller("QualityProcessNewController", QualityProcessNewController)
 upanelApp.controller("masterOrderUploadController", masterOrderUploadController)
 upanelApp.controller("DefectMarkerController", DefectMarkerController)
 upanelApp.controller("updateEmployeeDOSController", updateEmployeeDOSController)
+upanelApp.controller("EmployeeSalaryRuleSetupController", EmployeeSalaryRuleSetupController)
 
 
 
