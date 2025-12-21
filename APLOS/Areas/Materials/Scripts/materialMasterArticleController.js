@@ -1349,4 +1349,114 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
     }
     //#endregion
 
+    //  #region  Data Upload Download
+    $scope.GetSampleFile = function () {
+        var ReportFormat = 'Excel';
+        location.href = $scope.path + 'GetSampleFile?reportFormat=' + ReportFormat;
+    };
+    $scope.UploadedData = [];
+    $scope.picdata = null;
+    $scope.ShowSaveBtn = false;
+    $("#uploadImage").change(function () {
+        $scope.picdata = this.files[0];
+    });
+
+    $scope.getFile = function () {
+        $scope.progress = 0;
+        fileReader.readAsDataUrl($scope.file, $scope)
+            .then(function (result) {
+                $scope.imageSrc = result;
+            });
+    };
+
+    $scope.ImportData = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.ModelUploadForm.$valid) {
+                var picData = new FormData();
+                $http({
+                    method: 'POST',
+                    url: $scope.path + 'ImportData',
+                    headers: { 'Content-Type': undefined },
+                    transformRequest: function (data) {
+                        picData.append("modelNew", angular.toJson(data.modelNew));
+                        if (baseService.isUndefinedOrNull($scope.picdata) === false) {
+                            picData.append('file', data.file);
+                        }
+                        return picData;
+                    },
+                    data: {
+                        'file': $scope.picdata
+
+                    }
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        $scope.ShowSaveBtn = false;
+                        ShowResult(response.data.Message, "failure");
+
+                    }
+                    else {
+                        $scope.UploadedData = [];
+                        $scope.UploadedData = response.data;
+                        $scope.ShowSaveBtn = true;
+                    }
+                }, function errorCallback(response) {
+
+                });
+                return true;
+
+            }
+        } catch (e) {
+
+            ShowResult(e, "failure");
+        }
+    };
+    $scope.SaveUploadedData = function () {
+        try {
+            for (var i = 0; i < $scope.UploadedData.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.UploadedData[i].ArticleParameterTypeId)) {
+                    throw "ArticleParameterTypeId is required.";
+                }
+                if (baseService.isUndefinedOrNull($scope.UploadedData[i].ArticleId)) {
+                    throw "ArticleId is required.";
+                }
+                $scope.UploadedData[i].Id = null;
+                $scope.UploadedData[i].Active = true;
+                if ($scope.UploadedData[i].IsProduction == "1") {
+                    $scope.UploadedData[i].IsProduction = true;
+                }
+                else {
+                    $scope.UploadedData[i].IsProduction = false;
+
+                }
+                
+            }
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveUploadedData',
+                data: {
+                    'data': $scope.UploadedData
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.UploadedData = [];
+                    $("#uploadImage").val(null);
+                    $scope.ShowSaveBtn = false;
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            $scope.ShowSaveBtn = false;
+            ShowResult(e, 'failure');
+
+        }
+    };
+    //  #endregion Data Upload Download
 }
