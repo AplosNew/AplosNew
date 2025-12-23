@@ -862,7 +862,8 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
             method: 'POST',
             url: 'Attendances/GoodWorkSetup/BudgetCodeDelete',
             //data: { 'Id': deletedIds },
-            data: { 'Id': $scope.tempId, 'setupId': $scope.ModelNew.Id },
+            //data: { 'Id': $scope.tempId, 'setupId': $scope.ModelNew.Id },
+            data: { 'Id': deletedIds, 'setupId': $scope.ModelNew.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
