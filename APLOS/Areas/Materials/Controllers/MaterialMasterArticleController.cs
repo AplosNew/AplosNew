@@ -1024,60 +1024,7 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
 
-        [HttpPost, Authorize]
-        public JsonResult SaveGLData(List<Dictionary<string, object>> data)
-        {
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsBC, dsDD;
-            string _Id = string.Empty;
-            try
-            {
-                #region Entity 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM [HKP].[ArticleParameterUpload] where 1=2", out dsBC, false, "1");
-
-                if (data != null)
-                {
-                    foreach (var item in data)
-                    {
-                        DataView dv = new DataView(dsBC.Tables[0]);
-                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
-
-                        if (dv.Count == 0)
-                        {
-                            if (item["ArticleParameterTypeId"] == null || item["ArticleParameterTypeId"] == "")
-                            {
-                                item["ArticleParameterTypeId"] = null;
-                            }
-                            if (item["ArticleId"] == null || item["ArticleId"] == "")
-                            {
-                                item["ArticleId"] = null;
-                            }
-
-                            AddNewRow(dsBC.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drmo = dv[0].Row;
-                            EditRow(drmo, item);
-                        }
-                    }
-
-
-                }
-                #endregion
-                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
-                obj.SaveDataSets(dsBC);
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-        }
-
+     
         private class ArticleParameterUploadedDataViewModel
         {
             public string ArticleParameterTypeId { get; set; }
