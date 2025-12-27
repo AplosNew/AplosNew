@@ -1301,7 +1301,7 @@ function InventoryDashboardController(cboService, commonMessage, $window, $scope
 
         });
     }
-    $scope.GRNListDetailsEXPBooking();
+    //$scope.GRNListDetailsEXPBooking();
 
 
     $scope.data1 = $scope.lstEXPBooking;
