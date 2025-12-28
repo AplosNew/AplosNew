@@ -1293,7 +1293,7 @@ function InventoryDashboardController(cboService, commonMessage, $window, $scope
         $http({
             method: 'GET',
             //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
-            url: 'Products/InventoryIssue/MaterialIssueDetailsData1'
+            url: 'Products/InventoryIssue/MaterialIssueDetailsData'
         }).then(function successCallback(response) {
             $scope.lstEXPBooking = response.data;
             //$scope.detailgrid($scope.lst);
@@ -1301,7 +1301,7 @@ function InventoryDashboardController(cboService, commonMessage, $window, $scope
 
         });
     }
-    $scope.GRNListDetailsEXPBooking();
+    //$scope.GRNListDetailsEXPBooking();
 
 
     $scope.data1 = $scope.lstEXPBooking;

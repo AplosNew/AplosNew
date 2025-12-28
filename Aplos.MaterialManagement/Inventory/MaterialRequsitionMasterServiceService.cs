@@ -4772,7 +4772,7 @@ ORDER BY IR.ID DESC";
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var _sql = @"SELECT IM.Id
+                var _sql = @"SELECT top(5000) IM.Id
                         --,IM.Id AS MaterialReqqusitionMasterId
                          ,IM.MaterialReqqusitionMasterId AS Id
                          ,IR.Id MaterialReqqusitionMasterId
@@ -4822,8 +4822,7 @@ ORDER BY IR.ID DESC";
                         LEFT JOIN [TRN].[MaterialRequsitionMaster] AS IR ON IM.MaterialReqqusitionMasterId=IR.Id
                         LEFT JOIN [SCS].[Currency] AS CU ON IM.CurrencyId=CU.Id 
                         LEFT JOIN [HKP].[Activity] As Act On ACT.Id=IM.ActivityId
-                        --Left join trn.PurchaseOrderDetail pod on pod.RequisitionDetailId=im.Id
-                       --WHERE IM.MaterialReqqusitionMasterId
+                         order by IM.AddedDate desc
                        ";
                 return _sqlRepository.GetDataCollection(_sql);
 
