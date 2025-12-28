@@ -356,11 +356,15 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         if ($scope.btnckick == 1) {
             $scope.isSaveBtnDisable = true;
             $scope.invalidqty = false;
+           var sequarray = [];
             for (var i = 0; i < $scope.ModelList.length; i++) {
                 if ($scope.ModelList[i].Sequence == data.Sequence + 1) {
                     var NextoperationVariationId = $scope.ModelList[i].OperationId;
                 }
+                sequarray.push(parseFloat($scope.ModelList[i].Sequence));
             }
+            var maxSeq = Math.max.apply(null, sequarray);
+
 
             $scope.NewList = [];
             $scope.tempQty = 0;
@@ -391,6 +395,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
                         'Date': $scope.Date, 'PeriodId': $scope.periodId,
                         'ResponsiblePersonId': $scope.responsiblePersonId,
                         'NxtOPVariationId': NextoperationVariationId,
+                        'maxSeq': maxSeq,
                     },
                 }).then(function succ(resp) {
 

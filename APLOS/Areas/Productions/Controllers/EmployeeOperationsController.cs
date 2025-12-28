@@ -128,14 +128,14 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult saveRowItemData(List<Dictionary<string, object>> data, string WorkCenter, string ProcessId, string ShiftId, string POId, string Date, string PeriodId, string ResponsiblePersonId,string NxtOPVariationId)
+        public JsonResult saveRowItemData(List<Dictionary<string, object>> data, string WorkCenter, string ProcessId, string ShiftId, string POId, string Date, string PeriodId, string ResponsiblePersonId,string NxtOPVariationId,string maxSeq)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if(Date=="")
                     throw new Exception("Please Input Date.");
-                eo.saveRowItemData(data, WorkCenter, ProcessId, ShiftId, POId, Date, PeriodId, ResponsiblePersonId, identity.PlantId, NxtOPVariationId);
+                eo.saveRowItemData(data, WorkCenter, ProcessId, ShiftId, POId, Date, PeriodId, ResponsiblePersonId, identity.PlantId, NxtOPVariationId, maxSeq);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
 
             }
