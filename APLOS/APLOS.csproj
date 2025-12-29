@@ -2013,6 +2013,7 @@
     <Content Include="Areas\OrderManagements\Scripts\TermsandConditionGroupController.js" />
     <Content Include="Areas\Outsourcing\Scripts\ExportDBController.js" />
     <Content Include="Areas\Outsourcing\Scripts\JobWorkEntryController.js" />
+    <Content Include="Areas\Payrolls\Scripts\EmployeeSalaryStructureController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeSalaryRuleSetupController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeSeperationSetupController.js" />
     <Content Include="Areas\Payrolls\Scripts\fullandfinalSettlementPaymentController.js" />
@@ -5091,6 +5092,7 @@
     <Content Include="Areas\Materials\Views\DetentionMaster\Main.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeeDelete\UpdateDOS.cshtml" />
     <Content Include="Areas\Payrolls\Views\EmployeeSalaryRuleSetup\Aplos.cshtml" />
+    <Content Include="Areas\Payrolls\Views\EmployeeSalaryRuleSetup\SalaryStructure.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

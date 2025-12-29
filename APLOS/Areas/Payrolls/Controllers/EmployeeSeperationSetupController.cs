@@ -331,13 +331,16 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }//End of function
 
-
         [HttpGet, Authorize]
-        public ActionResult GetDesignationGroupData()
+        public ActionResult GetDesignationGroupData(string ecId)
         {
             try
             {
-                var sql = @"SELECT Flag=CAST(0 AS bit),* FROM HKP.DesignationGroup WHERE Active=1 AND Id NOT IN(SELECT DesignationGroupId FROM [dbo].[EmpSeperationDesignationGroup]) Order By UserName";
+                var sql = @"SELECT distinct DG.Id,DG.Sequence,DG.Code,DG.ShortName,DG.UserName,DG.StandardName, Flag=CAST(0 AS bit),EC.UserName EmployeeCategory FROM HKP.DesignationGroup DG
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationGroupId=DG.Id
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+WHERE DG.Active=1 AND DG.Id NOT IN(SELECT DesignationGroupId FROM [dbo].[EmpSeperationDesignationGroup]) 
+AND EC.Id " + ecId + @"";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
