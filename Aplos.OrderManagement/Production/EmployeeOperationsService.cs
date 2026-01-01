@@ -611,7 +611,7 @@ namespace Library.OrderManagement.Production
                 for (int i = 0; i < dsMaster.Tables[0].Rows.Count; i++)
                 {
                     dsSum.Tables[0].DefaultView.RowFilter = @"OperationVariationId='" + _OperationVariationId + "' and ProductionOrderId = '" + POId + "' ";
-                    tempMaxOperationSeq = clsStaticInfo.dbl(dsSum.Tables[0].DefaultView[0]["OperationSequence"].ToString());
+                    tempMaxOperationSeq = clsStaticInfo.dbl(dsSum.Tables[0].Rows[0]["OperationSequence"].ToString());
 
                     if (dsSum.Tables[0].DefaultView.Count > 0)
                     {

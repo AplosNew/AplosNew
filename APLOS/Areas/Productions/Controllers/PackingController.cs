@@ -1095,6 +1095,21 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult UntagPacking(string packingId)
+        {
+            try
+            {
+                det.UntagPacking(packingId);
+                return Json(new { Message = AplosMessage.Deleted });
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = true, Message = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        
+
+        [HttpGet, Authorize]
         public ActionResult openPackingLineItemModal(string PackingId)
         {
             try
