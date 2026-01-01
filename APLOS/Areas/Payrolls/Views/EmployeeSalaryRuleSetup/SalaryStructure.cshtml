@@ -1,0 +1,124 @@
+﻿<div class="tab-design">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Fresh" role="tab" data-toggle="tab">Fresh Entry</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Increment" role="tab" data-toggle="tab">Increment/Promotion/Adjustment</a></li>
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form="tabForm1" id="empType">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                <label class="col-sm-4 control-label">Employee</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" name="Responsible Person" ng-model="fileNew.ResponsiblePersonName" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="LoadEmployeeDataForGrid();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="empType">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Increment</label>
+                        <div class="col-sm-8">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="model2.Increment" tabindex="8" ng-checked="SetCheckforAdjustment()">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="form-group">
+
+                        <label class="col-sm-4 control-label">Promotion</label>
+                        <div class="col-sm-8">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="model2.Promotion" tabindex="8" ng-checked="SetCheckforAdjustment()">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Adjustment</label>
+                        <div class="col-sm-8">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="model2.Adjustment" tabindex="8" ng-checked="SetCheckforAdjustment()">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <input type="button" value="Next" class="btn btn-success" ng-click="LoadEmployeeData(true)" />
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal site-modal" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closePopup('employeeNewPopUp');">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="searchByEmp">
+                                        <option ng-repeat="option in searchEmpByList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="empearch" ng-enter="getEmpData()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="getEmpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="content-container-fluid" style="color:black;">
+                            <div style="color: black;" id="Grid" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-type="string" e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                    <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="Line" e-headertext="Line" e-width="80"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

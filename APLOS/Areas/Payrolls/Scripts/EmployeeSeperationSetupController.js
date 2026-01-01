@@ -224,24 +224,50 @@ function EmployeeSeperationSetupController(cboService, commonMessage, $scope, $r
 
     };
 
-
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
+    }
+    $scope.sqlInStatement = "";
+    $scope.idList = [];
     $scope.DesignationGroupList = [];
     $scope.AddDesignationGroup = function () {
-        $http({
-            method: 'Get',
-            url: "Payrolls/EmployeeSeperationSetup/GetDesignationGroupData",
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.DesignationGroupList = response.data;
-            for (var i = 0; i < $scope.SelectedDesignationGroupList.length; i++) {
-                for (var j = 0; j < $scope.DesignationGroupList.length; j++) {
-                    if ($scope.DesignationGroupList[j].Id == $scope.SelectedDesignationGroupList[i].DesignationGroupId) {
-                        $scope.DesignationGroupList.splice(j, 1);
+        try {
+            if (baseService.arrayLength($scope.EmployeeCategoryList) == 0) {
+                throw "Select Employee Category first";
+            }
+            for (var di = 0; di < $scope.EmployeeCategoryList.length; di++) {
+                $scope.idList.push($scope.EmployeeCategoryList[di]);
+            }
+
+            if ($scope.idList.length > 0) {
+                var uniqueecId = removeDuplicates($scope.idList, 'EmployeeTypeId');
+                var wcECId = "";
+                if (uniqueecId.length > 0) {
+                    wcECId = "IN(";
+                    wcECId += Array.prototype.map.call(uniqueecId, function (item) { return "'" + item.EmployeeTypeId + "'"; }).join(",") + ")";
+                }
+                $scope.sqlInStatement = wcECId;
+            }
+            $http({
+                method: 'Get',
+                url: "Payrolls/EmployeeSeperationSetup/GetDesignationGroupData?ecId=" + $scope.sqlInStatement,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.DesignationGroupList = response.data;
+                for (var i = 0; i < $scope.SelectedDesignationGroupList.length; i++) {
+                    for (var j = 0; j < $scope.DesignationGroupList.length; j++) {
+                        if ($scope.DesignationGroupList[j].Id == $scope.SelectedDesignationGroupList[i].DesignationGroupId) {
+                            $scope.DesignationGroupList.splice(j, 1);
+                        }
                     }
                 }
-            }
-            $scope.ShowResultCustom();
-        })
+                $scope.ShowResultCustom();
+            })
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
     $scope.ShowResultCustom = function (message, type) {

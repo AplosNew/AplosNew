@@ -102,6 +102,14 @@ namespace Library.Service.Productions
             return sID;
         }
 
+        private string GetDetentionPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MachineMasterTransaction", out sID);
+            return sID;
+        }
+
         public IEnumerable<object> GetChar1Info(string id, string soid)
         {
             try
@@ -1818,7 +1826,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                                 //    item["Minute"] = ts.TotalMinutes;
                                 //}
 
-                                item["Id"] = GetPK();
+                                item["Id"] = "DM"+GetDetentionPK();
                                 //bplib.clsGenID genid = new bplib.clsGenID();
                                 //genid.GenID("MachineMasterTransaction", out _Id);
                                 //item["Id"] = _Id;

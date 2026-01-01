@@ -411,6 +411,10 @@
             templateUrl: 'payrolls/EmployeeSalaryRuleSetup/Aplos',
             controller: 'EmployeeSalaryRuleSetupController'
         })
+        .when('/empsalarystructure', {
+            templateUrl: 'payrolls/EmployeeSalaryRuleSetup/SalaryStructure',
+            controller: 'EmployeeSalaryStructureController'
+        })
         ;
 
 

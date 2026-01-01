@@ -31,7 +31,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
         }
-        public string GetUnLockedEmployees(string Date,string PlantId)
+        public string GetUnLockedEmployees(string Date, string PlantId)
         {
             try
             {
@@ -49,7 +49,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 LEFT JOIN [ORG].[SubSection] ss ON ss.Id = POS.SubSectionId                           
                 where WorkDate='" + Date + @"' and e.EmployeeStatus='Active'
                 and IsLock=0 AND a.PlantID='" + PlantId + "'";
-               
+
                 return sql;
             }
             catch (Exception ex)
@@ -64,7 +64,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             {
                 var sql = @"select top 1 Id,LockedDate,PlantId,
                 Format(dateadd(DD, +1, cast(LockedDate as date)),'dd-MMM-yyyy')as ExpectedDate
-                from PlantWiseAttendanceLock where PlantId='" + PlantId+@"' and IsActive='1'
+                from PlantWiseAttendanceLock where PlantId='" + PlantId + @"' and IsActive='1'
                 order by LockedDate desc";
 
                 return _sqlRepository.GetDataCollection(sql, null);
@@ -76,11 +76,11 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
 
-        public string GetLockedEmployees(string Date,string PlantId)
+        public string GetLockedEmployees(string Date, string PlantId)
         {
             try
             {
-             
+
                 var sql = @"select e.EmployeeCode,e.EmployeeName,a.EmpSystemID,format(a.WorkDate,'yyyy-MMM-dd')WorkDate,
                 a.DayStatus,a.IsLock,a.LockedBy,
                 ent.UserName as Entity,u.UserName as Unit,format(e.DOJ,'yyyy-MMM-dd')DOJ,
@@ -93,9 +93,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                 LEFT JOIN [ORG].[Department] dept ON dept.Id = POS.DepartmentId
                 LEFT JOIN [ORG].[Section] s ON s.Id = POS.SectionId
                 LEFT JOIN [ORG].[SubSection] ss ON ss.Id = POS.SubSectionId                           
-                where WorkDate='"+Date+@"' and e.EmployeeStatus='Active'
-                and IsLock=1 AND a.PlantID='"+PlantId+"'";
-               
+                where WorkDate='" + Date + @"' and e.EmployeeStatus='Active'
+                and IsLock=1 AND a.PlantID='" + PlantId + "'";
+
                 return sql;
             }
             catch (Exception ex)
@@ -119,10 +119,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                 genid.GenID("PlantWiseAttendanceLock", out string _Id);
 
                 DataRow dr = dsRef.Tables[0].NewRow();
-                dr["Id"] ="AL"+ _Id;
+                dr["Id"] = "AL" + _Id;
                 dr["LockedDate"] = Date;
                 dr["IsActive"] = true;
-                dr["PlantId"] =identity.PlantId;
+                dr["PlantId"] = identity.PlantId;
                 dr["AddedBy"] = identity.Name;
                 dr["AddedDate"] = Convert.ToDateTime(DateTime.Now);
                 dr["AddedFromIP"] = identity.IPAddress;
@@ -203,7 +203,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var plantId = identity.PlantId;
-                
+
                 string _FromDate = string.Empty;
                 string _ToDate = string.Empty;
                 var dsCalYear = GetCalYearInfo(calYearId);
@@ -302,7 +302,7 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
                                                     LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
                                                     LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID 
                                                     left join hkp.LegalDesignation ld on ld.Id=ei.LegalDesignationId
-                            where eI.PlantID='" + plantId+@"' and WorkDate between '"+_FromDate+@"' and '"+_ToDate+@"'
+                            where eI.PlantID='" + plantId + @"' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
@@ -313,13 +313,13 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
             }
         }
 
-        public DataTable GetReportData(string EmpId,string calYearId)
+        public DataTable GetReportData(string EmpId, string calYearId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var plantId = identity.PlantId;
-               
+
                 string _FromDate = string.Empty;
                 string _ToDate = string.Empty;
                 var dsCalYear = GetCalYearInfo(calYearId);
@@ -449,13 +449,13 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
                 int Fd = 0;
                 int Td = 0;
 
-                if(Day >= 1 && Day<=8)
+                if (Day >= 1 && Day <= 8)
                 {
                     week = "OT Time Setting (W-1)";
                     Fd = 1;
                     Td = 8;
                 }
-                else if(Day >=9 && Day<=16)
+                else if (Day >= 9 && Day <= 16)
                 {
                     week = "OT Time Setting (W-2)";
                     Fd = 9;
@@ -481,7 +481,7 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = EI.BudgetCode
                             ei.EmployeeCode ,ei.EmployeeName , ei.CellPhnNo , ei.PresentAddress1,
                             sum(apd.processedot) as ProcessedOT,
                             ((select isnull(MaxOTLimitParWeek,'0') as NormalDayOT from OTLimitSetting ol
-                            where ol.PlantID='"+plantId+@"' AND ol.UserName='"+week+ @"') - sum(apd.ProcessedOT) ) as BalanceOT
+                            where ol.PlantID='" + plantId + @"' AND ol.UserName='" + week + @"') - sum(apd.ProcessedOT) ) as BalanceOT
                             from AttdnProcessData apd
                             left join EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
                             left join mst.ManpowerBudget mb on mb.Id = ei.BudgetCode
@@ -491,10 +491,10 @@ left outer join ORG.Entity  as en on en.Id=mb.EntityId
                             left join ORG.SubSection ss on ss.Id=pos.SubSectionId
                             left join org.Unit u on u.Id=en.UnitId
                             left join hkp.LegalDesignation l on l.Id=ei.LegalDesignationId
-                            where apd.WorkDate between '" + FDt+@"' and '"+TDt+@"' and ei.PlantId = '" + plantId + @"'
+                            where apd.WorkDate between '" + FDt + @"' and '" + TDt + @"' and ei.PlantId = '" + plantId + @"'
                             and apd.IsOTEntitled=1
                             and apd.EmpSystemID IN(SELECT EmpSystemID FROM AttdnProcessData WHERE PlantId='" + plantId + @"'
-                            AND WorkDate='"+Today+@"' AND InStatus='IM' )
+                            AND WorkDate='" + Today + @"' AND InStatus='IM' )
                             group by pos.Code , mb.Code , l.UserName , u.UserName , s.UserName , ss.UserName,ei.EmployeeCode ,ei.EmployeeName , ei.CellPhnNo ,ei.PresentAddress1
                             order by pos.Code desc, BalanceOT desc";
 
@@ -602,7 +602,7 @@ left outer join ORG.Entity  as en on en.Id=mb.EntityId
             {
                 clsGenID genid = new clsGenID();
                 genid.GenID("EmployeeReactivation", out string Id);
-    
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var AddedFromIp = identity.IPAddress;
                 var updatedDate = Convert.ToDateTime(DateTime.Now).ToString();
@@ -613,53 +613,59 @@ left outer join ORG.Entity  as en on en.Id=mb.EntityId
                 var PlantId = identity.PlantId;
                 var EmployeeId = SystemId;
                 var Reason = reason;
-
+                string Today = "";
+                int Month = 0;
+                string StartDate = "";
                 #region Current Month Finding
 
                 DataTable dtFNF = GetFNFEmployee(SystemId);
-                if (dtFNF.Rows.Count>0)
+                if (dtFNF.Rows.Count > 0)
                 {
                     throw new Exception("Full and Final Settlement Employee can't be reactive.");
                 }
 
                 DataTable dt = GetEffectiveDateForAttdn(SystemId);
-                DateTime FromDate = Convert.ToDateTime(dt.Rows[0]["ApprovedEffectiveDate"].ToString());
-              
-                string Today = DateTime.Now.ToString("dd-MMM-yyyy");
-                int Month = DateTime.Now.Month;
-                string StartDate = "";
-
-                // For Finding Current Month for Row Creation and Plant Lock Checking
-                while(FromDate<=Convert.ToDateTime(Today))
+                if (dt.Rows.Count > 0)
                 {
-                    int MonthCounter = FromDate.Month;
-                    if(Month==MonthCounter)
-                    {
-                        StartDate = FromDate.ToString("dd-MMM-yyyy");
-                        break;
-                    }
+                    DateTime FromDate = Convert.ToDateTime(dt.Rows[0]["ApprovedEffectiveDate"].ToString());
+
+                    Today = DateTime.Now.ToString("dd-MMM-yyyy");
+                     Month = DateTime.Now.Month;
                     
-                    FromDate = FromDate.AddDays(1);
-                }
 
-                #endregion
-
-                #region Plant Lock Checking
-
-                DataSet PlantLock;
-                PlantLockCheck(StartDate, Today, out PlantLock, identity.PlantId);
-                string pl = "";
-                if (PlantLock.Tables[0].Rows.Count > 0)
-                {
-                    for (var i = 0; i < PlantLock.Tables[0].Rows.Count; i++)
+                    // For Finding Current Month for Row Creation and Plant Lock Checking
+                    while (FromDate <= Convert.ToDateTime(Today))
                     {
-                        pl = pl + " " + PlantLock.Tables[0].Rows[i]["LockedDate"].ToString() + ", ";
+                        int MonthCounter = FromDate.Month;
+                        if (Month == MonthCounter)
+                        {
+                            StartDate = FromDate.ToString("dd-MMM-yyyy");
+                            break;
+                        }
+
+                        FromDate = FromDate.AddDays(1);
+                    }
+                    #region Plant Lock Checking
+
+                    DataSet PlantLock;
+                    PlantLockCheck(StartDate, Today, out PlantLock, identity.PlantId);
+                    string pl = "";
+                    if (PlantLock.Tables[0].Rows.Count > 0)
+                    {
+                        for (var i = 0; i < PlantLock.Tables[0].Rows.Count; i++)
+                        {
+                            pl = pl + " " + PlantLock.Tables[0].Rows[i]["LockedDate"].ToString() + ", ";
+                        }
+
+                        throw new Exception("The Plant is Locked for - " + pl);
                     }
 
-                    throw new Exception("The Plant is Locked for - " + pl);
+                    #endregion
                 }
 
                 #endregion
+
+
 
                 if (reason == null)
                 {
@@ -683,7 +689,7 @@ left outer join ORG.Entity  as en on en.Id=mb.EntityId
                     "UpdatedBy," +
                     "UpdatedDate," +
                     "UpdatedFromIp) " +
-                    "values ('" + "ER"+Id + "'," +
+                    "values ('" + "ER" + Id + "'," +
                     "'" + CompanyGroupId + "'," +
                     "'" + CompanyId + "'," +
                     "'" + PlantId + "'," +
@@ -701,10 +707,10 @@ left outer join ORG.Entity  as en on en.Id=mb.EntityId
 
                     #region Attendance process
 
-                    if(StartDate!="")
+                    if (StartDate != "")
                     {
                         string CreatedEmpIds = "''";
-                      
+
                         #region RowCreation Logic
 
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
@@ -754,7 +760,7 @@ left outer join ORG.Entity  as en on en.Id=mb.EntityId
                                     PlantInTime(ref PlantInPunchStartTime, EmpWkDate);
 
                                     dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
-                                    
+
                                     if (dsRef.Tables[0].DefaultView.Count == 0 && Convert.ToBoolean(RowCreationData.Tables[0].Rows[i]["TobeAdded"].ToString()) == true)
                                     {
                                         DataRow dr = dsRef.Tables[0].NewRow();
@@ -881,7 +887,7 @@ left outer join ORG.Entity  as en on en.Id=mb.EntityId
                         {
                             // Start Date of Month & Today to get RowIds 
                             ConnectionManager.DAL.ConManager newcon = new ConnectionManager.DAL.ConManager("1");
-                            newcon.OpenDataSetThroughAdapter("select * from AttdnProcessData where EmpSystemID = '"+SystemId+"'and month(WorkDate) = '"+Month+"'", out DataSet dsOt, false, false, "", "1");
+                            newcon.OpenDataSetThroughAdapter("select * from AttdnProcessData where EmpSystemID = '" + SystemId + "'and month(WorkDate) = '" + Month + "'", out DataSet dsOt, false, false, "", "1");
 
                             for (int i = 0; i < OTElgbEmp.Tables[0].Rows.Count; i++)
                             {
@@ -958,7 +964,7 @@ left outer join ORG.Entity  as en on en.Id=mb.EntityId
 
         #region DataSet Region
 
-        public void RowCreation(out DataSet ds, string Plant, string WkDate,string SystemId)
+        public void RowCreation(out DataSet ds, string Plant, string WkDate, string SystemId)
         {
             ConnectionManager.DAL.ConManager objCon;
             try
@@ -1017,7 +1023,7 @@ left outer join ORG.Entity  as en on en.Id=mb.EntityId
                 left join OutPunchConfigurationHeader Op on OP.PlantId=pl.Id
 				left join AttdnProcessData p on p.EmpSystemID=e.SystemId 
 				and p.WorkDate='" + WkDate + @"'              
-                where e.EmpType!='Guest' and e.PlantId='" + Plant + @"' and e.SystemID='"+SystemId+@"'
+                where e.EmpType!='Guest' and e.PlantId='" + Plant + @"' and e.SystemID='" + SystemId + @"'
                 and DOJ <= '" + WkDate + @"' AND (E.DOS >= '" + WkDate + @"' OR ISNULL(E.DOS,'') = '' 
 				OR E.DOS = '01/01/1901') ";
 
@@ -1066,7 +1072,7 @@ left outer join ORG.Entity  as en on en.Id=mb.EntityId
             }
 
         }
-  
+
         void PlantInTime(ref string PlantInPunchStartTime, string WorkDate)
         {
 
@@ -1111,7 +1117,7 @@ left outer join ORG.Entity  as en on en.Id=mb.EntityId
             try
             {
 
-                string sql = @"select * from EmployeeFullAndFinalSettlement Where EmpSystemId='"+ EmpSystemId + "'";
+                string sql = @"select * from EmployeeFullAndFinalSettlement Where EmpSystemId='" + EmpSystemId + "'";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception)
@@ -1183,12 +1189,12 @@ left outer join ORG.Entity  as en on en.Id=mb.EntityId
                                                     order by ex.EffectiveDate desc) WeekOffHeaderId 
                                         from AttdnProcessData ap 
 
-                                        where ap.EmpSystemID='"+ EmpMaster +@"' and WorkDate 
+                                        where ap.EmpSystemID='" + EmpMaster + @"' and WorkDate 
 										between '" + FromDate + @"' and '" + ToDate + @"'
                                         )as jj
                                         left join AttdnProcessData ap on
 										ap.WorkDate = jj.WorkDate and 
-										ap.EmpSystemID='"+ EmpMaster + @"' and ap.WorkDate 
+										ap.EmpSystemID='" + EmpMaster + @"' and ap.WorkDate 
 										between '" + FromDate + @"' and '" + ToDate + @"'
 										)as dd where dd.Checks=1 and isnull(dd.DayType,'')!=''";
 
@@ -1221,7 +1227,7 @@ left outer join ORG.Entity  as en on en.Id=mb.EntityId
 				e.PlantId='" + PlantId + @"' 
                 and E.DOJ <= '" + ToDate + @"' 
 				AND (E.DOS >= '" + ToDate + @"' OR ISNULL(E.DOS,'') = '' 
-				OR E.DOS = '01/01/1901')and dc.IsOTEntitled=1 and  e.SystemId='"+SystemId+@"' 
+				OR E.DOS = '01/01/1901')and dc.IsOTEntitled=1 and  e.SystemId='" + SystemId + @"' 
 				and e.SystemId not in (select final.EmpSystemId from 
 				(select distinct o.empsystemId,
 				(select top 1 Exclude from NonEligibleOT m where 

@@ -82,7 +82,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
 							 ,ShiftDf.UserName ShiftDefination
 							 ,FORMAT(EI.DOJ,'dd-MMM-yyyy') DateOfJoin 
                              ,TenureDay=DATEDIFF(day, FORMAT(EI.DOJ,'dd-MMM-yyyy'),FORMAT(GetDate(),'dd-MMM-yyyy')),REI.EmployeeCode RelativeCode,REI.EmployeeName RelativeName,EC.DesignationGroup
-							 ,PolicyName=(Select LPM.PolicyName from MST.DesignationMaster DM 
+							 ,PolicyName=(Select distinct LPM.PolicyName from MST.DesignationMaster DM 
                                             LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId            
                             left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.Id and DMC.PlantId=EI.PlantId    
                             left join [dbo].[LeavePolicyMaster] LPM on LPM.SystemID=DMC.LeavePolicyMasterId and LPM.PlantID=EI.PlantID
@@ -2093,7 +2093,7 @@ LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
         {
             try
             {
-                var sql = @"SELECT SystemId AS Value, (EmployeeCode+'-'+EmployeeName) AS Text FROM EmployeeInformation WHERE GroupID='" + GroupId + @"' AND CompanyId='" + companyId + @"' AND PlantId='" + plantId + @"' AND EmployeeStatus='Active' ORDER BY EmployeeName";
+                var sql = @"SELECT SystemId AS Value, (EmployeeCode+'-'+EmployeeName) AS Text FROM EmployeeInformation WHERE GroupID='" + GroupId + @"' AND CompanyId='" + companyId + @"' AND PlantId='" + plantId + @"' AND EmployeeStatus='Active' AND EmpType<>'Guest' ORDER BY EmployeeName";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

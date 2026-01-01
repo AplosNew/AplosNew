@@ -22,12 +22,8 @@ namespace Aplos.Areas.Payrolls.Controllers
 {
     public class EmployeeSalaryRuleSetupController : BaseController
     {
-        //abcd
-        //this is my code from tarek
+        
         string TableName = "hkp.EmployeeSalaryRuleSetup";
-        //authentication for
-        //GetList Create Delete
-
 
         #region Constructor
 
@@ -43,6 +39,10 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
         public ActionResult Aplos()
+        {
+            return View();
+        }
+        public ActionResult SalaryStructure()
         {
             return View();
         }
@@ -333,11 +333,15 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult GetDesignationGroupData()
+        public ActionResult GetDesignationGroupData(string ecId)
         {
             try
             {
-                var sql = @"SELECT Flag=CAST(0 AS bit),* FROM HKP.DesignationGroup WHERE Active=1 AND Id NOT IN(SELECT DesignationGroupId FROM [dbo].[SalaryRuleDesignationGroup]) Order By UserName";
+                var sql = @"SELECT distinct DG.Id,DG.Sequence,DG.Code,DG.ShortName,DG.UserName,DG.StandardName, Flag=CAST(0 AS bit),EC.UserName EmployeeCategory FROM HKP.DesignationGroup DG
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationGroupId=DG.Id
+LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+WHERE DG.Active=1 AND DG.Id NOT IN(SELECT DesignationGroupId FROM [dbo].[SalaryRuleDesignationGroup]) 
+AND EC.Id " + ecId+@"";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
