@@ -606,13 +606,10 @@ namespace Library.OrderManagement.Production
                 string _SId = "";
 
                 DataTable dtSum = dsSum.Tables[0];
-                var tempMaxSeq = clsStaticInfo.dbl(maxSeq.ToString());
-                var tempMaxOperationSeq = 0.00;
+                int tempMaxSeq = Convert.ToInt32(maxSeq.ToString());
                 for (int i = 0; i < dsMaster.Tables[0].Rows.Count; i++)
                 {
                     dsSum.Tables[0].DefaultView.RowFilter = @"OperationVariationId='" + _OperationVariationId + "' and ProductionOrderId = '" + POId + "' ";
-                    tempMaxOperationSeq = clsStaticInfo.dbl(dsSum.Tables[0].Rows[0]["OperationSequence"].ToString());
-
                     if (dsSum.Tables[0].DefaultView.Count > 0)
                     {
                         dsSum.Tables[0].DefaultView[0].Row.BeginEdit();
@@ -621,7 +618,7 @@ namespace Library.OrderManagement.Production
                     }
 
                     dsSum.Tables[0].DefaultView.RowFilter = @"OperationVariationId='" + NxtOPVariationId + "' and ProductionOrderId = '" + POId + "' ";
-                    if (dsSum.Tables[0].DefaultView.Count == 0 && tempMaxOperationSeq.ToString() !=  maxSeq.ToString())
+                    if (dsSum.Tables[0].DefaultView.Count == 0 && _secq != tempMaxSeq)
                     {
                         DataRow dd = dsSum.Tables[0].NewRow();
                         bplib.clsGenID genid = new bplib.clsGenID();
@@ -660,7 +657,7 @@ namespace Library.OrderManagement.Production
                             dsSum.Tables[0].Rows[i]["WIP"] =  clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["WIP"].ToString())-_tempQty ;
 
                         }
-                        else if (dsSum.Tables[0].Rows[i]["OperationVariationId"].ToString() == NxtOPVariationId && tempMaxOperationSeq.ToString() != maxSeq.ToString())
+                        else if (dsSum.Tables[0].Rows[i]["OperationVariationId"].ToString() == NxtOPVariationId && _secq != tempMaxSeq)
                         {
                             dsSum.Tables[0].Rows[i]["WIP"] = _tempQty + clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["WIP"].ToString());
 
