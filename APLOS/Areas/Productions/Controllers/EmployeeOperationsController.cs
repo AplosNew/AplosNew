@@ -119,7 +119,6 @@ namespace Aplos.Areas.Productions.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 eo.saveData(data, WorkCenter, ProcessId, ShiftId, POId, Date, PeriodId, ResponsiblePersonId,identity.PlantId);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
-
             }
             catch (Exception ex)
             {
