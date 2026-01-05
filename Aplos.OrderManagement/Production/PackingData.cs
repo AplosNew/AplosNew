@@ -6,7 +6,7 @@ using OTSBD;
 using Library.Crosscutting.Security;
 using System.Threading;
 using System.Linq;
-
+using Library.Data;
 
 namespace Library.OrderManagement.Production
 {
@@ -967,7 +967,63 @@ order by pk.Date  DESC";
                 throw e;
             }
         }
+        public void UntagPacking(string id)
+        {
+            string stritemScanChild, strproductionSummary;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                DataSet dsMaster1 = null;
+                string setOffsql = @"SELECT  pli.PackingId PackingMasterId,isc.* FROM DBO.ItemScanChild isc 
+                    LEFT JOIN trn.POLotReference plr on plr.Id=isc.PackingId 
+                    LEFT JOIN trn.PackingLineItem pli on pli.PackingLineItemId=plr.PackingLineItemId
+                    WHERE pli.PackingId='" + id + "' and salesId IS NULL and IsDespatch=0";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
 
+                if (dsMaster1.Tables[0].Rows.Count == 0)
+                {
+                    throw new CustomException("Untag  not allowed,  Sales have done against selected PackingId !");
+                }
+                strproductionSummary = @"delete TRN.ProductionSummary   Where Id in ( 
+                     SELECT   isc.ProductionSummaryId FROM DBO.ItemScanChild isc
+                    LEFT JOIN trn.POLotReference plr on plr.Id = isc.PackingId
+                    LEFT JOIN trn.PackingLineItem pli on pli.PackingLineItemId = plr.PackingLineItemId
+                    WHERE pli.PackingId = '" + id + "' and salesId IS NULL and IsDespatch = 0))";
+
+                stritemScanChild = @"UPDATE dbo.ItemScanChild set Booked=0,ProductionSummaryId=NULL,PackingId=NULL  Where PackingId in ( 
+                     SELECT   isc.PackingId FROM DBO.ItemScanChild isc
+                    LEFT JOIN trn.POLotReference plr on plr.Id = isc.PackingId
+                    LEFT JOIN trn.PackingLineItem pli on pli.PackingLineItemId = plr.PackingLineItemId
+                    WHERE pli.PackingId = '" + id + "' and salesId IS NULL and IsDespatch = 0))";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strproductionSummary, true, "1");
+                objCon.ExecuteNonQueryWrapper(stritemScanChild, true, "1");
+                
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception exx)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
         public IEnumerable<object> getPackingLineItemModal(string PackingId)
         {
             try

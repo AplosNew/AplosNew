@@ -108,7 +108,7 @@ namespace Aplos.Areas.Productions.Controllers
         [HttpPost, Authorize]
         public ActionResult getReportView(string Date , string Wkc,string entityId,string processId,string shiftId,string periodId,string poId)
         {
-            return Json(new { Data = eo.getReportView(out List<string> Cols , Date , Wkc, entityId, processId, shiftId, periodId, poId), Cols = Cols }, JsonRequestBehavior.AllowGet);
+            return Json(new { Data = eo.getReportView(Date , Wkc, entityId, processId, shiftId, periodId, poId)}, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -119,7 +119,6 @@ namespace Aplos.Areas.Productions.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 eo.saveData(data, WorkCenter, ProcessId, ShiftId, POId, Date, PeriodId, ResponsiblePersonId,identity.PlantId);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
-
             }
             catch (Exception ex)
             {
@@ -162,12 +161,12 @@ namespace Aplos.Areas.Productions.Controllers
         #region Report Operations
 
         [HttpPost, Authorize]
-        public ActionResult getReportDownload(string Date , string Wkc)
+        public ActionResult getReportDownload(string Date, string Wkc, string entityId, string processId, string shiftId, string periodId, string poId)
         {
 
             try
             {
-                var workbook = generateReportForm(Date,  Wkc);
+                var workbook = generateReportForm(Date,  Wkc, entityId,processId,shiftId,periodId,poId);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "EOWiseReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -183,14 +182,14 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        private IWorkbook generateReportForm(string Date, string Wkc)
+        private IWorkbook generateReportForm(string Date, string Wkc, string entityId, string processId, string shiftId, string periodId, string poId)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
             var workbook = report.GetWorkbook(ref excelEngine, 3);
             workbook.Version = ExcelVersion.Excel2016;
 
-            var data = eo.getReportDownload(out List<string> DynCols , Date ,  Wkc);
+            var data = eo.getReportDownload(Date, Wkc, entityId, processId, shiftId, periodId, poId);
 
             var sheet = workbook.Worksheets[0];
 
@@ -239,12 +238,12 @@ namespace Aplos.Areas.Productions.Controllers
 
             int ColSt = COL;
 
-            for (int i = 0; i < DynCols.Count; i++)
-            {
-                report.SetHeaderText(ref sheet, ROW, COL, DynCols[i], 10, ExcelHAlign.HAlignCenter);
+            //for (int i = 0; i < DynCols.Count; i++)
+            //{
+            //    report.SetHeaderText(ref sheet, ROW, COL, DynCols[i], 10, ExcelHAlign.HAlignCenter);
 
-                COL++;
-            }
+            //    COL++;
+            //}
 
 
 
@@ -281,11 +280,11 @@ namespace Aplos.Areas.Productions.Controllers
 
 
                 int k = ColSt;
-                for (int j = 0; j < DynCols.Count; j++)
-                {
-                    sheet[ROW, k].Number = clsStaticInfo.dbl(data.Rows[i][DynCols[j]].ToString());
-                    k++;
-                }
+                //for (int j = 0; j < DynCols.Count; j++)
+                //{
+                //    sheet[ROW, k].Number = clsStaticInfo.dbl(data.Rows[i][DynCols[j]].ToString());
+                //    k++;
+                //}
 
 
 

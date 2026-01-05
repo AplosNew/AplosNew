@@ -7,6 +7,9 @@ using System.Data;
 using System.Threading;
 using System.Linq;
 using System.Collections.Specialized;
+using Syncfusion.XlsIO;
+using Library.Service.Helpers;
+using System.IO;
 
 namespace Library.OrderManagement.Production
 {
@@ -606,13 +609,10 @@ namespace Library.OrderManagement.Production
                 string _SId = "";
 
                 DataTable dtSum = dsSum.Tables[0];
-                var tempMaxSeq = clsStaticInfo.dbl(maxSeq.ToString());
-                var tempMaxOperationSeq = 0.00;
+                int tempMaxSeq = Convert.ToInt32(maxSeq.ToString());
                 for (int i = 0; i < dsMaster.Tables[0].Rows.Count; i++)
                 {
                     dsSum.Tables[0].DefaultView.RowFilter = @"OperationVariationId='" + _OperationVariationId + "' and ProductionOrderId = '" + POId + "' ";
-                    tempMaxOperationSeq = clsStaticInfo.dbl(dsSum.Tables[0].DefaultView[0]["OperationSequence"].ToString());
-
                     if (dsSum.Tables[0].DefaultView.Count > 0)
                     {
                         dsSum.Tables[0].DefaultView[0].Row.BeginEdit();
@@ -621,7 +621,7 @@ namespace Library.OrderManagement.Production
                     }
 
                     dsSum.Tables[0].DefaultView.RowFilter = @"OperationVariationId='" + NxtOPVariationId + "' and ProductionOrderId = '" + POId + "' ";
-                    if (dsSum.Tables[0].DefaultView.Count == 0 && tempMaxOperationSeq.ToString() !=  maxSeq.ToString())
+                    if (dsSum.Tables[0].DefaultView.Count == 0 && _secq != tempMaxSeq)
                     {
                         DataRow dd = dsSum.Tables[0].NewRow();
                         bplib.clsGenID genid = new bplib.clsGenID();
@@ -660,7 +660,7 @@ namespace Library.OrderManagement.Production
                             dsSum.Tables[0].Rows[i]["WIP"] =  clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["WIP"].ToString())-_tempQty ;
 
                         }
-                        else if (dsSum.Tables[0].Rows[i]["OperationVariationId"].ToString() == NxtOPVariationId && tempMaxOperationSeq.ToString() != maxSeq.ToString())
+                        else if (dsSum.Tables[0].Rows[i]["OperationVariationId"].ToString() == NxtOPVariationId && _secq != tempMaxSeq)
                         {
                             dsSum.Tables[0].Rows[i]["WIP"] = _tempQty + clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["WIP"].ToString());
 
@@ -737,21 +737,20 @@ namespace Library.OrderManagement.Production
             }
             return 0;
         }
-
-        public IEnumerable<object> getReportView(out List<string> Cols, string Date , string Wkc, string entityId, string processId, string shiftId, string periodId, string poId)
+        public IEnumerable<object> getReportView( string Date, string Wkc, string entityId, string processId, string shiftId, string periodId, string poId)
         {
             try
             {
                 string tempQurey = "1=1";
-                if(entityId !=null && processId!=null && shiftId!=null && Wkc != null && periodId !=null && poId!=null)
+                if (entityId != null && processId != null && shiftId != null && Wkc != null && periodId != null && poId != null)
                 {
-                    tempQurey = "wcm.EntityId='"+ entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + "' AND we.WorkCenterId = '" + Wkc+  "' AND we.PeriodId = '" + periodId + "' AND we.ProductionOrderId='" + poId + @"' ";
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + "' AND we.WorkCenterId = '" + Wkc + "' AND we.PeriodId = '" + periodId + "' AND we.ProductionOrderId='" + poId + @"' ";
                 }
                 else if (entityId != null && processId != null && shiftId != null && Wkc != null && periodId != null)
                 {
                     tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + "' AND we.WorkCenterId = '" + Wkc + "' AND we.PeriodId = '" + periodId + @"' ";
                 }
-                else if (entityId != null && processId != null && shiftId != null && Wkc != null  )
+                else if (entityId != null && processId != null && shiftId != null && Wkc != null)
                 {
                     tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + "' AND we.WorkCenterId = '" + Wkc + @"'  ";
                 }
@@ -789,32 +788,227 @@ namespace Library.OrderManagement.Production
                 }
 
 
-                var str = @"Select ov.Code as OperationCode , ov.UserName as OperationName, p.UserName as Process , wcm.UserName as WorkCenter ,we.ProductionOrderId , 
-                            ei.EmployeeName , ei.EmployeeCode ,
-                            format(we.Date , 'dd-MMM-yyyy') as Dates , we.PeriodId , pb.UserName as Periods , Sum(we.Qty) as Qty
-                            --Select *
-                            from dbo.OperationWiseEmployees we
-                            left join hkp.ProductionBookingPeriod pb on pb.Id = we.PeriodId
-                            left join hkp.Process p on p.Id = we.ProcessId
-                            left join SCS.WorkCenterMaster wcm on wcm.Id = we.WorkCenterId
-                            left join mst.OperationVariation ov on ov.Id = we.OperationVariationId
-                            left join dbo.EmployeeInformation ei on ei.SystemId = we.EmployeeId
-                            WHERE we.Date = '" + Date + @"'  and "+ tempQurey + @"
-                            group by ov.Code , ov.UserName , p.UserName , ei.EmployeeName , ei.EmployeeCode , we.Date , we.PeriodId  , pb.UserName, wcm.UserName ,we.ProductionOrderId 
-                            order by Dates , ei.EmployeeName asc";
+                var str = @"DECLARE @sql NVARCHAR(MAX),
+                            @col NVARCHAR(MAX),
+                            @selectCol NVARCHAR(MAX),
+                            @sumCol NVARCHAR(MAX);
 
+                        -------------------------------------------------------
+                        -- 1. Create Temp Table
+                        -------------------------------------------------------
+                        SELECT 
+                            TT.OperationCode, TT.OperationName, TT.SAM, TT.Process, TT.WorkCenter,
+                            TT.ProductionOrderId, TT.EmployeeName, TT.EmployeeCode, TT.Dates,
+                            TT.Periods, ISNULL(TT.Qty, 0.0) AS Qty
+                        INTO #tempOT
+                        FROM (
+                            SELECT 
+                                ov.Code AS OperationCode, ov.UserName AS OperationName,  ov.SubOperationSAM AS SAM,
+                                p.UserName AS Process, wcm.UserName AS WorkCenter, we.ProductionOrderId, ei.EmployeeName,
+                                ei.EmployeeCode, FORMAT(we.Date, 'dd-MMM-yyyy') AS Dates,  we.PeriodId, pb.UserName AS Periods,
+                                SUM(ISNULL(we.Qty,0)) AS Qty
+                            FROM dbo.OperationWiseEmployees we
+                            LEFT JOIN hkp.ProductionBookingPeriod pb ON pb.Id = we.PeriodId
+                            LEFT JOIN hkp.Process p ON p.Id = we.ProcessId
+                            LEFT JOIN SCS.WorkCenterMaster wcm ON wcm.Id = we.WorkCenterId
+                            LEFT JOIN mst.OperationVariation ov ON ov.Id = we.OperationVariationId
+                            LEFT JOIN dbo.EmployeeInformation ei ON ei.SystemId = we.EmployeeId
+                            WHERE we.Date = '"+ Date + "' AND  "+ tempQurey + @"
+                            GROUP BY 
+                                ov.Code, ov.UserName, ov.SubOperationSAM, p.UserName, wcm.UserName, we.ProductionOrderId,
+                                ei.EmployeeName, ei.EmployeeCode, we.Date, we.PeriodId, pb.UserName
+                        ) TT;
+                        
+                        -------------------------------------------------------
+                        -- 2. Build Dynamic Columns (CORRECT WAY)
+                        -------------------------------------------------------
+                        SELECT 
+                            @col = STRING_AGG(QUOTENAME(Periods), ','),
+                            @selectCol = STRING_AGG(
+                                'ISNULL(' + QUOTENAME(Periods) + ',0) AS ' + QUOTENAME(Periods),
+                                ','
+                            ),
+                            @sumCol = STRING_AGG(
+                                'ISNULL(' + QUOTENAME(Periods) + ',0)',
+                                ' + '
+                            )
+                        FROM (SELECT DISTINCT Periods FROM #tempOT) P;
+                        
+                        -------------------------------------------------------
+                        -- 3. Dynamic Pivot + NULL→0 + Total + Prod. SAM
+                        -------------------------------------------------------
+                        SET @sql = N'
+                        SELECT 
+                            OperationCode, OperationName,  SAM, Process,
+                            WorkCenter, ProductionOrderId, EmployeeName,
+                            EmployeeCode,
+                            Dates,
+                            ' + @selectCol + ',
+                            ' + @sumCol + ' AS Total,
+                            ISNULL(SAM,0) * (' + @sumCol + ') AS [ProdSAM]
+                        FROM
+                        (
+                            SELECT *
+                            FROM #tempOT
+                        ) src
+                        PIVOT
+                        (
+                            MAX(Qty)
+                            FOR Periods IN (' + @col + ')
+                        ) pvt
+                        ORDER BY EmployeeName;
+                        ';
+                        
+                        EXEC sp_executesql @sql;
+                        -------------------------------------------------------
+                        -- 4. Cleanup
+                        -------------------------------------------------------
+                        DROP TABLE #tempOT; ";
+                DataTable dtAll = _sqlRepository.GetDataTable(str);
+                 
+
+                return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtAll);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        #region Report Tab Download Function
+
+        public DataTable getReportDownload(string Date, string Wkc, string entityId, string processId, string shiftId, string periodId, string poId)
+        {
+            try
+            {
+                string tempQurey = "1=1";
+                if (entityId != null && processId != null && shiftId != null && Wkc != null && periodId != null && poId != null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + "' AND we.WorkCenterId = '" + Wkc + "' AND we.PeriodId = '" + periodId + "' AND we.ProductionOrderId='" + poId + @"' ";
+                }
+                else if (entityId != null && processId != null && shiftId != null && Wkc != null && periodId != null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + "' AND we.WorkCenterId = '" + Wkc + "' AND we.PeriodId = '" + periodId + @"' ";
+                }
+                else if (entityId != null && processId != null && shiftId != null && Wkc != null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + "' AND we.WorkCenterId = '" + Wkc + @"'  ";
+                }
+                else if (entityId != null && processId != null && shiftId == null && Wkc != null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "'   AND we.WorkCenterId = '" + Wkc + @"'  ";
+                }
+                else if (entityId != null && processId != null && shiftId != null && poId == null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + @"' ";
+                }
+                else if (entityId != null && processId != null && shiftId != null && poId != null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + @"' AND we.ProductionOrderId='" + poId + @"'  ";
+                }
+                else if (entityId != null && processId != null && shiftId == null && Wkc == null && periodId == null && poId == null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "'   ";
+                }
+                else if (entityId != null && processId == null && shiftId == null && Wkc == null && periodId == null && poId == null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + @"' ";
+                }
+                else if (entityId != null && processId != null && shiftId == null && Wkc == null && periodId == null && poId == null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + @"' ";
+                }
+                else if (entityId != null && processId != null && shiftId != null && Wkc == null && periodId == null && poId == null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + @"' AND we.ShiftId='" + shiftId + @"' ";
+                }
+                else if (entityId != null && processId != null && shiftId == null && Wkc == null && periodId == null && poId != null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + @"'  AND we.ProductionOrderId='" + poId + @"' ";
+                }
+
+
+                var str = @"DECLARE @sql NVARCHAR(MAX),
+                            @col NVARCHAR(MAX),
+                            @selectCol NVARCHAR(MAX),
+                            @sumCol NVARCHAR(MAX);
+
+                        -------------------------------------------------------
+                        -- 1. Create Temp Table
+                        -------------------------------------------------------
+                        SELECT 
+                            TT.OperationCode, TT.OperationName, TT.SAM, TT.Process, TT.WorkCenter,
+                            TT.ProductionOrderId, TT.EmployeeName, TT.EmployeeCode, TT.Dates,
+                            TT.Periods, ISNULL(TT.Qty, 0.0) AS Qty
+                        INTO #tempOT
+                        FROM (
+                            SELECT 
+                                ov.Code AS OperationCode, ov.UserName AS OperationName,  ov.SubOperationSAM AS SAM,
+                                p.UserName AS Process, wcm.UserName AS WorkCenter, we.ProductionOrderId, ei.EmployeeName,
+                                ei.EmployeeCode, FORMAT(we.Date, 'dd-MMM-yyyy') AS Dates,  we.PeriodId, pb.UserName AS Periods,
+                                SUM(ISNULL(we.Qty,0)) AS Qty
+                            FROM dbo.OperationWiseEmployees we
+                            LEFT JOIN hkp.ProductionBookingPeriod pb ON pb.Id = we.PeriodId
+                            LEFT JOIN hkp.Process p ON p.Id = we.ProcessId
+                            LEFT JOIN SCS.WorkCenterMaster wcm ON wcm.Id = we.WorkCenterId
+                            LEFT JOIN mst.OperationVariation ov ON ov.Id = we.OperationVariationId
+                            LEFT JOIN dbo.EmployeeInformation ei ON ei.SystemId = we.EmployeeId
+                            WHERE we.Date = '" + Date + "' AND  " + tempQurey + @"
+                            GROUP BY 
+                                ov.Code, ov.UserName, ov.SubOperationSAM, p.UserName, wcm.UserName, we.ProductionOrderId,
+                                ei.EmployeeName, ei.EmployeeCode, we.Date, we.PeriodId, pb.UserName
+                        ) TT;
+                        
+                        -------------------------------------------------------
+                        -- 2. Build Dynamic Columns (CORRECT WAY)
+                        -------------------------------------------------------
+                        SELECT 
+                            @col = STRING_AGG(QUOTENAME(Periods), ','),
+                            @selectCol = STRING_AGG(
+                                'ISNULL(' + QUOTENAME(Periods) + ',0) AS ' + QUOTENAME(Periods),
+                                ','
+                            ),
+                            @sumCol = STRING_AGG(
+                                'ISNULL(' + QUOTENAME(Periods) + ',0)',
+                                ' + '
+                            )
+                        FROM (SELECT DISTINCT Periods FROM #tempOT) P;
+                        
+                        -------------------------------------------------------
+                        -- 3. Dynamic Pivot + NULL→0 + Total + Prod. SAM
+                        -------------------------------------------------------
+                        SET @sql = N'
+                        SELECT 
+                            OperationCode, OperationName,  SAM, Process,
+                            WorkCenter, ProductionOrderId, EmployeeName,
+                            EmployeeCode,
+                            Dates,
+                            ' + @selectCol + ',
+                            ' + @sumCol + ' AS Total,
+                            ISNULL(SAM,0) * (' + @sumCol + ') AS [ProdSAM]
+                        FROM
+                        (
+                            SELECT *
+                            FROM #tempOT
+                        ) src
+                        PIVOT
+                        (
+                            MAX(Qty)
+                            FOR Periods IN (' + @col + ')
+                        ) pvt
+                        ORDER BY EmployeeName;
+                        ';
+                        
+                        EXEC sp_executesql @sql;
+                        -------------------------------------------------------
+                        -- 4. Cleanup
+                        -------------------------------------------------------
+                        DROP TABLE #tempOT; ";
                 DataTable dtAll = _sqlRepository.GetDataTable(str);
 
                 //Getting the Periods
-                List<string> ltPer = new List<string>();
-                DataTable periods = dtAll.DefaultView.ToTable(true, "Periods");
-                for (int i = 0; i < periods.Rows.Count; i++)
-                {
-                    ltPer.Add(periods.Rows[i]["Periods"].ToString());
-                }
-
-                ltPer = ltPer.OrderBy(k => k).ToList();
-
+               
                 DataTable dtNew = new DataTable();
                 dtNew.Columns.Add("OperationCode", typeof(string));
                 dtNew.Columns.Add("OperationName", typeof(string));
@@ -823,11 +1017,9 @@ namespace Library.OrderManagement.Production
                 dtNew.Columns.Add("ProductionOrderId", typeof(string));
                 dtNew.Columns.Add("EmployeeCode", typeof(string));
                 dtNew.Columns.Add("EmployeeName", typeof(string));
-                dtNew.Columns.Add("Date", typeof(string));
-                for (int i = 0; i < ltPer.Count; i++)
-                {
-                    dtNew.Columns.Add(ltPer[i], typeof(double));
-                }
+                //dtNew.Columns.Add("Qty", typeof(string));
+                dtNew.Columns.Add("Dates", typeof(string));
+                
 
                 //Filling the DataTable
                 string opCode = "";
@@ -838,6 +1030,7 @@ namespace Library.OrderManagement.Production
                 {
                     if (dtAll.Rows[i]["OperationCode"].ToString() != opCode || dtAll.Rows[i]["EmployeeCode"].ToString() != empCode || Convert.ToDateTime(dtAll.Rows[i]["Dates"].ToString()) != datess)
                     {
+
                         dr = dtNew.NewRow();
                         dr["OperationCode"] = dtAll.Rows[i]["OperationCode"].ToString();
                         dr["OperationName"] = dtAll.Rows[i]["OperationName"].ToString();
@@ -846,17 +1039,11 @@ namespace Library.OrderManagement.Production
                         dr["ProductionOrderId"] = dtAll.Rows[i]["ProductionOrderId"].ToString();
                         dr["EmployeeCode"] = dtAll.Rows[i]["EmployeeCode"].ToString();
                         dr["EmployeeName"] = dtAll.Rows[i]["EmployeeName"].ToString();
-                        dr["Date"] = dtAll.Rows[i]["Dates"].ToString();
-
-                        for (int j = 0; j < ltPer.Count; j++)
-                        {
-                            dr[ltPer[j]] = 0;
-                        }
-
+                        //dr["Qty"] = dtAll.Rows[i]["Qty"].ToString();
+                        dr["Dates"] = dtAll.Rows[i]["Dates"].ToString();
                         dtNew.Rows.Add(dr);
                     }
 
-                    dr[dtAll.Rows[i]["Periods"].ToString()] = OTSBD.clsStaticInfo.dbl(dtAll.Rows[i]["Qty"].ToString());
 
                     opCode = dtAll.Rows[i]["OperationCode"].ToString();
                     empCode = dtAll.Rows[i]["EmployeeCode"].ToString();
@@ -864,21 +1051,16 @@ namespace Library.OrderManagement.Production
 
                 }
 
-                Cols = ltPer;
-
-                return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtNew);
+                return dtNew;
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+
         }
 
-        // Get Employee DropDown
-
-        #region Report Tab Download Function
-
-        public DataTable getReportDownload(out List<string> DynCols, string Date , string Wkc)
+        public DataTable getReportDownloadx(out List<string> DynCols, string Date, string Wkc)
         {
             try
             {

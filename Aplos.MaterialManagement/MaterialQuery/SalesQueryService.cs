@@ -809,8 +809,9 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 				}
 
-				sql = @"SELECT * FROM (SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo	,PAG.UserName PartyAccountGroup,C.Code BookCurrency
-									,InvoiceValueBC=Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0))+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)+round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2)
+				sql = @"SELECT * FROM (SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo	,PAG.UserName PartyAccountGroup
+						,CU.Code TCurrency,TaxableAmount=  Sum(ISNULL(SMD.TransactionAmount,0)) +round(isnull(ServiceData.ServiceAmount,0),2)
+						,C.Code BookCurrency,InvoiceValueBC=Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0))+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)+round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2)
 									,BasicValueBC=Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0)) 
 									,TotalTaxServiceAndChargesBC=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)+round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2)
 									,TotalTaxBC=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)
@@ -939,12 +940,12 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									WHERE SA.PlantId='" + identity.PlantId+ @"' AND convert(Date,SA.InvoiceDate) " + temp + @" AND SA.CancelStatus IS NULL
 									Group By P.Id,iv.setOff, p.Code	 ,PPI.UserName,PPD.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,SA.PartyType,PAG.UserName ,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO,CN.UserName ,C.Code,EI.EmployeeName
 								,SA.Id ,SA.InvoiceNo ,SA.InvoiceDate,SA.DocRefNo,SA.SourceType,CU.Code ,SA.ToCurrencyRate ,PT.PaymentMode,PT.UserName ,SA.MatureDate,SA.MatureDate
-,V.VoucherNo,V.Id ,V.PostingDate,V.PostedDate,V.IsPark,SA.AddedBy ,SA.AddedDate ,ET.UserName,ServiceData.BooksCurrencyTransactionAmount,ServiceData.BooksCurrencyTaxAmount
+,V.VoucherNo,V.Id ,V.PostingDate,ServiceData.ServiceAmount,ServiceData.ServiceTax,V.PostedDate,V.IsPark,SA.AddedBy ,SA.AddedDate ,ET.UserName,ServiceData.BooksCurrencyTransactionAmount,ServiceData.BooksCurrencyTaxAmount
 
 								UNION ALL
-								SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo,PAG.UserName PartyAccountGroup,C.Code BookCurrency
-								
-								,InvoiceValueBC=Sum(ISNULL(IID.BooksCurrencyTransactionAmount,0))+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)+round(isnull(SCr.BooksCurrencyTaxAmount,0),2)
+								SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo,PAG.UserName PartyAccountGroup
+								,CU.Code TCurrency,TaxableAmount=  Sum(ISNULL(IID.TransactionAmount,0)) +round(isnull(SCr.ServiceAmount,0),2) 
+								,C.Code BookCurrency,InvoiceValueBC=Sum(ISNULL(IID.BooksCurrencyTransactionAmount,0))+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)+round(isnull(SCr.BooksCurrencyTaxAmount,0),2)
 									,BasicValueBC=Sum(ISNULL(IID.BooksCurrencyTransactionAmount,0)) 
 									,TotalTaxServiceAndChargesBC=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)+round(isnull(SCr.BooksCurrencyTaxAmount,0),2)
 									,TotalTaxBC=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)
@@ -1044,11 +1045,12 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								WHERE II.PlantId='" + identity.PlantId+ "' and II.CustomerId<>'' AND convert(Date,II.SalesDate)  " + temp + @"
 								GROUP BY P.Id, p.Code, PPI.UserName,PPD.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO,CN.UserName,C.Code,EI.EmployeeName
 								,II.Id  ,II.SalesDate,II.DocRefNo ,II.DocDate,CU.Code,II.ToCurrencyRate ,PT.PaymentMode,PT.UserName ,II.MatureDate
-								,V.VoucherNo,V.Id ,V.PostingDate,V.PostedDate,V.IsPark,II.AddedBy ,II.AddedDate ,E.UserName ,SCr.BooksCurrencyTransactionAmount,SCr.BooksCurrencyTaxAmount
+								,V.VoucherNo,V.Id ,V.PostingDate,SCr.ServiceAmount,SCr.TotalTaxAmount,V.PostedDate,V.IsPark,II.AddedBy ,II.AddedDate ,E.UserName ,SCr.BooksCurrencyTransactionAmount,SCr.BooksCurrencyTaxAmount
 								
 								UNION ALL
-								SELECT    P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo,PAG.UserName PartyAccountGroup,C.Code BookCurrency
-								,InvoiceValueBC=ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0)
+								SELECT    P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo,PAG.UserName PartyAccountGroup
+								,CU.Code TCurrency,TaxableAmount=  ISNULL(IVD.Amount,0) 
+								,C.Code BookCurrency,InvoiceValueBC=ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0)
 									,BasicValueBC=ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0) 
 									,TotalTaxServiceAndChargesBC=0
 									,TotalTaxBC=0
@@ -1099,7 +1101,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
 										FROM [TRN].[VoucherDetailCurrency] AS VDC
 										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+identity.CompanyId+@"'
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + identity.CompanyId+@"'
 									) AS CC ON CC.VoucherDetailId=VD.Id
 									
                                         WHERE IV.Archive=0   AND IV.PartyType='Customer' 
@@ -1108,7 +1110,9 @@ namespace Aplos.MaterialManagement.MaterialQuery
                                         AND IV.PlantId='" + identity.PlantId + "' AND  convert(Date,IV.PostingDate)  " + temp + @"
 									
 									UNION ALL
-									SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo	,PAG.UserName PartyAccountGroup,C.Code BookCurrency
+									SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo	,PAG.UserName PartyAccountGroup
+									,CU.Code TCurrency,TaxableAmount=0
+									,C.Code BookCurrency
 									,InvoiceValueBC=0
 									,BasicValueBC=0
 									,TotalTaxServiceAndChargesBC=0
