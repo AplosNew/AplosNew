@@ -1865,7 +1865,9 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
 
                         EntityIds += ",'" + dt.Rows[i]["EntityId"].ToString() + "'";
                     }
-                    ProductionPlanSimulationAlgorithm(entityid, EntityIds, processid);
+                    ProductionPlanSimulationAlgorithm(entityid, EntityIds, processid, out DataTable productionOrders);
+
+
                 }
                 catch (Exception ex)
                 {
@@ -1884,7 +1886,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
             });
         }
 
-     
+
 
         [HttpGet]
         public async Task<ActionResult> ProductionPlanSimulation(string entityid, string processid)
@@ -1894,7 +1896,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                 try
                 {
 
-                   string EntityIds = "'" + entityid + "'";
+                    string EntityIds = "'" + entityid + "'";
                     string _sql = @"SELECT distinct WCM.EntityId
                                                       from (SELECT distinct W.ProductionOrderId,W.WorkCenterMasterId FROM trn.ProductionOrderWorkCenter AS W
                                                     UNION
@@ -1926,9 +1928,25 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
 
                         EntityIds += ",'" + dt.Rows[i]["EntityId"].ToString() + "'";
                     }
-                    ProductionPlanSimulationAlgorithm(entityid, EntityIds, processid);
+                    ProductionPlanSimulationAlgorithm(entityid, EntityIds, processid, out DataTable productionOrders);
 
-   
+                    Library.Service.TaskScheduler.TaskScheduler schedule = new Library.Service.TaskScheduler.TaskScheduler(_sqlRepository);
+                    schedule.UpdateTaskStatus();
+                    //Production Order Related Tasks
+
+                    for (int i = 0; i < productionOrders.Rows.Count; i++)
+                    {
+                        string sql = @"SELECT TaskTemplateMasterId FROM trn.MasterOrder AS mo 
+                                INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                                INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
+                           WHERE so.id IN(Select SalesOrderId From TRN.ProductionOrderDetail Where ProductionOrderId='" + productionOrders.Rows[i]["ProductionOrderID"].ToString() + "')";
+                        DataTable dtSO = _sqlRepository.GetDataTable(sql);
+                        string TaskTemplateMasterId = dtSO.Rows[0]["TaskTemplateMasterId"].ToString();
+
+                        DataTable dtt = schedule.GetDataSourceMasterOrderNew(productionOrders.Rows[i]["ProductionOrderID"].ToString(), TaskAppliedOnEnum.ProductionOrder);
+                        if (dtt.Rows.Count > 0)
+                            schedule.MakeTNAMaster(dtt, productionOrders.Rows[i]["ProductionOrderID"].ToString(), TaskAppliedOnEnum.ProductionOrder);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -1947,12 +1965,12 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
             });
         }
 
-       
 
-        public void ProductionPlanSimulationAlgorithm(string entityid, string ProcessingEntities, string processid)
+
+        public void ProductionPlanSimulationAlgorithm(string entityid, string ProcessingEntities, string processid, out DataTable productionOrders)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
+            productionOrders = null;
             DataSet dsToData;
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
@@ -2051,7 +2069,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
 
                 Dictionary<string, DataTable> dicCalendar = dtProductionCalendar(System.DateTime.Now, 1500, processid, ProcessingEntities);
                 DataTable dtCalendar = new DataTable("Temp");
-                DataTable productionOrders = dtProductionParameters(ProcessingEntities);
+                productionOrders = dtProductionParameters(ProcessingEntities);
                 for (int i = 0; i < productionOrders.Rows.Count; i++)
                 {
                     dtCalendar = dicCalendar[productionOrders.Rows[i]["EntityId"].ToString()];
@@ -2242,7 +2260,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
 
                                 double tempQty = TotalOrderQuantity;
                                 int tempDayCount = 0;
-                             
+
                                 //determining how many days to take to finish the production
                                 while (tempQty > 0)
                                 {
@@ -2782,7 +2800,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
         }
         private void saveProductionPlan(List<ProductionBlock> entry, string productionOrderID, string entityid, string processid)
         {
-            
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             DataSet dsMaster;
