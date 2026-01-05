@@ -1,6 +1,6 @@
 ﻿'use strict';
-EmployeeOperationsController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function EmployeeOperationsController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+EmployeeOperationsController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
+function EmployeeOperationsController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Employee Operations';
     $scope.Action = 'Save';
     $scope.ModelList = [];
@@ -416,7 +416,8 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     $scope.ClearGrid = function () {
         $scope.ModelList = [];
     }
-
+    $scope.reportdata = [];
+    $scope.reportcolumns = [];
     // Getting the report
     $scope.getReportView = function () {
         $http({
@@ -427,58 +428,104 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
                 , 'processId': $scope.ProcessId, 'shiftId': $scope.shiftId, 'periodId': $scope.PeriodId, 'poId': $scope.POId
             },
         }).then(function succ(response) {
-            console.log(response.data.Data);
-            console.log(response.data.Cols);
-
-            var ColumnList = [
-                { field: 'OperationCode', width: 80, headerText: "Operation Code" },
-                { field: 'OperationName', width: 80, headerText: "Operation" },
-                { field: 'WorkCenter', width: 80, headerText: "WorkCenter" },
-                { field: 'ProductionOrderId', width: 80, headerText: "PO" },
-                { field: 'Process', width: 80, headerText: "Process" },
-                { field: 'EmployeeCode', width: 80, headerText: "Employee Code" },
-                { field: 'EmployeeName', width: 80, headerText: "Employee Name" },
-                { field: 'Date', width: 80, headerText: "Date" },
-            ];
+            //var ColumnList = [
+            //    { field: 'OperationCode', width: 80, headerText: "Operation Code" },
+            //    { field: 'OperationName', width: 80, headerText: "Operation" },
+            //    { field: 'WorkCenter', width: 80, headerText: "WorkCenter" },
+            //    { field: 'ProductionOrderId', width: 80, headerText: "PO" },
+            //    { field: 'Process', width: 80, headerText: "Process" },
+            //    { field: 'EmployeeCode', width: 80, headerText: "Employee Code" },
+            //    { field: 'EmployeeName', width: 80, headerText: "Employee Name" },
+            //    { field: 'Date', width: 80, headerText: "Date" },
+            //];
 
 
-            for (var i = 0; i < response.data.Cols.length; i++) {
-                ColumnList.push({ field: response.data.Cols[i], width: 50, headerText: response.data.Cols[i], type: "number" });// format: "{0:N2}",
+            ////for (var i = 0; i < response.data.Data.length; i++) {
+            ////}
+
+            //ColumnList.push({ field: response.data.Data[0], width: 50, headerText: response.data.Data[0]});// format: "{0:N2}",
+
+
+            
+
+            //var gridObj = $("#summaryGrid").data("ejGrid");
+            //gridObj.refreshContent(true);
+            //gridObj.refreshTemplate();
+
+            $scope.reportdata = response.data.Data;
+
+            if ($scope.reportdata.length > 0) {
+                angular.forEach(Object.keys($scope.reportdata[0]), function (key) {
+                    $scope.reportcolumns.push({
+                        field: key,
+                        headerText: key,
+                        width: 140
+                    });
+                });
             }
-
             $("#summaryGrid").ejGrid({
-                dataSource: response.data.Data,
+                dataSource: $scope.reportdata,
                 minWidth: 450, minHeight: 400,
                 allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowSelection: true, allowTextWrap: true, allowScrolling: true,
                 filterSettings: { filterType: "excel" },
-                columns: ColumnList
+                columns: $scope.reportcolumns
             });
-
-            var gridObj = $("#summaryGrid").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
         });
+        
     }
     // Download Button Functionality
-    $scope.FromDate = null;
-    $scope.ToDate = null;
+    //$scope.FromDate = null;
+    //$scope.ToDate = null;
+    //$scope.getReportDownload = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.path + "getReportDownload",
+    //        data: { 'Date': $scope.Date, 'Wkc': $scope.workCenterId },
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error == true) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //        else {
+    //            $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+    //        }
+    //    }, function errorCallback(response) {
+    //        ShowResult(response.data.Message, 'failure');
+    //    });
+    //}
+
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.getReportDownload = function () {
+        var dataList = [];
+        var g = $("#summaryGrid").data("ejGrid");
+        //dataList = g.getFilteredRecords();
+        dataList = $scope.reportdata;
+
+        if (dataList.length == 0) {
+            dataList = $scope.ClickDetail;
+        }
+        $scope.fileName = $filter("dateFiltering")(Date.now()) + "-EmployeeOperationReport";
         $http({
             method: 'POST',
-            url: $scope.path + "getReportDownload",
-            data: { 'Date': $scope.Date, 'Wkc': $scope.workCenterId },
+            url: $scope.exportgriddataUrl,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
         });
-    }
+
+    };
 
     $scope.getProcessDownload = function () {
         $http({

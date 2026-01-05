@@ -810,7 +810,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				}
 
 				sql = @"SELECT * FROM (SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo	,PAG.UserName PartyAccountGroup
-						,CU.Code TCurrency,TransactionAmount=  Sum(ISNULL(SMD.TransactionAmount,0))+sum(round(isnull(TAxInfo.TaxAmount,0),2))+sum(round(isnull(TAxInfo2.TaxAmount,0),2))+sum(round(isnull(TAxInfo1.TaxAmount,0),2))+round(isnull(TAxInfo6.TaxAmount,0),2)+round(isnull(ServiceData.ServiceAmount,0),2)+round(isnull(ServiceData.ServiceTax,0),2)
+						,CU.Code TCurrency,TaxableAmount=  Sum(ISNULL(SMD.TransactionAmount,0)) +round(isnull(ServiceData.ServiceAmount,0),2)
 						,C.Code BookCurrency,InvoiceValueBC=Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0))+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)+round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2)
 									,BasicValueBC=Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0)) 
 									,TotalTaxServiceAndChargesBC=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)+round(isnull(ServiceData.BooksCurrencyTaxAmount,0),2)
@@ -944,7 +944,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 								UNION ALL
 								SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo,PAG.UserName PartyAccountGroup
-								,CU.Code TCurrency,TransactionAmount=  Sum(ISNULL(IID.TransactionAmount,0))+sum(round(isnull(TAxInfo.TaxAmount,0),2))+sum(round(isnull(TAxInfo2.TaxAmount,0),2))+sum(round(isnull(TAxInfo1.TaxAmount,0),2))+round(isnull(TAxInfo6.TaxAmount,0),2)+round(isnull(SCr.ServiceAmount,0),2)+round(isnull(SCr.TotalTaxAmount,0),2)
+								,CU.Code TCurrency,TaxableAmount=  Sum(ISNULL(IID.TransactionAmount,0)) +round(isnull(SCr.ServiceAmount,0),2) 
 								,C.Code BookCurrency,InvoiceValueBC=Sum(ISNULL(IID.BooksCurrencyTransactionAmount,0))+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)+round(isnull(SCr.BooksCurrencyTaxAmount,0),2)
 									,BasicValueBC=Sum(ISNULL(IID.BooksCurrencyTransactionAmount,0)) 
 									,TotalTaxServiceAndChargesBC=sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))+round(isnull(TAxInfo6.BooksTaxAmount,0),2)+round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)+round(isnull(SCr.BooksCurrencyTaxAmount,0),2)
@@ -1049,7 +1049,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								
 								UNION ALL
 								SELECT    P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo,PAG.UserName PartyAccountGroup
-								,CU.Code TCurrency,TransactionAmount=  ISNULL(IVD.Amount,0) 
+								,CU.Code TCurrency,TaxableAmount=  ISNULL(IVD.Amount,0) 
 								,C.Code BookCurrency,InvoiceValueBC=ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0)
 									,BasicValueBC=ISNULL(IVD.Amount *CC.CompanyCurrencyRate,0) 
 									,TotalTaxServiceAndChargesBC=0
@@ -1111,7 +1111,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									
 									UNION ALL
 									SELECT  P.Id PartyId, P.UserName AS PartyName,PPI.UserName AS BillTo,PPD.UserName AS ShipTo,P.TINNO PartyTaxNo	,PAG.UserName PartyAccountGroup
-									,CU.Code TCurrency,TransactionAmount=0
+									,CU.Code TCurrency,TaxableAmount=0
 									,C.Code BookCurrency
 									,InvoiceValueBC=0
 									,BasicValueBC=0

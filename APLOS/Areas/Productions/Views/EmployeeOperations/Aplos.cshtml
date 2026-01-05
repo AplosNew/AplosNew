@@ -237,30 +237,36 @@
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="getReportView();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i> View </button></li>
-                        <li> <button ng-click="getReportDownload();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Report Download </button></li>
+                        <li> <button ng-click="getReportDownload();" ng-disabled="reportdata.length==0" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Report Download </button></li>
                         @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                             <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
                     </ul>
                 </div>
                 <div class="table-responsive ">
                     @*<div id="GridEdit" ej-grid e-datasource="ModelList" e-queryCellInfo="PeriodValidation" e-actionComplete="refreshPage"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                            <div e-columns>
-                                <div e-column e-field="OperationCode" e-headertext="Operation Code" e-width="50" e-isprimarykey="true"></div>
-                                <div e-column e-field="OperationName" e-headertext="Operation Name" e-width="80"></div>
-                                <div e-column e-headertext="Employee Code" e-template="#emp" e-textalign="center" e-width="80"></div>
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+                <div e-column e-field="OperationCode" e-headertext="Operation Code" e-width="50" e-isprimarykey="true"></div>
+                <div e-column e-field="OperationName" e-headertext="Operation Name" e-width="80"></div>
+                <div e-column e-headertext="Employee Code" e-template="#emp" e-textalign="center" e-width="80"></div>
 
-                                <div e-column e-headertext="Qty" e-template="#qty" e-textalign="center" e-width="80"></div>
+                <div e-column e-headertext="Qty" e-template="#qty" e-textalign="center" e-width="80"></div>
 
-                                <div e-column e-headertext="Remarks" e-template="#rem" e-textalign="center" e-width="80"></div>
+                <div e-column e-headertext="Remarks" e-template="#rem" e-textalign="center" e-width="80"></div>
 
-                                <div e-column e-template="#AddTile" e-headertext="Add" e-width="40"></div>
+                <div e-column e-template="#AddTile" e-headertext="Add" e-width="40"></div>
 
-                            </div>
-                        </div>*@
+            </div>
+        </div>*@
 
                     <div id="summaryGrid"></div>
+                    @*<ej-grid e-datasource="reportdata"
+                             e-columns="reportcolumns"
+                             e-allowpaging="true"
+                             e-allowsorting="true"
+                             e-pagesettings="{ pageSize: 10 }">
+                    </ej-grid>*@
                 </div>
             </div>
         </div>
