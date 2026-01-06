@@ -584,7 +584,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                 schedule.UpdateTaskStatus();
                 //Production Order Related Tasks
 
-                string sql = @"SELECT TaskTemplateMasterId FROM trn.MasterOrder AS mo 
+                string sql = @"SELECT distinct TaskTemplateMasterId FROM trn.MasterOrder AS mo 
                                 INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
                                 INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
                            WHERE so.id IN(" + s + ")";

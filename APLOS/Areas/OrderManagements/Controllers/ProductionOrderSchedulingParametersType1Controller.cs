@@ -1893,6 +1893,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
         {
             return await Task.Factory.StartNew(() =>
             {
+                var po = "";
                 try
                 {
 
@@ -1933,10 +1934,12 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                     Library.Service.TaskScheduler.TaskScheduler schedule = new Library.Service.TaskScheduler.TaskScheduler(_sqlRepository);
                     schedule.UpdateTaskStatus();
                     //Production Order Related Tasks
-
+                    
                     for (int i = 0; i < productionOrders.Rows.Count; i++)
                     {
-                        string sql = @"SELECT TaskTemplateMasterId FROM trn.MasterOrder AS mo 
+                        po = productionOrders.Rows[i]["ProductionOrderID"].ToString();
+
+                        string sql = @"SELECT distinct TaskTemplateMasterId FROM trn.MasterOrder AS mo 
                                 INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
                                 INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
                            WHERE so.id IN(Select SalesOrderId From TRN.ProductionOrderDetail Where ProductionOrderId='" + productionOrders.Rows[i]["ProductionOrderID"].ToString() + "')";
