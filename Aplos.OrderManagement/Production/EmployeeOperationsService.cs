@@ -216,7 +216,7 @@ namespace Library.OrderManagement.Production
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
             con.OpenDataSetThroughAdapter("select EmployeeOperationBackDateAllow from dbo.PlantWiseHRMSSetting Where PlantID='" + identity.PlantId + "' ", out dsPS, false, "1");
             int ad = Convert.ToInt32(dsPS.Tables[0].Rows[0]["EmployeeOperationBackDateAllow"]);
-            var str = @"select OP.ID as OperationId,OO.UserName OperationName, OP.OperationMasterId as MasterOperationId  ,OP.Code as OperationCode ,OP.UserName as OperationName, bt.Sequence , owe.EmployeeId , isnull(o.WIP,0) as WIP,
+            var str = @"select OP.ID as OperationId,OO.UserName OperationName, OP.OperationMasterId as MasterOperationId  ,OP.Code as OperationCode ,OP.UserName as OperationVariationName, bt.Sequence , owe.EmployeeId , isnull(o.WIP,0) as WIP,
                         isnull(Sum(owe.Qty),0) as Qty ,
                       
                         ei.EmployeeCode , ei.EmployeeName as EmpName 
@@ -234,34 +234,6 @@ namespace Library.OrderManagement.Production
 						
 						group by OP.Id , op.Code , op.UserName,OO.UserName , bt.Sequence , owe.EmployeeId , ei.EmployeeCode , op.OperationMasterId , o.WIP , ei.EmployeeName
                         order by Sequence";
-
-            //      var str = @"select OP.ID as OperationId, OP.Code as OperationCode ,OP.UserName as OperationName, bt.Sequence , owe.EmployeeId , 
-            //                  Sum(owe.Qty) as Qty ,
-            //                  --Sum(owe.Period1) as Period1c , Sum(owe.Period2) as Period2 , Sum(owe.Period2) as Period2c , Sum(owe.Period3) as Period3 ,Sum(owe.Period3) as Period3c , 
-            //                  --Sum(owe.Period4) as Period4 ,Sum(owe.Period4) as Period4c , Sum(owe.Period5) as Period5 , Sum(owe.Period5) as Period5c , 
-            //                  --Sum(owe.Period6) as Period6 , Sum(owe.Period6) as Period6c , 
-            //                  ei.EmployeeCode
-            //                  from mst.OperationVariation OP
-            //                  left join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
-            //                  left join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
-            //                  left join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
-            //                  left join ( Select owe.* from dbo.OperationWiseEmployees owe ) as owe on owe.OperationVariationId = OP.Id and owe.ProductionOrderId = pb.ProductionOrderId and owe.Date =   Convert(date, DateAdd(DAY, -1, GetDate())) 
-            //                  and owe.PeriodId ='" + currPeriod + @"'
-            //                  left join dbo.EmployeeInformation ei on ei.SystemId = owe.EmployeeId
-            //where pb.ProductionOrderId='" + PId + @"'
-            //                  group by OP.Id , op.Code , op.UserName , bt.Sequence , owe.EmployeeId , ei.EmployeeCode
-            //                  order by Sequence
-            //                 ";
-
-            //       from mst.OperationVariation OP
-            //                  left join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
-            //                  left join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
-            //                  left join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
-            //                  left join dbo.OperationWiseEmployees owe on owe.OperationVariationId = OP.Id and owe.ProductionOrderId = pb.ProductionOrderId
-            //                  left join dbo.EmployeeInformation ei on ei.SystemId = owe.EmployeeId
-            //where pb.ProductionOrderId='" + PId+@"'  --and owe.PeriodId = '"+ currPeriod + @"' and owe.Date =  Convert(date, DateAdd(DAY, -1, GetDate())) 
-            //group by OP.Id , op.Code , op.UserName , bt.Sequence , owe.EmployeeId , ei.EmployeeCode
-            //                  order by Sequence
 
 
             return _sqlRepository.GetDataCollection(str);
@@ -803,7 +775,7 @@ namespace Library.OrderManagement.Production
                         INTO #tempOT
                         FROM (
                             SELECT 
-                                ov.Code AS OperationCode, ov.UserName AS OperationName,  ov.SubOperationSAM AS SAM,
+                                ov.Code AS OperationCode, ov.UserName AS OperationName,  bt.TotalSPT AS SAM,
                                 p.UserName AS Process, wcm.UserName AS WorkCenter, we.ProductionOrderId, ei.EmployeeName,
                                 ei.EmployeeCode, FORMAT(we.Date, 'dd-MMM-yyyy') AS Dates,  we.PeriodId, pb.UserName AS Periods,
                                 SUM(ISNULL(we.Qty,0)) AS Qty
@@ -812,10 +784,11 @@ namespace Library.OrderManagement.Production
                             LEFT JOIN hkp.Process p ON p.Id = we.ProcessId
                             LEFT JOIN SCS.WorkCenterMaster wcm ON wcm.Id = we.WorkCenterId
                             LEFT JOIN mst.OperationVariation ov ON ov.Id = we.OperationVariationId
+							 left join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=ov.Id
                             LEFT JOIN dbo.EmployeeInformation ei ON ei.SystemId = we.EmployeeId
-                            WHERE we.Date = '"+ Date + "' AND  "+ tempQurey + @"
+                            WHERE we.Date = '" + Date + "' AND  "+ tempQurey + @"
                             GROUP BY 
-                                ov.Code, ov.UserName, ov.SubOperationSAM, p.UserName, wcm.UserName, we.ProductionOrderId,
+                                 ov.Code, ov.UserName, bt.TotalSPT, p.UserName, wcm.UserName, we.ProductionOrderId,
                                 ei.EmployeeName, ei.EmployeeCode, we.Date, we.PeriodId, pb.UserName
                         ) TT;
                         

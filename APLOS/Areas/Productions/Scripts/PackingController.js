@@ -1202,4 +1202,24 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
             ShowResult(e, 'failure');
         }
     }
+
+    $scope.deleteUrl = $scope.path + 'UntagPacking/';
+    $scope.untagPacking = function (data) {
+        $scope.packingId = data.data.PackingId;
+            $http({
+                method: 'POST'
+                , url: $scope.deleteUrl + '?packingId=' + $scope.packingId
+                , dataType: 'JSON'
+            }).then(function (response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getgridPacking();
+                }
+                
+            }), function (response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+    };
 }

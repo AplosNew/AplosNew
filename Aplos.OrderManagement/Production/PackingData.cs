@@ -989,13 +989,13 @@ order by pk.Date  DESC";
                      SELECT   isc.ProductionSummaryId FROM DBO.ItemScanChild isc
                     LEFT JOIN trn.POLotReference plr on plr.Id = isc.PackingId
                     LEFT JOIN trn.PackingLineItem pli on pli.PackingLineItemId = plr.PackingLineItemId
-                    WHERE pli.PackingId = '" + id + "' and salesId IS NULL and IsDespatch = 0))";
+                    WHERE pli.PackingId = '" + id + "' and salesId IS NULL and IsDespatch = 0)";
 
                 stritemScanChild = @"UPDATE dbo.ItemScanChild set Booked=0,ProductionSummaryId=NULL,PackingId=NULL  Where PackingId in ( 
                      SELECT   isc.PackingId FROM DBO.ItemScanChild isc
                     LEFT JOIN trn.POLotReference plr on plr.Id = isc.PackingId
                     LEFT JOIN trn.PackingLineItem pli on pli.PackingLineItemId = plr.PackingLineItemId
-                    WHERE pli.PackingId = '" + id + "' and salesId IS NULL and IsDespatch = 0))";
+                    WHERE pli.PackingId = '" + id + "' and salesId IS NULL and IsDespatch = 0)";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
