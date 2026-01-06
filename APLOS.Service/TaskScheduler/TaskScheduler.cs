@@ -1679,7 +1679,7 @@ LEFT OUTER JOIN (
 
             string[] MasterOrderIds = dtRefData.Rows[0]["MasterOrderId"].ToString().Split(',');
             if (MasterOrderIds.Length > 1)
-                throw new Exception("Multiple master order found. Cannot process TNA");
+                throw new Exception("Multiple master order "+ MasterOrderId + " found in ProductionOrderId='" + ProductionOrderId + @"'. Cannot process TNA");
 
             MasterOrderSingleId = dtRefData.Rows[0]["MasterOrderId"].ToString();
 
