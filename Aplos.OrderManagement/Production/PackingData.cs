@@ -969,7 +969,7 @@ order by pk.Date  DESC";
         }
         public void UntagPacking(string id)
         {
-            string stritemScanChild, strproductionSummary;
+            string stritemScanChild, strproductionSummary, strpolotreference;
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
@@ -977,7 +977,7 @@ order by pk.Date  DESC";
                 string setOffsql = @"SELECT  pli.PackingId PackingMasterId,isc.* FROM DBO.ItemScanChild isc 
                     LEFT JOIN trn.POLotReference plr on plr.Id=isc.PackingId 
                     LEFT JOIN trn.PackingLineItem pli on pli.PackingLineItemId=plr.PackingLineItemId
-                    WHERE pli.PackingId='" + id + "' and salesId IS NULL and IsDespatch=0";
+                    WHERE pli.PackingId='" + id + "' and salesId IS NULL and IsDespatch=0  and IsReturn=0";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
 
@@ -989,19 +989,22 @@ order by pk.Date  DESC";
                      SELECT   isc.ProductionSummaryId FROM DBO.ItemScanChild isc
                     LEFT JOIN trn.POLotReference plr on plr.Id = isc.PackingId
                     LEFT JOIN trn.PackingLineItem pli on pli.PackingLineItemId = plr.PackingLineItemId
-                    WHERE pli.PackingId = '" + id + "' and salesId IS NULL and IsDespatch = 0))";
+                    WHERE pli.PackingId = '" + id + "' and salesId IS NULL and IsDespatch = 0  and IsReturn=0)";
 
                 stritemScanChild = @"UPDATE dbo.ItemScanChild set Booked=0,ProductionSummaryId=NULL,PackingId=NULL  Where PackingId in ( 
                      SELECT   isc.PackingId FROM DBO.ItemScanChild isc
                     LEFT JOIN trn.POLotReference plr on plr.Id = isc.PackingId
                     LEFT JOIN trn.PackingLineItem pli on pli.PackingLineItemId = plr.PackingLineItemId
-                    WHERE pli.PackingId = '" + id + "' and salesId IS NULL and IsDespatch = 0))";
+                    WHERE pli.PackingId = '" + id + "' and salesId IS NULL and IsDespatch = 0  and IsReturn=0)";
+                strpolotreference = @"delete trn.POLotReference 
+                        Where PackingLineItemId IN(select PackingLineItemId from TRN.PackingLineItem Where PackingId='" + id + "')";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
                 objCon.ExecuteNonQueryWrapper(strproductionSummary, true, "1");
                 objCon.ExecuteNonQueryWrapper(stritemScanChild, true, "1");
+                objCon.ExecuteNonQueryWrapper(strpolotreference, true, "1");
                 
                 objCon.CommitTransaction();
             }
@@ -1015,7 +1018,7 @@ order by pk.Date  DESC";
                 }
                 catch (Exception exx)
                 {
-                    throw ex;
+                    throw exx;
                 }
             }
             finally

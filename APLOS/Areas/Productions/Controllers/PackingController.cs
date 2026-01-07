@@ -1094,7 +1094,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        [HttpGet, Authorize]
+        [HttpPost, Authorize]
         public ActionResult UntagPacking(string packingId)
         {
             try

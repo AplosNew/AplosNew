@@ -425,7 +425,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             url: $scope.path + 'getReportView',
             data: {
                 'Date': $scope.Date, 'Wkc': $scope.workCenterId, 'entityId': $scope.EntityId
-                , 'processId': $scope.ProcessId, 'shiftId': $scope.shiftId, 'periodId': $scope.PeriodId, 'poId': $scope.POId
+                , 'processId': $scope.ProcessId, 'shiftId': $scope.shiftId, 'periodId': $scope.periodId, 'poId': $scope.POId
             },
         }).then(function succ(response) {
             //var ColumnList = [
@@ -465,7 +465,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             }
             $("#summaryGrid").ejGrid({
                 dataSource: $scope.reportdata,
-                minWidth: 450, minHeight: 400,
+                minWidth: 550, minHeight: 400,
                 allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowSelection: true, allowTextWrap: true, allowScrolling: true,
                 filterSettings: { filterType: "excel" },
                 columns: $scope.reportcolumns

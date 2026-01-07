@@ -441,6 +441,7 @@
             <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Summary" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.PackingListReport(this);"></i></button>
             <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Detail" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.PackingListPDFReport(this);"></i></button>
             <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Detail" class="btn"><i class="fa fa-file-excel-o" ng-click="$parent.PackingListXLReport(this);"></i></button>
+            <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Detail" ng-disabled="this.data.InvoiceNo" class="btn"><i class="glyphicon glyphicon-trash"  ng-click="$parent.untagPacking(this);" ></i></button>
         </script>
     </div>
 
