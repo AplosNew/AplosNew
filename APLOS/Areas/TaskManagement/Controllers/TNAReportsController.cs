@@ -172,7 +172,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IWorkbook workbook = GetTNAStatusReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, identity.EmployeeId, identity.Name, Filter, FilterFields);
 
-                workbook.Version = ExcelVersion.Excel2013;
+                workbook.Version = ExcelVersion.Excel2016;
                 var strFileName = DateTime.Now.ToString("yyMMdd") + " " + "TNA Reports.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
                 workbook.SaveAs(fullPath);
@@ -1473,7 +1473,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
         private void MasterOrderDataTablesForGrid(Dictionary<string, object> Filter, List<Dictionary<string, object>> FilterFields, out DataTable MainData)
         {
             string DueDate = "TT.OriginalSequentialEndDate";//or ATO.DueDate
-            string FilterText = " WHERE 1=1 ";
+            string FilterText = " WHERE 1=1";
             if (FilterFields != null)
             {
                 for (int i = 0; i < FilterFields.Count; i++)
@@ -1484,7 +1484,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
             }
             string TaskTypeFilter = "";
             if (Filter["ReportLevel"].ToString() != "ALL")
-                TaskTypeFilter = "WHERE tao.TaskAppliedOnEnum='" + Filter["ReportLevel"].ToString() + "'";
+                TaskTypeFilter = "WHERE  tao.TaskAppliedOnEnum='" + Filter["ReportLevel"].ToString() + "'";
 
 
             if (Filter["ActiveStatus"].ToString() != "All")
@@ -1992,13 +1992,14 @@ namespace Aplos.Areas.TaskManagement.Controllers
             string FactoryAddress = string.Empty;
             string OTConsiderOn = string.Empty;
             #endregion
-
+            var SLNo = 1;
             try
             {
                 objRpt = new clsReport();
 
 
                 ExcelEngine excelEngine = null;
+              
                 IApplication application = null;
                 var workbook = oru.GetWorkbook(ref excelEngine, 1);
 
@@ -2018,7 +2019,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 string CmpName = "";
 
                 var isl = 0;
-                var SLNo = 1;
+               
 
                 int colTaskType = 0;
                 int colTask = 0;
@@ -2044,7 +2045,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 objRpt.SelectedPlant(PlantId, out dsFactory);
 
                 workbook = application.Workbooks.Create(1);
-
+                workbook.Version = ExcelVersion.Excel2016;
                 #region Task List
 
                 IWorksheet sheet1 = null;
@@ -2230,6 +2231,11 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 for (int i = 0; i < dtTNA.Rows.Count; i++)
                 {
                     #region ----------------------Data-----------------------
+                    if (SLNo == 65531)
+                    {
+
+                    }
+
                     sheet1.Range[xlsRow, isl].Text = SLNo.ToString();
                     sheet1.Range[xlsRow, TaskSequence].Number = clsStaticInfo.dbl(dtTNA.Rows[i]["Sequence"].ToString());
                     sheet1.Range[xlsRow, colTaskType].Text = dtTNA.Rows[i]["TaskType"].ToString();
