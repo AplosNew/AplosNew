@@ -425,7 +425,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             url: $scope.path + 'getReportView',
             data: {
                 'Date': $scope.Date, 'Wkc': $scope.workCenterId, 'entityId': $scope.EntityId
-                , 'processId': $scope.ProcessId, 'shiftId': $scope.shiftId, 'periodId': $scope.PeriodId, 'poId': $scope.POId
+                , 'processId': $scope.ProcessId, 'shiftId': $scope.shiftId, 'periodId': $scope.periodId, 'poId': $scope.POId
             },
         }).then(function succ(response) {
             //var ColumnList = [

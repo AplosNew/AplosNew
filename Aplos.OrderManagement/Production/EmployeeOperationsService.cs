@@ -718,19 +718,23 @@ namespace Library.OrderManagement.Production
                 {
                     tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + "' AND we.WorkCenterId = '" + Wkc + "' AND we.PeriodId = '" + periodId + "' AND we.ProductionOrderId='" + poId + @"' ";
                 }
-                else if (entityId != null && processId != null && shiftId != null && Wkc != null && periodId != null)
+                else if (entityId != null && processId != null && shiftId != null && Wkc != null && periodId != null && poId == null)
                 {
                     tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + "' AND we.WorkCenterId = '" + Wkc + "' AND we.PeriodId = '" + periodId + @"' ";
                 }
-                else if (entityId != null && processId != null && shiftId != null && Wkc != null)
+                else if (entityId != null && processId != null && shiftId != null && Wkc != null && periodId == null && poId == null)
                 {
                     tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + "' AND we.WorkCenterId = '" + Wkc + @"'  ";
                 }
-                else if (entityId != null && processId != null && shiftId == null && Wkc != null)
+                else if (entityId != null && processId != null && shiftId != null && Wkc != null && periodId == null && poId != null)
+                {
+                    tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + "' AND we.WorkCenterId = '" + Wkc + @"' AND we.ProductionOrderId='" + poId + @"' ";
+                }
+                else if (entityId != null && processId != null && shiftId == null && Wkc != null && periodId == null && poId == null)
                 {
                     tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "'   AND we.WorkCenterId = '" + Wkc + @"'  ";
                 }
-                else if (entityId != null && processId != null && shiftId != null && poId == null)
+                else if (entityId != null && processId != null && shiftId != null && Wkc == null && periodId == null && poId == null)
                 {
                     tempQurey = "wcm.EntityId='" + entityId + "' AND we.ProcessId='" + processId + "' AND we.ShiftId='" + shiftId + @"' ";
                 }
@@ -779,12 +783,14 @@ namespace Library.OrderManagement.Production
                                 p.UserName AS Process, wcm.UserName AS WorkCenter, we.ProductionOrderId, ei.EmployeeName,
                                 ei.EmployeeCode, FORMAT(we.Date, 'dd-MMM-yyyy') AS Dates,  we.PeriodId, pb.UserName AS Periods,
                                 SUM(ISNULL(we.Qty,0)) AS Qty
-                            FROM dbo.OperationWiseEmployees we
-                            LEFT JOIN hkp.ProductionBookingPeriod pb ON pb.Id = we.PeriodId
-                            LEFT JOIN hkp.Process p ON p.Id = we.ProcessId
+                            FROM  mst.OperationVariation ov 
+							LEFT JOIN TRN.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=ov.Id
+							LEFT JOIN TRN.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
+							LEFT JOIN TRN.ProductionBulletinTemplate pbt on pbt.Id=pt.ProductionBulletinTemplateId 
+							LEFT JOIN DBO.OperationWiseEmployees we ON ov.Id = we.OperationVariationId  and we.ProductionOrderId = pbt.ProductionOrderId
+                            LEFT JOIN HKP.ProductionBookingPeriod pb ON pb.Id = we.PeriodId
+                            LEFT JOIN HKP.Process p ON p.Id = we.ProcessId
                             LEFT JOIN SCS.WorkCenterMaster wcm ON wcm.Id = we.WorkCenterId
-                            LEFT JOIN mst.OperationVariation ov ON ov.Id = we.OperationVariationId
-							 left join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=ov.Id
                             LEFT JOIN dbo.EmployeeInformation ei ON ei.SystemId = we.EmployeeId
                             WHERE we.Date = '" + Date + "' AND  "+ tempQurey + @"
                             GROUP BY 
