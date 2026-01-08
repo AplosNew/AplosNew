@@ -779,7 +779,7 @@ namespace Library.OrderManagement.Production
                         INTO #tempOT
                         FROM (
                             SELECT 
-                                ov.Code AS OperationCode, ov.UserName AS OperationName,  bt.TotalSPT AS SAM,
+                                ov.Code AS OperationCode, ov.UserName AS OperationName,  round(bt.TotalSPT,2) AS SAM,
                                 p.UserName AS Process, wcm.UserName AS WorkCenter, we.ProductionOrderId, ei.EmployeeName,
                                 ei.EmployeeCode, FORMAT(we.Date, 'dd-MMM-yyyy') AS Dates,  we.PeriodId, pb.UserName AS Periods,
                                 SUM(ISNULL(we.Qty,0)) AS Qty
