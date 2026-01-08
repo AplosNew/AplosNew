@@ -7,6 +7,30 @@ function SalaryProcessNewController(addressService, fileReader, cboService, comm
     $scope.cbxMLVR = true;
     $scope.cbxZero = true;
     $scope.btnProcess = false;
+
+    $scope.GetCompanyCboList = function () {
+        try {
+
+            $http({
+                method: 'Get',
+                url: 'OrderManagements/masterorder/GetCompanyCboList'
+            }).then(function successCallback(response) {
+                $scope.companyList = response.data;
+            }
+            )
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    $scope.CompanyId = null;
+    $scope.PlantId = null;
+    $scope.GetCompanyCboList();
+    $scope.plantList = [];
+    $scope.getPlantCbo = function () {
+        cboService.getCboPlantByCompany($scope.CompanyId, function (response) {
+            $scope.plantList = response;
+        });
+    };
     $scope.monthList = [
         {
             Value: 1,
@@ -118,7 +142,7 @@ function SalaryProcessNewController(addressService, fileReader, cboService, comm
             Check($scope.FromDate_sep, 'From Date');
             Check($scope.ToDate_sep, 'To Date');
            
-            var parameters = { 'Description': $scope.Description, 'FromDate': $scope.FromDate_sep, 'ToDate': $scope.ToDate_sep, };
+            var parameters = { 'Description': $scope.Description, 'FromDate': $scope.FromDate_sep, 'ToDate': $scope.ToDate_sep, 'plantId': $scope.PlantId};
             $http({
                 method: "POST",
                 dataType: 'JSON',

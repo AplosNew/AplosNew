@@ -1057,7 +1057,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> GetEmpList(string Description, string FromDate, string ToDate)
+        public async Task<ActionResult> GetEmpList(string Description, string FromDate, string ToDate, string plantId)
         {
             return await Task.Factory.StartNew(() =>
             {
@@ -1069,7 +1069,11 @@ namespace Aplos.Areas.Payrolls.Controllers
                     clsSalaryProcessUI obj = new clsSalaryProcessUI();
                     AllDataset ads = new AllDataset();
                     DateValidation(FromDate, ToDate);
-                    obj.LoadEmpSalaryProcGrid(Description, FromDate, ToDate, identity.PlantId, out ads);
+                    if (plantId==null)
+                    {
+                        plantId = identity.PlantId;
+                    }
+                    obj.LoadEmpSalaryProcGrid(Description, FromDate, ToDate, plantId, out ads);
 
 
                     //JsonResult json = Json(_employeePromotionService.GetSalaryStrcApprovedEmployee(identity.CompanyGroupId, identity.PlantId) , JsonRequestBehavior.AllowGet);
