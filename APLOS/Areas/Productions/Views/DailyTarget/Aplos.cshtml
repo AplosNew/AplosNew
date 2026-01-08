@@ -6,10 +6,16 @@
                 <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
                 <div class="col-sm-8">
                     <div class="select-style">
-                        <select class="form-control" ng-disabled="DailyTargetList.length>0" id="ddlEntity" ng-model="DailyProductionTargetNew.EntityId" ng-change="loadProcessList(DailyProductionTargetNew.EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList">
+                        <select class="form-control" ng-disabled="DailyTargetList.length>0" id="ddlEntity" ng-model="DailyProductionTargetNew.EntityId" ng-change="loadProcessList(DailyProductionTargetNew.EntityId);GetShiftList();" name="Entity" ng-options="item.Id as item.UserName for item in entityList">
                             <option value=""></option>
                         </select>
                     </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Target Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" ng-disabled="DailyTargetList.length>0" ng-model="DailyProductionTargetNew.ProductionDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
                 </div>
             </div>
         </div>
@@ -18,8 +24,19 @@
                 <label class="col-sm-4 control-label">Process<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" id="ProcessId" ng-disabled="DailyTargetList.length>0" ng-model="DailyProductionTargetNew.ProcessId" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
+                        <select class="form-control" id="ProcessId" ng-disabled="DailyTargetList.length>0" ng-model="DailyProductionTargetNew.ProcessId" name="ProcessId" ng-click="GetShiftList();" ng-options="item.Value as item.Text for item in processList" required >
                             <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Shift</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-disabled="DailyTargetList.length>0" ng-model="DailyProductionTargetNew.ShiftId" name="ShiftId"
+                                ng-options="item.Value as item.Text for item in ShiftList">
+                            <option value="">--Select--</option>
                         </select>
                     </div>
                 </div>
@@ -27,14 +44,6 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Target Date<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" ng-disabled="DailyTargetList.length>0" ng-model="DailyProductionTargetNew.ProductionDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
-                </div>
-            </div>
-        </div>
         <div class="form-group" style="margin-bottom: 25px;">
             <label class="col-sm-4 control-label"></label>
 

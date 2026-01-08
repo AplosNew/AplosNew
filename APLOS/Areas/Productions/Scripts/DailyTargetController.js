@@ -60,7 +60,18 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
             }
         });
     };
-
+    $scope.ShiftList = [];
+    $scope.GetShiftList = function () {
+        $http.get('Productions/EmployeeOperations/GetShift?processId=' + $scope.DailyProductionTargetNew.ProcessId + '&entityId=' + $scope.DailyProductionTargetNew.EntityId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.ShiftList = response.data;
+                    if (baseService.arrayLength(response.data) === 1) {
+                        DailyProductionTargetNew.ShiftId = $scope.ShiftList[0].Value;
+                    }
+                }
+            });
+    }
 
     $scope.listFromProcessOrSFGInventory = [];
     $scope.GetSFGMovementFromCbo = function (entity) {
