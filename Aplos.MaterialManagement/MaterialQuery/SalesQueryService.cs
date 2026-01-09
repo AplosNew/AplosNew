@@ -956,7 +956,6 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									,SGSTBC=round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2)
 									,IGSTBC=round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)
 									,TCSBC=round(isnull(TAxInfo6.BooksTaxAmount,0),2) 
-
 								,0 SetOff,0 Balance
 								,II.Id InvoiceId,II.Id InvoiceNo ,REPLACE(CONVERT(CHAR(11), II.SalesDate, 106),' ','-') InvoiceDate,II.DocRefNo,'InventorySales' SalesType,REPLACE(CONVERT(CHAR(11), II.DocDate, 106),' ','-') DocDate
 									,'' ProductionOrder
