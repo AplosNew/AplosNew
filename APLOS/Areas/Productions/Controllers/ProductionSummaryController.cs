@@ -876,31 +876,76 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         [HttpPost]
         public JsonResult Create(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, IEnumerable<ProductionSummaryParameterValue> ProcessParaList, string ProcessId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ps.PlantId = identity.PlantId;
-            _ProductionSummaryService.SaveMaster(ps, psd, identity.CompanyGroupId, ProcessId, ProcessParaList);
-            //if (ProcessParaList != null)
-            //{
-            //    SaveMasterOrderItemCostingRateData(ProcessParaList, ps.Id);
-            //}
-            return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
+            try
+            {
+                DateTime currentDate = DateTime.Today;   // removes time part
+
+                if (ps.ProductionDate > currentDate)
+                {
+                    // Restrict future date
+                    throw new Exception("Future Date not allowed for Production Booking");
+                }
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ps.PlantId = identity.PlantId;
+                _ProductionSummaryService.SaveMaster(ps, psd, identity.CompanyGroupId, ProcessId, ProcessParaList);
+                //if (ProcessParaList != null)
+                //{
+                //    SaveMasterOrderItemCostingRateData(ProcessParaList, ps.Id);
+                //}
+                return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
         }
 
         [HttpPost]
         public JsonResult CreateWC(ProductionSummary ps, string ProcessId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ps.PlantId = identity.PlantId;
-            _ProductionSummaryService.SaveMasterWC(ps, identity.CompanyGroupId, ProcessId);
-            return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
+            try
+            {
+                DateTime currentDate = DateTime.Today;   // removes time part
+
+                if (ps.ProductionDate > currentDate)
+                {
+                    // Restrict future date
+                    throw new Exception("Future Date not allowed for Production Booking");
+                }
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ps.PlantId = identity.PlantId;
+                _ProductionSummaryService.SaveMasterWC(ps, identity.CompanyGroupId, ProcessId);
+                return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
         }
         [HttpPost]
         public JsonResult UpdateWC(ProductionSummary ps, string ProcessId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ps.PlantId = identity.PlantId;
-            _ProductionSummaryService.SaveMasterWC(ps, identity.CompanyGroupId, ProcessId);
-            return Json(new { ProductionSummary = ps, Message = AplosMessage.Updated });
+            try
+            {
+                DateTime currentDate = DateTime.Today;   // removes time part
+
+                if (ps.ProductionDate > currentDate)
+                {
+                    // Restrict future date
+                    throw new Exception("Future Date not allowed for Production Booking");
+                }
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ps.PlantId = identity.PlantId;
+                _ProductionSummaryService.SaveMasterWC(ps, identity.CompanyGroupId, ProcessId);
+                return Json(new { ProductionSummary = ps, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
         }
         [HttpPost]
         public JsonResult createDetentionWC(List<Dictionary<string, object>> DataList)

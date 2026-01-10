@@ -172,7 +172,7 @@ function RosterPatternController(commonMessage, $scope, $rootScope, baseService,
             angular.element(document.querySelector('#ShiftModal')).modal('hide');
         }
         else {
-            console.log($scope.editSequence);
+            //console.log($scope.editSequence);
             for (var i = 0; i < $scope.ShiftChildList.length; i++) {
                 if ($scope.ShiftChildList[i].ShiftSequence === $scope.editSequence) {
                     $scope.ShiftChildList[i].ShiftDefinitionID = e.data.ShiftDefinationID;
@@ -293,7 +293,6 @@ function RosterPatternController(commonMessage, $scope, $rootScope, baseService,
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                console.log(response.data);
                 $scope.Header.Id = response.data.ids;
                 headerId.style.display = "block";
                 $scope.Action = "Update";

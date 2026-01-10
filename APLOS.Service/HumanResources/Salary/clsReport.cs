@@ -7688,7 +7688,7 @@ LEFT JOIN ORG.Position PR ON M.PositionId=PR.Id
                                 ,'0' Duration
                                 ,'0' LateBy,ShortLeave,LeaveType,IsManualDayStatus,IsManualInTime,IsManualOutTime
                                 " + obs.EntityAlias() + @"
-                                ,JobLocation,Entity
+                                ,JobLocation,Entity,SubSectionID,SectionID,UnitID
 			                FROM
                             (
                               SELECT E.SystemId EmpSystemId,CONVERT(int,E.EmployeeCode) EmployeeCode
@@ -7717,7 +7717,7 @@ LEFT JOIN ORG.Position PR ON M.PositionId=PR.Id
                                     ,E.GivenDesignationId, AD.CountedShortLeave ShortLeave ,lt.Code LeaveType
                                     ,ad.IsManualDayStatus,ad.IsManualInTime,ad.IsManualOutTime
                                     " + obs.EntityColumnsS() + @"
-                                    ,jl.JobLocation,e.JobLocationID,en.UserName Entity,mp.EntityId
+                                    ,jl.JobLocation,e.JobLocationID,en.UserName Entity,mpb.EntityId,PO.SubSectionID,PO.SectionID,EN.UnitID
 
                                 FROM dbo.EmployeeInformation E
 							                INNER JOIN (select * from dbo.AttdnProcessData " + ShiftIds_WC + @")AD ON E.SystemID = AD.EmpSystemID
@@ -7730,7 +7730,7 @@ LEFT JOIN ORG.Position PR ON M.PositionId=PR.Id
                                             left join JobLocation jl on jl.SystemID=e.JobLocationID
 											left join mst.ManpowerBudget mpb on mpb.id=e.BudgetCode
                                             LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
-											left join org.Entity en on en.id=mp.EntityId                                            
+											left join org.Entity en on en.id=mpb.EntityId                                            
                                           
 											left join LeaveType lt on lt.Id=ad.LTSystemID
                                             LEFT JOIN
@@ -7769,7 +7769,7 @@ LEFT JOIN ORG.Position PR ON M.PositionId=PR.Id
                                 ,OutTimeShow
 	                            , ShiftInTime
 	                            , PlantID,ShortLeave,LeaveType,IsManualDayStatus,IsManualInTime,IsManualOutTime
-                                " + obs.EntityAlias() + @" ,JobLocation,JobLocationID,Entity,EntityId
+                                " + obs.EntityAlias() + @" ,JobLocation,JobLocationID,Entity,EntityId,SubSectionID,SectionID,UnitID
                         ORDER BY  DayStatus, 
                     EmployeeCode";
 
