@@ -5437,7 +5437,7 @@ where emp.EmployeeStatus = 'Active' and  Emp.EmployeeCode = '" + Empcode + "'";
                 try
                 {
                     #region Sql
-                    strSQL1 = @"select * from (  select ROW_NUMBER() OVER(ORDER BY (ISNULL(A.ToDayIN,0)-MBGT.Deployment)) AS SrNo,  LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
+                    strSQL1 = @"select * from (  select Distinct  LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
 DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus, UN.Id EntityId,UN.UserName EntityName,
 case when apd.WeeklyStatus = 'W' then 'W'
 when (select top 1 rw.PTime from AttdnRawData rw
@@ -5531,16 +5531,16 @@ and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "
 
                     if (tbs != null && longabsent == null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'TBS'  ) a order by a.SrNo";
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'TBS'  ) ";
                     }
 
                     if (tbs == null && longabsent != null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'LONG ABSENTEEISM'  ) a order by a.SrNo";
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'LONG ABSENTEEISM'  ) ";
                     }
                     if (tbs == null && longabsent == null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null  ) a order by a.SrNo";
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null  )";
                     }
 
 
