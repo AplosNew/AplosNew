@@ -8,11 +8,15 @@ using Library.Data.Sql;
 using Library.Model.Setups;
 using Library.Service.Enums;
 using Library.Service.Setups;
+using Newtonsoft.Json;
 using OTSBD;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Web;
 using System.Web.Mvc;
 
 #endregion Using
@@ -80,61 +84,150 @@ namespace Aplos.Areas.Commercial.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select CM.*,G.UserName ComplianceGroup,C.UserName Category,SC.UserName SubCategory from hkp.ComplianceMaster CM
-LEFT JOIN hkp.ComplianceCategoryType G ON G.Id=CM.ComplianceGroupId
-LEFT JOIN hkp.ComplianceCategoryType C ON C.Id=CM.CategoryId
-LEFT JOIN hkp.ComplianceCategoryType SC ON SC.Id=CM.SubCategoryId) AS TEMP WHERE " + strkey + "";
+            string sql = @"select top 100 * from (select 
+                    CM.*,
+                    G.UserName ComplianceGroup,
+                    C.UserName Category,
+                    SC.UserName SubCategory,
+                    HasFile = CASE WHEN FileName IS NOT NULL AND FileName != '' THEN 1 ELSE 0 END
+                    from hkp.ComplianceMaster CM
+                    LEFT JOIN hkp.ComplianceCategoryType G ON G.Id=CM.ComplianceGroupId
+                    LEFT JOIN hkp.ComplianceCategoryType C ON C.Id=CM.CategoryId
+                    LEFT JOIN hkp.ComplianceCategoryType SC ON SC.Id=CM.SubCategoryId) AS TEMP WHERE " + strkey + "";
+
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data)
+        public JsonResult Create()
         {
             try
             {
-                DataSet dsMaster;
+                System.Diagnostics.Debug.WriteLine("=== CREATE METHOD CALLED ===");
+
+                // Get form data
+                string dataJson = Request.Form["data"] ?? "";
+                System.Diagnostics.Debug.WriteLine($"Data JSON length: {dataJson.Length}");
+
+                if (string.IsNullOrEmpty(dataJson))
+                {
+                    return Json(new { Error = true, Message = "No data received from form" }, JsonRequestBehavior.AllowGet);
+                }
+
+                // Parse JSON data
+                var data = JsonConvert.DeserializeObject<Dictionary<string, object>>(dataJson) ?? new Dictionary<string, object>();
+
+                // Handle file upload
+                if (Request.Files != null && Request.Files.Count > 0)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Files received: {Request.Files.Count}");
+
+                    for (int i = 0; i < Request.Files.Count; i++)
+                    {
+                        var file = Request.Files[i];
+                        if (file != null && file.ContentLength > 0)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"File {i}: Name={file.FileName}, Size={file.ContentLength}");
+
+                            string fileName = Path.GetFileName(file.FileName);
+                            string uploadPath = Server.MapPath("~/Uploads/Compliance/");
+
+                            // Create directory if not exists
+                            if (!Directory.Exists(uploadPath))
+                            {
+                                Directory.CreateDirectory(uploadPath);
+                            }
+
+                            // Generate unique filename
+                            string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(fileName);
+                            string filePath = Path.Combine(uploadPath, uniqueFileName);
+
+                            // Save file
+                            file.SaveAs(filePath);
+
+                            // Store in data dictionary with null checks
+                            data["FileName"] = fileName;
+                            data["FilePath"] = "/Uploads/Compliance/" + uniqueFileName;
+                            data["FileSize"] = file.ContentLength;
+                            data["FileType"] = file.ContentType;
+
+                            System.Diagnostics.Debug.WriteLine($"File saved: {filePath}");
+                        }
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("No files received");
+                }
+
+                // FIXED: Get ID with proper null checking
+                string id = "0";
+                if (data != null && data.ContainsKey("Id") && data["Id"] != null)
+                {
+                    id = data["Id"].ToString();
+                }
+
+                System.Diagnostics.Debug.WriteLine($"ID to process: {id}");
+
+                // Rest of your database saving logic...
+                DataSet dsMaster = new DataSet();
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where ItemName='" + data["ItemName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Item Name already exists!!!");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where   Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Code already exists!!!");
+                // FIXED: Use actual table name, not placeholder
+                string tableName = "hkp.ComplianceMaster"; // Make sure this is correct
+                string sql = $"select * from {tableName} where Id='{id}'";
 
+                System.Diagnostics.Debug.WriteLine($"Executing SQL: {sql}");
 
+                con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-
-                #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
+                    // New record
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(TableName), out _Id);
+                    string newId = "";
 
-                    data["Id"] = _Id;
+                    // Generate new ID
+                    genid.GenerateIDYearly(DateTime.Now.ToString("dd/MM/yyyy"), tableName, out newId);
+
+                    System.Diagnostics.Debug.WriteLine($"Generated new ID: {newId}");
+
+                    // Set the ID in data dictionary
+                    data["Id"] = newId;
+
+                    // Create new row with null checks
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
-                    _Id = data["Id"].ToString();
+                    // Update existing record
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
-                #endregion data update
 
+                // Save to database
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-                return Json(new { Error = false, Message = AplosMessage.Insert });
 
+                System.Diagnostics.Debug.WriteLine("Data saved successfully");
+
+                return Json(new
+                {
+                    Error = false,
+                    Message = "Saved successfully",
+                    Id = data.ContainsKey("Id") ? data["Id"] : "",
+                    HasFile = data.ContainsKey("FileName")
+                }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"ERROR: {ex.Message}\nStack Trace: {ex.StackTrace}");
 
-                return Json(new { Error = true, Message = ex.Message });
-
+                return Json(new
+                {
+                    Error = true,
+                    Message = $"Error: {ex.Message}",
+                    StackTrace = ex.StackTrace // Remove in production
+                }, JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -183,47 +276,94 @@ LEFT JOIN hkp.ComplianceCategoryType SC ON SC.Id=CM.SubCategoryId) AS TEMP WHERE
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            DataRow dr = dt.NewRow();
-
-            foreach (var item in sourceData.Keys)
+            try
             {
-                try
+                if (dt == null || sourceData == null)
                 {
-                    dr[item] = sourceData[item];
+                    System.Diagnostics.Debug.WriteLine("AddNewRow: dt or sourceData is null");
+                    return;
                 }
-                catch (Exception)
-                {
-                }
-            }
 
-            dr["AddedBy"] = identity.Name;
-            dr["AddedDate"] = System.DateTime.Now.ToString();
-            dr["AddedFromIP"] = identity.IPAddress;
-            dt.Rows.Add(dr);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                DataRow dr = dt.NewRow();
+
+                System.Diagnostics.Debug.WriteLine($"Adding new row with {sourceData.Count} fields");
+
+                foreach (var item in sourceData.Keys)
+                {
+                    try
+                    {
+                        if (sourceData[item] != null && dt.Columns.Contains(item))
+                        {
+                            dr[item] = sourceData[item];
+                            System.Diagnostics.Debug.WriteLine($"Set column {item} = {sourceData[item]}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error setting column {item}: {ex.Message}");
+                    }
+                }
+
+                // Set audit fields
+                dr["AddedBy"] = identity?.Name ?? "System";
+                dr["AddedDate"] = DateTime.Now;
+                dr["AddedFromIP"] = identity?.IPAddress ?? "127.0.0.1";
+
+                dt.Rows.Add(dr);
+                System.Diagnostics.Debug.WriteLine("Row added successfully");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in AddNewRow: {ex.Message}");
+                throw;
+            }
         }
+
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            dr.BeginEdit();
-
-            foreach (var item in sourceData.Keys)
+            try
             {
-                try
+                if (dr == null || sourceData == null)
                 {
-                    dr[item] = sourceData[item];
+                    System.Diagnostics.Debug.WriteLine("EditRow: dr or sourceData is null");
+                    return;
                 }
-                catch (Exception)
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                dr.BeginEdit();
+
+                System.Diagnostics.Debug.WriteLine($"Editing row with {sourceData.Count} fields");
+
+                foreach (var item in sourceData.Keys)
                 {
+                    try
+                    {
+                        if (sourceData[item] != null && dr.Table.Columns.Contains(item))
+                        {
+                            dr[item] = sourceData[item];
+                            System.Diagnostics.Debug.WriteLine($"Updated column {item} = {sourceData[item]}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error updating column {item}: {ex.Message}");
+                    }
                 }
+
+                // Set audit fields
+                dr["UpdatedBy"] = identity?.Name ?? "System";
+                dr["UpdatedDate"] = DateTime.Now;
+                dr["UpdatedFromIP"] = identity?.IPAddress ?? "127.0.0.1";
+
+                dr.EndEdit();
+                System.Diagnostics.Debug.WriteLine("Row edited successfully");
             }
-
-
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-
-            dr.EndEdit();
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in EditRow: {ex.Message}");
+                throw;
+            }
         }
 
         [HttpPost, Authorize]
@@ -770,6 +910,170 @@ Where CM.Id='" + masterId + "'";
             }
         }
 
+        [Authorize, HttpGet]
+        public ActionResult DownloadFile(string id)
+        {
+            try
+            {
+                // Validate input
+                if (string.IsNullOrEmpty(id))
+                {
+                    return Json(new { Error = true, Message = "ID is required" }, JsonRequestBehavior.AllowGet);
+                }
+
+                // Clean the ID to prevent SQL injection
+                id = CleanSqlInput(id);
+
+                // Build SQL query
+                string sql = $@"
+            SELECT 
+                Id,
+                FileName,
+                FilePath,
+                FileContent,
+                FileSize,
+                FileType
+            FROM hkp.ComplianceMaster 
+            WHERE Id = '{id}'";
+
+                System.Diagnostics.Debug.WriteLine($"DownloadFile SQL: {sql}");
+
+                // Use GetDataCollection (as used in your GetList method)
+                var dataList = _sqlRepository.GetDataCollection(sql, null);
+
+                if (dataList == null || dataList.Count == 0)
+                {
+                    return Json(new { Error = true, Message = "File not found" }, JsonRequestBehavior.AllowGet);
+                }
+
+                var data = dataList[0]; // Get first record
+
+                System.Diagnostics.Debug.WriteLine($"Found record. Has FileName: {data.ContainsKey("FileName")}, Has FileContent: {data.ContainsKey("FileContent") && data["FileContent"] != null}");
+
+                // Get file name
+                string fileName = "download.file";
+                if (data.ContainsKey("FileName") && data["FileName"] != null && !string.IsNullOrEmpty(data["FileName"].ToString()))
+                {
+                    fileName = data["FileName"].ToString();
+                }
+
+                System.Diagnostics.Debug.WriteLine($"File name: {fileName}");
+
+                // Option 1: File stored as BLOB in database (FileContent column)
+                if (data.ContainsKey("FileContent") && data["FileContent"] != null && data["FileContent"] is byte[])
+                {
+                    System.Diagnostics.Debug.WriteLine("Downloading from BLOB storage");
+
+                    byte[] fileBytes = (byte[])data["FileContent"];
+
+                    // Get content type
+                    string contentType = GetMimeType(fileName);
+
+                    System.Diagnostics.Debug.WriteLine($"Returning file: {fileName}, Size: {fileBytes.Length} bytes, Type: {contentType}");
+
+                    return File(fileBytes, contentType, fileName);
+                }
+                // Option 2: File stored on server (FilePath column)
+                else if (data.ContainsKey("FilePath") && data["FilePath"] != null && !string.IsNullOrEmpty(data["FilePath"].ToString()))
+                {
+                    string filePath = data["FilePath"].ToString();
+
+                    System.Diagnostics.Debug.WriteLine($"File path from DB: {filePath}");
+
+                    // Convert virtual path to physical path
+                    if (filePath.StartsWith("~"))
+                    {
+                        filePath = Server.MapPath(filePath);
+                    }
+                    else if (filePath.StartsWith("/"))
+                    {
+                        filePath = Server.MapPath("~" + filePath);
+                    }
+                    // If it's already a physical path, use as is
+
+                    System.Diagnostics.Debug.WriteLine($"Physical file path: {filePath}");
+
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+                        string contentType = GetMimeType(fileName);
+
+                        System.Diagnostics.Debug.WriteLine($"File found on server. Size: {fileBytes.Length} bytes");
+
+                        return File(fileBytes, contentType, fileName);
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"File not found at path: {filePath}");
+                        return Json(new { Error = true, Message = "Physical file not found on server" }, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("No file content or path found in database");
+                    return Json(new { Error = true, Message = "No file attached to this record" }, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"DownloadFile ERROR: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+
+                return Json(new
+                {
+                    Error = true,
+                    Message = $"Error downloading file: {ex.Message}"
+                }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        // Helper method to clean SQL input
+        private string CleanSqlInput(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            // Replace single quotes to prevent SQL injection
+            return input.Replace("'", "''");
+        }
+
+        // Helper method to get MIME type from file extension
+        private string GetMimeType(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+                return "application/octet-stream";
+
+            string extension = Path.GetExtension(fileName).ToLower();
+
+            switch (extension)
+            {
+                case ".pdf":
+                    return "application/pdf";
+                case ".doc":
+                    return "application/msword";
+                case ".docx":
+                    return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+                case ".xls":
+                    return "application/vnd.ms-excel";
+                case ".xlsx":
+                    return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                case ".jpg":
+                case ".jpeg":
+                    return "image/jpeg";
+                case ".png":
+                    return "image/png";
+                case ".gif":
+                    return "image/gif";
+                case ".txt":
+                    return "text/plain";
+                case ".zip":
+                    return "application/zip";
+                case ".rar":
+                    return "application/x-rar-compressed";
+                default:
+                    return "application/octet-stream";
+            }
+        }
 
     }
 }

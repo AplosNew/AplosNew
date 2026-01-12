@@ -77,6 +77,33 @@
                     </label>
                 </div>
             </div>
+            <label class="col-sm-4 control-label">Is Document verification</label>
+            <div class="col-sm-2">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="ModelNew.IsDocumentVerification" tabindex="10">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <label>Attachment</label>
+            <input type="file"
+                   id="fileAttachment"
+                   class="form-control"
+                   onchange="angular.element(this).scope().setFile(this)"
+                   style="padding: 5px;" />
+            <small class="text-muted" style="color: #666; font-size: 12px;">
+                Allowed file types: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG (Max 2MB)
+            </small>
+
+            <!-- Display selected file name -->
+            <div ng-if="fileName" style="margin-top: 5px; color: #007bff;">
+                <i class="fa fa-file"></i> Selected: {{fileName}} ({{fileSize}})
+            </div>
         </div>
 
     </div>
@@ -115,6 +142,12 @@
                 <input type="text" name="Location Reference" ng-model="ModelNew.LocationReference" class="form-control" required autocomplete="off" tabindex="8" maxlength="100">
             </div>
         </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Expiry Date<sup>*</sup></label>
+            <div class="col-sm-8">
+                <input type="text" ng-model="ModelNew.ExpiryDate" datepicker class="form-control datepicker" placeholder="dd-MM-yyyy" tabindex="3">
+            </div>
+        </div>
 
         <div class="form-group">
             <label class="col-sm-4 control-label">Remarks</label>
@@ -122,6 +155,8 @@
                 <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="10"></textarea>
             </div>
         </div>
+
+
 
     </div>
 
@@ -223,16 +258,34 @@
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="Id" e-headertext="Id" e-width="2"  e-visible="false" e-isprimarykey="true"></div>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
             <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
             <div e-column e-field="ComplianceGroup" e-headertext="Compliance Group" e-width="5"></div>
             <div e-column e-field="Category" e-headertext="Category Name" e-width="5"></div>
             <div e-column e-field="SubCategory" e-headertext="SubCategory Name" e-width="5"></div>
             <div e-column e-field="ItemName" e-headertext="ItemName" e-width="5"></div>
+
+            <!-- File Column - Simple Version -->
+            <div e-column e-field="FileName" e-headertext="File" e-width="4" e-templateid="#simpleFileTemplate"></div>
+
             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
         </div>
     </div>
 </div>
+
+<!-- Simple Template -->
+<script type="text/x-jsrender" id="simpleFileTemplate">
+    <div style="text-align: center;">
+        {{if FileName && FileName !== ''}}
+        <a href="/Commercial/Compliance/DownloadFile?id={{:Id}}" target="_blank"
+           style="color: #007bff; text-decoration: none;" title="Download {{:FileName}}">
+            <i class="fa fa-download"></i>
+        </a>
+        {{else}}
+        -
+        {{/if}}
+    </div>
+</script>
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="confirmBoMDetailPopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteRP();"></confirm-archive-generic>
 <div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">

@@ -5437,7 +5437,7 @@ where emp.EmployeeStatus = 'Active' and  Emp.EmployeeCode = '" + Empcode + "'";
                 try
                 {
                     #region Sql
-                    strSQL1 = @"select * from (  select Distinct  LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
+                    strSQL1 = @"select * from (  select Distinct '' as SrNo , LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
 DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus, UN.Id EntityId,UN.UserName EntityName,
 case when apd.WeeklyStatus = 'W' then 'W'
 when (select top 1 rw.PTime from AttdnRawData rw
@@ -5611,7 +5611,7 @@ and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "
                 try
                 {
                     #region Sql
-                    strSQL1 = @"select * from (  select   LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
+                    strSQL1 = @"select * from (  select '' as SrNo ,  LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
 DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus, UN.Id EntityId,UN.UserName EntityName,
 case when apd.WeeklyStatus = 'W' then 'W'
 when (select top 1 rw.PTime from AttdnRawData rw
@@ -5789,7 +5789,7 @@ else '00:00:00' end) <> '00:00:00'   and apd.WorkDate = '" + date + "'  and Hg.I
                 try
                 {
                     #region Sql
-                    strSQL1 = @"select * from (  select   SC.StandardName Section,SBC.StandardName SubSection, 
+                    strSQL1 = @"select * from (  select '' as SrNo ,  SC.StandardName Section,SBC.StandardName SubSection, 
 DSG.StandardName Designation, POS.Activity, 
  MBGT.Code BudgetCode, ISNULL(A.ToDayIN , 0) as ToDayIN, 
 Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId  ,MBGT.Deployment, Diffenence= ISNULL(A.ToDayIN,0)-MBGT.Deployment ,
