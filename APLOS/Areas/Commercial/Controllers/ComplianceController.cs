@@ -84,7 +84,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select 
+            string sql = @"select  * from (select 
                     CM.*,
                     G.UserName ComplianceGroup,
                     C.UserName Category,
