@@ -1000,39 +1000,69 @@ Where CM.Id='" + masterId + "'";
         {
             try
             {
+                // **START DEBUG LOG**
+                System.Diagnostics.Debug.WriteLine($"=== DOWNLOAD FILE REQUEST STARTED ===");
+                System.Diagnostics.Debug.WriteLine($"Request Time: {DateTime.Now}");
+                System.Diagnostics.Debug.WriteLine($"File ID: {id}");
+
                 if (string.IsNullOrEmpty(id))
                 {
+                    System.Diagnostics.Debug.WriteLine($"ERROR: File ID is null or empty");
                     return Content("Error: File ID is required");
                 }
 
                 // Clean input to prevent SQL injection
                 id = CleanSqlInput(id);
+                System.Diagnostics.Debug.WriteLine($"Cleaned ID: {id}");
 
-                // Query database for file information
-                string sql = $@"
+                // **USE PARAMETERIZED QUERY (SECURITY FIX)**
+                string sql = @"
             SELECT 
                 Id,
                 FileName,
                 FilePath,
                 FileContent,
-                FileType
+                FileType,
+                FileSize
             FROM hkp.ComplianceMaster 
-            WHERE Id = '{id}'";
+            WHERE Id = @Id";
 
-                var dataList = _sqlRepository.GetDataCollection(sql, null);
+                var parameters = new Dictionary<string, object>
+        {
+            { "@Id", id }
+        };
+
+                var dataList = _sqlRepository.GetDataCollection(sql, parameters);
 
                 if (dataList == null || dataList.Count == 0)
                 {
+                    System.Diagnostics.Debug.WriteLine($"ERROR: No data found for ID: {id}");
                     return Content("Error: File record not found in database");
                 }
 
                 var data = dataList[0];
+
+                // **DEBUG: LOG ALL DATA FROM DATABASE**
+                System.Diagnostics.Debug.WriteLine($"=== DATABASE RECORD FOUND ===");
+                foreach (var key in data.Keys)
+                {
+                    if (key == "FileContent" && data[key] != null && data[key] is byte[])
+                    {
+                        byte[] bytes = (byte[])data[key];
+                        System.Diagnostics.Debug.WriteLine($"{key}: [BLOB DATA - {bytes.Length} bytes]");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"{key}: {data[key]}");
+                    }
+                }
 
                 // Get file name
                 string fileName = "download.file";
                 if (data.ContainsKey("FileName") && data["FileName"] != null && !string.IsNullOrEmpty(data["FileName"].ToString()))
                 {
                     fileName = data["FileName"].ToString();
+                    System.Diagnostics.Debug.WriteLine($"Final FileName: {fileName}");
                 }
 
                 // **OPTION 1: First try to get file from BLOB (Most Reliable)**
@@ -1040,6 +1070,12 @@ Where CM.Id='" + masterId + "'";
                 {
                     byte[] fileBytes = (byte[])data["FileContent"];
                     string contentType = GetContentType(data, fileName);
+
+                    System.Diagnostics.Debug.WriteLine($"=== USING BLOB DATA ===");
+                    System.Diagnostics.Debug.WriteLine($"BLOB Size: {fileBytes.Length} bytes");
+                    System.Diagnostics.Debug.WriteLine($"Content-Type: {contentType}");
+                    System.Diagnostics.Debug.WriteLine($"Returning file: {fileName}");
+                    System.Diagnostics.Debug.WriteLine($"=== DOWNLOAD COMPLETE (BLOB) ===");
 
                     return File(fileBytes, contentType, fileName);
                 }
@@ -1049,66 +1085,146 @@ Where CM.Id='" + masterId + "'";
                 {
                     string filePath = data["FilePath"].ToString();
 
-                    // Method 1: Convert relative path to YOUR server's absolute path
+                    System.Diagnostics.Debug.WriteLine($"=== ATTEMPTING FILE SYSTEM DOWNLOAD ===");
+                    System.Diagnostics.Debug.WriteLine($"Original FilePath from DB: {filePath}");
+                    System.Diagnostics.Debug.WriteLine($"FileName to use: {fileName}");
+
+                    // **STRATEGY 1: Convert relative path to YOUR server's absolute path**
                     string physicalPath = ConvertRelativeToAbsolutePath(filePath);
+                    System.Diagnostics.Debug.WriteLine($"Strategy 1 - Converted Path: {physicalPath}");
+                    System.Diagnostics.Debug.WriteLine($"Strategy 1 - File Exists: {System.IO.File.Exists(physicalPath)}");
 
                     if (System.IO.File.Exists(physicalPath))
                     {
                         byte[] fileBytes = System.IO.File.ReadAllBytes(physicalPath);
                         string contentType = GetContentType(data, fileName);
+
+                        System.Diagnostics.Debug.WriteLine($"=== FILE FOUND VIA STRATEGY 1 ===");
+                        System.Diagnostics.Debug.WriteLine($"File Size: {fileBytes.Length} bytes");
+                        System.Diagnostics.Debug.WriteLine($"Content-Type: {contentType}");
+                        System.Diagnostics.Debug.WriteLine($"=== DOWNLOAD COMPLETE (Strategy 1) ===");
+
                         return File(fileBytes, contentType, fileName);
                     }
 
-                    // Method 2: Try Server.MapPath (in case relative path is different)
+                    // **STRATEGY 2: Try Server.MapPath**
                     try
                     {
                         string mappedPath = Server.MapPath(filePath);
+                        System.Diagnostics.Debug.WriteLine($"Strategy 2 - Server.MapPath: {mappedPath}");
+                        System.Diagnostics.Debug.WriteLine($"Strategy 2 - File Exists: {System.IO.File.Exists(mappedPath)}");
+
                         if (System.IO.File.Exists(mappedPath))
                         {
                             byte[] fileBytes = System.IO.File.ReadAllBytes(mappedPath);
                             string contentType = GetContentType(data, fileName);
+
+                            System.Diagnostics.Debug.WriteLine($"=== FILE FOUND VIA STRATEGY 2 ===");
+                            System.Diagnostics.Debug.WriteLine($"=== DOWNLOAD COMPLETE (Strategy 2) ===");
+
                             return File(fileBytes, contentType, fileName);
                         }
                     }
-                    catch { }
+                    catch (Exception mapEx)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Strategy 2 - Server.MapPath Error: {mapEx.Message}");
+                    }
 
-                    // Method 3: Try with ~ prefix
+                    // **STRATEGY 3: Try with ~ prefix**
                     try
                     {
                         if (!filePath.StartsWith("~"))
                         {
-                            string mappedPath = Server.MapPath("~" + filePath);
+                            string mappedPath = Server.MapPath("~/" + filePath);
+                            System.Diagnostics.Debug.WriteLine($"Strategy 3 - Server.MapPath(~): {mappedPath}");
+                            System.Diagnostics.Debug.WriteLine($"Strategy 3 - File Exists: {System.IO.File.Exists(mappedPath)}");
+
                             if (System.IO.File.Exists(mappedPath))
                             {
                                 byte[] fileBytes = System.IO.File.ReadAllBytes(mappedPath);
                                 string contentType = GetContentType(data, fileName);
+
+                                System.Diagnostics.Debug.WriteLine($"=== FILE FOUND VIA STRATEGY 3 ===");
+                                System.Diagnostics.Debug.WriteLine($"=== DOWNLOAD COMPLETE (Strategy 3) ===");
+
                                 return File(fileBytes, contentType, fileName);
                             }
                         }
                     }
-                    catch { }
+                    catch (Exception mapEx)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Strategy 3 - Server.MapPath(~) Error: {mapEx.Message}");
+                    }
 
-                    // Method 4: Try common alternative paths on YOUR server
+                    // **STRATEGY 4: Try alternative paths on YOUR server**
+                    System.Diagnostics.Debug.WriteLine($"=== TRYING ALTERNATIVE PATHS ===");
                     string[] alternativePaths = GetAlternativeFilePaths(filePath, fileName);
 
                     foreach (string altPath in alternativePaths)
                     {
-                        if (System.IO.File.Exists(altPath))
+                        System.Diagnostics.Debug.WriteLine($"Checking: {altPath}");
+                        bool exists = System.IO.File.Exists(altPath);
+                        System.Diagnostics.Debug.WriteLine($"Exists: {exists}");
+
+                        if (exists)
                         {
                             byte[] fileBytes = System.IO.File.ReadAllBytes(altPath);
                             string contentType = GetContentType(data, fileName);
+
+                            System.Diagnostics.Debug.WriteLine($"=== FILE FOUND VIA ALTERNATIVE PATH ===");
+                            System.Diagnostics.Debug.WriteLine($"Alternative Path Used: {altPath}");
+                            System.Diagnostics.Debug.WriteLine($"File Size: {fileBytes.Length} bytes");
+                            System.Diagnostics.Debug.WriteLine($"=== DOWNLOAD COMPLETE (Alternative Path) ===");
+
                             return File(fileBytes, contentType, fileName);
                         }
                     }
 
-                    // If we get here, file was not found
-                    return Content($"Error: File not found on server. Path: {filePath}");
+                    // **STRATEGY 5: Check if file exists by filename only in Uploads/Compliance**
+                    string simplePath = @"F:\aPOP\Pratibha\Uploads\Compliance\" + Path.GetFileName(filePath);
+                    System.Diagnostics.Debug.WriteLine($"Strategy 5 - Simple Path: {simplePath}");
+                    System.Diagnostics.Debug.WriteLine($"Strategy 5 - File Exists: {System.IO.File.Exists(simplePath)}");
+
+                    if (System.IO.File.Exists(simplePath))
+                    {
+                        byte[] fileBytes = System.IO.File.ReadAllBytes(simplePath);
+                        string contentType = GetContentType(data, fileName);
+
+                        System.Diagnostics.Debug.WriteLine($"=== FILE FOUND VIA SIMPLE PATH ===");
+                        System.Diagnostics.Debug.WriteLine($"=== DOWNLOAD COMPLETE (Simple Path) ===");
+
+                        return File(fileBytes, contentType, fileName);
+                    }
+
+                    // **FINAL: File not found anywhere**
+                    System.Diagnostics.Debug.WriteLine($"=== FILE NOT FOUND ===");
+                    System.Diagnostics.Debug.WriteLine($"Last attempted path: {simplePath}");
+
+                    // Create detailed error message
+                    string errorMessage = $"Error: File not found on server.<br/><br/>";
+                    errorMessage += $"<b>Details:</b><br/>";
+                    errorMessage += $"• File ID: {id}<br/>";
+                    errorMessage += $"• File Name: {fileName}<br/>";
+                    errorMessage += $"• Path in DB: {filePath}<br/>";
+                    errorMessage += $"• Expected location: F:\\aPOP\\Pratibha\\Uploads\\Compliance\\<br/><br/>";
+                    errorMessage += $"<b>Troubleshooting:</b><br/>";
+                    errorMessage += $"1. Check if file exists in F:\\aPOP\\Pratibha\\Uploads\\Compliance\\<br/>";
+                    errorMessage += $"2. Verify file permissions<br/>";
+                    errorMessage += $"3. Check if file was moved or renamed<br/>";
+
+                    return Content(errorMessage, "text/html");
                 }
 
+                System.Diagnostics.Debug.WriteLine($"ERROR: No file attached to record");
                 return Content("Error: No file attached to this record");
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"=== CRITICAL ERROR ===");
+                System.Diagnostics.Debug.WriteLine($"Error Message: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                System.Diagnostics.Debug.WriteLine($"=== DOWNLOAD FAILED ===");
+
                 return Content($"Error downloading file: {ex.Message}");
             }
         }
@@ -1121,36 +1237,76 @@ Where CM.Id='" + masterId + "'";
             if (string.IsNullOrEmpty(filePath))
                 return possiblePaths.ToArray();
 
+            System.Diagnostics.Debug.WriteLine($"=== GENERATING ALTERNATIVE PATHS ===");
+            System.Diagnostics.Debug.WriteLine($"Input filePath: {filePath}");
+            System.Diagnostics.Debug.WriteLine($"Input fileName: {fileName}");
+
             // **YOUR SERVER'S BASE PATH**
             string basePath = @"F:\aPOP\Pratibha\";
 
-            // 1. Try with just the filename in uploads folder
-            possiblePaths.Add(Path.Combine(basePath, "Uploads", "Compliance", fileName));
-
-            // 2. Try extracting just the filename from the path
+            // Get just the filename
             string justFileName = Path.GetFileName(filePath);
-            possiblePaths.Add(Path.Combine(basePath, "Uploads", "Compliance", justFileName));
+            if (string.IsNullOrEmpty(justFileName))
+                justFileName = fileName;
 
-            // 3. Try different folder structures
-            string[] possibleFolders = {
-                "Uploads\\Compliance\\",
-                "Content\\Uploads\\Compliance\\",
-                "App_Data\\Uploads\\Compliance\\",
-                "Files\\Compliance\\",
-                "Documents\\Compliance\\"
-            };
+            System.Diagnostics.Debug.WriteLine($"Extracted filename: {justFileName}");
 
-            foreach (string folder in possibleFolders)
+            // 1. YOUR EXACT PATH FROM ERROR MESSAGE (HIGHEST PRIORITY)
+            string exactPath = Path.Combine(basePath, "Uploads", "Compliance", justFileName);
+            possiblePaths.Add(exactPath);
+            System.Diagnostics.Debug.WriteLine($"Added path 1: {exactPath}");
+
+            // 2. With provided fileName
+            possiblePaths.Add(Path.Combine(basePath, "Uploads", "Compliance", fileName));
+            System.Diagnostics.Debug.WriteLine($"Added path 2: {Path.Combine(basePath, "Uploads", "Compliance", fileName)}");
+
+            // 3. Converted path from ConvertRelativeToAbsolutePath
+            string convertedPath = ConvertRelativeToAbsolutePath(filePath);
+            possiblePaths.Add(convertedPath);
+            System.Diagnostics.Debug.WriteLine($"Added path 3: {convertedPath}");
+
+            // 4. Various folder combinations
+            string[] folderVariations = {
+        "Uploads\\Compliance\\",
+        "Content\\Uploads\\Compliance\\",
+        "App_Data\\Uploads\\Compliance\\",
+        "Files\\Compliance\\",
+        "Documents\\Compliance\\",
+        "Uploads\\",
+        "Files\\"
+    };
+
+            foreach (string folder in folderVariations)
             {
+                possiblePaths.Add(Path.Combine(basePath, folder, justFileName));
                 possiblePaths.Add(Path.Combine(basePath, folder, fileName));
-                possiblePaths.Add(Path.Combine(basePath, folder, Path.GetFileName(filePath)));
             }
 
-            // 4. Try application root combinations
-            possiblePaths.Add(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Uploads", "Compliance", fileName));
+            // 5. Application root combinations
+            string appRoot = AppDomain.CurrentDomain.BaseDirectory;
+            possiblePaths.Add(Path.Combine(appRoot, "Uploads", "Compliance", justFileName));
+            possiblePaths.Add(Path.Combine(appRoot, "Uploads", "Compliance", fileName));
 
-            // Remove duplicates
-            return possiblePaths.Distinct().ToArray();
+            // 6. Try with just the base path
+            possiblePaths.Add(Path.Combine(basePath, justFileName));
+            possiblePaths.Add(Path.Combine(basePath, fileName));
+
+            // 7. Try the path as-is (in case it's already absolute)
+            if (Path.IsPathRooted(filePath))
+            {
+                possiblePaths.Add(filePath);
+                System.Diagnostics.Debug.WriteLine($"Added path as-is (rooted): {filePath}");
+            }
+
+            // Remove duplicates and nulls
+            var uniquePaths = possiblePaths
+                .Where(p => !string.IsNullOrEmpty(p))
+                .Distinct()
+                .ToArray();
+
+            System.Diagnostics.Debug.WriteLine($"Total unique paths generated: {uniquePaths.Length}");
+
+            return uniquePaths;
         }
 
         // Helper: Get content type
@@ -1281,6 +1437,80 @@ Where CM.Id='" + masterId + "'";
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error deleting file: {ex.Message}");
+            }
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult CheckFilePath(string id)
+        {
+            try
+            {
+                // Query database for file information
+                string sql = $@"
+            SELECT 
+                Id,
+                FileName,
+                FilePath,
+                FileType
+            FROM hkp.ComplianceMaster 
+            WHERE Id = '{id}'";
+
+                var dataList = _sqlRepository.GetDataCollection(sql, null);
+
+                if (dataList == null || dataList.Count == 0)
+                {
+                    return Content($"<h3>No record found for ID: {id}</h3>", "text/html");
+                }
+
+                var data = dataList[0];
+                string fileName = data["FileName"]?.ToString() ?? "unknown";
+                string filePath = data["FilePath"]?.ToString() ?? "";
+
+                string result = $"<h3>File Path Diagnostic for ID: {id}</h3>";
+                result += $"<p><b>FileName:</b> {fileName}</p>";
+                result += $"<p><b>FilePath in DB:</b> {filePath}</p>";
+
+                // Check ConvertRelativeToAbsolutePath result
+                string convertedPath = ConvertRelativeToAbsolutePath(filePath);
+                result += $"<p><b>Converted Path:</b> {convertedPath}</p>";
+                result += $"<p><b>Exists at converted path:</b> {System.IO.File.Exists(convertedPath)}</p>";
+
+                // Check your specific path from error
+                string specificPath = @"F:\aPOP\Pratibha\Uploads\Compliance\" + Path.GetFileName(filePath);
+                result += $"<p><b>Specific Path (F:\\aPOP\\Pratibha\\Uploads\\Compliance\\):</b> {specificPath}</p>";
+                result += $"<p><b>Exists at specific path:</b> {System.IO.File.Exists(specificPath)}</p>";
+
+                // List files in the Uploads/Compliance folder
+                string uploadsPath = @"F:\aPOP\Pratibha\Uploads\Compliance\";
+                result += $"<h4>Files in {uploadsPath}:</h4>";
+                result += "<ul>";
+
+                try
+                {
+                    if (Directory.Exists(uploadsPath))
+                    {
+                        foreach (string file in Directory.GetFiles(uploadsPath))
+                        {
+                            result += $"<li>{Path.GetFileName(file)}</li>";
+                        }
+                    }
+                    else
+                    {
+                        result += $"<li>Directory does not exist: {uploadsPath}</li>";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result += $"<li>Error reading directory: {ex.Message}</li>";
+                }
+
+                result += "</ul>";
+
+                return Content(result, "text/html");
+            }
+            catch (Exception ex)
+            {
+                return Content($"<h3>Error:</h3><p>{ex.Message}</p>", "text/html");
             }
         }
     }
