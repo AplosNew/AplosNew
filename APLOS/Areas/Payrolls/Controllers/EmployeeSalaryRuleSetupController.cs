@@ -8,6 +8,7 @@ using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.Model.Setups;
 using Library.Service.Enums;
+using Library.Service.Payrolls.SalaryStructure;
 using Library.Service.Setups;
 using OTSBD;
 using System;
@@ -22,13 +23,13 @@ namespace Aplos.Areas.Payrolls.Controllers
 {
     public class EmployeeSalaryRuleSetupController : BaseController
     {
-        
+
         string TableName = "hkp.EmployeeSalaryRuleSetup";
 
         #region Constructor
 
         private readonly ISqlRepository _sqlRepository;
-
+        clsSalaryStructureUpload clsSSU = new clsSalaryStructureUpload();
         public EmployeeSalaryRuleSetupController(ISqlRepository R)
         {
             _sqlRepository = R;
@@ -333,15 +334,16 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult GetDesignationGroupData(string ecId)
+        public ActionResult GetDesignationData(string ecId)
         {
             try
             {
-                var sql = @"SELECT distinct DG.Id,DG.Sequence,DG.Code,DG.ShortName,DG.UserName,DG.StandardName, Flag=CAST(0 AS bit),EC.UserName EmployeeCategory FROM HKP.DesignationGroup DG
-LEFT JOIN MST.DesignationMaster DM ON DM.DesignationGroupId=DG.Id
+                var sql = @"SELECT distinct DG.Id,DG.Sequence,DG.Code,DG.ShortName,DG.UserName,DG.StandardName, Flag=CAST(0 AS bit),EC.UserName EmployeeCategory 
+FROM HKP.Designation DG
+LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=DG.Id
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
-WHERE DG.Active=1 AND DG.Id NOT IN(SELECT DesignationGroupId FROM [dbo].[SalaryRuleDesignationGroup]) 
-AND EC.Id " + ecId+@"";
+WHERE DG.Active=1 AND DG.Id NOT IN(SELECT DesignationId FROM [dbo].[SalaryRuleDesignation]) 
+AND EC.Id " + ecId + @"";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -352,13 +354,13 @@ AND EC.Id " + ecId+@"";
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetSalaryRuleDesignationGroupData(string masterId)
+        public ActionResult GetSalaryRuleDesignationData(string masterId)
         {
             try
             {
                 var sql = @"select ec.Sequence,ec.Code,ec.ShortName,ec.StandardName,ec.UserName,glmec.*
-                            from [dbo].SalaryRuleDesignationGroup glmec 
-                            left join [HKP].[DesignationGroup] ec on ec.Id=glmec.DesignationGroupId
+                            from [dbo].SalaryRuleDesignation glmec 
+                            left join [HKP].[Designation] ec on ec.Id=glmec.DesignationId
 							where glmec.EmployeeSalaryRuleSetupId = '" + masterId + "' Order By ec.UserName";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -370,20 +372,20 @@ AND EC.Id " + ecId+@"";
         }
 
         [HttpPost, Authorize]
-        public ActionResult DeleteDesignationGroup(string id)
+        public ActionResult DeleteDesignation(string id)
         {
-            DeleteSalaryRuleDesignationGroupData(id);
+            DeleteSalaryRuleDesignationData(id);
             return Json(new { Message = AplosMessage.Deleted });
         }
 
 
-        public void DeleteSalaryRuleDesignationGroupData(string id)
+        public void DeleteSalaryRuleDesignationData(string id)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                strSQL = "DELETE FROM [dbo].[SalaryRuleDesignationGroup] WHERE Id = '" + id + "'";
+                strSQL = "DELETE FROM [dbo].[SalaryRuleDesignation] WHERE Id = '" + id + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
@@ -413,15 +415,15 @@ AND EC.Id " + ecId+@"";
 
 
         [HttpPost, Authorize]
-        public JsonResult CreateDesignationGroup(List<Dictionary<string, object>> data, string masterId)
+        public JsonResult CreateDesignation(List<Dictionary<string, object>> data, string masterId)
         {
             try
             {
                 DataSet dsDesignation, dsDD;
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from [dbo].[SalaryRuleDesignationGroup] where EmployeeSalaryRuleSetupId='" + masterId + "'", out dsDesignation, false, "1");
-                con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[SalaryRuleDesignationGroup] where EmployeeSalaryRuleSetupId='" + masterId + "'", out dsDD, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [dbo].[SalaryRuleDesignation] where EmployeeSalaryRuleSetupId='" + masterId + "'", out dsDesignation, false, "1");
+                con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[SalaryRuleDesignation] where EmployeeSalaryRuleSetupId='" + masterId + "'", out dsDD, false, "1");
                 int ccount = Convert.ToInt32(dsDD.Tables[0].Rows[0]["countId"].ToString());
 
                 string Id = "";
@@ -747,7 +749,7 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
             {
                 if (clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) == 0)
                 {
-                    seq = 5;
+                    seq = 15;
                 }
                 else
                 {
@@ -844,7 +846,165 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
             }
         }
 
+        #region New SalaryStructure
 
+        [HttpGet, Authorize]
+        public ActionResult GetEmployeeSalaryData(string empId, string designationId)
+        {
+            try
+            {
+                return Json(clsSSU.GetEmployeeSalaryData(empId,designationId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateSalary(Dictionary<string, object> master, List<Dictionary<string, object>> data, Dictionary<string, object> IncrementHistory)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster,dsChild, dsIH;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalaryInfoDefineMaster where  1=1", out dsMaster, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalaryInfoDefine where  1=1", out dsChild, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.IncrementHistory where  1=1", out dsIH, false, "1");
+                bplib.clsGenID objGenID = new bplib.clsGenID();
+                string strSystemID = null;
+                string strIHSystemID = null;
+                if (master != null)
+                {
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "SystemID='" + master["SystemID"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "SALARY_INFO", out strSystemID);
+                        strSystemID = "SALR" + strSystemID;
+
+                        master["SystemID"] = strSystemID;
+                        NewAddRow(dsMaster.Tables[0], master);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        NewEditRow(drmo, master);
+                    }
+
+                    
+                }
+
+                string _PK_SLrDef = string.Empty;
+                int count = 0;
+                if (data != null)
+                {
+                    objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "SALARYINFODEFINE", out _PK_SLrDef);
+
+                    foreach (var item in data)
+                    {
+                        
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "SystemID='" + item["SystemID"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            count++;
+                            item["SystemID"] = bplib.clsWebLib.RetValidLen("SD" + _PK_SLrDef + "-" + count);
+                            item["SalaryID"] = strSystemID;
+
+                            NewAddRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            NewEditRow(drmo, item);
+                        }
+                    }
+
+                    
+                }
+
+                if (IncrementHistory != null)
+                {
+                    DataView dv = new DataView(dsIH.Tables[0]);
+                    dv.RowFilter = "SystemID='" + master["SystemID"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "IncrementHistory", out strIHSystemID);
+
+                        IncrementHistory["SystemID"] = strIHSystemID;
+                        IncrementHistory["ToSalaryId"] = strSystemID;
+
+                        AddNewRow(dsIH.Tables[0], IncrementHistory);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, IncrementHistory);
+                    }
+
+
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster,dsChild, dsIH);
+
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+        }
+
+
+        private void NewAddRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["DateAdded"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void NewEditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["DateUpdated"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+
+        #endregion
 
     }
 }
