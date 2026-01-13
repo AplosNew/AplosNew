@@ -1000,81 +1000,60 @@ Where CM.Id='" + masterId + "'";
         {
             try
             {
-                // 1. Validate input
-                if (string.IsNullOrEmpty(id))
-                {
-                    return Json(new { success = false, message = "File ID is required" }, JsonRequestBehavior.AllowGet);
-                }
-
-                // 2. Use PARAMETERIZED query (security fix)
-                string sql = @"
-            SELECT 
-                Id,
-                FileName,
-                FilePath,
-                FileContent,
-                FileType,
-                LEN(FileContent) as FileSize
-            FROM hkp.ComplianceMaster 
-            WHERE Id = @Id";
-
-                var parameters = new Dictionary<string, object> { { "@Id", id } };
-                var dataList = _sqlRepository.GetDataCollection(sql, parameters);
+                // 1. Get ONLY what we need
+                string sql = "SELECT FileName, FileContent FROM hkp.ComplianceMaster WHERE Id = @Id";
+                var dataList = _sqlRepository.GetDataCollection(sql,
+                    new Dictionary<string, object> { { "@Id", id } });
 
                 if (dataList == null || dataList.Count == 0)
-                {
-                    return Content("ERROR: File record not found in database. ID: " + id);
-                }
+                    return Content("File not found in database. ID: " + id);
 
                 var data = dataList[0];
-
-                // 3. Get filename
                 string fileName = data["FileName"]?.ToString() ?? "file_" + id + ".download";
 
-                // 4. **PRIORITY 1: ALWAYS USE BLOB DATA FIRST (MOST RELIABLE)**
+                // 2. Try BLOB first
                 if (data["FileContent"] != null && data["FileContent"] is byte[])
                 {
-                    byte[] fileBytes = (byte[])data["FileContent"];
-
-                    // Get content type
-                    string contentType = data["FileType"]?.ToString();
-                    if (string.IsNullOrEmpty(contentType))
-                    {
-                        contentType = GetMimeType(fileName);
-                    }
-
-                    // Force download
-                    Response.AppendHeader("Content-Disposition", "attachment; filename=" + fileName);
-                    return File(fileBytes, contentType);
+                    byte[] bytes = (byte[])data["FileContent"];
+                    return File(bytes, "application/octet-stream", fileName);
                 }
 
-                // 5. **PRIORITY 2: If no BLOB, try filesystem with ABSOLUTE FIX**
-                string filePath = data["FilePath"]?.ToString();
+                // 3. Try ONE specific location
+                string fixedPath = @"F:\aPOP\Pratibha\Uploads\Compliance\" + fileName;
 
-                if (!string.IsNullOrEmpty(filePath))
+                if (System.IO.File.Exists(fixedPath))
                 {
-                    // **ULTIMATE PATH RESOLVER - Tries EVERY possible location**
-                    string foundPath = FindFileAnywhere(filePath, fileName, id);
+                    byte[] bytes = System.IO.File.ReadAllBytes(fixedPath);
+                    return File(bytes, "application/octet-stream", fileName);
+                }
 
-                    if (!string.IsNullOrEmpty(foundPath) && System.IO.File.Exists(foundPath))
+                // 4. Last try: Search for any file with this name
+                string searchFolder = @"F:\aPOP\Pratibha\Uploads\Compliance\";
+
+                if (System.IO.Directory.Exists(searchFolder))
+                {
+                    foreach (string file in System.IO.Directory.GetFiles(searchFolder))
                     {
-                        byte[] fileBytes = System.IO.File.ReadAllBytes(foundPath);
-                        string contentType = data["FileType"]?.ToString() ?? GetMimeType(fileName);
-
-                        Response.AppendHeader("Content-Disposition", "attachment; filename=" + fileName);
-                        return File(fileBytes, contentType);
+                        if (System.IO.Path.GetFileName(file).Equals(fileName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            byte[] bytes = System.IO.File.ReadAllBytes(file);
+                            return File(bytes, "application/octet-stream", fileName);
+                        }
                     }
                 }
 
-                // 6. **FINAL FALLBACK: Create a helpful error page**
-                return CreateFileNotFoundPage(id, data, filePath);
+                // 5. Final error
+                return Content(
+                    $"<h3>File Not Found</h3>" +
+                    $"<p>File: <b>{fileName}</b></p>" +
+                    $"<p>Checked location: <b>{fixedPath}</b></p>" +
+                    $"<p>Please check if the file exists at that location.</p>",
+                    "text/html"
+                );
             }
             catch (Exception ex)
             {
-                // Log error
-                System.Diagnostics.Debug.WriteLine($"CRITICAL ERROR DownloadFile ID={id}: {ex}");
-
-                return Content($"<h2>Download Error</h2><p>An error occurred while downloading the file.</p><p><b>Details:</b> {ex.Message}</p>", "text/html");
+                return Content("Error: " + ex.Message);
             }
         }
 
