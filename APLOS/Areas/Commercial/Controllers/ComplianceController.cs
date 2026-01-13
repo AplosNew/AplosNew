@@ -8,11 +8,15 @@ using Library.Data.Sql;
 using Library.Model.Setups;
 using Library.Service.Enums;
 using Library.Service.Setups;
+using Newtonsoft.Json;
 using OTSBD;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Web;
 using System.Web.Mvc;
 
 #endregion Using
@@ -23,7 +27,7 @@ namespace Aplos.Areas.Commercial.Controllers
     {
         string TableName = "hkp.ComplianceMaster";
         string TableName1 = "hkp.ComplianceCategoryType";
-        
+
 
 
         #region Constructor
@@ -35,7 +39,7 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         #endregion Constructor
-                    
+
         public ActionResult Aplos()
         {
             return View();
@@ -80,62 +84,227 @@ namespace Aplos.Areas.Commercial.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select CM.*,G.UserName ComplianceGroup,C.UserName Category,SC.UserName SubCategory from hkp.ComplianceMaster CM
-LEFT JOIN hkp.ComplianceCategoryType G ON G.Id=CM.ComplianceGroupId
-LEFT JOIN hkp.ComplianceCategoryType C ON C.Id=CM.CategoryId
-LEFT JOIN hkp.ComplianceCategoryType SC ON SC.Id=CM.SubCategoryId) AS TEMP WHERE " + strkey + "";
+            string sql = @"select  * from (select 
+                    CM.*,
+                    G.UserName ComplianceGroup,
+                    C.UserName Category,
+                    SC.UserName SubCategory,
+                    HasFile = CASE WHEN FileName IS NOT NULL AND FileName != '' THEN 1 ELSE 0 END
+                    from hkp.ComplianceMaster CM
+                    LEFT JOIN hkp.ComplianceCategoryType G ON G.Id=CM.ComplianceGroupId
+                    LEFT JOIN hkp.ComplianceCategoryType C ON C.Id=CM.CategoryId
+                    LEFT JOIN hkp.ComplianceCategoryType SC ON SC.Id=CM.SubCategoryId) AS TEMP WHERE " + strkey + "";
+
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data)
+        public JsonResult Create()
         {
             try
             {
+                // Get form data
+                string dataJson = Request.Form["data"] ?? "";
+
+                if (string.IsNullOrEmpty(dataJson))
+                {
+                    return Json(new { Error = true, Message = "No data received from form" });
+                }
+
+                // Parse JSON data
+                var data = JsonConvert.DeserializeObject<Dictionary<string, object>>(dataJson) ?? new Dictionary<string, object>();
+
+                // Get ID from data
+                string id = "0";
+                if (data.ContainsKey("Id") && data["Id"] != null)
+                {
+                    id = data["Id"].ToString();
+                }
+
+                // Check if we should delete existing file
+                bool deleteExistingFile = data.ContainsKey("DeleteExistingFile") &&
+                                          data["DeleteExistingFile"] != null &&
+                                          Convert.ToBoolean(data["DeleteExistingFile"]);
+
+                // Handle file upload
+                if (Request.Files != null && Request.Files.Count > 0)
+                {
+                    var file = Request.Files[0];
+                    if (file != null && file.ContentLength > 0)
+                    {
+                        string fileName = Path.GetFileName(file.FileName);
+                        string extension = Path.GetExtension(fileName).ToLower();
+
+                        // Validate file type
+                        string[] allowedExtensions = { ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".jpg", ".jpeg", ".png" };
+                        if (!allowedExtensions.Contains(extension))
+                        {
+                            return Json(new { Error = true, Message = "Invalid file type. Allowed: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG" });
+                        }
+
+                        // Validate file size (2MB limit)
+                        if (file.ContentLength > 2097152)
+                        {
+                            return Json(new { Error = true, Message = "File size exceeds 2MB limit" });
+                        }
+
+                        // **YOUR SERVER'S ABSOLUTE PATH**
+                        string basePath = @"F:\aPOP\Pratibha\";
+                        string uploadFolder = Path.Combine(basePath, "Uploads", "Compliance");
+
+                        // Create directory if it doesn't exist
+                        if (!Directory.Exists(uploadFolder))
+                        {
+                            try
+                            {
+                                Directory.CreateDirectory(uploadFolder);
+                            }
+                            catch (Exception dirEx)
+                            {
+                                return Json(new { Error = true, Message = $"Cannot create upload folder: {dirEx.Message}" });
+                            }
+                        }
+
+                        // Generate unique filename
+                        string uniqueFileName = Guid.NewGuid().ToString() + extension;
+                        string fullPhysicalPath = Path.Combine(uploadFolder, uniqueFileName);
+
+                        // Save the file
+                        try
+                        {
+                            file.SaveAs(fullPhysicalPath);
+                        }
+                        catch (Exception saveEx)
+                        {
+                            return Json(new { Error = true, Message = $"Cannot save file: {saveEx.Message}" });
+                        }
+
+                        // Store file info in data dictionary
+                        // Store RELATIVE path for consistency
+                        string relativePath = "/Uploads/Compliance/" + uniqueFileName;
+
+                        data["FileName"] = fileName;
+                        data["FilePath"] = relativePath; // Store relative path
+                        data["FileSize"] = file.ContentLength;
+                        data["FileType"] = file.ContentType;
+
+                        // Also store as BLOB for reliability (optional but recommended)
+                        using (BinaryReader br = new BinaryReader(file.InputStream))
+                        {
+                            data["FileContent"] = br.ReadBytes(file.ContentLength);
+                        }
+                    }
+                }
+                else if (deleteExistingFile && id != "0")
+                {
+                    // Delete existing file when user clears attachment
+                    DeleteExistingFileOnServer(id);
+
+                    // Clear file fields
+                    data["FileName"] = DBNull.Value;
+                    data["FilePath"] = DBNull.Value;
+                    data["FileSize"] = DBNull.Value;
+                    data["FileType"] = DBNull.Value;
+                    data["FileContent"] = DBNull.Value;
+                }
+
+                // Database operations
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where ItemName='" + data["ItemName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Item Name already exists!!!");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where   Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Code already exists!!!");
+                // Check if record exists
+                con.OpenDataSetThroughAdapter($"select * from hkp.ComplianceMaster where Id='{id}'", out dsMaster, false, "1");
 
-
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-
-                #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
+                    // New record
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(TableName), out _Id);
+                    string newId;
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString(), "hkp.ComplianceMaster", out newId);
 
-                    data["Id"] = _Id;
+                    data["Id"] = newId;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
-                    _Id = data["Id"].ToString();
+                    // Update existing record
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
-                #endregion data update
 
+                // Save to database
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-                return Json(new { Error = false, Message = AplosMessage.Insert });
 
+                return Json(new
+                {
+                    Error = false,
+                    Message = "Saved successfully",
+                    Id = data["Id"],
+                    HasFile = data.ContainsKey("FileName") && data["FileName"] != DBNull.Value
+                });
             }
             catch (Exception ex)
             {
-
-                return Json(new { Error = true, Message = ex.Message });
-
+                return Json(new
+                {
+                    Error = true,
+                    Message = $"Error: {ex.Message}"
+                });
             }
+        }
+
+        // Helper to delete existing file from server
+        private void DeleteExistingFileOnServer(string id)
+        {
+            try
+            {
+                // Get existing file path from database
+                string sql = $"SELECT FilePath FROM hkp.ComplianceMaster WHERE Id = '{id}'";
+                var dataList = _sqlRepository.GetDataCollection(sql, null);
+
+                if (dataList != null && dataList.Count > 0 && dataList[0].ContainsKey("FilePath"))
+                {
+                    string filePath = dataList[0]["FilePath"]?.ToString();
+
+                    if (!string.IsNullOrEmpty(filePath))
+                    {
+                        // Convert to physical path on YOUR server
+                        string physicalPath = ConvertRelativeToAbsolutePath(filePath);
+
+                        if (System.IO.File.Exists(physicalPath))
+                        {
+                            System.IO.File.Delete(physicalPath);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log but don't throw - file deletion failure shouldn't stop main operation
+                System.Diagnostics.Debug.WriteLine($"Error deleting file: {ex.Message}");
+            }
+        }
+
+        // Convert relative path to absolute path for YOUR server
+        private string ConvertRelativeToAbsolutePath(string relativePath)
+        {
+            if (string.IsNullOrEmpty(relativePath))
+                return relativePath;
+
+            // Clean the path
+            relativePath = relativePath.Trim();
+
+            // Remove leading / or ~ if present
+            if (relativePath.StartsWith("~/"))
+                relativePath = relativePath.Substring(2);
+            else if (relativePath.StartsWith("/"))
+                relativePath = relativePath.Substring(1);
+
+            // **YOUR SERVER'S BASE PATH**
+            string basePath = @"F:\aPOP\Pratibha\";
+
+            // Combine paths (replace forward slashes with backslashes for Windows)
+            return Path.Combine(basePath, relativePath.Replace("/", "\\"));
         }
 
         public ActionResult Delete(string id)
@@ -183,47 +352,94 @@ LEFT JOIN hkp.ComplianceCategoryType SC ON SC.Id=CM.SubCategoryId) AS TEMP WHERE
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            DataRow dr = dt.NewRow();
-
-            foreach (var item in sourceData.Keys)
+            try
             {
-                try
+                if (dt == null || sourceData == null)
                 {
-                    dr[item] = sourceData[item];
+                    System.Diagnostics.Debug.WriteLine("AddNewRow: dt or sourceData is null");
+                    return;
                 }
-                catch (Exception)
-                {
-                }
-            }
 
-            dr["AddedBy"] = identity.Name;
-            dr["AddedDate"] = System.DateTime.Now.ToString();
-            dr["AddedFromIP"] = identity.IPAddress;
-            dt.Rows.Add(dr);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                DataRow dr = dt.NewRow();
+
+                System.Diagnostics.Debug.WriteLine($"Adding new row with {sourceData.Count} fields");
+
+                foreach (var item in sourceData.Keys)
+                {
+                    try
+                    {
+                        if (sourceData[item] != null && dt.Columns.Contains(item))
+                        {
+                            dr[item] = sourceData[item];
+                            System.Diagnostics.Debug.WriteLine($"Set column {item} = {sourceData[item]}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error setting column {item}: {ex.Message}");
+                    }
+                }
+
+                // Set audit fields
+                dr["AddedBy"] = identity?.Name ?? "System";
+                dr["AddedDate"] = DateTime.Now;
+                dr["AddedFromIP"] = identity?.IPAddress ?? "127.0.0.1";
+
+                dt.Rows.Add(dr);
+                System.Diagnostics.Debug.WriteLine("Row added successfully");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in AddNewRow: {ex.Message}");
+                throw;
+            }
         }
+
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            dr.BeginEdit();
-
-            foreach (var item in sourceData.Keys)
+            try
             {
-                try
+                if (dr == null || sourceData == null)
                 {
-                    dr[item] = sourceData[item];
+                    System.Diagnostics.Debug.WriteLine("EditRow: dr or sourceData is null");
+                    return;
                 }
-                catch (Exception)
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                dr.BeginEdit();
+
+                System.Diagnostics.Debug.WriteLine($"Editing row with {sourceData.Count} fields");
+
+                foreach (var item in sourceData.Keys)
                 {
+                    try
+                    {
+                        if (sourceData[item] != null && dr.Table.Columns.Contains(item))
+                        {
+                            dr[item] = sourceData[item];
+                            System.Diagnostics.Debug.WriteLine($"Updated column {item} = {sourceData[item]}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error updating column {item}: {ex.Message}");
+                    }
                 }
+
+                // Set audit fields
+                dr["UpdatedBy"] = identity?.Name ?? "System";
+                dr["UpdatedDate"] = DateTime.Now;
+                dr["UpdatedFromIP"] = identity?.IPAddress ?? "127.0.0.1";
+
+                dr.EndEdit();
+                System.Diagnostics.Debug.WriteLine("Row edited successfully");
             }
-
-
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-
-            dr.EndEdit();
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in EditRow: {ex.Message}");
+                throw;
+            }
         }
 
         [HttpPost, Authorize]
@@ -383,7 +599,7 @@ Where CP.ComplianceMasterId='" + masterId + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize,HttpPost]
+        [Authorize, HttpPost]
         public JsonResult CreateCheckPoint(Dictionary<string, object> data)
         {
             try
@@ -393,7 +609,7 @@ Where CP.ComplianceMasterId='" + masterId + "'";
                 con.OpenDataSetThroughAdapter("select * from dbo.ComplianceCheckPoints where CheckPointName='" + data["CheckPointName"] + "'  AND  ComplianceMasterId='" + data["ComplianceMasterId"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Check Point Name already exists!!!");
-               
+
                 con.OpenDataSetThroughAdapter("select * from dbo.ComplianceCheckPoints where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
@@ -540,8 +756,8 @@ LEFT JOIN HKP.ComplianceMaster CMR ON CMR.Id=CT.LocationId) AS TEMP WHERE " + st
             return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
         }
 
-       
-        [Authorize,HttpGet]
+
+        [Authorize, HttpGet]
         public JsonResult GetGroupCbo()
         {
             return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName1 + " Where EntryType='Group'"), JsonRequestBehavior.AllowGet);
@@ -562,14 +778,14 @@ LEFT JOIN HKP.ComplianceMaster CMR ON CMR.Id=CT.LocationId) AS TEMP WHERE " + st
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetDataList(string column, string value,string entryType)
+        public ActionResult GetDataList(string column, string value, string entryType)
         {
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM " + TableName1 + " Where EntryType='"+entryType+"') AS TEMP WHERE " + strkey + " order by sequence";
+            string sql = @"select top 100 * from (SELECT * FROM " + TableName1 + " Where EntryType='" + entryType + "') AS TEMP WHERE " + strkey + " order by sequence";
 
 
 
@@ -589,7 +805,7 @@ LEFT JOIN HKP.ComplianceMaster CMR ON CMR.Id=CT.LocationId) AS TEMP WHERE " + st
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName1 + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "' AND EntryType='"+ entryType + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName1 + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "' AND EntryType='" + entryType + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Code already exists!!!");
 
@@ -608,7 +824,7 @@ LEFT JOIN HKP.ComplianceMaster CMR ON CMR.Id=CT.LocationId) AS TEMP WHERE " + st
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName1, out _Id);
 
-                    data["Id"] =  _Id;
+                    data["Id"] = _Id;
                     data["EntryType"] = entryType;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
@@ -637,7 +853,7 @@ LEFT JOIN HKP.ComplianceMaster CMR ON CMR.Id=CT.LocationId) AS TEMP WHERE " + st
         [HttpPost, Authorize]
         public ActionResult DeleteData(string id)
         {
-            
+
             try
             {
 
@@ -659,10 +875,10 @@ LEFT JOIN HKP.ComplianceMaster CMR ON CMR.Id=CT.LocationId) AS TEMP WHERE " + st
 
             }
         }
-        
+
         private double GetCategoryTypeSequence(string entryType)
         {
-            DataTable dt = _sqlRepository.GetDataTable(@"SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName1 + " Where EntryType='"+ entryType + "'");
+            DataTable dt = _sqlRepository.GetDataTable(@"SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName1 + " Where EntryType='" + entryType + "'");
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
@@ -680,7 +896,7 @@ LEFT JOIN HKP.ComplianceMaster CMR ON CMR.Id=CT.LocationId) AS TEMP WHERE " + st
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select top 100 * from (select CM.*,G.UserName ComplianceGroup,C.UserName Category,SC.UserName SubCategory 
-,RPACount=(Select Count(Id) from dbo.ComplianceResponsiblePersonAndAuditor Where EmpSystemID='"+identity.EmployeeId+ @"'AND ComplianceMasterId=CM.Id)
+,RPACount=(Select Count(Id) from dbo.ComplianceResponsiblePersonAndAuditor Where EmpSystemID='" + identity.EmployeeId + @"'AND ComplianceMasterId=CM.Id)
 from hkp.ComplianceMaster CM
 LEFT JOIN hkp.ComplianceCategoryType G ON G.Id=CM.ComplianceGroupId
 LEFT JOIN hkp.ComplianceCategoryType C ON C.Id=CM.CategoryId
@@ -692,7 +908,7 @@ Where CM.Id IN(Select ComplianceMasterId from dbo.ComplianceResponsiblePersonAnd
         [HttpGet, Authorize]
         public ActionResult GetComplianceAuditDataList(string masterId)
         {
-           
+
             string sql = @"select CA.Id,CA.ScorePoint,CA.Remark,CM.ComplianceGroupId,CM.Code,CM.CategoryId,CM.SubCategoryId,CM.ItemName,CM.CriticalityLevel,CM.ComplianceValue,CM.Remarks,CM.LocationReference,CM.ScanApplicable,CM.CodeApplicable,G.UserName ComplianceGroup,C.UserName Category,SC.UserName SubCategory,CA.ComplianceMasterId,CM.AuditFrequency,CM.AuditFrequencyUnit 
 from TRN.ComplianceAudit CA
 LEFT JOIN hkp.ComplianceMaster CM ON CM.Id=CA.ComplianceMasterId
@@ -711,9 +927,9 @@ Where CM.Id='" + masterId + "'";
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                DataSet dsMaster,dsCheckPoint,dsEmp;
+                DataSet dsMaster, dsCheckPoint, dsEmp;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                
+
                 con.OpenDataSetThroughAdapter("select * from TRN.ComplianceAudit where Id='" + data["Id"] + "'", out dsMaster, false, "1");
                 con.OpenDataSetThroughAdapter("select * from TRN.ComplianceAuditorMap where 1=2", out dsCheckPoint, false, "1");
                 con.OpenDataSetThroughAdapter("select * from dbo.ComplianceResponsiblePersonAndAuditor where ComplianceMasterId='" + data["ComplianceMasterId"] + "' AND SourceType='" + SourceType + "' AND EmpSystemId='" + identity.EmployeeId + "'", out dsEmp, false, "1");
@@ -770,6 +986,302 @@ Where CM.Id='" + masterId + "'";
             }
         }
 
+        // Clean SQL input
+        private string CleanSqlInput(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
 
+            return input.Replace("'", "''");
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult DownloadFile(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                {
+                    return Content("Error: File ID is required");
+                }
+
+                // Clean input to prevent SQL injection
+                id = CleanSqlInput(id);
+
+                // Query database for file information
+                string sql = $@"
+            SELECT 
+                Id,
+                FileName,
+                FilePath,
+                FileContent,
+                FileType
+            FROM hkp.ComplianceMaster 
+            WHERE Id = '{id}'";
+
+                var dataList = _sqlRepository.GetDataCollection(sql, null);
+
+                if (dataList == null || dataList.Count == 0)
+                {
+                    return Content("Error: File record not found in database");
+                }
+
+                var data = dataList[0];
+
+                // Get file name
+                string fileName = "download.file";
+                if (data.ContainsKey("FileName") && data["FileName"] != null && !string.IsNullOrEmpty(data["FileName"].ToString()))
+                {
+                    fileName = data["FileName"].ToString();
+                }
+
+                // **OPTION 1: First try to get file from BLOB (Most Reliable)**
+                if (data.ContainsKey("FileContent") && data["FileContent"] != null && data["FileContent"] is byte[])
+                {
+                    byte[] fileBytes = (byte[])data["FileContent"];
+                    string contentType = GetContentType(data, fileName);
+
+                    return File(fileBytes, contentType, fileName);
+                }
+
+                // **OPTION 2: Try to get file from file system**
+                if (data.ContainsKey("FilePath") && data["FilePath"] != null && !string.IsNullOrEmpty(data["FilePath"].ToString()))
+                {
+                    string filePath = data["FilePath"].ToString();
+
+                    // Method 1: Convert relative path to YOUR server's absolute path
+                    string physicalPath = ConvertRelativeToAbsolutePath(filePath);
+
+                    if (System.IO.File.Exists(physicalPath))
+                    {
+                        byte[] fileBytes = System.IO.File.ReadAllBytes(physicalPath);
+                        string contentType = GetContentType(data, fileName);
+                        return File(fileBytes, contentType, fileName);
+                    }
+
+                    // Method 2: Try Server.MapPath (in case relative path is different)
+                    try
+                    {
+                        string mappedPath = Server.MapPath(filePath);
+                        if (System.IO.File.Exists(mappedPath))
+                        {
+                            byte[] fileBytes = System.IO.File.ReadAllBytes(mappedPath);
+                            string contentType = GetContentType(data, fileName);
+                            return File(fileBytes, contentType, fileName);
+                        }
+                    }
+                    catch { }
+
+                    // Method 3: Try with ~ prefix
+                    try
+                    {
+                        if (!filePath.StartsWith("~"))
+                        {
+                            string mappedPath = Server.MapPath("~" + filePath);
+                            if (System.IO.File.Exists(mappedPath))
+                            {
+                                byte[] fileBytes = System.IO.File.ReadAllBytes(mappedPath);
+                                string contentType = GetContentType(data, fileName);
+                                return File(fileBytes, contentType, fileName);
+                            }
+                        }
+                    }
+                    catch { }
+
+                    // Method 4: Try common alternative paths on YOUR server
+                    string[] alternativePaths = GetAlternativeFilePaths(filePath, fileName);
+
+                    foreach (string altPath in alternativePaths)
+                    {
+                        if (System.IO.File.Exists(altPath))
+                        {
+                            byte[] fileBytes = System.IO.File.ReadAllBytes(altPath);
+                            string contentType = GetContentType(data, fileName);
+                            return File(fileBytes, contentType, fileName);
+                        }
+                    }
+
+                    // If we get here, file was not found
+                    return Content($"Error: File not found on server. Path: {filePath}");
+                }
+
+                return Content("Error: No file attached to this record");
+            }
+            catch (Exception ex)
+            {
+                return Content($"Error downloading file: {ex.Message}");
+            }
+        }
+
+        // Helper: Get alternative file paths to try
+        private string[] GetAlternativeFilePaths(string filePath, string fileName)
+        {
+            var possiblePaths = new List<string>();
+
+            if (string.IsNullOrEmpty(filePath))
+                return possiblePaths.ToArray();
+
+            // **YOUR SERVER'S BASE PATH**
+            string basePath = @"F:\aPOP\Pratibha\";
+
+            // 1. Try with just the filename in uploads folder
+            possiblePaths.Add(Path.Combine(basePath, "Uploads", "Compliance", fileName));
+
+            // 2. Try extracting just the filename from the path
+            string justFileName = Path.GetFileName(filePath);
+            possiblePaths.Add(Path.Combine(basePath, "Uploads", "Compliance", justFileName));
+
+            // 3. Try different folder structures
+            string[] possibleFolders = {
+                "Uploads\\Compliance\\",
+                "Content\\Uploads\\Compliance\\",
+                "App_Data\\Uploads\\Compliance\\",
+                "Files\\Compliance\\",
+                "Documents\\Compliance\\"
+            };
+
+            foreach (string folder in possibleFolders)
+            {
+                possiblePaths.Add(Path.Combine(basePath, folder, fileName));
+                possiblePaths.Add(Path.Combine(basePath, folder, Path.GetFileName(filePath)));
+            }
+
+            // 4. Try application root combinations
+            possiblePaths.Add(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Uploads", "Compliance", fileName));
+
+            // Remove duplicates
+            return possiblePaths.Distinct().ToArray();
+        }
+
+        // Helper: Get content type
+        private string GetContentType(Dictionary<string, object> data, string fileName)
+        {
+            // First try to get from FileType column
+            if (data.ContainsKey("FileType") && data["FileType"] != null && !string.IsNullOrEmpty(data["FileType"].ToString()))
+            {
+                return data["FileType"].ToString();
+            }
+
+            // Fall back to file extension
+            return GetMimeType(fileName);
+        }
+
+        // Helper: Get MIME type from file extension
+        private string GetMimeType(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+                return "application/octet-stream";
+
+            string extension = Path.GetExtension(fileName).ToLower();
+
+            switch (extension)
+            {
+                case ".pdf": return "application/pdf";
+                case ".doc": return "application/msword";
+                case ".docx": return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+                case ".xls": return "application/vnd.ms-excel";
+                case ".xlsx": return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                case ".jpg": case ".jpeg": return "image/jpeg";
+                case ".png": return "image/png";
+                case ".gif": return "image/gif";
+                case ".txt": return "text/plain";
+                case ".zip": return "application/zip";
+                case ".rar": return "application/x-rar-compressed";
+                default: return "application/octet-stream";
+            }
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult DeleteFileOnly(string id)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"DeleteFileOnly called for ID: {id}");
+
+                if (string.IsNullOrEmpty(id))
+                {
+                    return Json(new { Error = true, Message = "ID is required" });
+                }
+
+                // Clean input
+                id = CleanSqlInput(id);
+
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                // Get the record
+                con.OpenDataSetThroughAdapter($"select * from hkp.ComplianceMaster where Id='{id}'", out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    return Json(new { Error = true, Message = "Record not found" });
+                }
+
+                DataRow row = dsMaster.Tables[0].Rows[0];
+
+                // Delete physical file if exists
+                if (row["FilePath"] != DBNull.Value && !string.IsNullOrEmpty(row["FilePath"].ToString()))
+                {
+                    string filePath = row["FilePath"].ToString();
+                    DeleteExistingFile(id);
+                }
+
+                // Clear file information in database
+                row["FileName"] = DBNull.Value;
+                row["FilePath"] = DBNull.Value;
+                row["FileContent"] = DBNull.Value;
+                row["FileSize"] = DBNull.Value;
+                row["FileType"] = DBNull.Value;
+
+                // Save changes
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                System.Diagnostics.Debug.WriteLine("File deleted successfully from database");
+
+                return Json(new
+                {
+                    Error = false,
+                    Message = "File deleted successfully",
+                    HasFile = false
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"DeleteFileOnly ERROR: {ex.Message}");
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        // Helper method to delete existing file (for DeleteFileOnly method)
+        private void DeleteExistingFile(string id)
+        {
+            try
+            {
+                // Get existing file path from database
+                string sql = $"SELECT FilePath FROM hkp.ComplianceMaster WHERE Id = '{id}'";
+                var dataList = _sqlRepository.GetDataCollection(sql, null);
+
+                if (dataList != null && dataList.Count > 0 && dataList[0].ContainsKey("FilePath"))
+                {
+                    string filePath = dataList[0]["FilePath"]?.ToString();
+
+                    if (!string.IsNullOrEmpty(filePath))
+                    {
+                        // Convert to physical path on YOUR server
+                        string physicalPath = ConvertRelativeToAbsolutePath(filePath);
+
+                        if (System.IO.File.Exists(physicalPath))
+                        {
+                            System.IO.File.Delete(physicalPath);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error deleting file: {ex.Message}");
+            }
+        }
     }
 }
