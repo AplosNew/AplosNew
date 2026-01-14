@@ -87,29 +87,30 @@
                 </div>
             </div>
         </div>
-        <div class="form-group">
+        @*<div class="form-group">
             <label class="col-sm-4 control-label">File Upload</label>
-            <div class="col-sm-8">
+            <a href="{{filePath+ModelNew.FileName}}" style="text-decoration:underline" download="{{ModelNew.FileName}}" target="_self">{{ModelNew.FileName}}</a>
+            <div class="col-sm-4">
                 <div id="UploadDefault" e-dialogtext-title="Compliance File" e-autoupload="true" e-begin="onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg,.xls,.xlsx,.pdf" e-error="errorPicUpload"></div>
             </div>
+        </div>*@
+
+    <div class="form-group">
+        <label>Attachment</label>
+        <a href="{{filePath+ModelNew.FileName}}" style="text-decoration:underline" download="{{ModelNew.FileName}}" target="_self">{{ModelNew.FileName}}</a>
+        <input type="file"
+               id="fileAttachment"
+               class="form-control"
+               onchange="angular.element(this).scope().setFile(this)"
+               style="padding: 5px;" />
+        <small class="text-muted" style="color: #666; font-size: 12px;">
+            Allowed file types: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG (Max 2MB)
+        </small>
+        Display selected file name
+        <div ng-if="fileName" style="margin-top: 5px; color: #007bff;">
+            <i class="fa fa-file"></i> Selected: {{fileName}} ({{fileSize}})
         </div>
-
-        <!--<div class="form-group">
-            <label>Attachment</label>
-            <input type="file"
-                   id="fileAttachment"
-                   class="form-control"
-                   onchange="angular.element(this).scope().setFile(this)"
-                   style="padding: 5px;" />
-            <small class="text-muted" style="color: #666; font-size: 12px;">
-                Allowed file types: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG (Max 2MB)
-            </small>-->
-
-            <!-- Display selected file name -->
-            <!--<div ng-if="fileName" style="margin-top: 5px; color: #007bff;">
-                <i class="fa fa-file"></i> Selected: {{fileName}} ({{fileSize}})
-            </div>
-        </div>-->
+    </div>
 
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -281,21 +282,22 @@
 <!-- Simple Template -->
 <script type="text/template" id="file">
     <div class="text-right" style="width:100%">
-        <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.FileDownload(data);">{{data.FileName}}</a>
+        <a href="{{filePath+data.FileName}}" style="text-decoration:underline" download="{{data.FileName}}" target="_self">{{data.FileName}}</a>
+        @*<a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.FileDownload(data);">{{data.FileName}}</a>*@
     </div>
 </script>
-<script type="text/x-jsrender" id="simpleFileTemplate">
-    <div style="text-align: center;">
-            {{if FileName && FileName !== ''}}
-            <a href="/Commercial/Compliance/DownloadFile?id={{:Id}}" target="_blank"
-               style="color: #007bff; text-decoration: none;" title="Download {{:FileName}}">
-                <i class="fa fa-download"></i>
-            </a>
-            {{else}}
-            -
-            {{/if}}
-        </div>
-</script>
+@*<script type="text/x-jsrender" id="simpleFileTemplate">
+        <div style="text-align: center;">
+                {{if FileName && FileName !== ''}}
+                <a href="/Commercial/Compliance/DownloadFile?id={{:Id}}" target="_blank"
+                   style="color: #007bff; text-decoration: none;" title="Download {{:FileName}}">
+                    <i class="fa fa-download"></i>
+                </a>
+                {{else}}
+                -
+                {{/if}}
+            </div>
+    </script>*@
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="confirmBoMDetailPopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteRP();"></confirm-archive-generic>
 <div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">

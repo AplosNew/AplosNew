@@ -123,13 +123,13 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         }
     };
     // Download file function
-    $scope.dwonloadUrl = null;
-    $scope.FileDownload = function (data) {
-        $scope.dwonloadUrl = null;
-        var str = data.FileName;
-        var extention = str.substr(str.indexOf('.'));
-        $scope.dwonloadUrl = virtualPath.ComplianceFilePath + '/' + data.Id + extention;
-    };
+    //$scope.downloadUrl = null;
+    //$scope.FileDownload = function (data) {
+    //    $scope.downloadUrl = null;
+    //    var str = data.FileName;
+    //    var extention = str.substr(str.indexOf('.'));
+    //    $scope.downloadUrl = virtualPath.ComplianceFilePath + '/' + data.Id + extention;
+    //};
 
 
     $scope.downloadFile = function (id) {
@@ -154,7 +154,7 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
     }
 
     // MAIN SAVE FUNCTION - UPDATED
-    $scope._Save = function () {
+    $scope.Save = function () {
         console.log('=== SAVE FUNCTION STARTED ===');
 
         $scope.$broadcast('show-errors-check-validity');
@@ -232,7 +232,7 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         }
     };
 
-    $scope.Save = function () {
+    $scope._Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
             $http({

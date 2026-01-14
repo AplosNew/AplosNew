@@ -100,7 +100,7 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data)
+        public JsonResult _Create(Dictionary<string, object> data)
         {
             try
             {
@@ -238,7 +238,7 @@ namespace Aplos.Areas.Commercial.Controllers
         #endregion upload File
 
         [HttpPost]
-        public JsonResult _Create()
+        public JsonResult Create()
         {
             try
             {
