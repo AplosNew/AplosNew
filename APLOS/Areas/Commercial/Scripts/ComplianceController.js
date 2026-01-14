@@ -9,6 +9,13 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.Action = 'Save';
+    $scope.valueData = '';
+    $scope.message = null;
+    $scope.imageSrc = null;
+    $scope.filedata = null;
+    $scope.fileName = '';
+    $scope.fileSize = '';
+
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -60,6 +67,14 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
     }
     $scope.getData();
 
+    $scope.getFile = function () {
+        $scope.progress = 0;
+        fileReader.readAsDataUrl($scope.file, $scope)
+            .then(function (result) {
+                $scope.imageSrc = result;
+            });
+    };
+
     $scope.ModelTemp = {
         Id: null,
         ComplianceGroup: null,
@@ -72,7 +87,12 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         Remarks: null,
         LocationReference: null,
         ScanApplicable: null,
-        CodeApplicable: null
+        CodeApplicable: null,
+        IsDocumentVerification: null,
+        Image: null,
+        imageSrc: null,
+        fileAttachment: null,
+        ExpiryDate: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -86,7 +106,133 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         }
     };
 
+    $scope.setFile = function (element) {
+        var file = element.files[0];
+        if (file) {
+            $scope.$apply(function () {
+                $scope.filedata = file;
+                $scope.fileName = file.name;
+                $scope.fileSize = formatFileSize(file.size);
+            });
+        } else {
+            $scope.$apply(function () {
+                $scope.filedata = null;
+                $scope.fileName = '';
+                $scope.fileSize = '';
+            });
+        }
+    };
+    // Download file function
+    //$scope.downloadUrl = null;
+    //$scope.FileDownload = function (data) {
+    //    $scope.downloadUrl = null;
+    //    var str = data.FileName;
+    //    var extention = str.substr(str.indexOf('.'));
+    //    $scope.downloadUrl = virtualPath.ComplianceFilePath + '/' + data.Id + extention;
+    //};
+
+
+    $scope.downloadFile = function (id) {
+        if (!id) {
+            alert('No record selected');
+            return;
+        }
+
+        // Direct download approach
+        var url = '/Commercial/Compliance/DownloadFile?id=' + encodeURIComponent(id);
+        window.open(url, '_blank');
+    };
+
+
+    // Helper function to format file size
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        var k = 1024;
+        var sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        var i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // MAIN SAVE FUNCTION - UPDATED
     $scope.Save = function () {
+        console.log('=== SAVE FUNCTION STARTED ===');
+
+        $scope.$broadcast('show-errors-check-validity');
+
+        if ($scope.ModelNewForm.$valid) {
+            console.log('Form is valid');
+            console.log('Model data:', $scope.ModelNew);
+
+            // Validate file if exists
+            var fileInput = document.getElementById('fileAttachment');
+            var fileData = null;
+
+            if (fileInput && fileInput.files.length > 0) {
+                fileData = fileInput.files[0];
+                console.log('File selected:', fileData.name, 'Size:', fileData.size);
+
+                if (fileData.size > 2097152) {
+                    ShowResult(fileData.name + ' - File size must be below 2 MB', 'failure');
+                    return;
+                }
+            } else {
+                console.log('No file selected');
+            }
+
+            // Create FormData
+            var formData = new FormData();
+
+            // Add file if exists
+            if (fileData) {
+                formData.append('fileAttachment', fileData);
+                console.log('File added to FormData');
+            }
+
+            // Add form data - ensure ModelNew has Id field
+            if (!$scope.ModelNew.Id) {
+                $scope.ModelNew.Id = "0"; // Set default ID for new records
+            }
+
+            console.log('Sending data:', $scope.ModelNew);
+            formData.append('data', JSON.stringify($scope.ModelNew));
+
+            // Show loading
+            ShowResult('Saving... Please wait', 'info');
+
+            // Send request
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: formData,
+                headers: {
+                    'Content-Type': undefined
+                },
+                transformRequest: angular.identity
+            }).then(function successCallback(response) {
+                console.log('Server response:', response.data);
+
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                } else {
+                    ShowResult(response.data.Message, 'success');
+                    // Clear file input
+                    if (fileInput) {
+                        fileInput.value = '';
+                    }
+                    ClearFields();
+                    $scope.getData();
+                }
+            }, function errorCallback(response) {
+                console.log('Error response:', response);
+                ShowResult(response.data ? response.data.Message : 'Error occurred while saving', 'failure');
+            });
+        } else {
+            console.log('Form is invalid');
+            ShowResult('Please fill all required fields correctly', 'failure');
+        }
+    };
+
+    $scope._Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
             $http({
@@ -110,6 +256,31 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
 
         }
     };
+
+
+    $scope.onBeginUpload = function (args) {
+        try {
+            if (angular.isUndefinedOrNull($scope.ModelNew.Id))
+                throw 'Please select/save the Compliance data first.';
+
+            args.data = $scope.ModelNew.Id;
+        } catch (e) {
+
+            args.cancel = true;
+            ShowResult(e, 'Error');
+        }
+
+    }
+    $scope.uploadUrl = "Commercial/Compliance/SaveDefault";
+    $scope.fileselect = function (e) {
+
+    }
+    $scope.errorPicUpload = function (e) {
+        if (angular.isUndefinedOrNull($scope.ModelNew.Id))
+            ShowResult('Please select/save the Compliance data first', 'Error');
+        else
+            ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
+    }
 
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
@@ -142,6 +313,51 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.RPDataList = [];
+
+        // Clear file attachment
+        clearFileAttachment();
+    }
+
+    // Function to clear file attachment
+    function clearFileAttachment() {
+        // Get the file input element
+        var fileInput = document.getElementById('fileAttachment');
+
+        if (fileInput) {
+            // Reset the file input
+            fileInput.value = '';
+
+            // Clear any AngularJS file model if exists
+            if ($scope.filedata) {
+                $scope.filedata = null;
+            }
+            if ($scope.fileName) {
+                $scope.fileName = '';
+            }
+
+            // Hide file name display if exists
+            var fileNameDisplay = document.getElementById('fileNameDisplay');
+            var selectedFileNameDiv = document.getElementById('selectedFileName');
+
+            if (fileNameDisplay) {
+                fileNameDisplay.textContent = '';
+            }
+            if (selectedFileNameDiv) {
+                selectedFileNameDiv.style.display = 'none';
+            }
+
+            // Clear from ModelNew if exists
+            if ($scope.ModelNew) {
+                $scope.ModelNew.FileName = '';
+                $scope.ModelNew.HasFile = false;
+                $scope.ModelNew.FilePath = '';
+                $scope.ModelNew.DeleteExistingFile = false;
+            }
+
+            console.log('File attachment cleared');
+        } else {
+            console.log('File input element not found');
+        }
     }
 
     $scope.CloseResponsiblePerson = function () {
@@ -847,6 +1063,8 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         $scope.SubCategoryModelNew = Object.assign({}, $scope.SubCategoryModelTemp);
         $scope.SubCategoryModelNew.Sequence = seq;
     }
+
+    
 
     //#endregion
 

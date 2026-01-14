@@ -50,6 +50,7 @@ virtualPath.BlackListDocument = virtualPath.ROOT_FOLDRR + '/BlackList';
 virtualPath.QRPdfDocument = virtualPath.ROOT_FOLDRR +'/QRPdfDocument/';
 virtualPath.PostSalesInvoiceDoc = virtualPath.ROOT_FOLDRR +'/PostSalesInvoice/';
 virtualPath.GarmentPic = virtualPath.ROOT_FOLDRR + '/DefectPic/';
+virtualPath.ComplianceFilePath = virtualPath.ROOT_FOLDRR + '/ComplianceFile/';
 
 function getCookie(cname) {
     var name = cname + "=";

@@ -1213,7 +1213,7 @@ namespace Library.Service.HumanResources
 								  ,SalaryRule=case when dmc.SalaryRuleMasterId IS NOT NULL THEN 'Yes' ELSE 'No' END
 								  ,ld.UserName LegalDesignation
 								  ,ec.UserName EmployeeCategory
-								  ,LSG.UserName SalaryGrade
+								  ,LSG.UserName SalaryGrade,EI.GivenDesignationId
                               FROM dbo.Employeeinformation EI                             
                               LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                               LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id

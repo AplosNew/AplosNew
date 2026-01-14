@@ -2,23 +2,127 @@
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Fresh" role="tab" data-toggle="tab">Fresh Entry</a></li>
-            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Increment" role="tab" data-toggle="tab">Increment/Promotion/Adjustment</a></li>
+            @*<li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Increment" role="tab" data-toggle="tab">Increment/Promotion/Adjustment</a></li>*@
         </ul>
     </div>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form="tabForm1" id="empType">
-            <div class="col-xs-12 col-sm-6 col-md-6">
-                <div class="form-group">
-                <label class="col-sm-4 control-label">Employee</label>
-                <div class="col-sm-8">
-                    <div class="input-group">
-                        <input type="text" name="Responsible Person" ng-model="fileNew.ResponsiblePersonName" class="form-control" readonly>
-                        <span class="input-group-btn">
-                            <button ng-click="LoadEmployeeDataForGrid();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
-                        </span>
+            <div class="row form-horizontal form-elements">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Employee</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="text" name="Responsible Person" ng-model="EmpSalaryInfo.EmployeeName" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="LoadEmployeeDataForGrid();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <b>{{budgetCodeChangeNew.EmployeeName}}</b>
+                    <p> Employee Code- {{EmpSalaryInfo.EmployeeCode}}, DOJ- {{EmpSalaryInfo.DOJ | dateFiltering}}</p>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Budget Code</label>
+                        <div class="col-sm-8 input-group" style="padding-left: 15px; padding-right: 14px;">
+                            <label class="control-label"><b>:</b> {{EmpSalaryInfo.BudgetCode}}</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Current Position</label>
+                        <div class="col-sm-8">
+                            <label class="control-label"><b>:</b> {{EmpSalaryInfo.Position}}</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Current Entity</label>
+                        <div class="col-sm-8">
+                            <label class="control-label"><b>:</b> {{EmpSalaryInfo.Entity}}</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Effective Date<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <input class="form-control" type="text" style="visibility:hidden;height:0px;width:0px; border:0px;padding:0px;" autofocus="" />
+                                <input class="form-control" ng-model="EmpSalaryInfo.EffectiveDate" datepicker ng-disabled="IsFreshEntry" placeholder="dd-MM-yyyy" value="EmpSalaryInfo.EffectiveDate" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Next Due Date<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <input class="form-control" ng-model="EmpSalaryInfo.NextDueDate" value="EmpSalaryInfo.NextDueDate" datepicker placeholder="dd-MM-yyyy" />
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row form-horizontal form-elements">
+                        <div class="col-xs-12">
+                            <div class="table-responsive modal-table aplos-grid-toggle">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Salary Head</th>
+                                            <th>Head Type</th>
+                                            <th>Amount</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in EmpSalaryOpenHeadCurrent">
+                                            <td>{{x.SalaryHead}}</td>
+                                            <td>{{x.HeadType}}</td>
+                                            <td><input class="form-control text-right" ng-pattern="/^[0-9]*$/" type="number" ng-model="x.Amount" /></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+
                     </div>
                 </div>
-            </div>
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+                    <div class="form-group">
+
+                        <div>
+                            <img id="uploadImageSrc" ng-src="{{imageSrc}}" style="margin-left: 64px;margin-top: 10px; border: 1px solid; height: 100px; width: 100px;" />
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Designation Group<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <label class="control-label"><b>:</b> {{EmpSalaryInfo.DesignationGroup}}</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Standard Designation<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <label class="control-label"><b>:</b> {{EmpSalaryInfo.GivenDesignation}}</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Designation<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <label class="control-label"><b>:</b> {{EmpSalaryInfo.LegalDesignation}}</label>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        <li><button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
             </div>
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="empType">
@@ -83,37 +187,27 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
-                        <div class="search-form">
-                            <div class="col-xs-12 col-sm-3 col-md-3">
-                                <div class="select-style">
-                                    <select ng-model="searchByEmp">
-                                        <option ng-repeat="option in searchEmpByList" value="{{option.value}}">{{option.name}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-7 col-md-7">
-                                <input type="text" class="form-control" placeholder="Search" ng-model="empearch" ng-enter="getEmpData()">
-                            </div>
-                            <div class="col-xs-12 col-sm-2 col-md-2">
-                                <button type="button" ng-click="getEmpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
-                        <div class="content-container-fluid" style="color:black;">
-                            <div style="color: black;" id="Grid" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                 e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
-                                <div e-columns>
-                                    <div e-column e-type="string" e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-                                    <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
-                                    <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-                                    <div e-column e-type="string" e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
-                                    <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
-                                    <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
-                                    <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
-                                    <div e-column e-type="string" e-field="Line" e-headertext="Line" e-width="80"></div>
-                                </div>
+
+                    <div class="col-xs-12">
+                        <div id="GridUnS" ej-grid e-datasource="employeeList" e-gridlines="vertical" e-recorddoubleclick="Get"
+                             e-allowSiltering="true" e-allowpaging="true" e -allowsorting="true" eponsive="true" e-pagesettings-pagesize="20"
+                             e-allowselection="true" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                <div e-column e-field="DOJs" e-headertext="DOJ" e-width="70"></div>
+                                <div e-column e-field="EmployeeCategory" e-headertext="Category" e-width="80"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                                <div e-column e-field="DesignationGroupName" e-headertext="Designation Group" e-width="80"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                                <div e-column e-field="SalaryGrade" e-headertext="SalaryGrade" e-width="80"></div>
+                                <div e-column e-field="SalaryRule" e-headertext="SalaryRule" e-width="80"></div>
+                                <div e-column e-field="PFPolicy" e-headertext="PFPolicy" e-width="80"></div>
+                                <div e-column e-field="ESICPolicy" e-headertext="ESICPolicy" e-width="80"></div>
+                                <div e-column e-field="BnsPolicy" e-headertext="BnsPolicy" e-width="80"></div>
+                                <div e-column e-field="ApprovedStatus" e-headertext="Status" e-width="60"></div>
+
+
                             </div>
                         </div>
                     </div>

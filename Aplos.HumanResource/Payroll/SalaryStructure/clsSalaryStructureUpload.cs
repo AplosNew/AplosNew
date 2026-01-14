@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.Service.Helpers;
 using OTSBD;
 using Syncfusion.XlsIO;
@@ -11,6 +12,11 @@ namespace Library.Service.Payrolls.SalaryStructure
 {
     public class clsSalaryStructureUpload
     {
+        ISqlRepository _sqlRepository;
+        public clsSalaryStructureUpload()
+        {
+            _sqlRepository = new SqlRepository();
+        }
 
         public void SalaryStructureUpload(List<SalaryStructureUploadVM> data , CustomIdentity Identity)
         {
@@ -2419,6 +2425,52 @@ namespace Library.Service.Payrolls.SalaryStructure
         }
         #endregion
 
+
+        #region New SalaryStructure
+      
+        public IEnumerable<object> GetEmployeeSalaryData(string empId,string designationId)
+        {
+            try
+            {
+                var sql = @"SELECT '' SystemID,SG.SalaryHeadID,SH.SalaryHead,
+	HeadType = CASE WHEN SH.HeadType = 'D' THEN 'Deduction' WHEN SH.HeadType = 'E' THEN 'Earning'  ELSE '' END
+	,E.SystemId EmpInfoSystemID,E.EmployeeName,E.EmployeeCode,E.BudgetCode,EN.UserName Entity, P.UserName Position,LD.UserName LegalDesignation,DG.UserName DesignationGroup,D.UserName GivenDesignation,SG.EmployeeSalaryRuleSetupId
+	,E.PlantId,C.CompanyGroupId,SH.Sequence
+		FROM dbo.EmployeeSalaryRuleItem SG
+	INNER JOIN SalaryHead SH ON SG.SalaryHeadID = SH.SalaryHeadID
+	LEFT JOIN (
+		SELECT SD.SystemID, SD.SalaryID, SDM.EmpInfoSystemID, SDM.EffectiveDate, SDM.SalaryIncrementSystemID, SDM.EmployeeSalaryRuleSetupId, 
+				SDM.GroupID, SDM.PlantID, SDM.IsApproved, SDM.ApprovedBy, SDM.DateApproved, SD.SalaryHeadID, SD.EntryCurrencyID, SD.EntryAmount, 
+				SD.DefineCurrencyID, SD.DefineAmount, SD.AmtDefinitionCurrencyID, SD.AmtDefinitionRate
+		FROM SalaryInfoDefineMaster SDM
+							INNER JOIN SalaryInfoDefine SD ON SDM.SystemID = SD.SalaryID
+		WHERE SDM.EmpInfoSystemID = '" + empId + @"'
+					AND SDM.EffectiveDate IN (
+											SELECT MAX(EffectiveDate) EffectiveDate FROM SalaryInfoDefineMaster
+												WHERE EmpInfoSystemID = '"+ empId + @"'
+													--AND EffectiveDate = '01-Jan-2026'
+											)
+		) SLID ON SG.EmployeeSalaryRuleSetupId = SLID.EmployeeSalaryRuleSetupId 
+		LEFT JOIN dbo.EmployeeInformation E ON E.SystemId="+ empId + @"
+		LEFT JOIN MST.ManpowerBudget MB ON MB.Id=E.BudgetCode
+		LEFT JOIN ORG.Position P ON P.Id=MB.PositionId
+		LEFT JOIN ORG.Entity EN ON EN.Id=MB.EntityId
+		LEFT JOIN HKP.LegalDesignation LD ON LD.Id=E.LegalDesignationId
+		LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=E.GivenDesignationId
+		LEFT JOIN HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
+        LEFT JOIN HKP.Designation D ON D.id=E.GivenDesignationId
+        LEFT JOIN ORG.Company C ON C.id=E.CompanyId
+	WHERE SG.EmployeeSalaryRuleSetupId=(Select EmployeeSalaryRuleSetupId from SalaryRuleDesignation Where DesignationId IN('" + designationId + @"'))
+	AND SG.EntryState='Entry'  Order by SH.SalaryHead";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
     public class SalaryStructureUploadVM
     {

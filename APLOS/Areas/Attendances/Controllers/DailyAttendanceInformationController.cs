@@ -629,7 +629,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     sheet1.Name = "Daily Attendance Information";
                     #endregion             
 
-                    workbook.Version = ExcelVersion.Excel97to2003;
+                    workbook.Version = ExcelVersion.Excel2016;
                     report.PageSetup(ref sheet1, 5, ExcelPageOrientation.Portrait);
                     return workbook;
                 }
