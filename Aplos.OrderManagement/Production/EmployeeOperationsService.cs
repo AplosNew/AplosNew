@@ -226,7 +226,7 @@ namespace Library.OrderManagement.Production
                         left join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
                         left join ( Select owe.ProductionOrderId , owe.OperationVariationId , owe.EmployeeId, owe.Date , isnull(owep.Qty,0) as Qty 
 						from dbo.OperationWiseEmployees owe 
-						left join dbo.OperationWiseEmployees owep on owep.Id = owe.Id and owep.PeriodId   ='" + currPeriod + "' "+ workCenId + @"
+						left join dbo.OperationWiseEmployees owep on owep.Id = owe.Id and owep.PeriodId   ='" + currPeriod + "' "+ workCenId + @"  and owep.Qty>0
 						) as owe on owe.OperationVariationId = OP.Id and owe.ProductionOrderId = pb.ProductionOrderId and owe.Date >   Convert(date, DateAdd(DAY, -" +  ad + @", GetDate())) 
                         left join dbo.EmployeeInformation ei on ei.SystemId = owe.EmployeeId
                         left join dbo.EmployeeOperationWip o on o.OperationVariationId = op.Id and o.ProductionOrderId = pb.ProductionOrderId and o.ProcessId = pt.ProcessId

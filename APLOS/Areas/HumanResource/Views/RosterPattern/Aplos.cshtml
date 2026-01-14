@@ -126,6 +126,7 @@
                 <div e-column e-headertext="28 Days" e-template="#allot28" e-textalign="center" e-width="80"></div>
                 <div e-column e-field="ShiftName" e-type="string" e-headertext="Shift Name" e-width="80"></div>
                 <div e-column e-field="ShiftDefinitionID" e-headertext="Shift Definition Id" e-width="80" e-type="string"></div>
+                <div e-column e-headertext="Weekly Status" e-template="#weekly" e-textalign="center" e-width="100"></div>
                 <div e-column e-template="#AddTile" e-headertext="Add" e-width="20"></div>
                 <div e-column e-template="#EditTile" e-headertext="Edit" e-width="20"></div>
                 <div e-column e-template="#DeleteTile" e-headertext="Remove" e-width="20"></div>
@@ -139,6 +140,9 @@
         </script>
         <script type="text/template" id="allot29">
             <input type="number" ng-model="data.Days29" style="color:black; text-align:center" />
+        </script>
+        <script type="text/template" id="allot28">
+            <input type="number" ng-model="data.Days28" style="color:black; text-align:center" />
         </script>
         <script type="text/template" id="allot28">
             <input type="number" ng-model="data.Days28" style="color:black; text-align:center" />
@@ -164,6 +168,22 @@
                 <ul class="list-inline text-center">
                     <li><button ng-click="$parent.DeleteTile(data);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
                 </ul>
+            </div>
+        </script>
+        <script type="text/template" id="weekly">
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-disabled="DailyTargetList.length>0" ng-model="DailyProductionTargetNew.ShiftId" name="ShiftId"
+                            ng-options="item.Value as item.Text for item in ShiftList">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-group">
+                <input type="text" class="form-control" ng-model="data.EmployeeCode" ng-keyup="$event.keyCode === 13 && $parent.changeInData(data,'emp')" style="color:black; text-align:center" />
+                <span class="input-group-btn">
+                    <button name="submit" ng-click="$parent.changeInData(data,'emp')" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                </span>
             </div>
         </script>
         <div class="common-btn" style="margin-top:10px;">

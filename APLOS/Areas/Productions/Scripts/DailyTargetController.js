@@ -1041,4 +1041,42 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         }
     }
 
+    $scope.changeInData = function (e, col) {
+        e.isChanged = 1;
+
+        if (col == 'emp') {
+            for (var i = 0; i < $scope.EmployeeList.length; i++) {
+                if ($scope.EmployeeList[i].EmployeeCode == e.EmployeeCode) {
+                    e.EmpName = $scope.EmployeeList[i].EmployeeName;
+                    $scope.btnckick = 0;
+                }
+            }
+        }
+    }
+    $scope.employee = [];
+    $scope.empData = {};
+    $scope.getEmployeePopUpData = function (data) {
+        $scope.empData = data;
+        $scope.employee = [];
+        $http({
+            method: 'GET',
+            url: 'Costings/QuickCostingMaster/getemployeelist'
+        }).then(function successCallback(response) {
+            $scope.employee = response.data;
+        });
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
+    }
+    //$scope.getPopUpData();
+
+    $scope.setEmpData = function (obj) {
+        for (var i = 0; i < $scope.DailyTargetList.length; i++) {
+            if ($scope.DailyTargetList[i].Line == $scope.empData.Line && $scope.DailyTargetList[i].PRNo == $scope.empData.PRNo && $scope.DailyTargetList[i].ProductionBulletinId == $scope.empData.ProductionBulletinId) {
+                $scope.DailyTargetList[i].EmployeeId = obj.data.SystemID;
+                $scope.DailyTargetList[i].EmployeeName = obj.data.EmployeeName;
+            }
+        }
+        
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    };
+
 }

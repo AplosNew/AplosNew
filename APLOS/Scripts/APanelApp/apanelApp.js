@@ -480,6 +480,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("WeeklyOffController", WeeklyOffController)
     .controller("OutPunchConfigurationController", OutPunchConfigurationController)
     .controller("RosterPatternController", RosterPatternController)
+    .controller("WeeklyStatusController", WeeklyStatusController)
     .controller("AttendanceSourceConfigController", AttendanceSourceConfigController)
     .controller("TablesUploadController", TablesUploadController)
     .controller('EmployeeServiceBookingController', EmployeeServiceBookingController)
