@@ -630,6 +630,17 @@ namespace Library.Service.Helpers
 				throw new CustomException(ServiceResources.FilePathNotFound);
 			}
 		}
+		public static string GetComplianceFilePath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/ComplianceFile/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
 
 		public static string GetManualAttendanceFilePath()
 		{

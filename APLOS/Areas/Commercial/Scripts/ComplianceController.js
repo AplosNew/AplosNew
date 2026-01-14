@@ -123,6 +123,15 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         }
     };
     // Download file function
+    $scope.dwonloadUrl = null;
+    $scope.FileDownload = function (data) {
+        $scope.dwonloadUrl = null;
+        var str = data.FileName;
+        var extention = str.substr(str.indexOf('.'));
+        $scope.dwonloadUrl = virtualPath.ComplianceFilePath + '/' + data.Id + extention;
+    };
+
+
     $scope.downloadFile = function (id) {
         if (!id) {
             alert('No record selected');
@@ -145,7 +154,7 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
     }
 
     // MAIN SAVE FUNCTION - UPDATED
-    $scope.Save = function () {
+    $scope._Save = function () {
         console.log('=== SAVE FUNCTION STARTED ===');
 
         $scope.$broadcast('show-errors-check-validity');
@@ -222,6 +231,56 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
             ShowResult('Please fill all required fields correctly', 'failure');
         }
     };
+
+    $scope.Save = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.ModelNewForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'data': $scope.ModelNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFields();
+                    $scope.getData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+
+    $scope.onBeginUpload = function (args) {
+        try {
+            if (angular.isUndefinedOrNull($scope.ModelNew.Id))
+                throw 'Please select/save the Compliance data first.';
+
+            args.data = $scope.ModelNew.Id;
+        } catch (e) {
+
+            args.cancel = true;
+            ShowResult(e, 'Error');
+        }
+
+    }
+    $scope.uploadUrl = "Commercial/Compliance/SaveDefault";
+    $scope.fileselect = function (e) {
+
+    }
+    $scope.errorPicUpload = function (e) {
+        if (angular.isUndefinedOrNull($scope.ModelNew.Id))
+            ShowResult('Please select/save the Compliance data first', 'Error');
+        else
+            ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
+    }
 
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {

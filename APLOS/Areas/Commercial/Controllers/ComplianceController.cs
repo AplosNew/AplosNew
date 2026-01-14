@@ -7,6 +7,7 @@ using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.Model.Setups;
 using Library.Service.Enums;
+using Library.Service.Helpers;
 using Library.Service.Setups;
 using Newtonsoft.Json;
 using OTSBD;
@@ -99,7 +100,145 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create()
+        public JsonResult Create(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where ItemName='" + data["ItemName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Item Name already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where   Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Code already exists!!!");
+
+
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(TableName), out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        #region upload File
+        [HttpPost, Authorize]
+        public ActionResult SaveDefault(IEnumerable<HttpPostedFileBase> UploadDefault, string UploadDefault_data)
+        {
+            try
+            {
+                UploadDefault_data = UploadDefault_data.Replace("\"", "");
+                if (string.IsNullOrEmpty(UploadDefault_data))
+                    throw new Exception("Save the Compliance data first");
+
+
+
+
+                foreach (var file in UploadDefault)
+                {
+
+                    var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
+                    var destinationPath = Path.Combine(ResourcesPathReader.GetComplianceFilePath(), fileName);
+
+                    if (System.IO.Directory.Exists(ResourcesPathReader.GetComplianceFilePath()) == false)
+                    {
+                        try
+                        {
+                            System.IO.Directory.CreateDirectory(ResourcesPathReader.GetComplianceFilePath());
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                    }
+
+
+                    ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+                    string sql = "select* from hkp.ComplianceMaster where id='" + UploadDefault_data + "'";
+                    DataSet dsLocal = null;
+                    connection.BeginTransaction();
+                    connection.getDataSet(sql, out dsLocal);
+                    connection.CommitTransaction();
+
+                    if (dsLocal.Tables[0].Rows.Count > 0)
+                    {
+                        dsLocal.Tables[0].Rows[0].BeginEdit();
+
+                        dsLocal.Tables[0].Rows[0]["FileName"] = file.FileName;
+
+                        dsLocal.Tables[0].Rows[0].EndEdit();
+
+                        file.SaveAs(destinationPath);
+                        clsStaticInfo info = new clsStaticInfo();
+                        info.SaveDataSets(dsLocal);
+
+
+
+                    }
+                }
+                return Content("");
+            }
+            catch (Exception ex)
+            {
+                HttpResponse Response = System.Web.HttpContext.Current.Response;
+                Response.Clear();
+                Response.ContentType = "application/json; charset=utf-8";
+                Response.StatusCode = 204;
+                Response.Status = "204 No Content";
+                Response.StatusDescription = ex.Message;
+                Response.End();
+
+                return Content("");
+            }
+
+        }
+        [Authorize]
+        public ActionResult RemoveDefault(string[] fileNames)
+        {
+            foreach (var fullName in fileNames)
+            {
+                var fileName = Path.GetFileName(fullName);
+                var physicalPath = Path.Combine(Server.MapPath("~/App_Data"), fileName);
+                if (System.IO.File.Exists(physicalPath))
+                {
+                    System.IO.File.Delete(physicalPath);
+                }
+            }
+            return Content("");
+        }
+
+        #endregion upload File
+
+        [HttpPost]
+        public JsonResult _Create()
         {
             try
             {
