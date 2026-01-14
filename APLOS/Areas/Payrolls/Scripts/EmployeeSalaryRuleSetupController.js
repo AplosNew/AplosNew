@@ -392,7 +392,7 @@ function EmployeeSalaryRuleSetupController(cboService, commonMessage, $scope, $r
         }
     };
 
-    $scope.ModelProcessPara = { Id: null, EmployeeSalaryRuleSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, IsDefault: false, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Auto', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+    $scope.ModelProcessPara = { Id: null, EmployeeSalaryRuleSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, StandardName: null, Active: true, IsDefault: false, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Auto', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
     $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
 
     $scope.ModelProcessPara.FormulaDes = null;
@@ -657,7 +657,7 @@ function EmployeeSalaryRuleSetupController(cboService, commonMessage, $scope, $r
             CheckField($scope.ModelProcessPara.EmployeeSalaryRuleSetupId, "Master");
             CheckField($scope.ModelProcessPara.SalaryHeadID, "Salary Head");
             CheckField($scope.ModelProcessPara.UserName, "User Name");
-            CheckField($scope.ModelProcessPara.SandardName, "Sandard Name");
+            CheckField($scope.ModelProcessPara.StandardName, "Standard Name");
             $scope.AddEditRow();
             if (baseService.arrayLength($scope.ProcessParameterList) > 0) {
 
@@ -694,7 +694,7 @@ function EmployeeSalaryRuleSetupController(cboService, commonMessage, $scope, $r
                 };
             }
             else {
-                var newobj = { Id: null, EmployeeSalaryRuleSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: 1, IsReportItem: 0, ViewItem: null, EntryState: null, FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, IsDefault: true }
+                var newobj = { Id: null, EmployeeSalaryRuleSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, StandardName: null, Active: 1, IsReportItem: 0, ViewItem: null, EntryState: null, FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, IsDefault: true }
                 $scope.ProcessParameterNewList = [];
                 for (var i = 1; i < 16; i++) {
                     var obj = angular.copy(newobj);
@@ -702,28 +702,28 @@ function EmployeeSalaryRuleSetupController(cboService, commonMessage, $scope, $r
                     //if (i == 1) {
                     //    obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                     //    obj.UserName = 'JoiningMonthEndDate';
-                    //    obj.SandardName = 'Joining Month End Date';
+                    //    obj.StandardName = 'Joining Month End Date';
                     //    obj.EntryState = 'Auto';
                     //    obj.IsDefault = true;
                     //}
                     //if (i == 2) {
                     //    obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                     //    obj.UserName = 'JoiningMonthDays';
-                    //    obj.SandardName = 'Joining Month Days';
+                    //    obj.StandardName = 'Joining Month Days';
                     //    obj.EntryState = 'Auto';
                     //    obj.IsDefault = true;
                     //}
                     //if (i == 3) {
                     //    obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                     //    obj.UserName = 'JoiningMonthNoOfWeekOff';
-                    //    obj.SandardName = 'Joining MonthNo Of WeekOff';
+                    //    obj.StandardName = 'Joining MonthNo Of WeekOff';
                     //    obj.EntryState = 'Auto';
                     //    obj.IsDefault = true;
                     //}
                     //if (i == 4) {
                     //    obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                     //    obj.UserName = 'DayStatusCount';
-                    //    obj.SandardName = 'Day Status Count';
+                    //    obj.StandardName = 'Day Status Count';
                     //    obj.EntryState = 'Auto';
                     //    obj.IsDefault = true;
                     //}
@@ -731,105 +731,105 @@ function EmployeeSalaryRuleSetupController(cboService, commonMessage, $scope, $r
                     if (i == 1) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'MonthStartDate';
-                        obj.SandardName = 'Month Start Date';
+                        obj.StandardName = 'Month Start Date';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
                     if (i == 2) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'MonthEndDate';
-                        obj.SandardName = 'Month End Date';
+                        obj.StandardName = 'Month End Date';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
                     if (i == 3) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'SalaryProcessingStartDate';
-                        obj.SandardName = 'Salary Processing StartDate';
+                        obj.StandardName = 'Salary Processing StartDate';
                         obj.EntryState = 'Calculate';
                         obj.IsDefault = true;
                     }
                     if (i == 4) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'SalaryProcessingEndDate';
-                        obj.SandardName = 'Salary Processing EndDate';
+                        obj.StandardName = 'Salary Processing EndDate';
                         obj.EntryState = 'Calculate';
                         obj.IsDefault = true;
                     }
                     if (i == 5) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'TotalWorkingDays';
-                        obj.SandardName = 'Total Working Days';
+                        obj.StandardName = 'Total Working Days';
                         obj.EntryState = 'Calculate';
                         obj.IsDefault = true;
                     }
                     if (i == 6) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'WeekOff';
-                        obj.SandardName = 'Week Off';
+                        obj.StandardName = 'Week Off';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
                     if (i == 7) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'Leave';
-                        obj.SandardName = 'Leave';
+                        obj.StandardName = 'Leave';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
                     if (i == 8) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'HoliDay';
-                        obj.SandardName = 'Holi Day';
+                        obj.StandardName = 'Holi Day';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
                     if (i == 9) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'PayDay';
-                        obj.SandardName = 'Pay Day';
+                        obj.StandardName = 'Pay Day';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
                     if (i == 10) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'NetDay';
-                        obj.SandardName = 'Net Day';
+                        obj.StandardName = 'Net Day';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
                     if (i == 11) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'NightShiftDays';
-                        obj.SandardName = 'Night Shift Days';
+                        obj.StandardName = 'Night Shift Days';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
                     if (i == 12) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'ShortDuration';
-                        obj.SandardName = 'Short Duration';
+                        obj.StandardName = 'Short Duration';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
                     if (i == 13) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'LateIN';
-                        obj.SandardName = 'LateIN';
+                        obj.StandardName = 'LateIN';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
                     if (i == 14) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'EarlyOut';
-                        obj.SandardName = 'Early Out';
+                        obj.StandardName = 'Early Out';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
                     if (i == 15) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'HalfDuration';
-                        obj.SandardName = 'Half Duration';
+                        obj.StandardName = 'Half Duration';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
@@ -862,7 +862,7 @@ function EmployeeSalaryRuleSetupController(cboService, commonMessage, $scope, $r
         }
     };
     $scope.ClearItem = function () {
-        $scope.ModelProcessPara = { Id: null, EmployeeSalaryRuleSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, IsDefault: false, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Auto', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+        $scope.ModelProcessPara = { Id: null, EmployeeSalaryRuleSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, StandardName: null, Active: true, IsDefault: false, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Auto', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
         $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
         $scope.GetItemAutoSequence();
         $scope.ProductionAction = 'Save';
@@ -936,7 +936,7 @@ function EmployeeSalaryRuleSetupController(cboService, commonMessage, $scope, $r
     };
 
     $scope.GetProcessPara = function (obj) {
-        $scope.ModelProcessPara = { Id: null, EmployeeSalaryRuleSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, IsDefault: false, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Auto', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+        $scope.ModelProcessPara = { Id: null, EmployeeSalaryRuleSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, StandardName: null, Active: true, IsDefault: false, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Auto', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
         if (obj.data.IsDefault == false) {
             $scope.ProductionAction = 'Update';
 

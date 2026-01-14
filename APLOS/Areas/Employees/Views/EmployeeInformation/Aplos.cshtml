@@ -137,8 +137,8 @@
                                 </tr>
                             </tbody>
                         </table>*@
-                        <p><a href="{{dwonloadUrl}}" ng-click="DownloadImageFile()" style="text-decoration:underline" download="{{FileNam}}" target="_self"></a><label ng-click="DownloadImageFile()" style="text-decoration:underline">{{FileNam}}</label></p>
-
+                        @*<p><a href="{{dwonloadUrl}}" ng-click="DownloadImageFile()" style="text-decoration:underline" download="{{FileNam}}" target="_self"></a><label ng-click="DownloadImageFile()" style="text-decoration:underline">{{FileNam}}</label></p>*@
+                        <p><a href="{{filePath+FileName}}" style="text-decoration:underline" download="{{FileName}}" target="_self">{{FileName}}</a></p>
                         <center>
                             <embed src="{{dwonloadUrl}}" width="500" height="800">
                         </center>
