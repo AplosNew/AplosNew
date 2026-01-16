@@ -123,6 +123,18 @@
                         <li><button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                     </ul>
                 </div>
+                <div id="GridUAS" ej-grid e-datasource="salaryDataList" e-gridlines="vertical" e-recorddoubleclick="GetSalaryInfoData"
+                     e-allowSiltering="true" e-allowpaging="true" e -allowsorting="true" eponsive="true" e-pagesettings-pagesize="20"
+                     e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="SystemID" e-headertext="SystemID" e-width="50"></div>
+                        <div e-column e-field="EffectiveDate" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="EffectiveDate" e-width="80"></div>
+                        <div e-column e-field="NextDueDate" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="NextDueDate" e-width="70"></div>
+                        <div e-column e-field="IsApproved" e-headertext="IsApproved" e-width="80"></div>
+
+
+                    </div>
+                </div>
             </div>
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="empType">
@@ -189,9 +201,9 @@
                 <div class="row">
 
                     <div class="col-xs-12">
-                        <div id="GridUnS" ej-grid e-datasource="employeeList" e-gridlines="vertical" e-recorddoubleclick="Get"
-                             e-allowSiltering="true" e-allowpaging="true" e -allowsorting="true" eponsive="true" e-pagesettings-pagesize="20"
-                             e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div id="GridUnS" ej-grid e-datasource="employeeList" e-recorddoubleclick="Get" e-pagesettings-pagesize="20"
+                             e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
                             <div e-columns>
                                 <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50"></div>
                                 <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>

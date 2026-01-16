@@ -853,7 +853,61 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
         {
             try
             {
-                return Json(clsSSU.GetEmployeeSalaryData(empId,designationId), JsonRequestBehavior.AllowGet);
+                var sql = @"Select distinct SG.SalaryHeadID,SH.SalaryHead,'' SystemID,
+	HeadType = CASE WHEN SH.HeadType = 'D' THEN 'Deduction' WHEN SH.HeadType = 'E' THEN 'Earning'  ELSE '' END
+	,E.SystemId EmpInfoSystemID,E.EmployeeName,E.EmployeeCode,E.BudgetCode,EN.UserName Entity, P.UserName Position,LD.UserName LegalDesignation,DG.UserName DesignationGroup,D.UserName GivenDesignation,SG.EmployeeSalaryRuleSetupId
+	,E.PlantId,C.CompanyGroupId,SH.Sequence
+		FROM dbo.EmployeeSalaryRuleItem SG
+	INNER JOIN SalaryHead SH ON SG.SalaryHeadID = SH.SalaryHeadID
+	LEFT JOIN (
+		SELECT SD.SystemID, SD.SalaryID, SDM.EmpInfoSystemID, SDM.EffectiveDate, SDM.SalaryIncrementSystemID, SDM.EmployeeSalaryRuleSetupId, 
+				SDM.GroupID, SDM.PlantID, SDM.IsApproved, SDM.ApprovedBy, SDM.DateApproved, SD.SalaryHeadID, SD.EntryCurrencyID, SD.EntryAmount, 
+				SD.DefineCurrencyID, SD.DefineAmount, SD.AmtDefinitionCurrencyID, SD.AmtDefinitionRate
+		FROM SalaryInfoDefineMaster SDM
+							INNER JOIN SalaryInfoDefine SD ON SDM.SystemID = SD.SalaryID
+		WHERE SDM.EmpInfoSystemID = '" + empId + @"'
+					AND SDM.EffectiveDate IN (
+											SELECT MAX(EffectiveDate) EffectiveDate FROM SalaryInfoDefineMaster
+												WHERE EmpInfoSystemID = '" + empId + @"'
+													--AND EffectiveDate = '01-Jan-2026'
+											)
+		) SLID ON SG.EmployeeSalaryRuleSetupId = SLID.EmployeeSalaryRuleSetupId 
+		LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=" + empId + @"
+		LEFT JOIN MST.ManpowerBudget MB ON MB.Id=E.BudgetCode
+		LEFT JOIN ORG.Position P ON P.Id=MB.PositionId
+		LEFT JOIN ORG.Entity EN ON EN.Id=MB.EntityId
+		LEFT JOIN HKP.LegalDesignation LD ON LD.Id=E.LegalDesignationId
+		LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=E.GivenDesignationId
+		LEFT JOIN HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
+        LEFT JOIN HKP.Designation D ON D.id=E.GivenDesignationId
+        LEFT JOIN ORG.Company C ON C.id=E.CompanyId
+	WHERE SG.EmployeeSalaryRuleSetupId=(Select EmployeeSalaryRuleSetupId from SalaryRuleDesignation Where DesignationId IN('" + designationId + @"'))
+	AND SG.EntryState='Entry'  Order by SH.SalaryHead";
+                var salaryItem = _sqlRepository.GetDataCollection(sql);
+
+                string ssql = @"select SystemID,EmpInfoSystemID,GroupID,PlantID,FORMAT(EffectiveDate,'dd-MMM-yyyy')EffectiveDate,FORMAT(NextDueDate,'dd-MMM-yyyy')NextDueDate,EmployeeSalaryRuleSetupId,IsApproved from dbo.SalaryInfoDefineMaster Where EmpInfoSystemID='" + empId + @"'";
+                var salaryData = _sqlRepository.GetDataCollection(ssql);
+                return Json(new { salaryItem, salaryData }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSalaryInfoData(string SalaryID)
+        {
+            try
+            {
+                string sql = @"Select h.SalaryHead,s.DefineAmount Amount,S.SystemID,s.SalaryID,
+HeadType = CASE WHEN h.HeadType = 'D' THEN 'Deduction' WHEN h.HeadType = 'E' THEN 'Earning'  ELSE '' END
+from dbo.SalaryInfoDefine s
+left join dbo.SalaryHead h on h.SalaryHeadID=s.SalaryHeadID
+where s.SalaryID='" + SalaryID + "'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
             }
             catch (Exception ex)
             {
@@ -869,9 +923,9 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
                 ConnectionManager.DAL.ConManager objCon;
                 DataSet dsMaster,dsChild, dsIH;
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalaryInfoDefineMaster where  1=1", out dsMaster, false, "1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalaryInfoDefine where  1=1", out dsChild, false, "1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.IncrementHistory where  1=1", out dsIH, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalaryInfoDefineMaster where  SystemID='" + master["SystemID"] + "'", out dsMaster, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalaryInfoDefine where  SalaryID='" + master["SystemID"] + "'", out dsChild, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.IncrementHistory where  EmpSystemID='" + master["EmpInfoSystemID"] + "'", out dsIH, false, "1");
                 bplib.clsGenID objGenID = new bplib.clsGenID();
                 string strSystemID = null;
                 string strIHSystemID = null;

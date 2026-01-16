@@ -38,7 +38,7 @@ function EmployeeSalaryStructureController(cboService, commonMessage, $scope, $r
             $http.get($scope.getUnApprovedEmpListUrl)
                 .then(function successCallback(response) {
                     if (response.data.Error === true) {
-                        $scope.ShowResultCustom(response.data.Message, 'failure');
+                        ShowResult(response.data.Message, 'failure');
                     }
                     else {
                         $scope.employeeList = [];
@@ -47,7 +47,7 @@ function EmployeeSalaryStructureController(cboService, commonMessage, $scope, $r
 
                     }
                     function errorCallBack(response) {
-                        $scope.ShowResultCustom(response.data.Message, 'failure');
+                        ShowResult(response.data.Message, 'failure');
                     }
                 });
 
@@ -58,50 +58,88 @@ function EmployeeSalaryStructureController(cboService, commonMessage, $scope, $r
     };
 
     $scope.EmpSalaryOpenHeadCurrent = [];
+    $scope.salaryDataList = [];
     $scope.EmpSalaryInfo = {};
+
     $scope.Get = function (data) {
         try {
             $http.get('Payrolls/EmployeeSalaryRuleSetup/GetEmployeeSalaryData?empId=' + data.rowData.SystemId + '&designationId=' + data.rowData.GivenDesignationId)
                 .then(function successCallback(response) {
                     if (response.data.Error === true) {
-                        $scope.ShowResultCustom(response.data.Message, 'failure');
+                        ShowResult(response.data.Message, 'failure');
                     }
                     else {
-                        $scope.EmpSalaryInfo = response.data[0];
-                        $scope.EmpSalaryOpenHeadCurrent = response.data;
+                        $scope.Action = "Update";
+                        $scope.EmpSalaryInfo = response.data.salaryItem[0];
+                        $scope.salaryDataList = response.data.salaryData;
+                        if (baseService.arrayLength($scope.salaryDataList) == 0) {
+                            $scope.Action = "Save";
+                            $scope.EmpSalaryOpenHeadCurrent = response.data.salaryItem;
+                        }
                         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
 
                     }
                     function errorCallBack(response) {
-                        $scope.ShowResultCustom(response.data.Message, 'failure');
+                        ShowResult(response.data.Message, 'failure');
                     }
                 });
 
 
         } catch (e) {
-            $scope.ShowResultCustom(e, "failure");
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.GetSalaryInfoData = function (data) {
+        try {
+            $scope.EmpSalaryInfo.SystemID = data.rowData.SystemID;
+            $scope.EmpSalaryInfo.EmpInfoSystemID = data.rowData.EmpInfoSystemID;
+            $scope.EmpSalaryInfo.PlantId = data.rowData.PlantId;
+            $scope.EmpSalaryInfo.GroupID = data.rowData.GroupID;
+            $scope.EmpSalaryInfo.EffectiveDate = data.rowData.EffectiveDate;
+            $scope.EmpSalaryInfo.NextDueDate = data.rowData.NextDueDate;
+            $scope.EmpSalaryInfo.IsApproved = data.rowData.IsApproved;
+            $scope.EmpSalaryInfo.EmployeeSalaryRuleSetupId = data.rowData.EmployeeSalaryRuleSetupId;
+
+            $http.get('Payrolls/EmployeeSalaryRuleSetup/GetSalaryInfoData?SalaryID=' + data.rowData.SystemID)
+                .then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        $scope.EmpSalaryOpenHeadCurrent = response.data;
+                    }
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                });
+
+
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
     };
 
     $scope.Save = function () {
         try {
+            $scope.IncrementHistory = {};
             $scope.EmpSalaryInfoNew = {};
             if (baseService.arrayLength($scope.EmpSalaryOpenHeadCurrent) < 0) {
                 throw "Define Designation in Salary Rule Setup.";
             }
-            $scope.EmpSalaryInfoNew.SystemID = null;
+            $scope.EmpSalaryInfoNew.SystemID = $scope.EmpSalaryInfo.SystemID == null ? null : $scope.EmpSalaryInfo.SystemID;
             $scope.EmpSalaryInfoNew.EmpInfoSystemID = $scope.EmpSalaryInfo.EmpInfoSystemID;
             $scope.EmpSalaryInfoNew.PlantId = $scope.EmpSalaryInfo.PlantId;
             $scope.EmpSalaryInfoNew.GroupID = $scope.EmpSalaryInfo.CompanyGroupId;
             $scope.EmpSalaryInfoNew.EffectiveDate = $scope.EmpSalaryInfo.EffectiveDate;
             $scope.EmpSalaryInfoNew.NextDueDate = $scope.EmpSalaryInfo.NextDueDate;
-            $scope.EmpSalaryInfoNew.IsApproved = false;
+            $scope.EmpSalaryInfoNew.IsApproved = $scope.EmpSalaryInfo.IsApproved;
             $scope.EmpSalaryInfoNew.EmployeeSalaryRuleSetupId = $scope.EmpSalaryInfo.EmployeeSalaryRuleSetupId;
             $scope.newList = [];
             var ob = {};
             for (var i = 0; i < $scope.EmpSalaryOpenHeadCurrent.length; i++) {
-                ob.SystemID = null;
-                ob.SalaryID = null;
+                ob.SystemID = $scope.EmpSalaryOpenHeadCurrent[i].SystemID == null ? null : $scope.EmpSalaryOpenHeadCurrent[i].SystemID;
+                ob.SalaryID = $scope.EmpSalaryOpenHeadCurrent[i].SalaryID == null ? null : $scope.EmpSalaryOpenHeadCurrent[i].SalaryID;;
                 ob.SalaryHeadID = $scope.EmpSalaryOpenHeadCurrent[i].SalaryHeadID;
                 ob.EntryCurrencyID = null;
                 ob.EntryAmount = $scope.EmpSalaryOpenHeadCurrent[i].Amount;
@@ -130,7 +168,7 @@ function EmployeeSalaryStructureController(cboService, commonMessage, $scope, $r
             $http({
                 method: 'POST',
                 url: 'Payrolls/EmployeeSalaryRuleSetup/CreateSalary',
-                data: { 'master': $scope.EmpSalaryInfoNew, 'data': $scope.newList, 'IncrementHistory': $scope.IncrementHistory},
+                data: { 'master': $scope.EmpSalaryInfoNew, 'data': $scope.newList, 'IncrementHistory': $scope.IncrementHistory },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
