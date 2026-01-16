@@ -40,7 +40,7 @@
                 <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="input-group">
-                        <input type="text" name="ResponsiblePerson" ng-model="responsiblePerson" @*style="width:200px;"*@ class="form-control" readonly>
+                        <input type="text" name="ResponsiblePerson" ng-model="responsiblePerson" required @*style="width:200px;"*@ class="form-control" readonly>
                         <span class="input-group-btn">
                             <button name="submit" ng-click="openPopupAngular('employeeNewPopUp')" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         </span>
@@ -212,7 +212,7 @@
                 </script>
 
                 <script type="text/template" id="qty">
-                    <input type="number" class="form-control" onkeypress="return isNumber(event)" id="pp1" ng-model="data.Qty" ng-keyup="$parent.changeInData(data,'qty')" style="color:black; text-align:center" />
+                    <input type="text" class="form-control" @*onkeypress="return isNumber(event)"*@ id="pp1" ng-model="data.Qty" ng-keyup="$parent.changeInData(data,'qty')" style="color:black; text-align:center" />
                 </script>
 
                 <script type="text/template" id="rem">

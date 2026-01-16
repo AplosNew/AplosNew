@@ -19,6 +19,7 @@
         <div e-column e-field="CustomerPONo" e-headertext="PO No." e-width="15"></div>
         <div e-column e-field="BuyerItemNo" e-headertext="Buyer Item No." e-width="15"></div>
 
+        <div e-column e-template="#templateEmployee" e-headertext="Employee" e-width="25"></div>
         <div e-column e-template="#templateManPowerWithMachine" e-headertext="Manpower With MC" e-width="15"></div>
         <div e-column e-template="#templateManPowerWithHand" e-headertext="Manpower Without MC" e-width="15"></div>
         <div e-column e-template="#templateSMV" e-headertext="SPT" e-width="15"></div>
@@ -49,6 +50,15 @@
 
 <script type="text/template" id="templateManPowerWithMachine">
     <input type="text" class="form-control" e-enabled="{{data.HasLayout?'false':'true'}}" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.ManPowerWithMachine" e-width="100%" />
+</script>
+<script type="text/template" id="templateEmployee">
+    <div class="input-group">
+        <input type="text" class="form-control" ng-model="data.EmployeeName" readonly style="color:black; text-align:center" />
+        <span class="input-group-btn">
+            <button name="submit" ng-click="$parent.getEmployeePopUpData(data)" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+        </span>
+    </div>
+    
 </script>
 <script type="text/template" id="templateManPowerWithHand">
     <input type="text" class="form-control" e-enabled="{{data.HasLayout?'false':'true'}}" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.ManPowerWithHand" e-width="100%" />
@@ -89,4 +99,31 @@
         <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
         <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
     </ul>
+</div>
+<div class="modal site-modal" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closePopup('employeeNewPopUp');">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color: black;" id="Grid" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-type="string" e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

@@ -420,6 +420,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     $scope.reportcolumns = [];
     // Getting the report
     $scope.getReportView = function () {
+        $scope.reportcolumns = [];
         $http({
             method: 'POST',
             url: $scope.path + 'getReportView',

@@ -1450,7 +1450,7 @@ WHERE  PLI.PackingId ='" + packingId + "' ORDER BY MMA.StandardName";
             {
                 string purposeId = "'" + PurposeId.Replace(",", "','") + "'";//replaced with ""
                 var str = @"select distinct MP.UserName AS 'PROD_TYPE',
-S.ProductCode, S.POId, S.LotNo, S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy, 
+S.ProductCode, S.POId,PLI.SOId, S.LotNo, S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy, 
 S.Shade, S.AddedBy, FORMAT (ISM.WorkDate, 'MM/dd/yyyy ') as WorkDate, S.AddedDate, M.StandardName Article, R.FromLocation, R.ToLocation,R.EntityId 
 FROM ItemScanChild S 
 LEFT JOIN ItemScan ISM ON ISM.Id = S.MasterId
@@ -1458,10 +1458,13 @@ LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode
 LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
 LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId
 LEFT JOIN HKP.MaterialMovementPurpose MP ON MP.Id=R.PurposeId
+LEFT JOIN TRN.POLotReference POLR ON POLR.Id=S.PackingId
+LEFT JOIN TRN.PackingLineItem PLI ON PLI.PackingLineItemId=POLR.PackingLineItemId
+LEFT JOIN TRN.SalesOrder SO ON SO.Id=PLI.SOId
 WHERE R.PurposeId IN(" + purposeId + ") AND ISM.WorkDate between '" + fromDate + @"' and '" + toDate + @"'
 union all
 select distinct MP.UserName AS 'PROD_TYPE',
-S.ProductCode, S.POId, S.LotNo, S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy, 
+S.ProductCode, S.POId,PLI.SOId, S.LotNo, S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy, 
 S.Shade, S.AddedBy, FORMAT (ISM.WorkDate, 'MM/dd/yyyy ') as WorkDate, S.AddedDate, M.StandardName Article, R.FromLocation, R.ToLocation,R.EntityId 
 FROM ItemScanChildHistory S 
 LEFT JOIN ItemScan ISM ON ISM.Id = S.MasterId
@@ -1469,6 +1472,9 @@ LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode
 LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
 LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId
 LEFT JOIN HKP.MaterialMovementPurpose MP ON MP.Id=R.PurposeId
+LEFT JOIN TRN.POLotReference POLR ON POLR.Id=S.PackingId
+LEFT JOIN TRN.PackingLineItem PLI ON PLI.PackingLineItemId=POLR.PackingLineItemId
+LEFT JOIN TRN.SalesOrder SO ON SO.Id=PLI.SOId
 WHERE R.PurposeId IN(" + purposeId + ") AND ISM.WorkDate between '" + fromDate + @"' and '" + toDate + @"'
 ";
                 dtOrder = _sqlRepository.GetDataTable(str);

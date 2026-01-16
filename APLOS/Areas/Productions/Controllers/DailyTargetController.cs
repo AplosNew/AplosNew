@@ -131,6 +131,7 @@ namespace Aplos.Areas.Productions.Controllers
                         dr["Quantity"] = (int)(clsStaticInfo.dbl(DailyTargetData[i]["QuantityPerHour"]) * clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]));
                         dr["MaterialMasterId"] = DailyTargetData[i]["MaterialMasterId"];
                         dr["MaterialMasterArticleId"] = DailyTargetData[i]["MaterialMasterArticleId"];
+                        dr["EmployeeId"] = DailyTargetData[i]["EmployeeId"];
 
                         dr["PlantID"] = identity.PlantId;
                         dr["ProductionOrderId"] = DailyTargetData[i]["PRNo"];
@@ -164,6 +165,7 @@ namespace Aplos.Areas.Productions.Controllers
                             dr["Quantity"] = (int)(clsStaticInfo.dbl(DailyTargetData[i]["QuantityPerHour"]) * clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]));
                             dr["MaterialMasterId"] = DailyTargetData[i]["MaterialMasterId"];
                             dr["MaterialMasterArticleId"] = DailyTargetData[i]["MaterialMasterArticleId"];
+                            dr["EmployeeId"] = DailyTargetData[i]["EmployeeId"];
 
                             dr["PlantID"] = identity.PlantId;
                             dr["ProductionOrderId"] = DailyTargetData[i]["PRNo"];
@@ -198,6 +200,7 @@ namespace Aplos.Areas.Productions.Controllers
                             dr["Quantity"] = (int)(clsStaticInfo.dbl(DailyTargetData[i]["QuantityPerHour"]) * clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]));
                             dr["MaterialMasterId"] = DailyTargetData[i]["MaterialMasterId"];
                             dr["MaterialMasterArticleId"] = DailyTargetData[i]["MaterialMasterArticleId"];
+                            dr["EmployeeId"] = DailyTargetData[i]["EmployeeId"];
 
                             dr["PlantID"] = identity.PlantId;
                             dr["ProductionOrderId"] = DailyTargetData[i]["PRNo"];
@@ -275,8 +278,7 @@ namespace Aplos.Areas.Productions.Controllers
             string sql = @"select convert(bit,1) AS Active, pod.SalesOrderId,PO.id PRNo,MMA.Id MaterialMasterArticleId,MM.Id MaterialMasterId,WCM.Id WorkCenterMasterId,
                                 MM.UserName AS Material,MMA.StandardName AS Article,convert(bit,isnull(DPT.IsManual,0)) AS IsManual
                                 ,DPT.ID DailyProductionTargetID,WCM.UserName Line ,DPT.ManPowerWithMachine,DPT.ManPowerWithHand,DPT.Manpower
-								,DPT.SMV,DPT.Quantity,DPT.QuantityPerHour,DPT.TotalHour,DPT.TargetDate,SO.CustomerPOId,
-
+								,DPT.SMV,DPT.Quantity,DPT.QuantityPerHour,DPT.TotalHour,DPT.TargetDate,SO.CustomerPOId,EI.EmployeeName ,DPT.EmployeeId,
 								
 						BuyerItemNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
 																			trn.MasterOrderItem XMOI 	  
@@ -360,6 +362,7 @@ prs.username as ProcessName,resp.EmployeeName as ResponsiblePersonName,pbt.Id Pr
                                 left join employeeinformation resp on resp.systemid=wcm.ResponsiblePersonId
                                 left join hkp.process prs on prs.id=wcm.processid
                                 left outer join  TRN.DailyProductionTarget DPT on dpt.WorkCenterMasterID=WCM.Id  and  DPT.TargetDate='" + ProductionDate + @"'
+                                LEFT JOIN DBO.EmployeeInformation EI ON EI.SystemId=DPT.EmployeeId
                                 left outer join  TRN.ProductionOrder PO on PO.Id=DPT.ProductionOrderId  
                                 left join trn.ProductionOrderDetail POD ON POD.ProductionOrderId=po.Id and pod.Id=(select TOP 1 Id from TRN.ProductionOrderDetail D where D.ProductionOrderId=PO.Id)
                                 left join trn.SalesOrder SO ON SO.Id=POD.SalesOrderId
@@ -367,7 +370,8 @@ prs.username as ProcessName,resp.EmployeeName as ResponsiblePersonName,pbt.Id Pr
                                 Left join LineLayoutDailyTarget LLD on LLD.WorkCenterMasterId=DPT.WorkCenterMasterId and LLD.TargetDate=DPT.TargetDate and LLD.ProductionOrderId=DPT.ProductionOrderId
                                 LEFT JOIN trn.ProductionBulletinTemplate AS pbt on pbt.ProductionOrderId=PO.Id 
                                 LEFT JOIN trn.ProductionBulletinTemplateMaster AS M ON m.ProductionBulletinTemplateId=pbt.Id AND m.ProcessId=WCM.ProcessId
-                                LEFT JOIN LineLayoutDailyTarget LLP ON LLP.ProcessId = '" + ProcessId + @"'                                
+                                LEFT JOIN LineLayoutDailyTarget LLP ON LLP.ProcessId = '" + ProcessId + @"' 
+                                
                                     AND LLP.ProductionOrderId = po.Id                                
                                     AND LLP.TargetDate = (
                                         SELECT TOP 1 X.TargetDate
@@ -405,8 +409,7 @@ prs.username as ProcessName,resp.EmployeeName as ResponsiblePersonName,pbt.Id Pr
                                 so.SODesc,So.MasterOrderId,
                                 so.Customer,so.article,PRODPR.ProductionQtyAtPR,So.BuyerItemNo,SO.CustomerPONo
                                    ,ISNULL(CASE WHEN ISNULL(T1.Qty,0)>0 THEN T1.Qty ELSE PO.PlannedQty END,0)-(ISNULL(PRODPR.ProductionQtyAtPR,0)-ISNULL(PRDQ.ProductionBookedQty,0)) AS ToBePlanQty
-                                  			
-  
+                                  		
                             FROM [TRN].[ProductionOrder] AS PO
                             JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
                             LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id

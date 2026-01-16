@@ -117,6 +117,8 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                if(string.IsNullOrEmpty(ResponsiblePersonId))
+                throw new Exception("Please Input Responsible Person.");
                 eo.saveData(data, WorkCenter, ProcessId, ShiftId, POId, Date, PeriodId, ResponsiblePersonId,identity.PlantId);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
             }
@@ -134,6 +136,8 @@ namespace Aplos.Areas.Productions.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if(Date=="")
                     throw new Exception("Please Input Date.");
+                if (string.IsNullOrEmpty(ResponsiblePersonId))
+                    throw new Exception("Please Input Responsible Person.");
                 eo.saveRowItemData(data, WorkCenter, ProcessId, ShiftId, POId, Date, PeriodId, ResponsiblePersonId, identity.PlantId, NxtOPVariationId, maxSeq);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
 

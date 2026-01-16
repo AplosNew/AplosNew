@@ -1993,6 +1993,7 @@
     <Content Include="Areas\HumanResource\Scripts\LeaveTransectionController.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerBudgetReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\otApproveController.js" />
+    <Content Include="Areas\HumanResource\Scripts\WeeklyStatusController.js" />
     <Content Include="Areas\IE\Scripts\IncentiveTypeController.js" />
     <Content Include="Areas\Materials\Scripts\BarcodeGeneratorSettingController.js" />
     <Content Include="Areas\Materials\Scripts\machineTransferController.js" />
@@ -5093,6 +5094,7 @@
     <Content Include="Areas\Employees\Views\EmployeeDelete\UpdateDOS.cshtml" />
     <Content Include="Areas\Payrolls\Views\EmployeeSalaryRuleSetup\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\EmployeeSalaryRuleSetup\SalaryStructure.cshtml" />
+    <Content Include="Areas\HumanResource\Views\RosterPattern\WeeklyStatus.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

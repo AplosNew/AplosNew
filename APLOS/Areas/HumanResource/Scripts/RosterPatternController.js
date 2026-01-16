@@ -88,7 +88,16 @@ function RosterPatternController(commonMessage, $scope, $rootScope, baseService,
     }
 
     $scope.getCompany();
-
+    $scope.weeklyStatusList = [];
+    $scope.getWeeklyStatus = function () {
+        $http({
+            method: "GET",
+            url: "HumanResource/RosterPattern/GetWeeklyStatusCbo"
+        }).then(function successCallback(response) {
+            $scope.weeklyStatusList = response.data;
+        });
+    }
+    $scope.getWeeklyStatus();
     //Get The Main Master Grid
     $scope.masterGrid = [];
     $scope.getMaster = function () {
