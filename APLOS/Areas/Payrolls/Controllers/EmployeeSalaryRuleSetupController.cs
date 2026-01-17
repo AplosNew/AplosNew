@@ -853,16 +853,17 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
         {
             try
             {
-                var sql = @"Select distinct SG.SalaryHeadID,SH.SalaryHead,'' SystemID,
+                var sql = @"Select distinct SG.SalaryHeadID,SH.SalaryHead,SLID.SystemID,IH.SystemID IncrementHistoryId,
 	HeadType = CASE WHEN SH.HeadType = 'D' THEN 'Deduction' WHEN SH.HeadType = 'E' THEN 'Earning'  ELSE '' END
 	,E.SystemId EmpInfoSystemID,E.EmployeeName,E.EmployeeCode,E.BudgetCode,EN.UserName Entity, P.UserName Position,LD.UserName LegalDesignation,DG.UserName DesignationGroup,D.UserName GivenDesignation,SG.EmployeeSalaryRuleSetupId
-	,E.PlantId,C.CompanyGroupId,SH.Sequence
+	,E.PlantId,C.CompanyGroupId,SH.Sequence,E.GivenDesignationId,E.LegalDesignationId,SLID.EffectiveDate,SLID.NextDueDate
 		FROM dbo.EmployeeSalaryRuleItem SG
 	INNER JOIN SalaryHead SH ON SG.SalaryHeadID = SH.SalaryHeadID
 	LEFT JOIN (
-		SELECT SD.SystemID, SD.SalaryID, SDM.EmpInfoSystemID, SDM.EffectiveDate, SDM.SalaryIncrementSystemID, SDM.EmployeeSalaryRuleSetupId, 
+		SELECT SDM.SystemID, SD.SalaryID, SDM.EmpInfoSystemID, SDM.SalaryIncrementSystemID, SDM.EmployeeSalaryRuleSetupId, 
 				SDM.GroupID, SDM.PlantID, SDM.IsApproved, SDM.ApprovedBy, SDM.DateApproved, SD.SalaryHeadID, SD.EntryCurrencyID, SD.EntryAmount, 
-				SD.DefineCurrencyID, SD.DefineAmount, SD.AmtDefinitionCurrencyID, SD.AmtDefinitionRate
+				SD.DefineCurrencyID, SD.DefineAmount, SD.AmtDefinitionCurrencyID, SD.AmtDefinitionRate,FORMAT(SDM.EffectiveDate,'dd-MMM-yyyy')EffectiveDate
+				,FORMAT(SDM.NextDueDate,'dd-MMM-yyyy')NextDueDate
 		FROM SalaryInfoDefineMaster SDM
 							INNER JOIN SalaryInfoDefine SD ON SDM.SystemID = SD.SalaryID
 		WHERE SDM.EmpInfoSystemID = '" + empId + @"'
@@ -881,6 +882,7 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
 		LEFT JOIN HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
         LEFT JOIN HKP.Designation D ON D.id=E.GivenDesignationId
         LEFT JOIN ORG.Company C ON C.id=E.CompanyId
+LEFT JOIN dbo.IncrementHistory IH ON IH.EmpSystemId=E.SystemId AND IH.SystemId=(Select top 1 SystemId From dbo.IncrementHistory Where EmpSystemId='2500255' Order by ToEffectiveDate DESC) 
 	WHERE SG.EmployeeSalaryRuleSetupId=(Select EmployeeSalaryRuleSetupId from SalaryRuleDesignation Where DesignationId IN('" + designationId + @"'))
 	AND SG.EntryState='Entry'  Order by SH.SalaryHead";
                 var salaryItem = _sqlRepository.GetDataCollection(sql);
@@ -925,7 +927,7 @@ where s.SalaryID='" + SalaryID + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalaryInfoDefineMaster where  SystemID='" + master["SystemID"] + "'", out dsMaster, false, "1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalaryInfoDefine where  SalaryID='" + master["SystemID"] + "'", out dsChild, false, "1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.IncrementHistory where  EmpSystemID='" + master["EmpInfoSystemID"] + "'", out dsIH, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.IncrementHistory where  SystemID='" + master["IncrementHistoryId"] + "'", out dsIH, false, "1");
                 bplib.clsGenID objGenID = new bplib.clsGenID();
                 string strSystemID = null;
                 string strIHSystemID = null;

@@ -76,8 +76,41 @@ function EmployeeSalaryStructureController(cboService, commonMessage, $scope, $r
                             $scope.Action = "Save";
                             $scope.EmpSalaryOpenHeadCurrent = response.data.salaryItem;
                         }
+                        else {
+                            $scope.GetSalaryInfo($scope.EmpSalaryInfo);
+                        }
                         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
 
+                    }
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                });
+
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.GetSalaryInfo = function (data) {
+        try {
+            $scope.EmpSalaryInfo.SystemID = data.SystemID;
+            $scope.EmpSalaryInfo.EmpInfoSystemID = data.EmpInfoSystemID;
+            $scope.EmpSalaryInfo.PlantId = data.PlantId;
+            $scope.EmpSalaryInfo.GroupID = data.GroupID;
+            $scope.EmpSalaryInfo.EffectiveDate = data.EffectiveDate;
+            $scope.EmpSalaryInfo.NextDueDate = data.NextDueDate;
+            $scope.EmpSalaryInfo.IsApproved = data.IsApproved;
+            $scope.EmpSalaryInfo.EmployeeSalaryRuleSetupId = data.EmployeeSalaryRuleSetupId;
+
+            $http.get('Payrolls/EmployeeSalaryRuleSetup/GetSalaryInfoData?SalaryID=' + data.SystemID)
+                .then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        $scope.EmpSalaryOpenHeadCurrent = response.data;
                     }
                     function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
@@ -135,6 +168,7 @@ function EmployeeSalaryStructureController(cboService, commonMessage, $scope, $r
             $scope.EmpSalaryInfoNew.NextDueDate = $scope.EmpSalaryInfo.NextDueDate;
             $scope.EmpSalaryInfoNew.IsApproved = $scope.EmpSalaryInfo.IsApproved;
             $scope.EmpSalaryInfoNew.EmployeeSalaryRuleSetupId = $scope.EmpSalaryInfo.EmployeeSalaryRuleSetupId;
+            $scope.EmpSalaryInfoNew.IncrementHistoryId = $scope.EmpSalaryInfo.IncrementHistoryId;
             $scope.newList = [];
             var ob = {};
             for (var i = 0; i < $scope.EmpSalaryOpenHeadCurrent.length; i++) {
@@ -154,14 +188,14 @@ function EmployeeSalaryStructureController(cboService, commonMessage, $scope, $r
                 ob = {};
             }
 
-            $scope.IncrementHistory.SystemID = null;
+            $scope.IncrementHistory.SystemID = $scope.EmpSalaryInfo.IncrementHistoryId == null ? null : $scope.EmpSalaryInfo.IncrementHistoryId;
             $scope.IncrementHistory.EmpSystemID = $scope.EmpSalaryInfo.EmpInfoSystemID;
             $scope.IncrementHistory.FromGivenDesignationId = $scope.EmpSalaryInfo.GivenDesignationId;
             $scope.IncrementHistory.FromBudgetCode = $scope.EmpSalaryInfo.BudgetCode;
             $scope.IncrementHistory.FromLegalDesignationId = $scope.EmpSalaryInfo.LegalDesignationId;
-            $scope.IncrementHistory.ToGivenDesignationId = $scope.budgetCodeChangeNew.GivenDesignationId;
-            $scope.IncrementHistory.ToBudgetCode = $scope.budgetCodeChangeNew.BudgetCode;
-            $scope.IncrementHistory.ToLegalDesignationId = $scope.budgetCodeChangeNew.LegalDesignationId;
+            $scope.IncrementHistory.ToGivenDesignationId = $scope.EmpSalaryInfo.GivenDesignationId;
+            $scope.IncrementHistory.ToBudgetCode = $scope.EmpSalaryInfo.BudgetCode;
+            $scope.IncrementHistory.ToLegalDesignationId = $scope.EmpSalaryInfo.LegalDesignationId;
             $scope.IncrementHistory.ToEffectiveDate = $scope.EmpSalaryInfo.EffectiveDate;
             $scope.IncrementHistory.IncrementType = "Fresh Entry";
 
@@ -176,8 +210,7 @@ function EmployeeSalaryStructureController(cboService, commonMessage, $scope, $r
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.EmpSalaryOpenHeadCurrent = [];
-                    $scope.EmpSalaryInfo = {};
+
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -188,7 +221,11 @@ function EmployeeSalaryStructureController(cboService, commonMessage, $scope, $r
         }
     }
 
-
+    $scope.Clear = function () {
+        $scope.EmpSalaryOpenHeadCurrent = [];
+        $scope.EmpSalaryInfo = {};
+        $scope.salaryDataList = {};
+    }
 
 
 }
