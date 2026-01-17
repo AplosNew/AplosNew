@@ -101,6 +101,7 @@
     <Compile Include="Enums\TableEnum.cs" />
     <Compile Include="Enums\PackingTypeEnum.cs" />
     <Compile Include="Enums\BarcodeGeneratorSettingEnum.cs" />
+    <Compile Include="Enums\WeeklyStatusEnum.cs" />
     <Compile Include="Enums\TermsAndConditionsEnum.cs" />
     <Compile Include="Enums\TaxCategoryTypeEnum.cs" />
     <Compile Include="Enums\InvoiceTypeEnum.cs" />

@@ -51,8 +51,16 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Code<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required autocomplete="off" tabindex="2" maxlength="10">
+                <div class="select-style">
+                    <select class="form-control" ng-model="ModelNew.Code" name="Code" required
+                            ng-options="item.Value as item.Text for item in weeklyStatusCodeList">
+                        <option></option>
+                    </select>
+                </div>
             </div>
+            @*<div class="col-sm-8 show-message">
+                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required autocomplete="off" tabindex="2" maxlength="10">
+            </div>*@
         </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
