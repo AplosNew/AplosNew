@@ -26,7 +26,10 @@ function WeeklyStatusController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
     $scope.getData();
-
+    $scope.weeklyStatusCodeList = [];
+    cboService.getEnumCbo("enum/GetWeeklyStatusEnumCbo", function (result) {
+        $scope.weeklyStatusCodeList = result;
+    });
     //$scope.TypeList = [];
     //cboService.getEnumCbo("enum/GetChargesTypeEnumCbo", function (result) {
     //    $scope.TypeList = result;

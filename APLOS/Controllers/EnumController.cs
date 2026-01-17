@@ -708,6 +708,12 @@ namespace Aplos.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetWeeklyStatusEnumCbo()
+        {
+            return Json(new SelectList(EnumService.GetEnumCbo<WeeklyStatusEnum>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetTaxCategoryLevelEnumCbo()
         {
             return Json(new SelectList(EnumService.GetEnumCbo<TaxCategoryLevelEnum>(), "Value", "Text"), JsonRequestBehavior.AllowGet);

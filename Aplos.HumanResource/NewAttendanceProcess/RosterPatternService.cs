@@ -105,9 +105,11 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                var str = @"Select Id ,RPHeaderId, ShiftDefinitionID, Days31 as ShiftSequence, Days31, Days30,Days29,Days28 , sd.ShiftDefinationName as ShiftName from dbo.RosterPatternChild rpc
-left join dbo.ShiftDefination sd on sd.SystemID = rpc.ShiftDefinitionID
-where RPHeaderId = '" + Id + "' ";
+                var str = @"Select rpc.Id ,RPHeaderId, ShiftDefinitionID, Days31 as ShiftSequence, Days31, Days30,Days29,Days28 , sd.ShiftDefinationName as ShiftName ,rpc.WeeklyStatusId,WS.UserName WeeklyStatusName
+                    FROM dbo.RosterPatternChild rpc
+                    LEFT JOIN dbo.ShiftDefination sd on sd.SystemID = rpc.ShiftDefinitionID
+                    LEFT JOIN HKP.WeeklyStatus WS ON WS.Id=rpc.WeeklyStatusId
+                    WHERE RPHeaderId = '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
