@@ -986,7 +986,7 @@ where s.SalaryID='" + SalaryID + "'";
                 if (IncrementHistory != null)
                 {
                     DataView dv = new DataView(dsIH.Tables[0]);
-                    dv.RowFilter = "SystemID='" + master["SystemID"] + "'";
+                    dv.RowFilter = "SystemID='" + IncrementHistory["SystemID"] + "'";
 
                     if (dv.Count == 0)
                     {

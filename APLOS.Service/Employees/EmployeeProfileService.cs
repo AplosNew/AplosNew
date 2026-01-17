@@ -4566,6 +4566,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "PhoneNumber", dr["CellPhnNo"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmergencyTelNo", dr["EmrCntPer1CellNo"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "ID", dr["EmployeeCode"].ToString(), "Kalpurush", 8);
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "Entity", dr["Entity"].ToString(), "Kalpurush", 8);
                     }
                     else
                     {
@@ -4573,7 +4574,10 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "PhoneNumber", cnDgt(dr["CellPhnNo"].ToString(), langName), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmergencyTelNo", cnDgt(dr["EmrCntPer1CellNo"].ToString(), langName), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "ID", cnDgt(dr["EmployeeCode"].ToString(), langName), "Kalpurush", 8);
+                        //ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmContactName", cnDgt(dr["EmContactName"].ToString(), langName), "Kalpurush", 8);
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "Entity", cnDgt(dr["Entity"].ToString(), langName), "Kalpurush", 8);
                     }
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmContactName", dr["EmContactName"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "Department", dr["Department"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "Section", dr["Section"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "WorkType", dr["EmployeeWorkType"].ToString(), "Kalpurush", 8);
@@ -5237,12 +5241,14 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
                                     ,EmrCntPer1CellNo,FatherOrSpouse = case when E.FatherName is null then e.SpouseName else E.FatherName  end,CONCAT(e.SystemId,'#',e.EmployeeCode,'#',e.EmployeeName)BarCodeId
                                     ,case when isnull(cg.Id,'')='' THEN isnull(E.PresentAddress1Local,E.PresentAddress1) ELSE PresentAddress1 END AS PresentAddress
                                     ,case when isnull(cg.Id,'')='' THEN isnull(E.FatherNameLocal,E.FatherName) ELSE FatherName END AS FatherName
+                                    ,E.EmrCntPer1Name EmContactName,E.EmrCntPer1CellNo EmContactNo,EN.UserName Entity
                                     FROM EmployeeInformation E
                                     LEFT JOIN ORG.CompanyGroup CG ON E.GroupID=cg.Id and CG.LanguageId='" + languageId + @"'
                                     LEFT JOIN ORG.Plant PL ON PL.Id=E.PlantId
                                     LEFT JOIN [SCS].[PlantSetting] P ON P.PlantId=E.PlantId AND P.ModuleName='HR'
                                     LEFT JOIN ORG.Line L ON L.Id=E.LineId
 	                                LEFT JOIN MST.ManpowerBudget bbb ON e.BudgetCode = bbb.Id
+                                    LEFT JOIN ORG.Entity EN ON EN.Id=bbb.EntityId
 	                                LEFT JOIN ORG.Position PS ON PS.Id=bbb.PositionId
 	                                LEFT JOIN ORG.Department DP ON DP.Id=PS.DepartmentId
                                     LEFT JOIN HKP.LegalDesignation LDN ON LDN.Id=E.LegalDesignationId
@@ -5253,6 +5259,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
                                     LEFT JOIN HKP.LocalLanguage A ON A.CompanyId=E.CompanyId AND A.LanguageId='" + languageId + @"'
                                     LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = PS.SectionId AND PL.LanguageId='" + languageId + @"'
 	                                LEFT JOIN HKP.LocalLanguage DPL ON DPL.DepartmentId = PS.DepartmentId AND PL.LanguageId='" + languageId + @"'
+	                                LEFT JOIN HKP.LocalLanguage ENL ON ENL.EntityId = bbb.EntityId AND PL.LanguageId='" + languageId + @"'
                                     LEFT JOIN HKP.BloodGroup BG ON BG.Id = E.BloodGroupID
                                     LEFT JOIN (
 						                SELECT  LSGD.PlantId,LSGD.LegalDesignationId,LS.ShortName,LSGD.LegalSalaryGradeId from [MST].[LegalSalaryGradeDesignation] LSGD
