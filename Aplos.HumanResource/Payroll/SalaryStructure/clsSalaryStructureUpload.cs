@@ -2462,6 +2462,11 @@ namespace Library.Service.Payrolls.SalaryStructure
         LEFT JOIN ORG.Company C ON C.id=E.CompanyId
 	WHERE SG.EmployeeSalaryRuleSetupId=(Select EmployeeSalaryRuleSetupId from SalaryRuleDesignation Where DesignationId IN('" + designationId + @"'))
 	AND SG.EntryState='Entry'  Order by SH.SalaryHead";
+                var salaryItem = _sqlRepository.GetDataCollection(sql);
+
+                string ssql = @"select * from dbo.SalaryInfoDefineMaster Where EmpInfoSystemID='" + empId + @"'";
+                var salaryData= _sqlRepository.GetDataCollection(sql);
+
 
                 return _sqlRepository.GetDataCollection(sql);
             }
