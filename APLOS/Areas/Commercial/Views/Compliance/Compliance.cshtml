@@ -87,15 +87,15 @@
                 </div>
             </div>
         </div>
-        @*<div class="form-group">
+        <div class="form-group">
             <label class="col-sm-4 control-label">File Upload</label>
-            <a href="{{filePath+ModelNew.FileName}}" style="text-decoration:underline" download="{{ModelNew.FileName}}" target="_self">{{ModelNew.FileName}}</a>
+           {{ModelNew.FileName}}
             <div class="col-sm-4">
                 <div id="UploadDefault" e-dialogtext-title="Compliance File" e-autoupload="true" e-begin="onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg,.xls,.xlsx,.pdf" e-error="errorPicUpload"></div>
             </div>
-        </div>*@
+        </div>
 
-    <div class="form-group">
+    @*<div class="form-group">
         <label>Attachment</label>
         <a href="{{filePath+ModelNew.FileName}}" style="text-decoration:underline" download="{{ModelNew.FileName}}" target="_self">{{ModelNew.FileName}}</a>
         <input type="file"
@@ -110,7 +110,7 @@
         <div ng-if="fileName" style="margin-top: 5px; color: #007bff;">
             <i class="fa fa-file"></i> Selected: {{fileName}} ({{fileSize}})
         </div>
-    </div>
+    </div>*@
 
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -239,18 +239,37 @@
     </div>
 </div>
 <div class="row text-right aplos-grid-toggle">
+    @*<div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="searchBy">
+                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>*@
     <div class="col-xs-12 col-sm-12 col-sm-12">
         <div class="search-form">
             <div class="row">
                 <div class="col-xs-12 col-sm-3 col-md-3">
                     <div class="select-style">
-                        <select ng-model="searchBy">
+                        <select ng-model="$root.parameters.searchBy">
                             <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
                         </select>
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
                 </div>
                 <div class="col-xs-12 col-sm-2 col-md-2">
                     <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
@@ -259,8 +278,37 @@
         </div>
     </div>
 </div>
-<div class="table-responsive aplos-grid-toggle">
-    <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Compliance Group</th>
+                <th>Category</th>
+                <th>SubCategory</th>
+                <th>ItemName</th>
+                <th>File</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in ModelList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.Code}}</td>
+                <td>{{x.ComplianceGroup}}</td>
+                <td>{{x.Category}}</td>
+                <td>{{x.SubCategory}}</td>
+                <td>{{x.ItemName}}</td>
+                <td ng-click="FileDownload(x)"><a href="{{downloadUrl}}" style="text-decoration:underline" download="{{x.FileName}}" target="_self">{{x.FileName}}</a></td>
+                <td>{{x.Active?'Yes':'No'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+    <!--<div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
@@ -269,20 +317,21 @@
             <div e-column e-field="ComplianceGroup" e-headertext="Compliance Group" e-width="5"></div>
             <div e-column e-field="Category" e-headertext="Category Name" e-width="5"></div>
             <div e-column e-field="SubCategory" e-headertext="SubCategory Name" e-width="5"></div>
-            <div e-column e-field="ItemName" e-headertext="ItemName" e-width="5"></div>
-
-            <!-- File Column - Simple Version -->
-            @*<div e-column e-field="FileName" e-headertext="File" e-width="4" e-templateid="#simpleFileTemplate"></div>*@
+            <div e-column e-field="ItemName" e-headertext="ItemName" e-width="5"></div>-->
+    <!-- File Column - Simple Version -->
+    <!--<div e-column e-field="FileName" e-headertext="File" e-width="4" e-templateid="#simpleFileTemplate"></div>
             <div e-column e-type="text" e-template="#file" e-headertext="File Name" e-textalign="right" e-width="5"></div>
             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
         </div>
-    </div>
+    </div>-->
 </div>
 
 <!-- Simple Template -->
 <script type="text/template" id="file">
     <div class="text-right" style="width:100%">
-        <a href="{{filePath+data.FileName}}" style="text-decoration:underline" download="{{data.FileName}}" target="_self">{{data.FileName}}</a>
+        <button ng-click="$parent.FileDownload(data)" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i></button>
+        <a href="{{downloadUrl}}" ng-click="FileDownload(data)" style="text-decoration:underline" download="{{data.FileName}}" target="_self">{{data.FileName}}</a>
+        @*<a href="{{filePath+data.FileName}}" style="text-decoration:underline" download="{{data.FileName}}" target="_self">{{data.FileName}}</a>*@
         @*<a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.FileDownload(data);">{{data.FileName}}</a>*@
     </div>
 </script>

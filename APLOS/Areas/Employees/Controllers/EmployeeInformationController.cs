@@ -1057,6 +1057,7 @@ namespace Aplos.Areas.Employees.Controllers
         {
             var empTrainingInformation = new JavaScriptSerializer().Deserialize<EmpTrainingInformation>(form["empTrainingInformation"]);
 
+            _empTrainingInformationService.InsertORUpdateMaster(empTrainingInformation);
 
             if (file.IsNotNull())
             {
@@ -1094,7 +1095,7 @@ namespace Aplos.Areas.Employees.Controllers
                 }
             }
 
-            _empTrainingInformationService.InsertORUpdateMaster(empTrainingInformation);
+           
 
             return Json(new { EmpTrainingInformation = empTrainingInformation, Message = AplosMessage.Success });
         }
