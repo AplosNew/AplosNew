@@ -133,6 +133,7 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         $scope.ModelTemp = $scope.ModelList[$scope.index];
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.ComplianceValue = $scope.ModelNew.ComplianceValue.toString();
+        $scope.ModelNew.ExpiryDate = $filter('dateFiltering')(new Date($scope.ModelNew.ExpiryDate), 'dd-MM-yyyy');
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
