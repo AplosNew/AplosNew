@@ -192,80 +192,33 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
 
     // MAIN SAVE FUNCTION - UPDATED
     $scope.Save = function () {
-        console.log('=== SAVE FUNCTION STARTED ===');
-
         $scope.$broadcast('show-errors-check-validity');
-
         if ($scope.ModelNewForm.$valid) {
-            console.log('Form is valid');
-            console.log('Model data:', $scope.ModelNew);
-
-            // Validate file if exists
-            var fileInput = document.getElementById('fileAttachment');
-            var fileData = null;
-
-            if (fileInput && fileInput.files.length > 0) {
-                fileData = fileInput.files[0];
-                console.log('File selected:', fileData.name, 'Size:', fileData.size);
-
-                if (fileData.size > 2097152) {
-                    ShowResult(fileData.name + ' - File size must be below 2 MB', 'failure');
-                    return;
-                }
-            } else {
-                console.log('No file selected');
-            }
-
-            // Create FormData
-            var formData = new FormData();
-
-            // Add file if exists
-            if (fileData) {
-                formData.append('fileAttachment', fileData);
-                console.log('File added to FormData');
-            }
-
-            // Add form data - ensure ModelNew has Id field
-            if (!$scope.ModelNew.Id) {
-                $scope.ModelNew.Id = "0"; // Set default ID for new records
-            }
-
-            console.log('Sending data:', $scope.ModelNew);
-            formData.append('data', JSON.stringify($scope.ModelNew));
-
-            // Show loading
-            ShowResult('Saving... Please wait', 'info');
-
-            // Send request
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: formData,
-                headers: {
-                    'Content-Type': undefined
-                },
-                transformRequest: angular.identity
+                data: { 'data': $scope.ModelNew },
+                dataType: 'JSON'
             }).then(function successCallback(response) {
-                console.log('Server response:', response.data);
-
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
-                } else {
+                }
+                else {
                     ShowResult(response.data.Message, 'success');
-                    // Clear file input
-                    if (fileInput) {
-                        fileInput.value = '';
-                    }
                     ClearFields();
                     $scope.getData();
+
                 }
-            }, function errorCallback(response) {
-                console.log('Error response:', response);
-                ShowResult(response.data ? response.data.Message : 'Error occurred while saving', 'failure');
-            });
-        } else {
-            console.log('Form is invalid');
-            ShowResult('Please fill all required fields correctly', 'failure');
+                // Validate();
+                if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
+                    throw $scope.filedata.name + ' File size must be below 2 mb';
+                var fileName = null;
+                if (!baseService.isUndefinedOrNull($scope.filedata))
+                    fileName = $scope.filedata.name;
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
         }
     };
 
