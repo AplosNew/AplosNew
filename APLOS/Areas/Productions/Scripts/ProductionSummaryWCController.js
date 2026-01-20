@@ -1902,47 +1902,49 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         }
 
 
-        if ($scope.NewObject.POProcessSequence != "1") {
-            if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.NewObject.POFirstProcessProductionQty) {
-                throw "Produced qty cannot more than the first process qty.";
-            }
-            else {
-                $scope.CompareMaxValue = Math.max(parseFloat($scope.NewObject.ProcessPlanQty), parseFloat($scope.NewObject.POPreviousProdQty))
-                if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.CompareMaxValue) {
-                    throw "You cannot booked greater than Current Process Plan Qty or Previous Process Booked Qty.";
+        if ($scope.NewObject.ProductionGrade!=="C") {
+            if ($scope.NewObject.POProcessSequence != "1") {
+                if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.NewObject.POFirstProcessProductionQty) {
+                    throw "Produced qty cannot more than the first process qty.";
                 }
                 else {
-
-                    if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
-                        throw "If Previous Process Booked Qty is less than  Produced and Booked Qty then Please enter remarks and inform to departmental head without fail!";
+                    $scope.CompareMaxValue = Math.max(parseFloat($scope.NewObject.ProcessPlanQty), parseFloat($scope.NewObject.POPreviousProdQty))
+                    if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.CompareMaxValue) {
+                        throw "You cannot booked greater than Current Process Plan Qty or Previous Process Booked Qty.";
                     }
                     else {
-                        if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
-                            $scope.productionSummaryNew.PPQFlag = true;
+
+                        if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
+                            throw "If Previous Process Booked Qty is less than  Produced and Booked Qty then Please enter remarks and inform to departmental head without fail!";
                         }
                         else {
-                            $scope.productionSummaryNew.PPQFlag = false;
+                            if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
+                                $scope.productionSummaryNew.PPQFlag = true;
+                            }
+                            else {
+                                $scope.productionSummaryNew.PPQFlag = false;
+                            }
                         }
                     }
                 }
             }
-        }
-        else {
-            if ($scope.NewObject.ProductionVerification != true) {
-                throw "You cannot booked more than Verified Process...";
-            }
-            if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.NewObject.ProcessPlanQty) {
-                throw "You cannot booked greater than Process Plan Qty.";
-            }
             else {
-                if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) == parseFloat($scope.NewObject.ProcessPlanQty)) {
-                    $scope.productionSummaryNew.PPQFlag = true;
+                if ($scope.NewObject.ProductionVerification != true) {
+                    throw "You cannot booked more than Verified Process...";
+                }
+                if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.NewObject.ProcessPlanQty) {
+                    throw "You cannot booked greater than Process Plan Qty.";
                 }
                 else {
-                    if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) < parseFloat($scope.NewObject.ProcessPlanQty) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) { $scope.productionSummaryNew.PPQFlag = true; }
+                    if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) == parseFloat($scope.NewObject.ProcessPlanQty)) {
+                        $scope.productionSummaryNew.PPQFlag = true;
+                    }
                     else {
-                        $scope.productionSummaryNew.PPQFlag = false;
-                        throw "If  Booked Qty and Produced Qty is less than Process Plan Qty then Please enter remarks and inform to departmental head without fail!";
+                        if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) < parseFloat($scope.NewObject.ProcessPlanQty) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) { $scope.productionSummaryNew.PPQFlag = true; }
+                        else {
+                            $scope.productionSummaryNew.PPQFlag = false;
+                            throw "If  Booked Qty and Produced Qty is less than Process Plan Qty then Please enter remarks and inform to departmental head without fail!";
+                        }
                     }
                 }
             }

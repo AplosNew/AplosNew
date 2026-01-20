@@ -4553,6 +4553,8 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "Plant", dr["PlantName"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "BloodGroup", dr["BloodGroup"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "PermanentAddress", dr["ParmanentAddress"].ToString(), "Kalpurush", 8);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "CompanyAddress", dr["CompanyAddress"].ToString(), "Kalpurush", 8);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "Phone", dr["Phone"].ToString(), "Kalpurush", 8);
 
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "FatherOrSpouse", dr["FatherOrSpouse"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "FatherName", dr["FatherName"].ToString(), "Kalpurush", 8);
@@ -5229,6 +5231,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
                 string sql = @"SELECT isnull(A.[Name],CG.UserName)CompanyName,
                                      E.EmployeeCode,CASE WHEN ISNULL(cg.Id,'')='' THEN isnull(E.EmployeeNameLocal,E.EmployeeName) ELSE EmployeeName END AS EmployeeName
                                     ,ISNULL(LD.Name,LDN.UserName) DesignationName
+                                    ,ISNULL(ENL.Name,EN.UserName) Entity
                                     ,ISNULL(SEC.Name,SE.UserName) Section
 	                                ,ISNULL(DPL.Name,DP.UserName) Department
                                     ,FORMAT(E.DOJ,'dd-MMM-yyyy') DOJ
@@ -5241,9 +5244,11 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
                                     ,EmrCntPer1CellNo,FatherOrSpouse = case when E.FatherName is null then e.SpouseName else E.FatherName  end,CONCAT(e.SystemId,'#',e.EmployeeCode,'#',e.EmployeeName)BarCodeId
                                     ,case when isnull(cg.Id,'')='' THEN isnull(E.PresentAddress1Local,E.PresentAddress1) ELSE PresentAddress1 END AS PresentAddress
                                     ,case when isnull(cg.Id,'')='' THEN isnull(E.FatherNameLocal,E.FatherName) ELSE FatherName END AS FatherName
-                                    ,E.EmrCntPer1Name EmContactName,E.EmrCntPer1CellNo EmContactNo,EN.UserName Entity
+                                    ,E.EmrCntPer1Name EmContactName,E.EmrCntPer1CellNo EmContactNo,CompanyAddress=AM.Address1+', '+ISNULL(AM.Address2,''),AM.Phone
                                     FROM EmployeeInformation E
                                     LEFT JOIN ORG.CompanyGroup CG ON E.GroupID=cg.Id and CG.LanguageId='" + languageId + @"'
+                                    LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
+                                    LEFT JOIN MST.AddressMaster AM ON AM.Id=C.AddressMasterId
                                     LEFT JOIN ORG.Plant PL ON PL.Id=E.PlantId
                                     LEFT JOIN [SCS].[PlantSetting] P ON P.PlantId=E.PlantId AND P.ModuleName='HR'
                                     LEFT JOIN ORG.Line L ON L.Id=E.LineId

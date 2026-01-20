@@ -116,7 +116,9 @@ function resignationController(cboService, commonMessage, $scope, $rootScope, ba
             .then(function (result) {
                 $scope.imageSrc = result;
             });
-    };   
+    };
+
+    $scope.filePath = virtualPath.ResignationLetter;
 
     $scope.Save = function () {
         try {

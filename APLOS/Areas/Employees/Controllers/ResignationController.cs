@@ -178,7 +178,7 @@ namespace Aplos.Areas.Employees.Controllers
             }
 
             _ResignationService.Update(reg);
-
+            _id = reg.Id;
 
             if (filedata.Count > 0)
             {

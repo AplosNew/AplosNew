@@ -78,7 +78,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult GetList(string column, string value)
+        public ActionResult _GetList(string column, string value)
         {
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
@@ -99,8 +99,27 @@ namespace Aplos.Areas.Commercial.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetList(GridParameter parameters)
+        {
+            parameters.searchBy = "ComplianceGroup";
+            parameters.sort = "Id";
+            parameters.CmdText = @"select 
+                    CM.*,
+                    G.UserName ComplianceGroup,
+                    C.UserName Category,
+                    SC.UserName SubCategory,
+                    HasFile = CASE WHEN FileName IS NOT NULL AND FileName != '' THEN 1 ELSE 0 END
+                    from hkp.ComplianceMaster CM
+                    LEFT JOIN hkp.ComplianceCategoryType G ON G.Id = CM.ComplianceGroupId
+                    LEFT JOIN hkp.ComplianceCategoryType C ON C.Id = CM.CategoryId
+                    LEFT JOIN hkp.ComplianceCategoryType SC ON SC.Id = CM.SubCategoryId";
+
+            return Json(_sqlRepository.GetGridData(parameters), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
-        public JsonResult _Create(Dictionary<string, object> data)
+        public JsonResult Create(Dictionary<string, object> data)
         {
             try
             {
@@ -238,7 +257,7 @@ namespace Aplos.Areas.Commercial.Controllers
         #endregion upload File
 
         [HttpPost]
-        public JsonResult Create()
+        public JsonResult _Create()
         {
             try
             {

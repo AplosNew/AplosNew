@@ -33,48 +33,6 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         return $scope.tab2 === tabNum;
     };
 
-    $scope.searchBy = "Code"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'Remarks', name: "Remarks" }];
-
-    $scope.CriticalityLevelList = [
-        { 'Value': "Normal", 'Text': "Normal" },
-        { 'Value': "Critical", 'Text': "Critical" },
-        { 'Value': "Important", 'Text': "Important" }
-    ];
-
-    $scope.auditFrequencyUnitList = [
-        { 'Value': "Days", 'Text': "Days" },
-        { 'Value': "Hour", 'Text': "Hour" }
-    ];
-
-    $scope.ComplianceValueList = [
-        { 'Value': "0", 'Text': "0" },
-        { 'Value': "1", 'Text': "1" },
-        { 'Value': "2", 'Text': "2" },
-        { 'Value': "3", 'Text': "3" },
-        { 'Value': "4", 'Text': "4" }
-    ];
-
-    $scope.getData = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetList",
-            data: { column: $scope.searchBy, value: $scope.search },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.ModelList = response.data;
-        });
-    }
-    $scope.getData();
-
-    $scope.getFile = function () {
-        $scope.progress = 0;
-        fileReader.readAsDataUrl($scope.file, $scope)
-            .then(function (result) {
-                $scope.imageSrc = result;
-            });
-    };
-
     $scope.ModelTemp = {
         Id: null,
         ComplianceGroup: null,
@@ -96,10 +54,86 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
-    $scope.Get = function (args) {
+    $scope.searchBy = "Code"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'Remarks', name: "Remarks" }];
+    $scope.parameters = {
+        limit: 20,
+        offset: 0,
+        order: 'asc',
+        sort: 'Type',
+        searchBy: "Id",
+        search: $scope.ModelNew.Id
+    };
+
+    $scope.CriticalityLevelList = [
+        { 'Value': "Normal", 'Text': "Normal" },
+        { 'Value': "Critical", 'Text': "Critical" },
+        { 'Value': "Important", 'Text': "Important" }
+    ];
+
+    $scope.auditFrequencyUnitList = [
+        { 'Value': "Days", 'Text': "Days" },
+        { 'Value': "Hour", 'Text': "Hour" }
+    ];
+
+    $scope.ComplianceValueList = [
+        { 'Value': "0", 'Text': "0" },
+        { 'Value': "1", 'Text': "1" },
+        { 'Value': "2", 'Text': "2" },
+        { 'Value': "3", 'Text': "3" },
+        { 'Value': "4", 'Text': "4" }
+    ];
+
+    //$scope.getData = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.path + "GetList",
+    //        data: { column: $scope.searchBy, value: $scope.search },
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        $scope.ModelList = response.data;
+    //    });
+    //}
+    //$scope.getData();
+
+    baseService.init($scope.getListUrl);
+    $scope.getData = function (pageno) {
+        baseService.pagination(pageno)
+            .then(function (result) {
+                $scope.ModelList = result.Rows;
+            }, function () {
+                ShowResult(commonMessage.NetworkError, 'failure');
+            }).finally(function () {
+            });
+    };
+    $scope.getData();
+
+    $scope.getFile = function () {
+        $scope.progress = 0;
+        fileReader.readAsDataUrl($scope.file, $scope)
+            .then(function (result) {
+                $scope.imageSrc = result;
+            });
+    };
+
+   
+
+    $scope.XGet = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.ModelNew.ComplianceValue = $scope.ModelNew.ComplianceValue.toString();
         $scope.GetRPList();
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.Get = function (id, index) {
+        $scope.index = index;
+        $scope.ModelTemp = $scope.ModelList[$scope.index];
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.ModelNew.ComplianceValue = $scope.ModelNew.ComplianceValue.toString();
+        $scope.ModelNew.ExpiryDate = $filter('dateFiltering')(new Date($scope.ModelNew.ExpiryDate), 'dd-MM-yyyy');
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -123,13 +157,16 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         }
     };
     // Download file function
-    //$scope.downloadUrl = null;
-    //$scope.FileDownload = function (data) {
-    //    $scope.downloadUrl = null;
-    //    var str = data.FileName;
-    //    var extention = str.substr(str.indexOf('.'));
-    //    $scope.downloadUrl = virtualPath.ComplianceFilePath + '/' + data.Id + extention;
-    //};
+    $scope.filePath = virtualPath.ComplianceFilePath;
+    $scope.downloadUrl = null;
+
+    $scope.FileDownload = function (data) {
+        $scope.downloadUrl = null;
+        var str = data.FileName;
+        var extention = str.substr(str.indexOf('.'));
+        $scope.downloadUrl = virtualPath.ComplianceFilePath + '/' + data.Id + extention;
+    };
+
 
 
     $scope.downloadFile = function (id) {
@@ -155,80 +192,33 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
 
     // MAIN SAVE FUNCTION - UPDATED
     $scope.Save = function () {
-        console.log('=== SAVE FUNCTION STARTED ===');
-
         $scope.$broadcast('show-errors-check-validity');
-
         if ($scope.ModelNewForm.$valid) {
-            console.log('Form is valid');
-            console.log('Model data:', $scope.ModelNew);
-
-            // Validate file if exists
-            var fileInput = document.getElementById('fileAttachment');
-            var fileData = null;
-
-            if (fileInput && fileInput.files.length > 0) {
-                fileData = fileInput.files[0];
-                console.log('File selected:', fileData.name, 'Size:', fileData.size);
-
-                if (fileData.size > 2097152) {
-                    ShowResult(fileData.name + ' - File size must be below 2 MB', 'failure');
-                    return;
-                }
-            } else {
-                console.log('No file selected');
-            }
-
-            // Create FormData
-            var formData = new FormData();
-
-            // Add file if exists
-            if (fileData) {
-                formData.append('fileAttachment', fileData);
-                console.log('File added to FormData');
-            }
-
-            // Add form data - ensure ModelNew has Id field
-            if (!$scope.ModelNew.Id) {
-                $scope.ModelNew.Id = "0"; // Set default ID for new records
-            }
-
-            console.log('Sending data:', $scope.ModelNew);
-            formData.append('data', JSON.stringify($scope.ModelNew));
-
-            // Show loading
-            ShowResult('Saving... Please wait', 'info');
-
-            // Send request
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: formData,
-                headers: {
-                    'Content-Type': undefined
-                },
-                transformRequest: angular.identity
+                data: { 'data': $scope.ModelNew },
+                dataType: 'JSON'
             }).then(function successCallback(response) {
-                console.log('Server response:', response.data);
-
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
-                } else {
+                }
+                else {
                     ShowResult(response.data.Message, 'success');
-                    // Clear file input
-                    if (fileInput) {
-                        fileInput.value = '';
-                    }
                     ClearFields();
                     $scope.getData();
+
                 }
-            }, function errorCallback(response) {
-                console.log('Error response:', response);
-                ShowResult(response.data ? response.data.Message : 'Error occurred while saving', 'failure');
-            });
-        } else {
-            console.log('Form is invalid');
-            ShowResult('Please fill all required fields correctly', 'failure');
+                // Validate();
+                if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
+                    throw $scope.filedata.name + ' File size must be below 2 mb';
+                var fileName = null;
+                if (!baseService.isUndefinedOrNull($scope.filedata))
+                    fileName = $scope.filedata.name;
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
         }
     };
 
@@ -544,7 +534,7 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         return false;
     }
 
-   
+
 
     $scope.message_detailconfirmation = null;
     $scope.removeRP = function (obj) {
@@ -905,7 +895,7 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
             $http({
                 method: 'POST',
                 url: $scope.deleteGUrl,
-                data: { 'id': $scope.CategoryModelNew.Id},
+                data: { 'id': $scope.CategoryModelNew.Id },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -1035,7 +1025,7 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
             $http({
                 method: 'POST',
                 url: $scope.deleteGUrl,
-                data: { 'id': $scope.SubCategoryModelNew.Id},
+                data: { 'id': $scope.SubCategoryModelNew.Id },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -1064,7 +1054,7 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
         $scope.SubCategoryModelNew.Sequence = seq;
     }
 
-    
+
 
     //#endregion
 
