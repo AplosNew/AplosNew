@@ -536,13 +536,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int r = 0; r < dsRosterWeekOff.Tables[0].Rows.Count; r++)
                         {
-                            
                             EmpId = dsRosterWeekOff.Tables[0].Rows[r][@"EmpSystemId"].ToString();
-                            //if (EmpId == "23231143") 
-                            //{ 
-
-                            //}
-                                string DayType = clsWebLib.RetValidLen(dsRosterWeekOff.Tables[0].Rows[r][@"DayType"]).ToString();
+                            string DayType = clsWebLib.RetValidLen(dsRosterWeekOff.Tables[0].Rows[r][@"DayType"]).ToString();
                             if (!string.IsNullOrEmpty(DayType))
                             {
                                 dsRefWeekOff.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
