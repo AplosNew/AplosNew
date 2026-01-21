@@ -247,10 +247,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join 
                             (
                             Select * from (
-							                            Select rank() over (partition by ManpowerBudgetId order by  mb.EffectiveDate DESC,mb.Id) RNK, mb.TotalNumber, mb.ManpowerBudgetId, mb.EffectiveDate , mmb.Deployment
+							                            Select rank() over (partition by ManpowerBudgetId order by  mb.EffectiveDate DESC,mb.Id) RNK, mb.TotalNumber, mb.ManpowerBudgetId, mb.EffectiveDate , mb.Deployment
                                                         from [MST].[ManpowerBudgetDetail] mb
 														left join  mst.ManpowerBudget mmb on mmb.Id = mb.ManpowerBudgetId
-                                                        WHERE CONVERT(DATE,(mb.EffectiveDate) )<= CONVERT(DATE,'15-Mar-2022')
+                                                        WHERE CONVERT(DATE,(mb.EffectiveDate) )<= CONVERT(DATE,'" + date + @"')
 			                            ) as Bud where RNK = 1
                             ) as bud on bud.ManpowerBudgetId = mb.Id
                             left join org.Position pos on pos.Id = mb.PositionId
