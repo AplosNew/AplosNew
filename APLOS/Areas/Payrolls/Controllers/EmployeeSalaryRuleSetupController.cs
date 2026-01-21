@@ -48,6 +48,11 @@ namespace Aplos.Areas.Payrolls.Controllers
             return View();
         }
 
+        public ActionResult SalaryProcess()
+        {
+            return View();
+        }
+
         [AllowAnonymous]
         public JsonResult GetCbo()
         {

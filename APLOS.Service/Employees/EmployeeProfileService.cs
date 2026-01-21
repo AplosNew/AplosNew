@@ -5244,7 +5244,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
                                     ,EmrCntPer1CellNo,FatherOrSpouse = case when E.FatherName is null then e.SpouseName else E.FatherName  end,CONCAT(e.SystemId,'#',e.EmployeeCode,'#',e.EmployeeName)BarCodeId
                                     ,case when isnull(cg.Id,'')='' THEN isnull(E.PresentAddress1Local,E.PresentAddress1) ELSE PresentAddress1 END AS PresentAddress
                                     ,case when isnull(cg.Id,'')='' THEN isnull(E.FatherNameLocal,E.FatherName) ELSE FatherName END AS FatherName
-                                    ,E.EmrCntPer1Name EmContactName,E.EmrCntPer1CellNo EmContactNo,CompanyAddress=AM.Address1+', '+AM.Address2,AM.Phone
+                                    ,E.EmrCntPer1Name EmContactName,E.EmrCntPer1CellNo EmContactNo,CompanyAddress=AM.Address1+', '+ISNULL(AM.Address2,''),AM.Phone
                                     FROM EmployeeInformation E
                                     LEFT JOIN ORG.CompanyGroup CG ON E.GroupID=cg.Id and CG.LanguageId='" + languageId + @"'
                                     LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
