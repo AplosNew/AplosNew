@@ -415,6 +415,10 @@
             templateUrl: 'payrolls/EmployeeSalaryRuleSetup/SalaryStructure',
             controller: 'EmployeeSalaryStructureController'
         })
+        .when('/empsalaryprocess', {
+            templateUrl: 'payrolls/EmployeeSalaryRuleSetup/SalaryProcess',
+            controller: 'EmployeeSalaryProcessController'
+        })
         ;
 
 
