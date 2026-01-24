@@ -4,6 +4,12 @@ namespace Library.ViewModel.HR
 {
     public class LeaveTransactionVM : BaseModel
     {
+        public string EmployeeCode { get; set; }
+        public string EmployeeName { get; set; }
+        public string DOJ { get; set; }
+        public string Designation { get; set; }
+        public string Department { get; set; }
+        public string EmployeeCategory { get; set; }
         public string CalanderYearID { get; set; }
         public string SystemID { get; set; }
         public string LTSystemID { get; set; }
