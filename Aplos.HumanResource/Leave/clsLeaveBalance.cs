@@ -11,6 +11,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -67,6 +68,46 @@ namespace Library.HumanResource.Leave
             }
 
         }//End Function
+
+        private static List<T> ConvertDataTable<T>(DataTable dt)
+        {
+            try
+            {
+                var data = new List<T>();
+                foreach (DataRow row in dt.Rows)
+                {
+                    var item = GetItem<T>(row);
+                    data.Add(item);
+                }
+                return data;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        private static T GetItem<T>(DataRow dr)
+        {
+            var temp = typeof(T);
+            var obj = Activator.CreateInstance<T>();
+
+            foreach (DataColumn column in dr.Table.Columns)
+            {
+                foreach (PropertyInfo pro in temp.GetProperties())
+                {
+                    if (pro.Name == column.ColumnName)
+                    {
+                        if (dr[column.ColumnName] == DBNull.Value)
+                            dr[column.ColumnName] = "";
+                        pro.SetValue(obj, dr[column.ColumnName], null);
+                        break;
+                    }
+                }
+            }
+            return obj;
+        }
+
         public string XlsLeaveBalanceRpt(DataTable data, string ReportHeader, string reportFileName,string PlantId, string sGroup, string Year)
         {
             var filePath = "";
@@ -105,7 +146,10 @@ namespace Library.HumanResource.Leave
             int COL = 1;
             var dsLvAllo = GetLeaveBalanceType(data,sGroup, PlantId, Year);
 
-            var finalList = LoadGrdAllocatedLvDetails(dsLvAllo);
+            var finalList = new List<LeaveTransactionVM>();
+            finalList = ConvertDataTable<LeaveTransactionVM>(dsLvAllo.Tables[0]);
+
+            //var finalList = LoadGrdAllocatedLvDetails(dsLvAllo);
 
             #region Headers
 

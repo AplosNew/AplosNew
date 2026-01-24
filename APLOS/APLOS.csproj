@@ -2022,6 +2022,7 @@
     <Content Include="Areas\Payrolls\Scripts\fullandfinalSettlementController.js" />
     <Content Include="Areas\Payrolls\Scripts\FNFReportController.js" />
     <Content Include="Areas\Payrolls\Scripts\SalaryAdviceController.js" />
+    <Content Include="Areas\Payrolls\Scripts\EmployeeSalaryProcessController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanEditController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
     <Content Include="Areas\Productions\Scripts\MarkerCheckController.js" />
@@ -5095,6 +5096,7 @@
     <Content Include="Areas\Payrolls\Views\EmployeeSalaryRuleSetup\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\EmployeeSalaryRuleSetup\SalaryStructure.cshtml" />
     <Content Include="Areas\HumanResource\Views\RosterPattern\WeeklyStatus.cshtml" />
+    <Content Include="Areas\Payrolls\Views\EmployeeSalaryRuleSetup\SalaryProcess.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
