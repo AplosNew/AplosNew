@@ -514,7 +514,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     DataSet dsRosterWeekOff;
                     DataSet IndividualWeekOff;
                     DataSet CompanyWeekOff;
-                    DataSet dsRefWeekOff;
+                    DataSet dsRefApd;
                     CompanyWeekOffData(Date, out CompanyWeekOff, PlantValue);
                     IndividualWeekOffData(Date, out IndividualWeekOff, PlantValue);
                     RosterWeekOffData(Date, out dsRosterWeekOff, PlantValue);
@@ -527,26 +527,40 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         var sqlx = @"select * from AttdnProcessData 
                                    WHERE WorkDate='" + Date + @"'
                                     AND isnull(EmpSystemID,'') IN (SELECT isnull(ei.SystemId,'') 
-                                    FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + PlantValue + @"'
-                                   AND  ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
-                    "and  ISNULL(EmpSystemID,'') in (select distinct ISNULL(EmpSystemID,'') from EmployeeWeeklyOff))";
+                                    FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + PlantValue + @"') ";
 
-                        objConR.OpenDataSetThroughAdapter(sqlx, out dsRefWeekOff, false, false, "", "1");
+                        objConR.OpenDataSetThroughAdapter(sqlx, out dsRefApd, false, false, "", "1");
                         string newformat = Convert.ToDateTime(Date).ToString("yyyyMMdd");
 
-                        for (int r = 0; r < dsRosterWeekOff.Tables[0].Rows.Count; r++)
+                        for (int r = 0; r < dsRefApd.Tables[0].Rows.Count; r++)
                         {
-                            EmpId = dsRosterWeekOff.Tables[0].Rows[r][@"EmpSystemId"].ToString();
-                            string DayType = clsWebLib.RetValidLen(dsRosterWeekOff.Tables[0].Rows[r][@"DayType"]).ToString();
+                            EmpId = dsRefApd.Tables[0].Rows[r][@"EmpSystemId"].ToString();
+
+                            DataView dv = new DataView(dsRosterWeekOff.Tables[0]);
+                            dv.RowFilter = "EmpSystemId = '" + EmpId + "'";
+                            string DayType = null;
+                            if (dv.Count > 0)
+                            {
+                                DayType = clsWebLib.RetValidLen(dv[0]["DayType"]).ToString();
+                            }
+                            else
+                            {
+                                DayType = string.Empty; // or default value
+                            }
+
+                            if (EmpId == "25254653")
+                            {
+
+                            }
                             if (!string.IsNullOrEmpty(DayType))
                             {
-                                dsRefWeekOff.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                                if (dsRefWeekOff.Tables[0].DefaultView.Count > 0)
+                                dsRefApd.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                                if (dsRefApd.Tables[0].DefaultView.Count > 0)
                                 {
                                     // Week Off Updation in APD Level
                                     if (DayType.ToString() != "")
                                     {
-                                        DataRow dr = dsRefWeekOff.Tables[0].DefaultView[0].Row;
+                                        DataRow dr = dsRefApd.Tables[0].DefaultView[0].Row;
                                         dr.BeginEdit();
                                         dr["UpdatedBy"] = "Schedule";
                                         dr["WeeklyStatus"] = DayType;
@@ -557,17 +571,24 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
                             else if(IndividualWeekOff.Tables[0].Rows.Count > 0)
                             {
-                                DataView dv = new DataView(IndividualWeekOff.Tables[0]);
-                                dv.RowFilter = "SystemId = '"+ EmpId + "'";
-                                DayType = clsWebLib.RetValidLen(dv[0]["DayType"]).ToString();
+                                DataView dvi = new DataView(IndividualWeekOff.Tables[0]);
+                                dvi.RowFilter = "SystemId = '"+ EmpId + "'";
+                                if (dvi.Count > 0)
+                                {
+                                    DayType = clsWebLib.RetValidLen(dvi[0]["DayType"]).ToString();
+                                }
+                                else
+                                {
+                                    DayType = string.Empty; // or default value
+                                }
 
-                                        dsRefWeekOff.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                                        if (dsRefWeekOff.Tables[0].DefaultView.Count > 0)
+                                        dsRefApd.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                                        if (dsRefApd.Tables[0].DefaultView.Count > 0)
                                         {
                                             // Week Off Updation in APD Level
                                             if (DayType.ToString() != "")
                                             {
-                                                DataRow dr = dsRefWeekOff.Tables[0].DefaultView[0].Row;
+                                                DataRow dr = dsRefApd.Tables[0].DefaultView[0].Row;
                                                 dr.BeginEdit();
                                                 dr["UpdatedBy"] = "Schedule";
                                                 dr["WeeklyStatus"] = DayType;
@@ -576,7 +597,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             }
                                         }
                                    
-                                    SaveDataSets(dsRefWeekOff);
+                                    SaveDataSets(dsRefApd);
                             }
                             else  
                             {
@@ -631,7 +652,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             
                             
                         }
-                        SaveDataSets(dsRefWeekOff);
+                        SaveDataSets(dsRefApd);
                     }
 
                     #endregion
@@ -1276,8 +1297,7 @@ and	E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+ @"' OR ISNULL(E.DOS,'') = '' OR 
 									SELECT isnull(ei.SystemId,'') 
                                     FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + plant + @"'
                                    AND  ei.DOJ <= '" + Date + @"' 
-                                   AND (ei.DOS >= '" + Date + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901') 
-								  and  ISNULL(EmpSystemID,'')  in (select distinct ISNULL(EmpSystemID,'') from EmployeeWeeklyOff))  ";
+                                   AND (ei.DOS >= '" + Date + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))  ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -2466,7 +2486,7 @@ and	E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+ @"' OR ISNULL(E.DOS,'') = '' OR 
             {
 
                 var sql = @"SELECT CompanyGroupId, Id as PlantValue FROM ORG.Plant WHERE CompanyGroupId = 
-               '" + CompanyGpId + "' AND  Active = 1 AND Archive = 0";
+               '" + CompanyGpId + "' AND  Active = 1 AND Archive = 0 ";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
