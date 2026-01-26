@@ -1291,9 +1291,9 @@ and	E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+ @"' OR ISNULL(E.DOS,'') = '' OR 
 				left join dbo.RosterBudget rb on rb.budgetId=ei.BudgetCode
 				left join RosterPatternChild rpc on rpc.RPHeaderId=rb.RosterId  and rpc.Days31 in (SELECT day('" + Date + @"'))
                 left join dbo.RosterEffectiveDate red on red.RPHeaderId=rpc.RPHeaderId
-				and red.Id=(select top(1) id from dbo.RosterEffectiveDate where Id=red.Id order by Effectivedate desc)
+				and red.Id=(select top(1) id from dbo.RosterEffectiveDate where RPHeaderId=red.RPHeaderId order by Effectivedate desc)
 				left join hkp.WeeklyStatus ws on ws.Id=rpc.WeeklyStatusId
-				where apd.workdate='"+ Date + "' and apd.PlantId='"+ plant + @"' and isnull(EmpSystemID,'') IN (
+				where apd.workdate='" + Date + "' and apd.PlantId='"+ plant + @"' and isnull(EmpSystemID,'') IN (
 									SELECT isnull(ei.SystemId,'') 
                                     FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + plant + @"'
                                    AND  ei.DOJ <= '" + Date + @"' 

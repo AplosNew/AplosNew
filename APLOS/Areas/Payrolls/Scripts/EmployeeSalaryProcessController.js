@@ -688,7 +688,7 @@ function EmployeeSalaryProcessController(addressService, fileReader, cboService,
                     'FromDate': $scope.FromDate_sep, 'ToDate': $scope.ToDate_sep, 'pDescription': $scope.Description, 'palldataset': $scope.AllDataset
                 },
                 contentType: "application/json charset=utf-8",
-                url: $scope.path + '/ProcessAll'
+                url: 'Payrolls/EmployeeSalaryRuleSetup/Process'
 
             }).then(function successCallback(response) {
                 $scope.btnProcess = true;
