@@ -1432,7 +1432,6 @@ WHERE  PLI.PackingId ='" + packingId + "' ORDER BY MMA.StandardName";
                              " + tempCurrentDate + @"
                             AND M.StandardName IS NOT NULL AND S.SalesId IS NULL 
                             GROUP BY  M.StandardName , S.LotNo, S.NetWeight , P.Id, S.ProductCode, S.POId
-                            
 							) x
 							GROUP BY x.StandardName,x.ProductCode,x.POId,x.LotNo,x.ProdDetails ,x.BagSize
 							ORDER BY X.StandardName , X.LotNo DESC
