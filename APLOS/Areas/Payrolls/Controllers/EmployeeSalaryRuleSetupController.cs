@@ -1077,7 +1077,8 @@ where s.SalaryID='" + SalaryID + "'";
 
                 string year = DateTime.Now.Year.ToString();
 
-                string sql = @"SELECT E.SystemId EmpSystemId,OL.Id EmployeeSeperationItemId,OL.UserName,OL.Formula,OL.FormulaId,SH.HeadCategory,SS.SalaryCalculationDays
+                string sql = @"SELECT E.SystemId EmpSystemId,OL.Id EmployeeSalaryRuleItemId,OL.UserName,OL.Formula,OL.FormulaId
+,SH.HeadCategory,SS.SalaryCalculationDays,SD.SalaryHeadID
 ,Value= ISNULL(CASE WHEN OL.UserName='JoiningDate' THEN FORMAT(E.DOJ,'dd-MMM-yyyy')
 			 WHEN OL.UserName='ConfirmationDate' THEN FORMAT(E.DOC,'dd-MMM-yyyy')
 			 WHEN OL.UserName='SeparationDate' THEN FORMAT(E.DOS,'dd-MMM-yyyy')
@@ -1099,9 +1100,9 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId='" + empId + @"'
 
  LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = E.SystemId
  LEFT JOIN SalaryInfoDefine SD ON SD.SalaryID=SIDM.SystemID AND OL.SalaryHeadID = SD.SalaryHeadID
- JOIN SalaryHead SH ON SH.SalaryHeadID=SD.SalaryHeadID
+ LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SD.SalaryHeadID
 Where OL.EmployeeSalaryRuleSetupId=
-(Select EmployeeSalaryRuleSetupId from dbo.SalaryRuleDesignation Where DesignationId=(select GivenDesignationId from [dbo].EmployeeInformation Where SystemId='"+ empId + @"'))
+(Select EmployeeSalaryRuleSetupId from dbo.SalaryRuleDesignation Where DesignationId=(select GivenDesignationId from [dbo].EmployeeInformation Where SystemId='" + empId + @"'))
 ORDER BY OL.Sequence";
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -1176,12 +1177,12 @@ ORDER BY OL.Sequence";
 
 
         [HttpPost]
-        public JsonResult Process(Dictionary<string, object> data, List<Dictionary<string, object>> datalist)
+        public JsonResult Process(Dictionary<string, object> data, List<Dictionary<string, object>> alldataset)
         {
             try
             {
 
-                DataSet dsMaster, dsID, dsEmpID = null;
+                DataSet dsMaster,   dsProChild = null;
                 DataSet dsEmpMaster = null;
                 DataSet dsEmpSL = null;
                 DataSet dsEmpGW = null;
@@ -1195,35 +1196,37 @@ ORDER BY OL.Sequence";
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                
-                con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlementMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from SalaryProcMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
-
+                string _childPK_seed_fromDB = "";
+                bplib.clsGenID genid = new bplib.clsGenID();
                 #region data master
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("EmployeeFullAndFinalSettlementMaster", out _Id);
-
-                    data["Id"] = _Id;
+                    string strCurCode = "";
+                   
+                    genid.GenID(DateTime.Now.ToShortDateString().ToString(), "SlrProc", out _Id);
+                    strCurCode = "M" + "-" + strCurCode;
+                    strCurCode = Convert.ToDateTime(data["FromDate"]).ToString("yyyyMMMdd") + "SP" + Convert.ToDateTime(data["ToDate"]).ToString("MMMdd");
+                    data["SystemID"] = _Id;
+                    data["SalaryProcID"] = strCurCode;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
-                    _Id = data["Id"].ToString();
+                    _Id = data["SystemID"].ToString();
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion data update
                 #region data Detail
-                con.OpenDataSetThroughAdapter("select * from EmployeeFullAndFinalSettlement where FinalSettlementId='" + data["Id"] + "'", out dsFNFEmpMaster, false, "1");
-                con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeFullAndFinalSettlementItem] where FinalSettlementId='" + data["Id"] + "'", out dsEmpID, false, "1");
-                int empcount = Convert.ToInt32(dsEmpID.Tables[0].Rows[0]["countId"].ToString());
-
-                esql = "select * from EmployeeFullAndFinalSettlementItem where EmpSystemId IN(" + empIds + ")";
+                con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[SalaryProcChild] where SlrProcMstSystemID='" + data["SystemID"] + "'", out dsProChild, false, "1");
+              
                 con.OpenDataSetThroughAdapter(esql, out dsEmpMaster, false, "1");
 
-
-                foreach (var item in datalist)
+                genid.GenHRID(DateTime.Now.ToShortDateString().ToString(), "SAL_PROC_CHILD_PK", out _childPK_seed_fromDB);
+                int _child_emp_seed = 0;
+                foreach (var item in alldataset)
                 {
                     string empId = item["EmpSystemId"].ToString();
 
@@ -1233,25 +1236,6 @@ ORDER BY OL.Sequence";
                     dtValue.Columns.Add("EmployeeSeperationItemId");
                     dtValue.Columns.Add("Value");
                     double sFormulaResult = 0.00;
-
-                    DataView empdv = new DataView(dsFNFEmpMaster.Tables[0]);
-                    empdv.RowFilter = "EmpSystemId='" + item["EmpSystemId"] + "'";
-
-                    if (empdv.Count == 0)
-                    {
-                        empcount++;
-                        item["Id"] = materialCommonService.MakePK(_Id, empcount, 2);
-                        item["FinalSettlementId"] = _Id;
-
-                        AddNewRow(dsFNFEmpMaster.Tables[0], item);
-                    }
-                    else
-                    {
-                        DataRow drmo = empdv[0].Row;
-                        EditRow(drmo, item);
-                    }
-
-                 
 
                     DataTable dtData = GetDataTable(empId);
                     for (int i = 0; i < dtData.Rows.Count; i++)
@@ -1331,30 +1315,15 @@ ORDER BY OL.Sequence";
 
                         DataView dv = new DataView(dsEmpMaster.Tables[0]);
                         dv.RowFilter = "Id='" + itm["Id"] + "' AND EmployeeSeperationItemId = '" + itm["EmployeeSeperationItemId"] + "' AND EmpSystemId = '" + itm["EmpSystemId"] + "'";
+                        //if (empdv.Count == 0)
+                        //{
+                        //    _child_emp_seed++;
+                        //    item["SystemID"] = _childPK_seed_fromDB + _child_emp_seed;
+                        //    item["SlrProcMstSystemID"] = _Id;
 
-                        if (dv.Count > 0)
-                        {
-                            DataRow drmo = dv[0].Row;
-
-                            drmo.BeginEdit();
-
-
-                            drmo["UserName"] = itm["UserName"];
-                            drmo["Value"] = itm["Value"];
-                            drmo["UpdatedBy"] = identity.Name;
-                            drmo["UpdatedDate"] = DateTime.Now.ToString();
-                            drmo["UpdatedFromIP"] = identity.IPAddress;
-
-                            drmo.EndEdit();
-
-                        }
-                        else
-                        {
-                            //ccount++;
-                            //itm["Id"] = materialCommonService.MakePK(_Id, ccount, 2);
-                            //itm["FinalSettlementId"] = _Id;
-                            //AddNewRow(dsEmpMaster.Tables[0], itm);
-                        }
+                        //    AddNewRow(dsFNFEmpMaster.Tables[0], item);
+                        //}
+                         
                     }
 
 

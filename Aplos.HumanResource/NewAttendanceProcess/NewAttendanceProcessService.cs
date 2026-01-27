@@ -1286,13 +1286,29 @@ and	E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+ @"' OR ISNULL(E.DOS,'') = '' OR 
             try
             {
                 var sql = @"select ei.EmployeeName,apd.EmpSystemId,rpc.RPHeaderId,ei.BudgetCode,rpc.ShiftDefinitionID,rpc.Days31,apd.Daystatus,ws.Code DayType,apd.*
-				from  AttdnProcessData apd 
-				left join dbo.EmployeeInformation ei on ei.SystemId=apd.EmpSystemId
-				left join dbo.RosterBudget rb on rb.budgetId=ei.BudgetCode
-				left join RosterPatternChild rpc on rpc.RPHeaderId=rb.RosterId  and rpc.Days31 in (SELECT day('" + Date + @"'))
-                left join dbo.RosterEffectiveDate red on red.RPHeaderId=rpc.RPHeaderId
-				and red.Id=(select top(1) id from dbo.RosterEffectiveDate where RPHeaderId=red.RPHeaderId order by Effectivedate desc)
-				left join hkp.WeeklyStatus ws on ws.Id=rpc.WeeklyStatusId
+				FROM AttdnProcessData apd
+LEFT JOIN dbo.EmployeeInformation EI 
+       ON EI.SystemId = apd.EmpSystemId
+LEFT JOIN dbo.RosterBudget RB 
+       ON RB.BudgetId = EI.BudgetCode
+-- 1️⃣ Get applicable EffectiveDate
+OUTER APPLY (
+    SELECT TOP (1) *
+    FROM dbo.RosterEffectiveDate
+    WHERE RPHeaderId = RB.RosterId
+      AND EffectiveDate <= apd.WorkDate
+    ORDER BY EffectiveDate DESC
+) RED
+-- 2️⃣ Calculate DayInWeek ONCE
+CROSS APPLY (
+    SELECT ((DATEDIFF(DAY, RED.EffectiveDate, apd.WorkDate)) % (select count(Days31) from dbo.RosterPatternChild where Days31<>'' AND  RPHeaderId=RB.RosterId )) + 1 AS DayInWeek
+) D
+-- 3️⃣ Pick correct RosterPatternChild row
+LEFT JOIN dbo.RosterPatternChild RPC
+       ON RPC.RPHeaderId = RB.RosterId
+      AND RPC.Days31 = D.DayInWeek
+LEFT JOIN hkp.WeeklyStatus WS
+       ON WS.Id = RPC.WeeklyStatusId
 				where apd.workdate='" + Date + "' and apd.PlantId='"+ plant + @"' and isnull(EmpSystemID,'') IN (
 									SELECT isnull(ei.SystemId,'') 
                                     FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + plant + @"'

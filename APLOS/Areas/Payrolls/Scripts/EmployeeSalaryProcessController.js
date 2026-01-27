@@ -588,69 +588,65 @@ function EmployeeSalaryProcessController(addressService, fileReader, cboService,
 
     function SetAllList() {
         try {
+            $scope.AllDataset = [];
+            if ($scope.EmployeeList_active.length > 0) {
+                for (var i = 0; i < $scope.EmployeeList_active.length; i++) {
+                    if ($scope.EmployeeList_active[i].IsSelectSlrProc == true) {
+                        $scope.AllDataset.push($scope.EmployeeList_active[i])
+                    }
+                }
+            }
+            if ($scope.EmployeeList_newlyjoined.length > 0) {
+                if ($scope.EmployeeList_newlyjoined.length > 0) {
+                    for (var n = 0; n < $scope.EmployeeList_newlyjoined.length; n++) {
+                        if ($scope.EmployeeList_newlyjoined[n].IsSelectSlrProc == true) {
+                            $scope.AllDataset.push($scope.EmployeeList_active[n])
+                        }
+                    }
+                }
+            }
+            if ($scope.EmployeeList_diffStatus.length > 0) {
+                if ($scope.EmployeeList_diffStatus.length > 0) {
+                    for (var d = 0; d < $scope.EmployeeList_diffStatus.length; d++) {
+                        if ($scope.EmployeeList_diffStatus[d].IsSelectSlrProc == true) {
+                            $scope.AllDataset.push($scope.EmployeeList_diffStatus[d])
+                        }
+                    }
+                }
+            }
+            
 
-            // var data_dtActive = ej.DataManager($scope.EmployeeList_active).executeQuery(ej.Query().select(["IsSelectSlrProc", "EmpSystemID"]));
-            var data_dtActive = GetShortColumns($scope.EmployeeList_active);
-            $scope.AllDataset.dtActive = data_dtActive;
-            //$scope.AllDataset.dtActive = $scope.EmployeeList_active;
-            $scope.AllDataset.dtNewlyJoined = $scope.EmployeeList_newlyjoined;
-         
-            $scope.AllDataset.dtSND = $scope.EmployeeList_ssnd;
-            $scope.AllDataset.dtSNA = $scope.EmployeeList_ssna;
+            //var active_count_selected = GetSelectedCount($scope.AllDataset.dtActive);
+            //var NewlyJoined_count_selected = GetSelectedCount($scope.AllDataset.dtNewlyJoined);
 
-            $scope.AllDataset.dtEXemp = $scope.EmployeeList_excepEmp;
-            $scope.AllDataset.dtAttNotProcessed = $scope.EmployeeList_attNotprocessed;
-
-            var data_dtPresetZero = GetShortColumns($scope.EmployeeList_presentZero);
-            $scope.AllDataset.dtPresetZero = data_dtPresetZero;
-            $scope.AllDataset.dtApprovedSalary = [];// $scope.EmployeeList_approvedSalary;
-
-            $scope.AllDataset.dtMaternityReturn = $scope.EmployeeList_mlvreturn;
-            $scope.AllDataset.dtSeparated = $scope.EmployeeList_separated;
-            $scope.AllDataset.dtDifferentStatus = $scope.EmployeeList_diffStatus;
-
-            $scope.AllDataset.IsNegativeSalaryApplicable = $scope.cbxNegativeSalaryHead;
-            $scope.AllDataset.NegativeSalaryHeadId = $scope.NegativeSalaryHeadId;
-
-
-            //if ($scope.AllDataset.dtSND == null || $scope.AllDataset.dtSND.length > 0) {
-            //    throw ("Salary Structure is not defined for some employees; see the respective tab...");
+            //if ($scope.cbxActive) {
+            //    if (active_count_selected === null || active_count_selected === 0) {
+            //        throw ("No Active Employee is selected");
+            //    }
             //}
-            //if ($scope.AllDataset.dtSNA == null || $scope.AllDataset.dtSNA.length > 0) {
-            //    throw ("Salary Structure is not approved for some employees; see the respective tab...");
+
+            //if ($scope.cbxNewlyJoined) {
+            //    if (NewlyJoined_count_selected === null || NewlyJoined_count_selected === 0) {
+            //        throw ("No Newly Joined Employee is selected");
+            //    }
             //}
 
-            var active_count_selected = GetSelectedCount($scope.AllDataset.dtActive);
-            var NewlyJoined_count_selected = GetSelectedCount($scope.AllDataset.dtNewlyJoined);
+            //if ($scope.cbxPresentDaysZero) {
+            //    if ($scope.AllDataset.dtPresetZero === null || $scope.AllDataset.dtPresetZero.length === 0) {
+            //        throw ("No Employee is selected in present days zero tab");
+            //    }
+            //}
 
-            if ($scope.cbxActive) {
-                if (active_count_selected === null || active_count_selected === 0) {
-                    throw ("No Active Employee is selected");
-                }
-            }
-
-            if ($scope.cbxNewlyJoined) {
-                if (NewlyJoined_count_selected === null || NewlyJoined_count_selected === 0) {
-                    throw ("No Newly Joined Employee is selected");
-                }
-            }
-
-            if ($scope.cbxPresentDaysZero) {
-                if ($scope.AllDataset.dtPresetZero === null || $scope.AllDataset.dtPresetZero.length === 0) {
-                    throw ("No Employee is selected in present days zero tab");
-                }
-            }
-
-            if ($scope.cbxMaternityReturn) {
-                if ($scope.AllDataset.dtMaternityReturn === null || $scope.AllDataset.dtMaternityReturn.length === 0) {
-                    throw ("No Employee is selected in Maternity Return tab");
-                }
-            }
-            if ($scope.cbxNegativeSalaryHead) {
-                if ($scope.NegativeSalaryHeadId === null) {
-                    throw ("Select Salary Head");
-                }
-            }
+            //if ($scope.cbxMaternityReturn) {
+            //    if ($scope.AllDataset.dtMaternityReturn === null || $scope.AllDataset.dtMaternityReturn.length === 0) {
+            //        throw ("No Employee is selected in Maternity Return tab");
+            //    }
+            //}
+            //if ($scope.cbxNegativeSalaryHead) {
+            //    if ($scope.NegativeSalaryHeadId === null) {
+            //        throw ("Select Salary Head");
+            //    }
+            //}
 
 
 
@@ -677,7 +673,12 @@ function EmployeeSalaryProcessController(addressService, fileReader, cboService,
             Check($scope.Description, "Description");
             Check($scope.FromDate_sep, 'From Date');
             Check($scope.ToDate_sep, 'To Date');
-
+            $scope.dataobj = {
+                FromDate: null, ToDate: null, Description:null,SystemID:null
+            }
+            $scope.dataobj.FromDate = $scope.FromDate_sep;
+            $scope.dataobj.ToDate = $scope.ToDate_sep;
+            $scope.dataobj.Description = $scope.Description;
             //'FromDate': $scope.FromDate_sep, 'ToDate': $scope.ToDate_sep, 'pDescription': $scope.Description, 'alldataset': $scope.AllDataset
             SetAllList();
             $scope.btnProcess = false;
@@ -685,7 +686,7 @@ function EmployeeSalaryProcessController(addressService, fileReader, cboService,
                 method: "POST",
                 dataType: 'JSON',
                 data: {
-                    'FromDate': $scope.FromDate_sep, 'ToDate': $scope.ToDate_sep, 'pDescription': $scope.Description, 'palldataset': $scope.AllDataset
+                    'data': $scope.dataobj, 'alldataset': $scope.AllDataset
                 },
                 contentType: "application/json charset=utf-8",
                 url: 'Payrolls/EmployeeSalaryRuleSetup/Process'
