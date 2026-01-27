@@ -14,6 +14,7 @@ using OTSBD;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -1070,7 +1071,7 @@ where s.SalaryID='" + SalaryID + "'";
 
         #region SalaryProcess
 
-        public DataTable GetDataTable(string empId)
+        public DataTable GetDataTable(string fromDate,string toDate,string empId)
         {
             try
             {
@@ -1079,31 +1080,37 @@ where s.SalaryID='" + SalaryID + "'";
 
                 string sql = @"SELECT E.SystemId EmpSystemId,OL.Id EmployeeSalaryRuleItemId,OL.UserName,OL.Formula,OL.FormulaId
 ,SH.HeadCategory,SS.SalaryCalculationDays,SD.SalaryHeadID
-,Value= ISNULL(CASE WHEN OL.UserName='JoiningDate' THEN FORMAT(E.DOJ,'dd-MMM-yyyy')
-			 WHEN OL.UserName='ConfirmationDate' THEN FORMAT(E.DOC,'dd-MMM-yyyy')
-			 WHEN OL.UserName='SeparationDate' THEN FORMAT(E.DOS,'dd-MMM-yyyy')
+,Value= ISNULL(CASE WHEN OL.UserName='WeekOff' THEN APD.WeekOffValue
+			 WHEN OL.UserName='Leave' THEN APD.LvValue
+			 WHEN OL.UserName='HoliDay' THEN APD.HoliDayValue
+			 WHEN OL.UserName='PayDay' THEN APD.PayDayValue
+			 WHEN OL.UserName='NetDay' THEN APD.PayDayValue
+			 WHEN OL.UserName='NightShiftDays' THEN NAPD.NightShiftDays
+			 WHEN OL.UserName='ShortDuration' THEN APD.CountedShortLeave
+			 WHEN OL.UserName='LateIN' THEN APD.LateIN
+			 WHEN OL.UserName='EarlyOut' THEN APD.EarlyOut
+			 WHEN OL.UserName='HalfDuration' THEN APD.HalfDuration
+
 			 WHEN OL.SalaryHeadID<>'' THEN CAST(cast(SD.DefineAmount AS decimal(18,0)) AS varchar(100))
-
-
-WHEN OL.Formula='SeparationDate - ResignDate' THEN CAST(DATEDIFF(Day,
-			 (Select FORMAT(R.ResignationDate,'dd-MMM-yyyy') from [TRN].[Resignation] R Where R.EmployeeId='" + empId + @"'
-AND R.Id=(SELECT TOP 1 Id FROM [TRN].[Resignation] MR WHERE MR.EmployeeId=R.EmployeeId ORDER BY MR.UpdatedDate DESC)),
-(Select FORMAT(DOS,'dd-MMM-yyyy') from dbo.EmployeeInformation Where SystemId='"+ empId + @"')
-			 ) AS varchar(100))
-
 
 ElSE CAST(0 AS varchar(100)) END,0)
 ,OL.EntryState
 FROM EmployeeSalaryRuleItem AS OL
 LEFT JOIN HKP.EmployeeSalaryRuleSetup SS ON SS.Id=OL.EmployeeSalaryRuleSetupId
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId='" + empId + @"'
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId IN("+empId+@")
+LEFT JOIN (Select sum(PresentValue)PresentValue,SUM(LateValue)LateValue,SUM(LvValue)LvValue,SUM(WeekOffValue)WeekOffValue,SUM(PayDayValue)PayDayValue,SUM(HoliDayValue)HoliDayValue,ISNULL(SUM(CountedShortLeave),0)CountedShortLeave
+,Count(APD.LateIn)LateIn,Count(APD.EarlyOut)EarlyOut, HalfDuration= CASE WHEN LeaveDuration=0.5 THEN CounT(LeaveDuration) ELSE 0 END,APD.EmpSystemID from dbo.AttdnProcessData APD where APD.EmpSystemID IN("+empId+@") AND WorkDate between '"+ fromDate + "' AND '"+ toDate + @"'  Group by APD.EmpSystemID,LeaveDuration)APD ON APD.EmpSystemID=E.SystemId
+LEFT JOIN(Select COUNT(DayStatus)NightShiftDays,APD.EmpSystemID from dbo.AttdnProcessData APD 
+LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=APD.ShiftSystemID
+where APD.EmpSystemID IN("+empId+@") AND SD.ShiftType='Night Shift' AND DayStatus='P' AND APD.WorkDate between '"+ fromDate + "' AND '"+ toDate + @"'
+Group By APD.EmpSystemID) NAPD ON NAPD.EmpSystemID=e.SystemId
 
  LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = E.SystemId
  LEFT JOIN SalaryInfoDefine SD ON SD.SalaryID=SIDM.SystemID AND OL.SalaryHeadID = SD.SalaryHeadID
  LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SD.SalaryHeadID
-Where OL.EmployeeSalaryRuleSetupId=
-(Select EmployeeSalaryRuleSetupId from dbo.SalaryRuleDesignation Where DesignationId=(select GivenDesignationId from [dbo].EmployeeInformation Where SystemId='" + empId + @"'))
-ORDER BY OL.Sequence";
+Where OL.EmployeeSalaryRuleSetupId IN
+(Select EmployeeSalaryRuleSetupId from dbo.SalaryRuleDesignation Where DesignationId IN (select GivenDesignationId from [dbo].EmployeeInformation Where SystemId IN("+empId+ @")))
+ORDER BY E.SystemId,OL.Sequence";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
@@ -1181,6 +1188,12 @@ ORDER BY OL.Sequence";
         {
             try
             {
+                string tempEmpSysId = "''";
+                for (int i = alldataset.Count - 1; i >= 0; i--)
+                {
+                    var item = alldataset.ElementAt(i);
+                    tempEmpSysId += ",'" + item["EmpSystemID"] + "'";
+                }
 
                 DataSet dsMaster,   dsProChild = null;
                 DataSet dsEmpMaster = null;
@@ -1196,7 +1209,8 @@ ORDER BY OL.Sequence";
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                
-                con.OpenDataSetThroughAdapter("select * from SalaryProcMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from SalaryProcMaster where SystemID='" + data["SystemID"] + "'", out dsMaster, false, "1");
+                DataTable dtData = GetDataTable(Convert.ToDateTime(data["FromDate"]).ToString("yyyyMMMdd"), Convert.ToDateTime(data["ToDate"]).ToString("yyyyMMMdd"), tempEmpSysId);
 
                 string _Id = "";
                 string _childPK_seed_fromDB = "";
@@ -1211,7 +1225,7 @@ ORDER BY OL.Sequence";
                     strCurCode = Convert.ToDateTime(data["FromDate"]).ToString("yyyyMMMdd") + "SP" + Convert.ToDateTime(data["ToDate"]).ToString("MMMdd");
                     data["SystemID"] = _Id;
                     data["SalaryProcID"] = strCurCode;
-                    AddNewRow(dsMaster.Tables[0], data);
+                    //AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
@@ -1220,15 +1234,14 @@ ORDER BY OL.Sequence";
                 }
                 #endregion data update
                 #region data Detail
-                con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[SalaryProcChild] where SlrProcMstSystemID='" + data["SystemID"] + "'", out dsProChild, false, "1");
+                con.OpenDataSetThroughAdapter("select count(SystemID) countId from [dbo].[SalaryProcChild] where SlrProcMstSystemID='" + data["SystemID"] + "'", out dsProChild, false, "1");
               
-                con.OpenDataSetThroughAdapter(esql, out dsEmpMaster, false, "1");
-
+                
                 genid.GenHRID(DateTime.Now.ToShortDateString().ToString(), "SAL_PROC_CHILD_PK", out _childPK_seed_fromDB);
                 int _child_emp_seed = 0;
                 foreach (var item in alldataset)
                 {
-                    string empId = item["EmpSystemId"].ToString();
+                    string empId = item["EmpSystemID"].ToString();
 
                     string sql = string.Empty;
                     DataTable dtValue = new DataTable();
@@ -1237,8 +1250,12 @@ ORDER BY OL.Sequence";
                     dtValue.Columns.Add("Value");
                     double sFormulaResult = 0.00;
 
-                    DataTable dtData = GetDataTable(empId);
-                    for (int i = 0; i < dtData.Rows.Count; i++)
+                    DataView dvEmpWise = new DataView(dtData);
+                    DataView dvEmpSalary = new DataView(dtData);
+                    dvEmpWise.RowFilter = "EmpSystemId = '" + empId + "'";
+                    dvEmpSalary.RowFilter = "EmpSystemId = '" + empId + "' AND  SalaryHeadID<>''";
+
+                    for (int i = 0; i < dvEmpSalary.Count; i++)
                     {
                         if (i == 0)
                         {
@@ -1308,23 +1325,23 @@ ORDER BY OL.Sequence";
 
                     List<Dictionary<string, object>> itemdata = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtData);
 
-                    foreach (var itm in itemdata)
-                    {
+                    //foreach (var itm in itemdata)
+                    //{
 
 
 
-                        DataView dv = new DataView(dsEmpMaster.Tables[0]);
-                        dv.RowFilter = "Id='" + itm["Id"] + "' AND EmployeeSeperationItemId = '" + itm["EmployeeSeperationItemId"] + "' AND EmpSystemId = '" + itm["EmpSystemId"] + "'";
-                        //if (empdv.Count == 0)
-                        //{
-                        //    _child_emp_seed++;
-                        //    item["SystemID"] = _childPK_seed_fromDB + _child_emp_seed;
-                        //    item["SlrProcMstSystemID"] = _Id;
+                    //    DataView dv = new DataView(dsEmpMaster.Tables[0]);
+                    //    dv.RowFilter = "Id='" + itm["Id"] + "' AND EmployeeSeperationItemId = '" + itm["EmployeeSeperationItemId"] + "' AND EmpSystemId = '" + itm["EmpSystemId"] + "'";
+                    //    //if (empdv.Count == 0)
+                    //    //{
+                    //    //    _child_emp_seed++;
+                    //    //    item["SystemID"] = _childPK_seed_fromDB + _child_emp_seed;
+                    //    //    item["SlrProcMstSystemID"] = _Id;
 
-                        //    AddNewRow(dsFNFEmpMaster.Tables[0], item);
-                        //}
+                    //    //    AddNewRow(dsFNFEmpMaster.Tables[0], item);
+                    //    //}
                          
-                    }
+                    //}
 
 
                 }
