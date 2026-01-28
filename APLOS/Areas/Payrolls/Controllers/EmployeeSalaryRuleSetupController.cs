@@ -1079,7 +1079,7 @@ where s.SalaryID='" + SalaryID + "'";
                 string year = DateTime.Now.Year.ToString();
 
                 string sql = @"SELECT E.SystemId EmpSystemId,OL.Id EmployeeSalaryRuleItemId,OL.UserName,OL.Formula,OL.FormulaId
-,SH.HeadCategory,SS.SalaryCalculationDays,SS.PFLimit ,SS.ESICLimit,SS.AgeLimit ,SD.SalaryHeadID
+,SH.HeadCategory,SS.SalaryCalculationDays,SS.PFLimit ,SS.ESICLimit,SS.AgeLimit ,OL.SalaryHeadID
 ,Value= ISNULL(CASE WHEN OL.UserName='WeekOff' THEN APD.WeekOffValue
 			 WHEN OL.UserName='Leave' THEN APD.LvValue
 			 WHEN OL.UserName='HoliDay' THEN APD.HoliDayValue
@@ -1250,6 +1250,7 @@ ORDER BY E.SystemId,OL.Sequence";
                     dtValue.TableName = "TempTable";
                     dtValue.Columns.Add("EmployeeSalaryRuleItemId");
                     dtValue.Columns.Add("Value");
+                    dtValue.Columns.Add("SalaryHeadID");
                     double sFormulaResult = 0.00;
 
                     DataView dvEmpWise = new DataView(dtData);
@@ -1300,46 +1301,53 @@ ORDER BY E.SystemId,OL.Sequence";
                         for (int s = 0; s < dvEmpSalary.Count; s++)
                         {
                             
-                            if (dvEmpSalary[s]["HeadCategory"].ToString() == "Basic")
-                            {
-                                tempBasic = (Convert.ToDecimal(dvEmpSalary[s]["Value"].ToString()) / tempSalaryCalculationDays)* tempPayDay;
-                                dtValueRow["EmployeeSalaryRuleItemId"] = dvEmpSalary[s]["EmployeeSalaryRuleItemId"].ToString().Trim();
-                                dtValueRow["Value"] = tempBasic;
+                            //if (!string.IsNullOrEmpty(dvEmpSalary[s]["FormulaId"].ToString()) && dvEmpSalary[s]["HeadCategory"].ToString() == "Basic")
+                            //{
+                            //     dtValueRow = dtValue.NewRow();
+                            //    tempBasic = (Convert.ToDecimal(dvEmpSalary[s]["Value"].ToString()) / tempSalaryCalculationDays)* tempPayDay;
+                            //    dtValueRow["EmployeeSalaryRuleItemId"] = dvEmpSalary[s]["EmployeeSalaryRuleItemId"].ToString().Trim();
+                            //    dtValueRow["Value"] = tempBasic;
 
-                                dtValue.Rows.Add(dtValueRow);
-                            }
-                            else if (dvEmpSalary[s]["HeadCategory"].ToString() == "HRA")
-                            {
-                                tempHRA = (Convert.ToDecimal(dvEmpSalary[s]["Value"].ToString()) / tempSalaryCalculationDays) * tempPayDay;
-                                dtValueRow["EmployeeSalaryRuleItemId"] = dvEmpSalary[s]["EmployeeSalaryRuleItemId"].ToString().Trim();
-                                dtValueRow["Value"] = tempHRA;
+                            //    dtValue.Rows.Add(dtValueRow);
+                            //}
+                            //else if (!string.IsNullOrEmpty(dvEmpSalary[s]["FormulaId"].ToString()) && dvEmpSalary[s]["UserName"].ToString() == "HRA")
+                            //{
+                            //     dtValueRow = dtValue.NewRow();
+                            //    tempHRA = (Convert.ToDecimal(dvEmpSalary[s]["Value"].ToString()) / tempSalaryCalculationDays) * tempPayDay;
+                            //    dtValueRow["EmployeeSalaryRuleItemId"] = dvEmpSalary[s]["EmployeeSalaryRuleItemId"].ToString().Trim();
+                            //    dtValueRow["Value"] = tempHRA;
 
-                                dtValue.Rows.Add(dtValueRow);
-                            }
-                            else if (dvEmpSalary[s]["HeadCategory"].ToString() == "Medical")
-                            {
-                                tempMedical = (Convert.ToDecimal(dvEmpSalary[s]["Value"].ToString()) / tempSalaryCalculationDays) * tempPayDay;
-                                dtValueRow["EmployeeSalaryRuleItemId"] = dvEmpSalary[s]["EmployeeSalaryRuleItemId"].ToString().Trim();
-                                dtValueRow["Value"] = tempMedical;
+                            //    dtValue.Rows.Add(dtValueRow);
+                            //}
+                            //else if (!string.IsNullOrEmpty(dvEmpSalary[s]["FormulaId"].ToString()) && dvEmpSalary[s]["UserName"].ToString() == "MedicalAllowance")
+                            //{
+                            //    dtValueRow = dtValue.NewRow();
+                            //    tempMedical = (Convert.ToDecimal(dvEmpSalary[s]["Value"].ToString()) / tempSalaryCalculationDays) * tempPayDay;
+                            //    dtValueRow["EmployeeSalaryRuleItemId"] = dvEmpSalary[s]["EmployeeSalaryRuleItemId"].ToString().Trim();
+                            //    dtValueRow["Value"] = tempMedical;
 
-                                dtValue.Rows.Add(dtValueRow);
-                            }
-                            else if (dvEmpSalary[s]["HeadCategory"].ToString() != "Basic" && dvEmpSalary[s]["HeadCategory"].ToString() != "HRA" && dvEmpSalary[s]["HeadCategory"].ToString() != "Total Earning" && dvEmpSalary[s]["HeadCategory"].ToString() != "Total Deduction")
+                            //    dtValue.Rows.Add(dtValueRow);
+                            //}
+                             if (string.IsNullOrEmpty(dvEmpSalary[s]["FormulaId"].ToString()))
                             {
+                                dtValueRow = dtValue.NewRow();
                                 dtValueRow["EmployeeSalaryRuleItemId"] = dvEmpSalary[s]["EmployeeSalaryRuleItemId"].ToString().Trim();
-                                dtValueRow["Value"] = (Convert.ToDecimal(dvEmpSalary[s]["Value"].ToString()) / tempSalaryCalculationDays) * tempPayDay; 
+                                dtValueRow["SalaryHeadID"] = dvEmpSalary[s]["SalaryHeadID"].ToString().Trim();
+                                dtValueRow["Value"] = Math.Round((Convert.ToDecimal(dvEmpSalary[s]["Value"].ToString()) / tempSalaryCalculationDays) * tempPayDay,2); 
                                 
                                 dtValue.Rows.Add(dtValueRow);
                             }
                             
-                            if (!string.IsNullOrEmpty(dvEmpSalary[s]["FormulaId"].ToString()))
+                            else  
                             {
+                                dtValueRow = dtValue.NewRow();
                                 ReLoadFormulaWithValue(dvEmpSalary[s]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
                                 //sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("###0");
                                 sFormulaResult = clsSalaryStructureAplos.EvaluateUpto2Decimal(_formulaValue);
                                  
                                 dtValueRow["EmployeeSalaryRuleItemId"] = dvEmpSalary[s]["EmployeeSalaryRuleItemId"].ToString().Trim();
-                                dtValueRow["Value"] = sFormulaResult;
+                                dtValueRow["SalaryHeadID"] = dvEmpSalary[s]["SalaryHeadID"].ToString().Trim();
+                                dtValueRow["Value"] = Math.Round(sFormulaResult,2);
 
                                 dtValue.Rows.Add(dtValueRow);
 
