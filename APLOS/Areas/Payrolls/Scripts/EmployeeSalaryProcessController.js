@@ -694,6 +694,7 @@ function EmployeeSalaryProcessController(addressService, fileReader, cboService,
             }).then(function successCallback(response) {
                 $scope.btnProcess = true;
                 if (response.data.Error === true) {
+                    $scope.AllDataset = [];
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
