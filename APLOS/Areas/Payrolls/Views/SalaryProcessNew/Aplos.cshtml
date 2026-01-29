@@ -194,7 +194,8 @@
                             <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="80"></div>
                             <div e-column e-field="AccountsGroup" e-headertext="AccountsGroup" e-width="80"></div>
                             <div e-column e-field="PlantName" e-headertext="PlantName" e-width="80"></div>
-                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="25"></div>
+                            @*<div e-column e-field="DOJ" e-headertext="DOJ" e-width="25"></div>*@
+                            <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
                             <div e-column e-field="DOS" e-headertext="DOS" e-width="25"></div>
                             <div e-column e-field="EmployeeStatus" e-headertext="EmployeeStatus" e-visible="false"></div>
                             <div e-column e-field="DesignationGroup" e-headertext="DesignationGroup" e-visible="false"></div>
