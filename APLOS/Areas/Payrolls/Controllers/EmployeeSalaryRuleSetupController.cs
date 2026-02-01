@@ -1419,11 +1419,11 @@ ORDER BY E.SystemId,OL.Sequence";
                                 dtValueRow["HeadType"] = dvEmpSalary[s]["HeadType"].ToString().Trim();
 
 
-                                if (dvEmpSalary[s]["Basic"].ToString().Trim() == "Basic")
+                                if (dvEmpSalary[s]["HeadCategory"].ToString().Trim() == "Basic")
                                 {
                                     tempBasicValue = Math.Round(sFormulaResult, 0);
                                 }
-                                else if (dvEmpSalary[s]["GROSS"].ToString().Trim() == "GROSS")
+                                else if (dvEmpSalary[s]["HeadCategory"].ToString().Trim() == "GROSS")
                                 {
                                     tempGrossValue = Math.Round(sFormulaResult, 0);
                                 }
@@ -1523,7 +1523,7 @@ ORDER BY E.SystemId,OL.Sequence";
 
                         if (logData != null)
                         {
-                            DataView dvSLD = new DataView(dsProChild.Tables[0]);
+                            DataView dvSLD = new DataView(dsSlaProLogDetail.Tables[0]);
                             dvSLD.RowFilter = "EmpSystemId='" + empId + "'";
 
                             if (dvSLD.Count == 0)
