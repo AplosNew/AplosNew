@@ -645,7 +645,7 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
                 {
                     string _Id = "";
 
-                    DataSet dsMaster, dsDestination, dsID = null;
+                    DataSet dsMaster, dsDestination, dsID, dsFormulaID = null;
                     DataRow drF;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                     MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
@@ -660,6 +660,9 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
                     con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeSalaryRuleItem] where EmployeeSalaryRuleSetupId='" + data["EmployeeSalaryRuleSetupId"] + "'", out dsID, false, "1");
                     int ccount = Convert.ToInt32(dsID.Tables[0].Rows[0]["countId"].ToString());
 
+
+                    con.OpenDataSetThroughAdapter("SELECT count(Id) countId FROM dbo.FormulaDetail Where EmployeeSalaryRuleItemId IN(SELECT Id FROM dbo.EmployeeSalaryRuleItem Where EmployeeSalaryRuleSetupId='" + data["EmployeeSalaryRuleSetupId"] + "')", out dsFormulaID, false, "1");
+                    int count = Convert.ToInt32(dsFormulaID.Tables[0].Rows[0]["countId"].ToString());
 
                     if (data["EntryState"].ToString() == "Entry")
                     {
@@ -695,7 +698,7 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
                     {
                         while (dsDestination.Tables[0].DefaultView.Count > 0)
                             dsDestination.Tables[0].DefaultView[0].Delete();
-                        int count = 0;
+                        
                         if (details != null)
                         {
 
@@ -703,7 +706,7 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
                             {
                                 drF = dsDestination.Tables[0].NewRow();
                                 count++;
-                                string pk = _Id + "_" + count;
+                                string pk = materialCommonService.MakePK(_Id, count, 3);
                                 drF["Id"] = pk;
                                 drF["EmployeeSalaryRuleItemId"] = _Id;
                                 drF["Sequence"] = item["Sequence"];
