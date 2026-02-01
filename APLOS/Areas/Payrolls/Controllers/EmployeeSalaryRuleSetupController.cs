@@ -1530,7 +1530,6 @@ ORDER BY E.SystemId,OL.Sequence";
                         if (dvSPAttdnProc.Count == 0)
                         {
                             drSPAttdnProc = dtSPAttdnProc.NewRow();
-                             
                             UpdateSlrProcAttdenDataRow("ADDNEW", para, empId, dtData.Rows[0]["PlantID"].ToString(), OTHDay, NorOTHDay, ExtOTHDay, dicMMDSSI_Sub, ref drSPAttdnProc);
                             dtSPAttdnProc.Rows.Add(drSPAttdnProc);
                         }
