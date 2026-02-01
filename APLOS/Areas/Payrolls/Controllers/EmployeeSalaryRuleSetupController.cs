@@ -698,7 +698,7 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
                     {
                         while (dsDestination.Tables[0].DefaultView.Count > 0)
                             dsDestination.Tables[0].DefaultView[0].Delete();
-                        
+
                         if (details != null)
                         {
 
@@ -1066,7 +1066,7 @@ where s.SalaryID='" + SalaryID + "'";
             }
             dr["AddedBy"] = identity.Name;
             dr["DateAdded"] = System.DateTime.Now.ToString();
-           
+
 
             dt.Rows.Add(dr);
         }
@@ -1090,6 +1090,25 @@ where s.SalaryID='" + SalaryID + "'";
 
 
             dt.Rows.Add(dr);
+        }
+        private void NewEditLogRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr.EndEdit();
         }
         private void NewEditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
@@ -1247,8 +1266,8 @@ ORDER BY E.SystemId,OL.Sequence";
                     tempEmpSysId += ",'" + item["EmpSystemID"] + "'";
                 }
 
-                DataSet dsMaster, dsProChild,dsSlaProLogDetail, dsSPAttdnProc, dsMMDSSI = null;
-                 
+                DataSet dsMaster, dsProChild, dsSlaProLogDetail, dsSPAttdnProc, dsMMDSSI = null;
+
                 DataTable dtSPAttdnProc = null;
                 DataView dvSPAttdnProc = null;
                 DataRow drSPAttdnProc = null;
@@ -1259,17 +1278,17 @@ ORDER BY E.SystemId,OL.Sequence";
                 clsFinalSettlement clsFS = new clsFinalSettlement();
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                clsSalaryProc objSlrProc =   new clsSalaryProc();
+                clsSalaryProc objSlrProc = new clsSalaryProc();
 
-                string tempDelEmpSysId = @"   EmpInfoSystemID IN ("+ tempEmpSysId + ")";
+                string tempDelEmpSysId = @"   EmpInfoSystemID IN (" + tempEmpSysId + ")";
                 string tempSlaProAttEmpSysId = @"   EmpSystemID IN (" + tempEmpSysId + ")";
-                objSlrProc.DeleteSlrProcChild(Convert.ToInt32(Convert.ToDateTime(data["ToDate"]).ToString("MM")), Convert.ToInt32( Convert.ToDateTime(data["ToDate"]).ToString("yyyy")), tempDelEmpSysId);
+                objSlrProc.DeleteSlrProcChild(Convert.ToInt32(Convert.ToDateTime(data["ToDate"]).ToString("MM")), Convert.ToInt32(Convert.ToDateTime(data["ToDate"]).ToString("yyyy")), tempDelEmpSysId);
                 objSlrProc.GetSalaryProceAttdnData(Convert.ToInt32(Convert.ToDateTime(data["ToDate"]).ToString("MM")), Convert.ToInt32(Convert.ToDateTime(data["ToDate"]).ToString("yyyy")), tempSlaProAttEmpSysId, out dsSPAttdnProc);
                 dtSPAttdnProc = dsSPAttdnProc.Tables[0];
                 #region Attendance
-                 
-                    objSlrProc.GetAttdnDataForMonthlyProc(tempSlaProAttEmpSysId, Convert.ToDateTime(data["FromDate"]).ToString("yyyyMMMdd"), Convert.ToDateTime(data["ToDate"]).ToString("yyyyMMMdd"), out dsMMDSSI);
-                
+
+                objSlrProc.GetAttdnDataForMonthlyProc(tempSlaProAttEmpSysId, Convert.ToDateTime(data["FromDate"]).ToString("yyyyMMMdd"), Convert.ToDateTime(data["ToDate"]).ToString("yyyyMMMdd"), out dsMMDSSI);
+
                 #endregion
                 con.OpenDataSetThroughAdapter("select * from SalaryProcMaster where SystemID='" + data["SystemID"] + "'", out dsMaster, false, "1");
                 DataTable dtData = GetDataTable(Convert.ToDateTime(data["FromDate"]).ToString("yyyyMMMdd"), Convert.ToDateTime(data["ToDate"]).ToString("yyyyMMMdd"), tempEmpSysId);
@@ -1288,14 +1307,14 @@ ORDER BY E.SystemId,OL.Sequence";
                     strCurCode = Convert.ToDateTime(data["FromDate"]).ToString("yyyyMMMdd") + "SP" + Convert.ToDateTime(data["ToDate"]).ToString("MMMdd");
                     data["SystemID"] = _Id;
                     data["SalaryProcID"] = strCurCode;
-                    data["SalaryProcDate"] = System.DateTime.Now.ToString(); 
+                    data["SalaryProcDate"] = System.DateTime.Now.ToString();
                     data["YearNo"] = Convert.ToDateTime(data["ToDate"]).ToString("yyyy");
                     data["MonthNo"] = Convert.ToDateTime(data["ToDate"]).ToString("MM");
-                    data["AmtDefinitionCurrencyID"] = dtData.Rows[0]["BaseCurrencyId"]; 
-                    data["LocalCurrencyID"] = dtData.Rows[0]["BaseCurrencyId"]; 
-                    data["AmtDefinitionCurrencyRate"] = 1; 
-                    data["IsCompleteMonth"] = 1; 
-                    data["SalaryView"] = 0; 
+                    data["AmtDefinitionCurrencyID"] = dtData.Rows[0]["BaseCurrencyId"];
+                    data["LocalCurrencyID"] = dtData.Rows[0]["BaseCurrencyId"];
+                    data["AmtDefinitionCurrencyRate"] = 1;
+                    data["IsCompleteMonth"] = 1;
+                    data["SalaryView"] = 0;
                     data["SalaryProcID"] = strCurCode;
                     NewAddedRow(dsMaster.Tables[0], data);
                 }
@@ -1340,8 +1359,8 @@ ORDER BY E.SystemId,OL.Sequence";
                     dvEmpSalary.RowFilter = "EmpSystemId = '" + empId + "' AND  SalaryHeadID<>''";
                     if (dvEmpWise.Count > 0)
                     {
-                        decimal tempWeekOff = 0; decimal tempLeave = 0; decimal tempHoliDay = 0; decimal tempPayDay = 0; decimal tempNetDay = 0; decimal tempNightShiftDays = 0; decimal tempShortDuration = 0; decimal tempHalfDuration=0
-                            ; decimal tempTotalWorkingDays = 0; decimal tempSalaryCalculationDays = 0; decimal tempPFLimit=0; decimal tempESICLimit; decimal tempAgeLimit = 0; decimal OTHDay = 0; decimal NorOTHDay = 0; decimal ExtOTHDay = 0;
+                        decimal tempWeekOff = 0; decimal tempLeave = 0; decimal tempHoliDay = 0; decimal tempPayDay = 0; decimal tempNetDay = 0; decimal tempNightShiftDays = 0; decimal tempShortDuration = 0; decimal tempHalfDuration = 0
+                            ; decimal tempTotalWorkingDays = 0; decimal tempSalaryCalculationDays = 0; decimal tempPFLimit = 0; decimal tempESICLimit; decimal tempAgeLimit = 0; decimal OTHDay = 0; decimal NorOTHDay = 0; decimal ExtOTHDay = 0;
                         for (int i = 0; i < dvEmpWise.Count; i++)
                         {
                             if (dvEmpWise[i]["UserName"].ToString() == "WeekOff")
@@ -1363,7 +1382,7 @@ ORDER BY E.SystemId,OL.Sequence";
                             else if (dvEmpWise[i]["UserName"].ToString() == "TotalWorkingDays")
                                 tempTotalWorkingDays = Convert.ToDecimal(dvEmpWise[i]["Value"].ToString());
 
-                             if (dvEmpWise[i]["UserName"].ToString() == "Basic")
+                            if (dvEmpWise[i]["UserName"].ToString() == "Basic")
                             {
 
                                 tempSalaryCalculationDays = Convert.ToDecimal(dvEmpWise[i]["SalaryCalculationDays"].ToString());
@@ -1372,34 +1391,34 @@ ORDER BY E.SystemId,OL.Sequence";
                                 tempAgeLimit = Convert.ToDecimal(dvEmpWise[i]["AgeLimit"].ToString());
                             }
                         }
-                        
+
                         for (int s = 0; s < dvEmpSalary.Count; s++)
                         {
-                            
-                             if (string.IsNullOrEmpty(dvEmpSalary[s]["FormulaId"].ToString()))
+
+                            if (string.IsNullOrEmpty(dvEmpSalary[s]["FormulaId"].ToString()))
                             {
                                 dtValueRow = dtValue.NewRow();
                                 dtValueRow["EmployeeSalaryRuleItemId"] = dvEmpSalary[s]["EmployeeSalaryRuleItemId"].ToString().Trim();
                                 dtValueRow["SalaryHeadID"] = dvEmpSalary[s]["SalaryHeadID"].ToString().Trim();
                                 dtValueRow["EntryAmount"] = dvEmpSalary[s]["Value"].ToString().Trim();
                                 dtValueRow["HeadType"] = dvEmpSalary[s]["HeadType"].ToString().Trim();
-                                dtValueRow["Value"] = Math.Round((Convert.ToDecimal(dvEmpSalary[s]["Value"].ToString()) / tempSalaryCalculationDays) * tempPayDay,0); 
-                                
+                                dtValueRow["Value"] = Math.Round((Convert.ToDecimal(dvEmpSalary[s]["Value"].ToString()) / tempSalaryCalculationDays) * tempPayDay, 0);
+
                                 dtValue.Rows.Add(dtValueRow);
                             }
-                            
-                            else  
+
+                            else
                             {
                                 dtValueRow = dtValue.NewRow();
                                 ReLoadFormulaWithValue(dvEmpSalary[s]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
                                 //sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("###0");
                                 sFormulaResult = clsSalaryStructureAplos.EvaluateUpto2Decimal(_formulaValue);
-                                 
+
                                 dtValueRow["EmployeeSalaryRuleItemId"] = dvEmpSalary[s]["EmployeeSalaryRuleItemId"].ToString().Trim();
                                 dtValueRow["SalaryHeadID"] = dvEmpSalary[s]["SalaryHeadID"].ToString().Trim();
                                 dtValueRow["HeadType"] = dvEmpSalary[s]["HeadType"].ToString().Trim();
-                                
-                                
+
+
                                 if (dvEmpSalary[s]["Basic"].ToString().Trim() == "Basic")
                                 {
                                     tempBasicValue = Math.Round(sFormulaResult, 0);
@@ -1409,7 +1428,7 @@ ORDER BY E.SystemId,OL.Sequence";
                                     tempGrossValue = Math.Round(sFormulaResult, 0);
                                 }
 
-                                if (dvEmpSalary[s]["HeadCategory"].ToString().Trim()== "ESIC Employee Contribution"|| dvEmpSalary[s]["HeadCategory"].ToString().Trim() == "ESIC Employee Contribution")
+                                if (dvEmpSalary[s]["HeadCategory"].ToString().Trim() == "ESIC Employee Contribution" || dvEmpSalary[s]["HeadCategory"].ToString().Trim() == "ESIC Employee Contribution")
                                 {
                                     if (tempGrossValue <= Convert.ToDouble(dvEmpSalary[s]["ESICLimit"].ToString().Trim()))
                                     {
@@ -1430,7 +1449,7 @@ ORDER BY E.SystemId,OL.Sequence";
                                     dtValueRow["EntryAmount"] = dvEmpSalary[s]["Value"].ToString().Trim();
                                     dtValueRow["Value"] = Math.Round(sFormulaResult, 0);
                                 }
-                                
+
 
                                 dtValue.Rows.Add(dtValueRow);
 
@@ -1455,18 +1474,18 @@ ORDER BY E.SystemId,OL.Sequence";
                         {
 
                             DataView dvchild = new DataView(dsProChild.Tables[0]);
-                            dvchild.RowFilter = "SystemID='" + spc["SystemID"] +"'";
+                            dvchild.RowFilter = "SystemID='" + spc["SystemID"] + "'";
                             if (dvchild.Count == 0)
                             {
-                                if(spc["HeadType"].ToString() == "D")
+                                if (spc["HeadType"].ToString() == "D")
                                 {
 
                                 }
                                 _child_emp_seed++;
                                 spc["SystemID"] = _childPK_seed_fromDB + _child_emp_seed;
                                 spc["SlrProcMstSystemID"] = _Id;
-                                spc["DefineAmount"] =  spc["Value"];
-                                spc["DisbusmentAmount"] =  spc["HeadType"].ToString()=="D"? Convert.ToDecimal(spc["Value"])*(-1): spc["Value"];
+                                spc["DefineAmount"] = spc["Value"];
+                                spc["DisbusmentAmount"] = spc["HeadType"].ToString() == "D" ? Convert.ToDecimal(spc["Value"]) * (-1) : spc["Value"];
                                 spc["EmpInfoSystemID"] = empId;
                                 spc["PlantID"] = dtData.Rows[0]["PlantID"];
                                 spc["GroupID"] = dtData.Rows[0]["GroupID"];
@@ -1481,32 +1500,47 @@ ORDER BY E.SystemId,OL.Sequence";
                         }
                         #endregion Salary Proc child
 
-                        if (dsSlaProLogDetail.Tables[0].Rows.Count == 0)
+                      
+                        Dictionary<string, object> logData = new Dictionary<string, object>();
+
+                        logData["PlantId"] = dtData.Rows[0]["PlantID"];
+                        logData["CompanyGroupId"] = dtData.Rows[0]["GroupID"];
+                        logData["SalaryProcessId"] = _Id;
+                        logData["EmpSystemId"] = empId;
+                        logData["Flag"] = "Active";//TDDO:
+                        logData["DesignationId"] = dtData.Rows[0]["DesignationId"];
+                        logData["LegalDesignationId"] = dtData.Rows[0]["LegalDesignationId"];
+                        logData["BankSystemId"] = dtData.Rows[0]["BankSystemId"];
+                        logData["PaymentMode"] = dtData.Rows[0]["PaymentMode"];
+                        logData["BudgetCode"] = dtData.Rows[0]["BudgetCode"];
+                        logData["BankAccNo"] = dtData.Rows[0]["BankAccNo"];
+                        logData["BankBranchId"] = dtData.Rows[0]["BankBranchId"];
+                        logData["MICRCode"] = dtData.Rows[0]["MICRCode"];
+                        logData["IFSCCode"] = dtData.Rows[0]["IFSCCode"];
+                        logData["SalaryPercentage"] = dtData.Rows[0]["SalaryPercentage"];
+                        logData["EmployeeCategoryId"] = dtData.Rows[0]["EmployeeCategoryId"];
+                        logData["LegalSalaryGradeId"] = dtData.Rows[0]["LegalSalaryGradeId"];
+
+                        if (logData != null)
                         {
-                            Dictionary<string, object> logData = new Dictionary<string, object>();
+                            DataView dvSLD = new DataView(dsProChild.Tables[0]);
+                            dvSLD.RowFilter = "EmpSystemId='" + empId + "'";
 
-                            genid.GenID(DateTime.Now.ToShortDateString().ToString(), "SALARY_LOG_DETAIL", out idFromDB);
-                            logData["Id"] = idFromDB;
-                            logData["PlantId"] = dtData.Rows[0]["PlantID"];
-                            logData["CompanyGroupId"] = dtData.Rows[0]["GroupID"];
-                            logData["SalaryProcessId"] = _Id;
-                            logData["EmpSystemId"] = empId;
-                            logData["Flag"] = "Active";//TDDO:
-                            logData["DesignationId"] = dtData.Rows[0]["DesignationId"];
-                            logData["LegalDesignationId"] = dtData.Rows[0]["LegalDesignationId"];
-                            logData["BankSystemId"] = dtData.Rows[0]["BankSystemId"];
-                            logData["PaymentMode"] = dtData.Rows[0]["PaymentMode"];
-                            logData["BudgetCode"] = dtData.Rows[0]["BudgetCode"];
-                            logData["BankAccNo"] = dtData.Rows[0]["BankAccNo"];
-                            logData["BankBranchId"] = dtData.Rows[0]["BankBranchId"];
-                            logData["MICRCode"] = dtData.Rows[0]["MICRCode"];
-                            logData["IFSCCode"] = dtData.Rows[0]["IFSCCode"];
-                            logData["SalaryPercentage"] = dtData.Rows[0]["SalaryPercentage"];
-                            logData["EmployeeCategoryId"] = dtData.Rows[0]["EmployeeCategoryId"];
-                            logData["LegalSalaryGradeId"] = dtData.Rows[0]["LegalSalaryGradeId"];
+                            if (dvSLD.Count == 0)
+                            {
+                                genid.GenID(DateTime.Now.ToShortDateString().ToString(), "SALARY_LOG_DETAIL", out idFromDB);
+                                logData["Id"] = idFromDB;
+                                NewAddedLogRow(dsSlaProLogDetail.Tables[0], logData);
+                            }
+                            else
+                            {
+                                DataRow drmo = dvSLD[0].Row;
+                                NewEditLogRow(drmo, logData);
+                            }
 
-                            NewAddedLogRow(dsSlaProLogDetail.Tables[0], logData);
+
                         }
+                      
 
                         #region Salary Proc Attendence Summary
                         List<dicMMDSSI_New> dicMMDSSI = new List<dicMMDSSI_New>();
@@ -1515,7 +1549,7 @@ ORDER BY E.SystemId,OL.Sequence";
                         var dicMMDSSI_Sub = dicMMDSSI.Find(x => x.EmpSystemID == empId);
 
 
-                         dvSPAttdnProc = new DataView();
+                        dvSPAttdnProc = new DataView();
                         dvSPAttdnProc.Table = dtSPAttdnProc;
                         dvSPAttdnProc.RowFilter = "EmpSystemID = '" + empId + "'";
 
@@ -1526,10 +1560,11 @@ ORDER BY E.SystemId,OL.Sequence";
                         para.IsOTEntitled = false;
                         para.OTRate = 0;
                         para.USER = identity.Name;
-                        para.lblSalaryProcSystemId =_Id;
+                        para.lblSalaryProcSystemId = _Id;
                         if (dvSPAttdnProc.Count == 0)
                         {
                             drSPAttdnProc = dtSPAttdnProc.NewRow();
+
                             UpdateSlrProcAttdenDataRow("ADDNEW", para, empId, dtData.Rows[0]["PlantID"].ToString(), OTHDay, NorOTHDay, ExtOTHDay, dicMMDSSI_Sub, ref drSPAttdnProc);
                             dtSPAttdnProc.Rows.Add(drSPAttdnProc);
                         }
@@ -1547,7 +1582,7 @@ ORDER BY E.SystemId,OL.Sequence";
 
                 #endregion data update 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster , dsProChild, dsSlaProLogDetail, dsSPAttdnProc);
+                _info.SaveDataSets(dsMaster, dsProChild, dsSlaProLogDetail, dsSPAttdnProc);
 
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
 
@@ -1651,7 +1686,7 @@ ORDER BY E.SystemId,OL.Sequence";
             public decimal TotalWorkingDay { get; set; } = 0;
             public decimal TotalActualWorkingDay { get; set; } = 0;
             public decimal WeekoffDays { get; set; } = 0;
-           
+
             //public string PlantID { get; set; } = "";
         }
         #endregion
