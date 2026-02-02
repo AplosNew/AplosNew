@@ -4767,6 +4767,35 @@ Where S.MasterOrderItemId='" + moItemId + "'"
 
                 }
 
+                TaskScheduler.TaskScheduler schedule = new TaskScheduler.TaskScheduler(_sqlRepository);
+                schedule.UpdateTaskStatus();
+
+                DataTable dtm = _sqlRepository.GetDataTable(@"SELECT M.TaskTemplateMasterId FROM TRN.SalesOrder S
+LEFT JOIn TRN.MasterOrderItem I ON I.id = S.MasterOrderItemId
+LEFT JOIN trn.MasterOrder M ON M.Id = I.MasterOrderId Where S.Id='" + salesOrderMaster.Id + "'");
+
+                //Sales Order Related Tasks
+                string sql = @"SELECT SO.* FROM trn.MasterOrder AS mo 
+                                INNER JOIN hkp.OrderStatus AS os ON os.Id=mo.OrderStatusId
+                                INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                                INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
+                           WHERE so.id='" + salesOrderMaster.Id + "' and os.Id<>'" + Library.Model.Enums.OrderStatusEnum.Closed.ToString() + @"' AND ISNULL(mo.TaskTemplateMasterId,'')='" + dtm.Rows[0]["TaskTemplateMasterId"].ToString() + "'";
+
+                DataTable dtMasterReferenceData = _sqlRepository.GetDataTable(sql);
+                for (int i = 0; i < dtMasterReferenceData.Rows.Count; i++)
+                {
+
+                    try
+                    {
+                        DataTable dt = schedule.GetDataSourceMasterOrderNew(dtMasterReferenceData.Rows[i]["Id"].ToString(), TaskAppliedOnEnum.SalesOrder);
+                        if (dt.Rows.Count > 0)
+                            schedule.MakeTNAMaster(dt, dtMasterReferenceData.Rows[i]["Id"].ToString(), TaskAppliedOnEnum.SalesOrder);
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
                 _unitOfWork.SaveChanges();
             }
             catch (CustomException)
