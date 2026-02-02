@@ -1741,5 +1741,16 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
         #endregion Auburn
+
+        #region Pratibha
+        //Entity Wise Work Center
+        public List<Default2> GetEntityWiseWC(string Userid)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetEntityWiseWC(out List<Default2> activelists, Userid);
+            return activelists;
+        }
+
+        #endregion Pratibha
     }
 }

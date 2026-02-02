@@ -13467,6 +13467,47 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
         }
 
         #endregion Auburn
+
+        #region Pratibha
+        // Entity Wise workcenter
+        public void GetEntityWiseWC(out List<Default2> DataList, string Userid)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"Select wcm.id value , wcm.username Name from scs.WorkCenterMaster wcm
+                            left join org.entity et on et.id = wcm.Entityid
+                            where wcm.Entityid =  (Select Top 1 ue.EntityId from  [SEC].[UserEntity] ue 
+						                            left join [SEC].[User] u on u.id = ue.UserId
+						                            where u.UserId = '" + Userid + "' order by ue.AddedDate desc)";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        #endregion Pratibha
     }
 
 

@@ -132,14 +132,16 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         #region GroupWiseSummaryOfDashboard
 
-        public IEnumerable<object> GroupWiseCompanyList(string companyGroupId, string date, string stat, string EmpCat, string EmpStat)
+        public IEnumerable<object> GroupWiseCompanyList(string companyGroupId, string date, string stat, string EmpCat, string EmpStat, string EmpShift)
         {
             try
             {
-
+                string shift = "";
                 string empCat = "";
                 string statP = "";
                 string empStat = "";
+                string budshift = "";
+
                 if (EmpCat != null)
                 {
                     if (EmpCat.Length > 0)
@@ -147,6 +149,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                         empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
                     }
 
+                }
+                if (EmpShift != null && EmpShift != "All")
+                {
+                    if (EmpShift.Length > 0)
+                    {
+                        shift = " and (Case when ap.ManualShiftID is not null then ap.ManualShiftID  when ap.RosterShiftID is not null then ap.RosterShiftID else ap.BudgetedShiftID end) = '" + EmpShift + @"' ";
+                        budshift = " and mmb.ShiftDefinationid = '" + EmpShift + "'";
+
+                    }
                 }
                 if (stat == "All")
                 {
@@ -240,7 +251,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join EmployeeInformation ei on ei.SystemId = ap.EmpSystemID
                             left join mst.ManpowerBudget mb on mb.Id=ei.BudgetCode
                             left join dbo.PhysicalVerification pv on pv.EmpSystemID = ap.EmpSystemID and pv.WorkDate = '" + date + @"'
-                            where ap.WorkDate = '" + date + @"'  " + empStat + @"
+                            where ap.WorkDate = '" + date + @"'  " + empStat + shift + @" 
 
                             group by mb.Id 
                             ) as orole on orole.BudgetId = mb.Id
@@ -250,7 +261,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 							                            Select rank() over (partition by ManpowerBudgetId order by  mb.EffectiveDate DESC,mb.Id) RNK, mb.TotalNumber, mb.ManpowerBudgetId, mb.EffectiveDate , mb.Deployment
                                                         from [MST].[ManpowerBudgetDetail] mb
 														left join  mst.ManpowerBudget mmb on mmb.Id = mb.ManpowerBudgetId
-                                                        WHERE CONVERT(DATE,(mb.EffectiveDate) )<= CONVERT(DATE,'" + date + @"')
+                                                        WHERE CONVERT(DATE,(mb.EffectiveDate) )<= CONVERT(DATE,'" + date + @"')  " + budshift + @"
 			                            ) as Bud where RNK = 1
                             ) as bud on bud.ManpowerBudgetId = mb.Id
                             left join org.Position pos on pos.Id = mb.PositionId
@@ -279,7 +290,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         #region DetailDrillDownOfDashboard
 
-        public IEnumerable<object> DetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string companyGroupId, string stat, string EmpCat, string EmpStat)
+        public IEnumerable<object> DetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string companyGroupId, string stat, string EmpCat, string EmpStat, string EmpShift)
         {
             try
             {
@@ -313,9 +324,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                         }
                     }
                 }
-
+                string shift = "";
                 string empCat = "";
                 string statP = "";
+                string budshift = "";
                 if (EmpCat != null)
                 {
                     if (EmpCat.Length > 0)
@@ -324,6 +336,16 @@ namespace Library.HumanResource.NewAttendanceProcess
                     }
 
                 }
+                // Shift filter
+                if (EmpShift != null && EmpShift != "All")
+                {
+                    if (EmpShift.Length > 0)
+                    {
+                        shift = " and (Case when ap.ManualShiftID is not null then ap.ManualShiftID  when ap.RosterShiftID is not null then ap.RosterShiftID else ap.BudgetedShiftID end) = '" + EmpShift + @"' ";
+                        budshift = " and mmb.ShiftDefinationid = '" + EmpShift + "'";
+                    }
+                }
+
                 if (stat == "All")
                 {
                     statP = "";
@@ -413,7 +435,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join EmployeeInformation ei on ei.SystemId = ap.EmpSystemID
                             left join mst.ManpowerBudget mb on mb.Id=ei.BudgetCode
                             left join dbo.PhysicalVerification pv on pv.EmpSystemID = ap.EmpSystemID and pv.WorkDate = '" + date + @"'
-                            where ap.WorkDate = '" + date + @"'  " + empStat + @"
+                            where ap.WorkDate = '" + date + @"'  " + empStat + shift + @"
 
                             group by mb.Id 
                             ) as orole on orole.BudgetId = mb.Id
@@ -423,7 +445,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 							                            Select rank() over (partition by ManpowerBudgetId order by  mb.EffectiveDate DESC,mb.Id) RNK, mb.TotalNumber, mb.ManpowerBudgetId, mb.EffectiveDate , mb.Deployment
                                                         from [MST].[ManpowerBudgetDetail] mb
 														left join  mst.ManpowerBudget mmb on mmb.Id = mb.ManpowerBudgetId
-                                                        WHERE CONVERT(DATE,(mb.EffectiveDate) )<= CONVERT(DATE,'" + date + @"')
+                                                        WHERE CONVERT(DATE,(mb.EffectiveDate) )<= CONVERT(DATE,'" + date + @"') " + budshift + @"
 			                            ) as Bud where RNK = 1
                             ) as bud on bud.ManpowerBudgetId = mb.Id
                             left join org.Position pos on pos.Id = mb.PositionId
@@ -458,7 +480,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         #endregion DetailDrillDownOfDashboard
 
         #region DetailedListOfColumn
-        public IEnumerable<object> DetailTableClick(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string companyGroupId, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat)
+        public IEnumerable<object> DetailTableClick(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string companyGroupId, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat, string EmpShift)
         {
             try
             {
@@ -488,9 +510,11 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     }
                 }
-
+                string shift = "";
+                string shiftnew = "";
                 string empCat = "";
                 string statP = "";
+                string budshift = "";
                 if (EmpCat != null)
                 {
                     if (EmpCat.Length > 0)
@@ -499,6 +523,24 @@ namespace Library.HumanResource.NewAttendanceProcess
                     }
 
                 }
+                if (EmpShift != null && EmpShift != "All")
+                {
+                    if (EmpShift.Length > 0)
+                    {
+                        shift = " and (Case when ap.ManualShiftID is not null then ap.ManualShiftID  when ap.RosterShiftID is not null then ap.RosterShiftID else ap.BudgetedShiftID end) = '" + EmpShift + @"' ";
+                        budshift = " and mmb.ShiftDefinationid = '" + EmpShift + "'";
+
+                    }
+                }
+
+                if (EmpShift != null && EmpShift != "All")
+                {
+                    if (EmpShift.Length > 0)
+                    {
+                        shiftnew = " and (Case when apd.ManualShiftID is not null then apd.ManualShiftID  when apd.RosterShiftID is not null then apd.RosterShiftID else apd.BudgetedShiftID end) = '" + EmpShift + @"' ";
+                    }
+                }
+
                 if (stat == "All")
                 {
                     statP = "";
@@ -620,7 +662,7 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName,  
 							left join MST.DesignationMaster DMM on DMM.DesignationId=ei.GivenDesignationId
 							left join [HKP].[EmployeeCategory] EC on EC.Id=DMM.EmployeeCategoryId
                             
-                            where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
+                            where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + shiftnew + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @")x
                              left outer join 
 (select top(1) x.DOJ RODOJ, x.EmployeeName ROEmployeeName,x.EmployeeCode ROEmployeeCode from (
@@ -647,7 +689,7 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.ROBudgetCode
                             left join dbo.ResidenceGroup RG on RG.Id=ei.ResidenceGroupId
                             left join dbo.TransportGroup TG on TG.Id=ei.TransportGroupId
                             left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-                            where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
+                            where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + shiftnew + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @") x
                              order by x.DOJ asc ) y on y.ROEmployeeCode=x.EmployeeCode
 							left outer join 
@@ -675,7 +717,7 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
                             left join dbo.ResidenceGroup RG on RG.Id=ei.ResidenceGroupId
                             left join dbo.TransportGroup TG on TG.Id=ei.TransportGroupId
                             left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-                            where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
+                            where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + shiftnew + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @") x
                              order by x.DOJ asc ) z on z.PREmployeeCode=x.EmployeeCode
                             ";
@@ -701,7 +743,7 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
                             from AttdnProcessData ap
                             left join EmployeeInformation ei on ei.SystemId = ap.EmpSystemID
                             left join mst.ManpowerBudget mb on mb.Id=ei.BudgetCode
-                            where ap.WorkDate = '" + date + @"'   " + empStat + @"
+                            where ap.WorkDate = '" + date + @"'   " + empStat + shift + @"
                             group by mb.Id 
 
                             ) OnRole on OnRole.BudgetId = mb.Id
@@ -719,7 +761,7 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
                             left join org.Department department on department.Id = pos.DepartmentId
                             left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
-                            where company.CompanyGroupId = '" + companyGroupId + @"'  " + whereSt + @"  " + empCat + @" " + statP + @"";
+                            where company.CompanyGroupId = '" + companyGroupId + @"'  " + whereSt + @"  " + empCat + shift + @" " + statP + @"";
                 }
 
 
@@ -735,7 +777,7 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
         #endregion DetailedListOfColumn
 
         #region ReportDownload
-        public DataTable ReportDownloadSvc(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string companyGroupId, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat)
+        public DataTable ReportDownloadSvc(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string companyGroupId, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat, string EmpShift)
         {
             try
             {
@@ -765,10 +807,11 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
 
                     }
                 }
-
+                string shift = "";
+                string shiftnew = "";
                 string empCat = "";
                 string statP = "";
-                if (EmpCat != null)
+                if (EmpCat != null && EmpShift != "All")
                 {
                     if (EmpCat.Length > 0)
                     {
@@ -776,6 +819,14 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
                     }
 
                 }
+                if (EmpShift != null && EmpShift != "All")
+                {
+                    if (EmpShift.Length > 0)
+                    {
+                        shiftnew = " and (Case when apd.ManualShiftID is not null then apd.ManualShiftID  when apd.RosterShiftID is not null then apd.RosterShiftID else apd.BudgetedShiftID end) = '" + EmpShift + @"' ";
+                    }
+                }
+
                 if (stat == "All")
                 {
                     statP = "";
@@ -899,7 +950,7 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
 							left join MST.DesignationMaster DMM on DMM.DesignationId=ei.GivenDesignationId
 							left join [HKP].[EmployeeCategory] EC on EC.Id=DMM.EmployeeCategoryId
 
-                           where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
+                           where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + shiftnew + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @")x
                              left outer join 
 (select top(1) x.DOJ RODOJ, x.EmployeeName ROEmployeeName,x.EmployeeCode ROEmployeeCode from (
@@ -922,11 +973,11 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.ROBudgetCode
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
-                            left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = '13-Feb-2023'
+                            left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = '" + date + @"'
                             left join dbo.ResidenceGroup RG on RG.Id=ei.ResidenceGroupId
                             left join dbo.TransportGroup TG on TG.Id=ei.TransportGroupId
                             left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-                            where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
+                            where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + shiftnew + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @") x
                              order by x.DOJ asc ) y on y.ROEmployeeCode=x.EmployeeCode
 							left outer join 
@@ -950,11 +1001,11 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
-                            left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = '13-Feb-2023'
+                            left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = '" + date + @"'
                             left join dbo.ResidenceGroup RG on RG.Id=ei.ResidenceGroupId
                             left join dbo.TransportGroup TG on TG.Id=ei.TransportGroupId
                             left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-                            where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
+                            where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + shiftnew + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @") x
                              order by x.DOJ asc ) z on z.PREmployeeCode=x.EmployeeCode";
 
