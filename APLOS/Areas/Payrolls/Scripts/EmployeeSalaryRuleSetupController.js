@@ -917,7 +917,7 @@ function EmployeeSalaryRuleSetupController(cboService, commonMessage, $scope, $r
     $scope.DeleteEmployeeSeperationItem = function () {
         $http({
             method: 'POST',
-            url: 'Payrolls/EmployeeSalaryRuleSetup/DeleteEmployeeSeperationItem?id=' + $scope.PrductionPara.Id
+            url: 'Payrolls/EmployeeSalaryRuleSetup/DeleteEmployeeSalaryRuleItem?id=' + $scope.PrductionPara.Id
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');

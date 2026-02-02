@@ -2828,7 +2828,7 @@ LEFT JOIN MST.ManpowerBudget emb ON emb.Id = e.BudgetCode
 
             try
             {
-                strSQL = @"SELECT EI.SystemId,EI.EmployeeName,EI.EmpPicPath EmployeePic,EI.NationalID UIDNO,EI.CellPhnNo MobileNo,EI.FatherName,EI.MotherName,EI.SpouseName,EI.GenderID Gender,FORMAT(EI.DOB,'dd-MMM-yyyy') DOB,DATEDIFF(YEAR,EI.DOB,GETDate()) Age
+                strSQL = @"SELECT EI.SystemId,EI.EmployeeCode,EI.EmployeeName,EI.EmpPicPath EmployeePic,EI.NationalID UIDNO,EI.CellPhnNo MobileNo,EI.FatherName,EI.MotherName,EI.SpouseName,EI.GenderID Gender,FORMAT(EI.DOB,'dd-MMM-yyyy') DOB,DATEDIFF(YEAR,EI.DOB,GETDate()) Age
 ,CS.UserName MaritalStatus,R.UserName Caste,EN.Name NomineeName,NomineeAge=DATEDIFF(YEAR,EN.DOB,GETDate()),RS.UserName NomineeRelation,EI.PresentAddress1 PresentAddress,EI.ParmanentAddress1 PermanentAddress
 ,EXI.Employer NameofCompany,Years=CAST((EXI.DurationYear)AS varchar(20))+' Y '+CAST((EXI.DurationMonth)AS varchar(20))+' M',EXI.Designation, RDP.UserName RefDepartment,EI.EmployeeName NameofCandidate,FORMAT(EI.DOJ,'dd-MMM-yyyy')DOJ, EDP.UserName Department
 ,ESINo=(Select ED.DocNumber from dbo.EmployeeDocument ED

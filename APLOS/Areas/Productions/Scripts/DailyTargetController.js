@@ -1075,7 +1075,6 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                 $scope.DailyTargetList[i].EmployeeName = obj.data.EmployeeName;
             }
         }
-        
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     };
 
