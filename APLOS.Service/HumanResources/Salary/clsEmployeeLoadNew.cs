@@ -8559,13 +8559,10 @@ LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                //strSQL = @"Select ISNULL(max(EmployeeCodeNumeric),0)EmployeeCode from EmployeeInformation A 
-                //        where exists (Select * from EmployeeCodeGenGroupDetail B where A.PlantId=B.PlantId and A.EmployeeCodeTypeId=B.EmployeeCodeTypeId 
-                //        and EmployeeCodeGenGroupId=(Select EmployeeCodeGenGroupId from EmployeeCodeGenGroupDetail where PlantId='" + plantId + "' and EmployeeCodeTypeId='" + employeeCodeTypeId + "'))";
-                strSQL = @"Select top 1 ISNULL((EmployeeCodeNumeric),0)EmployeeCode from EmployeeInformation A 
-where EmployeeCodeTypeId= (Select EmployeeCodeTypeId from EmployeeCodeGenGroupDetail B where B.PlantId='" + plantId + @"' and B.EmployeeCodeTypeId='" + employeeCodeTypeId + @"'
-and EmployeeCodeGenGroupId=(Select EmployeeCodeGenGroupId from EmployeeCodeGenGroupDetail where PlantId='" + plantId + @"' and EmployeeCodeTypeId='" + employeeCodeTypeId + @"'))
-and A.PlantId='" + plantId + "' order by DateAdded";
+                strSQL = @"Select ISNULL(max(EmployeeCodeNumeric),0)EmployeeCode from EmployeeInformation A 
+                        where exists (Select * from EmployeeCodeGenGroupDetail B where A.PlantId=B.PlantId and A.EmployeeCodeTypeId=B.EmployeeCodeTypeId 
+                        and EmployeeCodeGenGroupId=(Select EmployeeCodeGenGroupId from EmployeeCodeGenGroupDetail where PlantId='" + plantId + "' and EmployeeCodeTypeId='" + employeeCodeTypeId + "'))";
+
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
             }
