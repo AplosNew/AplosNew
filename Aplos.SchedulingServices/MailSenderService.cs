@@ -16225,7 +16225,7 @@ AND (E.EmployeeStatus='Active' OR Year(DOS) >= '" + objm.AYear + @"' AND MONTH(D
                                 {
                                     ReportUtility ru = new ReportUtility();
 
-                                    IWorkbook workbook = GetBankReconciliationUploadedDataForMailReport(item.CompanyGroupId, item.CompanyId, item.PlantId,item.ServiceName);
+                                    IWorkbook workbook = GetBankReconciliationUploadedDataForMailReport(item.CompanyGroupId, item.CompanyId, item.PlantId, item.ServiceName);
                                     workbook.Version = ExcelVersion.Excel2016;
                                     filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, serviceName + DateTime.Now.ToString("dd-MMM-yyyy") + ".xlsx");
                                     workbook.SaveAs(filePath);
@@ -16335,7 +16335,7 @@ AND (E.EmployeeStatus='Active' OR Year(DOS) >= '" + objm.AYear + @"' AND MONTH(D
             }
         }
 
-        public IWorkbook GetBankReconciliationUploadedDataForMailReport(string companyGroupId,string companyId, string plantId, string sheetHeader)
+        public IWorkbook GetBankReconciliationUploadedDataForMailReport(string companyGroupId, string companyId, string plantId, string sheetHeader)
         {
             try
             {
@@ -16455,7 +16455,7 @@ AND (E.EmployeeStatus='Active' OR Year(DOS) >= '" + objm.AYear + @"' AND MONTH(D
         #endregion
 
         #region ScanDataToBook
-        public void GetFinishedGoodsPackingData( out DataTable dtOrder)
+        public void GetFinishedGoodsPackingData(out DataTable dtOrder)
         {
             try
             {
@@ -16564,6 +16564,1732 @@ Group By A.POId,A.LotNo,A.EntityId,A.WorkDate,A.ShiftId,A.Grade,A.ProcessId,A.Pl
         }
 
         #endregion
+
+        public void LVProcess(string addedBy, string ip, string appVersion)
+        {
+
+            try
+            {
+
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("");
+                objCon.getDataSet("SELECT * FROM org.Plant", out DataSet dsRef);
+
+
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    string Year = System.DateTime.Now.Year.ToString();
+                    ExecuteProcess(dsRef.Tables[0].Rows[i]["Id"].ToString(), DateTime.Now.Year.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void ExecuteProcess(string plantid, string SelectedYear, string empids = "")
+        {
+            DataSet dsSave = null;
+            try
+            {
+                var _yearStartDate = DateTime.Now;
+                var _yearEndDate = DateTime.Now;
+                var calendarYearId = string.Empty;
+                var _plantid = plantid;
+                string _groupid = string.Empty;
+
+
+                var dtYear = GetCalendarYear(_plantid, SelectedYear);
+                if (dtYear.Rows.Count > 0)
+                {
+                    _yearStartDate = Convert.ToDateTime(dtYear.Rows[0]["FromDate"].ToString());
+                    _yearEndDate = Convert.ToDateTime(dtYear.Rows[0]["ToDate"].ToString());
+                    calendarYearId = dtYear.Rows[0]["Id"].ToString();//CompanyGroupId
+                    _groupid = dtYear.Rows[0]["CompanyGroupId"].ToString();//CompanyGroupId
+                }
+
+                //Console.Write("\r Processing" + new string(' ', 30));
+                InitLeaveSummary(_groupid, _plantid, _yearStartDate, _yearEndDate, calendarYearId, SelectedYear, out dsSave, empids);
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsSave);
+
+                LeaveProcessNew(plantid);
+
+                //Console.WriteLine("");
+            }
+            catch (Exception ex)
+            {
+             //   Console.WriteLine("");
+                throw ex;
+            }
+        }
+
+        public void LeaveProcessNew(string PlantId)
+        {
+            CreateEmptyRows(PlantId);
+            UpdateWorkingDaysForNewAttendance(PlantId);
+        }
+
+        private void CreateEmptyRows(string PlantId)
+        {
+            bplib.clsGenID genid = new bplib.clsGenID();
+            genid.GenID(DateTime.Now.ToString("dd-MMM-yyyy"), "LEAVE_SUMMARY_N", out string _pks);
+            _pks = _pks + "-";
+            string _sql = @"INSERT INTO trn.EmployeeLeaveSummary
+                                (
+	                                Id,
+                                    PlantId,
+	                                EmployeeId,
+	                                LeaveTypeId,
+	                                AddedBy,
+	                                AddedDate,
+	                                AddedFromIP,
+	                                CarryForwardOpeningBalance,
+	                                CurrentYearAllocationAsPerPolicy,
+	                                EncashedInbetween,
+	                                IsEncashed,
+	                                NotEncashedButYearEnded,
+                                    CurrentYearEarnedDaysOpeningBalance,
+	                                FromDate,
+	                                ToDate
+                                )
+
+
+                                SELECT '" + _pks + @"'+CONVERT(VARCHAR(10),row_number() OVER (ORDER BY FN.SystemId, FN.LTSystemID)),'" + PlantId + @"',FN.SystemId,
+                                       FN.LTSystemID,'Scheduler',GETDATE(),':::',0,0,0,0,0,0,FN.StartDay,FN.ToDate
+                                  FROM (
+                                SELECT  FN.SystemId, FN.LTSystemID,FN.CutOffDate, FN.ESIC, FN.DOJ, FN.DOC, FN.DOS, FN.StartPoint,LeaveStartDate, FN.StartDay,
+								--	CASE WHEN FN.EncashmentBasis='EncashmentDate' THEN 
+								--	CASE WHEN endday<FN.EncashmentDate THEN endday ELSE FN.EncashmentDate END
+								--ELSE 	
+								--	CASE WHEN endday>FN.EncashmentDate THEN endday ELSE FN.EncashmentDate END
+								--	END AS FinalToDate, FN.EndDay
+                                CASE WHEN ISNULL(DOS,'')<>'' THEN 
+									CASE WHEN	DOS >= FN.EncashmentDate THEN  FN.EncashmentDate ELSE DOS END
+                                ELSE CASE WHEN FN.EncashmentDate=FN.StartDay THEN DATEADD(YEAR,1,DATEADD(DAY,-1,FN.StartDay)) ELSE FN.EncashmentDate END END ToDate 
+                                  FROM (SELECT  
+                                ei.SystemId,lp.LTSystemID,sd.CutOffDate,sd.ESIC, sd.DOJ, sd.DOC,ei.DOS, sd.StartPoint,
+                                CASE WHEN ei.isLeaveOnDOC=1 THEN Ei.doc ELSE EI.DOJ END AS LeaveStartDate,
+                                ISNULL(ei.isLeaveOnDOC,0) AS isLeaveOnDOC,lp.EncashmentBasis,
+                                DATEFROMPARTS(YEAR(sd.StartPoint),MONTH( sd.StartPoint),DAY(sd.StartPoint)) AS StartDay,
+
+
+                                CASE WHEN lp.EncashmentBasis='EncashmentDate' THEN 
+		                                CASE WHEN DATEFROMPARTS(YEAR(sd.StartPoint),EncashmentSpecificMonth,EncashmentSpecificDay)<=DATEFROMPARTS(YEAR(sd.StartPoint),MONTH( sd.StartPoint),DAY(sd.StartPoint)) 
+		                                THEN DATEADD(DAY,-0,DATEFROMPARTS(YEAR(DATEADD(YEAR,1,DATEFROMPARTS(YEAR(sd.StartPoint),EncashmentSpecificMonth,EncashmentSpecificDay))),EncashmentSpecificMonth,EncashmentSpecificDay))
+		                                 ELSE
+		                                 DATEFROMPARTS(YEAR(sd.StartPoint),EncashmentSpecificMonth,EncashmentSpecificDay) END	
+                                 ELSE
+ 	                             CASE WHEN  lp.EncashmentBasis='DOJ' THEN 
+ 	                             	
+ 	                             	    CASE WHEN DATEFROMPARTS(YEAR(sd.StartPoint),MONTH(ei.DOJ),DAY(ei.DOJ))<=DATEFROMPARTS(YEAR(sd.StartPoint),MONTH( sd.StartPoint),DAY(sd.StartPoint)) 
+		                                THEN DATEADD(DAY,-1,DATEFROMPARTS(YEAR(DATEADD(YEAR,1,DATEFROMPARTS(YEAR(sd.StartPoint),MONTH(ei.DOJ),DAY(ei.DOJ)))),MONTH(ei.DOJ),DAY(ei.DOJ)))
+		                                ELSE
+		                                 DATEFROMPARTS(YEAR(sd.StartPoint),MONTH(ei.DOJ),DAY(ei.DOJ)) END	
+	                             	
+ 	                             	END
+ 	                             	END
+                                AS EncashmentDate,
+
+                                CASE WHEN ISNULL(ei.dos,'')='' THEN
+                                DATEADD(DAY,-1,DATEADD(YEAR,1,DATEFROMPARTS(YEAR(sd.StartPoint),MONTH( sd.StartPoint),DAY(sd.StartPoint)))) 
+                                ELSE ei.DOS END AS EndDay
+                                FROM EmployeeInformation AS ei
+
+                                left join (SELECT E.SystemId AS EmpSystemId,isnull(ct.CutOffDate,'01-Jan-1901')CutOffDate,isnull(m.EffectiveDate,'01-Jan-1901') AS ESIC,e.DOJ,DOC,
+                                StartPoint=
+                                CASE WHEN isnull(ct.CutOffDate,'01-Jan-1901')>isnull(m.EffectiveDate,'01-Jan-1901') AND isnull(ct.CutOffDate,'01-Jan-1901')>E.DOJ AND  isnull(ct.CutOffDate,'01-Jan-1901')>(CASE WHEN e.isLeaveOnDOC=1 THEN e.DOC ELSE e.DOJ END) THEN isnull(ct.CutOffDate,'01-Jan-1901') ELSE
+                                CASE WHEN isnull(m.EffectiveDate,'01-Jan-1901')>isnull(ct.CutOffDate,'01-Jan-1901') AND isnull(m.EffectiveDate,'01-Jan-1901')>E.DOJ AND  isnull(m.EffectiveDate,'01-Jan-1901')>(CASE WHEN e.isLeaveOnDOC=1 THEN e.DOC ELSE e.DOJ END) THEN isnull(m.EffectiveDate,'01-Jan-1901') ELSE
+                                CASE WHEN e.DOJ>isnull(m.EffectiveDate,'01-Jan-1901') AND e.DOJ>isnull(ct.CutOffDate,'01-Jan-1901') AND e.DOJ>(CASE WHEN e.isLeaveOnDOC=1 THEN e.DOC ELSE e.DOJ END) THEN e.DOJ ELSE
+                                CASE WHEN (CASE WHEN e.isLeaveOnDOC=1 THEN e.DOC ELSE e.DOJ END)>isnull(m.EffectiveDate,'01-Jan-1901') AND (CASE WHEN e.isLeaveOnDOC=1 THEN e.DOC ELSE e.DOJ END)>E.DOJ AND  (CASE WHEN e.isLeaveOnDOC=1 THEN e.DOC ELSE e.DOJ END)>isnull(ct.CutOffDate,'01-Jan-1901') THEN (CASE WHEN e.isLeaveOnDOC=1 THEN e.DOC ELSE e.DOJ END) ELSE e.DOJ 
+                                END END END END
+					                                FROM 
+                                                                  EmployeeInformation AS e
+                                                                  LEFT JOIN [SCS].[OpeningBalanceCutOffDate] CT ON  CT.plantId= e.PlantId AND ModuleName = 'HR'
+                                                                 LEFT JOIN (SELECT n.EmpSystemId,mm.EffectiveDate
+                                                                              FROM  [dbo].[EmployeeEligibleForSalaryHeadEnum] n 
+                                  
+                                                                  left join (select SystemID,EffectiveDate,EmpInfoSystemID from SalaryInfoDefineMaster
+                                                                  union
+                                                                  select SystemID,EffectiveDate,EmpInfoSystemID from SalaryInfoBackMaster
+                                                                  )
+                                                                   mm on mm.SystemID=n.SalaryStructureId
+                                                                  inner join (
+                                                                  select MAX(EffectiveDate)EffectiveDate,EmpInfoSystemID from (
+                                                                  select EffectiveDate,EmpInfoSystemID from SalaryInfoDefineMaster where IsApproved=1 
+                                                                  union
+                                                                   select EffectiveDate,EmpInfoSystemID from SalaryInfoBackMaster where IsApproved=1 
+                                                                   ) x 
+                                                                   group by EmpInfoSystemID
+                                                                  )m on mm.EffectiveDate=m.EffectiveDate and m.EmpInfoSystemID=mm.EmpInfoSystemID
+                                
+                                                                  where SalaryHeadEnum='ESIC' and IsEligible=1) AS M ON m.EmpSystemId=e.SystemId) AS SD on sd.EmpSystemId=ei.SystemId
+
+
+                                LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                                LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                                LEFT JOIN LeavePolicyDetail AS lp ON lp.LPMSystemID=dmc.LeavePolicyMasterId
+                                WHERE lp.EncashmentBasis<>'CalanderYear' AND ei.PlantId='" + PlantId + @"'
+  
+                                  ) AS FN
+
+                                WHERE ISNULL(FN.DOS,'')='' OR FN.DOS>=StartDay
+                                ) AS FN
+                                LEFT JOIN trn.EmployeeLeaveSummary AS ENC ON ENC.EmployeeId=fn.SystemId AND ENC.LeaveTypeId=fn.LTSystemID --AND ENC.FromDate=FN.StartDay
+
+                                WHERE ISNULL(ENC.Id,'')=''";
+
+            ConnectionManager.clsConnectionManager objCon = new ConnectionManager.clsConnectionManager(1800);
+            objCon.BeginTransaction();
+            objCon.executeQuery(_sql);
+            objCon.CommitTransaction();
+
+
+        }
+
+        private void UpdateWorkingDaysForNewAttendance(string PlantId)
+        {
+
+            string _sql = @"  UPDATE trn.EmployeeLeaveSummary 
+                                 SET CalculatedEarningDays = ISNULL(k.WorkingDays,0)+ISNULL(K.halfDay,0),
+                                     CurrentYearAllocation = CASE WHEN k.EncashWorkingDaysQty>0 THEN (ISNULL(k.WorkingDays,0)+ISNULL(K.halfDay,0))/k.EncashWorkingDaysQty ELSE 0 END,
+                                     DaysCanBeSanctioned = CASE WHEN k.EncashWorkingDaysQty>0 THEN (ISNULL(k.WorkingDays,0)+ISNULL(K.halfDay,0))/k.EncashWorkingDaysQty ELSE 0 END
+                              FROM trn.EmployeeLeaveSummary  S   WITH(NOLOCK) 
+                                                                left join EmployeeInformation e on e.SystemId=S.EmployeeId
+                                                                 left join mst.DesignationMasterLegalDesignation d on d.LegalDesignationId=e.LegalDesignationId
+                                                                 left join SCS.DesignationMasterConfiguration c on c.DesignationMasterId=d.DesignationMasterId and c.PlantId=e.PlantId
+                                                                 left join LeavePolicyDetail dp on dp.LPMSystemID=c.LeavePolicyMasterId AND dp.LTSystemID=s.LeaveTypeId
+                                                                 left join LeaveType t on t.Id=dp.LTSystemID 
+                                left outer JOIN (
+                                                    select els.Id,lpd.EncashWorkingDaysQty, SUM(l.EarnValue) AS WorkingDays,0 AS halfDay
+
+                                                                 from 
+                                                                 trn.EmployeeLeaveSummary AS els  WITH(NOLOCK) 
+                                                                 LEFT JOIN AttdnProcessData apd   WITH(NOLOCK) ON apd.EmpSystemID=els.EmployeeId AND apd.WorkDate BETWEEN els.FromDate AND els.ToDate
+                                                                 JOIN EmployeeInformation AS ei ON ei.SystemId=apd.EmpSystemID
+																	JOIN DayTypeWithValues AS ds ON ds.code=apd.DayStatus AND ds.HeaderId=apd.DayStatusHeaderId
+																	JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
+																	LEFT JOIN LeaveType AS lt ON lt.Id=L.LeaveTypeId
+
+																	left JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=apd.LeavePolicyMasterId AND lpd.LTSystemID=l.LeaveTypeId
+                                                                  WHERE ELS.PlantId='" + PlantId + @"' AND lpd.EncashmentBasis<>'CalanderYear'
+									                              AND lt.LeaveType='Earn'
+                             GROUP BY  els.Id,lpd.EncashWorkingDaysQty
+                             ) AS K ON K.Id=s.Id         
+                                WHERE e.PlantID='" + PlantId + @"' 		
+                                AND ISNULL(dp.EncashmentBasis,'')<>'CalanderYear'
+								AND t.LeaveType='Earn'
+                                AND ISNULL(s.IsYearlyProcessed,0)=0
+                            ";
+
+            ConnectionManager.clsConnectionManager objCon = new ConnectionManager.clsConnectionManager(1800);
+            objCon.BeginTransaction();
+            objCon.executeQuery(_sql);
+            objCon.CommitTransaction();
+
+
+        }
+
+        public string GetCutOffDate(string plantId, string CompanyGroupId)
+        {
+            DataSet dsRef = null;
+            var cutOffDate = string.Empty;
+            string strSQL;
+            //DbConnnectionSource Con = null;
+            ConnectionManager.clsConnectionManager objCon = null;
+            try
+            {
+                //Con = new BiometricsReader.commom.DbConnnectionSource();
+                objCon = new ConnectionManager.clsConnectionManager(600); ;
+                strSQL = @"select CutOffDate from [SCS].[OpeningBalanceCutOffDate] where plantId= '" + plantId + "' AND ModuleName = 'HR' ";
+                //objCon = new ConnectionManager.DAL.ConManager(Con);
+                objCon.getDataSet(strSQL, out dsRef);
+
+                if (dsRef.Tables[0].Rows.Count > 0)
+                {
+                    cutOffDate = dsRef.Tables[0].Rows[0]["CutOffDate"].ToString();
+                }
+                return cutOffDate;
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
+        public Dictionary<string, DataRow> LoadEmpLeaveSummaryData(string companyGroupId, string plantId, string CalendarYearId)
+        {
+            string strSQL;
+            //DbConnnectionSource Con = null;
+            ConnectionManager.clsConnectionManager objCon = null;
+            DataSet dsRef = null;
+            try
+            {
+                //Con = new BiometricsReader.commom.DbConnnectionSource();
+                strSQL = "SELECT * FROM trn.EmployeeLeaveSummary WHERE PlantId='" + plantId + "' and CalanderYearId='" + CalendarYearId + "'";
+
+
+                objCon = new ConnectionManager.clsConnectionManager(600); ;
+                objCon.getDataSet(strSQL, out dsRef);
+
+                Dictionary<string, DataRow> data = new Dictionary<string, DataRow>();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    string id = dsRef.Tables[0].Rows[i]["EmployeeId"].ToString() + "-" + dsRef.Tables[0].Rows[i]["LeaveTypeId"].ToString();
+                    if (data.ContainsKey(id) == false)
+                        data.Add(id, dsRef.Tables[0].Rows[i]);
+
+                }
+
+                return data;
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+
+        }
+
+        public DataTable GetCurrentYearEmployeeLeaveInfo(string CompanyGroupId, string plantId, string SelectedYear, string empids = "")
+        {
+            DataSet dsRef = null;
+            string strSQL;
+            //DbConnnectionSource Con = null;
+            ConnectionManager.clsConnectionManager objCon = null;
+            string wc = string.Empty;
+            try
+            {
+                if (empids.Length == 0)
+                {
+
+                }
+                else
+                {
+                    wc = " where EmployeeCode in (" + empids + ")";
+                }
+                //Con = new BiometricsReader.commom.DbConnnectionSource();
+                strSQL = @"select  emp.SystemId as EmployeeId
+                                        ,emp.GroupID
+                                        ,emp.DOJ,emp.DOS,emp.DOC
+                                        ,lpd.LvCalculationOnDOJ	
+                                        ,lpd.LvCalculationOnDOC	
+                                        ,lpd.LvAvailedOnDOJ	
+                                        ,lpd.LvAvailedOnDOC	
+                                        ,lpd.LvCanAvailAfter	
+                                        ,lpd.IsProrataMonthly
+                                        ,lpd.CanAvailUOM
+										,emp.PlantId,emp.EmployeeStatus
+	                                    ,emp.GivenDesignationId
+	                                    ,dsm.LeavePolicyMasterId
+	                                    ,lpm.PolicyName
+	                                    ,lty.LeaveType
+                                        ,isnull(esic.EndDate,'01-Jan-" + SelectedYear + @"') ESICdate
+                                        ,lty.Id ltId
+	                                    ,lpd.LeaveDays
+                                        ,lpd.EncashWorkingDaysQty
+	                                    ,lpd.LTSystemID
+                                        ,lpd.SystemID
+                                        --,lpd.IsProrataPreviousyear
+                                        ,OBC.CutOffDate
+                                        ,lpd.IsProratacurrentyear ProData
+	                                    ,ISNULL(z.CountedLeave,0) CountedLeave
+	                                    ,ISNULL(ad.AppliedDays,0) AppliedDays
+	                                    ,(select YearNo from dbo.YearlyCalendar where yearno='" + SelectedYear + @"' AND PlantId = '" + plantId + @"') CalendarYear
+                                       
+										,(select Id from dbo.YearlyCalendar where YearNo = '" + SelectedYear + @"' AND PlantId = '" + plantId + @"') CalendarYearId
+                                        from  dbo.EmployeeInformation emp 
+                                        LEFT JOIN mst.DesignationMasterLegalDesignation AS XX ON xx.LegalDesignationId=emp.LegalDesignationId
+                                        LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=xx.DesignationMasterId
+                                        LEFT JOIN SCS.DesignationMasterConfiguration dsm ON dsm.DesignationMasterId=dm.Id AND dsm.PlantId=emp.PlantId
+                                        left outer join dbo.LeavePolicyMaster as lpm on dsm.LeavePolicyMasterId = lpm.SystemID
+                                        left outer join dbo.LeavePolicyDetail as lpd on lpd.LPMSystemID = lpm.SystemID
+                                        left join (
+										select * from [ESICEligibleEmployee] where IsActive=1 and EndDate is not null
+										) esic on esic.EmpSystemID=emp.SystemId
+                                        LEFT outer join [SCS].[OpeningBalanceCutOffDate] OBC ON OBC.PlantId = EMP.PlantId
+                                        left outer join dbo.LeaveType as lty on lty.Id = lpd.LTSystemID
+                                        left outer join (select EmpSystemID,LTSystemID,sum(CountedLeave) CountedLeave from
+					                                        (
+						                                       select ltrd.CountedLeave,ltr.LTSystemID,ltr.EmpSystemID from
+							                                        (select * from  dbo.LeaveTransaction
+								                                        --where ApprovalType = 'Pre Approve' and GroupID = '" + CompanyGroupId + @"'
+								                                        where Year(FromDate)='" + SelectedYear + @"'
+							                                       ) as ltr
+						                                        left outer join
+						                                        (
+							                                       select sum(LeaveDuration) CountedLeave, LvTrnsSystemID from dbo.LeaveTransactionDetails D
+                                                                 JOIN LeaveTransaction AS lt ON lt.SystemID=d.LvTrnsSystemID
+                                                                where D.IsAvailed = 1 AND Year(D.WorkDate)=(SELECT YEAR(getdate())) group by D.LvTrnsSystemID
+						                                        ) as ltrd on  ltrd.LvTrnsSystemID = ltr.SystemID
+					                                         ) x group by LTSystemID,EmpSystemID
+                                                        ) z on z.EmpSystemID = emp.SystemId and z.LTSystemID = lpd.LTSystemID
+
+					                                          left outer join (select Sum(LeaveDays) AppliedDays,EmpSystemID,LTSystemID from  dbo.LeaveTransaction
+					                                          --where ApprovalType = 'Pre Approve' and Year(FromDate) = '" + SelectedYear + @"'
+					                                          where  Year(FromDate) = '" + SelectedYear + @"'
+					                                          group by LTSystemID,EmpSystemID
+				                                         ) as ad on ad.LTSystemID = lpd.LTSystemID and ad.EmpSystemID = emp.SystemId 
+                                                            where  ISNULL(lty.LeaveType,'') <> ''
+                                                           
+                                                            AND emp.PlantId = '" + plantId + @"'  AND isnull(lpd.EncashmentBasis,'')='CalanderYear'
+    --AND emp.EmployeeCode = 'OP-3112'
+--AND emp.SystemId='2000304'
+                                                          and (emp.EmployeeStatus = 'Active' or  Year(emp.DOS)='" + SelectedYear + @"' )
+                                                          ";//and emp.SystemId='1800073'
+
+
+
+                //objCon = new ConnectionManager.DAL.ConManager(Con);
+                objCon = new ConnectionManager.clsConnectionManager(600);
+                objCon.getDataSet(strSQL, out dsRef);
+
+                DataView dv = new DataView(dsRef.Tables[0]);
+                dv.Sort = "EmployeeId,LeaveType";
+                return dv.ToTable();
+                //return dsRef.Tables[0];
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetESICEnum(string ProcessDate, string plantId, out DataSet dsRef)
+        {
+            string strSQL;
+            //DbConnnectionSource Con = null;
+            ConnectionManager.clsConnectionManager objCon = null;
+            dsRef = null;
+            try
+            {
+                //Con = new BiometricsReader.commom.DbConnnectionSource();
+                strSQL = @"SELECT IsEligible,SalaryStructureId,EmpSystemId,m.EffectiveDate
+                                  FROM [dbo].[EmployeeEligibleForSalaryHeadEnum] n
+                                  left join (select SystemID,EffectiveDate,EmpInfoSystemID from SalaryInfoDefineMaster
+                                  union
+                                  select SystemID,EffectiveDate,EmpInfoSystemID from SalaryInfoBackMaster
+                                  )
+                                   mm on mm.SystemID=n.SalaryStructureId
+                                  inner join (
+                                  select MAX(EffectiveDate)EffectiveDate,EmpInfoSystemID from (
+                                  select EffectiveDate,EmpInfoSystemID from SalaryInfoDefineMaster where IsApproved=1 and EffectiveDate<='" + ProcessDate + @"'
+                                  union
+                                   select EffectiveDate,EmpInfoSystemID from SalaryInfoBackMaster where IsApproved=1 and EffectiveDate<='" + ProcessDate + @"'
+                                   ) x 
+                                   group by EmpInfoSystemID
+                                  )m on mm.EffectiveDate=m.EffectiveDate and m.EmpInfoSystemID=mm.EmpInfoSystemID
+                                  where SalaryHeadEnum='ESIC' and n.PlantId='" + plantId + @"'  and IsEligible=1
+                                  order by EmpSystemId,EffectiveDate";
+
+
+                objCon = new ConnectionManager.clsConnectionManager(600); ;
+                objCon.getDataSet(strSQL, out dsRef);
+
+                //List<EmployeeLeaveSummary> dicMMDSSI = new List<EmployeeLeaveSummary>();
+                //if (dsRef.Tables[0].Rows.Count > 0)
+                //    dicMMDSSI = dsRef.Tables[0].ToList<EmployeeLeaveSummary>();
+                //return dicMMDSSI;
+                // return _employeeLeaveSummaryRepository.SqlQuery<EmployeeLeaveSummary>(_sql).ToList();
+
+
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+
+        }
+
+        public void LoadEmpLeaveSummaryData(string companyGroupId, string plantId, string CalendarYearId, out DataSet dsRef, out Dictionary<string, DataRow> ClusteredData)
+        {
+            string strSQL;
+            //DbConnnectionSource Con = null;
+            ConnectionManager.clsConnectionManager objCon = null;
+            dsRef = null;
+            ClusteredData = new Dictionary<string, DataRow>();
+            try
+            {
+                //Con = new BiometricsReader.commom.DbConnnectionSource();
+                strSQL = "SELECT * FROM trn.EmployeeLeaveSummary WHERE PlantId='" + plantId + "' and CalanderYearId='" + CalendarYearId + "'";
+
+
+                objCon = new ConnectionManager.clsConnectionManager(600); ;
+                objCon.getDataSet(strSQL, out dsRef);
+
+
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    string id = dsRef.Tables[0].Rows[i]["EmployeeId"].ToString() + "-" + dsRef.Tables[0].Rows[i]["LeaveTypeId"].ToString();
+                    if (ClusteredData.ContainsKey(id) == false)
+                        ClusteredData.Add(id, dsRef.Tables[0].Rows[i]);
+                }
+
+
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+
+        }
+
+        public static string GetLeaveMasterId(DataTable dt)
+        {
+            var id = "''";
+            try
+            {
+                var dv = new DataView(dt);
+                var dtNew = dv.ToTable(true, "LeavePolicyMasterId");
+
+                for (int i = 0; i < dtNew.Rows.Count; i++)
+                {
+                    if (id == "''")
+                    {
+                        id = "'" + dtNew.Rows[i]["LeavePolicyMasterId"] + "'";
+                    }
+                    else
+                    {
+                        id += ",'" + dtNew.Rows[i]["LeavePolicyMasterId"] + "'";
+                    }
+                }
+                return id;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
+
+        public DataTable LeavePolicyDetail(string leavePolicyMasterId)
+        {
+            DataSet dsRef = null;
+            string strSQL;
+            //DbConnnectionSource Con = null;
+            ConnectionManager.clsConnectionManager objCon = null;
+            try
+            {
+                //Con = new BiometricsReader.commom.DbConnnectionSource();
+                strSQL = @"select d.*,t.IsESIC,t.IsGeneral 
+                            from dbo.LeavePolicyDetail d
+                            left join LeaveType t on d.LTSystemID=t.Id 
+                            where d.LPMSystemID IN (" + leavePolicyMasterId + ")";
+
+                objCon = new ConnectionManager.clsConnectionManager(600); ;
+                objCon.getDataSet(strSQL, out dsRef);
+
+                return dsRef.Tables[0];
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public Dictionary<string, DataRow> LeaveAllocationInfo(string CompanyGroupId, string plantId, string SelectedYear)
+        {
+            DataSet dsRef = null;
+            string strSQL;
+            //DbConnnectionSource Con = null;
+            ConnectionManager.clsConnectionManager objCon = null;
+            try
+            {
+                //Con = new BiometricsReader.commom.DbConnnectionSource();
+                strSQL = @"select  emp.SystemId as EmployeeId
+                                        ,emp.GroupID
+	                                    ,emp.GivenDesignationId
+	                                    ,dsm.LeavePolicyMasterId
+                                        ,lpd.SystemID LeavePolicyDetailId
+	                                    ,lpm.PolicyName
+	                                    ,lty.LeaveType
+										,lty.Id ltId
+	                                    ,lpd.LeaveDays
+                                        --,edws.WorkDate
+                                        ,OBC.CutOffDate
+	                                    ,(SELECT YearNo FROM dbo.YearlyCalendar WHERE yearno='" + SelectedYear + @"' AND PlantId = '" + plantId + @"') CalendarYear
+                                        from (SELECT DC.LeavePolicyMasterId,DM.DesignationId FROM MST.DesignationMaster DM
+										LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
+										WHERE DC.PlantId='" + plantId + @"') as dsm
+                                        left outer join dbo.EmployeeInformation as emp on emp.GivenDesignationId = dsm.DesignationId
+										--left outer join
+													--(select WorkDate,EmpSystemID,lpd.Daytype
+														--from  dbo.AttdnProcessData apd
+														--left outer join dbo.LeavePolicyWorkingDays lpd on lpd.Daytype = apd.DayStatus
+														--where PlantID='" + plantId + @"'and GroupID = '" + CompanyGroupId + @"'
+														--and YEAR(WorkDate) = '" + SelectedYear + @"'
+														--and DayStatus in( select DayType from dbo.LeavePolicyWorkingDays)
+														--group by EmpSystemID,GroupID,PlantID,WorkDate,lpd.Daytype
+													--)as edws on edws.EmpSystemID = emp.SystemId
+                                        left outer join dbo.LeavePolicyMaster as lpm on dsm.LeavePolicyMasterId = lpm.SystemID
+                                        left outer join dbo.LeavePolicyDetail as lpd on lpd.LPMSystemID = lpm.SystemID
+                                        LEFT outer join [SCS].[OpeningBalanceCutOffDate] OBC ON OBC.PlantId = EMP.PlantId
+                                        left outer join dbo.LeaveType as lty on lty.Id = lpd.LTSystemID
+										where  ISNULL(lty.LeaveType,'') <> '' AND emp.PlantId = '" + plantId + @"'
+                                        AND (emp.EmployeeStatus = 'Active' or YEAR(emp.DOS) = '" + SelectedYear + @"')
+                                        --AND EmpSystemID IN('1800164')
+                                        ";
+
+                objCon = new ConnectionManager.clsConnectionManager(600); ;
+                objCon.getDataSet(strSQL, out dsRef);
+
+                Dictionary<string, DataRow> _data = new Dictionary<string, DataRow>();
+                string id = "";
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    id = dsRef.Tables[0].Rows[i]["EmployeeId"].ToString() + "-" + dsRef.Tables[0].Rows[i]["ltId"].ToString();
+                    if (_data.ContainsKey(id) == false)
+                        _data.Add(id, dsRef.Tables[0].Rows[i]);
+                }
+
+                return _data;
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        private DataTable GetPreviousYearEmployeeLeaveInfo(string CompanyGroupId, string plantId, string SelectedYear)
+        {
+            try
+            {
+                var Py = Convert.ToInt32(SelectedYear) - 1;
+                var _sql = @"select els.EmployeeId
+                                        ,els.LeaveTypeId
+                                        ,els.CalanderYearId
+                                        ,els.DaysCanBeSanctioned
+                                        ,els.AvailedDays
+                                        ,(els.DaysCanBeSanctioned - els.AvailedDays) previousYearCarryForward
+                                        ,yc.YearNo
+                                        from trn.EmployeeLeaveSummary els
+                                        Left outer join dbo.YearlyCalendar yc on yc.Id = els.CalanderYearId
+                                        where yc.YearNo ='" + Py + @"' and els.plantid='" + plantId + "'";
+                //return _sqlRepository.GetDataTable(_sql);
+                return new DataTable();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public void GetWorkingDaysOfAllEmp(string PlantId, string earnStartDate, string earnEndDate, out Dictionary<string, List<DataRow>> dsRef)
+        {
+            string strSQL;
+            ConnectionManager.clsConnectionManager objCon = null;
+            dsRef = new Dictionary<string, List<DataRow>>();
+            try
+            {
+                //Con = new BiometricsReader.commom.DbConnnectionSource();
+                strSQL = @"  
+                                 select EmpSystemID,t.id LTSystemID,convert(decimal(18,2),isnull(COUNT(*),0)) AS WorkingDays
+                                 from AttdnProcessData a
+                                 left join EmployeeInformation e on e.SystemId=a.EmpSystemID
+                                 left join mst.DesignationMasterLegalDesignation d on d.LegalDesignationId=e.LegalDesignationId
+                                 left join SCS.DesignationMasterConfiguration c on c.DesignationMasterId=d.DesignationMasterId and c.PlantId=e.PlantId
+                                 left join LeavePolicyDetail dp on dp.LPMSystemID=c.LeavePolicyMasterId
+                                 join LeavePolicyWorkingDays p on  p.LPDetailID=dp.SystemID and a.DayStatus=p.DayType
+                                 left join LeaveType t on t.Id=dp.LTSystemID 
+                                                                    where a.WorkDate between '" + earnStartDate + @"' and '" + earnEndDate + @"'
+                                                                    and e.PlantID='" + PlantId + @"' 									                             
+									                                and t.LeaveType='Earn'	
+
+                                group by  EmpSystemID,t.id 
+						                                 ";
+
+                objCon = new ConnectionManager.clsConnectionManager(600);
+                objCon.getDataSet(strSQL, out DataSet ds);
+
+                string id = "";
+                List<DataRow> drList = new List<DataRow>();
+                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+                {
+                    string CurrentId = ds.Tables[0].Rows[i]["EmpSystemID"].ToString() + "-" + ds.Tables[0].Rows[i]["LTSystemID"].ToString();
+                    if (id != CurrentId)
+                    {
+                        drList = new List<DataRow>();
+                        dsRef.Add(CurrentId, drList);
+                    }
+
+                    drList.Add(ds.Tables[0].Rows[i]);
+                    id = CurrentId;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetHDPOfAllEmp(string PlantId, string earnStartDate, string earnEndDate, out DataSet dsRef)
+        {
+            string strSQL;
+            //DbConnnectionSource Con = null;
+            ConnectionManager.clsConnectionManager objCon = null;
+            dsRef = null;
+            try
+            {
+
+                // conmmet by Mizan as per Ather sir
+                //Con = new BiometricsReader.commom.DbConnnectionSource();
+                //strSQL = @" select EmpSystemID, WorkDate from AttdnProcessData
+                //                    where WorkDate between '" + earnStartDate + @"' and '" + earnEndDate + @"'
+                //                    and PlantID='" + PlantId + @"' and DayStatus='HDP'
+                //       ";
+                strSQL = @" select EmpSystemID,convert(decimal(18,2),isnull(COUNT(*),0)) AS WorkingDays from AttdnProcessData where 1=2 GROUP BY EmpSystemID";
+
+                objCon = new ConnectionManager.clsConnectionManager(600); ;
+                objCon.getDataSet(strSQL, out dsRef);
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetHalfDayLeaveOfAllEmp(string PlantId, string earnStartDate, string earnEndDate, out DataSet dsRef)
+        {
+            string strSQL;
+            //DbConnnectionSource Con = null;
+            ConnectionManager.clsConnectionManager objCon = null;
+            dsRef = null;
+            try
+            {
+                // comment and DayStatus<>'HDP' by sir
+                //Con = new BiometricsReader.commom.DbConnnectionSource();
+                strSQL = @" select EmpSystemID, CONVERT(decimal(18,2),isnull(SUM(0.50),0)) AS WorkingDays from AttdnProcessData
+                                                    where WorkDate between '" + earnStartDate + @"' and '" + earnEndDate + @"'
+                                                    and IsHalfDayLeave=1 
+                                                    and DayStatus in
+                                                    (select DayType from LeavePolicyWorkingDays where LPDetailID in
+                						             (SELECT SystemID FROM [LeavePolicyDetail] WHERE  LTSystemID=
+                						             (select id from LeaveType where LeaveType='Earn')))
+
+                                        GROUP BY EmpSystemID
+                                                   ";
+                //strSQL = @"select a.WorkDate, EmpSystemID
+                //                 from AttdnProcessData a
+                //                 left join EmployeeInformation e on e.SystemId=a.EmpSystemID
+                //                 left join mst.DesignationMasterLegalDesignation d on d.LegalDesignationId=e.LegalDesignationId
+                //                 left join SCS.DesignationMasterConfiguration c on c.DesignationMasterId=d.DesignationMasterId and c.PlantId=e.PlantId
+                //                 left join LeavePolicyDetail dp on dp.LPMSystemID=c.LeavePolicyMasterId
+                //                 join LeavePolicyWorkingDays p on  p.LPDetailID=dp.SystemID and a.DayStatus=p.DayType
+                //                 left join LeaveType t on t.Id=dp.LTSystemID 
+                //                 where a.WorkDate between '" + earnStartDate + @"' and '" + earnEndDate + @"'
+                //                       and a.PlantID='" + PlantId + @"' and t.LeaveType='Earn' and a.IsHalfDayLeave=1";
+
+                objCon = new ConnectionManager.clsConnectionManager(600); ;
+                objCon.getDataSet(strSQL, out dsRef);
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public static DateTime GetEarnLeaveStartDate(DateTime doj, DateTime cutOffDate, DateTime yearStartDate, DateTime ESICdate)
+        {
+            ///for doj first date of the month will be considered
+
+            var newDOJ = "01-" + GetMonthName(doj.Month) + "-" + doj.Year;
+            var a = GetBigger(doj, cutOffDate);
+
+            var b = GetBigger(yearStartDate, ESICdate);
+            return GetBigger(a, b);
+        }
+
+        private static DateTime GetBigger(DateTime a, DateTime b)
+        {
+            try
+            {
+                return a > b ? a : b;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        static string GetMonthName(int month)
+        {
+            string _month = string.Empty;
+            try
+            {
+                switch (month)
+                {
+                    case 1:
+                        _month = "Jan";
+                        break;
+                    case 2:
+                        _month = "Feb";
+                        break;
+                    case 3:
+                        _month = "Mar";
+                        break;
+                    case 4:
+                        _month = "Apr";
+                        break;
+
+                    case 5:
+                        _month = "May";
+                        break;
+                    case 6:
+                        _month = "Jun";
+                        break;
+                    case 7:
+                        _month = "Jul";
+                        break;
+                    case 8:
+                        _month = "Aug";
+                        break;
+
+                    case 9:
+                        _month = "Sep";
+                        break;
+                    case 10:
+                        _month = "Oct";
+                        break;
+                    case 11:
+                        _month = "Nov";
+                        break;
+                    case 12:
+                        _month = "Dec";
+                        break;
+
+                    default:
+                        _month = "Jan";
+                        break;
+                }
+                return _month;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void GetWorkingDays(string LTSystemID, Dictionary<string, List<DataRow>> dicTotalWorkingDays, List<clsWorkingDaysOther> dicHDP, List<clsWorkingDaysOther> dicHalfDayLeave, string EmpSystemID, string earnStartDate, string earnEndDate, out decimal WorkingDays)
+        {
+            WorkingDays = 0;
+            try
+            {
+                string id = EmpSystemID + "-" + LTSystemID;
+                if (dicTotalWorkingDays.ContainsKey(id))
+                {
+                    WorkingDays = Convert.ToDecimal(dicTotalWorkingDays[id][0]["WorkingDays"].ToString());
+
+                }
+
+                var sub_dic_hdp = dicHDP.FindAll(x => x.EmpSystemID == EmpSystemID);
+                if (sub_dic_hdp != null || sub_dic_hdp.Count > 0)
+                    WorkingDays += Convert.ToDecimal(sub_dic_hdp[0].WorkingDays / 2);
+
+
+                var sub_dic_hdleave = dicHDP.FindAll(x => x.EmpSystemID == EmpSystemID);
+                if (sub_dic_hdleave != null || sub_dic_hdleave.Count > 0)
+                    WorkingDays -= Convert.ToDecimal(sub_dic_hdleave[0].WorkingDays / 2);
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
+
+        private static void GetTotalLeave(out decimal currentYearAllocation, out decimal daysCanbeSanctioned, string LeaveCalculationRoundOption, decimal totalWorkingDay_toyearend, decimal totalWorkingDay, string _leaveTypeId, string empId, decimal dividingFactor, Dictionary<string, DataRow> from_db)
+        {
+            try
+            {
+                currentYearAllocation = 0;
+                daysCanbeSanctioned = 0;
+                double _CurrentYearAvailedOpeningBalance = 0;
+                double _CurrentYearEarnedDaysOpeningBalance = 0;
+                string LeaveCombinationKey = empId + "-" + _leaveTypeId;
+                if (from_db.ContainsKey(LeaveCombinationKey))
+                {
+                    DataRow _dr = from_db[LeaveCombinationKey];
+                    _CurrentYearAvailedOpeningBalance = Convert.ToDouble(_dr["CurrentYearAvailedOpeningBalance"].ToString());
+                    _CurrentYearEarnedDaysOpeningBalance = Convert.ToDouble(_dr["CurrentYearEarnedDaysOpeningBalance"].ToString());
+                }
+                var currentYearTotalDays_for_yearlyallocation = (decimal)_CurrentYearEarnedDaysOpeningBalance + totalWorkingDay_toyearend;
+                var currentYearTotalDays_for_dcs = (decimal)_CurrentYearEarnedDaysOpeningBalance + totalWorkingDay;
+
+                ///var _CarryForwardOpeningBalance = from_db.Where(r => r.EmployeeId == empId & r.LeaveTypeId == _leaveTypeId).Select(r => r.CarryForwardOpeningBalance).FirstOrDefault();
+                //dcs
+                var _p1 = currentYearTotalDays_for_dcs * dividingFactor;
+                daysCanbeSanctioned = GetRoundValue(LeaveCalculationRoundOption, _p1);
+                //curr year allowc
+                var _p2 = currentYearTotalDays_for_yearlyallocation * dividingFactor;
+                currentYearAllocation = GetRoundValue(LeaveCalculationRoundOption, _p2);
+
+                ///daysCanbeSanctioned = pCalculatedValue;// + _CarryForwardOpeningBalance;//-current year availed+current year earned days/dividing factor
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        private static void GetTotalLeaveNonEarn(ref decimal daysCanbeSanctioned, string _leaveTypeId, string empId, Dictionary<string, DataRow> from_db)
+        {
+            try
+            {
+                double _CarryForwardOpeningBalance = 0; //from_db.Where(r => r.EmployeeId == empId & r.LeaveTypeId == _leaveTypeId).Select(r => r.CarryForwardOpeningBalance).FirstOrDefault();
+                double _CarryForward = 0;// from_db.Where(r => r.EmployeeId == empId & r.LeaveTypeId == _leaveTypeId).Select(r => r.CarryForward).FirstOrDefault();
+
+                string LeaveCombinationKey = empId + "-" + _leaveTypeId;
+                if (from_db.ContainsKey(LeaveCombinationKey))
+                {
+                    DataRow _dr = from_db[LeaveCombinationKey];
+                    _CarryForwardOpeningBalance = Convert.ToDouble(_dr["CarryForwardOpeningBalance"].ToString());
+                    _CarryForward = Convert.ToDouble(_dr["CarryForward"].ToString());
+
+                    //var _CarryForwardOpeningBalance = from_db.Where(r => r.EmployeeId == empId & r.LeaveTypeId == _leaveTypeId).Select(r => r.CarryForwardOpeningBalance).FirstOrDefault();
+                    //var _CarryForward = from_db.Where(r => r.EmployeeId == empId & r.LeaveTypeId == _leaveTypeId).Select(r => r.CarryForward).FirstOrDefault();
+
+                }
+
+
+                daysCanbeSanctioned += 0;// _CarryForwardOpeningBalance;//-current year availed+current year earned days/dividing factor
+                ///201013
+                ///pratibha leave balance
+                ///daysCanbeSanctioned += _CarryForwardOpeningBalance;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        static decimal GetRoundValue(string LeaveCalculationRoundOption, decimal Input)
+        {
+            decimal r = 0;
+            try
+            {
+                if (string.IsNullOrEmpty(LeaveCalculationRoundOption))
+                {
+                    var _product = Math.Round(Input, 2);
+                    r = Math.Round(_product);
+                }
+                else
+                {
+                    if (LeaveCalculationRoundOption.ToUpper() == "ROUND")
+                    {
+                        var _product = Math.Round(Input, MidpointRounding.AwayFromZero);
+                        r = Math.Round(_product, MidpointRounding.AwayFromZero);
+                    }
+                    else if (LeaveCalculationRoundOption.ToUpper() == "ROUND UP")//no decimal value
+                    {
+                        var _product = Math.Ceiling(Input).ToString("0.00");
+                        r = Math.Ceiling(Convert.ToDecimal(_product));
+                    }
+                    else if (LeaveCalculationRoundOption.ToUpper() == "ROUND DOWN")//no decimal value
+                    {
+                        var _product = Math.Floor(Input).ToString("0.00");
+                        r = Math.Floor(Convert.ToDecimal(_product));
+                    }
+                    else if (LeaveCalculationRoundOption.ToUpper() == "EXACT")
+                    {
+                        string k = string.Empty;
+                        int idx = Input.ToString().IndexOf(".");
+                        if (idx != -1)
+                        {
+                            k = Input.ToString().Substring(0, idx + 3);
+                        }
+                        else
+                        {
+                            k = Input.ToString("0.00");
+                        }
+
+                        r = Convert.ToDecimal(k);
+                    }
+                    else//as the first one : Round
+                    {
+                        var _product = Math.Round(Input, 2, MidpointRounding.AwayFromZero);
+                        r = Math.Round(_product, 2, MidpointRounding.AwayFromZero);
+                    }
+                }
+                return r;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void InitLeaveSummary(string CompanyGroupId, string plantId, DateTime _yearStartDate, DateTime _yearEndDate, string calendarYearId, string SelectedYear, out DataSet dsSaveSummary, string empids = "")
+        {
+
+            DataTable dtLeaveInfo = null;
+
+            DataTable dtLeavePolicyDetail = null;
+            DataTable dtCarryForward = null;
+            DataSet dsEsicEnum = null;
+            dsSaveSummary = null;
+            try
+            {
+                #region variables
+                bplib.clsGenID genid = new bplib.clsGenID();
+                var _count = 0;
+
+                string empId;
+                string CalendarYearId;
+                string lvtId;
+                decimal currentYearAllocation = 0;
+                decimal dayCanBeAssigned = 0;
+                //decimal applieddays;
+                //decimal availedDays;
+                bool proData;
+                //  bool proDataPrevYear;
+                var calendarYear = calendarYearId;
+                string leaveType;
+                decimal leaveDays;
+                decimal _leaveDays_AsPer_Policy = 0;
+                decimal encashWorkingDaysQty;
+                //var _yearStartDate = DateTime.Now;
+                //var _yearEndDate = DateTime.Now;
+                DateTime doj;
+                //DateTime _DOJ;
+                //DateTime _DOC;
+                string _DOC;
+                bool _LvCalculationOnDOJ = false;
+                bool _LvCalculationOnDOC = false;
+                bool _LvAvailedOnDOJ = false;
+                bool _IsProrataMonthly = false;
+                bool _LvAvailedOnDOC = false;
+                string _LvCanAvailAfter = string.Empty;
+                string _CanAvailUOM = string.Empty;
+                var CutDate = DateTime.Now;
+                var _ESICDate = DateTime.Now;
+                bool _CanAvail = true;
+                string leaveTypeDetailId;
+                #endregion variables
+
+                if (GetCutOffDate(plantId, CompanyGroupId) != "")
+                {
+                    #region ds
+                    CutDate = Convert.ToDateTime(GetCutOffDate(plantId, CompanyGroupId));
+                    //var dtYear = GetCalendarYear(plantId);
+
+                    if (calendarYear.Length > 0)
+                    {
+                        //_yearStartDate = Convert.ToDateTime(dtYear.Rows[0]["FromDate"].ToString());
+                        //_yearEndDate = Convert.ToDateTime(dtYear.Rows[0]["ToDate"].ToString());
+                        //calendarYear = dtYear.Rows[0]["Id"].ToString();
+
+                        Dictionary<string, DataRow> from_db = LoadEmpLeaveSummaryData(CompanyGroupId, plantId, calendarYear);
+
+                        // GetCurrentYearEmployeeLeaveInfo" + new string(' ', 30));
+                        dtLeaveInfo = GetCurrentYearEmployeeLeaveInfo(CompanyGroupId, plantId, SelectedYear, empids);
+
+                        //Console.Write("\r GetESICEnum" + new string(' ', 30));
+                        GetESICEnum(DateTime.Now.ToString("dd-MMM-yyyy"), plantId, out dsEsicEnum);
+
+                       // Console.Write("\r LoadEmpLeaveSummaryData" + new string(' ', 30));
+                        LoadEmpLeaveSummaryData(CompanyGroupId, plantId, calendarYear, out dsSaveSummary, out Dictionary<string, DataRow> dicSaveSummary);
+                        DataRow drSaveSummary = null;
+                        //for HR porj ends
+                        //Console.Write("\r GetLeaveMasterId" + new string(' ', 30));
+                        var leaveMasterIds = GetLeaveMasterId(dtLeaveInfo);
+
+                       // Console.Write("\r LeavePolicyDetail" + new string(' ', 30));
+                        dtLeavePolicyDetail = LeavePolicyDetail(leaveMasterIds);
+
+                        //Console.Write("\r LeaveAllocationInfo" + new string(' ', 30));
+                        Dictionary<string, DataRow> dicAllocaitonInfo = LeaveAllocationInfo(CompanyGroupId, plantId, SelectedYear);
+
+                        //Console.Write("\r GetPreviousYearEmployeeLeaveInfo" + new string(' ', 30));
+                        dtCarryForward = GetPreviousYearEmployeeLeaveInfo(CompanyGroupId, plantId, SelectedYear);//plant 999
+
+                        //Console.Write("\r GetWorkingDaysOfAllEmp" + new string(' ', 30));
+                        Dictionary<string, List<DataRow>> dsWorkingDays = null;
+                        GetWorkingDaysOfAllEmp(plantId, _yearStartDate.ToString("dd-MMM-yyyy"), _yearEndDate.ToString("dd-MMM-yyyy"), out dsWorkingDays);
+
+                        DataSet dsHDP = null;
+                        //Console.Write("\r GetHDPOfAllEmp" + new string(' ', 30));
+                        GetHDPOfAllEmp(plantId, _yearStartDate.ToString("dd-MMM-yyyy"), _yearEndDate.ToString("dd-MMM-yyyy"), out dsHDP);
+                        List<clsWorkingDaysOther> dicHDP = dsHDP.Tables[0].ToList<clsWorkingDaysOther>();
+
+                        DataSet dsHalfDayLeave = null;
+                        Console.Write("\r GetHalfDayLeaveOfAllEmp" + new string(' ', 30));
+                        GetHalfDayLeaveOfAllEmp(plantId, _yearStartDate.ToString("dd-MMM-yyyy"), _yearEndDate.ToString("dd-MMM-yyyy"), out dsHalfDayLeave);
+                        List<clsWorkingDaysOther> dicHalfDayLeave = dsHalfDayLeave.Tables[0].ToList<clsWorkingDaysOther>();
+
+                        //DataSet dsEncashed = null;
+                        //GetEncashedInfo(plantId, calendarYearId, out dsEncashed);
+                        // List<clsWorkingDaysOther> dicEncashed = dsEncashed.Tables[0].ToList<clsWorkingDaysOther>();
+
+                        #endregion
+                        //var _pks = GetPK();
+                        var _pks = string.Empty;
+
+                        if (dtLeaveInfo.Rows.Count > 0)
+                        {
+                            //Console.Write("\r Generating Id" + new string(' ', 30));
+                            genid.GenID(DateTime.Now.ToString("dd-MMM-yyyy"), "LEAVE_SUMMARY_N", out _pks);
+                        }
+
+                        bool _NotEncashed = false;
+
+                        for (int i = 0; i < dtLeaveInfo.Rows.Count; i++)
+                        {
+                            #region variables
+                            decimal _CalculatedWorkingDays = 0;
+                            empId = dtLeaveInfo.Rows[i]["EmployeeId"].ToString();
+                            if (empId == "2002606")
+                            {
+
+                            }
+
+                            //if (i % 50 == 0)
+                            //{
+
+                            //    Console.Write("\r Processing " + (i + 1) + "/" + dtLeaveInfo.Rows.Count + "(" + (((double)(i + 1) / (double)dtLeaveInfo.Rows.Count) * (double)100).ToString("F2") + "%)" + new string(' ', 30));
+                            //}
+
+                            string eStatus = dtLeaveInfo.Rows[i]["EmployeeStatus"].ToString();
+                            string eDOS = dtLeaveInfo.Rows[i]["DOS"].ToString();
+
+                            CalendarYearId = dtLeaveInfo.Rows[i][nameof(CalendarYearId)].ToString();
+                            calendarYear = dtLeaveInfo.Rows[i]["CalendarYear"].ToString();
+                            lvtId = dtLeaveInfo.Rows[i]["ltId"].ToString();
+                            leaveType = dtLeaveInfo.Rows[i]["LeaveType"].ToString();
+                            leaveDays = (int)dtLeaveInfo.Rows[i]["LeaveDays"];
+                            proData = (bool)dtLeaveInfo.Rows[i]["ProData"];
+                            //proDataPrevYear = (bool)dtLeaveInfo.Rows[i]["IsProrataPreviousyear"];
+                            //availedDays = Convert.ToDecimal(dtLeaveInfo.Rows[i]["CountedLeave"]);
+                            //applieddays = Convert.ToDecimal(dtLeaveInfo.Rows[i]["AppliedDays"]);
+                            leaveTypeDetailId = dtLeaveInfo.Rows[i]["SystemID"].ToString();
+                            encashWorkingDaysQty = dtLeaveInfo.Rows[i]["EncashWorkingDaysQty"].Equals(DBNull.Value) ? 0 : Convert.ToInt32(dtLeaveInfo.Rows[i]["EncashWorkingDaysQty"]);
+                            doj = Convert.ToDateTime(dtLeaveInfo.Rows[i]["DOJ"].ToString());
+                            _DOC = (dtLeaveInfo.Rows[i]["DOC"].ToString());
+
+                            _LvCalculationOnDOJ = Convert.ToBoolean(dtLeaveInfo.Rows[i]["LvCalculationOnDOJ"]);
+                            _LvCalculationOnDOC = Convert.ToBoolean(dtLeaveInfo.Rows[i]["LvCalculationOnDOC"]);
+
+                            string LeaveFromDate = "";
+                            string LeaveToDate = "";
+
+
+                            _LvAvailedOnDOJ = Convert.ToBoolean(dtLeaveInfo.Rows[i]["LvAvailedOnDOJ"]);
+                            _LvAvailedOnDOC = Convert.ToBoolean(dtLeaveInfo.Rows[i]["LvAvailedOnDOC"]);
+                            _LvCanAvailAfter = (dtLeaveInfo.Rows[i]["LvCanAvailAfter"].ToString());//IsProrataMonthly
+                            _CanAvailUOM = (dtLeaveInfo.Rows[i]["CanAvailUOM"].ToString());
+                            _IsProrataMonthly = Convert.ToBoolean(dtLeaveInfo.Rows[i]["IsProrataMonthly"]);
+
+
+                            //,lpd.LvCalculationOnDOJ
+                            //         ,lpd.LvCalculationOnDOC
+                            //         ,lpd.LvAvailedOnDOJ
+                            //         ,lpd.LvAvailedOnDOC
+                            //         ,lpd.LvCanAvailAfter
+                            //         ,lpd.CanAvailUOM
+                            bool NoConfirmation = false;
+                            if (_LvCalculationOnDOC)
+                            {
+                                if (string.IsNullOrEmpty(_DOC))
+                                {
+                                    NoConfirmation = true;
+                                }
+                                else
+                                {
+                                    doj = Convert.ToDateTime(_DOC);
+                                }
+                            }
+
+
+
+
+                            if (string.IsNullOrEmpty(dtLeaveInfo.Rows[i]["ESICDate"].ToString()) == false)
+                            {
+                                _ESICDate = Convert.ToDateTime(dtLeaveInfo.Rows[i]["ESICDate"].ToString());
+                            }
+
+                            DataView dvEsicEnum = new DataView(dsEsicEnum.Tables[0]);
+                            dvEsicEnum.RowFilter = "EmpSystemId='" + empId + "' and EffectiveDate<='" + DateTime.Now.ToString("dd-MMM-yyyy") + "'";
+                            if (dvEsicEnum.Count > 0)
+                            {
+                                _ESICDate = doj;//
+                            }
+
+                            var dvLeaveType = new DataView(dtLeavePolicyDetail)
+                            {
+                                RowFilter = "SystemID='" + leaveTypeDetailId + " '"
+                            };
+                            var dtLeavType = dvLeaveType.ToTable();
+                            //get IsESIC // IsGeneral
+
+                            var _policyDetailId = dtLeavType.Rows[0]["SystemID"].ToString();
+                            var _poliicyMasterId = dtLeavType.Rows[0]["LPMSystemID"].ToString();
+                            var _leaveTypeId = dtLeavType.Rows[0]["LTSystemID"].ToString();
+                            var _maxLeaveDays = (int)dtLeavType.Rows[0]["LeaveDays"];
+                            //EncashWorkingDaysQty	EncashEarnLeaveQty
+                            var _EncashWorkingDaysQty = dtLeavType.Rows[0]["EncashWorkingDaysQty"].ToString();
+                            var _EncashEarnLeaveQty = dtLeavType.Rows[0]["EncashEarnLeaveQty"].ToString();
+                            var _IsESIC = Convert.ToBoolean(dtLeavType.Rows[0]["IsESIC"].ToString());
+                            var _IsGeneral = Convert.ToBoolean(dtLeavType.Rows[0]["IsGeneral"].ToString());
+
+                            //----------encash
+                            var _EncashmentBasis = dtLeavType.Rows[0]["EncashmentBasis"].ToString();
+                            var _EncashmentSpecificDay = dtLeavType.Rows[0]["EncashmentSpecificDay"].ToString();
+                            var _EncashmentSpecificMonth = dtLeavType.Rows[0]["EncashmentSpecificMonth"].ToString();
+
+                            var _LeaveCalculationRoundOption = dtLeavType.Rows[0]["LeaveCalculationRoundOption"].ToString();
+
+                            //------------------
+                            string EmployeeLeaveKey = empId + "-" + lvtId;
+
+
+                            //decimal _encashedValue = 0;
+                            #endregion variables
+
+                            if (dicAllocaitonInfo.ContainsKey(EmployeeLeaveKey))
+                            {
+                                DataRow drLeaveAllocationInfo = dicAllocaitonInfo[EmployeeLeaveKey];
+                                var policyDetailId = drLeaveAllocationInfo["LeavePolicyDetailId"].ToString();
+                                var policyMasterId = drLeaveAllocationInfo["LeavePolicyMasterId"].ToString();
+                                var leaveTypeId = drLeaveAllocationInfo["ltId"].ToString();
+
+                                if (_policyDetailId == policyDetailId && _poliicyMasterId == policyMasterId && _leaveTypeId == leaveTypeId)
+                                {
+
+                                    //DataView dvEncashed = new DataView(dsEncashed.Tables[0]);
+                                    //dvEncashed.RowFilter = "EmpSystemId='"+ empId + "' and leavetypesystemid='"+ leaveTypeId + "'";
+                                    //if(dvEncashed.Count>0)
+                                    //{
+                                    //    string _vv = dvEncashed[0]["LeaveDays"].ToString();
+                                    //    if(string.IsNullOrEmpty(_vv))
+                                    //    {
+                                    //    _encashedValue =Convert.ToDecimal(_vv);
+                                    //    }
+                                    //}
+
+                                    var date = Convert.ToDateTime(doj);
+                                    var joinYear = date.Year;
+                                    var earnEndDate = DateTime.Now;
+                                    var _CanAvilEndDate = DateTime.Now;
+                                    if (SelectedYear != DateTime.Now.ToString("yyyy"))
+                                    {
+                                        if (eStatus.ToUpper() == "SEPARATED")
+                                        {
+                                            earnEndDate = Convert.ToDateTime(eDOS);
+                                        }
+                                        else
+                                        {
+                                            earnEndDate = _yearEndDate;
+                                        }
+                                        _CanAvilEndDate = earnEndDate;
+                                    }
+                                    else
+                                    {
+                                        if (proData)
+                                        {
+                                            earnEndDate = Convert.ToDateTime(DateTime.Now.ToString("dd-MMM-yyyy"));
+                                        }
+                                        else
+                                        {
+                                            earnEndDate = _yearEndDate;
+                                        }
+
+                                        _CanAvilEndDate = Convert.ToDateTime(DateTime.Now.ToString("dd-MMM-yyyy"));
+                                        if (eStatus.ToUpper() == "SEPARATED")
+                                        {
+                                            earnEndDate = Convert.ToDateTime(eDOS);
+                                            _CanAvilEndDate = earnEndDate;
+                                        }
+                                    }
+
+                                    if (_IsProrataMonthly && proData)//only for prorata
+                                    {
+                                        if (eStatus.ToUpper() != "SEPARATED") //and not for separated
+                                        {
+                                            string LastDayOfmonth = earnEndDate.AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
+
+                                            var newdate = "01-" + earnEndDate.AddMonths(1).ToString("MMM") + "-" + earnEndDate.AddMonths(1).ToString("yyyy");
+                                            string newCurrMonth = Convert.ToDateTime(newdate).AddDays(-1).ToString("dd-MMM-yyyy");
+                                            earnEndDate = Convert.ToDateTime(newCurrMonth);
+                                        }
+                                    }
+                                    //get duration (currDate- doc/doj)//as per setting
+
+                                    DateTime _CurrentDateOrEndOfYear = DateTime.Now;
+
+
+                                    if (_LvAvailedOnDOJ)
+                                    {
+                                        GetStatus_CanAvail(_CanAvailUOM, _LvCanAvailAfter, doj, _CanAvilEndDate, out _CanAvail);
+                                        //GetStatus_CanAvail(_CanAvailUOM, _LvCanAvailAfter, doj, earnEndDate, out _CanAvail);
+                                    }
+                                    else if (_LvAvailedOnDOC)
+                                    {
+                                        if (NoConfirmation == false)
+                                        {
+                                            GetStatus_CanAvail(_CanAvailUOM, _LvCanAvailAfter, Convert.ToDateTime(_DOC), _CanAvilEndDate, out _CanAvail);
+                                        }
+                                        else
+                                        {
+                                            _CanAvail = false;
+                                        }
+                                    }
+                                    //===========================================================
+
+                                    if (_ESICDate > DateTime.Now)//MONIR
+                                    {
+                                        _ESICDate = _yearStartDate;
+                                    }
+
+                                    if (_IsESIC == false && _IsGeneral == true)
+                                    {
+                                    }
+                                    else
+                                    {
+                                        _ESICDate = _yearStartDate;
+                                    }
+
+                                    DateTime _EndDate_current_year_allocation = earnEndDate;
+
+                                    if (leaveType == "Earn")
+                                    {
+
+                                        bool _IsEncashed = false;
+                                        var earnStartDate = GetEarnLeaveStartDate(doj, CutDate, _yearStartDate, _ESICDate);//get the greater one
+                                        //_IsEncashed = from_db.Where(r => r.EmployeeId == empId & r.LeaveTypeId == _leaveTypeId).Select(r => r.IsEncashed).FirstOrDefault();
+
+                                        if (from_db.ContainsKey(EmployeeLeaveKey))
+                                            _IsEncashed = Convert.ToBoolean(from_db[EmployeeLeaveKey]["IsEncashed"].ToString());
+
+                                        string _earn_start_date = string.Empty;
+                                        string _earn_end_date = string.Empty;
+                                        bool _isCurrYear = false;
+                                        if (_EncashmentBasis.ToUpper() == "ENCASHMENTDATE" || _EncashmentBasis.ToUpper() == "DOJ")
+                                        {
+                                            continue;
+                                            string _selected_year = string.Empty;
+                                            if (SelectedYear != DateTime.Now.ToString("yyyy"))
+                                            {
+                                                _selected_year = SelectedYear;
+                                            }
+                                            else
+                                            {
+                                                _isCurrYear = true;
+                                                _selected_year = DateTime.Now.ToString("yyyy");
+                                            }
+
+
+
+
+                                            if (_IsEncashed)
+                                            {
+                                                //set startDate
+                                                if (_EncashmentBasis.ToUpper() == "ENCASHMENTDATE")
+                                                {
+                                                    string _day = _EncashmentSpecificDay;
+                                                    string _month = _EncashmentSpecificMonth;
+                                                    if (string.IsNullOrEmpty(_month) || string.IsNullOrEmpty(_day))
+                                                    {
+                                                        continue;
+                                                    }
+                                                    _earn_start_date = _day + "-" + GetMonthName(Convert.ToInt32(_month)) + "-" + _selected_year;
+                                                }
+                                                else if (_EncashmentBasis.ToUpper() == "DOJ")
+                                                {
+                                                    _earn_start_date = doj.ToString("dd-MMM") + "-" + _selected_year;
+                                                }
+                                                //set
+                                                if (string.IsNullOrEmpty(_earn_start_date) == false)
+                                                {
+                                                    earnStartDate = Convert.ToDateTime(_earn_start_date);
+                                                }
+
+                                                if (earnStartDate > earnEndDate)//nutralizing
+                                                {
+                                                    earnStartDate = earnEndDate;
+                                                }
+                                            }
+                                            else // not encashed
+                                            {
+
+                                                //set end date
+                                                if (_EncashmentBasis.ToUpper() == "ENCASHMENTDATE")
+                                                {
+                                                    string _day = _EncashmentSpecificDay;
+                                                    string _month = _EncashmentSpecificMonth;
+                                                    if (string.IsNullOrEmpty(_month) || string.IsNullOrEmpty(_day))
+                                                    {
+                                                        continue;
+                                                    }
+                                                    _earn_end_date = _day + "-" + GetMonthName(Convert.ToInt32(_month)) + "-" + _selected_year;
+
+                                                    if (Convert.ToDateTime(_earn_end_date) < DateTime.Now)
+                                                    {
+                                                        _NotEncashed = true;
+                                                    }
+                                                }
+                                                else if (_EncashmentBasis.ToUpper() == "DOJ")
+                                                {
+                                                    _earn_end_date = doj.ToString("dd-MMM") + "-" + _selected_year;
+                                                    if (Convert.ToDateTime(_earn_end_date) < DateTime.Now)
+                                                    {
+                                                        _NotEncashed = true;
+                                                    }
+
+                                                    if (_isCurrYear)
+                                                    {
+                                                        _earn_end_date = DateTime.Now.ToString("dd-MMM-yyyy");
+                                                    }
+                                                }
+                                                //set value
+                                                if (string.IsNullOrEmpty(_earn_end_date) == false && earnEndDate > Convert.ToDateTime(_earn_end_date))
+                                                {
+                                                    earnEndDate = Convert.ToDateTime(_earn_end_date);
+                                                }
+
+                                                if (earnStartDate > earnEndDate)//nutralizing
+                                                {
+                                                    earnEndDate = earnStartDate;
+                                                }
+                                            }
+                                        }
+
+                                        if (empId == "1901375")
+                                        {
+
+                                        }
+
+                                        if (Convert.ToDecimal(_EncashWorkingDaysQty) <= 0)
+                                        {
+                                            _EncashWorkingDaysQty = "1";
+                                        }
+
+                                        var dividingFator = decimal.Divide(Convert.ToDecimal(_EncashEarnLeaveQty), Convert.ToDecimal(_EncashWorkingDaysQty));//From Setting
+
+                                        decimal totalDays = 0;//000
+                                        decimal totalDays_uptoendoftheyear = 0;//000
+                                        GetWorkingDays(_leaveTypeId, dsWorkingDays, dicHDP, dicHalfDayLeave, empId, earnStartDate.ToString("dd-MMM-yyyy"), earnEndDate.ToString("dd-MMM-yyyy"), out totalDays);//by fromDate toDate
+                                        GetWorkingDays(_leaveTypeId, dsWorkingDays, dicHDP, dicHalfDayLeave, empId, earnStartDate.ToString("dd-MMM-yyyy"), _EndDate_current_year_allocation.ToString("dd-MMM-yyyy"), out totalDays_uptoendoftheyear);//by fromDate toDate
+                                        _CalculatedWorkingDays = totalDays_uptoendoftheyear;
+                                        GetTotalLeave(out currentYearAllocation, out dayCanBeAssigned, _LeaveCalculationRoundOption, totalDays_uptoendoftheyear, totalDays, _leaveTypeId, empId, dividingFator, from_db);
+                                        //GetTotalLeave(out currentYearAllocation, out dayCanBeAssigned, _LeaveCalculationRoundOption, totalDays_uptoendoftheyear, _leaveTypeId, empId, dividingFator, from_db);
+                                        _leaveDays_AsPer_Policy = currentYearAllocation;
+
+                                        LeaveFromDate = earnStartDate.ToString("dd-MMM-yyyy");
+                                        LeaveToDate = earnEndDate.ToString("dd-MMM-yyyy");
+                                    }
+                                    else
+                                    {
+                                        if (empId == "1901375")
+                                        {
+                                            if (_leaveTypeId == "LVT-20186")
+                                            {
+
+                                            }
+                                        }
+                                        var earnStartDate = GetEarnLeaveStartDate(doj, doj, _yearStartDate, _ESICDate);//get the greater one
+                                        var difference = (earnEndDate - earnStartDate);//000                                       
+                                        //var difference_cya = (_EndDate_current_year_allocation - earnStartDate);//000                                       
+                                        var days = Convert.ToInt32(difference.TotalDays) + 1;
+                                        if (days < 0)
+                                        {
+                                            days = 0;
+                                        }
+
+                                        dayCanBeAssigned = 0;
+                                        currentYearAllocation = 0;
+                                        var _Y = Convert.ToDateTime("01-Jan-" + SelectedYear);//to check leap year
+                                        var _product1 = (leaveDays * days) / (DateTime.IsLeapYear(_Y.Year) ? 366 : 365);
+
+                                        //var _product2 = Math.Round(_product1, 2);
+                                        //currentYearAllocation = Math.Ceiling(_product2);
+                                        //111
+                                        currentYearAllocation = GetRoundValue(_LeaveCalculationRoundOption, _product1);
+
+                                        GetCTA(earnStartDate, _yearEndDate, SelectedYear, leaveDays, _LeaveCalculationRoundOption, out _leaveDays_AsPer_Policy);
+                                        if (!proData)
+                                        {
+                                            //var _product = Math.Round(currentYearAllocation, 2);
+                                            //dayCanBeAssigned = Math.Ceiling(_product);
+                                            //111
+                                            dayCanBeAssigned = GetRoundValue(_LeaveCalculationRoundOption, currentYearAllocation);
+                                        }//not prodata
+                                        else // ProRata
+                                        {
+                                            //555 get month counted
+                                            var difference1 = earnEndDate - earnStartDate;//000
+                                            int _days_dcbs = (int)(difference1.TotalDays) + 1;
+                                            if (_days_dcbs < 0)
+                                            {
+                                                _days_dcbs = 0;
+                                            }
+
+                                            decimal Prod1 = ((leaveDays * _days_dcbs)) / (DateTime.IsLeapYear(_Y.Year) ? 366 : 365);
+
+                                            //var _product = Math.Round(Prod1, 2);
+                                            //dayCanBeAssigned = Math.Ceiling(_product);
+                                            //111
+                                            dayCanBeAssigned = GetRoundValue(_LeaveCalculationRoundOption, Prod1);
+                                        }// Pro rata
+
+                                        GetTotalLeaveNonEarn(ref dayCanBeAssigned, _leaveTypeId, empId, from_db);
+
+                                        LeaveFromDate = earnStartDate.ToString("dd-MMM-yyyy");
+                                        LeaveToDate = _yearEndDate.ToString("dd-MMM-yyyy");
+                                    }
+                                }//if
+                            }//workdays
+
+                            #region Database entry
+
+                            if (NoConfirmation)
+                            {
+                                dayCanBeAssigned = 0;
+                                _leaveDays_AsPer_Policy = 0;
+                            }
+
+                            if (string.IsNullOrEmpty(CalendarYearId))
+                            {
+                                throw new Exception("Calendar can not be blank...");
+                            }
+                            if (string.IsNullOrEmpty(CompanyGroupId))
+                            {
+                                throw new Exception("GroupId can not be blank...");
+                            }
+                            if (string.IsNullOrEmpty(plantId))
+                            {
+                                throw new Exception("plantId can not be blank...");
+                            }
+                            if (string.IsNullOrEmpty(empId))
+                            {
+                                throw new Exception("empId can not be blank...");
+                            }
+
+
+                            if (empId == null || leaveType == null || CalendarYearId == null)
+                            {
+                            }
+                            else
+                            {
+                                bool shouldCreateNew = true;
+                                if (dicSaveSummary.ContainsKey(EmployeeLeaveKey) == false)
+                                {
+                                    if (string.IsNullOrEmpty(dtLeaveInfo.Rows[i]["DOS"].ToString()) == false)
+                                    {
+                                        var _dos_ = Convert.ToDateTime(dtLeaveInfo.Rows[i]["DOS"].ToString()).ToString("yyyy");
+                                        if (Convert.ToInt32(_dos_) < Convert.ToInt32(SelectedYear))
+                                        {
+                                            shouldCreateNew = false;
+                                        }
+                                    }
+                                    if (shouldCreateNew)
+                                    {
+                                        _count++;
+                                        drSaveSummary = dsSaveSummary.Tables[0].NewRow();
+                                        drSaveSummary["Id"] = "LS" + _pks + "-" + _count;
+                                        drSaveSummary["EmployeeId"] = empId;
+                                        drSaveSummary["CalanderYearId"] = CalendarYearId;
+                                        drSaveSummary["PlantId"] = plantId;
+                                        drSaveSummary["CompanyGroupId"] = CompanyGroupId;
+                                        drSaveSummary["LeaveTypeId"] = lvtId;
+                                        drSaveSummary["CurrentYearAllocation"] = _leaveDays_AsPer_Policy;
+                                        drSaveSummary["DaysCanBeSanctioned"] = (_CanAvail ? dayCanBeAssigned : 0);
+                                        drSaveSummary["CalculatedEarningDays"] = _CalculatedWorkingDays;
+
+
+                                        drSaveSummary["CurrentYearAvailedOpeningBalance"] = 0;
+                                        drSaveSummary["CurrentYearEarnedDaysOpeningBalance"] = 0;
+                                        drSaveSummary["CarryForwardOpeningBalance"] = 0;
+
+                                        drSaveSummary["CarryForward"] = 0;
+                                        drSaveSummary["NotEncashedButYearEnded"] = _NotEncashed;//NotEncashedButYearEnded
+
+
+                                        drSaveSummary["FromDate"] = LeaveFromDate;
+                                        drSaveSummary["ToDate"] = LeaveToDate;
+
+                                        drSaveSummary["AddedBy"] = "Schedule";
+                                        drSaveSummary["AddedDate"] = System.DateTime.Now;
+                                        drSaveSummary["AddedFromIP"] = "::1";
+                                        drSaveSummary["UpdatedBy"] = "Schedule";
+                                        drSaveSummary["UpdatedDate"] = System.DateTime.Now;
+                                        dsSaveSummary.Tables[0].Rows.Add(drSaveSummary);
+                                    }//shouldCreateNew
+                                }
+                                else
+                                {
+                                    drSaveSummary = dicSaveSummary[EmployeeLeaveKey];
+                                    drSaveSummary.BeginEdit();
+
+                                    drSaveSummary["FromDate"] = LeaveFromDate;
+                                    drSaveSummary["ToDate"] = LeaveToDate;
+
+                                    //drSaveSummary["EncashedInbetween"] = _encashedValue;
+                                    drSaveSummary["CurrentYearAllocation"] = _leaveDays_AsPer_Policy;
+                                    //drSaveSummary["CurrentYearAllocationAsPerPolicy"] = _leaveDays_AsPer_Policy;
+                                    drSaveSummary["DaysCanBeSanctioned"] = (_CanAvail ? dayCanBeAssigned : 0);
+                                    drSaveSummary["CalculatedEarningDays"] = _CalculatedWorkingDays;//NotEncashedButYearEnded
+                                    if (_NotEncashed)
+                                    {
+                                        drSaveSummary["NotEncashedButYearEnded"] = true;
+                                    }
+                                    else
+                                    {
+                                        drSaveSummary["NotEncashedButYearEnded"] = false;
+                                    }
+                                    drSaveSummary["UpdatedDate"] = System.DateTime.Now;
+                                    drSaveSummary.EndEdit();
+                                }
+                            }//if(empId == null || leaveType == null || CalendarYearId == null)
+
+                            #endregion Database entry
+                        }//loop dtLeaveInfo
+                    }//calendar year found
+                }//cutoff date
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        void GetCTA(DateTime earnStartDate, DateTime _yearEndDate, string SelectedYear, decimal leaveDays, string _LeaveCalculationRoundOption, out decimal _leaveDays_AsPer_Policy)
+        {
+            _leaveDays_AsPer_Policy = 0;
+            try
+            {
+                var difference = (_yearEndDate - earnStartDate);
+                var days = Convert.ToInt32(difference.TotalDays) + 1;
+                //decimal currentYearAllocation = 0;
+                var _Y = Convert.ToDateTime("01-Jan-" + SelectedYear);//to check leap year
+
+                var _product1 = (leaveDays * days) / (DateTime.IsLeapYear(_Y.Year) ? 366 : 365);
+                ////var _product2 = Math.Round(_product1, 2);
+                ////currentYearAllocation = Math.Ceiling(_product2);
+
+                ////var _APP = Math.Round(currentYearAllocation, 2);
+                ////var _APP2 = Math.Ceiling(_APP);
+                ////_leaveDays_AsPer_Policy = _APP2;
+                ///===========================================
+                _leaveDays_AsPer_Policy = GetRoundValue(_LeaveCalculationRoundOption, _product1);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        void GetStatus_CanAvail(string _CanAvailUOM, string _LvCanAvailAfter, DateTime DOJorDOC, DateTime _CurrentDateOrEndOfYear, out bool _CanAvail)
+        {
+            _CanAvail = true;
+            try
+            {
+                if (_CanAvailUOM.ToUpper() == "DAY")
+                {
+                    var NewDOJ = DOJorDOC.AddDays(Convert.ToInt32(_LvCanAvailAfter));
+                    if (NewDOJ > _CurrentDateOrEndOfYear)
+                    {
+                        _CanAvail = false;
+                    }
+                }
+                else if (_CanAvailUOM.ToUpper() == "MONTH")
+                {
+                    var NewDOJ = DOJorDOC.AddMonths(Convert.ToInt32(_LvCanAvailAfter));
+                    if (NewDOJ > _CurrentDateOrEndOfYear)
+                    {
+                        _CanAvail = false;
+                    }
+                }
+                else if (_CanAvailUOM.ToUpper() == "YEAR")
+                {
+                    var NewDOJ = DOJorDOC.AddYears(Convert.ToInt32(_LvCanAvailAfter));
+                    if (NewDOJ > _CurrentDateOrEndOfYear)
+                    {
+                        _CanAvail = false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetCalendarYear(string plantId, string SelectedYear)
+        {
+            string strSQL;
+            //DbConnnectionSource Con = null;
+            ConnectionManager.clsConnectionManager objCon = null;
+            DataSet dsRef = null;
+            try
+            {
+                //Con = new BiometricsReader.commom.DbConnnectionSource();
+                strSQL = @"SELECT * FROM DBO.YearlyCalendar WHERE yearno='" + SelectedYear + "' AND PlantId = '" + plantId + "' ";
+
+                objCon = new ConnectionManager.clsConnectionManager(600); ;
+                objCon.getDataSet(strSQL, out dsRef);
+
+                return dsRef.Tables[0];
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+
+
+
+    }
+
+    public class clsWorkingDaysOther
+    {
+        public string EmpSystemID { get; set; }
+        public Decimal WorkingDays { get; set; }
 
     }
 }

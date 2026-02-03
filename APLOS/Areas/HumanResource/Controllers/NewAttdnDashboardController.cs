@@ -2,6 +2,7 @@
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.HumanResource.NewAttendanceProcess;
+using Library.HumanResource.Payroll.Allowance;
 using Library.OrderManagement.Production;
 using Library.Service.Helpers;
 using Library.Service.Organizations;
@@ -34,10 +35,10 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetGroupWiseCompanyList(string date, string stat, string EmpCat, string EmpStat)
+        public ActionResult GetGroupWiseCompanyList(string date, string stat, string EmpCat, string EmpStat, string EmpShift)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var data = na.GroupWiseCompanyList(identity.CompanyGroupId, date, stat, EmpCat, EmpStat);
+            var data = na.GroupWiseCompanyList(identity.CompanyGroupId, date, stat, EmpCat, EmpStat , EmpShift);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
@@ -56,29 +57,29 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetDetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string stat, string EmpCat, string EmpStat)
+        public ActionResult GetDetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string stat, string EmpCat, string EmpStat, string EmpShift)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            return Json(na.DetailDrillDownTable(ChartColumnList, seq, date, identity.CompanyGroupId, stat, EmpCat, EmpStat), JsonRequestBehavior.AllowGet);
+            return Json(na.DetailDrillDownTable(ChartColumnList, seq, date, identity.CompanyGroupId, stat, EmpCat, EmpStat, EmpShift), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
-        public ActionResult DetailTableClick(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat)
+        public ActionResult DetailTableClick(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat,string EmpShift)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var JsonData = Json(na.DetailTableClick(ChartColumnList, seq, date, identity.CompanyGroupId, Column, data, stat, EmpCat, EmpStat), JsonRequestBehavior.AllowGet); ;
+            var JsonData = Json(na.DetailTableClick(ChartColumnList, seq, date, identity.CompanyGroupId, Column, data, stat, EmpCat, EmpStat, EmpShift), JsonRequestBehavior.AllowGet); ;
             JsonData.MaxJsonLength = int.MaxValue;
             return JsonData;
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetPrintReport(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat)
+        public ActionResult GetPrintReport(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat,string EmpShift)
         {
 
             try
             {
-                var workbook = GetFilterData(ChartColumnList, seq, date, Column, data, stat, EmpCat, EmpStat);
+                var workbook = GetFilterData(ChartColumnList, seq, date, Column, data, stat, EmpCat, EmpStat, EmpShift);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + "-" + Column + "-" + "EmpReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -91,9 +92,23 @@ namespace Aplos.Areas.HumanResource.Controllers
                 throw ex;
             }
         }
+        // Aman
+        [HttpGet, Authorize]
+        public ActionResult GetShift()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                clsDiscreteAllowanceReport ep = new clsDiscreteAllowanceReport();
+                return Json(ep.GetShift(identity.PlantId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
 
-
-        private IWorkbook GetFilterData(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat)
+        private IWorkbook GetFilterData(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat,string EmpShift)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -107,7 +122,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             int endCol = 1;
             int COL = 1;
 
-            DataTable dtData = na.ReportDownloadSvc(ChartColumnList, seq, date, identity.CompanyGroupId, Column, data, stat, EmpCat, EmpStat);
+            DataTable dtData = na.ReportDownloadSvc(ChartColumnList, seq, date, identity.CompanyGroupId, Column, data, stat, EmpCat, EmpStat, EmpShift);
 
 
             #region Grid Headers

@@ -17,11 +17,25 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
 
     $scope.Stat = "All";
     $scope.EmpCat = null;
+    $scope.EmpShift = null;
 
     $scope.docEmployeeCategoryList = [];
     cboService.getCboEmployeeCategoryGroupByCompanyGroup(null, function (result) {
         $scope.docEmployeeCategoryList = result;
     });
+
+    // Get Shift  Aman
+
+    $scope.ShiftList = [];
+    $scope.getShift = function () {
+        $http({
+            method: 'GET',
+            url: "NewAttdnDashboard/GetShift",
+        }).then(function successCallback(response) {
+            $scope.ShiftList = response.data;
+        });
+    }
+    $scope.getShift();
 
     $scope.EmpStatsList = [{ 'Value': 'All', 'Text': 'Select All' }, { 'Value': 'Active', 'Text': 'Active' }, { 'Value': 'TBS', 'Text': 'To Be Separated' }, { 'Value': 'LA', 'Text': 'LONG ABSENTEEISM' }];
     $scope.EmpStat = 'All';
@@ -41,6 +55,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                 'stat': $scope.Stat,
                 'EmpCat': $scope.EmpCat,
                 'EmpStat': $scope.EmpStat,
+                'EmpShift': $scope.EmpShift,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -73,6 +88,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                     'stat': $scope.Stat,
                     'EmpCat': $scope.EmpCat,
                     'EmpStat': $scope.EmpStat,
+                    'EmpShift': $scope.EmpShift,
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -85,7 +101,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
         }
     };
 
-
+    
 
     function getDrillDownList(companyId) {
         $http({
@@ -270,7 +286,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
             url: 'NewAttdnDashboard/GetGroupWiseCompanyList/',
             data: {
                 'date': $scope.Date, 'stat': $scope.Stat,
-                'EmpCat': $scope.EmpCat, 'EmpStat': $scope.EmpStat,
+                'EmpCat': $scope.EmpCat, 'EmpStat': $scope.EmpStat, 'EmpShift': $scope.EmpShift,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -297,7 +313,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                 url: 'NewAttdnDashboard/GetGroupWiseCompanyList/',
                 data: {
                     'date': $scope.Date, 'stat': $scope.Stat,
-                    'EmpCat': $scope.EmpCat, 'EmpStat': $scope.EmpStat,
+                    'EmpCat': $scope.EmpCat, 'EmpStat': $scope.EmpStat, 'EmpShift': $scope.EmpShift,
                 },
 
                 dataType: 'JSON'
@@ -372,6 +388,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                 'stat': $scope.Stat,
                 'EmpCat': $scope.EmpCat,
                 'EmpStat': $scope.EmpStat,
+                'EmpShift': $scope.EmpShift,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -426,6 +443,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                 'stat': $scope.Stat,
                 'EmpCat': $scope.EmpCat,
                 'EmpStat': $scope.EmpStat,
+                'EmpShift': $scope.EmpShift,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
