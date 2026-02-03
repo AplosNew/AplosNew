@@ -75,7 +75,7 @@ function shiftAssignmentController(commonMessage, $scope, $rootScope, baseServic
     }
     $scope.Save = function () {
         try {
-            console.log($scope.EmployeeListNew);
+            //console.log($scope.EmployeeListNew);
             GetEmp_CSV();
             console.log($scope.master);
             $http({
