@@ -880,7 +880,7 @@ and isnull(locka.EmpSystemId,'')=''
                                     ,e.EmployeeStatus
                                     ,e.LegalDesignationId,e.PaymentMode,e.BudgetCode
 										,ebi.BankSystemID,ebi.BankBranchId,ebi.BankAccNo,ebi.SalaryPercentage
-										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'NO' IsLocked,EBI.IFSCCode,EBI.MICRCode
+										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'NO' IsLocked,EBI.IFSCCode,EBI.MICRCode,'' Flag
 
                                     from ExceptionEmployee a
                                     inner join EmployeeInformation e on e.SystemId=a.EmpSystemID
@@ -1318,7 +1318,7 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
 										ELSE 'Cash Payment' END
 ,e.LegalDesignationId,e.PaymentMode,e.BudgetCode
 										,ebi.BankSystemID,ebi.BankBranchId,ebi.BankAccNo,ebi.SalaryPercentage
-										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'NO' IsLocked,EBI.IFSCCode,EBI.MICRCode,AG.UserName AccountsGroup
+										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'NO' IsLocked,EBI.IFSCCode,EBI.MICRCode,AG.UserName AccountsGroup,'' Flag
 
                            FROM EmployeeInformation E
                                         LEFT OUTER JOIN SalaryRuleMaster SRM ON E.SalaryRuleMasterSystemID = SRM.SystemID
@@ -1528,7 +1528,7 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
                                                 ,e.LegalDesignationId,e.PaymentMode,e.BudgetCode
 										        ,ebi.BankSystemID,ebi.BankBranchId,ebi.BankAccNo,ebi.SalaryPercentage
 										        ,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'NO' IsLocked,EBI.IFSCCode,EBI.MICRCode
-                                                ,E.EmployeeCurrentStatus,AG.UserName AccountsGroup
+                                                ,E.EmployeeCurrentStatus,AG.UserName AccountsGroup,'' Flag
                                             FROM EmployeeInformation E
                                         LEFT OUTER JOIN SalaryRuleMaster SRM ON E.SalaryRuleMasterSystemID = SRM.SystemID
                                         LEFT OUTER JOIN EmployeeBankInfo EBI ON E.SystemID = EBI.EmpSystemID AND EBI.IsApproved = 1
@@ -1722,7 +1722,7 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=E.GivenDesignationID
 										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId
                                        ,IsLocked = case when isnull(sl.EmpSystemId,'')='' and isnull(k.EmpInfoSystemID,'')='' then 'YES'
 										when isnull(sl.EmpSystemId,'')='' and isnull(k.EmpInfoSystemID,'')<>'' then 'NO'
-										 else 'YES' end,EBI.IFSCCode,EBI.MICRCode,AG.UserName AccountsGroup
+										 else 'YES' end,EBI.IFSCCode,EBI.MICRCode,AG.UserName AccountsGroup,'' Flag
 
                            FROM EmployeeInformation E
                                         LEFT OUTER JOIN SalaryRuleMaster SRM ON E.SalaryRuleMasterSystemID = SRM.SystemID
@@ -1829,7 +1829,7 @@ LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.I
 								  '' BankAccountStatus 
                                     ,e.LegalDesignationId,e.PaymentMode,e.BudgetCode
 										,ebi.BankSystemID,ebi.BankBranchId,ebi.BankAccNo,ebi.SalaryPercentage
-										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'' GivenDesignationId,'NO' IsLocked,EBI.IFSCCode,EBI.MICRCode,AG.UserName AccountsGroup
+										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'' GivenDesignationId,'NO' IsLocked,EBI.IFSCCode,EBI.MICRCode,AG.UserName AccountsGroup,'' Flag
 
                            FROM EmployeeInformation E
                                         inner join (select Id,EmpSystemId from SalaryLock where  MonthNo=Month('" + sFromDate + @"') and YearNo = Year('" + sFromDate + @"') and IsLocked=1)sl on sl .EmpSystemId=e.SystemId
@@ -1900,7 +1900,7 @@ LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.I
 										ELSE 'Cash Payment' END
                                         ,e.LegalDesignationId,e.PaymentMode,e.BudgetCode
 										,ebi.BankSystemID,ebi.BankBranchId,ebi.BankAccNo,ebi.SalaryPercentage
-										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'NO' IsLocked,'' GivenDesignationId,EBI.IFSCCode,EBI.MICRCode,AG.UserName AccountsGroup
+										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'NO' IsLocked,'' GivenDesignationId,EBI.IFSCCode,EBI.MICRCode,AG.UserName AccountsGroup,'' Flag
 
 
                            FROM EmployeeInformation E
@@ -2057,7 +2057,7 @@ LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.I
 									,dm.EmployeeCategoryId,gr.LegalSalaryGradeId
                                     ,IsLocked = case when isnull(sl.EmpSystemId,'')='' and isnull(k.EmpInfoSystemID,'')='' then 'YES'
 										when isnull(sl.EmpSystemId,'')='' and isnull(k.EmpInfoSystemID,'')<>'' then 'NO'
-										 else 'YES' end,EBI.IFSCCode,EBI.MICRCode
+										 else 'YES' end,EBI.IFSCCode,EBI.MICRCode,'' Flag
 																		
                                     from EmployeeInformation e             
 LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode

@@ -592,6 +592,7 @@ function EmployeeSalaryProcessController(addressService, fileReader, cboService,
             if ($scope.EmployeeList_active.length > 0) {
                 for (var i = 0; i < $scope.EmployeeList_active.length; i++) {
                     if ($scope.EmployeeList_active[i].IsSelectSlrProc == true) {
+                        $scope.EmployeeList_active[i].Flag = 'Active';
                         $scope.AllDataset.push($scope.EmployeeList_active[i])
                     }
                 }
@@ -600,6 +601,7 @@ function EmployeeSalaryProcessController(addressService, fileReader, cboService,
                 if ($scope.EmployeeList_newlyjoined.length > 0) {
                     for (var n = 0; n < $scope.EmployeeList_newlyjoined.length; n++) {
                         if ($scope.EmployeeList_newlyjoined[n].IsSelectSlrProc == true) {
+                            $scope.EmployeeList_active[n].Flag = 'NewlyJoined';
                             $scope.AllDataset.push($scope.EmployeeList_active[n])
                         }
                     }
@@ -609,6 +611,7 @@ function EmployeeSalaryProcessController(addressService, fileReader, cboService,
                 if ($scope.EmployeeList_diffStatus.length > 0) {
                     for (var d = 0; d < $scope.EmployeeList_diffStatus.length; d++) {
                         if ($scope.EmployeeList_diffStatus[d].IsSelectSlrProc == true) {
+                            $scope.EmployeeList_diffStatus[d].Flag = 'DiffStatus';
                             $scope.AllDataset.push($scope.EmployeeList_diffStatus[d])
                         }
                     }
