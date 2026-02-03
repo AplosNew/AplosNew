@@ -1143,7 +1143,7 @@ where s.SalaryID='" + SalaryID + "'";
 
                 string year = DateTime.Now.Year.ToString();
 
-                string sql = @"SELECT E.SystemId EmpSystemId,SS.Id,OL.Id EmployeeSalaryRuleItemId,OL.UserName,OL.Formula,OL.FormulaId
+                string sql = @"SELECT E.SystemId EmpSystemId,SS.Id,OL.Id EmployeeSalaryRuleItemId,OL.UserName,OL.Formula,OL.FormulaId,'' SystemID
 ,SH.HeadCategory,SS.SalaryCalculationDays,OL.SalaryHeadID,SH.HeadType,SIDM.SystemID SalaryID,SIDM.GroupID,SIDM.PlantID,SS.PFLimit,SS.ESICLimit,SS.AgeLimit
 ,Value= ISNULL(CASE WHEN OL.UserName='WeekOff' THEN APD.WeekOffValue
 			 WHEN OL.UserName='Leave' THEN APD.LvValue
@@ -1367,7 +1367,8 @@ ORDER BY E.SystemId,OL.Sequence";
                        
                         #region Salary Proc child
                         DataView dvchild = new DataView(dsProChild.Tables[0]);
-                        DataRow spc = null;
+                        dvchild.RowFilter = "SystemID='" + dvEmpWise[0]["SystemID"].ToString() + "'";
+                        Dictionary<string, object> spc = new Dictionary<string, object>();
                         for (int i = 0; i < dvEmpWise.Count; i++)
                         {
                             if (dvEmpWise[i]["UserName"].ToString() == "WeekOff")
@@ -1402,6 +1403,7 @@ ORDER BY E.SystemId,OL.Sequence";
                             {
                                 dtValueRow = dtValue.NewRow();
                                 dtValueRow["EmployeeSalaryRuleItemId"] = dvEmpWise[i]["EmployeeSalaryRuleItemId"].ToString().Trim();
+                                dtValueRow["SystemID"] = dvEmpWise[i]["SystemID"].ToString().Trim();
                                 dtValueRow["SalaryHeadID"] = dvEmpWise[i]["SalaryHeadID"].ToString().Trim();
                                 dtValueRow["EntryAmount"] = dvEmpWise[i]["Value"].ToString().Trim();
                                 dtValueRow["HeadType"] = dvEmpWise[i]["HeadType"].ToString().Trim();
@@ -1409,10 +1411,9 @@ ORDER BY E.SystemId,OL.Sequence";
 
                                 dtValue.Rows.Add(dtValueRow);
 
-                                dvchild.RowFilter = "SystemID='" + dtValue.Rows[0]["SystemID"].ToString() + "'";
+                                
                                 if (dvchild.Count == 0)
                                 {
-                                     dsProChild.Tables[0].NewRow();
                                     _child_emp_seed++;
                                     spc["SystemID"] = _childPK_seed_fromDB + _child_emp_seed;
                                     spc["SlrProcMstSystemID"] = _Id;
@@ -1429,9 +1430,8 @@ ORDER BY E.SystemId,OL.Sequence";
                                     spc["SalaryID"] = dtData.Rows[0]["SalaryID"];
                                     spc["EntryAmount"] = dtValue.Rows[0]["EntryAmount"];
 
-                                    spc["AddedBy"] = identity.Name;
-                                    spc["DateAdded"] = System.DateTime.Now.ToString();
-                                    dsProChild.Tables[0].Rows.Add(spc);
+                                    
+                                    NewAddedRow(dsProChild.Tables[0], spc);
                                 }
                             }
 
@@ -1482,10 +1482,9 @@ ORDER BY E.SystemId,OL.Sequence";
                                 dtValue.Rows.Add(dtValueRow);
 
                                
-                                dvchild.RowFilter = "SystemID='" + dtValue.Rows[0]["SystemID"].ToString() + "'";
+                                //dvchild.RowFilter = "SystemID='" + dtValue.Rows[0]["SystemID"].ToString() + "'";
                                 if (dvchild.Count == 0)
                                 {
-                                    dsProChild.Tables[0].NewRow();
                                     _child_emp_seed++;
                                     spc["SystemID"] = _childPK_seed_fromDB + _child_emp_seed;
                                     spc["SlrProcMstSystemID"] = _Id;
@@ -1502,9 +1501,8 @@ ORDER BY E.SystemId,OL.Sequence";
                                     spc["SalaryID"] = dtData.Rows[0]["SalaryID"];
                                     spc["EntryAmount"] = dtValue.Rows[0]["EntryAmount"];
 
-                                    spc["AddedBy"] = identity.Name;
-                                    spc["DateAdded"] = System.DateTime.Now.ToString();
-                                    dsProChild.Tables[0].Rows.Add(spc);
+                                   
+                                    NewAddedRow(dsProChild.Tables[0], spc);
                                 }
                             }
                         }
