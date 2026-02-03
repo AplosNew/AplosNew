@@ -1411,28 +1411,55 @@ ORDER BY E.SystemId,OL.Sequence";
 
                                 dtValue.Rows.Add(dtValueRow);
 
-                                
-                                if (dvchild.Count == 0)
+
+                                //if (dvchild.Count == 0)
+                                //{
+                                //    _child_emp_seed++;
+                                //    spc["SystemID"] = _childPK_seed_fromDB + _child_emp_seed;
+                                //    spc["SlrProcMstSystemID"] = _Id;
+                                //    spc["DefineAmount"] = dtValue.Rows[0]["Value"];
+                                //    spc["DisbusmentAmount"] = dtValue.Rows[0]["HeadType"].ToString() == "D" ? Convert.ToDecimal(dtValue.Rows[0]["Value"]) * (-1) : dtValue.Rows[0]["Value"];
+                                //    spc["EmpInfoSystemID"] = empId;
+                                //    spc["PlantID"] = dtData.Rows[0]["PlantID"];
+                                //    spc["GroupID"] = dtData.Rows[0]["GroupID"];
+                                //    spc["EntryCurrencyID"] = dtData.Rows[0]["BaseCurrencyId"];
+                                //    spc["DefineCurrencyID"] = dtData.Rows[0]["BaseCurrencyId"];
+                                //    spc["DisbusmentCurrencyID"] = dtData.Rows[0]["BaseCurrencyId"];
+                                //    spc["AcltExcDisbSlrHDID"] = dtValue.Rows[0]["SalaryHeadID"];
+                                //    spc["SalaryHeadID"] = dtValue.Rows[0]["SalaryHeadID"];
+                                //    spc["SalaryID"] = dtData.Rows[0]["SalaryID"];
+                                //    spc["EntryAmount"] = dtValue.Rows[0]["EntryAmount"];
+
+
+                                //    NewAddedRow(dsProChild.Tables[0], spc);
+                                //}
+
+                                DataView dvPC = new DataView(dsProChild.Tables[0]);
+                                dvPC.RowFilter = "SystemID='" + dtValue.Rows[0]["SystemID"] + "'";
+
+                                if (dvPC.Count == 0)
                                 {
                                     _child_emp_seed++;
                                     spc["SystemID"] = _childPK_seed_fromDB + _child_emp_seed;
                                     spc["SlrProcMstSystemID"] = _Id;
-                                    spc["DefineAmount"] = dtValue.Rows[0]["Value"];
-                                    spc["DisbusmentAmount"] = dtValue.Rows[0]["HeadType"].ToString() == "D" ? Convert.ToDecimal(dtValue.Rows[0]["Value"]) * (-1) : dtValue.Rows[0]["Value"];
+                                    spc["DefineAmount"] = dtValueRow["Value"];
+                                    spc["DisbusmentAmount"] = dtValueRow["HeadType"].ToString() == "D" ? Convert.ToDecimal(dtValueRow["Value"]) * (-1) : dtValueRow["Value"];
                                     spc["EmpInfoSystemID"] = empId;
                                     spc["PlantID"] = dtData.Rows[0]["PlantID"];
                                     spc["GroupID"] = dtData.Rows[0]["GroupID"];
                                     spc["EntryCurrencyID"] = dtData.Rows[0]["BaseCurrencyId"];
                                     spc["DefineCurrencyID"] = dtData.Rows[0]["BaseCurrencyId"];
                                     spc["DisbusmentCurrencyID"] = dtData.Rows[0]["BaseCurrencyId"];
-                                    spc["AcltExcDisbSlrHDID"] = dtValue.Rows[0]["SalaryHeadID"];
-                                    spc["SalaryHeadID"] = dtValue.Rows[0]["SalaryHeadID"];
+                                    spc["AcltExcDisbSlrHDID"] = dtValueRow["SalaryHeadID"];
+                                    spc["SalaryHeadID"] = dtValueRow["SalaryHeadID"];
                                     spc["SalaryID"] = dtData.Rows[0]["SalaryID"];
-                                    spc["EntryAmount"] = dtValue.Rows[0]["EntryAmount"];
+                                    spc["EntryAmount"] = dtValueRow["EntryAmount"];
 
-                                    
+
                                     NewAddedRow(dsProChild.Tables[0], spc);
+                                   
                                 }
+
                             }
 
                             else if(!string.IsNullOrEmpty(dvEmpWise[i]["FormulaId"].ToString()) && !string.IsNullOrEmpty(dvEmpWise[i]["SalaryHeadID"].ToString()))
@@ -1483,27 +1510,56 @@ ORDER BY E.SystemId,OL.Sequence";
 
                                
                                 //dvchild.RowFilter = "SystemID='" + dtValue.Rows[0]["SystemID"].ToString() + "'";
-                                if (dvchild.Count == 0)
+                                //if (dvchild.Count == 0)
+                                //{
+                                //    _child_emp_seed++;
+                                //    spc["SystemID"] = _childPK_seed_fromDB + _child_emp_seed;
+                                //    spc["SlrProcMstSystemID"] = _Id;
+                                //    spc["DefineAmount"] = dtValue.Rows[0]["Value"];
+                                //    spc["DisbusmentAmount"] = dtValue.Rows[0]["HeadType"].ToString() == "D" ? Convert.ToDecimal(dtValue.Rows[0]["Value"]) * (-1) : dtValue.Rows[0]["Value"];
+                                //    spc["EmpInfoSystemID"] = empId;
+                                //    spc["PlantID"] = dtData.Rows[0]["PlantID"];
+                                //    spc["GroupID"] = dtData.Rows[0]["GroupID"];
+                                //    spc["EntryCurrencyID"] = dtData.Rows[0]["BaseCurrencyId"];
+                                //    spc["DefineCurrencyID"] = dtData.Rows[0]["BaseCurrencyId"];
+                                //    spc["DisbusmentCurrencyID"] = dtData.Rows[0]["BaseCurrencyId"];
+                                //    spc["AcltExcDisbSlrHDID"] = dtValue.Rows[0]["SalaryHeadID"];
+                                //    spc["SalaryHeadID"] = dtValue.Rows[0]["SalaryHeadID"];
+                                //    spc["SalaryID"] = dtData.Rows[0]["SalaryID"];
+                                //    spc["EntryAmount"] = dtValue.Rows[0]["EntryAmount"];
+
+                                   
+                                //    NewAddedRow(dsProChild.Tables[0], spc);
+                                //}
+
+                                DataView dvPC = new DataView(dsProChild.Tables[0]);
+                                dvPC.RowFilter = "SystemID='" + dtValue.Rows[0]["SystemID"] + "'";
+
+                                if (dvPC.Count == 0)
                                 {
                                     _child_emp_seed++;
                                     spc["SystemID"] = _childPK_seed_fromDB + _child_emp_seed;
                                     spc["SlrProcMstSystemID"] = _Id;
-                                    spc["DefineAmount"] = dtValue.Rows[0]["Value"];
-                                    spc["DisbusmentAmount"] = dtValue.Rows[0]["HeadType"].ToString() == "D" ? Convert.ToDecimal(dtValue.Rows[0]["Value"]) * (-1) : dtValue.Rows[0]["Value"];
+                                    spc["DefineAmount"] = dtValueRow["Value"];
+                                    spc["DisbusmentAmount"] = dtValueRow["HeadType"].ToString() == "D" ? Convert.ToDecimal(dtValueRow["Value"]) * (-1) : dtValueRow["Value"];
                                     spc["EmpInfoSystemID"] = empId;
                                     spc["PlantID"] = dtData.Rows[0]["PlantID"];
                                     spc["GroupID"] = dtData.Rows[0]["GroupID"];
                                     spc["EntryCurrencyID"] = dtData.Rows[0]["BaseCurrencyId"];
                                     spc["DefineCurrencyID"] = dtData.Rows[0]["BaseCurrencyId"];
                                     spc["DisbusmentCurrencyID"] = dtData.Rows[0]["BaseCurrencyId"];
-                                    spc["AcltExcDisbSlrHDID"] = dtValue.Rows[0]["SalaryHeadID"];
-                                    spc["SalaryHeadID"] = dtValue.Rows[0]["SalaryHeadID"];
+                                    spc["AcltExcDisbSlrHDID"] = dtValueRow["SalaryHeadID"];
+                                    spc["SalaryHeadID"] = dtValueRow["SalaryHeadID"];
                                     spc["SalaryID"] = dtData.Rows[0]["SalaryID"];
-                                    spc["EntryAmount"] = dtValue.Rows[0]["EntryAmount"];
+                                    spc["EntryAmount"] = dtValueRow["EntryAmount"];
 
-                                   
+
                                     NewAddedRow(dsProChild.Tables[0], spc);
+                                  
                                 }
+                                
+                                
+
                             }
                         }
 
