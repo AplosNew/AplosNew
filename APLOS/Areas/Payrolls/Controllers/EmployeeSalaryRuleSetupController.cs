@@ -1333,6 +1333,10 @@ ORDER BY E.SystemId,OL.Sequence";
                 int _child_emp_seed = 0;
                 double tempBasicValue = 0;
                 double tempGrossValue = 0;
+
+                decimal tempWeekOff = 0; decimal tempLeave = 0; decimal tempHoliDay = 0; decimal tempPayDay = 0; decimal tempNetDay = 0; decimal tempNightShiftDays = 0; decimal tempShortDuration = 0; decimal tempHalfDuration = 0
+                           ; decimal tempTotalWorkingDays = 0; decimal tempSalaryCalculationDays = 0; decimal tempPFLimit = 0; decimal tempESICLimit; decimal tempAgeLimit = 0; decimal OTHDay = 0; decimal NorOTHDay = 0; decimal ExtOTHDay = 0;
+
                 foreach (var item in alldataset)
                 {
                     string empId = item["EmpSystemID"].ToString();
@@ -1354,16 +1358,16 @@ ORDER BY E.SystemId,OL.Sequence";
                     double sFormulaResult = 0.00;
 
                     DataView dvEmpWise = new DataView(dtData);
-                    DataView dvEmpSalary = new DataView(dtData);
+                    //DataView dvEmpSalary = new DataView(dtData);
                     DataView dvslaProLogDet = new DataView(dsSlaProLogDetail.Tables[0]);
                     dvEmpWise.RowFilter = "EmpSystemId = '" + empId + "'";
-                    dvEmpSalary.RowFilter = "EmpSystemId = '" + empId + "' AND  SalaryHeadID<>''";
+                    //dvEmpSalary.RowFilter = "EmpSystemId = '" + empId + "' AND  SalaryHeadID<>''";
                     if (dvEmpWise.Count > 0)
                     {
-                        decimal tempWeekOff = 0; decimal tempLeave = 0; decimal tempHoliDay = 0; decimal tempPayDay = 0; decimal tempNetDay = 0; decimal tempNightShiftDays = 0; decimal tempShortDuration = 0; decimal tempHalfDuration = 0
-                            ; decimal tempTotalWorkingDays = 0; decimal tempSalaryCalculationDays = 0; decimal tempPFLimit = 0; decimal tempESICLimit; decimal tempAgeLimit = 0; decimal OTHDay = 0; decimal NorOTHDay = 0; decimal ExtOTHDay = 0;
+                       
                         #region Salary Proc child
                         DataView dvchild = new DataView(dsProChild.Tables[0]);
+                        DataRow spc = null;
                         for (int i = 0; i < dvEmpWise.Count; i++)
                         {
                             if (dvEmpWise[i]["UserName"].ToString() == "WeekOff")
@@ -1408,7 +1412,7 @@ ORDER BY E.SystemId,OL.Sequence";
                                 dvchild.RowFilter = "SystemID='" + dtValue.Rows[0]["SystemID"].ToString() + "'";
                                 if (dvchild.Count == 0)
                                 {
-                                    DataRow spc = dsProChild.Tables[0].NewRow();
+                                     dsProChild.Tables[0].NewRow();
                                     _child_emp_seed++;
                                     spc["SystemID"] = _childPK_seed_fromDB + _child_emp_seed;
                                     spc["SlrProcMstSystemID"] = _Id;
@@ -1481,7 +1485,7 @@ ORDER BY E.SystemId,OL.Sequence";
                                 dvchild.RowFilter = "SystemID='" + dtValue.Rows[0]["SystemID"].ToString() + "'";
                                 if (dvchild.Count == 0)
                                 {
-                                    DataRow spc = dsProChild.Tables[0].NewRow();
+                                    dsProChild.Tables[0].NewRow();
                                     _child_emp_seed++;
                                     spc["SystemID"] = _childPK_seed_fromDB + _child_emp_seed;
                                     spc["SlrProcMstSystemID"] = _Id;
