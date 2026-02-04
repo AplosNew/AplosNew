@@ -183,6 +183,7 @@ namespace Aplos.Areas.Employees.Controllers
                                             DELETE FROM  dbo.EmployeeEligibleForSalaryHeadEnum where EmpSystemId='" + empSystemID + @"'
                                             DELETE FROM TRN.HolidayAbsentismAssignment where EmpSystemID='" + empSystemID + @"'
                                             DELETE FROM dbo.ManualLeaveData where EmployeeId='" + empSystemID + @"'
+                                            DELETE FROM dbo.AnnualLeaveDataCurrent where EmployeeId='" + empSystemID + @"'
                                             DELETE FROM dbo.EmpExperienceInformation where EmpSystemID='" + empSystemID + @"'
 
 

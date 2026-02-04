@@ -234,6 +234,13 @@ namespace Aplos.Areas.Setups.Controllers
         }//SaveScandataToBookingforPacking 
 
         [HttpPost, Authorize]
+        public JsonResult LVProcess()
+        {
+            _mailSenderService.LVProcess("TS", "TS", "10215");
+            return Json(new { Message = AplosMessage.Success });
+        }//LVProcessOLD 
+
+        [HttpPost, Authorize]
         public JsonResult SavePendingBankReconciliation()
         {
             _mailSenderService.SendPendingBankReconciliationCreatedMail("TS", "TS", "10215");

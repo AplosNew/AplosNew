@@ -18027,7 +18027,7 @@ AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where m
 
             try
             {
-                strSQL = @"SELECT EmpBasic.*,MMDSA.*,ISNULL(MW.Grade,'') Grade,ISNULL(MW.SalaryHeadValue,0) MinimumWage,SL.PayableVoucherId,SL.DisbursementVoucherId,SL.VoucherNo,SL.Entity
+                strSQL = @"SELECT EmpBasic.*,MMDSA.*,ISNULL(MW.Grade,'') Grade,ISNULL(MW.SalaryHeadValue,0) MinimumWage,SL.PayableVoucherId,SL.DisbursementVoucherId,SL.VoucherNo,ISNULL(SL.Entity,EmpBasic.EmpEntity)Entity
                             FROM
                                     (
 									SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as Vendor , isnull(p.UserName,'') as Contractor ,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
@@ -18049,7 +18049,7 @@ AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where m
                                     ,ISNULL(spld.BankAccNo,'') BankAccNo
                                     ,ISNULL(spld.IFSCCode,'') IFSCCode
                                     ,CASE WHEN ISNULL(PO.IsDirect,0) = 0 THEN 'No' ELSE 'Yes' END IsDirect
-                                    ,CASE WHEN ISNULL(PO.DirectManpowerCost,0) = 0 THEN 'No' ELSE 'Yes' END DirectManpowerCost
+                                    ,CASE WHEN ISNULL(PO.DirectManpowerCost,0) = 0 THEN 'No' ELSE 'Yes' END DirectManpowerCost,ENT.UserName EmpEntity
                                      FROM EmployeeInformation E
                                      left join hkp.Party p on p.Id = E.VendorId
                                           Left JOIN (

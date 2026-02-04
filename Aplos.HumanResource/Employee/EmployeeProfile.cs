@@ -2492,7 +2492,7 @@ LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
 								  E.UserName EntityName,
 								  DSG.UserName Designation, 
 								  se.UserName Section, Sus.UserName SubSection,
-								  LGD.userName LegalDesignation,PMB.Code,PR.UserName PositionName,E.UserName EntityName,ISNULL(PG.UserName,'') PayrollGroup,EC.UserName EmployeeCategory
+								  LGD.userName LegalDesignation,PMB.Code,E.UserName EntityName,ISNULL(PG.UserName,'') PayrollGroup,EC.UserName EmployeeCategory
                                   ,AE.EmployeeName ApprovalAuthority
                               FROM dbo.Employeeinformation EI
                              
@@ -2524,7 +2524,7 @@ LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
                                     Replace(CONVERT(VARCHAR(11), EI.DOB, 106), ' ', '-') DOBs,
                                     Replace(CONVERT(VARCHAR(11), EI.DOJ, 106), ' ', '-') DOJs
                                     ,DP.UserName Department,PR.UserName PositionName,E.UserName EntityName,DSG.UserName Designation, 
-                                    se.UserName Section, Sus.UserName SubSection,LGD.userName LegalDesignation,PMB.Code,PR.UserName PositionName,E.UserName EntityName,ISNULL(PG.UserName,'') PayrollGroup,EC.UserName EmployeeCategory,AE.EmployeeName ApprovalAuthority
+                                    se.UserName Section, Sus.UserName SubSection,LGD.userName LegalDesignation,PMB.Code,E.UserName EntityName,ISNULL(PG.UserName,'') PayrollGroup,EC.UserName EmployeeCategory,AE.EmployeeName ApprovalAuthority
                                     FROM dbo.Employeeinformation EI                             
                                     LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id
                                     LEFT JOIN MST.AddressMaster AM ON PL.AddressMasterId=AM.Id						
@@ -2533,7 +2533,7 @@ LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
                                     LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
                                     LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
                                     LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
-                                    LEFT JOIN ORG.Department DP on DP.PR=EI.DepartmentId
+                                    LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
                                     LEFT JOIN HKP.LegalDesignation LGD on LGD.Id=EI.LegalDesignationId							  
                                     LEFT JOIN ORG.Section AS Se ON Se.Id= PR.SectionID 
                                     LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= PR.SubSectionID 
