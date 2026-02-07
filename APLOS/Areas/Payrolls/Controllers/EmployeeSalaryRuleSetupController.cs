@@ -1146,15 +1146,13 @@ where s.SalaryID='" + SalaryID + "'";
 
         #region SalaryProcess
 
-        public DataTable GetDataTable(string fromDate, string toDate, string empId)
+        public DataTable GetDataTable(string fromDate, string toDate, string empId,string plantId)
         {
             try
             {
-
-                string year = DateTime.Now.Year.ToString();
-
                 string sql = @"SELECT E.SystemId EmpSystemId,SS.Id,OL.Id EmployeeSalaryRuleItemId,OL.UserName,OL.Formula,OL.FormulaId,'' SystemID
-,SH.HeadCategory,SS.SalaryCalculationDays,OL.SalaryHeadID,SH.HeadType,SIDM.SystemID SalaryID,SIDM.GroupID,SIDM.PlantID,SS.PFLimit,SS.ESICLimit,SS.AgeLimit
+,DATEFROMPARTS(YEAR('" + toDate + "'), MONTH('" + toDate + "'), 1) AS MonthStartDate, EOMONTH('" + toDate + "') AS MonthEndDate,DAY(EOMONTH('" + toDate + @"')) MonthDays
+,SH.HeadCategory,OL.SalaryHeadID,SH.HeadType,SIDM.SystemID SalaryID,SIDM.GroupID,SIDM.PlantID,SS.PFLimit,SS.ESICLimit,SS.AgeLimit 
 ,Value= ISNULL(CASE WHEN OL.UserName='WeekOff' THEN APD.WeekOffValue
 			 WHEN OL.UserName='Leave' THEN APD.LvValue
 			 WHEN OL.UserName='HoliDay' THEN APD.HoliDayValue
@@ -1171,6 +1169,10 @@ where s.SalaryID='" + SalaryID + "'";
 ,DATEDIFF(YEAR, E.DOB, GETDATE()) - CASE  WHEN DATEADD(YEAR, DATEDIFF(YEAR, E.DOB, GETDATE()), E.DOB) > GETDATE()  THEN 1  ELSE 0  END AS Age
 ,OL.EntryState,CO.BaseCurrencyId ,E.GivenDesignationId DesignationId,E.LegalDesignationId
 ,E.PaymentMode,E.BudgetCode,EB.BankAccNo,EB.BankBranchId,EB.BankSystemId,EB.MICRCode,EB.IFSCCode,EB.SalaryPercentage,DM.EmployeeCategoryId, LSGD.LegalSalaryGradeId
+,TotalWeekOff=(select Count(Odd.Id) TotalWeekOff from scs.offdaydetail Odd left join scs.OffDayMaster odm on odd.offdaymasterid=odm.Id
+where   offdaydate between '" + fromDate + "' AND '" + toDate + @"' AND odm.offdaytype='W' AND Odd.PlantId='"+ plantId + @"')
+,TotalHoliday=(select Count(Odd.Id) TotalHoliday from scs.offdaydetail Odd left join scs.OffDayMaster odm on odd.offdaymasterid=odm.Id
+where   offdaydate between '" + fromDate + "' AND '" + toDate + @"' AND odm.offdaytype='H' AND Odd.PlantId='" + plantId + @"')
 FROM EmployeeSalaryRuleItem AS OL
 LEFT JOIN HKP.EmployeeSalaryRuleSetup SS ON SS.Id=OL.EmployeeSalaryRuleSetupId
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId IN(" + empId + @")
@@ -1417,7 +1419,7 @@ ORDER BY E.SystemId,OL.Sequence";
 
                     #endregion
                     con.OpenDataSetThroughAdapter("select * from SalaryProcMaster where SystemID='" + data["SystemID"] + "'", out dsMaster, false, "1");
-                    DataTable dtData = GetDataTable(Convert.ToDateTime(data["FromDate"]).ToString("yyyyMMMdd"), Convert.ToDateTime(data["ToDate"]).ToString("yyyyMMMdd"), tempEmpSysId);
+                    DataTable dtData = GetDataTable(Convert.ToDateTime(data["FromDate"]).ToString("yyyyMMMdd"), Convert.ToDateTime(data["ToDate"]).ToString("yyyyMMMdd"), tempEmpSysId, identity.PlantId);
 
                     string _Id = "";
                     string idFromDB = "";
@@ -1480,8 +1482,11 @@ ORDER BY E.SystemId,OL.Sequence";
                         dtValue.Columns.Add("SystemID");
                         dtValue.Columns.Add("HeadType");
                         dtValue.Columns.Add("PFLimit");
+                        dtValue.Columns.Add("DOJ");
                         dtValue.Columns.Add("ESICLimit");
                         dtValue.Columns.Add("AgeLimit");
+                        dtValue.Columns.Add("TotalWeekOff"); dtValue.Columns.Add("TotalHoliday"); dtValue.Columns.Add("MonthStartDate"); dtValue.Columns.Add("MonthEndDate");
+                        dtValue.Columns.Add("MonthDays");
                         dtValue.Columns.Add("Age");
                         double sFormulaResult = 0.00;
 
@@ -1520,7 +1525,8 @@ ORDER BY E.SystemId,OL.Sequence";
 
                                 if (dvEmpWise[i]["UserName"].ToString() == "Basic")
                                 {
-                                    tempSalaryCalculationDays = Convert.ToDecimal(dvEmpWise[i]["SalaryCalculationDays"].ToString());
+                                    tempSalaryCalculationDays = Convert.ToDecimal(dvEmpWise[i]["MonthDays"].ToString())- Convert.ToDecimal(dvEmpWise[i]["TotalWeekOff"].ToString());//TODO:Holiday
+                                    
                                     tempPFLimit = Convert.ToDecimal(dvEmpWise[i]["PFLimit"].ToString());
                                     tempESICLimit = Convert.ToDecimal(dvEmpWise[i]["ESICLimit"].ToString());
                                     tempAgeLimit = Convert.ToDecimal(dvEmpWise[i]["AgeLimit"].ToString());
