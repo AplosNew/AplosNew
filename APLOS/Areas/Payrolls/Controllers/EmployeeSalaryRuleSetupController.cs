@@ -51,8 +51,6 @@ namespace Aplos.Areas.Payrolls.Controllers
             return View();
         }
 
-     
-
         public async Task<ActionResult> SalaryProcess()
         {
             return await Task.Factory.StartNew(() =>
@@ -90,7 +88,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
             string strkey = "1=1";
@@ -938,7 +936,7 @@ where s.SalaryID='" + SalaryID + "'";
             }
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult CreateSalary(Dictionary<string, object> master, List<Dictionary<string, object>> data, Dictionary<string, object> IncrementHistory)
         {
             try
