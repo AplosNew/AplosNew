@@ -160,7 +160,7 @@ namespace Library.Service.WorkCenters
 								, m.ResponsiblePersonId, RES.EmployeeName AS ResponsiblePersonName
 								, m.MentorId, MNT.EmployeeName AS MentorName, m.BuyerId
                                 , m.AccountHolder, AH.EmployeeName AS AccountHolderName
-                                , m.AccountInCharge, AC.EmployeeName AS AccountInChargeName,M.GroupingData,M.Active,M.OperationBulletinId,BT.AlternativeName OperationBulletin
+                                , m.AccountInCharge, AC.EmployeeName AS AccountInChargeName,M.GroupingData,M.Active,M.OperationBulletinId,BT.AlternativeName OperationBulletin,m.IsBusinessProcess
                             FROM [SCS].[WorkCenterMaster] m
                             LEFT JOIN [HKP].[WorkCenterCategory] c ON c.Id = m.WorkCenterCategoryId
                             LEFT JOIN [HKP].[WorkCenterSubCategory] sc ON sc.Id = m.WorkCenterSubCategoryId
@@ -479,7 +479,6 @@ namespace Library.Service.WorkCenters
 	                                ,m.YearOfInstallation
 	                                ,cn.UserName Country
 	                                ,m.IsForProduction
-
                                 FROM [SCS].[WorkCenterMaster] m
                                 LEFT outer JOIN [HKP].[FixedAsset]  s ON s.Id = m.FixedAssetId
                                 LEFT outer JOIN [HKP].[FixedAssetCategory] c ON c.Id = m.FixedAssetCategoryId
@@ -755,7 +754,7 @@ WHERE WSP.WorkCenterMasterId='" + workCenterMasterId + "' ORDER BY SP.Sequence";
                     from_db.GroupingData = from_ui.GroupingData;
                     from_db.Active = from_ui.Active;
                     from_db.OperationBulletinId = from_ui.OperationBulletinId;
-
+                    from_db.IsBusinessProcess = from_ui.IsBusinessProcess;
                     #endregion Add
                 }
                 else
@@ -800,6 +799,8 @@ WHERE WSP.WorkCenterMasterId='" + workCenterMasterId + "' ORDER BY SP.Sequence";
                     from_db.GroupingData = from_ui.GroupingData;
                     from_db.OperationBulletinId = from_ui.OperationBulletinId;
                     from_db.Active = from_ui.Active;
+                    from_db.IsBusinessProcess = from_ui.IsBusinessProcess;
+
                     #endregion Edit
                 }
             }

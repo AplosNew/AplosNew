@@ -79,7 +79,8 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
         GroupingData: null,
         Active: true,
         OperationBulletinId: null,
-        OperationBulletin: null
+        OperationBulletin: null,
+        IsBusinessProcess: false
     };
     // #region DDL
 

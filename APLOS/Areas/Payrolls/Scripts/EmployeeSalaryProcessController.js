@@ -141,8 +141,8 @@ function EmployeeSalaryProcessController(addressService, fileReader, cboService,
             Check($scope.Description, "Description");
             Check($scope.FromDate_sep, 'From Date');
             Check($scope.ToDate_sep, 'To Date');
-           
-            var parameters = { 'Description': $scope.Description, 'FromDate': $scope.FromDate_sep, 'ToDate': $scope.ToDate_sep, 'plantId': $scope.PlantId};
+
+            var parameters = { 'Description': $scope.Description, 'FromDate': $scope.FromDate_sep, 'ToDate': $scope.ToDate_sep, 'plantId': $scope.PlantId };
             $http({
                 method: "POST",
                 dataType: 'JSON',
@@ -597,27 +597,24 @@ function EmployeeSalaryProcessController(addressService, fileReader, cboService,
                     }
                 }
             }
+
             if ($scope.EmployeeList_newlyjoined.length > 0) {
-                if ($scope.EmployeeList_newlyjoined.length > 0) {
-                    for (var n = 0; n < $scope.EmployeeList_newlyjoined.length; n++) {
-                        if ($scope.EmployeeList_newlyjoined[n].IsSelectSlrProc == true) {
-                            $scope.EmployeeList_active[n].Flag = 'NewlyJoined';
-                            $scope.AllDataset.push($scope.EmployeeList_active[n])
-                        }
+                for (var n = 0; n < $scope.EmployeeList_newlyjoined.length; n++) {
+                    if ($scope.EmployeeList_newlyjoined[n].IsSelectSlrProc == true) {
+                        $scope.EmployeeList_newlyjoined[n].Flag = 'NewlyJoined';
+                        $scope.AllDataset.push($scope.EmployeeList_newlyjoined[n])
                     }
                 }
             }
             if ($scope.EmployeeList_diffStatus.length > 0) {
-                if ($scope.EmployeeList_diffStatus.length > 0) {
-                    for (var d = 0; d < $scope.EmployeeList_diffStatus.length; d++) {
-                        if ($scope.EmployeeList_diffStatus[d].IsSelectSlrProc == true) {
-                            $scope.EmployeeList_diffStatus[d].Flag = 'DiffStatus';
-                            $scope.AllDataset.push($scope.EmployeeList_diffStatus[d])
-                        }
+                for (var d = 0; d < $scope.EmployeeList_diffStatus.length; d++) {
+                    if ($scope.EmployeeList_diffStatus[d].IsSelectSlrProc == true) {
+                        $scope.EmployeeList_diffStatus[d].Flag = 'DiffStatus';
+                        $scope.AllDataset.push($scope.EmployeeList_diffStatus[d])
                     }
                 }
             }
-            
+
 
             //var active_count_selected = GetSelectedCount($scope.AllDataset.dtActive);
             //var NewlyJoined_count_selected = GetSelectedCount($scope.AllDataset.dtNewlyJoined);
@@ -677,7 +674,7 @@ function EmployeeSalaryProcessController(addressService, fileReader, cboService,
             Check($scope.FromDate_sep, 'From Date');
             Check($scope.ToDate_sep, 'To Date');
             $scope.dataobj = {
-                FromDate: null, ToDate: null, Description:null,SystemID:null
+                FromDate: null, ToDate: null, Description: null, SystemID: null
             }
             $scope.dataobj.FromDate = $scope.FromDate_sep;
             $scope.dataobj.ToDate = $scope.ToDate_sep;
@@ -692,7 +689,7 @@ function EmployeeSalaryProcessController(addressService, fileReader, cboService,
                     'data': $scope.dataobj, 'alldataset': $scope.AllDataset
                 },
                 contentType: "application/json charset=utf-8",
-                url: 'Payrolls/EmployeeSalaryRuleSetup/Process'
+                url: 'Payrolls/EmployeeSalaryRuleSetup/ProcessAsync'
 
             }).then(function successCallback(response) {
                 $scope.btnProcess = true;
