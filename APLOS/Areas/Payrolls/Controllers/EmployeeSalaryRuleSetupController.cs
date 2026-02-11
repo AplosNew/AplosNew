@@ -1154,7 +1154,7 @@ where s.SalaryID='" + SalaryID + "'";
             {
                 string sql = @"SELECT E.SystemId EmpSystemId,SS.Id,OL.Id EmployeeSalaryRuleItemId,OL.UserName,OL.Formula,OL.FormulaId,'' SystemID
 ,DATEFROMPARTS(YEAR('" + toDate + "'), MONTH('" + toDate + "'), 1) AS MonthStartDate, EOMONTH('" + toDate + "') AS MonthEndDate,DAY(EOMONTH('" + toDate + @"')) MonthDays
-,SH.HeadCategory,OL.SalaryHeadID,SH.HeadType,SIDM.SystemID SalaryID,SIDM.GroupID,SIDM.PlantID,SS.PFLimit,SS.ESICLimit,SS.AgeLimit 
+,SH.HeadCategory,OL.SalaryHeadID,SH.HeadType,SIDM.SystemID SalaryID,SIDM.GroupID,SIDM.PlantID,ISNULL(SS.PFLimit,0) PFLimit,ISNULL(SS.ESICLimit,0) ESICLimit,ISNULL(SS.AgeLimit,0) AgeLimit 
 ,Value= ISNULL(CASE WHEN OL.UserName='WeekOff' THEN APD.WeekOffValue
 			 WHEN OL.UserName='Leave' THEN APD.LvValue
 			 WHEN OL.UserName='HoliDay' THEN APD.HoliDayValue
@@ -1180,7 +1180,6 @@ LEFT JOIN HKP.EmployeeSalaryRuleSetup SS ON SS.Id=OL.EmployeeSalaryRuleSetupId
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId IN(" + empId + @")
 LEFT JOIN  dbo.EmployeeBankInfo EB ON EB.EmpSystemID=E.SystemId AND RowID in ( select top(1) RowID from dbo.EmployeeBankInfo where EB.EmpSystemID=EmpSystemID AND IsApproved=1 order by DateAdded desc)
 LEFT JOIN MST.DesignationMaster DM ON DM.Id=E.GivenDesignationId
-LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId=E.LegalDesignationId
 LEFT JOIN (Select sum(PresentValue)PresentValue,SUM(LateValue)LateValue,SUM(LvValue)LvValue,SUM(WeekOffValue)WeekOffValue,SUM(PayDayValue)PayDayValue,SUM(HoliDayValue)HoliDayValue,ISNULL(SUM(CountedShortLeave),0)CountedShortLeave
 ,Count(APD.LateIn)LateIn,Count(APD.EarlyOut)EarlyOut, HalfDuration= CASE WHEN LeaveDuration=0.5 THEN CounT(LeaveDuration) ELSE 0 END,APD.EmpSystemID from dbo.AttdnProcessData APD where APD.EmpSystemID IN(" + empId + @") AND WorkDate between '" + fromDate + "' AND '" + toDate + @"'  Group by APD.EmpSystemID,LeaveDuration)APD ON APD.EmpSystemID=E.SystemId
 LEFT JOIN(Select COUNT(DayStatus)NightShiftDays,APD.EmpSystemID from dbo.AttdnProcessData APD 
@@ -1190,6 +1189,7 @@ Group By APD.EmpSystemID) NAPD ON NAPD.EmpSystemID=e.SystemId
 
  LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = E.SystemId  AND SIDM.EmployeeSalaryRuleSetupId=OL.EmployeeSalaryRuleSetupId
  LEFT JOIN SalaryInfoDefine SD ON SD.SalaryID=SIDM.SystemID AND OL.SalaryHeadID = SD.SalaryHeadID 
+LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId=E.LegalDesignationId and SIDM.PlantID=LSGD.PlantId
  LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SD.SalaryHeadID
  LEFT JOIN ORG.Plant PL ON PL.Id=SIDM.PlantID
  LEFT JOIN ORG.Company CO ON CO.Id=PL.CompanyId
