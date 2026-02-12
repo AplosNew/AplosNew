@@ -5605,7 +5605,7 @@ WHERE HG.Id = @hrgroupid   ";
 
                     if (inmis == "IN" || inmis == "IM" || inmis == "W")
                     {
-                        strSQL = strSQL1 + "and (case when apd.WeeklyStatus = 'W' then 'W' when(select top 1 rw.PTime from AttdnRawData rw where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate order by rw.PTime asc) is null then 'IM' else 'IN' end) = '" + inmis + "'";
+                        strSQL = strSQL1 + " and  (CASE WHEN APD.WeeklyStatus = 'W' THEN 'W'  WHEN ARD.ptime IS NULL THEN 'IM' ELSE 'IN' END) = '" + inmis + "'";
                     }
 
                     if (entityid != null && shiftid == null && locations == null)
