@@ -16572,7 +16572,7 @@ Group By A.POId,A.LotNo,A.EntityId,A.WorkDate,A.ShiftId,A.Grade,A.ProcessId,A.Pl
             {
 
                 ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("");
-                objCon.getDataSet("SELECT * FROM org.Plant", out DataSet dsRef);
+                objCon.getDataSet("SELECT * FROM org.Plant where id IN(20251,20252)", out DataSet dsRef);
 
 
                 for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
@@ -16636,108 +16636,180 @@ Group By A.POId,A.LotNo,A.EntityId,A.WorkDate,A.ShiftId,A.Grade,A.ProcessId,A.Pl
             genid.GenID(DateTime.Now.ToString("dd-MMM-yyyy"), "LEAVE_SUMMARY_N", out string _pks);
             _pks = _pks + "-";
             string _sql = @"INSERT INTO trn.EmployeeLeaveSummary
-                                (
-	                                Id,
-                                    PlantId,
-	                                EmployeeId,
-	                                LeaveTypeId,
-	                                AddedBy,
-	                                AddedDate,
-	                                AddedFromIP,
-	                                CarryForwardOpeningBalance,
-	                                CurrentYearAllocationAsPerPolicy,
-	                                EncashedInbetween,
-	                                IsEncashed,
-	                                NotEncashedButYearEnded,
-                                    CurrentYearEarnedDaysOpeningBalance,
-	                                FromDate,
-	                                ToDate
+(
+    Id,
+    PlantId,
+    EmployeeId,
+    LeaveTypeId,
+    AddedBy,
+    AddedDate,
+    AddedFromIP,
+    CarryForwardOpeningBalance,
+    CurrentYearAllocationAsPerPolicy,
+    EncashedInbetween,
+    IsEncashed,
+    NotEncashedButYearEnded,
+    CurrentYearEarnedDaysOpeningBalance,
+    FromDate,
+    ToDate
+)
+
+SELECT 
+    '" + _pks + @"' + CONVERT(VARCHAR(10),
+        ROW_NUMBER() OVER (ORDER BY FN.SystemId, FN.LTSystemID)
+    ),
+    '" + PlantId + @"',
+    FN.SystemId,
+    FN.LTSystemID,
+    'Scheduler',
+    GETDATE(),
+    ':::',
+    0,0,0,0,0,0,
+    FN.StartDay,
+    FN.ToDate
+FROM (
+    SELECT  
+        FN.SystemId,
+        FN.LTSystemID,
+        FN.CutOffDate,
+        FN.ESIC,
+        FN.DOJ,
+        FN.DOC,
+        FN.DOS,
+        FN.StartPoint,
+        FN.LeaveStartDate,
+        FN.StartDay,
+
+        /* ---- FIXED ToDate LOGIC ---- */
+        CASE 
+            WHEN FN.DOS IS NOT NULL THEN 
+                CASE 
+                    WHEN FN.DOS >= FN.EncashmentDate 
+                    THEN FN.EncashmentDate 
+                    ELSE FN.DOS 
+                END
+            ELSE 
+                CASE 
+                    WHEN FN.EncashmentDate = FN.StartDay 
+                    THEN DATEADD(YEAR,1,DATEADD(DAY,-1,FN.StartDay))
+                    ELSE FN.EncashmentDate 
+                END
+        END AS ToDate
+
+    FROM (
+        SELECT  
+            ei.SystemId,
+            lp.LTSystemID,
+            sd.CutOffDate,
+            sd.ESIC,
+            sd.DOJ,
+            sd.DOC,
+            ei.DOS,
+            sd.StartPoint,
+            CASE WHEN ei.isLeaveOnDOC = 1 THEN ei.DOC ELSE ei.DOJ END AS LeaveStartDate,
+            ISNULL(ei.isLeaveOnDOC,0) AS isLeaveOnDOC,
+            lp.EncashmentBasis,
+            DATEFROMPARTS(YEAR(sd.StartPoint), MONTH(sd.StartPoint), DAY(sd.StartPoint)) AS StartDay,
+
+            /* ---- EncashmentDate (UNCHANGED LOGIC, SAFE) ---- */
+            CASE 
+                WHEN lp.EncashmentBasis = 'EncashmentDate' THEN
+                    CASE 
+                        WHEN DATEADD(
+                                DAY, EncashmentSpecificDay - 1,
+                                DATEADD(MONTH, EncashmentSpecificMonth - 1,
+                                    DATEFROMPARTS(YEAR(sd.StartPoint),1,1)
                                 )
+                             ) <= DATEFROMPARTS(YEAR(sd.StartPoint), MONTH(sd.StartPoint), DAY(sd.StartPoint))
+                        THEN DATEADD(
+                                DAY, EncashmentSpecificDay - 1,
+                                DATEADD(MONTH, EncashmentSpecificMonth - 1,
+                                    DATEFROMPARTS(YEAR(sd.StartPoint) + 1,1,1)
+                                )
+                             )
+                        ELSE DATEADD(
+                                DAY, EncashmentSpecificDay - 1,
+                                DATEADD(MONTH, EncashmentSpecificMonth - 1,
+                                    DATEFROMPARTS(YEAR(sd.StartPoint),1,1)
+                                )
+                             )
+                    END
 
+                WHEN lp.EncashmentBasis = 'DOJ' THEN
+                    CASE 
+                        WHEN DATEADD(
+                                DAY, DAY(ei.DOJ) - 1,
+                                DATEADD(MONTH, MONTH(ei.DOJ) - 1,
+                                    DATEFROMPARTS(YEAR(sd.StartPoint),1,1)
+                                )
+                             ) <= DATEFROMPARTS(YEAR(sd.StartPoint), MONTH(sd.StartPoint), DAY(sd.StartPoint))
+                        THEN DATEADD(
+                                DAY, DAY(ei.DOJ) - 1,
+                                DATEADD(MONTH, MONTH(ei.DOJ) - 1,
+                                    DATEFROMPARTS(YEAR(sd.StartPoint) + 1,1,1)
+                                )
+                             )
+                        ELSE DATEADD(
+                                DAY, DAY(ei.DOJ) - 1,
+                                DATEADD(MONTH, MONTH(ei.DOJ) - 1,
+                                    DATEFROMPARTS(YEAR(sd.StartPoint),1,1)
+                                )
+                             )
+                    END
+            END AS EncashmentDate
 
-                                SELECT '" + _pks + @"'+CONVERT(VARCHAR(10),row_number() OVER (ORDER BY FN.SystemId, FN.LTSystemID)),'" + PlantId + @"',FN.SystemId,
-                                       FN.LTSystemID,'Scheduler',GETDATE(),':::',0,0,0,0,0,0,FN.StartDay,FN.ToDate
-                                  FROM (
-                                SELECT  FN.SystemId, FN.LTSystemID,FN.CutOffDate, FN.ESIC, FN.DOJ, FN.DOC, FN.DOS, FN.StartPoint,LeaveStartDate, FN.StartDay,
-								--	CASE WHEN FN.EncashmentBasis='EncashmentDate' THEN 
-								--	CASE WHEN endday<FN.EncashmentDate THEN endday ELSE FN.EncashmentDate END
-								--ELSE 	
-								--	CASE WHEN endday>FN.EncashmentDate THEN endday ELSE FN.EncashmentDate END
-								--	END AS FinalToDate, FN.EndDay
-                                CASE WHEN ISNULL(DOS,'')<>'' THEN 
-									CASE WHEN	DOS >= FN.EncashmentDate THEN  FN.EncashmentDate ELSE DOS END
-                                ELSE CASE WHEN FN.EncashmentDate=FN.StartDay THEN DATEADD(YEAR,1,DATEADD(DAY,-1,FN.StartDay)) ELSE FN.EncashmentDate END END ToDate 
-                                  FROM (SELECT  
-                                ei.SystemId,lp.LTSystemID,sd.CutOffDate,sd.ESIC, sd.DOJ, sd.DOC,ei.DOS, sd.StartPoint,
-                                CASE WHEN ei.isLeaveOnDOC=1 THEN Ei.doc ELSE EI.DOJ END AS LeaveStartDate,
-                                ISNULL(ei.isLeaveOnDOC,0) AS isLeaveOnDOC,lp.EncashmentBasis,
-                                DATEFROMPARTS(YEAR(sd.StartPoint),MONTH( sd.StartPoint),DAY(sd.StartPoint)) AS StartDay,
+        FROM EmployeeInformation ei
 
+        LEFT JOIN (
+            SELECT 
+                e.SystemId AS EmpSystemId,
+                ISNULL(ct.CutOffDate,'1901-01-01') AS CutOffDate,
+                ISNULL(m.EffectiveDate,'1901-01-01') AS ESIC,
+                e.DOJ,
+                e.DOC,
+                StartPoint =
+                    (SELECT MAX(d)
+                     FROM (VALUES
+                        (ISNULL(ct.CutOffDate,'1901-01-01')),
+                        (ISNULL(m.EffectiveDate,'1901-01-01')),
+                        (e.DOJ),
+                        (CASE WHEN e.isLeaveOnDOC=1 THEN e.DOC ELSE e.DOJ END)
+                     ) v(d)
+                    )
+            FROM EmployeeInformation e
+            LEFT JOIN [SCS].[OpeningBalanceCutOffDate] ct 
+                ON ct.PlantId = e.PlantId AND ct.ModuleName = 'HR'
+            LEFT JOIN (
+                SELECT n.EmpSystemId, MAX(mm.EffectiveDate) AS EffectiveDate
+                FROM dbo.EmployeeEligibleForSalaryHeadEnum n
+                JOIN (
+                    SELECT SystemID, EffectiveDate, EmpInfoSystemID FROM SalaryInfoDefineMaster WHERE IsApproved=1
+                    UNION ALL
+                    SELECT SystemID, EffectiveDate, EmpInfoSystemID FROM SalaryInfoBackMaster WHERE IsApproved=1
+                ) mm ON mm.SystemID = n.SalaryStructureId
+                WHERE n.SalaryHeadEnum='ESIC' AND n.IsEligible=1
+                GROUP BY n.EmpSystemId
+            ) m ON m.EmpSystemId = e.SystemId
+        ) sd ON sd.EmpSystemId = ei.SystemId
 
-                                CASE WHEN lp.EncashmentBasis='EncashmentDate' THEN 
-		                                CASE WHEN DATEFROMPARTS(YEAR(sd.StartPoint),EncashmentSpecificMonth,EncashmentSpecificDay)<=DATEFROMPARTS(YEAR(sd.StartPoint),MONTH( sd.StartPoint),DAY(sd.StartPoint)) 
-		                                THEN DATEADD(DAY,-0,DATEFROMPARTS(YEAR(DATEADD(YEAR,1,DATEFROMPARTS(YEAR(sd.StartPoint),EncashmentSpecificMonth,EncashmentSpecificDay))),EncashmentSpecificMonth,EncashmentSpecificDay))
-		                                 ELSE
-		                                 DATEFROMPARTS(YEAR(sd.StartPoint),EncashmentSpecificMonth,EncashmentSpecificDay) END	
-                                 ELSE
- 	                             CASE WHEN  lp.EncashmentBasis='DOJ' THEN 
- 	                             	
- 	                             	    CASE WHEN DATEFROMPARTS(YEAR(sd.StartPoint),MONTH(ei.DOJ),DAY(ei.DOJ))<=DATEFROMPARTS(YEAR(sd.StartPoint),MONTH( sd.StartPoint),DAY(sd.StartPoint)) 
-		                                THEN DATEADD(DAY,-1,DATEFROMPARTS(YEAR(DATEADD(YEAR,1,DATEFROMPARTS(YEAR(sd.StartPoint),MONTH(ei.DOJ),DAY(ei.DOJ)))),MONTH(ei.DOJ),DAY(ei.DOJ)))
-		                                ELSE
-		                                 DATEFROMPARTS(YEAR(sd.StartPoint),MONTH(ei.DOJ),DAY(ei.DOJ)) END	
-	                             	
- 	                             	END
- 	                             	END
-                                AS EncashmentDate,
+        LEFT JOIN [MST].[DesignationMasterLegalDesignation] de 
+            ON de.LegalDesignationId = ei.LegalDesignationId
+        LEFT JOIN scs.DesignationMasterConfiguration dmc 
+            ON dmc.DesignationMasterId = de.DesignationMasterId 
+           AND dmc.PlantId = ei.PlantId
+        LEFT JOIN LeavePolicyDetail lp 
+            ON lp.LPMSystemID = dmc.LeavePolicyMasterId
 
-                                CASE WHEN ISNULL(ei.dos,'')='' THEN
-                                DATEADD(DAY,-1,DATEADD(YEAR,1,DATEFROMPARTS(YEAR(sd.StartPoint),MONTH( sd.StartPoint),DAY(sd.StartPoint)))) 
-                                ELSE ei.DOS END AS EndDay
-                                FROM EmployeeInformation AS ei
-
-                                left join (SELECT E.SystemId AS EmpSystemId,isnull(ct.CutOffDate,'01-Jan-1901')CutOffDate,isnull(m.EffectiveDate,'01-Jan-1901') AS ESIC,e.DOJ,DOC,
-                                StartPoint=
-                                CASE WHEN isnull(ct.CutOffDate,'01-Jan-1901')>isnull(m.EffectiveDate,'01-Jan-1901') AND isnull(ct.CutOffDate,'01-Jan-1901')>E.DOJ AND  isnull(ct.CutOffDate,'01-Jan-1901')>(CASE WHEN e.isLeaveOnDOC=1 THEN e.DOC ELSE e.DOJ END) THEN isnull(ct.CutOffDate,'01-Jan-1901') ELSE
-                                CASE WHEN isnull(m.EffectiveDate,'01-Jan-1901')>isnull(ct.CutOffDate,'01-Jan-1901') AND isnull(m.EffectiveDate,'01-Jan-1901')>E.DOJ AND  isnull(m.EffectiveDate,'01-Jan-1901')>(CASE WHEN e.isLeaveOnDOC=1 THEN e.DOC ELSE e.DOJ END) THEN isnull(m.EffectiveDate,'01-Jan-1901') ELSE
-                                CASE WHEN e.DOJ>isnull(m.EffectiveDate,'01-Jan-1901') AND e.DOJ>isnull(ct.CutOffDate,'01-Jan-1901') AND e.DOJ>(CASE WHEN e.isLeaveOnDOC=1 THEN e.DOC ELSE e.DOJ END) THEN e.DOJ ELSE
-                                CASE WHEN (CASE WHEN e.isLeaveOnDOC=1 THEN e.DOC ELSE e.DOJ END)>isnull(m.EffectiveDate,'01-Jan-1901') AND (CASE WHEN e.isLeaveOnDOC=1 THEN e.DOC ELSE e.DOJ END)>E.DOJ AND  (CASE WHEN e.isLeaveOnDOC=1 THEN e.DOC ELSE e.DOJ END)>isnull(ct.CutOffDate,'01-Jan-1901') THEN (CASE WHEN e.isLeaveOnDOC=1 THEN e.DOC ELSE e.DOJ END) ELSE e.DOJ 
-                                END END END END
-					                                FROM 
-                                                                  EmployeeInformation AS e
-                                                                  LEFT JOIN [SCS].[OpeningBalanceCutOffDate] CT ON  CT.plantId= e.PlantId AND ModuleName = 'HR'
-                                                                 LEFT JOIN (SELECT n.EmpSystemId,mm.EffectiveDate
-                                                                              FROM  [dbo].[EmployeeEligibleForSalaryHeadEnum] n 
-                                  
-                                                                  left join (select SystemID,EffectiveDate,EmpInfoSystemID from SalaryInfoDefineMaster
-                                                                  union
-                                                                  select SystemID,EffectiveDate,EmpInfoSystemID from SalaryInfoBackMaster
-                                                                  )
-                                                                   mm on mm.SystemID=n.SalaryStructureId
-                                                                  inner join (
-                                                                  select MAX(EffectiveDate)EffectiveDate,EmpInfoSystemID from (
-                                                                  select EffectiveDate,EmpInfoSystemID from SalaryInfoDefineMaster where IsApproved=1 
-                                                                  union
-                                                                   select EffectiveDate,EmpInfoSystemID from SalaryInfoBackMaster where IsApproved=1 
-                                                                   ) x 
-                                                                   group by EmpInfoSystemID
-                                                                  )m on mm.EffectiveDate=m.EffectiveDate and m.EmpInfoSystemID=mm.EmpInfoSystemID
-                                
-                                                                  where SalaryHeadEnum='ESIC' and IsEligible=1) AS M ON m.EmpSystemId=e.SystemId) AS SD on sd.EmpSystemId=ei.SystemId
-
-
-                                LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
-                                LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
-                                LEFT JOIN LeavePolicyDetail AS lp ON lp.LPMSystemID=dmc.LeavePolicyMasterId
-                                WHERE lp.EncashmentBasis<>'CalanderYear' AND ei.PlantId='" + PlantId + @"'
-  
-                                  ) AS FN
-
-                                WHERE ISNULL(FN.DOS,'')='' OR FN.DOS>=StartDay
-                                ) AS FN
-                                LEFT JOIN trn.EmployeeLeaveSummary AS ENC ON ENC.EmployeeId=fn.SystemId AND ENC.LeaveTypeId=fn.LTSystemID --AND ENC.FromDate=FN.StartDay
-
-                                WHERE ISNULL(ENC.Id,'')=''";
+        WHERE lp.EncashmentBasis <> 'CalanderYear'
+          AND ei.PlantId = '" + PlantId + @"'
+    ) FN
+    WHERE FN.DOS IS NULL OR FN.DOS >= FN.StartDay
+) FN
+LEFT JOIN trn.EmployeeLeaveSummary ENC 
+    ON ENC.EmployeeId = FN.SystemId 
+   AND ENC.LeaveTypeId = FN.LTSystemID
+WHERE ENC.Id IS NULL;
+";
 
             ConnectionManager.clsConnectionManager objCon = new ConnectionManager.clsConnectionManager(1800);
             objCon.BeginTransaction();

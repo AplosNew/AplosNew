@@ -51,8 +51,6 @@ namespace Aplos.Areas.Payrolls.Controllers
             return View();
         }
 
-     
-
         public async Task<ActionResult> SalaryProcess()
         {
             return await Task.Factory.StartNew(() =>
@@ -90,7 +88,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
             string strkey = "1=1";
@@ -431,18 +429,23 @@ AND EC.Id " + ecId + @"";
             }
         }//End of function
 
+        private string GetPK(string name)
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "name", out sID);
+            return sID;
+        }
 
         [HttpPost, Authorize]
         public JsonResult CreateDesignation(List<Dictionary<string, object>> data, string masterId)
         {
             try
             {
-                DataSet dsDesignation, dsDD;
+                DataSet dsDesignation;
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from [dbo].[SalaryRuleDesignation] where EmployeeSalaryRuleSetupId='" + masterId + "'", out dsDesignation, false, "1");
-                con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[SalaryRuleDesignation] where EmployeeSalaryRuleSetupId='" + masterId + "'", out dsDD, false, "1");
-                int ccount = Convert.ToInt32(dsDD.Tables[0].Rows[0]["countId"].ToString());
 
                 string Id = "";
 
@@ -457,8 +460,8 @@ AND EC.Id " + ecId + @"";
 
                     if (dv.Count == 0)
                     {
-                        ccount++;
-                        item["Id"] = materialCommonService.MakePK(masterId, ccount, 2);
+                        Id = GetPK("SalaryRuleDesignation");
+                        item["Id"] = Id;
                         item["EmployeeSalaryRuleSetupId"] = masterId;
 
                         AddNewRow(dsDesignation.Tables[0], item);
@@ -561,18 +564,14 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.EmployeeSalaryRuleItem WHERE EmployeeSalaryRuleSetupId='" + data["EmployeeSalaryRuleSetupId"] + "'", out dsMaster, false, "1");
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FormulaDetail Where EmployeeSalaryRuleItemId='" + data["Id"] + "'", out dsDestination, false, "1");
 
-                    con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeSalaryRuleItem] where EmployeeSalaryRuleSetupId='" + data["EmployeeSalaryRuleSetupId"] + "'", out dsID, false, "1");
-                    int ccount = Convert.ToInt32(dsID.Tables[0].Rows[0]["countId"].ToString());
-
                     if (Itemdetails != null)
                     {
                         foreach (var item in Itemdetails)
                         {
-                            ccount++;
 
                             drF = dsMaster.Tables[0].NewRow();
 
-                            drF["Id"] = materialCommonService.MakePK(data["EmployeeSalaryRuleSetupId"].ToString(), ccount, 2);
+                            drF["Id"] = GetPK("EmployeeSalaryRuleItem");
                             drF["Sequence"] = item["Sequence"];
                             drF["EmployeeSalaryRuleSetupId"] = item["EmployeeSalaryRuleSetupId"];
                             drF["DrBudgetMasterActivityId"] = item["DrBudgetMasterActivityId"];
@@ -592,7 +591,6 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
 
                             dsMaster.Tables[0].Rows.Add(drF);
                         }
-                        ccount++;
                     }
 
                     DataView dv = new DataView(dsMaster.Tables[0]);
@@ -600,7 +598,7 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
 
                     if (dv.Count == 0)
                     {
-                        data["Id"] = materialCommonService.MakePK(data["EmployeeSalaryRuleSetupId"].ToString(), ccount, 2);
+                        data["Id"] = GetPK("EmployeeSalaryRuleItem");
                         data["Sequence"] = 5;
                         AddNewRow(dsMaster.Tables[0], data);
                     }
@@ -668,10 +666,7 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
 
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.EmployeeSalaryRuleItem WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FormulaDetail Where EmployeeSalaryRuleItemId='" + data["Id"] + "'", out dsDestination, false, "1");
-
-                    con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[EmployeeSalaryRuleItem] where EmployeeSalaryRuleSetupId='" + data["EmployeeSalaryRuleSetupId"] + "'", out dsID, false, "1");
-                    int ccount = Convert.ToInt32(dsID.Tables[0].Rows[0]["countId"].ToString());
-
+                                       
 
                     con.OpenDataSetThroughAdapter("SELECT count(Id) countId FROM dbo.FormulaDetail Where EmployeeSalaryRuleItemId IN(SELECT Id FROM dbo.EmployeeSalaryRuleItem Where EmployeeSalaryRuleSetupId='" + data["EmployeeSalaryRuleSetupId"] + "')", out dsFormulaID, false, "1");
                     int count = Convert.ToInt32(dsFormulaID.Tables[0].Rows[0]["countId"].ToString());
@@ -689,9 +684,9 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
 
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
-                        ccount++;
 
-                        data["Id"] = materialCommonService.MakePK(data["EmployeeSalaryRuleSetupId"].ToString(), ccount, 3);
+                        //data["Id"] = materialCommonService.MakePK(data["EmployeeSalaryRuleSetupId"].ToString(), ccount, 3);
+                        data["Id"] = GetPK("EmployeeSalaryRuleItem");
                         _Id = data["Id"].ToString();
                         AddNewRow(dsMaster.Tables[0], data);
                     }
@@ -938,7 +933,7 @@ where s.SalaryID='" + SalaryID + "'";
             }
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult CreateSalary(Dictionary<string, object> master, List<Dictionary<string, object>> data, Dictionary<string, object> IncrementHistory)
         {
             try
@@ -1148,7 +1143,7 @@ where s.SalaryID='" + SalaryID + "'";
 
         #region SalaryProcess
 
-        public DataTable GetDataTable(string fromDate, string toDate, string empId,string plantId)
+        public DataTable GetDataTable(string fromDate, string toDate, string empId, string plantId)
         {
             try
             {
@@ -1172,7 +1167,7 @@ where s.SalaryID='" + SalaryID + "'";
 ,OL.EntryState,CO.BaseCurrencyId ,E.GivenDesignationId DesignationId,E.LegalDesignationId
 ,E.PaymentMode,E.BudgetCode,EB.BankAccNo,EB.BankBranchId,EB.BankSystemId,EB.MICRCode,EB.IFSCCode,EB.SalaryPercentage,DM.EmployeeCategoryId, LSGD.LegalSalaryGradeId
 ,TotalWeekOff=(select Count(Odd.Id) TotalWeekOff from scs.offdaydetail Odd left join scs.OffDayMaster odm on odd.offdaymasterid=odm.Id
-where   offdaydate between '" + fromDate + "' AND '" + toDate + @"' AND odm.offdaytype='W' AND Odd.PlantId='"+ plantId + @"')
+where   offdaydate between '" + fromDate + "' AND '" + toDate + @"' AND odm.offdaytype='W' AND Odd.PlantId='" + plantId + @"')
 ,TotalHoliday=(select Count(Odd.Id) TotalHoliday from scs.offdaydetail Odd left join scs.OffDayMaster odm on odd.offdaymasterid=odm.Id
 where   offdaydate between '" + fromDate + "' AND '" + toDate + @"' AND odm.offdaytype='H' AND Odd.PlantId='" + plantId + @"')
 FROM EmployeeSalaryRuleItem AS OL
@@ -1404,7 +1399,7 @@ ORDER BY E.SystemId,OL.Sequence";
                     SendNotification("Validating Attendance Lock");
                     ValidationAttendance(tempEmpSysId, identity.PlantId, Convert.ToDateTime(data["FromDate"]).ToString("yyyyMMMdd"), Convert.ToDateTime(data["ToDate"]).ToString("yyyyMMMdd"));
                     _lock.LockProcess();
-                    
+
                     clsFinalSettlement clsFS = new clsFinalSettlement();
                     MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -1470,9 +1465,9 @@ ORDER BY E.SystemId,OL.Sequence";
                     foreach (var item in alldataset)
                     {
                         empId = item["EmpSystemID"].ToString();
-                        SendNotification(item["EmployeeCode"].ToString()+"-"+item["EmployeeName"].ToString()+ " "+ "Process is going on ...");
+                        SendNotification(item["EmployeeCode"].ToString() + "-" + item["EmployeeName"].ToString() + " " + "Process is going on ...");
 
-                      
+
                         string sql = string.Empty;
                         DataTable dtValue = new DataTable();
                         DataRow dtValueRow = dtValue.NewRow();
@@ -1527,8 +1522,8 @@ ORDER BY E.SystemId,OL.Sequence";
 
                                 if (dvEmpWise[i]["UserName"].ToString() == "Basic")
                                 {
-                                    tempSalaryCalculationDays = Convert.ToDecimal(dvEmpWise[i]["MonthDays"].ToString())- Convert.ToDecimal(dvEmpWise[i]["TotalWeekOff"].ToString());//TODO:Holiday
-                                    
+                                    tempSalaryCalculationDays = Convert.ToDecimal(dvEmpWise[i]["MonthDays"].ToString()) - Convert.ToDecimal(dvEmpWise[i]["TotalWeekOff"].ToString());//TODO:Holiday
+
                                     tempPFLimit = Convert.ToDecimal(dvEmpWise[i]["PFLimit"].ToString());
                                     tempESICLimit = Convert.ToDecimal(dvEmpWise[i]["ESICLimit"].ToString());
                                     tempAgeLimit = Convert.ToDecimal(dvEmpWise[i]["AgeLimit"].ToString());
