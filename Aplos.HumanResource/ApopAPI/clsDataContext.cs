@@ -5437,61 +5437,169 @@ where emp.EmployeeStatus = 'Active' and  Emp.EmployeeCode = '" + Empcode + "'";
                 try
                 {
                     #region Sql
-                    strSQL1 = @"select * from (  select Distinct '' as SrNo , LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
-DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus, UN.Id EntityId,UN.UserName EntityName,
-case when apd.WeeklyStatus = 'W' then 'W'
-when (select top 1 rw.PTime from AttdnRawData rw
-where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate AND rw.PType <> 'OUT'
-order by rw.PTime asc) is null then 'IM'
-else 'IN' end as RawDayStatus ,
-(select top 1 rw.PTime from AttdnRawData rw
-where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate AND rw.PType <> 'OUT'
-order by rw.PTime asc) InTime,pv.InTime as InVerificationTime, MBGT.Code BudgetCode, sd.ShiftDefinationName Shift, sd.SystemID as ShiftId, emp.CellPhnNo MobileNo,apd.WeeklyStatus, RG.StandardName Residence, TG.StandardName Transport,
-Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId , RM.Location as Location , Emp.EmployeeCurrentStatus as CurrentStatus ,MBGT.Deployment,ISNULL(A.ToDayIN , 0) as ToDayIN, Diffenence= ISNULL(A.ToDayIN,0)-MBGT.Deployment ,
-case when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) > 0 then 'Excess' 
-when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) < 0 then 'Short' 
-else 'Ok' end DifferenceColor
-from AttdnProcessData apd 
-left Join EmployeeInformation EMP on EMP.SystemId = apd.EmpSystemID
-LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
-LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
-left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
-left join ORG.Entity UN on UN.Id = MBGT.EntityId
-left join ORG.Department DP on DP.ID = POS.DepartmentId
-left join ORG.Section SC on SC.Id = POS.SectionId
-left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
-LEFT JOIN hkp.Designation DSG on DSG.id = POS.DesignationId
-LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
-LEFT JOIN MST.DesignationMasterLegalDesignation DMLD on DMLD.LegalDesignationId = GDSG.Id
-left join mst.DesignationMaster dm on dm.Id = DMLD.DesignationMasterId
-left join scs.designationmasterconfiguration dmc on dmc.designationmasterid = dm.id
-LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=dm.DesignationGroupId
-left join mst.LegalSalaryGradeDesignation GRD on GRD.legaldesignationid = gdsg.id
-left join scs.legalsalarygrade lsg on lsg.id = grd.legalsalarygradeid
-left join scs.legalsalarygradehead lsh on lsh.legalsalarygradeid = lsg.id
-left join mst.LegalSalaryStructure lss on lss.legalsalarygradeid = lsh.legalsalarygradeid
-left join mst.LegalSalaryStructureValue lsv on lsv.legalsalarystructureid = lss.id
-left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
-left join ShiftDefination sd on sd.systemid = mbgt.shiftdefinationid
-left join SalaryRuleMaster SRM on srm.systemid = dmc.salaryrulemasterid
-left join EmployeeBankInfo BNK on BNK.EmpSystemID = emp.SystemId
-left join ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId
-left join TransportGroup TG on TG.Id = EMP.TransportGroupId
-left join employeecodetype ect on ect.id = emp.employeecodetypeid
-left join hkp.Process PR on PR.Id = POS.ProcessId
-left join scs.District DT on DT.Id = emp.ParmDistrictID
-left join scs.[State] ST on ST.Id = EMP.ParmStateId
-left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = apd.WorkDate
-left join TRN.HRReportMasterChild Hrg on Hrg.ManpowerBudgetId = Emp.BudgetCode
-left join TRN.HRReportMasterBudgetUserGroup HBG on HBG.HRReportMasterChildId = Hrg.Id
-left join HKP.HRReportGroupMaster Hg on Hg.Id = HBG.UserGroupId
-left join LeaveTransaction LT on LT.EmpSystemID = apd.EmpSystemID and (LT.FromDate <= apd.WorkDate and LT.ToDate >= apd.WorkDate)
-left join LeaveType LTY on LTY.Id = LT.LTSystemID
-left join ResidenceAllocatedEmployees RA on RA.EmployeeSystemId = apd.EmpSystemID
-left join ResidenceMaster RM on RM.Id = RA.ResidenceId
-LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnProcessData Where WorkDate= '" + date + @"' AND ISNULL(InTime,'')<>'' Group BY BudgetId) A ON A.BudgetId=MBGT.Id 
-where emp.employeecode is not null and emp.employeestatus = 'Active' and MBGT.code is not null and MBGT.Active = 1
-and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "'  and Hg.Id = '" + groupid + "'";
+                    strSQL1 = @"DECLARE @WorkDate DATE = '" +  date + @"' , @hrgroupid varchar(100) = '"+ groupid + @"';
+
+Select * from (SELECT  Distinct
+    '' AS SrNo,
+    '' AS LeaveCode,
+    EMP.SystemID,
+    EMP.EmployeeCode AS EMPCode,
+    EMP.EmployeeName AS EmployeeName,
+    SC.StandardName AS Section,
+    SBC.StandardName AS SubSection,
+    DSG.StandardName AS Designation,
+    X.StandardName AS Category,
+    POS.Activity,
+    '' AS InStatus,
+    UN.Id AS EntityId,
+    UN.UserName AS EntityName,
+
+    CASE 
+        WHEN APD.WeeklyStatus = 'W' THEN 'W'
+        WHEN ARD.ptime IS NULL THEN 'IM'
+        ELSE 'IN'
+    END AS RawDayStatus,
+
+    ARD.ptime AS InTime,
+    PV2.intime AS InVerificationTime,
+
+    MBGT.Code AS BudgetCode,
+    SD.ShiftDefinationName AS Shift,
+    SD.SystemID AS ShiftId,
+    EMP.CellPhnNo AS MobileNo,
+
+    APD.WeeklyStatus,
+
+    RG.StandardName AS Residence,
+    TG.StandardName AS Transport,
+    HRG.ManpowerBudgetId,
+    HG.UserGroup,
+    HG.Id AS GroupId,
+    RM.Location,
+    EMP.EmployeeCurrentStatus AS CurrentStatus,
+    MBGT.Deployment,
+	ISNULL(A.ToDayIN , 0) as ToDayIN,
+	Diffenence= ISNULL(A.ToDayIN,0)-MBGT.Deployment,
+	case when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) > 0 then 'Excess' 
+	when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) < 0 then 'Short' 
+	else 'Ok' end DifferenceColor
+
+FROM mst.ManpowerBudget MBGT
+
+LEFT JOIN EmployeeInformation EMP 
+    ON EMP.Budgetcode = MBGT.Id
+
+LEFT JOIN ORG.POSITION POS 
+    ON POS.ID = MBGT.POSITIONID
+
+LEFT JOIN MST.ManpowerBudgetDetail MBD 
+    ON MBD.ManpowerBudgetId = MBGT.ID
+
+LEFT JOIN ORG.Entity UN 
+    ON UN.Id = MBGT.EntityId
+
+LEFT JOIN ORG.Department DP 
+    ON DP.ID = POS.DepartmentId
+
+LEFT JOIN ORG.Section SC 
+    ON SC.Id = POS.SectionId
+
+LEFT JOIN ORG.SubSection SBC 
+    ON SBC.Id = POS.SubSectionId
+
+LEFT JOIN HKP.Designation DSG 
+    ON DSG.Id = POS.DesignationId
+
+LEFT JOIN HKP.LegalDesignation GDSG 
+    ON GDSG.Id = EMP.LegalDesignationId
+
+LEFT JOIN MST.DesignationMasterLegalDesignation DMLD 
+    ON DMLD.LegalDesignationId = GDSG.Id
+
+LEFT JOIN MST.DesignationMaster DM 
+    ON DM.Id = DMLD.DesignationMasterId
+
+LEFT JOIN SCS.DesignationMasterConfiguration DMC 
+    ON DMC.DesignationMasterId = DM.Id
+
+LEFT JOIN HKP.DesignationGroup EDSGG 
+    ON EDSGG.Id = DM.DesignationGroupId
+
+LEFT JOIN HKP.EmployeeCategory X 
+    ON X.Id = DM.EmployeeCategoryId
+
+LEFT JOIN ShiftDefination SD 
+    ON SD.SystemId = MBGT.ShiftDefinationId
+
+LEFT JOIN SalaryRuleMaster SRM 
+    ON SRM.SystemId = DMC.SalaryRuleMasterId
+
+LEFT JOIN EmployeeBankInfo BNK 
+    ON BNK.EmpSystemID = EMP.SystemId
+
+LEFT JOIN ResidenceGroup RG 
+    ON RG.Id = EMP.ResidenceGroupId
+
+LEFT JOIN TransportGroup TG 
+    ON TG.Id = EMP.TransportGroupId
+
+LEFT JOIN EmployeeCodeType ECT 
+    ON ECT.Id = EMP.EmployeeCodeTypeId
+
+LEFT JOIN HKP.Process PR 
+    ON PR.Id = POS.ProcessId
+
+LEFT JOIN SCS.District DT 
+    ON DT.Id = EMP.ParmDistrictID
+
+LEFT JOIN SCS.State ST 
+    ON ST.Id = EMP.ParmStateId
+
+LEFT JOIN TRN.HRReportMasterChild HRG 
+    ON HRG.ManpowerBudgetId = EMP.BudgetCode
+
+LEFT JOIN HKP.HRReportGroupMaster HG 
+    ON HG.Id = HRG.HRReportMasterId
+
+LEFT JOIN ResidenceAllocatedEmployees RA 
+    ON RA.EmployeeSystemId = EMP.SystemID
+
+LEFT JOIN ResidenceMaster RM 
+    ON RM.Id = RA.ResidenceId
+
+outer apply (SELECT ISNULL(COUNT(AR.LogDownLoadNum), 0) ToDayIN,BudgetId 
+    FROM AttdnRawData AR
+	left join AttdnProcessData APD on APD.EmpSystemID = AR.LogDownLoadNum and  APD.WorkDate = AR.PDate
+    WHERE AR.pdate = @WorkDate
+      AND AR.PType = 'IN' and APD.BudgetId = MBGT.Id
+	  group by APD.Budgetid
+) A
+
+OUTER APPLY (
+    SELECT TOP 1 WeeklyStatus
+    FROM Attdnprocessdata AP
+    WHERE AP.Workdate = @WorkDate
+      AND AP.Empsystemid = EMP.Systemid
+) APD
+
+OUTER APPLY (
+    SELECT TOP 1 ptime
+    FROM AttdnRawData AR
+    WHERE AR.pdate = @WorkDate
+      AND AR.LogDownLoadNum = EMP.Systemid
+      AND AR.PType = 'IN'
+    ORDER BY ptime DESC
+) ARD
+
+OUTER APPLY (
+    SELECT TOP 1 intime
+    FROM PhysicalVerification PV
+    WHERE PV.Workdate = @WorkDate
+      AND PV.Empsystemid = EMP.Systemid
+    ORDER BY intime DESC
+) PV2
+
+WHERE HG.Id = @hrgroupid   ";
 
 
 
@@ -5531,16 +5639,16 @@ and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "
 
                     if (tbs != null && longabsent == null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'TBS'  )  asv";
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'TBS'  )  asv order by BudgetCode ";
                     }
 
                     if (tbs == null && longabsent != null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'LONG ABSENTEEISM'  ) asv ";
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'LONG ABSENTEEISM'  ) asv order by BudgetCode ";
                     }
                     if (tbs == null && longabsent == null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null  ) asv";
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null  ) asv order by BudgetCode ";
                     }
 
 
