@@ -5439,6 +5439,20 @@ where emp.EmployeeStatus = 'Active' and  Emp.EmployeeCode = '" + Empcode + "'";
                     #region Sql
                     strSQL1 = @"DECLARE @WorkDate DATE = '" +  date + @"' , @hrgroupid varchar(100) = '"+ groupid + @"';
 
+WITH TodayIN AS
+(
+    SELECT 
+        APD.BudgetId,
+        COUNT(AR.LogDownLoadNum) AS ToDayIN
+    FROM AttdnRawData AR
+    INNER JOIN AttdnProcessData APD 
+        ON APD.EmpSystemID = AR.LogDownLoadNum
+        AND APD.WorkDate = AR.PDate
+    WHERE AR.PDate = @WorkDate
+      AND AR.PType = 'IN'
+    GROUP BY APD.BudgetId
+)
+
 Select * from (SELECT  Distinct
     '' AS SrNo,
     '' AS LeaveCode,
@@ -5478,11 +5492,14 @@ Select * from (SELECT  Distinct
     RM.Location,
     EMP.EmployeeCurrentStatus AS CurrentStatus,
     MBGT.Deployment,
-	ISNULL(A.ToDayIN , 0) as ToDayIN,
-	Diffenence= ISNULL(A.ToDayIN,0)-MBGT.Deployment,
-	case when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) > 0 then 'Excess' 
-	when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) < 0 then 'Short' 
-	else 'Ok' end DifferenceColor
+	ISNULL(TI.ToDayIN,0) AS ToDayIN,
+    ISNULL(TI.ToDayIN,0) - MBGT.Deployment AS Difference,
+
+    CASE 
+        WHEN ISNULL(TI.ToDayIN,0) - MBGT.Deployment > 0 THEN 'Excess'
+        WHEN ISNULL(TI.ToDayIN,0) - MBGT.Deployment < 0 THEN 'Short'
+        ELSE 'Ok'
+    END AS DifferenceColor
 
 FROM mst.ManpowerBudget MBGT
 
@@ -5567,13 +5584,8 @@ LEFT JOIN ResidenceAllocatedEmployees RA
 LEFT JOIN ResidenceMaster RM 
     ON RM.Id = RA.ResidenceId
 
-outer apply (SELECT ISNULL(COUNT(AR.LogDownLoadNum), 0) ToDayIN,BudgetId 
-    FROM AttdnRawData AR
-	left join AttdnProcessData APD on APD.EmpSystemID = AR.LogDownLoadNum and  APD.WorkDate = AR.PDate
-    WHERE AR.pdate = @WorkDate
-      AND AR.PType = 'IN' and APD.BudgetId = MBGT.Id
-	  group by APD.Budgetid
-) A
+LEFT JOIN TodayIN TI 
+    ON TI.BudgetId = MBGT.Id
 
 OUTER APPLY (
     SELECT TOP 1 WeeklyStatus
@@ -5599,7 +5611,7 @@ OUTER APPLY (
     ORDER BY intime DESC
 ) PV2
 
-WHERE HG.Id = @hrgroupid   ";
+WHERE Emp.Employeestatus = 'Active' and HG.Id = @hrgroupid  ";
 
 
 
