@@ -5493,7 +5493,7 @@ Select * from (SELECT  Distinct
     EMP.EmployeeCurrentStatus AS CurrentStatus,
     MBGT.Deployment,
 	ISNULL(TI.ToDayIN,0) AS ToDayIN,
-    ISNULL(TI.ToDayIN,0) - MBGT.Deployment AS Difference,
+    Diffenence= ISNULL(TI.ToDayIN,0)-MBGT.Deployment,
 
     CASE 
         WHEN ISNULL(TI.ToDayIN,0) - MBGT.Deployment > 0 THEN 'Excess'
