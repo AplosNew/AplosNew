@@ -1377,6 +1377,8 @@ ORDER BY E.SystemId,OL.Sequence";
         public async Task<JsonResult> ProcessAsync(Dictionary<string, object> data, List<Dictionary<string, object>> alldataset)
         {
             string empId = null;
+            string temphsid = null;
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             Library.General.Setups.ProcessLock _lock = new Library.General.Setups.ProcessLock(identity.Name, Library.General.Setups.ProcessLockId.SalaryProcess, "", 60);
             return await Task.Factory.StartNew(() =>
@@ -1397,7 +1399,6 @@ ORDER BY E.SystemId,OL.Sequence";
                     DataRow drSPAttdnProc = null;
                     string esql = "";
                     var empIds = "' '";
-
                     SendNotification("Validating Bank Accounts");
                     ValidationBank(tempEmpSysId, identity.PlantId);
 
@@ -1534,7 +1535,10 @@ ORDER BY E.SystemId,OL.Sequence";
                                     tempAgeLimit = Convert.ToDecimal(dvEmpWise[i]["AgeLimit"].ToString());
                                 }
 
+                                //if(i==29)
+                                //{
 
+                                //}
                                 if (string.IsNullOrEmpty(dvEmpWise[i]["FormulaId"].ToString()) && !string.IsNullOrEmpty(dvEmpWise[i]["SalaryHeadID"].ToString()))
                                 {
                                     dtValueRow = dtValue.NewRow();
@@ -1546,7 +1550,7 @@ ORDER BY E.SystemId,OL.Sequence";
                                     dtValueRow["Value"] = Math.Round((Convert.ToDecimal(dvEmpWise[i]["Value"].ToString()) / tempSalaryCalculationDays) * tempPayDay, 0);
 
                                     dtValue.Rows.Add(dtValueRow);
-
+                                    temphsid = dtValueRow["SalaryHeadID"].ToString();
                                     DataView dvPC = new DataView(dsProChild.Tables[0]);
                                     dvPC.RowFilter = "SystemID='" + dtValue.Rows[0]["SystemID"] + "'";
 
@@ -1602,6 +1606,11 @@ ORDER BY E.SystemId,OL.Sequence";
                                         {
                                             dtValueRow["EntryAmount"] = dvEmpWise[i]["Value"].ToString().Trim();
                                             dtValueRow["Value"] = Math.Round(sFormulaResult, 0);
+                                        }
+                                        else
+                                        {
+                                            dtValueRow["EntryAmount"] = 0;
+                                            dtValueRow["Value"] = 0;
                                         }
                                     }
                                     else if (dvEmpWise[i]["HeadCategory"].ToString().Trim() == "PF Employer Contribution" || dvEmpWise[i]["HeadCategory"].ToString().Trim() == "PF Employee Contribution")
@@ -1757,7 +1766,7 @@ ORDER BY E.SystemId,OL.Sequence";
                 catch (Exception ex)
                 {
                     _lock.UnlockProcess();
-                    return Json(new { Error = true, Message = ex.Message + " " + empId });
+                    return Json(new { Error = true, Message = ex.Message + " " + empId+" - "+temphsid });
 
                 }
             });

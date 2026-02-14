@@ -1118,6 +1118,69 @@ namespace Aplos.Areas.Payrolls.Controllers
                 }
             });
         }
+
+        [HttpPost]
+        public async Task<ActionResult> GetEmpListNew(string Description, string FromDate, string ToDate, string plantId)
+        {
+            return await Task.Factory.StartNew(() =>
+            {
+
+                try
+                {
+                    string sql = string.Empty;
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    clsSalaryProcessUI obj = new clsSalaryProcessUI();
+                    AllDataset ads = new AllDataset();
+                    DateValidation(FromDate, ToDate);
+                    if (plantId == null)
+                    {
+                        plantId = identity.PlantId;
+                    }
+                    obj.LoadEmpSalaryProcGridNew(Description, FromDate, ToDate, plantId, out ads);
+
+
+                    //JsonResult json = Json(_employeePromotionService.GetSalaryStrcApprovedEmployee(identity.CompanyGroupId, identity.PlantId) , JsonRequestBehavior.AllowGet);
+                    //json.MaxJsonLength = int.MaxValue;
+                    //return json;
+
+                    JsonResult json = Json(new
+                    {
+                        Error = false
+                        ,
+                        Active = ads.dtActive
+                        ,
+                        Separated = ads.dtSeparated
+                        ,
+                        ApprovedSalary = ads.dtApprovedSalary
+                        ,
+                        AttNotProcessed = ads.dtAttNotProcessed
+                        ,
+                        DifferentStatus = ads.dtDifferentStatus
+                        ,
+                        ExcepEmp = ads.dtEXemp
+                        ,
+                        MaternityReturn = ads.dtMaternityReturn
+                        ,
+                        NewlyJoined = ads.dtNewlyJoined
+                        ,
+                        PresetZero = ads.dtPresetZero
+                        ,
+                        SNA = ads.dtSNA
+                        ,
+                        SND = ads.dtSND
+                        ,
+                        Message = AplosMessage.Updated
+                    });
+                    json.MaxJsonLength = int.MaxValue;
+                    return json;
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+
+                }
+            });
+        }
         #endregion
     }
 }

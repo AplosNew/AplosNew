@@ -146,7 +146,7 @@ function EmployeeSalaryProcessController(addressService, fileReader, cboService,
             $http({
                 method: "POST",
                 dataType: 'JSON',
-                url: 'payrolls/SalaryProcessNew/GetEmpList',
+                url: 'payrolls/SalaryProcessNew/GetEmpListNew',
                 data: parameters
             }).then(function successCallback(response) {
 
