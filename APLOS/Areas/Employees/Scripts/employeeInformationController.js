@@ -2013,7 +2013,9 @@ function employeeInformationController(addressService, fileReader, cboService, c
             //    throw "DOB can not equal or greater than current date.";
             //}
             Validation();
-
+            if ($scope.employeeInformation.EntryLevel == 'NonTrainee') {
+                $scope.employeeInformation.TrainingTypeId = null;
+            }
 
             $scope.savedisable = true;
             if ($scope.employeeInformationForm2.$valid) {
