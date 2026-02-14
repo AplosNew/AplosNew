@@ -1149,7 +1149,7 @@ where s.SalaryID='" + SalaryID + "'";
             {
                 string sql = @"SELECT E.SystemId EmpSystemId,SS.Id,OL.Id EmployeeSalaryRuleItemId,OL.UserName,OL.Formula,OL.FormulaId,'' SystemID
 ,DATEFROMPARTS(YEAR('" + toDate + "'), MONTH('" + toDate + "'), 1) AS MonthStartDate, EOMONTH('" + toDate + "') AS MonthEndDate,DAY(EOMONTH('" + toDate + @"')) MonthDays
-,SH.HeadCategory,OL.SalaryHeadID,SH.HeadType,SIDM.SystemID SalaryID,SIDM.GroupID,SIDM.PlantID,SS.PFLimit,SS.ESICLimit,SS.AgeLimit 
+,SH.HeadCategory,OL.SalaryHeadID,SH.HeadType,SIDM.SystemID SalaryID,SIDM.GroupID,SIDM.PlantID,ISNULL(SS.PFLimit,0) PFLimit,ISNULL(SS.ESICLimit,0) ESICLimit,ISNULL(SS.AgeLimit,0) AgeLimit 
 ,Value= ISNULL(CASE WHEN OL.UserName='WeekOff' THEN APD.WeekOffValue
 			 WHEN OL.UserName='Leave' THEN APD.LvValue
 			 WHEN OL.UserName='HoliDay' THEN APD.HoliDayValue
@@ -1175,7 +1175,6 @@ LEFT JOIN HKP.EmployeeSalaryRuleSetup SS ON SS.Id=OL.EmployeeSalaryRuleSetupId
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId IN(" + empId + @")
 LEFT JOIN  dbo.EmployeeBankInfo EB ON EB.EmpSystemID=E.SystemId AND RowID in ( select top(1) RowID from dbo.EmployeeBankInfo where EB.EmpSystemID=EmpSystemID AND IsApproved=1 order by DateAdded desc)
 LEFT JOIN MST.DesignationMaster DM ON DM.Id=E.GivenDesignationId
-LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId=E.LegalDesignationId
 LEFT JOIN (Select sum(PresentValue)PresentValue,SUM(LateValue)LateValue,SUM(LvValue)LvValue,SUM(WeekOffValue)WeekOffValue,SUM(PayDayValue)PayDayValue,SUM(HoliDayValue)HoliDayValue,ISNULL(SUM(CountedShortLeave),0)CountedShortLeave
 ,Count(APD.LateIn)LateIn,Count(APD.EarlyOut)EarlyOut, HalfDuration= CASE WHEN LeaveDuration=0.5 THEN CounT(LeaveDuration) ELSE 0 END,APD.EmpSystemID from dbo.AttdnProcessData APD where APD.EmpSystemID IN(" + empId + @") AND WorkDate between '" + fromDate + "' AND '" + toDate + @"'  Group by APD.EmpSystemID,LeaveDuration)APD ON APD.EmpSystemID=E.SystemId
 LEFT JOIN(Select COUNT(DayStatus)NightShiftDays,APD.EmpSystemID from dbo.AttdnProcessData APD 
@@ -1185,6 +1184,7 @@ Group By APD.EmpSystemID) NAPD ON NAPD.EmpSystemID=e.SystemId
 
  LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = E.SystemId  AND SIDM.EmployeeSalaryRuleSetupId=OL.EmployeeSalaryRuleSetupId
  LEFT JOIN SalaryInfoDefine SD ON SD.SalaryID=SIDM.SystemID AND OL.SalaryHeadID = SD.SalaryHeadID 
+LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId=E.LegalDesignationId and SIDM.PlantID=LSGD.PlantId
  LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SD.SalaryHeadID
  LEFT JOIN ORG.Plant PL ON PL.Id=SIDM.PlantID
  LEFT JOIN ORG.Company CO ON CO.Id=PL.CompanyId
@@ -1372,6 +1372,8 @@ ORDER BY E.SystemId,OL.Sequence";
         public async Task<JsonResult> ProcessAsync(Dictionary<string, object> data, List<Dictionary<string, object>> alldataset)
         {
             string empId = null;
+            string temphsid = null;
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             Library.General.Setups.ProcessLock _lock = new Library.General.Setups.ProcessLock(identity.Name, Library.General.Setups.ProcessLockId.SalaryProcess, "", 60);
             return await Task.Factory.StartNew(() =>
@@ -1392,7 +1394,6 @@ ORDER BY E.SystemId,OL.Sequence";
                     DataRow drSPAttdnProc = null;
                     string esql = "";
                     var empIds = "' '";
-
                     SendNotification("Validating Bank Accounts");
                     ValidationBank(tempEmpSysId, identity.PlantId);
 
@@ -1529,7 +1530,10 @@ ORDER BY E.SystemId,OL.Sequence";
                                     tempAgeLimit = Convert.ToDecimal(dvEmpWise[i]["AgeLimit"].ToString());
                                 }
 
+                                //if(i==29)
+                                //{
 
+                                //}
                                 if (string.IsNullOrEmpty(dvEmpWise[i]["FormulaId"].ToString()) && !string.IsNullOrEmpty(dvEmpWise[i]["SalaryHeadID"].ToString()))
                                 {
                                     dtValueRow = dtValue.NewRow();
@@ -1541,7 +1545,7 @@ ORDER BY E.SystemId,OL.Sequence";
                                     dtValueRow["Value"] = Math.Round((Convert.ToDecimal(dvEmpWise[i]["Value"].ToString()) / tempSalaryCalculationDays) * tempPayDay, 0);
 
                                     dtValue.Rows.Add(dtValueRow);
-
+                                    temphsid = dtValueRow["SalaryHeadID"].ToString();
                                     DataView dvPC = new DataView(dsProChild.Tables[0]);
                                     dvPC.RowFilter = "SystemID='" + dtValue.Rows[0]["SystemID"] + "'";
 
@@ -1597,6 +1601,11 @@ ORDER BY E.SystemId,OL.Sequence";
                                         {
                                             dtValueRow["EntryAmount"] = dvEmpWise[i]["Value"].ToString().Trim();
                                             dtValueRow["Value"] = Math.Round(sFormulaResult, 0);
+                                        }
+                                        else
+                                        {
+                                            dtValueRow["EntryAmount"] = 0;
+                                            dtValueRow["Value"] = 0;
                                         }
                                     }
                                     else if (dvEmpWise[i]["HeadCategory"].ToString().Trim() == "PF Employer Contribution" || dvEmpWise[i]["HeadCategory"].ToString().Trim() == "PF Employee Contribution")
@@ -1752,7 +1761,7 @@ ORDER BY E.SystemId,OL.Sequence";
                 catch (Exception ex)
                 {
                     _lock.UnlockProcess();
-                    return Json(new { Error = true, Message = ex.Message + " " + empId });
+                    return Json(new { Error = true, Message = ex.Message + " " + empId+" - "+temphsid });
 
                 }
             });
