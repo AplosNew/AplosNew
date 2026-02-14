@@ -16572,7 +16572,7 @@ Group By A.POId,A.LotNo,A.EntityId,A.WorkDate,A.ShiftId,A.Grade,A.ProcessId,A.Pl
             {
 
                 ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("");
-                objCon.getDataSet("SELECT * FROM org.Plant where id IN(20251,20252)", out DataSet dsRef);
+                objCon.getDataSet("SELECT * FROM org.Plant", out DataSet dsRef);
 
 
                 for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
@@ -17750,7 +17750,7 @@ WHERE ENC.Id IS NULL;
                             #region variables
                             decimal _CalculatedWorkingDays = 0;
                             empId = dtLeaveInfo.Rows[i]["EmployeeId"].ToString();
-                            if (empId == "2002606")
+                            if (empId == "25252362")
                             {
 
                             }
