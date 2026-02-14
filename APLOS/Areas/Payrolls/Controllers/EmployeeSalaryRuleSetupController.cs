@@ -765,7 +765,7 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
             {
                 if (clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) == 0)
                 {
-                    seq = 15;
+                    seq = 16;
                 }
                 else
                 {
