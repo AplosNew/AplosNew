@@ -1423,7 +1423,6 @@ ORDER BY E.SystemId,OL.Sequence";
                     string idFromDB = "";
                     string _childPK_seed_fromDB = "";
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    clsStaticInfo _info = new clsStaticInfo();
                     #region data master
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
@@ -1450,8 +1449,6 @@ ORDER BY E.SystemId,OL.Sequence";
                         _Id = data["SystemID"].ToString();
                         EditRow(dsMaster.Tables[0].Rows[0], data);
                     }
-                    _info.SaveDataSets(dsMaster);
-
                     #endregion data update
                     #region data Detail
                     con.OpenDataSetThroughAdapter("select * from [dbo].[SalaryProcChild] where SlrProcMstSystemID='" + data["SystemID"] + "'", out dsProChild, false, "1");
@@ -1750,15 +1747,14 @@ ORDER BY E.SystemId,OL.Sequence";
 
                         }
 
-                        _info.SaveDataSets(dsProChild, dsSlaProLogDetail, dsSPAttdnProc);
 
                     }
+                    SendNotification("Status: Process Completed");
                     #endregion data update 
-
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsMaster, dsProChild, dsSlaProLogDetail, dsSPAttdnProc);
 
                     _lock.UnlockProcess();
-                    SendNotification("Status: Process Completed");
-
                     return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
 
                 }
