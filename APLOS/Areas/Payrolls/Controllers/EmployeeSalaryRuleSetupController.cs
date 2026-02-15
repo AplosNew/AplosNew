@@ -1454,8 +1454,7 @@ ORDER BY E.SystemId,OL.Sequence";
 
                     #endregion data update
                     #region data Detail
-                    con.OpenDataSetThroughAdapter("select * from [dbo].[SalaryProcChild] where SlrProcMstSystemID='" + data["SystemID"] + "'", out dsProChild, false, "1");
-                    con.OpenDataSetThroughAdapter("select * from [dbo].[SalaryProcessLogDetail] where SalaryProcessId  in (select SystemID from SalaryProcMaster m where m.MonthNo= " + Convert.ToDateTime(data["ToDate"]).ToString("MM") + " AND M.YearNo=" + Convert.ToDateTime(data["ToDate"]).ToString("yyyy") + ") and EmpSystemId in (" + tempEmpSysId + ")", out dsSlaProLogDetail, false, "1");
+               
 
 
                     genid.GenHRID(DateTime.Now.ToShortDateString().ToString(), "SAL_PROC_CHILD_PK", out _childPK_seed_fromDB);
@@ -1471,6 +1470,8 @@ ORDER BY E.SystemId,OL.Sequence";
                         empId = item["EmpSystemID"].ToString();
                         SendNotification(item["EmployeeCode"].ToString() + "-" + item["EmployeeName"].ToString() + " " + "Process is going on ...");
 
+                        con.OpenDataSetThroughAdapter("select * from [dbo].[SalaryProcChild] where SlrProcMstSystemID='" + data["SystemID"] + "' AND EmpInfoSystemID='"+empId+"'", out dsProChild, false, "1");
+                        con.OpenDataSetThroughAdapter("select * from [dbo].[SalaryProcessLogDetail] where SalaryProcessId  in (select SystemID from SalaryProcMaster m where m.MonthNo= " + Convert.ToDateTime(data["ToDate"]).ToString("MM") + " AND M.YearNo=" + Convert.ToDateTime(data["ToDate"]).ToString("yyyy") + ") and EmpSystemId='"+empId+"'", out dsSlaProLogDetail, false, "1");
 
                         string sql = string.Empty;
                         DataTable dtValue = new DataTable();
