@@ -793,40 +793,47 @@ function EmployeeSalaryRuleSetupController(cboService, commonMessage, $scope, $r
                     }
                     if (i == 10) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
+                        obj.UserName = 'PresentDay';
+                        obj.StandardName = 'Present Day';
+                        obj.EntryState = 'Auto';
+                        obj.IsDefault = true;
+                    }
+                    if (i == 11) {
+                        obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'NetDay';
                         obj.StandardName = 'Net Day';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
-                    if (i == 11) {
+                    if (i == 12) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'NightShiftDays';
                         obj.StandardName = 'Night Shift Days';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
-                    if (i == 12) {
+                    if (i == 13) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'ShortDuration';
                         obj.StandardName = 'Short Duration';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
-                    if (i == 13) {
+                    if (i == 14) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'LateIN';
                         obj.StandardName = 'LateIN';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
-                    if (i == 14) {
+                    if (i == 15) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'EarlyOut';
                         obj.StandardName = 'Early Out';
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
-                    if (i == 15) {
+                    if (i == 16) {
                         obj.EmployeeSalaryRuleSetupId = $scope.masterId;
                         obj.UserName = 'HalfDuration';
                         obj.StandardName = 'Half Duration';

@@ -118,6 +118,114 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 dsEmpBacInfo = null;
             }
         }//End Function
+        public void LoadEmpSalaryProcGridNew(string Description, string FromDate, string ToDate, string PlantId, out AllDataset ads)
+        {
+            //TBD//
+            //cbx enable/disable
+            //nullify emp-count
+            //1.grid color
+            DataSet dsEmpBacInfo = null;
+            DataSet dsEmpSeparated = null;
+            //clsEmployeeLoad objEmpBasic = null;
+            //clsStaticInfo objStatic = null;
+            //clsSalaryInfo ob = null;
+            string lblLocalCurrencyID = string.Empty;
+            string lblForeignCurrencyID = string.Empty;
+            string txtForeignCurRate = string.Empty;
+            string lblUseFrgCurID = string.Empty;
+
+            try
+            {
+                #region Validation
+                ads = null;
+                //lblEmpCount.Text = "";
+                if (bplib.clsWebLib.IsDateOK(FromDate) == false)
+                {
+                    //txtFromDate.Focus();
+                    Exception ex = new Exception(bplib.clsWebLib.DateValidationMsg("From Date"));
+                    throw (ex);
+                }
+                if (bplib.clsWebLib.IsDateOK(ToDate) == false)
+                {
+                    //txtToDate.Focus();
+                    Exception ex = new Exception(bplib.clsWebLib.DateValidationMsg("To Date"));
+                    throw (ex);
+                }
+
+                if (Convert.ToDateTime(FromDate) > Convert.ToDateTime(ToDate))
+                {
+                    throw new Exception("'From Date' can not be greater than 'To Date' ...");
+                }
+
+                DateTime maxToDate = Convert.ToDateTime(FromDate).AddMonths(1).AddDays(-1);
+                if (Convert.ToDateTime(ToDate) > maxToDate)
+                {
+                    throw new Exception("Process duration can not be more than one month ...");
+                }
+
+                if (string.IsNullOrEmpty(PlantId) == true)
+                {
+                    //ddlPlant.Focus();
+                    Exception ex = new Exception("Please select Factory...");
+                    throw (ex);
+                }
+
+                if (string.IsNullOrEmpty(Description))
+                {
+                    //txtDescription.Focus();
+                    Exception ex = new Exception("Description can not be blank...");
+                    throw (ex);
+                }
+
+                int FromMonthNo = (int)(Convert.ToDateTime(FromDate).Month);
+                int ToMonthNo = (int)(Convert.ToDateTime(ToDate).Month);
+                //by monir 180119
+                //ValidationSalary(FromDate, ToDate,PlantId);
+                #endregion Validation
+
+                //objEmpBasic = new clsEmployeeLoad();
+                //objStatic = new clsStaticInfo();
+
+                //cbxActive.Checked = false;
+                //cbxNewlyJoined.Checked = false;
+                //cbxSeparated.Checked = false;
+                //cbxPresentDaysZero.Checked = false;
+
+                //EnableAll(false, dgSalaryProc);
+                //EnableAll(false, DGNewlyJoined);
+                //EnableAll(false, DGSeparated);
+                //EnableAll(false, DGPaydaysZero);
+                ads = new AllDataset();
+                ads.FromDate = FromDate;
+                ads.ToDate = ToDate;
+                ads.PlantId = PlantId;
+
+                LoadSeparatedEmp(PlantId, "ALL", FromDate, ToDate, out dsEmpSeparated);
+                LoadEmpSalaryProcGridNew(PlantId, "ALL", FromDate, ToDate, out dsEmpBacInfo);
+
+                //LoadEmpSalaryProcGrid(PlantId, "ALL", FromDate, ToDate, out dsEmpBacInfo);
+                if (dsEmpBacInfo.Tables[0].Rows.Count > 0)
+                {
+                    //panSalaryProc.Visible = true;
+                    DataView dvActive = new DataView(dsEmpBacInfo.Tables[0]);
+                    dvActive.RowFilter = " DOJs <  '" + FromDate + @"' AND (DOSs IS NULL OR DOSs > '" + ToDate + "')";
+                    //dvActive.RowFilter = "EmployeeStatus='Active' and DOJs <  '" + FromDate + @"'";
+                    DataTable dtActive = dvActive.ToTable();
+                    GetList(ref ads, dtActive, ListEnum.Active);
+                }
+                //SetGridRowColor(dgSalaryProc);
+                LoadOtherTabDG(dsEmpBacInfo, dsEmpSeparated, ref ads);
+                LoadSlrRuleInfo(FromDate, ToDate, PlantId, lblLocalCurrencyID, out lblForeignCurrencyID, out txtForeignCurRate, out lblUseFrgCurID);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                dsEmpBacInfo = null;
+            }
+        }//End Function
         private void ValidationSalary(string FromDate, string ToDate, string PlantId)
         {
             //clsSalaryProc objSlrProc = null;
@@ -571,7 +679,7 @@ and (zz.EmpInfoSystemID is not null or zzz.EmpInfoSystemID is not null)
             {
                 string dtFD = Convert.ToDateTime(sFromDate).AddDays(-1).ToString("dd-MMM-yyyy");
                 string dtFDPrevM = Convert.ToDateTime(sFromDate).AddMonths(-1).ToString("dd-MMM-yyyy");
-                strSQL = @"SELECT distinct Convert(bit, 'False') IsSelectSlrProc,
+                strSQL = @"SELECT  distinct Convert(bit, 'False') IsSelectSlrProc,
                                   S.SlrProcMstSystemID AS SystemID, ISNULL(S.IsApproved, 0) IsApproved, ISNULL(S.IsDisbursed, 0) IsDisbursed, E.SystemID AS EmpSystemID,
                                   E.EmployeeCode, E.EmployeeName, F.UserName PlantName, E.PlantID, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106),' ','-') DOJ,E.DOJ DOJs,
                                   REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS,E.DOS DOSs, E.EmployeeStatus, E.EmployeeCurrentStatus, E.EmployeeGroupSystemID UserGroupSystemID,
@@ -726,13 +834,607 @@ and isnull(locka.EmpSystemId,'')=''
                     strSQL += @"
                                AND E.PlantID = '" + sPlantID + @"'";
                 }
-                
+
 
                 strSQL += @"
                             ORDER BY E.EmployeeCode desc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+              
+
+        public void LoadEmpSalaryProcGridNew(string sPlantID, string sUserGroupID, string sFromDate, string sToDate, out System.Data.DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+
+            try
+            {
+                DateTime dtFrom = Convert.ToDateTime(sFromDate);
+                DateTime dtTo = Convert.ToDateTime(sToDate);
+
+                strSQL = @"
+DECLARE @FromDate DATE = '" + dtFrom.ToString("yyyy-MM-dd") + @"';
+DECLARE @ToDate   DATE = '" + dtTo.ToString("yyyy-MM-dd") + @"';
+DECLARE @PlantID  VARCHAR(20) = '" + sPlantID + @"';
+DECLARE @UserGroupID VARCHAR(20) = '" + sUserGroupID + @"';
+DECLARE @MonthNo INT = MONTH(@FromDate);
+DECLARE @YearNo  INT = YEAR(@FromDate);
+
+---------------------------------------------------------
+-- Preload Current Month Unapproved Salary
+---------------------------------------------------------
+SELECT SC.SlrProcMstSystemID,
+       SC.IsApproved,
+       SC.IsDisbursed,
+       SC.EmpInfoSystemID
+INTO #CurrentProcess
+FROM SalaryProcChild SC
+JOIN SalaryProcMaster SM ON SC.SlrProcMstSystemID = SM.SystemID
+WHERE SM.MonthNo = @MonthNo
+AND SM.YearNo = @YearNo
+AND SC.IsApproved = 0
+AND SC.IsDisbursed = 0;
+CREATE INDEX IX_CP ON #CurrentProcess(EmpInfoSystemID);
+
+---------------------------------------------------------
+-- Preload Last Approved Salary
+---------------------------------------------------------
+SELECT MAX(m.ToDate) AS ToDate, c.EmpInfoSystemID
+INTO #LastApproved
+FROM SalaryProcMaster m
+JOIN SalaryProcChild c ON m.SystemID = c.SlrProcMstSystemID
+WHERE c.PlantID = @PlantID
+AND c.IsApproved = 1
+GROUP BY c.EmpInfoSystemID;
+CREATE INDEX IX_LAS ON #LastApproved(EmpInfoSystemID);
+
+---------------------------------------------------------
+-- Preload Locked Employees
+---------------------------------------------------------
+SELECT EmpSystemId
+INTO #LockedEmp
+FROM SalaryLock
+WHERE MonthNo = @MonthNo
+AND YearNo = @YearNo
+AND IsLocked = 1;
+CREATE INDEX IX_Locked ON #LockedEmp(EmpSystemId);
+
+---------------------------------------------------------
+-- Preload Zero Attendance Employees
+---------------------------------------------------------
+SELECT EmpSystemID
+INTO #ZeroAttendance
+FROM AttdnProcessData
+WHERE WorkDate BETWEEN @FromDate AND @ToDate
+GROUP BY EmpSystemID
+HAVING SUM(ISNULL(PresentValue,0)+ISNULL(LateValue,0)+ISNULL(LvValue,0)) = 0;
+CREATE INDEX IX_ZeroAttendance ON #ZeroAttendance(EmpSystemID);
+
+---------------------------------------------------------
+-- Preload Exception / MLV / Return / During Employees
+---------------------------------------------------------
+SELECT SystemID AS EmpSystemID INTO #ExceptionEmp FROM (" + ExceptionEmpsForSP(sPlantID) + @") X;
+CREATE INDEX IX_Exception ON #ExceptionEmp(EmpSystemID);
+
+SELECT EmpSystemID INTO #MLVEmp FROM (" + MLVEmp_WC(sPlantID, sFromDate, sToDate) + @") X;
+CREATE INDEX IX_MLV ON #MLVEmp(EmpSystemID);
+
+SELECT EmpSystemID INTO #MLVReturn FROM (" + MLVReturn_WC(sPlantID, sFromDate, sToDate) + @") X;
+CREATE INDEX IX_MLVReturn ON #MLVReturn(EmpSystemID);
+
+SELECT EmpSystemID INTO #MLVDuring FROM (" + MLV_During_Emp_WC(sPlantID, sFromDate, sToDate) + @") X;
+CREATE INDEX IX_MLVDuring ON #MLVDuring(EmpSystemID);
+
+---------------------------------------------------------
+-- Main Query
+---------------------------------------------------------
+SELECT DISTINCT
+    CAST(0 AS BIT) AS IsSelectSlrProc,
+    CP.SlrProcMstSystemID AS SystemID,
+    ISNULL(CP.IsApproved,0) AS IsApproved,
+    ISNULL(CP.IsDisbursed,0) AS IsDisbursed,
+    E.SystemID AS EmpSystemID,
+    E.EmployeeCode,
+    E.EmployeeName,
+    F.UserName AS PlantName,
+    E.PlantID,
+    REPLACE(CONVERT(VARCHAR(11),E.DOJ,106),' ','-') AS DOJ,
+    E.DOJ AS DOJs,
+    REPLACE(CONVERT(VARCHAR(11),E.DOS,106),' ','-') AS DOS,
+    E.DOS AS DOSs,
+    E.EmployeeStatus,
+    E.EmployeeCurrentStatus,
+    E.EmployeeGroupSystemID AS UserGroupSystemID,
+    DM.DesignationGroupID,
+    DG.UserName AS DesignationGroup,
+    E.SalaryRuleMasterSystemID,
+    SRM.SalaryRuleName,
+    DGS.UserName AS GivenDesignation,
+    REPLACE(CONVERT(VARCHAR(11),LAS.ToDate,106),' ','-') AS ToDate,
+    CASE 
+        WHEN LAS.ToDate > @FromDate THEN 'Overlap'
+        WHEN LAS.ToDate < DATEADD(DAY,-1,@FromDate) THEN 'Gap'
+        ELSE 'OK'
+    END AS ProcessStatus,
+    CASE 
+        WHEN EBI.BankSystemID IS NOT NULL THEN 'Bank Payment'
+        ELSE 'Cash Payment'
+    END AS BankAccountStatus,
+    E.GivenDesignationId,
+    E.LegalDesignationId,
+    E.PaymentMode,
+    E.BudgetCode,
+    EBI.BankSystemID,
+    EBI.BankBranchId,
+    EBI.BankAccNo,
+    EBI.SalaryPercentage,
+    EBI.IFSCCode,
+    EBI.MICRCode,
+    DM.EmployeeCategoryId,
+    GR.LegalSalaryGradeId,
+    CASE WHEN EXISTS (SELECT 1 FROM #LockedEmp L WHERE L.EmpSystemId = E.SystemID) THEN 'YES' ELSE 'NO' END AS IsLocked,
+    AG.UserName AS AccountsGroup
+FROM EmployeeInformation E
+LEFT JOIN #CurrentProcess CP ON CP.EmpInfoSystemID = E.SystemID
+LEFT JOIN #LastApproved LAS ON LAS.EmpInfoSystemID = E.SystemID
+LEFT JOIN SalaryRuleMaster SRM ON E.SalaryRuleMasterSystemID = SRM.SystemID
+LEFT JOIN EmployeeBankInfo EBI ON E.SystemID = EBI.EmpSystemID AND EBI.IsApproved=1
+LEFT JOIN org.Plant F ON E.PlantID = F.Id
+LEFT JOIN hkp.Designation DGS ON DGS.Id = E.GivenDesignationId
+LEFT JOIN mst.DesignationMaster DM ON DM.DesignationId = E.GivenDesignationId
+LEFT JOIN HKP.DesignationGroup DG ON DG.Id = DM.DesignationGroupID
+LEFT JOIN mst.LegalSalaryGradeDesignation GR ON GR.LegalDesignationId = E.LegalDesignationId AND GR.PlantId = E.PlantId
+LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId = DM.Id AND DMC.PlantId = E.PlantId
+LEFT JOIN dbo.AccountsGroup AG ON AG.Id = DMC.AccountsGroupId
+WHERE E.DOJ <= @ToDate
+  AND (E.DOS IS NULL OR E.DOS >= @FromDate)
+  AND E.EmployeeStatus IN ('Active','Separated')
+  AND (@PlantID = 'ALL' OR E.PlantID = @PlantID)
+  AND (@UserGroupID = 'ALL' OR E.EmployeeGroupSystemID = @UserGroupID)
+  AND NOT EXISTS (SELECT 1 FROM #ZeroAttendance Z WHERE Z.EmpSystemID = E.SystemID)
+  AND NOT EXISTS (SELECT 1 FROM #ExceptionEmp X WHERE X.EmpSystemID = E.SystemID)
+  AND NOT EXISTS (SELECT 1 FROM #MLVEmp X WHERE X.EmpSystemID = E.SystemID)
+  AND NOT EXISTS (SELECT 1 FROM #MLVReturn X WHERE X.EmpSystemID = E.SystemID)
+  AND NOT EXISTS (SELECT 1 FROM #MLVDuring X WHERE X.EmpSystemID = E.SystemID)
+ORDER BY E.EmployeeCode DESC;
+
+---------------------------------------------------------
+-- Cleanup
+---------------------------------------------------------
+DROP TABLE #CurrentProcess;
+DROP TABLE #LastApproved;
+DROP TABLE #LockedEmp;
+DROP TABLE #ZeroAttendance;
+DROP TABLE #ExceptionEmp;
+DROP TABLE #MLVEmp;
+DROP TABLE #MLVReturn;
+DROP TABLE #MLVDuring;
+";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+
+        public void _LoadEmpSalaryProcGridNew(string sPlantID, string sUserGroupID, string sFromDate, string sToDate, out System.Data.DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                string dtFD = Convert.ToDateTime(sFromDate).AddDays(-1).ToString("dd-MMM-yyyy");
+                string dtFDPrevM = Convert.ToDateTime(sFromDate).AddMonths(-1).ToString("dd-MMM-yyyy");
+
+                var _sql = @"DECLARE @FromDate DATE = '" + sFromDate + @"'
+DECLARE @ToDate   DATE = '" + sToDate + @"'
+DECLARE @PlantId  VARCHAR(10) = '" + sPlantID + @"'
+DECLARE @MonthNo  INT = MONTH(@FromDate)
+DECLARE @YearNo   INT = YEAR(@FromDate)
+
+/* ===============================
+   PRE-FILTER EMPLOYEES
+=================================*/
+SELECT *
+INTO #EMP
+FROM EmployeeInformation
+WHERE PlantID = @PlantId
+AND DOJ <= @ToDate
+AND EmployeeStatus IN ('Active','Separated')
+
+/* ===============================
+   LAST APPROVED SALARY
+=================================*/
+SELECT 
+    c.EmpInfoSystemID,
+    MAX(m.ToDate) AS ToDate
+INTO #LastApprovedSalary
+FROM SalaryProcMaster m
+JOIN SalaryProcChild c 
+    ON m.SystemID = c.SlrProcMstSystemID
+WHERE c.PlantID = @PlantId
+AND c.IsApproved = 1
+GROUP BY c.EmpInfoSystemID
+
+
+/* ===============================
+   CURRENT MONTH PROCESS DATA
+=================================*/
+SELECT 
+    SC.EmpInfoSystemID,
+    SC.SlrProcMstSystemID,
+    SC.IsApproved,
+    SC.IsDisbursed
+INTO #CurrentProcess
+FROM SalaryProcMaster SM
+JOIN SalaryProcChild SC 
+    ON SM.SystemID = SC.SlrProcMstSystemID
+WHERE SM.MonthNo = @MonthNo
+AND SM.YearNo  = @YearNo
+AND SC.IsApproved = 0
+AND SC.IsDisbursed = 0
+
+/* ===============================
+   ATTENDANCE VALID EMPLOYEES
+=================================*/
+SELECT EmpSystemID
+INTO #AttendanceValid
+FROM AttdnProcessData
+WHERE WorkDate BETWEEN @FromDate AND @ToDate
+GROUP BY EmpSystemID
+HAVING SUM(ISNULL(PresentValue,0) 
+         + ISNULL(LateValue,0) 
+         + ISNULL(LvValue,0)) > 0
+
+
+/* ===============================
+   MAIN QUERY (ALL YOUR COLUMNS)
+=================================*/
+
+SELECT 
+
+    CONVERT(BIT,'False') AS IsSelectSlrProc,
+
+    CP.SlrProcMstSystemID AS SystemID,
+    ISNULL(CP.IsApproved,0) AS IsApproved,
+    ISNULL(CP.IsDisbursed,0) AS IsDisbursed,
+
+    E.SystemID AS EmpSystemID,
+    E.EmployeeCode,
+    E.EmployeeName,
+    F.UserName AS PlantName,
+    E.PlantID,
+
+    REPLACE(CONVERT(VARCHAR(11),E.DOJ,106),' ','-') AS DOJ,
+    E.DOJ AS DOJs,
+
+    REPLACE(CONVERT(VARCHAR(11),E.DOS,106),' ','-') AS DOS,
+    E.DOS AS DOSs,
+
+    E.EmployeeStatus,
+    E.EmployeeCurrentStatus,
+    E.EmployeeGroupSystemID AS UserGroupSystemID,
+
+    DM.DesignationGroupID,
+    DG.UserName AS DesignationGroup,
+
+    E.SalaryRuleMasterSystemID,
+    SRM.SalaryRuleName,
+
+    DGS.UserName AS GivenDesignation,
+
+    REPLACE(CONVERT(VARCHAR(11),LAS.ToDate,106),' ','-') AS ToDate,
+
+    ProcessStatus = CASE 
+        WHEN LAS.ToDate > @FromDate THEN 'Overlap'
+        WHEN LAS.ToDate < DATEADD(DAY,-1,@FromDate) THEN 'Gap'
+        ELSE 'OK'
+    END,
+
+    BankAccountStatus = CASE 
+        WHEN EBI.BankSystemID IS NOT NULL THEN 'Bank Payment'
+        ELSE 'Cash Payment'
+    END,
+
+    E.GivenDesignationId,
+    E.LegalDesignationId,
+    E.PaymentMode,
+    E.BudgetCode,
+
+    EBI.BankSystemID,
+    EBI.BankBranchId,
+    EBI.BankAccNo,
+    EBI.SalaryPercentage,
+    EBI.IFSCCode,
+    EBI.MICRCode,
+
+    DM.EmployeeCategoryId,
+    GR.LegalSalaryGradeId,
+
+    IsLocked = CASE 
+        WHEN NOT EXISTS (
+            SELECT 1 FROM SalaryLock sl
+            WHERE sl.EmpSystemId = E.SystemID
+            AND sl.MonthNo = @MonthNo
+            AND sl.YearNo = @YearNo
+            AND sl.IsLocked = 1
+        ) THEN 'NO'
+        ELSE 'YES'
+    END,
+
+    AG.UserName AS AccountsGroup
+
+FROM #EMP E
+
+LEFT JOIN #CurrentProcess CP
+    ON E.SystemID = CP.EmpInfoSystemID
+
+LEFT JOIN #LastApprovedSalary LAS
+    ON LAS.EmpInfoSystemID = E.SystemID
+
+LEFT JOIN SalaryRuleMaster SRM
+    ON E.SalaryRuleMasterSystemID = SRM.SystemID
+
+LEFT JOIN org.Plant F
+    ON E.PlantID = F.Id
+
+LEFT JOIN EmployeeBankInfo EBI
+    ON E.SystemID = EBI.EmpSystemID
+    AND EBI.IsApproved = 1
+
+LEFT JOIN hkp.Designation DGS
+    ON DGS.Id = E.GivenDesignationId
+
+LEFT JOIN mst.DesignationMaster DM
+    ON DM.DesignationId = E.GivenDesignationId
+
+LEFT JOIN HKP.DesignationGroup DG
+    ON DG.Id = DM.DesignationGroupID
+
+LEFT JOIN mst.LegalSalaryGradeDesignation GR
+    ON GR.LegalDesignationId = E.LegalDesignationId
+    AND GR.PlantId = E.PlantId
+
+LEFT JOIN SCS.DesignationMasterConfiguration DMC
+    ON DMC.DesignationMasterId = DM.Id
+    AND DMC.PlantId = E.PlantId
+
+LEFT JOIN dbo.AccountsGroup AG
+    ON AG.Id = DMC.AccountsGroupId
+
+
+/* ===============================
+   FILTER CONDITIONS (Optimized)
+=================================*/
+
+WHERE 
+
+    -- Attendance Valid
+    EXISTS (
+        SELECT 1 FROM #AttendanceValid AV
+        WHERE AV.EmpSystemID = E.SystemID
+    )
+
+    -- No unapproved salary info
+    AND NOT EXISTS (
+        SELECT 1
+        FROM SalaryInfoDefineMaster s
+        WHERE s.EmpInfoSystemID = E.SystemID
+        AND s.PlantId = @PlantId
+        AND s.IsApproved = 0
+    )
+
+    -- No maternity leave conflict
+    AND NOT EXISTS (
+        SELECT 1
+        FROM LeaveTransaction lt
+        WHERE lt.EmpSystemID = E.SystemID
+        AND lt.PlantId = @PlantId
+        AND lt.FromDate <= @ToDate
+        AND lt.ToDate >= @FromDate
+        AND lt.LTSystemID IN (
+            SELECT Id FROM LeaveType WHERE LeaveType='Maternity'
+        )
+    )
+
+ORDER BY E.EmployeeCode DESC
+
+drop table  #EMP
+drop table  #LastApprovedSalary
+drop table  #CurrentProcess
+drop table  #AttendanceValid
+";
+
+                string sql = @"DECLARE @FromDate DATE = '" + sFromDate + @"'
+DECLARE @ToDate   DATE = '" + sToDate + @"'
+
+DECLARE @Month INT = MONTH(@FromDate)
+DECLARE @Year  INT = YEAR(@FromDate)
+
+DECLARE @PrevDate DATE = DATEADD(MONTH,-1,@FromDate)
+DECLARE @PrevMonth INT = MONTH(@PrevDate)
+DECLARE @PrevYear  INT = YEAR(@PrevDate)
+
+----------------------------------------------------------
+-- Preload Locked Employees
+----------------------------------------------------------
+SELECT EmpSystemId
+INTO #LockedEmp
+FROM SalaryLock
+WHERE MonthNo = @Month
+AND YearNo = @Year
+AND IsLocked = 1
+
+----------------------------------------------------------
+-- Preload Zero Attendance Employees
+----------------------------------------------------------
+SELECT EmpSystemID
+INTO #ZeroAttendance
+FROM AttdnProcessData
+WHERE WorkDate BETWEEN @FromDate AND @ToDate
+GROUP BY EmpSystemID
+HAVING SUM(ISNULL(PresentValue,0)
+         + ISNULL(LateValue,0)
+         + ISNULL(LvValue,0)) = 0
+
+----------------------------------------------------------
+-- MAIN QUERY
+----------------------------------------------------------
+
+SELECT DISTINCT
+    CAST(0 AS BIT) AS IsSelectSlrProc,
+
+    S.SlrProcMstSystemID AS SystemID,
+    ISNULL(S.IsApproved,0) AS IsApproved,
+    ISNULL(S.IsDisbursed,0) AS IsDisbursed,
+
+    E.SystemID AS EmpSystemID,
+    E.EmployeeCode,
+    E.EmployeeName,
+    F.UserName AS PlantName,
+    E.PlantID,
+
+    CONVERT(VARCHAR(11),E.DOJ,106) AS DOJ,
+    E.DOJ AS DOJs,
+
+    CONVERT(VARCHAR(11),E.DOS,106) AS DOS,
+    E.DOS AS DOSs,
+
+    E.EmployeeStatus,
+    E.EmployeeCurrentStatus,
+    E.EmployeeGroupSystemID AS UserGroupSystemID,
+
+    DM.DesignationGroupID,
+    DG.UserName AS DesignationGroup,
+    E.SalaryRuleMasterSystemID,
+    SRM.SalaryRuleName,
+    DGS.UserName AS GivenDesignation,
+
+    CONVERT(VARCHAR(11),Y.ToDate,106) AS ToDate,
+
+    CASE
+        WHEN Y.ToDate > @FromDate THEN 'Overlap'
+        WHEN Y.ToDate < DATEADD(DAY,-1,@FromDate) THEN 'Gap'
+        ELSE 'OK'
+    END AS ProcessStatus,
+
+    CASE
+        WHEN EBI.BankSystemID IS NOT NULL THEN 'Bank Payment'
+        ELSE 'Cash Payment'
+    END AS BankAccountStatus,
+
+    E.GivenDesignationId,
+    E.LegalDesignationId,
+    E.PaymentMode,
+    E.BudgetCode,
+
+    EBI.BankSystemID,
+    EBI.BankBranchId,
+    EBI.BankAccNo,
+    EBI.SalaryPercentage,
+    EBI.IFSCCode,
+    EBI.MICRCode,
+
+    DM.EmployeeCategoryId,
+    GR.LegalSalaryGradeId,
+
+    AG.UserName AS AccountsGroup
+
+FROM EmployeeInformation E
+
+LEFT JOIN SalaryRuleMaster SRM
+    ON E.SalaryRuleMasterSystemID = SRM.SystemID
+
+LEFT JOIN EmployeeBankInfo EBI
+    ON E.SystemID = EBI.EmpSystemID
+    AND EBI.IsApproved = 1
+
+LEFT JOIN org.Plant F
+    ON E.PlantID = F.Id
+
+LEFT JOIN hkp.Designation DGS
+    ON DGS.Id = E.GivenDesignationId
+
+LEFT JOIN mst.DesignationMaster DM
+    ON DM.DesignationId = E.GivenDesignationId
+
+LEFT JOIN HKP.DesignationGroup DG
+    ON DG.Id = DM.DesignationGroupID
+
+LEFT JOIN mst.LegalSalaryGradeDesignation GR
+    ON GR.LegalDesignationId = E.LegalDesignationId
+    AND GR.PlantId = E.PlantId
+
+LEFT JOIN SCS.DesignationMasterConfiguration DMC
+    ON DMC.DesignationMasterId = DM.Id
+    AND DMC.PlantId = E.PlantId
+
+LEFT JOIN dbo.AccountsGroup AG
+    ON AG.Id = DMC.AccountsGroupId
+
+LEFT JOIN
+(
+    SELECT MAX(ToDate) ToDate, EmpInfoSystemID
+    FROM SalaryProcMaster M
+    INNER JOIN SalaryProcChild C
+        ON M.SystemID = C.SlrProcMstSystemID
+    WHERE C.IsApproved = 1
+    GROUP BY EmpInfoSystemID
+) Y ON Y.EmpInfoSystemID = E.SystemID
+
+LEFT JOIN
+(
+    SELECT SC.SlrProcMstSystemID,
+           SC.IsApproved,
+           SC.IsDisbursed,
+           SC.EmpInfoSystemID
+    FROM SalaryProcChild SC
+    INNER JOIN SalaryProcMaster SM
+        ON SC.SlrProcMstSystemID = SM.SystemID
+    WHERE SM.MonthNo = @Month
+    AND SM.YearNo = @Year
+) S ON S.EmpInfoSystemID = E.SystemID
+
+----------------------------------------------------------
+-- FILTER SECTION (Optimized)
+----------------------------------------------------------
+
+WHERE
+    E.DOJ <= @ToDate
+    AND (E.DOS IS NULL OR E.DOS >= @FromDate)
+    AND E.EmployeeStatus IN ('Active','Separated')
+
+    AND NOT EXISTS (SELECT 1 FROM #LockedEmp L WHERE L.EmpSystemId = E.SystemID)
+    AND NOT EXISTS (SELECT 1 FROM #ZeroAttendance Z WHERE Z.EmpSystemID = E.SystemID)
+
+ORDER BY E.EmployeeCode DESC
+
+----------------------------------------------------------
+DROP TABLE #LockedEmp
+DROP TABLE #ZeroAttendance
+";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(_sql, out dsRef, false, "1");
             }
             catch (Exception ex)
             {
@@ -1068,7 +1770,7 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
                 ///emp sstruc not defined
                 LoadNotDefinedSS(Status, PlantId, "ALL", FromDate, ToDate, out dsLocal);
                 GetList(ref ads, dsLocal.Tables[0], ListEnum.SalaryStructureNotDefined);
-               
+
                 LoadUnapprovedSStructure(Status, PlantId, "ALL", FromDate, ToDate, out dsLocal);
                 GetList(ref ads, dsLocal.Tables[0], ListEnum.SalaryStructureNotApproved);
                 ///salary processed and approved IsApproved

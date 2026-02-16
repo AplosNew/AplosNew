@@ -2251,16 +2251,11 @@ LEFT JOIN  HKP.DesignationGroup DG ON DG.Id=DM.DesignationGroupId
         {
             try
             {
-                var sql = @"SELECT EO.*,ISNULL(OM.Code,OV.Code) Code,ISNULL(OM.ShortName,OV.ShortName) ShortName
-                            ,ISNULL(OM.StandardName,OV.StandardName) StandardName,ISNULL(OM.UserName,OV.UserName) UserName
-                            ,ISNULL(MM.UserName,MMA.StandardName) MachineMaster,ISNULL(S.UserName,VS.UserName) Skill
+                var sql = @"SELECT EO.*,OM.Code,OM.ShortName,OM.StandardName,OM.UserName,MM.UserName MachineMaster,S.UserName Skill
                             FROM EmployeeOperation EO
                             LEFT JOIN  MST.OperationMaster OM ON EO.OperationMasterId=OM.Id
-                            LEFT JOIN  MST.OperationVariation OV ON EO.OperationVariationId=OV.Id
                             LEFT JOIN MST.MachineMaster MM ON MM.Id=OM.MachineMasterId 
                             LEFT JOIN HKP.Skill S ON S.Id=OM.SkillId
-                            LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=OV.ArticleId
-                            LEFT JOIN HKP.Skill VS ON VS.Id=OV.SkillId
                             Where EO.EmpSystemId='" + empsystemId + "' ORDER BY EO.Sequence";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
