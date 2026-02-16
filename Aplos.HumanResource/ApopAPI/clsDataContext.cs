@@ -4019,7 +4019,7 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
 from MST.ManpowerBudget MBGT 
 LEFT JOIN TRN.HRReportMasterChild HRG 
     ON HRG.ManpowerBudgetId = MBGT.Id
-LEFT JOIN HKP.HRReportGroupMaster HG 
+LEFT JOIN HKP.HRReportMaster HG 
     ON HG.Id = HRG.HRReportMasterId
 left join ShiftDefination sd on sd.systemid = MBGT.ShiftDefinationId
 where  HG.Id = '" + GroupId + "'";
@@ -5227,11 +5227,9 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct RGM.id as Value, RGM.UserGroup as Name from TRN.HrreportmasterResponsiblePerson RP
-left join HKP.HRReportMaster HRM on HRM.Id = RP.HRReportMasterId
-left join TRN.HRReportMasterChild  HRC on  HRC.HRReportMasterId = HRM.Id
-left join TRN.HRReportMasterBudgetUserGroup BG on BG.HRReportMasterChildId = HRC.Id
-left join HKP.HRReportGroupMaster RGM on RGM.Id = BG.UserGroupId where RP.EmpSystemId = '" + EmpsysId + "'";
+                strSQL = @"select distinct HRM.id as Value, HRM.UserName as Name 
+from TRN.HrreportmasterResponsiblePerson RP
+left join HKP.HRReportMaster HRM on HRM.Id = RP.HRReportMasterId  where HRM.Active= 1 and RP.EmpSystemId = '" + EmpsysId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -5579,7 +5577,7 @@ LEFT JOIN SCS.State ST
 LEFT JOIN TRN.HRReportMasterChild HRG 
     ON HRG.ManpowerBudgetId = EMP.BudgetCode
 
-LEFT JOIN HKP.HRReportGroupMaster HG 
+LEFT JOIN HKP.HRReportMaster HG 
     ON HG.Id = HRG.HRReportMasterId
 
 LEFT JOIN ResidenceAllocatedEmployees RA 
@@ -5871,7 +5869,7 @@ LEFT JOIN SCS.State ST
 LEFT JOIN TRN.HRReportMasterChild HRG 
     ON HRG.ManpowerBudgetId = EMP.BudgetCode
 
-LEFT JOIN HKP.HRReportGroupMaster HG 
+LEFT JOIN HKP.HRReportMaster HG 
     ON HG.Id = HRG.HRReportMasterId
 
 LEFT JOIN ResidenceAllocatedEmployees RA 
@@ -6084,7 +6082,7 @@ left join scs.District DT on DT.Id = emp.ParmDistrictID
 left join scs.[State] ST on ST.Id = EMP.ParmStateId
 LEFT JOIN TRN.HRReportMasterChild HRG 
     ON HRG.ManpowerBudgetId = MBGT.Id
-LEFT JOIN HKP.HRReportGroupMaster HG 
+LEFT JOIN HKP.HRReportMaster HG 
     ON HG.Id = HRG.HRReportMasterId
 left join ResidenceAllocatedEmployees RA on RA.EmployeeSystemId = EMP.SystemId
 left join ResidenceMaster RM on RM.Id = RA.ResidenceId
