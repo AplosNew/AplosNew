@@ -5425,7 +5425,7 @@ where emp.EmployeeStatus = 'Active' and  Emp.EmployeeCode = '" + Empcode + "'";
             }
         }
 
-        public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid, string inmis, string locations, string entityid, string tbs, string longabsent)
+        public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid, string inmis, string locations, string entityid, string tbs, string longabsent,string Budgetcodeid)
         {
             if (inmis == "IN" || inmis == "IM" || inmis == "W")
             {
@@ -5489,7 +5489,7 @@ Select * from (SELECT  Distinct
     RG.StandardName AS Residence,
     TG.StandardName AS Transport,
     HRG.ManpowerBudgetId,
-    HG.UserGroup,
+    Hg.UserName UserGroup,
     HG.Id AS GroupId,
     RM.Location,
     EMP.EmployeeCurrentStatus AS CurrentStatus,
@@ -5616,10 +5616,9 @@ OUTER APPLY (
 WHERE Emp.Employeestatus = 'Active' and HG.Id = @hrgroupid  ";
 
 
-
                     if (inmis == "IN" || inmis == "IM" || inmis == "W")
                     {
-                        strSQL = strSQL1 + " and  (CASE WHEN APD.WeeklyStatus = 'W' THEN 'W'  WHEN ARD.ptime IS NULL THEN 'IM' ELSE 'IN' END) = '" + inmis + "'";
+                        strSQL = strSQL1 + " and MBGT.Id = '" + Budgetcodeid + "' " + " and  (CASE WHEN APD.WeeklyStatus = 'W' THEN 'W'  WHEN ARD.ptime IS NULL THEN 'IM' ELSE 'IN' END) = '" + inmis + "'";
                     }
 
                     if (entityid != null && shiftid == null && locations == null)
@@ -5779,7 +5778,7 @@ Select * from (SELECT  Distinct
     RG.StandardName AS Residence,
     TG.StandardName AS Transport,
     HRG.ManpowerBudgetId,
-    HG.UserGroup,
+    Hg.UserName UserGroup,
     HG.Id AS GroupId,
     RM.Location,
     EMP.EmployeeCurrentStatus AS CurrentStatus,
@@ -5911,7 +5910,7 @@ convert(time,ARD.ptime) > convert(time,SD.Intime)
 
                     if (inmis == "LateIn")
                     {
-                        strSQL = strSQL1;
+                        strSQL = strSQL1 + " and MBGT.Id = '" + Budgetcodeid + "' ";
                     }
 
                     if (entityid != null && shiftid == null && locations == null)
@@ -6044,13 +6043,14 @@ select * from (  select Distinct '' as SrNo ,  SC.StandardName Section,SBC.Stand
 DSG.StandardName Designation, POS.Activity, 
 MBGT.Code BudgetCode,
 ISNULL(TI.ToDayIN , 0) as ToDayIN, 
-Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId  ,MBGT.Deployment
+Hrg.ManpowerBudgetId, Hg.UserName UserGroup , Hg.Id as GroupId  ,MBGT.Deployment
 ,Diffenence = ISNULL(TI.ToDayIN , 0)-MBGT.Deployment ,
 case when (ISNULL(TI.ToDayIN , 0)-MBGT.Deployment) > 0 then 'Access' 
 when (ISNULL(TI.ToDayIN , 0)-MBGT.Deployment) < 0 then 'Short' 
 else 'Ok' end DifferenceColor
-
+,MBGTD.Totalnumber Sanction , Onroll.Onroll
 from MST.ManpowerBudget MBGT
+left join mst.manpowerbudgetdetail MBGTD  on MBGTD.ManpowerBudgetid = MBGT.Id
 left Join EmployeeInformation EMP on MBGT.Id = EMP.BudgetCode
 --LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
 LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
@@ -6087,6 +6087,9 @@ LEFT JOIN HKP.HRReportMaster HG
 left join ResidenceAllocatedEmployees RA on RA.EmployeeSystemId = EMP.SystemId
 left join ResidenceMaster RM on RM.Id = RA.ResidenceId
 LEFT JOIN TodayIN TI ON TI.BudgetId = MBGT.Id
+Outer Apply ( Select Count(Systemid) Onroll from Employeeinformation ei where ei.Budgetcode = MBGT.Id and Ei.Employeestatus = 'Active'
+group by ei.Budgetcode
+) Onroll
 where emp.employeecode is not null and emp.employeestatus = 'Active' and MBGT.code is not null and MBGT.Active = 1
 and emp.employeecode NOT IN (2222229, 2222230)   and MBGT.Active = 1  and Hg.Id = @hrgroupid ";
 
@@ -6160,6 +6163,8 @@ and emp.employeecode NOT IN (2222229, 2222230)   and MBGT.Active = 1  and Hg.Id 
                             ToDayIN = dsRef.Tables[0].Rows[i]["ToDayIN"].ToString(),
                             Diffenence = dsRef.Tables[0].Rows[i]["Diffenence"].ToString(),
                             DifferenceColor = dsRef.Tables[0].Rows[i]["DifferenceColor"].ToString(),
+                            Sanction = dsRef.Tables[0].Rows[i]["Sanction"].ToString(),
+                            Onroll = dsRef.Tables[0].Rows[i]["Onroll"].ToString(),
 
                         });
                     }
@@ -14355,6 +14360,8 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
         public string DifferenceColor { get; set; }
         public string LateInTime { get; set; }
         public string LateInStatus { get; set; }
+        public string Sanction { get; set; }
+        public string Onroll { get; set; }
 
     }
 
