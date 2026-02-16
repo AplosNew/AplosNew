@@ -672,10 +672,10 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-        public List<Default2> GetShift()
+        public List<Default2> GetShift(string GroupId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetShift(out List<Default2> activelists);
+            clsData.GetShift(out List<Default2> activelists, GroupId);
             return activelists;
         }
         public List<AttendanceReport> GetAttdnreport(string date, string shiftid, string groupid, string inmis, string locations, string entityid, string tbs, string longabsent)

@@ -4006,7 +4006,7 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
             }
         }
 
-        public void GetShift(out List<Default2> DataList)
+        public void GetShift(out List<Default2> DataList, string GroupId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -4015,10 +4015,14 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct apd.ShiftSystemID Value,sd.ShiftDefinationName Name from AttdnProcessData apd
-left join ShiftDefination sd on sd.systemid = apd.ShiftSystemID 
-where  WorkDate = DATEADD(day, -1, CAST(GETDATE() AS date))
-";
+                strSQL = @"select distinct sd.SystemID Value,sd.ShiftDefinationName Name 
+from MST.ManpowerBudget MBGT 
+LEFT JOIN TRN.HRReportMasterChild HRG 
+    ON HRG.ManpowerBudgetId = MBGT.Id
+LEFT JOIN HKP.HRReportGroupMaster HG 
+    ON HG.Id = HRG.HRReportMasterId
+left join ShiftDefination sd on sd.systemid = MBGT.ShiftDefinationId
+where  HG.Id = '" + GroupId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
