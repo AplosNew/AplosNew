@@ -4006,7 +4006,7 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
             }
         }
 
-        public void GetShift(out List<Default2> DataList)
+        public void GetShift(out List<Default2> DataList, string GroupId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -4015,10 +4015,14 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct apd.ShiftSystemID Value,sd.ShiftDefinationName Name from AttdnProcessData apd
-left join ShiftDefination sd on sd.systemid = apd.ShiftSystemID 
-where  WorkDate = DATEADD(day, -1, CAST(GETDATE() AS date))
-";
+                strSQL = @"select distinct sd.SystemID Value,sd.ShiftDefinationName Name 
+from MST.ManpowerBudget MBGT 
+LEFT JOIN TRN.HRReportMasterChild HRG 
+    ON HRG.ManpowerBudgetId = MBGT.Id
+LEFT JOIN HKP.HRReportMaster HG 
+    ON HG.Id = HRG.HRReportMasterId
+left join ShiftDefination sd on sd.systemid = MBGT.ShiftDefinationId
+where  HG.Id = '" + GroupId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -5223,11 +5227,9 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct RGM.id as Value, RGM.UserGroup as Name from TRN.HrreportmasterResponsiblePerson RP
-left join HKP.HRReportMaster HRM on HRM.Id = RP.HRReportMasterId
-left join TRN.HRReportMasterChild  HRC on  HRC.HRReportMasterId = HRM.Id
-left join TRN.HRReportMasterBudgetUserGroup BG on BG.HRReportMasterChildId = HRC.Id
-left join HKP.HRReportGroupMaster RGM on RGM.Id = BG.UserGroupId where RP.EmpSystemId = '" + EmpsysId + "'";
+                strSQL = @"select distinct HRM.id as Value, HRM.UserName as Name 
+from TRN.HrreportmasterResponsiblePerson RP
+left join HKP.HRReportMaster HRM on HRM.Id = RP.HRReportMasterId  where HRM.Active= 1 and RP.EmpSystemId = '" + EmpsysId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -5423,7 +5425,7 @@ where emp.EmployeeStatus = 'Active' and  Emp.EmployeeCode = '" + Empcode + "'";
             }
         }
 
-        public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid, string inmis, string locations, string entityid, string tbs, string longabsent)
+        public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid, string inmis, string locations, string entityid, string tbs, string longabsent,string Budgetcodeid)
         {
             if (inmis == "IN" || inmis == "IM" || inmis == "W")
             {
@@ -5487,7 +5489,7 @@ Select * from (SELECT  Distinct
     RG.StandardName AS Residence,
     TG.StandardName AS Transport,
     HRG.ManpowerBudgetId,
-    HG.UserGroup,
+    Hg.UserName UserGroup,
     HG.Id AS GroupId,
     RM.Location,
     EMP.EmployeeCurrentStatus AS CurrentStatus,
@@ -5575,7 +5577,7 @@ LEFT JOIN SCS.State ST
 LEFT JOIN TRN.HRReportMasterChild HRG 
     ON HRG.ManpowerBudgetId = EMP.BudgetCode
 
-LEFT JOIN HKP.HRReportGroupMaster HG 
+LEFT JOIN HKP.HRReportMaster HG 
     ON HG.Id = HRG.HRReportMasterId
 
 LEFT JOIN ResidenceAllocatedEmployees RA 
@@ -5614,10 +5616,9 @@ OUTER APPLY (
 WHERE Emp.Employeestatus = 'Active' and HG.Id = @hrgroupid  ";
 
 
-
                     if (inmis == "IN" || inmis == "IM" || inmis == "W")
                     {
-                        strSQL = strSQL1 + " and  (CASE WHEN APD.WeeklyStatus = 'W' THEN 'W'  WHEN ARD.ptime IS NULL THEN 'IM' ELSE 'IN' END) = '" + inmis + "'";
+                        strSQL = strSQL1 + " and MBGT.Id = '" + Budgetcodeid + "' " + " and  (CASE WHEN APD.WeeklyStatus = 'W' THEN 'W'  WHEN ARD.ptime IS NULL THEN 'IM' ELSE 'IN' END) = '" + inmis + "'";
                     }
 
                     if (entityid != null && shiftid == null && locations == null)
@@ -5777,7 +5778,7 @@ Select * from (SELECT  Distinct
     RG.StandardName AS Residence,
     TG.StandardName AS Transport,
     HRG.ManpowerBudgetId,
-    HG.UserGroup,
+    Hg.UserName UserGroup,
     HG.Id AS GroupId,
     RM.Location,
     EMP.EmployeeCurrentStatus AS CurrentStatus,
@@ -5867,7 +5868,7 @@ LEFT JOIN SCS.State ST
 LEFT JOIN TRN.HRReportMasterChild HRG 
     ON HRG.ManpowerBudgetId = EMP.BudgetCode
 
-LEFT JOIN HKP.HRReportGroupMaster HG 
+LEFT JOIN HKP.HRReportMaster HG 
     ON HG.Id = HRG.HRReportMasterId
 
 LEFT JOIN ResidenceAllocatedEmployees RA 
@@ -5909,7 +5910,7 @@ convert(time,ARD.ptime) > convert(time,SD.Intime)
 
                     if (inmis == "LateIn")
                     {
-                        strSQL = strSQL1;
+                        strSQL = strSQL1 + " and MBGT.Id = '" + Budgetcodeid + "' ";
                     }
 
                     if (entityid != null && shiftid == null && locations == null)
@@ -6022,15 +6023,34 @@ convert(time,ARD.ptime) > convert(time,SD.Intime)
                 try
                 {
                     #region Sql
-                    strSQL1 = @"select * from (  select '' as SrNo ,  SC.StandardName Section,SBC.StandardName SubSection, 
-DSG.StandardName Designation, POS.Activity, 
- MBGT.Code BudgetCode, ISNULL(A.ToDayIN , 0) as ToDayIN, 
-Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId  ,MBGT.Deployment, Diffenence= ISNULL(A.ToDayIN,0)-MBGT.Deployment ,
-case when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) > 0 then 'Access' 
-when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) < 0 then 'Short' 
-else 'Ok' end DifferenceColor
+                    strSQL1 = @"DECLARE @WorkDate DATE = '" + date + @"' , @hrgroupid varchar(100) = '" + groupid + @"';
 
+WITH TodayIN AS
+(
+    SELECT 
+        APD.BudgetId,
+        COUNT(AR.LogDownLoadNum) AS ToDayIN
+    FROM AttdnRawData AR
+    INNER JOIN AttdnProcessData APD 
+        ON APD.EmpSystemID = AR.LogDownLoadNum
+        AND APD.WorkDate = AR.PDate
+    WHERE AR.PDate = @WorkDate
+      AND AR.PType = 'IN'
+    GROUP BY APD.BudgetId
+)
+
+select * from (  select Distinct '' as SrNo ,  SC.StandardName Section,SBC.StandardName SubSection, 
+DSG.StandardName Designation, POS.Activity, 
+MBGT.Code BudgetCode,
+ISNULL(TI.ToDayIN , 0) as ToDayIN, 
+Hrg.ManpowerBudgetId, Hg.UserName UserGroup , Hg.Id as GroupId  ,MBGT.Deployment
+,Diffenence = ISNULL(TI.ToDayIN , 0)-MBGT.Deployment ,
+case when (ISNULL(TI.ToDayIN , 0)-MBGT.Deployment) > 0 then 'Access' 
+when (ISNULL(TI.ToDayIN , 0)-MBGT.Deployment) < 0 then 'Short' 
+else 'Ok' end DifferenceColor
+,MBGTD.Totalnumber Sanction , Onroll.Onroll
 from MST.ManpowerBudget MBGT
+left join mst.manpowerbudgetdetail MBGTD  on MBGTD.ManpowerBudgetid = MBGT.Id
 left Join EmployeeInformation EMP on MBGT.Id = EMP.BudgetCode
 --LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
 LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
@@ -6060,21 +6080,18 @@ left join employeecodetype ect on ect.id = emp.employeecodetypeid
 left join hkp.Process PR on PR.Id = POS.ProcessId
 left join scs.District DT on DT.Id = emp.ParmDistrictID
 left join scs.[State] ST on ST.Id = EMP.ParmStateId
-left join TRN.HRReportMasterChild Hrg on Hrg.ManpowerBudgetId = Emp.BudgetCode
-left join TRN.HRReportMasterBudgetUserGroup HBG on HBG.HRReportMasterChildId = Hrg.Id
-left join HKP.HRReportGroupMaster Hg on Hg.Id = HBG.UserGroupId
+LEFT JOIN TRN.HRReportMasterChild HRG 
+    ON HRG.ManpowerBudgetId = MBGT.Id
+LEFT JOIN HKP.HRReportMaster HG 
+    ON HG.Id = HRG.HRReportMasterId
 left join ResidenceAllocatedEmployees RA on RA.EmployeeSystemId = EMP.SystemId
 left join ResidenceMaster RM on RM.Id = RA.ResidenceId
-LEFT JOIN (select APD.BudgetId  ,Count(isnull(PT.LogDownLoadNum,0)) ToDayIN
-From AttdnProcessData APD 
-left join 
-	(select row_number()over (partition by LogDownLoadNum order by PTime asc) Empsys,PDate ,PTime, LogDownLoadNum
-	from AttdnRawData
-	where PType = 'IN' and PTime is not null and PDate = '" + date + @"') PT on PT.LogDownLoadNum = APD.EmpSystemID and PT.Empsys = 1
-where APD.WorkDate = '" + date + @"'  
-Group by APD.BudgetId ) A ON A.BudgetId=MBGT.Id 
+LEFT JOIN TodayIN TI ON TI.BudgetId = MBGT.Id
+Outer Apply ( Select Count(Systemid) Onroll from Employeeinformation ei where ei.Budgetcode = MBGT.Id and Ei.Employeestatus = 'Active'
+group by ei.Budgetcode
+) Onroll
 where emp.employeecode is not null and emp.employeestatus = 'Active' and MBGT.code is not null and MBGT.Active = 1
-and emp.employeecode NOT IN (2222229, 2222230)   and MBGT.Active = 1  and Hg.Id = '" + groupid + "'";
+and emp.employeecode NOT IN (2222229, 2222230)   and MBGT.Active = 1  and Hg.Id = @hrgroupid ";
 
                     if (inmis == "Bugcode")
                     {
@@ -6146,6 +6163,8 @@ and emp.employeecode NOT IN (2222229, 2222230)   and MBGT.Active = 1  and Hg.Id 
                             ToDayIN = dsRef.Tables[0].Rows[i]["ToDayIN"].ToString(),
                             Diffenence = dsRef.Tables[0].Rows[i]["Diffenence"].ToString(),
                             DifferenceColor = dsRef.Tables[0].Rows[i]["DifferenceColor"].ToString(),
+                            Sanction = dsRef.Tables[0].Rows[i]["Sanction"].ToString(),
+                            Onroll = dsRef.Tables[0].Rows[i]["Onroll"].ToString(),
 
                         });
                     }
@@ -11835,7 +11854,7 @@ where QAT.ParameterId='" + ParameterId + "'";
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Id Value ,CONCAT(Code ,' ', UserName) Name from UtilityMaster  where Active = 1  order by UserName";
+                strSQL = @"select Id Value ,CONCAT(UserName) Name from UtilityMaster  where Active = 1  order by UserName";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -14341,6 +14360,8 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
         public string DifferenceColor { get; set; }
         public string LateInTime { get; set; }
         public string LateInStatus { get; set; }
+        public string Sanction { get; set; }
+        public string Onroll { get; set; }
 
     }
 
