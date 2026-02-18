@@ -840,6 +840,13 @@ function EmployeeSalaryRuleSetupController(cboService, commonMessage, $scope, $r
                         obj.EntryState = 'Auto';
                         obj.IsDefault = true;
                     }
+                    if (i == 17) {
+                        obj.EmployeeSalaryRuleSetupId = $scope.masterId;
+                        obj.UserName = 'MinimumWages';
+                        obj.StandardName = 'Minimum Wages';
+                        obj.EntryState = 'Auto';
+                        obj.IsDefault = true;
+                    }
                     $scope.ProcessParameterNewList.push(obj);
                 }
 
@@ -889,7 +896,7 @@ function EmployeeSalaryRuleSetupController(cboService, commonMessage, $scope, $r
                 });
     };
     $scope.GetItemAutoSequence();
-    $scope.OperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }, { Text: "<=", Value: "<=" }, , { Text: ">=", Value: ">=" }];
+    $scope.OperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }, { Text: "<=", Value: "<=" }, { Text: ">=", Value: ">=" }, { Text: "<", Value: "<" }, { Text: ">", Value: ">" }];
     $scope.ItemList = [];
     $scope.GetOrderLineCostingItemCbo = function () {
         try {

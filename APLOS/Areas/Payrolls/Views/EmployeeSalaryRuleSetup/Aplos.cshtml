@@ -189,9 +189,9 @@
                     </script>
                 </div>
             </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }" ng-form="tabForm3" id="Seperation">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }" ng-form="tabForm3" id="Payroll">
                 <fieldset class="scheduler-border">
-                    <legend class="scheduler-border">Seperation Items</legend>
+                    <legend class="scheduler-border">Payroll Items</legend>
                     <div class="form-horizontal form-elements">
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group" show-errors>
@@ -244,8 +244,8 @@
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Salary Head<sup>*</sup></label>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Salary Head</label>
                                 <div class="col-sm-8">
                                     @*<div class="select-style">
                                         <select class="form-control" ng-model="ModelProcessPara.SalaryHeadID" name="SalaryHead" ng-options="item.Value as item.Text for item in SalaryHeadList" required tabindex="302">
