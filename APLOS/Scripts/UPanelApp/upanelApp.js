@@ -1324,6 +1324,7 @@ upanelApp.controller("updateEmployeeDOSController", updateEmployeeDOSController)
 upanelApp.controller("EmployeeSalaryRuleSetupController", EmployeeSalaryRuleSetupController)
 upanelApp.controller("EmployeeSalaryStructureController", EmployeeSalaryStructureController)
 upanelApp.controller("EmployeeSalaryProcessController", EmployeeSalaryProcessController )
+upanelApp.controller("SalaryRuleSpecialAllowanceController", SalaryRuleSpecialAllowanceController )
 
 
 

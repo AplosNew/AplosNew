@@ -64,6 +64,11 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         }//
 
+        public ActionResult SpecialAllowance()
+        {
+            return View();
+        }
+
         [AllowAnonymous]
         public JsonResult GetCbo()
         {
@@ -666,7 +671,7 @@ Where N.EmployeeSalaryRuleSetupId='" + masterId + "' Order By N.Sequence";
 
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.EmployeeSalaryRuleItem WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FormulaDetail Where EmployeeSalaryRuleItemId='" + data["Id"] + "'", out dsDestination, false, "1");
-                                       
+
 
                     con.OpenDataSetThroughAdapter("SELECT count(Id) countId FROM dbo.FormulaDetail Where EmployeeSalaryRuleItemId IN(SELECT Id FROM dbo.EmployeeSalaryRuleItem Where EmployeeSalaryRuleSetupId='" + data["EmployeeSalaryRuleSetupId"] + "')", out dsFormulaID, false, "1");
                     int count = Convert.ToInt32(dsFormulaID.Tables[0].Rows[0]["countId"].ToString());
@@ -1595,22 +1600,23 @@ ORDER BY E.SystemId,OL.Sequence";
                                         tempGrossValue = Math.Round(sFormulaResult, 0);
                                     }
 
-                                    if (dvEmpWise[i]["HeadCategory"].ToString().Trim() == "ESIC Employee Contribution" || dvEmpWise[i]["HeadCategory"].ToString().Trim() == "ESIC Employer Contribution")
-                                    {
-                                        if (tempGrossValue <= Convert.ToDouble(dvEmpWise[i]["ESICLimit"].ToString().Trim()))
-                                        {
-                                            dtValueRow["EntryAmount"] = dvEmpWise[i]["Value"].ToString().Trim();
-                                            dtValueRow["Value"] = Math.Round(sFormulaResult, 0);
-                                        }
-                                        else
-                                        {
-                                            dtValueRow["EntryAmount"] = 0;
-                                            dtValueRow["Value"] = 0;
-                                        }
-                                    }
+                                    //if (dvEmpWise[i]["HeadCategory"].ToString().Trim() == "ESIC Employee Contribution" || dvEmpWise[i]["HeadCategory"].ToString().Trim() == "ESIC Employer Contribution")
+                                    //{
+                                    //    if (tempGrossValue <= Convert.ToDouble(dvEmpWise[i]["ESICLimit"].ToString().Trim()))
+                                    //    {
+                                    //        dtValueRow["EntryAmount"] = dvEmpWise[i]["Value"].ToString().Trim();
+                                    //        dtValueRow["Value"] = Math.Round(sFormulaResult, 0);
+                                    //    }
+                                    //    else
+                                    //    {
+                                    //        dtValueRow["EntryAmount"] = 0;
+                                    //        dtValueRow["Value"] = 0;
+                                    //    }
+                                    //}
                                     else if (dvEmpWise[i]["HeadCategory"].ToString().Trim() == "PF Employer Contribution" || dvEmpWise[i]["HeadCategory"].ToString().Trim() == "PF Employee Contribution")
                                     {
-                                        if (tempBasicValue <= Convert.ToDouble(dvEmpWise[i]["PFLimit"].ToString().Trim()) && Convert.ToDouble(dvEmpWise[i]["AgeLimit"].ToString().Trim()) >= Convert.ToDouble(dvEmpWise[i]["Age"].ToString().Trim())) //TDDO: employee age
+                                        //if (tempBasicValue <= Convert.ToDouble(dvEmpWise[i]["PFLimit"].ToString().Trim()) && Convert.ToDouble(dvEmpWise[i]["AgeLimit"].ToString().Trim()) >= Convert.ToDouble(dvEmpWise[i]["Age"].ToString().Trim())) //TDDO: employee age
+                                        if (Convert.ToDouble(dvEmpWise[i]["AgeLimit"].ToString().Trim()) >= Convert.ToDouble(dvEmpWise[i]["Age"].ToString().Trim())) //TDDO: employee age
                                         {
                                             dtValueRow["EntryAmount"] = dvEmpWise[i]["Value"].ToString().Trim();
                                             dtValueRow["Value"] = Math.Round(sFormulaResult, 0);
@@ -1761,7 +1767,7 @@ ORDER BY E.SystemId,OL.Sequence";
                 catch (Exception ex)
                 {
                     _lock.UnlockProcess();
-                    return Json(new { Error = true, Message = ex.Message + " " + empId+" - "+temphsid });
+                    return Json(new { Error = true, Message = ex.Message + " " + empId + " - " + temphsid });
 
                 }
             });
@@ -1861,6 +1867,94 @@ ORDER BY E.SystemId,OL.Sequence";
 
             //public string PlantID { get; set; } = "";
         }
+        #endregion
+
+        #region SpecialAllowance
+
+        [HttpPost,Authorize]
+        public ActionResult GetSPList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (SELECT SP.*,SH.SalaryHead,MB.Code BudgetCode FROM [dbo].[SalaryRuleSpecialAllowance] SP
+LEFT JOIN dbo.SalaryHead SH ON SH.SalaryHeadId=SP.SalaryHeadId
+LEFT JOIN MST.ManpowerBudget MB ON MB.Id=SP.ManpowerBudgetId) AS TEMP WHERE " + strkey + "";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost]
+        public JsonResult CreateSP(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+               
+                con.OpenDataSetThroughAdapter("select * from [dbo].[SalaryRuleSpecialAllowance] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("SalaryRuleSpecialAllowance", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        public ActionResult DeleteSP(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [dbo].[SalaryRuleSpecialAllowance] where id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+
         #endregion
     }
 }
