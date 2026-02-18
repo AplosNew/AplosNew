@@ -159,7 +159,7 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
         {
             try
             {
-                var str = @"Select SystemId, EmployeeCode from dbo.EmployeeInformation
+                var str = @"Select SystemId, EmployeeCode from dbo.EmployeeInformation where EmployeeCode<>''
                            ";
 
                 return _sqlRepository.GetDataTable(str);
@@ -209,9 +209,31 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
             }
         }
 
+        public List<string> getWeekOffList()
+        {
+            try
+            {
+                var str1 = @"Select Id from dbo.EmployeeWeeklyOff ";
+                DataTable dt = _sqlRepository.GetDataTable(str1);
 
+                List<string> roster = new List<string>();
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        roster.Add(dt.Rows[i]["Id"].ToString());
+                    }
+                }
+
+                return roster;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
         /// First Tab Functions
-        public IEnumerable<object> getWeekOff()
+        public IEnumerable<object> getWeekOffCbo()
         {
             try
             {

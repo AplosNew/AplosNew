@@ -113,7 +113,7 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
     function getWeekOff() {
         $http({
             method: 'GET',
-            url: $scope.path + "getWeekOff"
+            url: $scope.path + "getWeekOffCbo"
         }).then(function succ(resp) {
             $scope.weekList = resp.data;
         });
@@ -280,6 +280,99 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
         FromDate: null
     };
 
+    //  #region  Data Upload Download
+    $scope.GetSampleFile = function () {
+        var ReportFormat = 'Excel';
+        location.href = $scope.path + 'GetWeekOffSampleFile?reportFormat=' + ReportFormat;
+    };
+    $scope.UploadedData = [];
+    $scope.picdata = null;
+    $scope.ShowSaveBtn = false;
+    $("#uploadImage2").change(function () {
+        $scope.picdata = this.files[0];
+    });
 
 
+    $scope.ImportData = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+                var picData = new FormData();
+                $http({
+                    method: 'POST',
+                    url: $scope.path + 'ImportWeekOffData',
+                    headers: { 'Content-Type': undefined },
+                    transformRequest: function (data) {
+                        picData.append("modelNew", angular.toJson(data.modelNew));
+                        if (baseService.isUndefinedOrNull($scope.picdata) === false) {
+                            picData.append('file', data.file);
+                        }
+                        return picData;
+                    },
+                    data: {
+                        'file': $scope.picdata
+
+                    }
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        $scope.ShowSaveBtn = false;
+                        ShowResult(response.data.Message, "failure");
+
+                    }
+                    else {
+                        $scope.UploadedData = [];
+                        $scope.UploadedData = response.data;
+                        $scope.ShowSaveBtn = true;
+                    }
+                }, function errorCallback(response) {
+
+                });
+                return true;
+
+        } catch (e) {
+
+            ShowResult(e, "failure");
+        }
+    };
+    $scope.SaveUploadedData = function () {
+        try {
+            for (var i = 0; i < $scope.UploadedData.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.UploadedData[i].EmpSystemId)) {
+                    throw "ServiceMasterId is required.";
+                }
+                if (baseService.isUndefinedOrNull($scope.UploadedData[i].WOHeaderId)) {
+                    throw "TaxCodeId is required.";
+                }
+                $scope.UploadedData[i].Id = null;
+                $scope.UploadedData[i].Active = true;
+            }
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveUploadedWeekOffData',
+                data: {
+                    'data': $scope.UploadedData
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.UploadedData = [];
+                    $("#uploadImage2").val(null);
+                    $scope.ShowSaveBtn = false;
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            $scope.ShowSaveBtn = false;
+            ShowResult(e, 'failure');
+
+        }
+    };
+    //  #endregion Data Upload Download TDS
+
+   
 }
