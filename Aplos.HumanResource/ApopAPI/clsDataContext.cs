@@ -13759,6 +13759,156 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                 objCon = null;
             }
         }
+
+
+
+        #region Ultimo Data
+        public string PostUltimoData(IEnumerable<UltimoDataGetSet> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.Ultimodata";
+                string PackedBy = "''";
+                string RefNo = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<UltimoDataGetSet> items = DataToSave.ToList();
+
+                
+
+                con.OpenDataSetThroughAdapter("select * from dbo.Ultimodata where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+
+                foreach (UltimoDataGetSet item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+                        dr["Id"] =  _Id;
+                        dr["macidfk"] = item.macidfk;
+                        dr["CountID"] = item.CountID;
+                        dr["macshed"] = item.macshed;
+                        dr["machineNo"] = item.machineNo;
+                        dr["ActCount"] = item.ActCount;
+                        dr["Nominalcount"] = item.Nominalcount;
+                        dr["countArticle"] = item.countArticle;
+                        dr["Operator"] = item.Operator;
+                        dr["MachineGroupid"] = item.MachineGroupid;
+                        dr["side"] = item.side;
+                        dr["Supervisor"] = item.Supervisor;
+                        dr["ShiftDate"] = item.ShiftDate;
+                        dr["Shiftid"] = item.Shiftid;
+                        dr["ShiftNo"] = item.ShiftNo;
+                        dr["ebnormalacross"] = item.ebnormalacross;
+                        dr["ebidleacross"] = item.ebidleacross;
+                        dr["ebstartupacross"] = item.ebstartupacross;
+                        dr["stopacross"] = item.stopacross;
+                        dr["doffacross"] = item.doffacross;
+                        dr["kg"] = item.kg;
+                        dr["grsh"] = item.grsh;
+                        dr["RunMins"] = item.RunMins;
+                        dr["gpss"] = item.gpss;
+                        dr["MetPerMin"] = item.MetPerMin;
+                        dr["tpi"] = item.tpi;
+                        dr["spndlrpm"] = item.spndlrpm;
+                        dr["FrontRollerRPM"] = item.FrontRollerRPM;
+                        dr["monitoredMins"] = item.monitoredMins;
+                        dr["aef"] = item.aef;
+                        dr["pef"] = item.pef;
+                        dr["util"] = item.util;
+                        dr["stoptime"] = item.stoptime;
+                        dr["dofftime"] = item.dofftime;
+                        dr["stopcount"] = item.stopcount;
+                        dr["doffcount"] = item.doffcount;
+                        dr["longdoff"] = item.longdoff;
+                        dr["minperstop"] = item.minperstop;
+                        dr["minperdoff"] = item.minperdoff;
+                        dr["doffper"] = item.doffper;
+                        dr["stopper"] = item.stopper;
+                        dr["pnewaste"] = item.pnewaste;
+                        dr["ebnormal"] = item.ebnormal;
+                        dr["ebstartup"] = item.ebstartup;
+                        dr["ebidle"] = item.ebidle;
+                        dr["ebtotal"] = item.ebtotal;
+                        dr["ebs"] = item.ebs;
+                        dr["normalaef"] = item.normalaef;
+                        dr["idleaef"] = item.idleaef;
+                        dr["startupaef"] = item.startupaef;
+                        dr["totalaef"] = item.totalaef;
+                        dr["ebr"] = item.ebr;
+                        dr["normaltime"] = item.normaltime;
+                        dr["idletime"] = item.idletime;
+                        dr["startuptime"] = item.startuptime;
+                        dr["emnormal"] = item.emnormal;
+                        dr["emstartup"] = item.emstartup;
+                        dr["emidle"] = item.emidle;
+                        dr["emtotal"] = item.emtotal;
+                        dr["ebnormalClosed"] = item.ebnormalClosed;
+                        dr["ebidleClosed"] = item.ebidleClosed;
+                        dr["ebstartupClosed"] = item.ebstartupClosed;
+                        dr["ebnormalClosedduration"] = item.ebnormalClosedduration;
+                        dr["ebidleClosedduration"] = item.ebidleClosedduration;
+                        dr["ebstartupClosedduration"] = item.ebstartupClosedduration;
+                        dr["wasteNumerator"] = item.wasteNumerator;
+                        dr["wasteDenominator"] = item.wasteDenominator;
+                        dr["slipsPercent"] = item.slipsPercent;
+                        dr["slips"] = item.slips;
+                        dr["rogues"] = item.rogues;
+                        dr["RoguePercent"] = item.RoguePercent;
+                        dr["spndldowtime"] = item.spndldowtime;
+                        dr["spndldowntimeper"] = item.spndldowntimeper;
+                        dr["ukg"] = item.ukg;
+                        dr["otherstoptime"] = item.otherstoptime;
+                        dr["pwrstoptime"] = item.pwrstoptime;
+                        dr["apppower"] = item.apppower;
+                        dr["kwh"] = item.kwh;
+                        dr["Seb100sp"] = item.Seb100sp;
+                        dr["Volt_ry"] = item.Volt_ry;
+                        dr["Volt_yb"] = item.Volt_yb;
+                        dr["Volt_br"] = item.Volt_br;
+                        dr["powerfactor"] = item.powerfactor;
+                        dr["Activepower_kw"] = item.Activepower_kw;
+                        dr["spindles"] = item.spindles;
+                        dr["Articlename"] = item.Articlename;
+                        dr["Hank"] = item.Hank;
+                        dr["Orderno"] = item.Orderno;
+                        dr["LotId"] = item.LotId;
+
+
+
+                        dr["AddedBy"] = "Server";
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+        }
+        #endregion Ultimo Data
+
         #endregion Pratibha
     }
 
@@ -15526,5 +15676,100 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
         public string NewBudgetId { get; set; }
         public string ExistingBudgetId { get; set; }
         
+    }
+
+    public class UltimoDataGetSet
+    {
+        public string Id { get; set; }
+        public string macidfk { get; set; }
+        public string CountID { get; set; }
+        public string macshed { get; set; }
+        public string machineNo { get; set; }
+        public string ActCount { get; set; }
+        public string Nominalcount { get; set; }
+        public string countArticle { get; set; }
+        public string Operator { get; set; }
+        public string MachineGroupid { get; set; }
+        public string side { get; set; }
+        public string Supervisor { get; set; }
+        public string ShiftDate { get; set; }
+        public string Shiftid { get; set; }
+        public string ShiftNo { get; set; }
+        public string ebnormalacross { get; set; }
+        public string ebidleacross { get; set; }
+        public string ebstartupacross { get; set; }
+        public string stopacross { get; set; }
+        public string doffacross { get; set; }
+        public string kg { get; set; }
+        public string grsh { get; set; }
+        public string RunMins { get; set; }
+        public string gpss { get; set; }
+        public string MetPerMin { get; set; }
+        public string tpi { get; set; }
+        public string spndlrpm { get; set; }
+        public string FrontRollerRPM { get; set; }
+        public string monitoredMins { get; set; }
+        public string aef { get; set; }
+        public string pef { get; set; }
+        public string util { get; set; }
+        public string stoptime { get; set; }
+        public string dofftime { get; set; }
+        public string stopcount { get; set; }
+        public string doffcount { get; set; }
+        public string longdoff { get; set; }
+        public string minperstop { get; set; }
+        public string minperdoff { get; set; }
+        public string doffper { get; set; }
+        public string stopper { get; set; }
+        public string pnewaste { get; set; }
+        public string ebnormal { get; set; }
+        public string ebstartup { get; set; }
+        public string ebidle { get; set; }
+        public string ebtotal { get; set; }
+        public string ebs { get; set; }
+        public string normalaef { get; set; }
+        public string idleaef { get; set; }
+        public string startupaef { get; set; }
+        public string totalaef { get; set; }
+        public string ebr { get; set; }
+        public string normaltime { get; set; }
+        public string idletime { get; set; }
+        public string startuptime { get; set; }
+        public string emnormal { get; set; }
+        public string emstartup { get; set; }
+        public string emidle { get; set; }
+        public string emtotal { get; set; }
+        public string ebnormalClosed { get; set; }
+        public string ebidleClosed { get; set; }
+        public string ebstartupClosed { get; set; }
+        public string ebnormalClosedduration { get; set; }
+        public string ebidleClosedduration { get; set; }
+        public string ebstartupClosedduration { get; set; }
+        public string wasteNumerator { get; set; }
+        public string wasteDenominator { get; set; }
+        public string slipsPercent { get; set; }
+        public string slips { get; set; }
+        public string rogues { get; set; }
+        public string RoguePercent { get; set; }
+        public string spndldowtime { get; set; }
+        public string spndldowntimeper { get; set; }
+        public string ukg { get; set; }
+        public string otherstoptime { get; set; }
+        public string pwrstoptime { get; set; }
+        public string apppower { get; set; }
+        public string kwh { get; set; }
+        public string Seb100sp { get; set; }
+        public string Volt_ry { get; set; }
+        public string Volt_yb { get; set; }
+        public string Volt_br { get; set; }
+        public string powerfactor { get; set; }
+        public string Activepower_kw { get; set; }
+        public string spindles { get; set; }
+        public string Articlename { get; set; }
+        public string Hank { get; set; }
+        public string Orderno { get; set; }
+        public string LotId { get; set; }
+
+
     }
 }
