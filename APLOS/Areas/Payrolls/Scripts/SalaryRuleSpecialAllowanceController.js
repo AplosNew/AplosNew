@@ -1,7 +1,7 @@
 ﻿'use strict';
 SalaryRuleSpecialAllowanceController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function SalaryRuleSpecialAllowanceController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Special Allowance/Bonus;
+    $rootScope.title = "Special Allowance/Bonus";
     $scope.Action = 'Save';
     $scope.path = 'Payrolls/EmployeeSalaryRuleSetup/';
     $scope.getListUrl = $scope.path + 'gesptlist';
