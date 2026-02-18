@@ -57,6 +57,48 @@ function EmployeeSalaryStructureController(cboService, commonMessage, $scope, $r
         }
     };
 
+    $scope.LoadEmployeeData = function (IsApprovedEmpList) {
+        $scope.ResetPFSettingModel();
+        if ($scope.qempid !== null && $scope.qstatus === 'Confirmation') {//--- for Confirmation
+
+
+            $scope.EmpSalaryInfo.EffectiveDate = $filter('dateFiltering')($scope.DOC, 'dd-M-yyyy');
+            $scope.getEmpDataById($scope.qempid);
+
+            $scope.getEmpSalaryInfoDefineData($scope.qempid);
+            $scope.divFreshEntry = false;
+            $scope.Action = 'Update';
+            $scope.EntryShow();
+
+        }
+        else { //--- for increment
+            $scope.Clear();
+            if (IsApprovedEmpList) {
+                //baseService.init($scope.getApprovedEmpListUrl, null, 10, null, 'EmployeeCode', 'EmployeeCode');
+                $scope.LoadEmployeeDataForGrid($scope.getApprovedEmpListUrl);
+                $scope.EmpSalaryInfo.IsFreshEntry = false;
+                $scope.ShowEmpHeader = null;
+                $scope.ShowEmpHeader = 'Increment/Promotion/Adjustment';
+
+            }
+            else {
+                //baseService.init($scope.getUnApprovedEmpListUrl, null, 10, null, 'EmployeeCode', 'EmployeeCode');
+                $scope.LoadEmployeeDataForGrid($scope.getUnApprovedEmpListUrl);
+                $scope.model2.Increment = true;
+                $scope.EmpSalaryInfo.IsFreshEntry = true;
+                $scope.ShowEmpHeader = null;
+                $scope.ShowEmpHeader = 'Fresh Entry';
+
+            }
+
+            // $scope.getData();
+            $scope.ShowHideModel();
+        }
+
+
+    };
+
+
     $scope.EmpSalaryOpenHeadCurrent = [];
     $scope.salaryDataList = [];
     $scope.EmpSalaryInfo = {};
@@ -227,5 +269,250 @@ function EmployeeSalaryStructureController(cboService, commonMessage, $scope, $r
         $scope.salaryDataList = {};
     }
 
+    // #region Update
+    $scope.saveData = function () {
+        try {
+            // #region validation
+            if (baseService.isUndefinedOrNull($scope.EmpSalaryInfo.EffectiveDate)) {
+                throw "Enter valid Effective Date.";
+            } else {
+                $scope.EmpSalaryInfo.EffectiveDate = $filter('dateFiltering')($scope.EmpSalaryInfo.EffectiveDate, 'dd-M-yyyy');
+            }
 
+            if (baseService.isUndefinedOrNull($scope.EmpSalaryInfo.NextDueDate)) {
+                throw "Enter valid Next Due Date.";
+            }
+            else {
+                $scope.EmpSalaryInfo.NextDueDate = $filter('dateFiltering')($scope.EmpSalaryInfo.NextDueDate, 'dd-M-yyyy');
+            }
+
+            // #endregion
+            if ($scope.model2.Adjustment === false) {
+                if ($scope.model2.Promotion === true && $scope.model2.Increment === false) {
+                    $scope.IncrementHistory.IsPromotion = true;
+                }
+            }
+
+
+            //with Confirmation
+            if ($scope.qempid !== null && $scope.qstatus === 'Confirmation') {
+
+                if ($scope.model2.Promotion === true) {
+                    $scope.IncrementHistory.IncrementType = "Confirmation with Promotion";
+                    $scope.IncrementHistory.IsConfirmation = true;
+                    $scope.Update();
+                }
+                if ($scope.model2.Increment === true) {
+
+                    if ($scope.model2.Promotion === true) {
+                        $scope.IncrementHistory.IncrementType = "Confirmation with Increment and Promotion";
+                        $scope.IncrementHistory.IsConfirmation = true;
+
+                    } else {
+                        $scope.IncrementHistory.IncrementType = "Confirmation with Increment";
+                        $scope.IncrementHistory.IsConfirmation = true;
+                    }
+
+
+                    if (baseService.isUndefinedOrNull($scope.EmpSalaryInfo.SalaryRuleMasterSystemID)) {
+                        throw "Enter valid Salary Rule Master.";
+                    }
+                    if ($scope.Calculated === false) {
+                        throw "Calculate Salary.";
+                    } else {
+
+                        $scope.UpdateSalaryStracture();
+
+                    }
+
+                }
+
+                if ($scope.model2.Adjustment === true) {
+                    $scope.IncrementHistory.IncrementType = "Confirmation with Adjustment";
+                    $scope.IncrementHistory.IsConfirmation = true;
+
+                    if (baseService.isUndefinedOrNull($scope.EmpSalaryInfo.SalaryRuleMasterSystemID)) {
+                        throw "Enter valid Salary Rule Master.";
+                    }
+                    if ($scope.Calculated === false) {
+                        throw "Calculate Salary.";
+                    } else {
+                        $scope.UpdateSalaryStracture();
+                    }
+                }
+            }//only Increment or Promotion
+            else {
+                if ($scope.budgetCodeChangeNew.IsPending === 1) {
+
+                    if ($scope.model2.Promotion === true) {
+                        $scope.IncrementHistory.IncrementType = "Confirmation with Promotion";
+                        $scope.IncrementHistory.IsConfirmation = true;
+                        $scope.Update();
+                    }
+                    if ($scope.model2.Increment === true) {
+
+                        if ($scope.model2.Promotion === true) {
+                            $scope.IncrementHistory.IncrementType = "Confirmation with Increment and Promotion";
+                            $scope.IncrementHistory.IsConfirmation = true;
+
+                        } else {
+                            $scope.IncrementHistory.IncrementType = "Confirmation with Increment";
+                            $scope.IncrementHistory.IsConfirmation = true;
+                        }
+
+
+                        if (baseService.isUndefinedOrNull($scope.EmpSalaryInfo.SalaryRuleMasterSystemID)) {
+                            throw "Enter valid Salary Rule Master.";
+                        }
+                        if ($scope.Calculated === false) {
+                            throw "Calculate Salary.";
+                        } else {
+
+                            $scope.UpdateSalaryStracture();
+
+                        }
+
+                    }
+
+                    if ($scope.model2.Adjustment === true) {
+                        $scope.IncrementHistory.IncrementType = "Confirmation with Adjustment";
+                        $scope.IncrementHistory.IsConfirmation = true;
+
+                        if (baseService.isUndefinedOrNull($scope.EmpSalaryInfo.SalaryRuleMasterSystemID)) {
+                            throw "Enter valid Salary Rule Master.";
+                        }
+                        if ($scope.Calculated === false) {
+                            throw "Calculate Salary.";
+                        } else {
+                            $scope.UpdateSalaryStracture();
+                        }
+                    }
+
+                } else {
+
+                    if ($scope.model2.Promotion === true) {
+                        $scope.IncrementHistory.IncrementType = "Promotion";
+                        $scope.Update();
+                    }
+                    if ($scope.model2.Increment === true) {
+
+                        if ($scope.model2.Promotion === true) {
+                            $scope.IncrementHistory.IncrementType = "Increment and Promotion";
+
+                        } else {
+                            $scope.IncrementHistory.IncrementType = "Increment";
+                        }
+
+
+                        if (baseService.isUndefinedOrNull($scope.EmpSalaryInfo.SalaryRuleMasterSystemID)) {
+                            throw "Enter valid Salary Rule Master.";
+                        }
+                        if ($scope.Calculated === false) {
+                            throw "Calculate Salary.";
+                        } else {
+
+                            $scope.UpdateSalaryStracture();
+
+                        }
+
+                    }
+
+                    if ($scope.model2.Adjustment === true) {
+                        $scope.IncrementHistory.IncrementType = "Confirmation with Adjustment";
+                        $scope.IncrementHistory.IsConfirmation = true;
+
+                        if (baseService.isUndefinedOrNull($scope.EmpSalaryInfo.SalaryRuleMasterSystemID)) {
+                            throw "Enter valid Salary Rule Master.";
+                        }
+                        if ($scope.Calculated === false) {
+                            throw "Calculate Salary.";
+                        } else {
+                            $scope.UpdateSalaryStracture();
+                        }
+                    }
+                }
+
+            }
+            //$scope.ResetPFSettingModel();   ///  commented by mizan on 01-Nov-2021 not to reset
+
+
+
+        } catch (e) {
+            $scope.ShowResultCustom(e, "failure");
+        }
+    };
+
+
+
+    $scope.Update = function () {
+        try {
+
+            $scope.IncrementHistory.EmpSystemID = $scope.budgetCodeChangeOld.SystemId;
+            $scope.IncrementHistory.FromGivenDesignationId = $scope.budgetCodeChangeOld.GivenDesignationId;
+            $scope.IncrementHistory.FromBudgetCode = $scope.budgetCodeChangeOld.BudgetCode;
+            $scope.IncrementHistory.FromLegalDesignationId = $scope.budgetCodeChangeOld.LegalDesignationId;
+            $scope.IncrementHistory.ToGivenDesignationId = $scope.budgetCodeChangeNew.GivenDesignationId;
+            $scope.IncrementHistory.ToBudgetCode = $scope.budgetCodeChangeNew.BudgetCode;
+            $scope.IncrementHistory.ToLegalDesignationId = $scope.budgetCodeChangeNew.LegalDesignationId;
+            $scope.IncrementHistory.ToEffectiveDate = $scope.EmpSalaryInfo.EffectiveDate;
+
+            if ($scope.Action === "Update") {
+                $http({
+                    method: 'POST',
+                    url: $scope.updateUrl,
+                    data: { 'employeeInformation': $scope.budgetCodeChangeNew, 'IncrementHistory': $scope.IncrementHistory },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        $scope.ShowResultCustom(response.data.Message, "failure");
+                    }
+                    else {
+                        $scope.ShowResultCustom(response.data.Message, "success");
+                        $scope.Clear();
+
+
+                        $scope.NewbudgetCodeChange = {};
+                    }
+                }, function errorCallback(response) {
+                    $scope.ShowResultCustom(response.data.Message, "failure");
+                });
+                return true;
+            }
+        } catch (e) {
+            $scope.ShowResultCustom(e, "failure");
+        }
+    };
+
+    $scope.UpdateSalaryStracture = function () {
+        try {
+
+            if ($scope.Action === "Update") {
+               
+                $.ajax({
+                    type: "POST",
+                    url: $scope.UpdateSalaryStractureUrl,
+                    data: { 'employeeInformation': $scope.budgetCodeChangeNew, 'EmpSalaryInfo': $scope.EmpSalaryInfo, 'EmpSalaryInfoDefineNew': $scope.EmpSalaryInfoDefineNew, 'IncrementHistory': $scope.IncrementHistory, 'AdditionalPolicySettingModel': $scope.SettingModel },
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.Error === true) {
+                            $scope.ShowResultCustom(data.Message, "failure");
+                        }
+                        else {
+                            $scope.ShowResultCustom(data.Message, "success");
+                        }
+
+                    }
+
+                });
+
+
+            }
+        } catch (e) {
+            $scope.ShowResultCustom(e, "failure");
+        }
+    };
+    
+  
+
+    // #endregion
 }

@@ -419,6 +419,10 @@
             templateUrl: 'payrolls/EmployeeSalaryRuleSetup/SalaryProcess',
             controller: 'EmployeeSalaryProcessController'
         })
+        .when('/special-allowance', {
+            templateUrl: 'payrolls/EmployeeSalaryRuleSetup/SpecialAllowance',
+            controller: 'SalaryRuleSpecialAllowanceController'
+        })
         ;
 
 

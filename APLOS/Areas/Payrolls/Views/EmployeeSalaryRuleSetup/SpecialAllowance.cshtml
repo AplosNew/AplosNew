@@ -1,0 +1,108 @@
+﻿<togglable name="{{title}}"></togglable>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <input type="hidden" ng-model="ModelNew.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Salary Head<sup>*</sup></label>
+            <div class="col-sm-8">
+                @*<div class="select-style">
+                    <select class="form-control" ng-model="ModelProcessPara.SalaryHeadID" name="SalaryHead" ng-options="item.Value as item.Text for item in SalaryHeadList" required tabindex="302">
+                        <option value=""></option>
+                    </select>
+                </div>*@
+                <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="SalaryHeadList" e-value="ModelNew.SalaryHeadId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Days<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Days" ng-model="ModelNew.Days" class="form-control" maxlength="2" only-numbers required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Budget Code<sup>*</sup></label>
+            <div class="col-sm-8 input-group show-message" style="padding-left: 15px; padding-right: 14px;">
+                <input type="hidden" name="Budget Code" ng-model="ModelNew.ManpowerBudgetId" class="form-control">
+                <input type="text" name="Code" ng-model="ModelNew.BudgetCode" class="form-control" readonly>
+                <span class="input-group-btn">
+                    <button ng-click="popUp('Budget');" class="btn single-small-btn" style="height:30px;width:50px;" title="Search Budget Code"><i class="glyphicon glyphicon-search"></i></button>
+                </span>
+            </div>
+
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Amount<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Amount" ng-model="ModelNew.Amount" n-decimals="2" class="form-control" required tabindex="4" maxlength="50">
+            </div>
+        </div>
+       
+       
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" 
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+            <div e-column e-field="SalaryHead" e-headertext="SalaryHead" e-width="2"></div>
+            <div e-column e-field="BudgetCode" e-headertext="BudgetCode" e-width="3"></div>
+            <div e-column e-field="Days" e-headertext="Days" e-width="3"></div>
+            <div e-column e-field="Amount" e-headertext="Amount" e-width="3"></div>
+            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="5"></div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+
+<modal-table modalid="popUpId"
+             data-title={{popUpTitle}}
+             data-search-parameters="popUpParameters"
+             data-exclued-column-list="Code"
+             data-field-list="popUpList"
+             data-data-list="popUpDataList"
+             data-search-function="getPopUpData"
+             data-single-click="selectSingleClick(data)"
+             data-double-click="selectDoubleClick(data)"
+             data-right-button="true"
+             data-left-button="true"
+             data-ng-click-left-button="selectByButton()"
+             data-ng-click-cancel="closePopUp()">
+</modal-table>

@@ -672,16 +672,16 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-        public List<Default2> GetShift()
+        public List<Default2> GetShift(string GroupId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetShift(out List<Default2> activelists);
+            clsData.GetShift(out List<Default2> activelists, GroupId);
             return activelists;
         }
-        public List<AttendanceReport> GetAttdnreport(string date, string shiftid, string groupid, string inmis, string locations, string entityid, string tbs, string longabsent)
+        public List<AttendanceReport> GetAttdnreport(string date, string shiftid, string groupid, string inmis, string locations, string entityid, string tbs, string longabsent, string Budgetcodeid)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetAttdnreport(out List<AttendanceReport> activelists, date, shiftid, groupid, inmis, locations, entityid , tbs, longabsent);
+            clsData.GetAttdnreport(out List<AttendanceReport> activelists, date, shiftid, groupid, inmis, locations, entityid , tbs, longabsent, Budgetcodeid);
             return activelists;
         }
         #endregion Attedance
@@ -1750,6 +1750,24 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetEntityWiseWC(out List<Default2> activelists, Userid);
             return activelists;
         }
+
+        #region Ultimo Data
+
+        public string PostUltimoData([FromBody] IEnumerable<UltimoDataGetSet> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostUltimoData(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        #endregion Ultimo Data
 
         #endregion Pratibha
     }

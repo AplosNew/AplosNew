@@ -44,6 +44,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         #endregion
 
         #region -- Operations
+        [Authorize]
         public ActionResult GetSalaryHeadCbo(string currencyRuleSystemID)
         {
             try

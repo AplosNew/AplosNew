@@ -889,7 +889,7 @@ function EmployeeSalaryRuleSetupController(cboService, commonMessage, $scope, $r
                 });
     };
     $scope.GetItemAutoSequence();
-    $scope.OperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }];
+    $scope.OperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }, { Text: "<=", Value: "<=" }, , { Text: ">=", Value: ">=" }];
     $scope.ItemList = [];
     $scope.GetOrderLineCostingItemCbo = function () {
         try {

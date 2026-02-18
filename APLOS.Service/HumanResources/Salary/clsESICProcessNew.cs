@@ -52,8 +52,7 @@ namespace OTSBD
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @"SELECT *
-                                FROM [dbo].[ESICPolicyDetails] WHERE ESICPolicyMasterID = '" + sESICMstSystemID + @"'";
+                strSQL = @"SELECT * FROM [dbo].[ESICPolicyDetails] WHERE ESICPolicyMasterID = '" + sESICMstSystemID + @"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -94,8 +93,7 @@ namespace OTSBD
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @"SELECT * FROM ESICPolicyMonthNo
-                              WHERE ESICPolicyMasterID = '" + sESICMstSystemID + @"'";
+                strSQL = @"SELECT * FROM ESICPolicyMonthNo WHERE ESICPolicyMasterID = '" + sESICMstSystemID + @"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
