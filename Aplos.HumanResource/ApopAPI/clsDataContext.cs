@@ -11854,7 +11854,7 @@ where QAT.ParameterId='" + ParameterId + "'";
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Id Value ,CONCAT(UserName) Name from UtilityMaster  where Active = 1  order by UserName";
+                strSQL = @"select Id Value ,UserName Name from UtilityMaster  where Active = 1  order by UserName";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
