@@ -649,8 +649,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 vm.EmpSystemId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
                                 vm.WOHeaderId = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
                                 vm.EffectiveDate = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
-                                vm.EmployeeCode = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
-                                vm.EmployeeName = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
+                                //vm.EmployeeCode = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
+                                //vm.EmployeeName = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
 
                                 data.Add(vm);
 
@@ -692,9 +692,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
         public DataTable GetWeekOffData()
         {
-            var cmdText = @"select ei.EmployeeCode,ei.EmployeeName,ewo.* from EmployeeWeeklyOff ewo 
-                            left join EmployeeInformation ei on ei.systemId=empsystemId order by ewo.UpdatedDate desc
-                        ";
+            var cmdText = @"SELECT * FROM [DBO].[EmployeeWeeklyOff] where 1=2  ";
             return _sqlRepository.GetDataTable(cmdText);
         }
 
@@ -739,8 +737,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmpSystemId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colEmpSystemId = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "WOHeaderId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colWOHeaderId = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EffectiveDate"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colEffectiveDate = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colEmployeeCode = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeName"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colEmployeeName = xlsCol; xlsCol += 1;
+                //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colEmployeeCode = xlsCol; xlsCol += 1;
+                //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeName"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colEmployeeName = xlsCol; xlsCol += 1;
                 endXlsCol = xlsCol;
 
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -758,8 +756,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                     sheet1[xlsRow, colEmpSystemId].Text = dtData.Rows[i]["EmpSystemId"].ToString();
                     sheet1[xlsRow, colWOHeaderId].Text = dtData.Rows[i]["WOHeaderId"].ToString();
                     sheet1[xlsRow, colEffectiveDate].Text = dtData.Rows[i]["EffectiveDate"].ToString();
-                    sheet1[xlsRow, colEmployeeCode].Text = dtData.Rows[i]["EmployeeCode"].ToString();
-                    sheet1[xlsRow, colEmployeeName].Text = dtData.Rows[i]["EmployeeName"].ToString();
+                    //sheet1[xlsRow, colEmployeeCode].Text = dtData.Rows[i]["EmployeeCode"].ToString();
+                    //sheet1[xlsRow, colEmployeeName].Text = dtData.Rows[i]["EmployeeName"].ToString();
                     xlsRow++;
                 }
                 #region UsedRange Alignment
@@ -856,53 +854,54 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsBC;
+            DataSet dsBC=null;
             string _Id = string.Empty;
             try
             {
                 #region Entity 
-                objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
 
-                string strSQL = "Delete FROM [DBO].[EmployeeWeeklyOff]";
+                //string strSQL = "Delete FROM [DBO].[EmployeeWeeklyOff]";
+
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenConnection("1");
+                //objCon.BeginTransaction();
+                //objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                //objCon.CommitTransaction();
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenConnection("1");
-                objCon.BeginTransaction();
-                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
-                objCon.CommitTransaction();
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM [DBO].[EmployeeWeeklyOff] where 1=2", out dsBC, false, "1");
 
                 if (data != null)
                 {
-                    //DataTable no = _sqlRepository.GetDataTable("Select top 1 Id as Nos from dbo.EmployeeWeeklyOff order by Cast(Id as numeric) desc");
-                    int id = 0;
+                    DataTable no = _sqlRepository.GetDataTable("Select top 1 Id as Nos from dbo.EmployeeWeeklyOff order by Cast(Id as numeric) desc");
+                    int id = int.Parse(no.Rows[0]["Nos"].ToString()) + 1;
                     foreach (var item in data)
                     {
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [DBO].[EmployeeWeeklyOff] where EmpSystemId='" + Convert.ToInt64(item["EmpSystemId"]) + "' and EffectiveDate='" + Convert.ToDateTime(item["EffectiveDate"]).ToString("yyyy-MM-dd") + "'", out dsBC, false, "1");
                         DataView dv = new DataView(dsBC.Tables[0]);
-                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
+                        dv.RowFilter = "EmpSystemId='" + Convert.ToInt64(item["EmpSystemId"]) + "' and EffectiveDate='"+ Convert.ToDateTime(item["EffectiveDate"]).ToString("yyyy-MM-dd") +"'";
                         
-                        id++;
                         if (dv.Count == 0)
                         {
-                            item["EffectiveDate"] = DateTime.Now;
+                            //item["EffectiveDate"] = DateTime.Now;
                             item["Id"] = id.ToString();
                             AddNewRow(dsBC.Tables[0], item);
+                            id++;
+                            OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                            obj.SaveDataSets(dsBC);
                         }
-                        else
-                        {
-                            DataRow drmo = dv[0].Row;
-                            item["EffectiveDate"] = DateTime.Now;
-                            EditRow(drmo, item);
-                        }
+                        //else
+                        //{
+                        //    DataRow drmo = dv[0].Row;
+                        //    //item["EffectiveDate"] = DateTime.Now;
+                        //    EditRow(drmo, item);
+                        //}
                     }
 
 
                 }
                 #endregion
-                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
-                obj.SaveDataSets(dsBC);
+                
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
@@ -913,8 +912,8 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         public class UploadedWeekOffDataViewModel
         {
-            public string EmployeeCode { get; set; }
-            public string EmployeeName { get; set; }
+            //public string EmployeeCode { get; set; }
+            //public string EmployeeName { get; set; }
             public string EmpSystemId { get; set; }
             public string WOHeaderId { get; set; }
             public string EffectiveDate { get; set; }

@@ -109,7 +109,23 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
                 }
             });
     }
-
+    $scope.invalidDate = false;
+    $scope.checkDate = function () {
+        var msg = "";
+        if (new Date($scope.Date) > new Date()) {
+            msg = "Date must be below or equal to current Date!";
+            $scope.currencyExchangeRate = [];
+            $scope.invalidDate = true;
+        }
+        else if (baseService.isUndefinedOrNull($scope.Date)) {
+            msg = "Date is required.";
+            $scope.invalidDate = true;
+        }
+        else {
+            $scope.invalidDate = false;
+        }
+        return manualValidation("div_Date", $scope.invalidDate, msg);
+    };
     //Getting the WorkCenters
     $scope.getWkC = function () {
         $scope.workCenterList = [];
@@ -324,29 +340,30 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         }
 
         $scope.ModelList = $scope.PrevAllList;
+        if (!$scope.invalidDate) {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'saveData',
+                data: {
+                    'data': $scope.NewList, 'WorkCenter': $scope.workCenterId,
+                    'ProcessId': $scope.ProcessId,
+                    'ShiftId': $scope.shiftId,
+                    'POId': $scope.POId,
+                    'Date': $scope.Date, 'PeriodId': $scope.periodId,
+                    'ResponsiblePersonId': $scope.responsiblePersonId,
+                },
+            }).then(function succ(resp) {
 
-        $http({
-            method: 'POST',
-            url: $scope.path + 'saveData',
-            data: {
-                'data': $scope.NewList, 'WorkCenter': $scope.workCenterId,
-                'ProcessId': $scope.ProcessId,
-                'ShiftId': $scope.shiftId,
-                'POId': $scope.POId,
-                'Date': $scope.Date, 'PeriodId': $scope.periodId,
-                'ResponsiblePersonId': $scope.responsiblePersonId,
-            },
-        }).then(function succ(resp) {
+                if (resp.data.Error === true) {
+                    ShowResult(resp.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(resp.data.Message, 'success');
+                    $scope.ClearGrid();
+                }
 
-            if (resp.data.Error === true) {
-                ShowResult(resp.data.Message, 'failure');
-            }
-            else {
-                ShowResult(resp.data.Message, 'success');
-                $scope.ClearGrid();
-            }
-
-        });
+            });
+        }
     }
 
      
@@ -383,7 +400,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
                 }
             }
             $scope.ModelList = $scope.PrevAllList;
-            if (!$scope.invalidqty) {
+            if (!$scope.invalidqty && !$scope.invalidDate) {
                 $http({
                     method: 'POST',
                     url: $scope.path + 'saveRowItemData',
