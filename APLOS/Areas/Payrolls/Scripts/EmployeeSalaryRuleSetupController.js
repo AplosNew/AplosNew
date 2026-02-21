@@ -655,7 +655,7 @@ function EmployeeSalaryRuleSetupController(cboService, commonMessage, $scope, $r
         try {
             $scope.ModelProcessPara.EmployeeSalaryRuleSetupId = $scope.masterId;
             CheckField($scope.ModelProcessPara.EmployeeSalaryRuleSetupId, "Master");
-            CheckField($scope.ModelProcessPara.SalaryHeadID, "Salary Head");
+            
             CheckField($scope.ModelProcessPara.UserName, "User Name");
             CheckField($scope.ModelProcessPara.StandardName, "Standard Name");
             $scope.AddEditRow();
@@ -674,7 +674,6 @@ function EmployeeSalaryRuleSetupController(cboService, commonMessage, $scope, $r
                         ShowResult(response.data.Message, 'success');
                         $scope.GetItemAutoSequence();
                         $scope.GetProcessParameterData();
-                        $scope.GetOrderLineCostingItemCbo();
                         $scope.ClearItem();
                         $scope.FormulaDetails = [];
                         $scope.Row = 'Add Row';
@@ -879,6 +878,7 @@ function EmployeeSalaryRuleSetupController(cboService, commonMessage, $scope, $r
         $scope.ModelProcessPara = { Id: null, EmployeeSalaryRuleSetupId: null, DrBudgetMasterActivityId: null, CrBudgetMasterActivityId: null, Sequence: 0, UserName: null, StandardName: null, Active: true, IsDefault: false, IsReportItem: false, ViewItem: null, DefaultValue: null, EntryState: 'Auto', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
         $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
         $scope.GetItemAutoSequence();
+        $scope.GetOrderLineCostingItemCbo();
         $scope.ProductionAction = 'Save';
     }
 
