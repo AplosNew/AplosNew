@@ -1767,6 +1767,21 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
+
+        public string PostUltimoDataUnit2([FromBody] IEnumerable<UltimoDataGetSet> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostUltimoDataUnit2(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
         #endregion Ultimo Data
 
         #endregion Pratibha
