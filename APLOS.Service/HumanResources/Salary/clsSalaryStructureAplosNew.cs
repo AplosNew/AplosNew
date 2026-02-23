@@ -9106,6 +9106,7 @@ public class clsSalaryStructureAplosNew
 
                 }
             }
+            string sRoundOption = "";
             for (int i = 0; i < dt.Rows.Count; i++)
             {
                 if (dt.Rows[i]["HeadCategory"].ToString().ToUpper() == "NET PAYABLE")
@@ -9114,13 +9115,16 @@ public class clsSalaryStructureAplosNew
                     EntryCurrencyID = dt.Rows[i]["EntryCurrencyID"].ToString();
                     DefinitionCurrencyID = dt.Rows[i]["DefinitionCurrencyID"].ToString();
                     SalaryHeadID = dt.Rows[i]["SalaryHeadID"].ToString();
+                    sRoundOption = dt.Rows[i]["RoundOption"].ToString();
                     obSSrecal.ReLoadFormulaWithValue(dt.Rows[i]["FormulaDesID"].ToString(), ref dtValue, dt.Rows[i]["EntryCurrencyID"].ToString(), ForeignCurRate, out _formulaValue, ref dtSalHd);
                 }
             }
             //_para.FormulaValue = _formulaValue;
 
             sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString();
-            EntryAmount = Convert.ToDecimal(sFormulaResult) + AbsenteeismEntryAmount;
+            string _sOutDefineAmt = "";
+            obSSrecal.FractionCalculation(sRoundOption, true, true, 0, sFormulaResult, out _sOutDefineAmt);
+            EntryAmount = Convert.ToDecimal(_sOutDefineAmt) + AbsenteeismEntryAmount;
             if (EntryCurrencyID == DefinitionCurrencyID)
             {
                 DefineAmount = EntryAmount;
@@ -11671,10 +11675,10 @@ public class clsSalaryStructureAplosNew
                 {
                     for (int i = 0; i < dsLocal.Tables[0].Rows.Count; i++)//non formula
                     {
-                        if (dsLocal.Tables[0].Rows[i]["SequenceNo"].ToString() == "15")
-                        {
+                        //if (dsLocal.Tables[0].Rows[i]["SequenceNo"].ToString() == "15")
+                        //{
 
-                        }
+                        //}
                         sRoundOption = dsLocal.Tables[0].Rows[i]["RoundOption"].ToString().Trim();
                         bIntegerInDisb = Convert.ToBoolean(dsLocal.Tables[0].Rows[i]["IntegerInDisb"].ToString().Trim());
                         bIsDecimalInDisb = Convert.ToBoolean(dsLocal.Tables[0].Rows[i]["IsDecimalInDisb"].ToString().Trim());
