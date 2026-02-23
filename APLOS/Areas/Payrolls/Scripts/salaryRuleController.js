@@ -1111,7 +1111,7 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
         });
     }
 
-    $scope.OperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }];
+    $scope.OperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }, { Text: "<=", Value: "<=" }, { Text: ">=", Value: ">=" }, { Text: "<", Value: "<" }, { Text: ">", Value: ">" }];
 
     $scope.salaryRuleGeneral.FormulaDes = null;
     $scope.salaryRuleGeneral.FormulaDesID = null;
