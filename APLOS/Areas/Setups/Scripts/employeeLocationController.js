@@ -1,7 +1,7 @@
 ﻿'use strict';
 EmployeeLocationController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function EmployeeLocationController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Tax Category';
+    $rootScope.title = 'Employee Location';
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.employeeLocations = [];

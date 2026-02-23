@@ -13881,6 +13881,153 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                         dr["Hank"] = item.Hank;
                         dr["Orderno"] = item.Orderno;
                         dr["LotId"] = item.LotId;
+                        dr["EntityId"] = item.EntityId;
+                        
+
+
+                        dr["AddedBy"] = "Server";
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+        }
+
+        public string PostUltimoDataUnit2(IEnumerable<UltimoDataGetSet> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.Ultimodata";
+                string PackedBy = "''";
+                string RefNo = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<UltimoDataGetSet> items = DataToSave.ToList();
+
+
+
+                con.OpenDataSetThroughAdapter("select * from dbo.Ultimodata where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+
+                foreach (UltimoDataGetSet item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+                        dr["Id"] = _Id;
+                        dr["macidfk"] = item.macidfk;
+                        dr["CountID"] = item.CountID;
+                        dr["macshed"] = item.macshed;
+                        dr["machineNo"] = item.machineNo;
+                        dr["ActCount"] = item.ActCount;
+                        dr["Nominalcount"] = item.Nominalcount;
+                        dr["countArticle"] = item.countArticle;
+                        dr["Operator"] = item.Operator;
+                        dr["MachineGroupid"] = item.MachineGroupid;
+                        dr["side"] = item.side;
+                        dr["Supervisor"] = item.Supervisor;
+                        dr["ShiftDate"] = item.ShiftDate;
+                        dr["Shiftid"] = item.Shiftid;
+                        dr["ShiftNo"] = item.ShiftNo;
+                        dr["ebnormalacross"] = item.ebnormalacross;
+                        dr["ebidleacross"] = item.ebidleacross;
+                        dr["ebstartupacross"] = item.ebstartupacross;
+                        dr["stopacross"] = item.stopacross;
+                        dr["doffacross"] = item.doffacross;
+                        dr["kg"] = item.kg;
+                        dr["grsh"] = item.grsh;
+                        dr["RunMins"] = item.RunMins;
+                        dr["gpss"] = item.gpss;
+                        dr["MetPerMin"] = item.MetPerMin;
+                        dr["tpi"] = item.tpi;
+                        dr["spndlrpm"] = item.spndlrpm;
+                        dr["FrontRollerRPM"] = item.FrontRollerRPM;
+                        dr["monitoredMins"] = item.monitoredMins;
+                        dr["aef"] = item.aef;
+                        dr["pef"] = item.pef;
+                        dr["util"] = item.util;
+                        dr["stoptime"] = item.stoptime;
+                        dr["dofftime"] = item.dofftime;
+                        dr["stopcount"] = item.stopcount;
+                        dr["doffcount"] = item.doffcount;
+                        dr["longdoff"] = item.longdoff;
+                        dr["minperstop"] = item.minperstop;
+                        dr["minperdoff"] = item.minperdoff;
+                        dr["doffper"] = item.doffper;
+                        dr["stopper"] = item.stopper;
+                        dr["pnewaste"] = item.pnewaste;
+                        dr["ebnormal"] = item.ebnormal;
+                        dr["ebstartup"] = item.ebstartup;
+                        dr["ebidle"] = item.ebidle;
+                        dr["ebtotal"] = item.ebtotal;
+                        dr["ebs"] = item.ebs;
+                        dr["normalaef"] = item.normalaef;
+                        dr["idleaef"] = item.idleaef;
+                        dr["startupaef"] = item.startupaef;
+                        dr["totalaef"] = item.totalaef;
+                        dr["ebr"] = item.ebr;
+                        dr["normaltime"] = item.normaltime;
+                        dr["idletime"] = item.idletime;
+                        dr["startuptime"] = item.startuptime;
+                        dr["emnormal"] = item.emnormal;
+                        dr["emstartup"] = item.emstartup;
+                        dr["emidle"] = item.emidle;
+                        dr["emtotal"] = item.emtotal;
+                        dr["ebnormalClosed"] = item.ebnormalClosed;
+                        dr["ebidleClosed"] = item.ebidleClosed;
+                        dr["ebstartupClosed"] = item.ebstartupClosed;
+                        dr["ebnormalClosedduration"] = item.ebnormalClosedduration;
+                        dr["ebidleClosedduration"] = item.ebidleClosedduration;
+                        dr["ebstartupClosedduration"] = item.ebstartupClosedduration;
+                        dr["wasteNumerator"] = item.wasteNumerator;
+                        dr["wasteDenominator"] = item.wasteDenominator;
+                        dr["slipsPercent"] = item.slipsPercent;
+                        dr["slips"] = item.slips;
+                        dr["rogues"] = item.rogues;
+                        dr["RoguePercent"] = item.RoguePercent;
+                        dr["spndldowtime"] = item.spndldowtime;
+                        dr["spndldowntimeper"] = item.spndldowntimeper;
+                        dr["ukg"] = item.ukg;
+                        dr["otherstoptime"] = item.otherstoptime;
+                        dr["pwrstoptime"] = item.pwrstoptime;
+                        dr["apppower"] = item.apppower;
+                        dr["kwh"] = item.kwh;
+                        dr["Seb100sp"] = item.Seb100sp;
+                        dr["Volt_ry"] = item.Volt_ry;
+                        dr["Volt_yb"] = item.Volt_yb;
+                        dr["Volt_br"] = item.Volt_br;
+                        dr["powerfactor"] = item.powerfactor;
+                        dr["Activepower_kw"] = item.Activepower_kw;
+                        dr["spindles"] = item.spindles;
+                        dr["Articlename"] = item.Articlename;
+                        dr["Hank"] = item.Hank;
+                        dr["Orderno"] = item.Orderno;
+                        dr["LotId"] = item.LotId;
+                        dr["EntityId"] = item.EntityId;
 
 
 
@@ -15769,6 +15916,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
         public string Hank { get; set; }
         public string Orderno { get; set; }
         public string LotId { get; set; }
+        public string EntityId { get; set; }
 
 
     }
