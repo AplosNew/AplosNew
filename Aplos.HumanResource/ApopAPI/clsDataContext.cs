@@ -13881,7 +13881,8 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                         dr["Hank"] = item.Hank;
                         dr["Orderno"] = item.Orderno;
                         dr["LotId"] = item.LotId;
-
+                        dr["EntityId"] = item.EntityId;
+                        
 
 
                         dr["AddedBy"] = "Server";
@@ -15769,6 +15770,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
         public string Hank { get; set; }
         public string Orderno { get; set; }
         public string LotId { get; set; }
+        public string EntityId { get; set; }
 
 
     }
