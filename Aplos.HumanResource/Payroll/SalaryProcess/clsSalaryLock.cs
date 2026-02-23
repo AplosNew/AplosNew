@@ -218,7 +218,7 @@ namespace Library.HumanResource.Payroll.SalaryProcess
                                     
 									 and e.systemid in
 									 (
-									 SELECT c.EmpInfoSystemID FROM SalaryProcChild c 
+									 SELECT distinct c.EmpInfoSystemID FROM SalaryProcChild c 
 									  inner join SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID and MonthNo =  Month('" + effectiveDate + @"') AND YearNo =  Year('"+ effectiveDate + @"')
 									  WHERE PlantID = '"+identity.PlantId+ @"'		
 									 )

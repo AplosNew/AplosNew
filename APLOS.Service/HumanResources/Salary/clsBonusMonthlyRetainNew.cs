@@ -20,10 +20,8 @@ namespace OTSBD
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-               
-                strSQL = @"SELECT *
-                            FROM BonusPolicyMonthlyRetainMaster
-                            WHERE GroupID = '" + sGroupID + @"' AND PlantID = '" + sPlantID + @"'";
+
+                strSQL = @"SELECT * FROM BonusPolicyMonthlyRetainMaster WHERE GroupID = '" + sGroupID + @"' AND PlantID = '" + sPlantID + @"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -43,8 +41,7 @@ namespace OTSBD
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @"SELECT *
-                                FROM [dbo].[BonusPolicyMonthlyRetainDetails] WHERE BnsPlcMthRetainID = '" + sBnsPlcMthRetainID + @"'";
+                strSQL = @"SELECT * FROM [dbo].[BonusPolicyMonthlyRetainDetails] WHERE BnsPlcMthRetainID = '" + sBnsPlcMthRetainID + @"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -512,7 +509,7 @@ namespace OTSBD
 
             try
             {
-               // strEntryDate = AppDateConvert(strEntryDate, getUserDateFormat(), "MM/dd/yyyy").ToString("MM/dd/yyyy");
+                // strEntryDate = AppDateConvert(strEntryDate, getUserDateFormat(), "MM/dd/yyyy").ToString("MM/dd/yyyy");
                 strEntryDate = clsWebLib.AppDateConvert(strEntryDate, "MM/dd/yyyy", clsWebLib.getUserDateFormat()).ToShortDateString();
 
                 strSql = "SELECT * FROM Signature WHERE Field ='" + strFieldName.Trim() + "' AND Dates = '" + strEntryDate + "'";
@@ -724,7 +721,7 @@ namespace OTSBD
                 }
             }
             finally
-            {                
+            {
                 objCon = null;
             }
 
@@ -955,7 +952,7 @@ namespace OTSBD
                         }
 
                         if (sCompMinWagesAndOrginal == "Which Ever is Less")
-                        { 
+                        {
                             if (MinWagSalaryFormulaResult < Convert.ToDecimal(sTemp))
                             {
                                 sTemp = MinWagSalaryFormulaResult.ToString();
@@ -1516,7 +1513,7 @@ namespace OTSBD
             dtBnsMntEmpWiseCal.Columns.Add("UpdatedBy");
             dtBnsMntEmpWiseCal.Columns.Add("UpdatedDate");
             dtBnsMntEmpWiseCal.Columns.Add("UpdatedFromIP");
-     
+
 
 
 
@@ -1744,7 +1741,7 @@ namespace OTSBD
 
                                 if (EmpCntForLoop == grdRowMaxCnt)
                                 {
-                                  
+
                                     dvBnsMntEmpWiseCal = new DataView();
 
                                     //GetBonusPolicyMonthlyRetainDistributionPmt(para, sEmpSystemID, out dsBnsMntDist);
@@ -1810,7 +1807,7 @@ namespace OTSBD
                                         else
                                         {
                                             bIsEligibleApp = true;
-                                            
+
                                         }
                                         para.IsBonusMandatory = bIsEligibleApp;
                                         if (bIsEligibleApp == true)
@@ -1874,7 +1871,14 @@ namespace OTSBD
                                                     sBonusPolicyDetailsID = dsBnsPolicyDtl.Tables[0].Rows[iBnsPlDtl]["ID"].ToString().Trim();
                                                     sEarningFormulaID = dsBnsPolicyDtl.Tables[0].Rows[iBnsPlDtl]["FormulaDesIDEarning"].ToString().Trim();
                                                     ReLoadFormulaWithValue(sEmpSysID, para, sEarningFormulaID, bEarning, ref dtValue, ref dtSalHd);
-                                                    sEarningFormulaResult = Evaluate(sFormulaValue.Trim()).ToString();
+                                                    if (dtMinWagSalary.Rows.Count > 0)
+                                                    {
+                                                        sEarningFormulaResult = dtMinWagSalary.Rows[0]["SalaryHeadValue"].ToString();
+                                                    }
+                                                    else
+                                                    {
+                                                        sEarningFormulaResult = Evaluate(sFormulaValue.Trim()).ToString();
+                                                    }
                                                     decEarningValueRangeFrom = Convert.ToDecimal(dsBnsPolicyDtl.Tables[0].Rows[iBnsPlDtl]["EarningValueRangeFrom"].ToString().Trim());
                                                     decEarningValueRangeTo = Convert.ToDecimal(dsBnsPolicyDtl.Tables[0].Rows[iBnsPlDtl]["EarningValueRangeTo"].ToString().Trim());
 
@@ -5129,7 +5133,7 @@ namespace OTSBD
             DataTable dtBnsEligibleEmp = null;
             DataRow drBnsEligibleEmp = null;
             DataView dvBnsEligibleEmp = null;
-            
+
             DataSet dsBnsMntEmpWiseCal = null;
             DataTable dtBnsMntEmpWiseCal = null;
             DataRow drBnsMntEmpWiseCal = null;
@@ -5363,11 +5367,11 @@ namespace OTSBD
                                         sEmpLocationID = dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["EmployeeLocationId"].ToString().Trim();
                                         //sEmpGivenDesignationId = dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["GivenDesignationId"].ToString().Trim();
                                         sEmpGivenDesignationId = dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["LegalDesignationId"].ToString().Trim();
-                                        
+
                                         #region Master Table Data Capture [Start Date]
 
                                         dtStartDate = Convert.ToDateTime(dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["DOJ"].ToString().Trim());
-                                        
+
                                         #endregion Master Table Data Capture 
 
                                         string sMatDt = "";
@@ -5728,7 +5732,7 @@ namespace OTSBD
 
                                     //SaveDataSets(dsESICEligibleEmp, dsESICMntEmpWiseCal);
                                 }
-                                
+
                                 TotProcComp += grdRowMaxCnt;
                                 TotSelectEmpForProc -= grdRowMaxCnt;
                                 if (para.bStructure == true)
@@ -5761,8 +5765,8 @@ namespace OTSBD
 
                         #endregion Tag Employee List
 
-                       
-                        if (para.ShouldNotProcessUntaggedEmp==false)
+
+                        if (para.ShouldNotProcessUntaggedEmp == false)
                         {
                             #region Untag Employee List
 
@@ -6276,7 +6280,7 @@ namespace OTSBD
                 dtBnsMntEmpWiseCal = null;
                 drBnsMntEmpWiseCal = null;
                 dvBnsMntEmpWiseCal = null;
-                
+
                 dsSalInfo = null;
                 dsBnsPolicyMst = null;
                 dsBnsPolicyDtl = null;
@@ -7451,7 +7455,7 @@ namespace OTSBD
         private void UpdateTheDataRowInTableBonusPolicyMonthlyRetainEligibleEmployee(string OPN_FLAG, string sBnsEligibleEmpID, string sEmpSysID, string sBnsMstID, string sBnsDtlID, DateTime dtStartDate, bool bMandatory, bool bIsAllEmpApplocable, string sUser, ref DataRow drLocal)
         {
             try
-            { 
+            {
                 if (OPN_FLAG == "ADDNEW")
                 {
                     drLocal["ID"] = RetValidLen(sBnsEligibleEmpID);
@@ -7482,7 +7486,7 @@ namespace OTSBD
                     drLocal["AddedDate"] = DateTime.Now.ToString();
                     drLocal["AddedFromIP"] = "";
                 }
-                
+
                 drLocal["UpdatedBy"] = RetValidLen(sUser);
                 drLocal["UpdatedDate"] = DateTime.Now.ToString();
                 drLocal["UpdatedFromIP"] = "";
@@ -7508,7 +7512,7 @@ namespace OTSBD
                     drLocal["AddedDate"] = DateTime.Now.ToString();
                     drLocal["AddedFromIP"] = "";
                 }
-                
+
                 drLocal["EmpSystemID"] = RetValidLen(sEmpSysID);
                 drLocal["BnsPlcMthRetainID"] = RetValidLen(sBnsMstID);
                 if (para.sSlrProcMstSystemID != "")

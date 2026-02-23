@@ -8819,13 +8819,16 @@ public class clsSalaryStructureAplosNew
                     EntryCurrencyID = dt.Rows[i]["EntryCurrencyID"].ToString();
                     DefinitionCurrencyID = dt.Rows[i]["DefinitionCurrencyID"].ToString();
                     SalaryHeadID = dt.Rows[i]["SalaryHeadID"].ToString();
+                    sRoundOption= dt.Rows[i]["RoundOption"].ToString();
                     obSSrecal.ReLoadFormulaWithValue(dt.Rows[i]["FormulaDesID"].ToString(), ref dtValue, _para.LocalCurrencyId, _para.ForeignCurRate, out _formulaValue, ref dtSalHd);
                 }
             }
             _para.FormulaValue = _formulaValue;
 
             sFormulaResult = clsSalaryStructureAplos.Evaluate(_para.FormulaValue).ToString();
-            EntryAmount = Convert.ToDecimal(sFormulaResult) + AbsenteeismEntryAmount;
+            string _sOutDefineAmt = "";
+            obSSrecal.FractionCalculation(sRoundOption, bIntegerInDisb, bIsDecimalInDisb, iDecimalNo, sFormulaResult, out _sOutDefineAmt);
+            EntryAmount = Convert.ToDecimal(_sOutDefineAmt) + AbsenteeismEntryAmount;
 
             if (EntryCurrencyID == DefinitionCurrencyID)
             {
@@ -11668,7 +11671,7 @@ public class clsSalaryStructureAplosNew
                 {
                     for (int i = 0; i < dsLocal.Tables[0].Rows.Count; i++)//non formula
                     {
-                        if (i == 23)
+                        if (dsLocal.Tables[0].Rows[i]["SequenceNo"].ToString() == "15")
                         {
 
                         }
@@ -12092,7 +12095,8 @@ public class clsSalaryStructureAplosNew
                                         _para.FormulaValue = _formulaValue;
 
                                         sFormulaResult = clsSalaryStructureAplos.Evaluate(_para.FormulaValue).ToString();
-
+                                        obSS.FractionCalculation(sRoundOption, bIntegerInDisb, bIsDecimalInDisb, iDecimalNo, sFormulaResult, out sOutEntryAmt);
+                                        sFormulaResult = sOutEntryAmt;
                                         if (sFormulaResult == "NaN")
                                         {
                                             throw new Exception("Salary Head is not orderly tagged in Salary Rule");
@@ -12143,7 +12147,7 @@ public class clsSalaryStructureAplosNew
 
                                         dtValueRow["SalaryHeadID"] = dsLocal.Tables[0].Rows[i]["SalaryHeadID"].ToString().Trim();
                                         dtValueRow["EntryCurrencyID"] = dsLocal.Tables[0].Rows[i]["EntryCurrencyID"].ToString().Trim();
-                                        dtValueRow["Amount"] = sFormulaResultEnt;
+                                        dtValueRow["Amount"] = sOutDefineAmt;
 
                                         dtValue.Rows.Add(dtValueRow);
 
