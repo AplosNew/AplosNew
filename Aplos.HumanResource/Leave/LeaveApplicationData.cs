@@ -1976,9 +1976,9 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
                         decimal Adjustment = Convert.ToDecimal(Table.Rows[i][@"Adjustment"].ToString());
                         decimal RegularEncashment = Convert.ToDecimal(Table.Rows[i][@"RegularEncashment"].ToString());
                         //decimal Closing = Convert.ToDecimal(Table.Rows[i][@"Closing"].ToString());
-                        decimal Closing = Opening + Earned - Availed;
+                        decimal Closing = Opening + Earned - Availed + Adjustment;
                         decimal Carryforward = 0;
-                        decimal bl = Earned - Availed;
+                        decimal bl = Earned - Availed+ Adjustment;
                         decimal cls = 0;
                         if (bl > MaxCarryForward && bl > 0)
                         {
