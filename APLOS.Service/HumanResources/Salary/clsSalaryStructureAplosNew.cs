@@ -1070,15 +1070,15 @@ public class clsSalaryStructureAplosNew
 
                 #region Increment History
                 objStatic.GetIncrementHistory(_para.EmpSystemID, _para.ToEffectiveDate.ToString(), out dsIncrementHistory);
-                
+
                 dtIncrementHistory = dsIncrementHistory.Tables[0];
                 dvIncrementHistory = new DataView();
                 dvIncrementHistory.Table = dtIncrementHistory;
 
-                objStatic.GetLegalSalaryGrade(_para.FromLegalDesignationId,out dsFLSG);
+                objStatic.GetLegalSalaryGrade(_para.FromLegalDesignationId, out dsFLSG);
                 objStatic.GetLegalSalaryGrade(_para.ToLegalDesignationId, out dsTLSG);
 
-                if (dsFLSG.Tables[0].Rows.Count>0)
+                if (dsFLSG.Tables[0].Rows.Count > 0)
                 {
                     _para.LegalSalaryGradeId = dsFLSG.Tables[0].Rows[0]["LegalSalaryGradeId"].ToString();
                 }
@@ -3320,23 +3320,6 @@ public class clsSalaryStructureAplosNew
             if (dsLocal.Tables[0].Rows.Count > 0)
             {
 
-
-                for (int i = 0; i < dsLocal.Tables[0].Rows.Count; i++)
-                {
-                    if (Convert.ToBoolean(dsLocal.Tables[0].Rows[i]["IsOpen"]) == false || dsLocal.Tables[0].Rows[i]["FormulaDes"].ToString() != "")
-                    {
-                        if (Convert.ToDecimal(dsLocal.Tables[0].Rows[i]["FixedValue"].ToString()) > 0)
-                        {
-                            _Formula_Desc += "</br>" + dsLocal.Tables[0].Rows[i]["SalaryHead"].ToString() + ": " + dsLocal.Tables[0].Rows[i]["FixedValue"].ToString();
-                        }
-                        else if (dsLocal.Tables[0].Rows[i]["FormulaDes"].ToString() != "")
-                        {
-                            _Formula_Desc += "</br>" + dsLocal.Tables[0].Rows[i]["SalaryHead"].ToString() + ": " + dsLocal.Tables[0].Rows[i]["FormulaDes"].ToString();
-                        }
-                    }
-
-
-                }
                 if (bIsApproved == false)
                 {
                     bIsApproved = Convert.ToBoolean(dsLocal.Tables[0].Rows[0]["IsApproved"]);
@@ -3358,6 +3341,20 @@ public class clsSalaryStructureAplosNew
 
                 for (int i = 0; i < dsLocal.Tables[0].Rows.Count; i++)
                 {
+
+                    if (Convert.ToBoolean(dsLocal.Tables[0].Rows[i]["IsOpen"]) == false || dsLocal.Tables[0].Rows[i]["FormulaDes"].ToString() != "")
+                    {
+                        if (Convert.ToDecimal(dsLocal.Tables[0].Rows[i]["FixedValue"].ToString()) > 0)
+                        {
+                            _Formula_Desc += "</br>" + dsLocal.Tables[0].Rows[i]["SalaryHead"].ToString() + ": " + dsLocal.Tables[0].Rows[i]["FixedValue"].ToString();
+                        }
+                        else if (dsLocal.Tables[0].Rows[i]["FormulaDes"].ToString() != "")
+                        {
+                            _Formula_Desc += "</br>" + dsLocal.Tables[0].Rows[i]["SalaryHead"].ToString() + ": " + dsLocal.Tables[0].Rows[i]["FormulaDes"].ToString();
+                        }
+                    }
+
+
                     sRoundOption = dsLocal.Tables[0].Rows[i]["RoundOption"].ToString().Trim();
                     bIntegerInDisb = Convert.ToBoolean(dsLocal.Tables[0].Rows[i]["IntegerInDisb"].ToString().Trim());
                     bIsDecimalInDisb = Convert.ToBoolean(dsLocal.Tables[0].Rows[i]["IsDecimalInDisb"].ToString().Trim());
@@ -7365,9 +7362,9 @@ public class clsSalaryStructureAplosNew
             objPFGnt.GetVPFPercentage(_para.EmployeeId, out dsVPFPercentage);
             if (dsVPFPercentage.Tables[0].Rows.Count > 0)
             {
-                para.VPFPersentage = dsVPFPercentage.Tables[0].Rows[0]["VoluntaryPFValue"].ToString(); 
+                para.VPFPersentage = dsVPFPercentage.Tables[0].Rows[0]["VoluntaryPFValue"].ToString();
                 para.VPFEffectiveDate = dsVPFPercentage.Tables[0].Rows[0]["EffectiveDate"].ToString();
-                para.IsVoluntaryPFEntitleNew = Convert.ToBoolean(dsVPFPercentage.Tables[0].Rows[0]["IsEligible"]); 
+                para.IsVoluntaryPFEntitleNew = Convert.ToBoolean(dsVPFPercentage.Tables[0].Rows[0]["IsEligible"]);
             }
 
 
@@ -7953,7 +7950,7 @@ public class clsSalaryStructureAplosNew
 
 
             dt.DefaultView.Sort = "SequenceNo ASC";
-           
+
             DataView dvM = new DataView();
             dvM.Table = dt;
 
@@ -8819,7 +8816,7 @@ public class clsSalaryStructureAplosNew
                     EntryCurrencyID = dt.Rows[i]["EntryCurrencyID"].ToString();
                     DefinitionCurrencyID = dt.Rows[i]["DefinitionCurrencyID"].ToString();
                     SalaryHeadID = dt.Rows[i]["SalaryHeadID"].ToString();
-                    sRoundOption= dt.Rows[i]["RoundOption"].ToString();
+                    sRoundOption = dt.Rows[i]["RoundOption"].ToString();
                     obSSrecal.ReLoadFormulaWithValue(dt.Rows[i]["FormulaDesID"].ToString(), ref dtValue, _para.LocalCurrencyId, _para.ForeignCurRate, out _formulaValue, ref dtSalHd);
                 }
             }
@@ -11575,6 +11572,47 @@ public class clsSalaryStructureAplosNew
         }
     }//End Function 
 
+    public void GetDesignationMasterWiseMinSalary(BnsParaListNew para, out System.Data.DataSet dsRef)
+    {
+        string strSQL;
+        ConnectionManager.DAL.ConManager objCon;
+
+        try
+        {
+            strSQL = @"SELECT DMLD.LegalDesignationId DesignationId, LSSV.LegalSalaryStructureId, SH.SalaryHead, LSSV.SalaryHeadId, LSSV.SalaryHeadValue, LSS.EmployeeLocationId 
+                            FROM [MST].[DesignationMaster] DM
+		                            INNER JOIN [MST].[DesignationMasterLegalDesignation] DMLD ON DM.Id = DMLD.DesignationMasterId
+		                            INNER JOIN [MST].[LegalSalaryGradeDesignation] LSGD ON LSGD.LegalDesignationId = DMLD.LegalDesignationId
+		                            INNER JOIN [SCS].[LegalSalaryGrade] LSG ON LSGD.LegalSalaryGradeId = LSG.Id
+		                            INNER JOIN (
+					                            SELECT A.* FROM [MST].[LegalSalaryStructure] A
+						                            INNER JOIN
+								                              (
+								                               SELECT LegalSalaryGradeId, EmployeeLocationId, MAX(EffectiveDate) EffectiveDate FROM [MST].[LegalSalaryStructure] 
+                                                                WHERE EffectiveDate <= '" + para.EDate + @"'
+									                           GROUP BY LegalSalaryGradeId, EmployeeLocationId
+								                              ) B ON A.LegalSalaryGradeId = B.LegalSalaryGradeId AND A.EffectiveDate = B.EffectiveDate
+																 AND A.EmployeeLocationId = B.EmployeeLocationId
+					                            ) LSS ON LSG.Id = LSS.LegalSalaryGradeId
+		                            INNER JOIN [MST].[LegalSalaryStructureValue] LSSV ON LSS.Id = LSSV.LegalSalaryStructureId
+		                            LEFT JOIN [dbo].[SalaryHead] SH ON LSSV.SalaryHeadId = SH.SalaryHeadID  
+                            WHERE LSGD.PlantId = '" + para.PlantID + @"'
+							GROUP BY DMLD.LegalDesignationId, LSSV.LegalSalaryStructureId, SH.SalaryHead, LSSV.SalaryHeadId, LSSV.SalaryHeadValue, LSS.EmployeeLocationId 
+							ORDER BY DMLD.LegalDesignationId";
+
+            objCon = new ConnectionManager.DAL.ConManager("1");
+            objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+        }
+        catch (Exception ex)
+        {
+            throw (ex);
+        }
+        finally
+        {
+            objCon = null;
+        }
+    }
+
     private DataView CalculateSalary_From_NewOpenSalaryHeadValue(CustomParaNew _para, DataSet dsOpenVal, out string _Formula_Desc, out CustomParaAdditionalPolicySetting para)//EmpSalaryDefine
     {
         para = null;
@@ -11595,8 +11633,28 @@ public class clsSalaryStructureAplosNew
         clsSalaryStructureAplos obSSa = new global::clsSalaryStructureAplos();
         clsSalaryUtility obSS = new global::clsSalaryUtility();
 
-
-
+        BnsParaListNew Bnspara = new OTSBD.BnsParaListNew();
+        Bnspara.GroupID = _para.CompanyGroupId;
+        Bnspara.PlantID = _para.PlantId;
+        Bnspara.sEmpSystemID = "'" + _para.EmployeeId + "'";
+        Bnspara.sSlrProcMstSystemID = "";
+        Bnspara.sSalaryRuleMasterSystemID = _para.SalaryRuleId;
+        Bnspara.sCurrencyRuleSystemID = _para.CurrencyRuleMasterId;
+        //Bnspara.sCurrencyRuleSystemID = lblCurrencyRuleSystemID.Text;
+        Bnspara.LocalCurrencyID = _para.LocalCurrencyId;
+        Bnspara.ForeignCurRate = _para.ForeignCurRate;
+        //Bnspara.ForeignCurRate = this.txtForeignCurRate.Text.Trim();
+        Bnspara.FromDate = FirstDayOfNextMonthFromDateTime(Convert.ToDateTime(_para.EffectiveDate)).AddMonths(-1).ToString();
+        Bnspara.ToDate = FirstDayOfNextMonthFromDateTime(Convert.ToDateTime(_para.EffectiveDate)).AddDays(-1).ToString();
+        if (!string.IsNullOrEmpty(_para.EDate))
+        {
+            Bnspara.EDate = _para.EDate;
+        }
+        else
+        {
+            Bnspara.EDate = FirstDayOfNextMonthFromDateTime(Convert.ToDateTime(_para.EffectiveDate)).AddDays(-1).ToString();
+        }
+        DataSet dsMinWagSalary = null;
         try
         {
             objsi = new clsSalaryInfoNew();
@@ -11636,6 +11694,7 @@ public class clsSalaryStructureAplosNew
 
             GetSalarySlabWiseValue(_para.PlantId, out dsSalarySlabWiseValue);
 
+            GetDesignationMasterWiseMinSalary(Bnspara, out dsMinWagSalary);
 
 
             DataTable dtValue = new DataTable();
@@ -11843,7 +11902,14 @@ public class clsSalaryStructureAplosNew
                                         dvOpenValFil.RowFilter = "SalaryHeadID = '" + dsLocal.Tables[0].Rows[i]["SalaryHeadID"].ToString().Trim() + "'";
                                         if (dvOpenValFil.Count == 1)
                                         {
-                                            strTempEntryAmt = dvOpenValFil[0]["Amount"].ToString().Trim();
+                                            if (dsMinWagSalary.Tables[0].Rows.Count > 0 && dsLocal.Tables[0].Rows[i]["SalaryHead"].ToString().Trim() == "Minimum Wage")
+                                            {
+                                                strTempEntryAmt = dsMinWagSalary.Tables[0].Rows[0]["SalaryHeadValue"].ToString();
+                                            }
+                                            else
+                                            {
+                                                strTempEntryAmt = dvOpenValFil[0]["Amount"].ToString().Trim();
+                                            }
 
                                             if (string.IsNullOrEmpty(strTempEntryAmt.Trim()) == true)
                                             { strTempEntryAmt = "0.0"; }
@@ -18782,7 +18848,7 @@ public class clsSalaryStructureAplosNew
 
                         drSlDefBack = dtSlDefBack.NewRow();
                         //drSlDefBack["SystemID"] = sSDSystemID + "_" + _count_back_child;// bplib.clsWebLib.RetValidLen(dsSlDefApproved.Tables[0].Rows[i]["SalaryHeadID"].ToString().Trim());
-                         drSlDefBack["SystemID"] = "BC" + pk_back_child_seed + "_" + _count_back_child;
+                        drSlDefBack["SystemID"] = "BC" + pk_back_child_seed + "_" + _count_back_child;
                         drSlDefBack["SalaryID"] = bplib.clsWebLib.RetValidLen(pk_back_master);
 
                         drSlDefBack["SalaryHeadID"] = bplib.clsWebLib.RetValidLen(dsSlDefApproved.Tables[0].Rows[i]["SalaryHeadID"].ToString().Trim());
