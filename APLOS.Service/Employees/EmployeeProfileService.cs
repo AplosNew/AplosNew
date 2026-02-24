@@ -5241,7 +5241,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
                                     ,E.EmpPicPath EmployeePic,E.NationalID,BG.UserName BloodGroup
                                     ,CASE WHEN ISNULL(CG.Id,'')='' THEN ISNULL(E.ParmanentAddress1Local,E.ParmanentAddress1) ELSE ParmanentAddress1 END AS ParmanentAddress
                                     ,ISNULL(WSEC.Name,WT.UserName) EmployeeWorkType, ISNULL(PLL.Name,PL.UserName) PlantName, ISNULL(LN.Name,L.UserName) Line, ISNULL(LSGA.Name,GD.ShortName) Grade ,P.AuthorizedSignature
-                                    ,EmrCntPer1CellNo,FatherOrSpouse = case when E.FatherName is null then e.SpouseName else E.FatherName  end,CONCAT(e.SystemId,'#',e.EmployeeCode,'#',e.EmployeeName)BarCodeId
+                                    ,EmrCntPer1CellNo,FatherOrSpouse = case when E.FatherName is null then e.SpouseName else E.FatherName  end,CONCAT(e.SystemId,'#',e.EmployeeCode,'#',e.EmployeeName,'#',e.NationalID,'#',BG.UserName,'#',e.CellPhnNo)BarCodeId
                                     ,case when isnull(cg.Id,'')='' THEN isnull(E.PresentAddress1Local,E.PresentAddress1) ELSE PresentAddress1 END AS PresentAddress
                                     ,case when isnull(cg.Id,'')='' THEN isnull(E.FatherNameLocal,E.FatherName) ELSE FatherName END AS FatherName
                                     ,E.EmrCntPer1Name EmContactName,E.EmrCntPer1CellNo EmContactNo,CompanyAddress=AM.Address1+', '+ISNULL(AM.Address2,''),AM.Phone
