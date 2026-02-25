@@ -13913,24 +13913,27 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
         {
             try
             {
+                if (DataToSave == null || !DataToSave.Any())
+                    return "No Data";
+
                 DataSet dsMaster;
                 string TableName = "dbo.Ultimodata";
-                string PackedBy = "''";
-                string RefNo = "''";
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                if (DataToSave.Count() == 0)
-                    return "";
-                List<UltimoDataGetSet> items = DataToSave.ToList();
 
+                ConnectionManager.DAL.ConManager con =
+                    new ConnectionManager.DAL.ConManager("1");
 
-
-                con.OpenDataSetThroughAdapter("select * from dbo.Ultimodata where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+                // ?? Load empty structure instead of filtering by first Id
+                con.OpenDataSetThroughAdapter(
+                    "SELECT TOP 0 * FROM dbo.Ultimodata",
+                    out dsMaster,
+                    false,
+                    "1");
 
 
                 foreach (UltimoDataGetSet item in DataToSave)
                 {
                     dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
-                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    if (DataToSave.Count() > 0)
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
@@ -13938,7 +13941,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out string _Id);
 
-                        dr["Id"] = _Id;
+                        dr["Id"] = item.Id;
                         dr["macidfk"] = item.macidfk;
                         dr["CountID"] = item.CountID;
                         dr["macshed"] = item.macshed;
@@ -14043,9 +14046,9 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                 }
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                //string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-                return MasterId;
+                return "Success";
 
             }
             catch (Exception ex)
