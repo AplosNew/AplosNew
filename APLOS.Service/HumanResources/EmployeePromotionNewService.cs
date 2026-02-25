@@ -501,7 +501,7 @@ namespace Library.Service.HumanResources
                 Data.DefinitionCurrency = dt.Rows[i]["DefinitionCurrency"].ToString();
                 Data.EntryAmount = Convert.ToDecimal(bplib.clsWebLib.GetNumData(dt.Rows[i]["EntryAmount"].ToString()));
                 Data.DefineAmount = Convert.ToDecimal(bplib.clsWebLib.GetNumData(dt.Rows[i]["DefineAmount"].ToString()));
-                //Data.TagAndUnTag = dt.Rows[i]["TagAndUnTag"].ToString();
+                Data.RoundOption = dt.Rows[i]["RoundOption"].ToString();
                 Data.MonthPeriod = dt.Rows[i]["MonthPeriod"].ToString();
                 Data.IsNA = bplib.clsWebLib.GetBoolData(dt.Rows[i]["IsNA"].ToString());
                 Data.HeadCategory = dt.Rows[i]["HeadCategory"].ToString();
