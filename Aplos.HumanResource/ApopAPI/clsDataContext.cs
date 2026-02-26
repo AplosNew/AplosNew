@@ -5442,18 +5442,21 @@ where emp.EmployeeStatus = 'Active' and  Emp.EmployeeCode = '" + Empcode + "'";
                     strSQL1 = @"DECLARE @WorkDate DATE = '" +  date + @"' , @hrgroupid varchar(100) = '"+ groupid + @"';
 
 WITH TodayIN AS
-(
-    SELECT 
-        APD.BudgetId,
-        COUNT(AR.LogDownLoadNum) AS ToDayIN
-    FROM AttdnRawData AR
-    INNER JOIN AttdnProcessData APD 
-        ON APD.EmpSystemID = AR.LogDownLoadNum
-        AND APD.WorkDate = AR.PDate
-    WHERE AR.PDate = @WorkDate
-      AND AR.PType = 'IN'
-    GROUP BY APD.BudgetId
-)
+	(
+		SELECT 
+			APD.BudgetId,
+			Case when APD.ManualShiftID is not null then APD.ManualShiftID 
+			When APD.Rostershiftid is not null then APD.Rostershiftid else APD.BudgetedShiftID end ShiftId
+			,COUNT(AR.LogDownLoadNum) AS ToDayIN
+		FROM AttdnRawData AR
+		INNER JOIN AttdnProcessData APD 
+			ON APD.EmpSystemID = AR.LogDownLoadNum
+			AND APD.WorkDate = AR.PDate
+		WHERE AR.PDate = @WorkDate
+		  AND AR.PType = 'IN'
+		GROUP BY APD.BudgetId,  Case when APD.ManualShiftID is not null then APD.ManualShiftID 
+			When APD.Rostershiftid is not null then APD.Rostershiftid else APD.BudgetedShiftID end
+	)
 
 Select * from (SELECT  Distinct
     '' AS SrNo,
@@ -5627,7 +5630,7 @@ WHERE Emp.Employeestatus = 'Active' and HG.Id = @hrgroupid  ";
                     }
                     if (entityid == null && shiftid != null && locations == null)
                     {
-                        strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'";
+                        strSQL = strSQL + "  and TI.ShiftId =  '" + shiftid + "'";
                     }
                     if (entityid == null && shiftid == null && locations != null)
                     {
@@ -5635,11 +5638,11 @@ WHERE Emp.Employeestatus = 'Active' and HG.Id = @hrgroupid  ";
                     }
                     if (entityid != null && shiftid != null && locations == null)
                     {
-                        strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
+                        strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'" + "  and TI.ShiftId =  '" + shiftid + "'";
                     }
                     if (entityid == null && shiftid != null && locations != null)
                     {
-                        strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'" + " and  RM.Location = '" + locations + "'";
+                        strSQL = strSQL + "  and TI.ShiftId =  '" + shiftid + "'" + " and  RM.Location = '" + locations + "'";
                     }
                     if (entityid != null && shiftid == null && locations != null)
                     {
@@ -5647,7 +5650,7 @@ WHERE Emp.Employeestatus = 'Active' and HG.Id = @hrgroupid  ";
                     }
                     if (entityid != null && shiftid != null && locations != null)
                     {
-                        strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
+                        strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'" + "  and TI.ShiftId =  '" + shiftid + "'";
                     }
 
                     if (tbs != null && longabsent == null)
@@ -5735,18 +5738,21 @@ WHERE Emp.Employeestatus = 'Active' and HG.Id = @hrgroupid  ";
                     strSQL1 = @"DECLARE @WorkDate DATE = '" + date + @"' , @hrgroupid varchar(100) = '" + groupid + @"';
 
  WITH TodayIN AS
-(
-    SELECT 
-        APD.BudgetId,
-        COUNT(AR.LogDownLoadNum) AS ToDayIN
-    FROM AttdnRawData AR
-    INNER JOIN AttdnProcessData APD 
-        ON APD.EmpSystemID = AR.LogDownLoadNum
-        AND APD.WorkDate = AR.PDate
-    WHERE AR.PDate = @WorkDate
-      AND AR.PType = 'IN'
-    GROUP BY APD.BudgetId
-)
+	(
+		SELECT 
+			APD.BudgetId,
+			Case when APD.ManualShiftID is not null then APD.ManualShiftID 
+			When APD.Rostershiftid is not null then APD.Rostershiftid else APD.BudgetedShiftID end ShiftId
+			,COUNT(AR.LogDownLoadNum) AS ToDayIN
+		FROM AttdnRawData AR
+		INNER JOIN AttdnProcessData APD 
+			ON APD.EmpSystemID = AR.LogDownLoadNum
+			AND APD.WorkDate = AR.PDate
+		WHERE AR.PDate = @WorkDate
+		  AND AR.PType = 'IN'
+		GROUP BY APD.BudgetId,  Case when APD.ManualShiftID is not null then APD.ManualShiftID 
+			When APD.Rostershiftid is not null then APD.Rostershiftid else APD.BudgetedShiftID end
+	)
 
 Select * from (SELECT  Distinct
     '' AS SrNo,
@@ -5919,7 +5925,7 @@ convert(time,ARD.ptime) > convert(time,SD.Intime)
                     }
                     if (entityid == null && shiftid != null && locations == null)
                     {
-                        strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'";
+                        strSQL = strSQL + "  and TI.ShiftId =  '" + shiftid + "'";
                     }
                     if (entityid == null && shiftid == null && locations != null)
                     {
@@ -5927,11 +5933,11 @@ convert(time,ARD.ptime) > convert(time,SD.Intime)
                     }
                     if (entityid != null && shiftid != null && locations == null)
                     {
-                        strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
+                        strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'" + "  and TI.ShiftId =  '" + shiftid + "'";
                     }
                     if (entityid == null && shiftid != null && locations != null)
                     {
-                        strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'" + " and  RM.Location = '" + locations + "'";
+                        strSQL = strSQL + "  and TI.ShiftId =  '" + shiftid + "'" + " and  RM.Location = '" + locations + "'";
                     }
                     if (entityid != null && shiftid == null && locations != null)
                     {
@@ -5939,7 +5945,7 @@ convert(time,ARD.ptime) > convert(time,SD.Intime)
                     }
                     if (entityid != null && shiftid != null && locations != null)
                     {
-                        strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
+                        strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'" + "  and TI.ShiftId =  '" + shiftid + "'";
                     }
 
                     if (tbs != null && longabsent == null)
@@ -6026,18 +6032,21 @@ convert(time,ARD.ptime) > convert(time,SD.Intime)
                     strSQL1 = @"DECLARE @WorkDate DATE = '" + date + @"' , @hrgroupid varchar(100) = '" + groupid + @"';
 
 WITH TodayIN AS
-(
-    SELECT 
-        APD.BudgetId,
-        COUNT(AR.LogDownLoadNum) AS ToDayIN
-    FROM AttdnRawData AR
-    INNER JOIN AttdnProcessData APD 
-        ON APD.EmpSystemID = AR.LogDownLoadNum
-        AND APD.WorkDate = AR.PDate
-    WHERE AR.PDate = @WorkDate
-      AND AR.PType = 'IN'
-    GROUP BY APD.BudgetId
-)
+	(
+		SELECT 
+			APD.BudgetId,
+			Case when APD.ManualShiftID is not null then APD.ManualShiftID 
+			When APD.Rostershiftid is not null then APD.Rostershiftid else APD.BudgetedShiftID end ShiftId
+			,COUNT(AR.LogDownLoadNum) AS ToDayIN
+		FROM AttdnRawData AR
+		INNER JOIN AttdnProcessData APD 
+			ON APD.EmpSystemID = AR.LogDownLoadNum
+			AND APD.WorkDate = AR.PDate
+		WHERE AR.PDate = @WorkDate
+		  AND AR.PType = 'IN'
+		GROUP BY APD.BudgetId,  Case when APD.ManualShiftID is not null then APD.ManualShiftID 
+			When APD.Rostershiftid is not null then APD.Rostershiftid else APD.BudgetedShiftID end
+	)
 
 select * from (  select Distinct '' as SrNo ,  SC.StandardName Section,SBC.StandardName SubSection, 
 DSG.StandardName Designation, POS.Activity, 
@@ -6104,7 +6113,7 @@ and emp.employeecode NOT IN (2222229, 2222230)   and MBGT.Active = 1  and Hg.Id 
                     }
                     if (entityid == null && shiftid != null && locations == null)
                     {
-                        strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'";
+                        strSQL = strSQL + "  and TI.ShiftId =  '" + shiftid + "'";
                     }
                     if (entityid == null && shiftid == null && locations != null)
                     {
@@ -6112,11 +6121,11 @@ and emp.employeecode NOT IN (2222229, 2222230)   and MBGT.Active = 1  and Hg.Id 
                     }
                     if (entityid != null && shiftid != null && locations == null)
                     {
-                        strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
+                        strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'" + "  and TI.ShiftId =  '" + shiftid + "'";
                     }
                     if (entityid == null && shiftid != null && locations != null)
                     {
-                        strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'" + " and  RM.Location = '" + locations + "'";
+                        strSQL = strSQL + "  and TI.ShiftId =  '" + shiftid + "'" + " and  RM.Location = '" + locations + "'";
                     }
                     if (entityid != null && shiftid == null && locations != null)
                     {
@@ -6124,7 +6133,7 @@ and emp.employeecode NOT IN (2222229, 2222230)   and MBGT.Active = 1  and Hg.Id 
                     }
                     if (entityid != null && shiftid != null && locations != null)
                     {
-                        strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
+                        strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'" + "  and TI.ShiftId =  '" + shiftid + "'";
                     }
 
                     if (tbs != null && longabsent == null)
