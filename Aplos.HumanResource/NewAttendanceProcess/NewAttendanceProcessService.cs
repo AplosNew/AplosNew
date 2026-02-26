@@ -1239,7 +1239,7 @@ and	E.DOJ <= '" + Date + @"' AND (E.DOS >= '" + Date + @"' OR ISNULL(E.DOS,'') =
                 EmployeeInformation e
                 left join EmployeeWeeklyOff ex on e.SystemId=ex.EmpSystemId
                 where e.SystemId in( select empsystemid from EmployeeWeeklyOff)
-                and e.PlantId='" + Plant + @"' --and e.SystemId='2525844'
+                and e.PlantId='" + Plant + @"'
                 group by e.SystemId
                 ) as dd	";
 
@@ -1304,7 +1304,7 @@ LEFT JOIN hkp.WeeklyStatus WS
 									SELECT isnull(ei.SystemId,'') 
                                     FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + plant + @"'
                                    AND  ei.DOJ <= '" + Date + @"' 
-                                   AND (ei.DOS >= '" + Date + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))  ";
+                                   AND (ei.DOS >= '" + Date + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -2493,7 +2493,7 @@ LEFT JOIN hkp.WeeklyStatus WS
             {
 
                 var sql = @"SELECT CompanyGroupId, Id as PlantValue FROM ORG.Plant WHERE CompanyGroupId = 
-               '" + CompanyGpId + "' AND  Active = 1 AND Archive = 0 AND Id=20251";
+               '" + CompanyGpId + "' AND  Active = 1 AND Archive = 0";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
