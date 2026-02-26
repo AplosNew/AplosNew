@@ -8,7 +8,8 @@ using System.Data;
 using System.IO;
 using context = System.Web.HttpContext;
 
-namespace Library.HumanResource.NewAttendanceProcess {
+namespace Library.HumanResource.NewAttendanceProcess
+{
 
     public class NewAttendanceProcessService
     {
@@ -23,7 +24,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
 
         #region Shift Process
-        public void ShiftProcess(string Date, string PlantValue,string UserId=null)
+        public void ShiftProcess(string Date, string PlantValue, string UserId = null)
         {
             ProcessLock _lock = new ProcessLock(UserId, ProcessLockId.AttendanceProcess, "", 60);
             _lock.LockProcess();
@@ -50,10 +51,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where WorkDate='" + WkDate + "'and PlantID='" + PlantValue + "'", out DataSet dsRef, false, false, "", "1");
-                        
+
                         for (int i = 0; i < UnProcessed.Tables[0].Rows.Count; i++)
                         {
-                             EmpId = UnProcessed.Tables[0].Rows[i][@"SystemId"].ToString();
+                            EmpId = UnProcessed.Tables[0].Rows[i][@"SystemId"].ToString();
                             string PlantId = UnProcessed.Tables[0].Rows[i][@"PlantId"].ToString();
                             string RowId = UnProcessed.Tables[0].Rows[i][@"RowId"].ToString();
                             string ManualShift = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"ManualShift"]).ToString();
@@ -210,7 +211,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
                             else
                             {
-                                if(EmpId.ToString()== "2525844")
+                                if (EmpId.ToString() == "2525844")
                                 {
 
                                 }
@@ -223,7 +224,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["BudgetedShiftID"] = clsWebLib.RetValidLen(BudgetShift);
                                 if (string.IsNullOrEmpty(dr["BudgetId"].ToString()))
                                 {
-                                    dr["BudgetId"] = clsWebLib.RetValidLen(BudgetId); 
+                                    dr["BudgetId"] = clsWebLib.RetValidLen(BudgetId);
                                 }
                                 dr["Deployment"] = clsWebLib.RetValidLen(Deployment);
                                 dr["BudgetedManpower"] = clsWebLib.RetValidLen(BudgetedManpower);
@@ -231,7 +232,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["PlantInPunchStartTime"] = clsWebLib.RetValidLen(PlantInPunchStartTime);
                                 if (string.IsNullOrEmpty(dr["GivenDesignationId"].ToString()))
                                 {
-                                    dr["GivenDesignationId"] = clsWebLib.RetValidLen(GivenDesignationId); 
+                                    dr["GivenDesignationId"] = clsWebLib.RetValidLen(GivenDesignationId);
                                 }
                                 #region ManualData Entry
                                 if (clsWebLib.RetValidLen(ManualInTime).ToString() != "")
@@ -369,7 +370,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < RamadanShift.Tables[0].Rows.Count; i++)
                         {
-                             EmpId = RamadanShift.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                            EmpId = RamadanShift.Tables[0].Rows[i][@"EmpSystemID"].ToString();
                             var ShiftDurn = clsWebLib.RetValidLen(RamadanShift.Tables[0].Rows[i][@"ShiftDuration"]).ToString();
                             var ShiftIn = clsWebLib.RetValidLen(RamadanShift.Tables[0].Rows[i][@"InTime"]).ToString();
                             var ShiftOut = clsWebLib.RetValidLen(RamadanShift.Tables[0].Rows[i][@"OutTime"]).ToString();
@@ -513,221 +514,26 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     #endregion
 
-                    #region WeekOff Flagging
-                    DataSet dsRosterWeekOff;
-                    DataSet IndividualWeekOff;
+
+
+                    #region CompanyWeekOff Flagging
                     DataSet CompanyWeekOff;
-                    DataSet dsRefApd;
                     CompanyWeekOffData(Date, out CompanyWeekOff, PlantValue);
-                    IndividualWeekOffData(Date, out IndividualWeekOff, PlantValue);
-                    RosterWeekOffData(Date, out dsRosterWeekOff, PlantValue);
-                    ConnectionManager.DAL.ConManager objConR = new ConnectionManager.DAL.ConManager("1");
-                    string DayType = null;
-                    string newformatDate = Convert.ToDateTime(Date).ToString("yyyyMMdd");
-                    var sqlxNew = @"select * from AttdnProcessData 
-                                   WHERE WorkDate='" + Date + @"'
-                                    AND isnull(EmpSystemID,'') IN (SELECT isnull(ei.SystemId,'') 
-                                    FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + PlantValue + @"' )--and ei.SystemId='2525844' ";
-
-                    objConR.OpenDataSetThroughAdapter(sqlxNew, out dsRefApd, false, false, "", "1");
-                    if (dsRosterWeekOff.Tables[0].Rows.Count > 0)
+                    if (CompanyWeekOff.Tables[0].Rows.Count > 0)
                     {
-                       
 
-                        // Employee Week Off DataSet Generation
-                        
-
-                        for (int r = 0; r < dsRefApd.Tables[0].Rows.Count; r++)
+                        for (int i = 0; i < CompanyWeekOff.Tables[0].Rows.Count; i++)
                         {
-                            EmpId = dsRefApd.Tables[0].Rows[r][@"EmpSystemId"].ToString();
+                            // Company WeekOff Employees Weekly Status Updation to W 
+                            string PlantId = CompanyWeekOff.Tables[0].Rows[i][@"PlantId"].ToString();
+                            string WkDate = CompanyWeekOff.Tables[0].Rows[i][@"WkDate"].ToString();
 
-                            DataView dv = new DataView(dsRosterWeekOff.Tables[0]);
-                            dv.RowFilter = "EmpSystemId = '" + EmpId + "'";
-                            
-                            if (dv.Count > 0)
-                            {
-                                DayType = clsWebLib.RetValidLen(dv[0]["DayType"]).ToString();
-                            }
-                            else
-                            {
-                                DayType = string.Empty; // or default value
-                            }
-
-                            if (EmpId == "2525844" && PlantValue== "20253")
-                            {
-
-                            }
-                            if (!string.IsNullOrEmpty(DayType))
-                            {
-                                dsRefApd.Tables[0].DefaultView.RowFilter = @"RowId='" + newformatDate + EmpId + "' ";
-                                if (dsRefApd.Tables[0].DefaultView.Count > 0)
-                                {
-                                    // Week Off Updation in APD Level
-                                    if (DayType.ToString() != "")
-                                    {
-                                        DataRow dr = dsRefApd.Tables[0].DefaultView[0].Row;
-                                        dr.BeginEdit();
-                                        dr["UpdatedBy"] = "Schedule";
-                                        dr["WeeklyStatus"] = DayType;
-                                        dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                        dr.EndEdit();
-                                    }
-                                }
-                            }
-                            else if(IndividualWeekOff.Tables[0].Rows.Count > 0)
-                            {
-                                DataView dvi = new DataView(IndividualWeekOff.Tables[0]);
-                                dvi.RowFilter = "SystemId = '"+ EmpId + "'";
-                                if (dvi.Count > 0)
-                                {
-                                    DayType = clsWebLib.RetValidLen(dvi[0]["DayType"]).ToString();
-                                }
-                                else
-                                {
-                                    DayType = string.Empty; // or default value
-                                }
-
-                                        dsRefApd.Tables[0].DefaultView.RowFilter = @"RowId='" + newformatDate + EmpId + "' ";
-                                        if (dsRefApd.Tables[0].DefaultView.Count > 0)
-                                        {
-                                            // Week Off Updation in APD Level
-                                            if (DayType.ToString() != "")
-                                            {
-                                                DataRow dr = dsRefApd.Tables[0].DefaultView[0].Row;
-                                                dr.BeginEdit();
-                                                dr["UpdatedBy"] = "Schedule";
-                                                dr["WeeklyStatus"] = DayType;
-                                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                                dr.EndEdit();
-                                            }
-                                        }
-                                   
-                                   
-                            }
-                            else  
-                            {
-                                if (CompanyWeekOff.Tables[0].Rows.Count > 0)
-                                {
-
-                                    for (int c = 0; c < CompanyWeekOff.Tables[0].Rows.Count; c++)
-                                    {
-                                        // Company WeekOff Employees Weekly Status Updation to W 
-                                        string PlantId = CompanyWeekOff.Tables[0].Rows[c][@"PlantId"].ToString();
-                                        string WkDate = CompanyWeekOff.Tables[0].Rows[c][@"WkDate"].ToString();
-
-                                        var sql = @"Update AttdnProcessData Set WeeklyStatus='W'  
+                            var sql = @"Update AttdnProcessData Set WeeklyStatus='W'  
                                            WHERE WorkDate='" + WkDate + "'AND isnull(EmpSystemID,'') IN" +
-                                        " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                                        "ei WHERE  ei.PlantId ='" + PlantId + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
-                                        "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
-                                        "from EmployeeWeeklyOff where EffectiveDate<='" + WkDate + "'))";
-
-
-                                        ConnectionManager.DAL.ConManager objCone = null;
-                                        objCone = new ConnectionManager.DAL.ConManager("1");
-                                        objCone.OpenConnection("1");
-                                        objCone.BeginTransaction();
-
-                                        objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                        objCone.CommitTransaction();
-
-                                    }
-                                }
-                                else
-                                {
-                                    // Company WeekOff Employees Weekly Status Updation to NW 
-
-                                    var sql = @"Update AttdnProcessData Set WeeklyStatus='NW'  
-                                          WHERE WorkDate='" + Date + @"' AND isnull(EmpSystemID,'') IN" +
-                                       " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                                       "ei WHERE  ei.PlantId='" + PlantValue + "'  and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
-                                       "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
-                                       "from EmployeeWeeklyOff where EffectiveDate<='" + Date + "'))";
-
-
-                                    ConnectionManager.DAL.ConManager objCone = null;
-                                    objCone = new ConnectionManager.DAL.ConManager("1");
-                                    objCone.OpenConnection("1");
-                                    objCone.BeginTransaction();
-
-                                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                    objCone.CommitTransaction();
-                                }
-                            }
-                            
-                            
-                        }
-                        SaveDataSets(dsRefApd);
-                    }
-                    else if (IndividualWeekOff.Tables[0].Rows.Count > 0)
-                    {
-                        DataView dvi = new DataView(IndividualWeekOff.Tables[0]);
-                        dvi.RowFilter = "SystemId = '" + EmpId + "'";
-                        if (dvi.Count > 0)
-                        {
-                            DayType = clsWebLib.RetValidLen(dvi[0]["DayType"]).ToString();
-                        }
-                        else
-                        {
-                            DayType = string.Empty; // or default value
-                        }
-
-                        dsRefApd.Tables[0].DefaultView.RowFilter = @"RowId='" + newformatDate + EmpId + "' ";
-                        if (dsRefApd.Tables[0].DefaultView.Count > 0)
-                        {
-                            // Week Off Updation in APD Level
-                            if (DayType.ToString() != "")
-                            {
-                                DataRow dr = dsRefApd.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                dr["UpdatedBy"] = "Schedule";
-                                dr["WeeklyStatus"] = DayType;
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr.EndEdit();
-                            }
-                        }
-
-                        SaveDataSets(dsRefApd);
-                    }
-                    else
-                    {
-                        if (CompanyWeekOff.Tables[0].Rows.Count > 0)
-                        {
-
-                            for (int c = 0; c < CompanyWeekOff.Tables[0].Rows.Count; c++)
-                            {
-                                // Company WeekOff Employees Weekly Status Updation to W 
-                                string PlantId = CompanyWeekOff.Tables[0].Rows[c][@"PlantId"].ToString();
-                                string WkDate = CompanyWeekOff.Tables[0].Rows[c][@"WkDate"].ToString();
-
-                                var sql = @"Update AttdnProcessData Set WeeklyStatus='W'  
-                                           WHERE WorkDate='" + WkDate + "'AND isnull(EmpSystemID,'') IN" +
-                                " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                                "ei WHERE  ei.PlantId ='" + PlantId + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
-                                "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
-                                "from EmployeeWeeklyOff where EffectiveDate<='" + WkDate + "'))";
-
-
-                                ConnectionManager.DAL.ConManager objCone = null;
-                                objCone = new ConnectionManager.DAL.ConManager("1");
-                                objCone.OpenConnection("1");
-                                objCone.BeginTransaction();
-
-                                objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                objCone.CommitTransaction();
-
-                            }
-                        }
-                        else
-                        {
-                            // Company WeekOff Employees Weekly Status Updation to NW 
-
-                            var sql = @"Update AttdnProcessData Set WeeklyStatus='NW'  
-                                          WHERE WorkDate='" + Date + @"' AND isnull(EmpSystemID,'') IN" +
-                               " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                               "ei WHERE  ei.PlantId='" + PlantValue + "'  and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
-                               "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
-                               "from EmployeeWeeklyOff where EffectiveDate<='" + Date + "'))";
+                            " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
+                            "ei WHERE  ei.PlantId ='" + PlantId + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
+                            "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
+                            "from EmployeeWeeklyOff where EffectiveDate<='" + WkDate + "'))";
 
 
                             ConnectionManager.DAL.ConManager objCone = null;
@@ -737,14 +543,114 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             objCone.ExecuteNonQueryWrapper(sql, true, "1");
                             objCone.CommitTransaction();
+
                         }
-                        SaveDataSets(dsRefApd);
+                    }
+                    else
+                    {
+                        // Company WeekOff Employees Weekly Status Updation to NW 
+
+                        var sql = @"Update AttdnProcessData Set WeeklyStatus='NW'  
+                                          WHERE WorkDate='" + Date + @"' AND isnull(EmpSystemID,'') IN" +
+                           " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
+                           "ei WHERE  ei.PlantId='" + PlantValue + "'  and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
+                           "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
+                           "from EmployeeWeeklyOff where EffectiveDate<='" + Date + "'))";
+
+
+                        ConnectionManager.DAL.ConManager objCone = null;
+                        objCone = new ConnectionManager.DAL.ConManager("1");
+                        objCone.OpenConnection("1");
+                        objCone.BeginTransaction();
+
+                        objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                        objCone.CommitTransaction();
                     }
                     #endregion
 
+                    #region IndividualWeekOff Flagging
+                    DataSet IndividualWeekOff;
+                    IndividualWeekOffData(Date, out IndividualWeekOff, PlantValue);
+                    if (IndividualWeekOff.Tables[0].Rows.Count > 0)
+                    {
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
 
+                        // Employee Week Off DataSet Generation
+                        var sqlx = @"select * from AttdnProcessData 
+                                   WHERE WorkDate='" + Date + @"'
+                                    AND isnull(EmpSystemID,'') IN (SELECT isnull(ei.SystemId,'') 
+                                    FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + PlantValue + @"'
+                                   AND  ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
+                    "and  ISNULL(EmpSystemID,'') in (select distinct ISNULL(EmpSystemID,'') from EmployeeWeeklyOff))";
 
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+                        string newformat = Convert.ToDateTime(Date).ToString("yyyyMMdd");
 
+                        for (int i = 0; i < IndividualWeekOff.Tables[0].Rows.Count; i++)
+                        {
+                            EmpId = IndividualWeekOff.Tables[0].Rows[i][@"SystemId"].ToString();
+                            string DayType = clsWebLib.RetValidLen(IndividualWeekOff.Tables[0].Rows[i][@"DayType"]).ToString();
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+                                // Week Off Updation in APD Level
+                                if (DayType.ToString() != "")
+                                {
+                                    DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                    dr.BeginEdit();
+                                    dr["UpdatedBy"] = "Schedule";
+                                    dr["WeeklyStatus"] = DayType;
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr.EndEdit();
+                                }
+                            }
+                        }
+                        SaveDataSets(dsRef);
+                    }
+                    #endregion
+
+                    #region RosterWeekOff Flagging
+                    DataSet dsRosterWeekOff;
+                    RosterWeekOffData(Date, out dsRosterWeekOff, PlantValue);
+                    if (dsRosterWeekOff.Tables[0].Rows.Count > 0)
+                    {
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+
+                        // Employee Week Off DataSet Generation
+                        var sqlx = @"select * from AttdnProcessData 
+                                   WHERE WorkDate='" + Date + @"'
+                                    AND isnull(EmpSystemID,'') IN (SELECT isnull(ei.SystemId,'') 
+                                    FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + PlantValue + @"'
+                                   AND  ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
+                    "and  ISNULL(EmpSystemID,'') in (select distinct ISNULL(EmpSystemID,'') from EmployeeWeeklyOff))";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+                        string newformat = Convert.ToDateTime(Date).ToString("yyyyMMdd");
+
+                        for (int i = 0; i < dsRosterWeekOff.Tables[0].Rows.Count; i++)
+                        {
+                            EmpId = dsRosterWeekOff.Tables[0].Rows[i][@"EmpSystemId"].ToString();
+                            string DayType = clsWebLib.RetValidLen(dsRosterWeekOff.Tables[0].Rows[i][@"DayType"]).ToString();
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+                                // Week Off Updation in APD Level
+                                if (DayType.ToString() != "")
+                                {
+                                    DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                    dr.BeginEdit();
+                                    dr["UpdatedBy"] = "Schedule";
+                                    dr["WeeklyStatus"] = DayType;
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr.EndEdit();
+                                }
+                            }
+                        }
+                        SaveDataSets(dsRef);
+                    }
+                    #endregion
 
 
                     #region Compensatory Logic
@@ -770,7 +676,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string Plant = OriginalDateComp.Tables[0].Rows[i][@"PlantId"].ToString();
                             string ForEntirePlant = clsWebLib.GetBoolData(OriginalDateComp.Tables[0].Rows[i][@"ForEntirePlant"]).ToString();
                             DayCode = clsWebLib.RetValidLen(OriginalDateComp.Tables[0].Rows[i][@"DayCode"]).ToString();
-                             EmpId = clsWebLib.RetValidLen(OriginalDateComp.Tables[0].Rows[i][@"EmpSystemId"]).ToString();
+                            EmpId = clsWebLib.RetValidLen(OriginalDateComp.Tables[0].Rows[i][@"EmpSystemId"]).ToString();
 
                             if (ForEntirePlant == "True")
                             {
@@ -841,7 +747,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < OTElgbEmp.Tables[0].Rows.Count; i++)
                         {
-                             EmpId = OTElgbEmp.Tables[0].Rows[i][@"EmpId"].ToString();
+                            EmpId = OTElgbEmp.Tables[0].Rows[i][@"EmpId"].ToString();
                             string IsOTEntitled = OTElgbEmp.Tables[0].Rows[i][@"IsOTEntitled"].ToString();
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
@@ -877,7 +783,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < OnDuty.Tables[0].Rows.Count; i++)
                         {
-                             EmpId = OnDuty.Tables[0].Rows[i][@"EmpSystemId"].ToString();
+                            EmpId = OnDuty.Tables[0].Rows[i][@"EmpSystemId"].ToString();
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
@@ -913,7 +819,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < OnRest.Tables[0].Rows.Count; i++)
                         {
-                             EmpId = OnRest.Tables[0].Rows[i][@"EmpSystemId"].ToString();
+                            EmpId = OnRest.Tables[0].Rows[i][@"EmpSystemId"].ToString();
                             string RestId = clsWebLib.RetValidLen(OnRest.Tables[0].Rows[i][@"RestId"]).ToString();
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
@@ -997,7 +903,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < HeaderPolicy.Tables[0].Rows.Count; i++)
                         {
-                             EmpId = clsWebLib.RetValidLen(HeaderPolicy.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                            EmpId = clsWebLib.RetValidLen(HeaderPolicy.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
                             string HeaderId = clsWebLib.RetValidLen(HeaderPolicy.Tables[0].Rows[i][@"HeaderId"]).ToString();
                             string LeavePolicyId = clsWebLib.RetValidLen(HeaderPolicy.Tables[0].Rows[i][@"LeavePolicyMasterId"]).ToString();
 
@@ -1029,13 +935,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #endregion
 
                     #region IsTbs & IsLA Localizing
-                    
+
                     DataSet TBS_LA_Data;
                     TBS_LA_Localizing(Date, out TBS_LA_Data, PlantValue);
-                   
+
                     if (TBS_LA_Data.Tables[0].Rows.Count > 0)
                     {
-                      
+
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         var sqlx = @"select * from AttdnProcessData where WorkDate='" + Date + "' and PlantID='" + PlantValue + "'";
 
@@ -1048,7 +954,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             for (int i = 0; i < TBS_LA_Data.Tables[0].Rows.Count; i++)
                             {
-                                 EmpId = clsWebLib.RetValidLen(TBS_LA_Data.Tables[0].Rows[i][@"SystemId"]).ToString();
+                                EmpId = clsWebLib.RetValidLen(TBS_LA_Data.Tables[0].Rows[i][@"SystemId"]).ToString();
                                 string IsLa = clsWebLib.GetBoolData(TBS_LA_Data.Tables[0].Rows[i][@"IsLA"]).ToString();
                                 string IsTBS = clsWebLib.GetBoolData(TBS_LA_Data.Tables[0].Rows[i][@"IsTBS"]).ToString();
 
@@ -1118,7 +1024,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
 
                     #endregion
-                    
+
                 }
                 _lock.UnlockProcess();
             }
@@ -1132,7 +1038,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         #endregion
 
         #region ShiftProcess SourceData
-     
+
         void UnProcessedEmp(string Date, out DataSet ds, string PlantId)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -1141,8 +1047,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 string newformat = Convert.ToDateTime(Date).ToString("yyyyMMdd");
 
                 var sql = @"select TobeAdded=case When isnull(p.EmpSystemID,'') ='' then 'true' 
-                else 'false' end ,e.SystemId,'"+Date+@"' as WorkDate,
-                convert(varchar(30),'"+newformat+ @"' )+convert(varchar(30), e.SystemId)RowId,
+                else 'false' end ,e.SystemId,'" + Date + @"' as WorkDate,
+                convert(varchar(30),'" + newformat + @"' )+convert(varchar(30), e.SystemId)RowId,
 				e.PlantId,e.GroupID,
                 isnull(m.ShiftSystemId,p.ManualShiftID) 
                 as ManualShift,ISNULL(sd.InTime,p.ShiftInTime) as ManualShiftIn,
@@ -1183,29 +1089,29 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 isnull(sdz.HoursWithoutOT,sdy.HoursWithoutOT))end
 		        from EmployeeInformation e 
                 left outer join AttndManualDataFromApp m on e.SystemId=m.EmpSystemID and
-				m.WorkDate='" + Date+@"'
+				m.WorkDate='" + Date + @"'
                 left join ShiftDefination sd on sd.SystemID=m.ShiftSystemId
-                left join AttdnProcessData p on p.EmpSystemID=e.SystemId and p.WorkDate='"+Date+ @"'
+                left join AttdnProcessData p on p.EmpSystemID=e.SystemId and p.WorkDate='" + Date + @"'
                 left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
                 LEFT JOIN MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId=mb.Id 
 				AND MBD.Id=(Select top(1) Id From MST.ManpowerBudgetDetail Where ManpowerBudgetId=mb.Id Order By EffectiveDate DESC)
                 left join ShiftDefination sdy on sdy.SystemID=mb.ShiftDefinationId
                 left join dbo.RosterBudget rb on rb.BudgetId=mb.Id 
                 left join RosterPatternHeader rh on rh.Id=rb.RosterId
-                left join dbo.RosterPatternProcess rp on rp.RPHeaderId=rh.Id and rp.WorkDate='" + Date+@"'
+                left join dbo.RosterPatternProcess rp on rp.RPHeaderId=rh.Id and rp.WorkDate='" + Date + @"'
                 left join ShiftDefination sdz on sdz.SystemID=rp.ShiftDefinationID
                 left join org.Plant pl on pl.Id=e.PlantId
                 left join OutPunchConfigurationHeader Op on OP.PlantId=pl.Id
 				left join (select distinct es.EmpSystemId,(Select top 1 ShiftId
 				from dbo.EmployeeProfileShift
-				where EmpSystemId = es.EmpSystemId and EffectiveDate <= '"+Date+@"'
+				where EmpSystemId = es.EmpSystemId and EffectiveDate <= '" + Date + @"'
 				order by EffectiveDate desc
 				) as ShiftId 
 				from dbo.EmployeeProfileShift es
-				where EffectiveDate <= '"+Date+@"') as Tablex on Tablex.EmpSystemId=e.SystemId
+				where EffectiveDate <= '" + Date + @"') as Tablex on Tablex.EmpSystemId=e.SystemId
 				left join ShiftDefination sdmaster on sdmaster.SystemID=Tablex.ShiftId
-                where e.EmpType!='Guest' and e.PlantId='"+PlantId+@"' 
-and	E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+ @"' OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901')
+                where e.EmpType!='Guest' and e.PlantId='" + PlantId + @"' 
+and	E.DOJ <= '" + Date + @"' AND (E.DOS >= '" + Date + @"' OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901')
 ";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -1237,8 +1143,8 @@ and	E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+ @"' OR ISNULL(E.DOS,'') = '' OR 
                 and E.DOJ <= '" + Date + @"' 
 				AND (E.DOS >= '" + Date + @"' OR ISNULL(E.DOS,'') = '' 
 				OR E.DOS = '01/01/1901') and dc.IsOTEntitled=1 
-				and e.ExcludeOT=0";   
-                                
+				and e.ExcludeOT=0";
+
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -1283,8 +1189,8 @@ and	E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+ @"' OR ISNULL(E.DOS,'') = '' OR 
                     LEFT JOIN LeaveTransaction LT ON LT.SystemID=D.LvTrnsSystemID
 					left join LeaveType ltp on ltp.Id=LT.LTSystemID
 					LEFT JOIN [MST].[MaternityLeavePolicy] MP ON MP.Id=LT.MaternityLeavePolicyId
-                    WHERE LT.PlantID = '"+PlantId+@"' AND ISNULL(MP.IsNoBenefit,'')='1'
-					AND D.WorkDate='"+Date+@"' 
+                    WHERE LT.PlantID = '" + PlantId + @"' AND ISNULL(MP.IsNoBenefit,'')='1'
+					AND D.WorkDate='" + Date + @"' 
                     and LT.IsApproved=1";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -1364,7 +1270,7 @@ and	E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+ @"' OR ISNULL(E.DOS,'') = '' OR 
                 throw (ex);
             }
         }
-        
+
         public void RosterWeekOffData(string Date, out DataSet ds, string plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -1394,7 +1300,7 @@ LEFT JOIN dbo.RosterPatternChild RPC
       AND RPC.Days31 = D.DayInWeek
 LEFT JOIN hkp.WeeklyStatus WS
        ON WS.Id = RPC.WeeklyStatusId
-				where apd.workdate='" + Date + "' and apd.PlantId='"+ plant + @"' and isnull(EmpSystemID,'') IN ( -- and apd.EmpSystemID='2525844'
+				where apd.workdate='" + Date + "' and apd.PlantId='" + plant + @"' and isnull(EmpSystemID,'') IN ( -- and apd.EmpSystemID='2525844'
 									SELECT isnull(ei.SystemId,'') 
                                     FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + plant + @"'
                                    AND  ei.DOJ <= '" + Date + @"' 
@@ -1540,7 +1446,7 @@ LEFT JOIN hkp.WeeklyStatus WS
             {
                 throw (ex);
             }
-        }        
+        }
         void ShiftTime(ref string InTime, ref string OutTime, string WorkDate)
         {
 
@@ -1573,7 +1479,7 @@ LEFT JOIN hkp.WeeklyStatus WS
             try
             {
 
-                var sql = @"select month('"+Date+ @"')as Month,Year('" + Date + @"')as Year,Day('" + Date + @"')as Day,
+                var sql = @"select month('" + Date + @"')as Month,Year('" + Date + @"')as Year,Day('" + Date + @"')as Day,
                 DAY(DATEADD(DD,-1,DATEADD(MM,DATEDIFF(MM,-1,'" + Date + @"'),0)))NoOfDaysInMonth,
                 W.[Days28] AS Pattern28,W.[Days29] as Pattern29,W.[Days30] as Pattern30,W.[Days31] as Pattern31
                 from WeekDefination W where DayNo=Day('" + Date + @"')";
@@ -1620,7 +1526,7 @@ LEFT JOIN hkp.WeeklyStatus WS
 				dc on dc.EmpTypeId=dm.EmployeeCategoryId
 				and dc.PlantId=ei.PlantId
 				left join DayStatusHeader dh on dh.Id=dc.headerId
-     			where WorkDate='"+Date+"' and ei.PlantId='"+Plant+"'";
+     			where WorkDate='" + Date + "' and ei.PlantId='" + Plant + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -1640,8 +1546,8 @@ LEFT JOIN hkp.WeeklyStatus WS
                 IsTBS=case when EmployeeCurrentStatus='TBS' then 1 else 0 end
                 from EmployeeInformation e where EmployeeCurrentStatus 
                 in('TBS','LONG ABSENTEEISM')
-                and e.EmpType!='Guest' and e.PlantId='"+PlantId+@"' and
-                E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+@"' 
+                and e.EmpType!='Guest' and e.PlantId='" + PlantId + @"' and
+                E.DOJ <= '" + Date + @"' AND (E.DOS >= '" + Date + @"' 
                 OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901')
                 order by EmployeeCurrentStatus";
 
@@ -1666,8 +1572,8 @@ LEFT JOIN hkp.WeeklyStatus WS
                 order by EffectiveDate desc),'0')
                 from dbo.AttdnProcessData apd
                 left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
-                where PlantID='"+PlantId+@"'
-                and apd.WorkDate = '"+Date+"' and mb.Id is not null";
+                where PlantID='" + PlantId + @"'
+                and apd.WorkDate = '" + Date + "' and mb.Id is not null";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -1680,7 +1586,7 @@ LEFT JOIN hkp.WeeklyStatus WS
         #endregion
 
         #region Attendance Process
-        public void AttndProcess(string Date, string PlantValue,string UserId=null)
+        public void AttndProcess(string Date, string PlantValue, string UserId = null)
         {
 
             ProcessLock _lock = new ProcessLock(UserId, ProcessLockId.AttendanceProcess, "", 60);
@@ -1898,7 +1804,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                                 string EmpId = clsWebLib.RetValidLen(OutwithFlag.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
                                 string OutPunchRow = clsWebLib.RetValidLen(OutwithFlag.Tables[0].Rows[i][@"MaxOut"]).ToString();
                                 string OutPunchLimit = clsWebLib.RetValidLen(OutwithFlag.Tables[0].Rows[i][@"OutPunchLimit"]).ToString();
-                                if (EmpId== "24241568")
+                                if (EmpId == "24241568")
                                 {
 
                                 }
@@ -2401,7 +2307,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                             #endregion
                         }
                         #endregion
-                       
+
                         #region Final Day In/Out    
                         FinalInOut(Date, PlantValue); // Final In Out Stamping on the Basis of Manual & Punch
                         #endregion
@@ -2437,7 +2343,7 @@ LEFT JOIN hkp.WeeklyStatus WS
 
                             for (int i = 0; i < InStatus.Tables[0].Rows.Count; i++)
                             {
-                                
+
                                 // Logic on the basis of Shift Early & Late Margin
                                 string EmpId = clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
                                 if (EmpId == "2200009")
@@ -2587,7 +2493,7 @@ LEFT JOIN hkp.WeeklyStatus WS
             {
 
                 var sql = @"SELECT CompanyGroupId, Id as PlantValue FROM ORG.Plant WHERE CompanyGroupId = 
-               '" + CompanyGpId + "' AND  Active = 1 AND Archive = 0 ";
+               '" + CompanyGpId + "' AND  Active = 1 AND Archive = 0 AND Id=20251";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -2770,8 +2676,8 @@ LEFT JOIN hkp.WeeklyStatus WS
                 select  min(convert (varchar(30), format(b.PTime,'yyyyMMddHHmmss'))+'.'+convert(varchar(30),b.RowID))
                 from AttdnRawData b left join OutPunchConfigurationHeader oh on oh.PlantId=b.PlantID
                 where b.LogDownLoadNum=a.LogDownLoadNum and b.ProcessedFlag!=1
-                and isnull(b.PType,'')='IN' and  b.PlantId='"+Plant+@"'  
-                and convert(date,b.PTime)='"+Date+@"'   
+                and isnull(b.PType,'')='IN' and  b.PlantId='" + Plant + @"'  
+                and convert(date,b.PTime)='" + Date + @"'   
                 and CAST(oh.InPunchStartTime AS TIME) <= Cast ((b.ptime) AS TIME)
                 group by b.LogDownLoadNum
                 ) as MinTime,
@@ -2785,12 +2691,12 @@ LEFT JOIN hkp.WeeklyStatus WS
                 where CAST(oc.InPunchLimit AS TIME) >= Cast ((select  min(b.PTime)
                 from AttdnRawData b left join OutPunchConfigurationHeader oh on oh.PlantId=b.PlantID
                 where b.LogDownLoadNum=a.LogDownLoadNum and b.ProcessedFlag!=1
-                and isnull(b.PType,'')='IN' and  b.PlantId='"+Plant+@"'  
-                and convert(date,b.PTime)='"+Date+@"'   
+                and isnull(b.PType,'')='IN' and  b.PlantId='" + Plant + @"'  
+                and convert(date,b.PTime)='" + Date + @"'   
                 and CAST(oh.InPunchStartTime AS TIME) <= Cast ((b.ptime) AS TIME)
                 group by b.LogDownLoadNum  )
                 AS TIME) 
-                and p.Id='"+Plant+@"'
+                and p.Id='" + Plant + @"'
                 ) as InPunchLimit,
                 (
                 select top 1 Format(oc.OutPunchLimit,'yyyy-MMM-dd HH:mm:ss')
@@ -2801,15 +2707,15 @@ LEFT JOIN hkp.WeeklyStatus WS
                 where CAST(oc.InPunchLimit AS TIME) >= Cast ((select  min(b.PTime)
                 from AttdnRawData b left join OutPunchConfigurationHeader oh on oh.PlantId=b.PlantID
                 where b.LogDownLoadNum=a.LogDownLoadNum and b.ProcessedFlag!=1
-                and isnull(b.PType,'')='IN' and  b.PlantId='"+Plant+@"'  
-                and convert(date,b.PTime)='"+Date+@"'   
+                and isnull(b.PType,'')='IN' and  b.PlantId='" + Plant + @"'  
+                and convert(date,b.PTime)='" + Date + @"'   
                 and CAST(oh.InPunchStartTime AS TIME) <= Cast ((b.ptime) AS TIME)
                 group by b.LogDownLoadNum  ) AS TIME) and 
-				p.Id='"+Plant+@"'
+				p.Id='" + Plant + @"'
                 ) as OutPunchLimit
                 from
                 AttdnRawData a 
-                where a.PlantId='"+Plant+@"' and convert(date,a.PTime)='"+Date+@"'
+                where a.PlantId='" + Plant + @"' and convert(date,a.PTime)='" + Date + @"'
                 and a.PType='IN' and a.ProcessedFlag!=1               
                 GROUP BY 
                 a.LogDownLoadNum,a.PDate,a.PlantID";
@@ -2827,7 +2733,7 @@ LEFT JOIN hkp.WeeklyStatus WS
         }
         public void FlaglessInForDay(string Date, out DataSet ds, string Plant)
         {
-           // ConnectionManager.DAL.ConManager objCon;
+            // ConnectionManager.DAL.ConManager objCon;
             try
             {
 
@@ -2836,8 +2742,8 @@ LEFT JOIN hkp.WeeklyStatus WS
                 select  min(convert (varchar(30), format(b.PTime,'yyyyMMddHHmmss'))+'.'+convert(varchar(30),b.RowID))
                 from AttdnRawData b left join OutPunchConfigurationHeader oh on oh.PlantId=b.PlantID
                 where b.LogDownLoadNum=a.LogDownLoadNum and b.ProcessedFlag!=1
-                and isnull(b.PType,'')='' and  b.PlantId='"+Plant+@"'  
-                and convert(date,b.PTime)='"+Date+@"'   
+                and isnull(b.PType,'')='' and  b.PlantId='" + Plant + @"'  
+                and convert(date,b.PTime)='" + Date + @"'   
                 and CAST(oh.InPunchStartTime AS TIME) <= Cast ((b.ptime) AS TIME)
                 group by b.LogDownLoadNum
                 ) as MinTime,
@@ -2851,13 +2757,13 @@ LEFT JOIN hkp.WeeklyStatus WS
                 where CAST(oc.InPunchLimit AS TIME) >= Cast ((select  min(B.PTIME)
                 from AttdnRawData b left join OutPunchConfigurationHeader oh on oh.PlantId=b.PlantID
                 where b.LogDownLoadNum=a.LogDownLoadNum and b.ProcessedFlag!=1
-                and isnull(b.PType,'')='' and  b.PlantId='"+Plant+@"'  
-                and convert(date,b.PTime)='"+Date+@"'   
+                and isnull(b.PType,'')='' and  b.PlantId='" + Plant + @"'  
+                and convert(date,b.PTime)='" + Date + @"'   
                 and CAST(oh.InPunchStartTime AS TIME) <= Cast ((b.ptime) AS TIME)
                 group by b.LogDownLoadNum)
                
                 AS TIME) 
-                and p.Id='"+Plant+@"' 
+                and p.Id='" + Plant + @"' 
                 ) as InPunchLimit,
                 (
                 select top 1 Format(oc.OutPunchLimit,'yyyy-MMM-dd HH:mm:ss')
@@ -2868,15 +2774,15 @@ LEFT JOIN hkp.WeeklyStatus WS
                 where CAST(oc.InPunchLimit AS TIME) >= Cast ((select  min(B.PTIME)
                 from AttdnRawData b left join OutPunchConfigurationHeader oh on oh.PlantId=b.PlantID
                 where b.LogDownLoadNum=a.LogDownLoadNum and b.ProcessedFlag!=1
-                and isnull(b.PType,'')='' and  b.PlantId='"+Plant+@"'  
-                and convert(date,b.PTime)='"+Date+@"'   
+                and isnull(b.PType,'')='' and  b.PlantId='" + Plant + @"'  
+                and convert(date,b.PTime)='" + Date + @"'   
                 and CAST(oh.InPunchStartTime AS TIME) <= Cast ((b.ptime) AS TIME)
-                group by b.LogDownLoadNum) AS TIME) and p.Id='"+Plant+@"'
+                group by b.LogDownLoadNum) AS TIME) and p.Id='" + Plant + @"'
                 ) as OutPunchLimit
                 from
                 AttdnRawData a 
-                where a.PlantId='"+Plant+@"' and 
-                convert(date,a.PTime)='"+Date+@"'   
+                where a.PlantId='" + Plant + @"' and 
+                convert(date,a.PTime)='" + Date + @"'   
                 and isnull(a.PType,'')='' and a.ProcessedFlag!=1 and 
                 isnull(a.PType,'')!='IN' AND isnull(a.PType,'')!='OUT' 
                 GROUP BY 
@@ -3005,8 +2911,8 @@ LEFT JOIN hkp.WeeklyStatus WS
             {
                 var sql = @"update AttdnProcessData	set Intime=null,OutTime=null				 
 				 from AttdnProcessData 
-				 WHERE WorkDate='"+Date+@"' 
-				 and PlantID='"+Plant+@"' and 
+				 WHERE WorkDate='" + Date + @"' 
+				 and PlantID='" + Plant + @"' and 
 				 ISNULL(ManualInTime,PunchInTime)> ISNULL(ManualOutTime,PunchOutTime)";
 
                 ConnectionManager.DAL.ConManager objCone = null;
@@ -3068,8 +2974,8 @@ LEFT JOIN hkp.WeeklyStatus WS
         public void FlagDataOutCalculate(string PrevDay, out DataSet ds, string Plant)
         {
             //ConnectionManager.DAL.ConManager objCon;
-            try  
-            {   
+            try
+            {
                 string pretime = Convert.ToDateTime(PrevDay).ToString("yyyy-MMM-dd") + " " + "6:30:00";
                 string nexttime = Convert.ToDateTime(PrevDay).AddDays(1).ToString("yyyy-MMM-dd") + " " + "6:30:00";
 
@@ -3145,7 +3051,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,DayTypeGoodWorkApplicable=null,IsLock=0,LockedBy=null,
                 LockedDate=null ,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null,StandardOT=null,PlanOT=null,AppliedOTLimit=null,
                 AllowedOTLimit=null,TargetOT=null,AdditionalOT=null,CalculatedOT=0,SandwichReprocess=0
-                where PlantID='" + Plant+"' and WorkDate='"+PreDay+"'";
+                where PlantID='" + Plant + "' and WorkDate='" + PreDay + "'";
 
                 ConnectionManager.clsConnection objCone = new ConnectionManager.clsConnection();
 
@@ -3169,7 +3075,7 @@ LEFT JOIN hkp.WeeklyStatus WS
             {
                 var sql = @"update AttdnProcessData set OutTime=isnull(ProcessOuttime,OutTime),
                 ManualOutTime=isnull(OriginalManualOutTime,ManualOutTime)
-                where WorkDate='"+PreDay+"' and PlantID='"+Plant+@"'
+                where WorkDate='" + PreDay + "' and PlantID='" + Plant + @"'
                 and IsOTEntitled='1'
                 and IsOTComfirm=0";
 
@@ -3220,7 +3126,7 @@ LEFT JOIN hkp.WeeklyStatus WS
         }
         public void PlantLockCheck(string Date, out DataSet ds, string Plant)
         {
-           // ConnectionManager.DAL.ConManager objCon;
+            // ConnectionManager.DAL.ConManager objCon;
             try
             {
                 string Today = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy");
@@ -3323,8 +3229,8 @@ LEFT JOIN hkp.WeeklyStatus WS
                      	                    left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 									        left join DayStatus ds on ds.headerId=dh.Id
 											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
-									        where WorkDate='"+PreDay+@"' and ds.Code=p.DayStatusCode
-									        and ei.PlantId='"+Plant+@"') as x
+									        where WorkDate='" + PreDay + @"' and ds.Code=p.DayStatusCode
+									        and ei.PlantId='" + Plant + @"') as x
 			            where x.RowIdx=Rowid";
 
                 //ConnectionManager.DAL.ConManager objCone = null;
@@ -3356,9 +3262,9 @@ LEFT JOIN hkp.WeeklyStatus WS
                      	left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 						left join DayStatus ds on ds.headerId=dh.Id
 						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
-						where WorkDate='" + PreDay+ @"' 
+						where WorkDate='" + PreDay + @"' 
 						and dt.DayType=ISNULL(p.ManualDayStatus,p.ProcessDayStatus)
-						and ei.PlantId='" + Plant+"'";
+						and ei.PlantId='" + Plant + "'";
 
                 //objCon = new ConnectionManager.DAL.ConManager("1");
                 //objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -3399,7 +3305,7 @@ LEFT JOIN hkp.WeeklyStatus WS
         {
             //ConnectionManager.DAL.ConManager objCon;
             try
-            { 
+            {
                 // 1 :- On OverStay 2:- On Duration 3:- On (OverStay-EarlyIn)
                 var sql = @"select distinct p.EmpSystemID,p.RowId,
                 format(p.WorkDate,'yyyy-MMM-dd')WorkDate,Result=
@@ -3463,15 +3369,15 @@ LEFT JOIN hkp.WeeklyStatus WS
                 throw (ex);
             }
         }
-        public void UpdateZeroProcessedOTEmp(string Date,string Plant)
+        public void UpdateZeroProcessedOTEmp(string Date, string Plant)
         {
             try
             {
                 var sql = @"UPDATE AttdnProcessData SET IsOTComfirm=1,OTComfirmBy='AutoConfirmation',
                 DateOTComfirm=GETDATE()
                 where (ProcessedOT=0 AND OverStay IS NULL) and isnull(DayStatus,'')!=''
-                and WorkDate='"+Date+@"' and IsOTComfirm=0 AND IsOTEntitled=1
-                and PlantID='"+Plant+"'";
+                and WorkDate='" + Date + @"' and IsOTComfirm=0 AND IsOTEntitled=1
+                and PlantID='" + Plant + "'";
 
                 //ConnectionManager.DAL.ConManager objCone = null;
                 //objCone = new ConnectionManager.DAL.ConManager("1");
@@ -3534,16 +3440,16 @@ LEFT JOIN hkp.WeeklyStatus WS
                                             left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 									        left join DayStatus ds on ds.headerId=dh.Id
 											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
-									        where WorkDate='" + Date+@"' and	dt.DayType=p.DayStatus 
+									        where WorkDate='" + Date + @"' and	dt.DayType=p.DayStatus 
 											and IsOTEntitled=1 and isOTConfirmationAuto=1
 											and DayTypeOtApplicable=0
-									        and ei.PlantId='"+PlantId+"'";
+									        and ei.PlantId='" + PlantId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
             catch (Exception ex)
             {
-                 throw (ex);
+                throw (ex);
             }
 
         }
@@ -3552,7 +3458,7 @@ LEFT JOIN hkp.WeeklyStatus WS
             try
             {
                 var sql = @"update AttdnProcessData set IsOTComfirm=1,
-                OTComfirmBy='AutoConfirmation',DateOTComfirm=GETDATE() where rowid in("+MainRowId+@")";
+                OTComfirmBy='AutoConfirmation',DateOTComfirm=GETDATE() where rowid in(" + MainRowId + @")";
 
                 ConnectionManager.DAL.ConManager objCone = null;
                 objCone = new ConnectionManager.DAL.ConManager("1");
@@ -3569,9 +3475,9 @@ LEFT JOIN hkp.WeeklyStatus WS
         }
 
         #endregion
-       
+
         #region DayStatus Process
-        public void DayStatus(string Date, string PlantValue,string UserId=null)
+        public void DayStatus(string Date, string PlantValue, string UserId = null)
         {
 
             ProcessLock _lock = new ProcessLock(UserId, ProcessLockId.AttendanceProcess, "", 60);
@@ -3582,7 +3488,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 Date = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy");
                 string PreviousDay = Convert.ToDateTime(Date).AddDays(-1).ToString("dd-MMM-yyyy");
                 string SandwichPrevDay = Convert.ToDateTime(Date).AddDays(-2).ToString("dd-MMM-yyyy");
-                
+
                 DataSet PlantLock; // Previous Day Plant Lock Checking
                 PlantLockCheck(PreviousDay, out PlantLock, PlantValue);
                 if (PlantLock.Tables[0].Rows.Count > 0)
@@ -3611,7 +3517,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                     {
                         // Dataset Generated for Duration EarlyIn EarlyOut Calculation
                         string WorkDate = PrevDurn.Tables[0].Rows[0][@"WorkDate"].ToString();
-                      
+
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "'and isnull(ProcessIntime,'')!='' and isnull(ProcessOuttime,'')!='' and PlantID='" + PlantValue + "'";
 
@@ -3935,7 +3841,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                     if (PrevPayrollDayStat.Tables[0].Rows.Count > 0)
                     {
                         var WkDate = PrevPayrollDayStat.Tables[0].Rows[0][@"WorkDate"].ToString();
-                     
+
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         var sqlx = @"select * from AttdnProcessData where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
 
@@ -4030,7 +3936,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                     {
                         // OverStay underStay DataSet Generation using (Duration - ShiftHoursWithoutOT)
                         string WorkDate = PrevDayOT.Tables[0].Rows[0][@"WorkDate"].ToString();
-                   
+
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "'and Duration >0 and PlantID='" + PlantValue + "'";
 
@@ -4084,7 +3990,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                     {
                         // OverTime DataSet Using OT Per Minute Policy
                         var WkDate = PrevOTCalculate.Tables[0].Rows[0][@"WorkDate"].ToString();
-                    
+
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         var sqlx = @"select * from AttdnProcessData where IsOTEntitled='1' and WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
                         objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
@@ -4136,7 +4042,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = SmallerValue;
                                             dr["CalculatedOT"] = Result;  // For Visiblity
-                                            dr.EndEdit();                                            
+                                            dr.EndEdit();
                                         }
                                     }
                                 }
@@ -4267,7 +4173,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                     #endregion
 
                     SaveLog("Processed OT Calculation Ran Successfully for " + PreviousDay + " ...", PlantValue, false);
-                  
+
                     #region OTEntitled But OT Not Applicable Employees
                     DataSet OTNotApplicable;
                     AutoConfirmedDataSet(PreviousDay, out OTNotApplicable, PlantValue);
@@ -4280,7 +4186,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                             RowMaster += ",'" + RowId + "'";
                         }
                         if (RowMaster != "''")
-                        { 
+                        {
                             ConfirmOTFlag(RowMaster);
                         }
                     }
@@ -4323,7 +4229,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 from Attdnprocessdata  ap
                 left join ShiftDefination sd on sd.SystemID=ap.ShiftSystemID
                 where ManualFlag=1
-				and ap.PlantID='" + Plant+ "' order by ap.WorkDate asc";
+				and ap.PlantID='" + Plant + "' order by ap.WorkDate asc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -4332,7 +4238,7 @@ LEFT JOIN hkp.WeeklyStatus WS
             {
                 throw (ex);
             }
-        }  
+        }
         public void ManualDuration(out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -4404,7 +4310,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 throw (ex);
             }
         }
-        public void ManualDayStatusCodeData(string Plant , string empMaster)
+        public void ManualDayStatusCodeData(string Plant, string empMaster)
         {
 
             try
@@ -4426,10 +4332,10 @@ LEFT JOIN hkp.WeeklyStatus WS
 											ISNULL(WeeklyStatus,'')+ISNULL(DurationStatus,'')+
 								ISNULL(EarlyLateIn,'')+ISNULL(EarlyLateOut,'')
 								+ISNULL(LeaveStatus,'')),DateUpdated=GETDATE() 
-                        WHERE PlantID='" + Plant + @"' and RowId in("+empMaster+@")
+                        WHERE PlantID='" + Plant + @"' and RowId in(" + empMaster + @")
 								AND ManualFlag=1 and IsLock=0";
                 }
-                
+
 
                 ConnectionManager.DAL.ConManager objCone = null;
                 objCone = new ConnectionManager.DAL.ConManager("1");
@@ -4479,7 +4385,7 @@ LEFT JOIN hkp.WeeklyStatus WS
 						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
 						where ManualFlag=1 						
 						and dt.DayType=ISNULL(p.ManualDayStatus,p.ProcessDayStatus)
-						and ei.PlantId='" + Plant+ "' order by WorkDate asc";
+						and ei.PlantId='" + Plant + "' order by WorkDate asc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -4489,7 +4395,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 throw (ex);
             }
         }
-        public void PayrollDayStatus(string Plant , string empMaster)
+        public void PayrollDayStatus(string Plant, string empMaster)
         {
 
             try
@@ -4507,7 +4413,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 {
                     sql = @"UPDATE 	AttdnProcessData Set DayStatus=ISNULL(ISNULL(ManualDayStatus,SandwichStatus),ProcessDayStatus) 
 				,UpdatedBy='Schedule',DateUpdated=GETDATE()
-								WHERE PlantID='" + Plant + @"' and RowId in ("+empMaster+@")
+								WHERE PlantID='" + Plant + @"' and RowId in (" + empMaster + @")
 								AND ManualFlag=1";
                 }
 
@@ -4592,19 +4498,19 @@ LEFT JOIN hkp.WeeklyStatus WS
         {
 
             try
-            {               
+            {
                 string empMaster1 = (clsWebLib.RetValidLen(empMaster).ToString());
                 if (empMaster1 != "")
-                {                   
+                {
                     var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
                     earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
                     DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,DayStatus=null,
                     LockedBy=null,StandardOT=null,PlanOT=null,AppliedOTLimit=null,
                     AllowedOTLimit=null,TargetOT=null,AdditionalOT=null,SandwichReprocess=0,
                     LockedDate=null,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null ,CalculatedOT=0
-                    where PlantID='" + Plant+@"'
+                    where PlantID='" + Plant + @"'
                     and ManualFlag=1 and RowId IN(" + empMaster + @")";
-                  
+
                     ConnectionManager.DAL.ConManager objCone = null;
                     objCone = new ConnectionManager.DAL.ConManager("1");
                     objCone.OpenConnection("1");
@@ -4632,7 +4538,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                     objCone.ExecuteNonQueryWrapper(sql, true, "1");
                     objCone.CommitTransaction();
                 }
-               
+
             }
             catch (Exception ex)
             {
@@ -4646,10 +4552,10 @@ LEFT JOIN hkp.WeeklyStatus WS
             {
                 string empMaster1 = (clsWebLib.RetValidLen(empMaster).ToString());
                 if (empMaster1 != "")
-                {               
+                {
                     var sqlx = @"update AttdnProcessData set OutTime=isnull(ProcessOuttime,OutTime),
                     ManualOutTime=isnull(OriginalManualOutTime,ManualOutTime)
-                    where ManualFlag=1 and PlantID='"+Plant+ @"'
+                    where ManualFlag=1 and PlantID='" + Plant + @"'
                     and IsOTEntitled='1'
                     and IsOTComfirm=0 and RowId IN(" + empMaster + @")";
 
@@ -4662,7 +4568,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                     objCone.CommitTransaction();
                 }
                 else
-                {                 
+                {
                     var sqlx = @"update AttdnProcessData set OutTime=isnull(ProcessOuttime,OutTime),
                     ManualOutTime=isnull(OriginalManualOutTime,ManualOutTime)
                     where ManualFlag=1 and PlantID='" + Plant + @"'
@@ -4717,7 +4623,7 @@ LEFT JOIN hkp.WeeklyStatus WS
         #endregion
 
         #region Manual Scheduler
-        public void ManualScheduler(string PlantValue , string manualempidfromscreens=null)
+        public void ManualScheduler(string PlantValue, string manualempidfromscreens = null)
         {
             try
             {
@@ -4729,7 +4635,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 #region Manual Day Status Nullifying Localized Values              
                 //ManualReprocessing(PlantValue, empList); // Reprocessing Manual Employees called from Screen
                 #endregion
-                
+
                 SaveLog("Manual Nullified Columns Logic Ran Successfully ...", PlantValue, false);
 
                 #region Manual Day Status Nullifying Localized Values              
@@ -4815,7 +4721,7 @@ LEFT JOIN hkp.WeeklyStatus WS
 
                 }
                 #endregion
-              
+
                 SaveLog("Manual InStatus Logic Ran Successfully ...", PlantValue, false);
 
                 #region Manual Day Duration  
@@ -5057,7 +4963,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                     for (int i = 0; i < ManualUserDayStat.Tables[0].Rows.Count; i++)
                     {
                         var WkDate = ManualUserDayStat.Tables[0].Rows[i][@"WorkDate"].ToString();
-                  
+
                         string RowId = clsWebLib.RetValidLen(ManualUserDayStat.Tables[0].Rows[i][@"RowId"]).ToString();
                         string DayStatus = clsWebLib.RetValidLen(ManualUserDayStat.Tables[0].Rows[i][@"DayType"]).ToString();
 
@@ -5108,14 +5014,14 @@ LEFT JOIN hkp.WeeklyStatus WS
                         string RowId = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"RowId"]).ToString();
                         string Result = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"Result"]).ToString();
                         string SandwichFlag = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"SandwichStatusFlag"]).ToString();
-                      
-                   
+
+
                         dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                         if (dsRef.Tables[0].DefaultView.Count > 0)
                         {
                             // Updations in APD Table 
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                            dr.BeginEdit();                       
+                            dr.BeginEdit();
                             dr["ProcessFinalDayStatus"] = Result;
                             dr["SandwichFlag"] = SandwichFlag;
                             if (SandwichFlag != "0")
@@ -5133,13 +5039,13 @@ LEFT JOIN hkp.WeeklyStatus WS
                 #endregion
 
                 SaveLog("Manual ProcessFinalDayStatus Logic Ran Successfully ...", PlantValue, false);
-            
+
                 #region Payroll DayStatus 
                 PayrollDayStatus(PlantValue, empList); // On the Priority Check of Sandwich and ProcessFinalDayStatus 
                 #endregion
 
                 #region Process PayrollDayStatus 
-                DataSet ManualPayrollDayStat;  
+                DataSet ManualPayrollDayStat;
                 ManualPayrollDayStatus(out ManualPayrollDayStat, PlantValue);
                 if (ManualPayrollDayStat.Tables[0].Rows.Count > 0)
                 {
@@ -5268,7 +5174,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                     for (int i = 0; i < ManualOverUnderStay.Tables[0].Rows.Count; i++)
                     {
                         string WorkDate = ManualOverUnderStay.Tables[0].Rows[i][@"WorkDate"].ToString();
-                     
+
                         string RowId = ManualOverUnderStay.Tables[0].Rows[i][@"RowId"].ToString();
                         double OverUnderStay = Convert.ToDouble(clsWebLib.RetValidLen(ManualOverUnderStay.Tables[0].Rows[i][@"OverUnderStay"]).ToString());
 
@@ -5318,13 +5224,13 @@ LEFT JOIN hkp.WeeklyStatus WS
                     // OverTime DataSet Using OT Per Minute Policy
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = "";
-                    if(empMaster == "")
+                    if (empMaster == "")
                     {
                         sqlx = @"select * from AttdnProcessData where ManualFlag=1 and IsOTEntitled='1' and PlantID='" + PlantValue + "'";
                     }
                     else
                     {
-                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and IsOTEntitled='1' and PlantID='" + PlantValue + "' and RowId in ("+ empList + ")";
+                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and IsOTEntitled='1' and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
                     }
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
@@ -5378,7 +5284,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                                         dr["CalculatedOT"] = Result;  // For Visiblity
                                         dr.EndEdit();
                                         CheckerFunction(ref ManualFlagRowId, RowId);
-                                                                    
+
                                     }
                                 }
                             }
@@ -5444,7 +5350,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 #endregion
 
                 SaveLog("Manual Processed OT Logic Ran Successfully ...", PlantValue, false);
-                               
+
                 #region Set Manual Flag ->0              
                 ProcessManualFlag(ManualFlagRowId); // Set ManualFlag to 0
                 #endregion
@@ -5453,7 +5359,7 @@ LEFT JOIN hkp.WeeklyStatus WS
 
             }
             catch (Exception ex)
-            {                
+            {
                 throw ex;
             }
         }
@@ -5475,7 +5381,7 @@ LEFT JOIN hkp.WeeklyStatus WS
 
                 }
                 else
-                {                    
+                {
 
                     var sql2 = @"Select * from dbo.RosterPatternHeader where PlantId = '" + PlantId + "'";
                     DataTable RosterTable = new DataTable();
@@ -5531,7 +5437,7 @@ LEFT JOIN hkp.WeeklyStatus WS
 
                                 if (counts == 0)
                                 {
-                                    
+
 
                                     Dictionary<string, object> dict = InitializeMyDictionary();
 
@@ -5603,7 +5509,7 @@ LEFT JOIN hkp.WeeklyStatus WS
 
         #region PastDOJ Source Data
 
-        public void PastDOJ(out DataSet ds, string Plant,string WkDate,string EmpMaster)
+        public void PastDOJ(out DataSet ds, string Plant, string WkDate, string EmpMaster)
         {
             ConnectionManager.DAL.ConManager objCon;
             try
@@ -5614,9 +5520,9 @@ LEFT JOIN hkp.WeeklyStatus WS
                 string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
 
                 var sql = @"select TobeAdded=case When isnull(p.EmpSystemID,'') ='' then 'true' 
-			    else 'false' end , e.SystemId,'"+WkDate+ @"' as WorkDate,Month('" + WkDate + @"') as Month,
+			    else 'false' end , e.SystemId,'" + WkDate + @"' as WorkDate,Month('" + WkDate + @"') as Month,
 				Year('" + WkDate + @"') as Year,
-                convert(varchar(30),'" + newformat+ @"' )+convert(varchar(30), e.SystemId)RowId,e.PlantId,
+                convert(varchar(30),'" + newformat + @"' )+convert(varchar(30), e.SystemId)RowId,e.PlantId,
 				e.GroupID,
                 mb.ShiftDefinationId as BudgetedShift,isnull(stcm.InTime,sdy.InTime) as BudgetShiftIn,
 				ISNULL(stcm.OutTime,sdy.OutTime) as BudgetShiftOut,
@@ -5628,19 +5534,19 @@ LEFT JOIN hkp.WeeklyStatus WS
 				HoursWithoutOT=ISNULL(stcm.HoursWithoutOT,sdy.HoursWithoutOT),
                 HolidayStatus=isnull((select om.OffDayType
                 from SCS.OffDayMaster om left join scs.OffDayDetail od
-                on om.Id=od.OffDayMasterId where od.OffDayDate='"+WkDate+@"'
-                and om.PlantId='"+Plant+ @"' and om.OffDayType='H'),'false'),
+                on om.Id=od.OffDayMasterId where od.OffDayDate='" + WkDate + @"'
+                and om.PlantId='" + Plant + @"' and om.OffDayType='H'),'false'),
                 WeekOfftype=isnull((SELECT WOHeaderId FROM EmployeeWeeklyOff ex
 				left join EmployeeInformation emp on emp.SystemId=ex.EmpSystemId
 				where  
-				emp.DOJ <= '"+WkDate+@"' AND (emp.DOS >= '"+WkDate+ @"' OR 
+				emp.DOJ <= '" + WkDate + @"' AND (emp.DOS >= '" + WkDate + @"' OR 
 				ISNULL(emp.DOS,'') = '' 
 				OR emp.DOS = '01/01/1901') and emp.SystemId=e.SystemId),'CompanyWeekOff'),
 				WeeklyStatus=isnull((select od.OffDayType
 				from scs.OffDayMaster od 
 				left join scs.OffDayDetail odd on odd.OffDayMasterId=od.Id
 				where od.OffDayType='W' 
-				and od.PlantId='" + Plant+"' and odd.OffDayDate='"+WkDate+ @"'),'NW'),
+				and od.PlantId='" + Plant + "' and odd.OffDayDate='" + WkDate + @"'),'NW'),
                 dh.Id as HeaderId,dxc.LeavePolicyMasterId
                 from EmployeeInformation e 
                 left join mst.DesignationMasterLegalDesignation ddm on ddm.LegalDesignationId = 
@@ -5655,15 +5561,15 @@ LEFT JOIN hkp.WeeklyStatus WS
 				left join DayStatusHeader dh on dh.Id=dc.headerId                
                 left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
                 left join ShiftDefination sdy on sdy.SystemID=mb.ShiftDefinationId				  
-				LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON '" + WkDate+@"' 
+				LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON '" + WkDate + @"' 
 							BETWEEN stcm.FromDate AND stcm.ToDate AND 
 							sdy.SystemID=stcm.ShiftDefinationID                            
                 left join org.Plant pl on pl.Id=e.PlantId
                 left join OutPunchConfigurationHeader Op on OP.PlantId=pl.Id
 				left join AttdnProcessData p on p.EmpSystemID=e.SystemId 
-				and p.WorkDate='"+WkDate+@"'              
-                where e.EmpType!='Guest' and e.PlantId='"+Plant+@"' and e.SystemID In("+EmpMaster+")" +
-                "and DOJ <= '"+WkDate+@"' AND (E.DOS >= '"+WkDate+@"' OR ISNULL(E.DOS,'') = '' 
+				and p.WorkDate='" + WkDate + @"'              
+                where e.EmpType!='Guest' and e.PlantId='" + Plant + @"' and e.SystemID In(" + EmpMaster + ")" +
+                "and DOJ <= '" + WkDate + @"' AND (E.DOS >= '" + WkDate + @"' OR ISNULL(E.DOS,'') = '' 
 				OR E.DOS = '01/01/1901') ";
 
                 // Finds HolidayStatus,BudgetCode as well as Weekly Status if Company WeekOff
@@ -5672,11 +5578,11 @@ LEFT JOIN hkp.WeeklyStatus WS
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
             catch (Exception ex)
-            { 
+            {
                 throw (ex);
             }
         }
-        public void MissingRowsDOJ(out DataSet ds, string Plant,string Date)
+        public void MissingRowsDOJ(out DataSet ds, string Plant, string Date)
         {
             // This DataSet to find all the Entries that are done Today 
             // Whose DOJ is less than Today
@@ -5687,9 +5593,9 @@ LEFT JOIN hkp.WeeklyStatus WS
                      FORMAT(e.DateAdded,'yyyy-MM-dd') as ToDate,
 				     e.DateAdded as EntryTime
                      FROM EmployeeInformation E
-                     WHERE CONVERT(DATE,'"+Date+@"'
+                     WHERE CONVERT(DATE,'" + Date + @"'
                      )=CONVERT(date,E.DateAdded) 
-				     and DOJ<= CONVERT(DATE,'"+Date+"') and e.PlantId='"+Plant+@"'
+				     and DOJ<= CONVERT(DATE,'" + Date + "') and e.PlantId='" + Plant + @"'
 					 order by doj asc";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -5741,13 +5647,13 @@ LEFT JOIN hkp.WeeklyStatus WS
                                                     order by ex.EffectiveDate desc) WeekOffHeaderId 
                                         from AttdnProcessData ap 
 
-                                        where ap.EmpSystemID In("+EmpMaster+@") and WorkDate 
-										between '"+FromDate+@"' and '"+ToDate+@"'
+                                        where ap.EmpSystemID In(" + EmpMaster + @") and WorkDate 
+										between '" + FromDate + @"' and '" + ToDate + @"'
                                         )as jj
                                         left join AttdnProcessData ap on
 										ap.WorkDate = jj.WorkDate and 
-										ap.EmpSystemID In("+EmpMaster+@") and ap.WorkDate 
-										between '"+FromDate+@"' and '"+ToDate+@"'
+										ap.EmpSystemID In(" + EmpMaster + @") and ap.WorkDate 
+										between '" + FromDate + @"' and '" + ToDate + @"'
 										)as dd where dd.Checks=1 and isnull(dd.DayType,'')!=''";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -5758,7 +5664,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 throw (ex);
             }
         }
-        public void OTEligibleEmpDOJ(string FromDate,string ToDate, out DataSet ds, string PlantId, string empMaster)
+        public void OTEligibleEmpDOJ(string FromDate, string ToDate, out DataSet ds, string PlantId, string empMaster)
         {
             string EmpData = clsWebLib.RetValidLen(empMaster).ToString();
             string strkey = "1=1";
@@ -5781,9 +5687,9 @@ LEFT JOIN hkp.WeeklyStatus WS
                 left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
 				left join scs.DesignationMasterConfiguration dc on dc.DesignationMasterId=dm.Id
                 and dc.PlantId=e.PlantId
-                where p.WorkDate between '"+FromDate+@"' and '"+ToDate+@"' and
+                where p.WorkDate between '" + FromDate + @"' and '" + ToDate + @"' and
 				e.PlantId='" + PlantId + @"' 
-                and E.DOJ <= '" +ToDate  + @"' 
+                and E.DOJ <= '" + ToDate + @"' 
 				AND (E.DOS >= '" + ToDate + @"' OR ISNULL(E.DOS,'') = '' 
 				OR E.DOS = '01/01/1901')and dc.IsOTEntitled=1 and " + strkey + @"
 				and e.SystemId not in (select final.EmpSystemId from 
@@ -5806,8 +5712,8 @@ LEFT JOIN hkp.WeeklyStatus WS
             try
             {
                 var sql = @"select distinct Format(WorkDate,'dd-MMM-yyyy')WorkDate,
-				OTWeek from AttdnProcessData where PlantID='"+PlantId+@"'
-				and WorkDate between '"+FromDate+"' and '"+ToDate+@"'
+				OTWeek from AttdnProcessData where PlantID='" + PlantId + @"'
+				and WorkDate between '" + FromDate + "' and '" + ToDate + @"'
 				and OTWeek is not null";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -5823,7 +5729,7 @@ LEFT JOIN hkp.WeeklyStatus WS
         #endregion
 
         #region PastDOJ Row Creation Process
-        public void PastDOJProcess(string Date, string PlantValue,string UserId=null)
+        public void PastDOJProcess(string Date, string PlantValue, string UserId = null)
         {
 
             ProcessLock _lock = new ProcessLock(UserId, ProcessLockId.DOJProcess, "", 60);
@@ -5838,13 +5744,13 @@ LEFT JOIN hkp.WeeklyStatus WS
                     return;
                 }
                 else
-                {             
+                {
 
-                    string EmpMaster = "''",CreatedEmpIds="''";
-                 
+                    string EmpMaster = "''", CreatedEmpIds = "''";
+
                     #region Previous DOJ Row Creation Logic
-                    DataSet MissingDOJ,IndividualWeekOfDOJ;
-                    MissingRowsDOJ(out MissingDOJ, PlantValue,Date);// Finds All Entries in Today's Date with Past DOJ
+                    DataSet MissingDOJ, IndividualWeekOfDOJ;
+                    MissingRowsDOJ(out MissingDOJ, PlantValue, Date);// Finds All Entries in Today's Date with Past DOJ
                     if (MissingDOJ.Tables[0].Rows.Count > 0)
                     {
                         // Dataset Generated for New Entries Having Past DOJ
@@ -6062,21 +5968,21 @@ LEFT JOIN hkp.WeeklyStatus WS
                             if (StartDate != "")
                             {
                                 string strSql = string.Empty;
-                                DataSet dsWeekData;                               
+                                DataSet dsWeekData;
                                 OTWeekDOJ(StartDate, ToDate, out dsWeekData, PlantValue);
-                                if(dsWeekData.Tables[0].Rows.Count>0)
+                                if (dsWeekData.Tables[0].Rows.Count > 0)
                                 {
                                     for (int i = 0; i < dsWeekData.Tables[0].Rows.Count; i++)
                                     {
                                         string Datex = clsWebLib.RetValidLen(dsWeekData.Tables[0].Rows[i]["WorkDate"]).ToString();
                                         string Week = clsWebLib.RetValidLen(dsWeekData.Tables[0].Rows[i]["OTWeek"]).ToString();
 
-                                        if (Datex != "" && Week !="")
+                                        if (Datex != "" && Week != "")
                                         {
                                             if (strSql.Length == 0)
                                             {
-                                                strSql = @" update AttdnProcessData set OTWeek='"+Week+"' where WorkDate='"+Datex+"' and " +
-                                                    "PlantId='"+PlantValue+"' and RowId in (" + CreatedEmpIds + ") ;";
+                                                strSql = @" update AttdnProcessData set OTWeek='" + Week + "' where WorkDate='" + Datex + "' and " +
+                                                    "PlantId='" + PlantValue + "' and RowId in (" + CreatedEmpIds + ") ;";
                                             }
                                             else
                                             {
@@ -6101,7 +6007,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 }
                 _lock.UnlockProcess();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _lock.UnlockProcess();
                 throw ex;
@@ -6113,7 +6019,7 @@ LEFT JOIN hkp.WeeklyStatus WS
         #region TBS LA Process
 
         #region LA
-        
+
         private void EmployeeAutoStatusChange_LA(string plantid, string Date)
         {
             try
@@ -6122,14 +6028,14 @@ LEFT JOIN hkp.WeeklyStatus WS
                 DataSet LAEmployees = null;
 
                 GetHRSettingForAutoLA(plantid, out HRSettingLA);
-            
+
                 if (HRSettingLA.Tables[0].Rows.Count > 0)//LA
                 {
                     string maxDays = GetNumData(HRSettingLA.Tables[0].Rows[0]["LongTermAbesnteeism"].ToString());
                     if (Convert.ToInt32(maxDays) > 0)
                     {
                         Get_tobe_LA(plantid, Date, maxDays, out LAEmployees);
-                     
+
                         if (LAEmployees.Tables[0].Rows.Count > 0)
                         {
                             UpdateEmpStatusLA(plantid, LAEmployees); //update these emps as Long Absentism
@@ -6156,7 +6062,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                     if (v != "")
                     {
 
-                       string adate = Convert.ToDateTime(v).ToString("dd-MMM-yyyy");
+                        string adate = Convert.ToDateTime(v).ToString("dd-MMM-yyyy");
 
                         if (strSql.Length == 0)
                         {
@@ -6178,7 +6084,7 @@ LEFT JOIN hkp.WeeklyStatus WS
             catch (Exception ex)
             {
                 throw (ex);
-            }          
+            }
         }
         private void Get_tobe_LA(string PlantId, string adate, string maxDays, out DataSet dsRef)
         {
@@ -6195,7 +6101,7 @@ LEFT JOIN hkp.WeeklyStatus WS
 										BY P.WorkDate DESC) AS SEQ
 		                                FROM AttdnProcessData AS P	                               
                                         join EmployeeInformation x on p.EmpSystemID=x.SystemId
-		                                WHERE x.PlantID='"+PlantId+@"' and 										
+		                                WHERE x.PlantID='" + PlantId + @"' and 										
 										 p.DayStatus NOT IN 
 										 (select distinct DayType from DayType where Category in 
 										('Holiday','Weekend')) 
@@ -6214,8 +6120,8 @@ LEFT JOIN hkp.WeeklyStatus WS
 										ELSE daystatus END AS dayStatustemp,
 		                                
 										dense_rank() OVER (PARTITION BY p.EmpSystemID ORDER BY P.WorkDate DESC) AS SEQ
-		                                FROM (select * from AttdnProcessData where WorkDate<= '" + adate+@"' 
-										and PlantID='"+PlantId+@"')  AS P 
+		                                FROM (select * from AttdnProcessData where WorkDate<= '" + adate + @"' 
+										and PlantID='" + PlantId + @"')  AS P 
 		                                INNER JOIN EmployeeInformation AS ei ON ei.SystemId=p.EmpSystemID
                                      
 									 where p.DayStatus NOT IN (select distinct DayType from DayType where 
@@ -6224,16 +6130,16 @@ LEFT JOIN hkp.WeeklyStatus WS
                                 ) AS K WHERE K.dayStatustemp='A') AS K 
                                 WHERE K.SEQ=K.SQ
                                 GROUP BY K.EmpSystemID
-                                HAVING COUNT(*)>='"+maxDays+@"') AS AB ON ab.EmpSystemID=E.SystemId
+                                HAVING COUNT(*)>='" + maxDays + @"') AS AB ON ab.EmpSystemID=E.SystemId
 
 
                                 WHERE  e.EmployeeStatus='Active' AND isnull(e.EmployeeCurrentStatus,'')='' 
-								AND D.SEQ<='"+maxDays+@"' AND D.AbsentValue='1'
-								AND E.PlantId='"+PlantId+@"'
+								AND D.SEQ<='" + maxDays + @"' AND D.AbsentValue='1'
+								AND E.PlantId='" + PlantId + @"'
                                 GROUP BY e.SystemId,ab.AbsentDays, e.EmployeeCode,E.EmployeeName,
 								D.AbsentValue,d.DayStatus,
                                 ab.FirstAbsentDate
-                                HAVING COUNT(d.AbsentValue)>='"+maxDays+"' ORDER BY AB.AbsentDays DESC";
+                                HAVING COUNT(d.AbsentValue)>='" + maxDays + "' ORDER BY AB.AbsentDays DESC";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
@@ -6259,7 +6165,7 @@ LEFT JOIN hkp.WeeklyStatus WS
             catch (Exception ex)
             {
                 throw (ex);
-            }           
+            }
         }
 
         #endregion
@@ -6283,7 +6189,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                         Get_tobe_TBS(plantid, adate, maxDays, out TBSDataSet);
                         if (TBSDataSet.Tables[0].Rows.Count > 0)
                         {
-                            UpdateEmpStatusTBS(plantid,TBSDataSet); //update these Employees as TBS
+                            UpdateEmpStatusTBS(plantid, TBSDataSet); //update these Employees as TBS
                         }
                     }
                 }
@@ -6307,7 +6213,7 @@ LEFT JOIN hkp.WeeklyStatus WS
             catch (Exception ex)
             {
                 throw (ex);
-            }          
+            }
         }
         private void UpdateEmpStatusTBS(string PlantId, DataSet dsLA)
         {
@@ -6342,7 +6248,7 @@ LEFT JOIN hkp.WeeklyStatus WS
             {
                 throw (ex);
             }
-           
+
         }
         private void Get_tobe_TBS(string PlantId, string adate, string maxDays, out DataSet dsRef)
         {
@@ -6358,11 +6264,11 @@ LEFT JOIN hkp.WeeklyStatus WS
 										(PARTITION BY p.EmpSystemID ORDER BY P.WorkDate DESC) AS SEQ
 		                                FROM AttdnProcessData AS P
 										left join EmployeeInformation x on x.SystemId=p.EmpSystemID
-										where x.plantid='"+PlantId+@"' and
+										where x.plantid='" + PlantId + @"' and
 		                                 p.DayStatus NOT IN 
 										(select distinct DayType from DayType 
 										where Category in ('Holiday','Weekend')) 
-										and p.WorkDate<='"+adate+@"'
+										and p.WorkDate<='" + adate + @"'
 	                                ) AS D
                                 INNER JOIN (select * from EmployeeInformation) AS E ON e.SystemId=d.EmpSystemID 
                             
@@ -6371,23 +6277,23 @@ LEFT JOIN hkp.WeeklyStatus WS
 		                                SELECT p.EmpSystemID, p.WorkDate, p.DayStatus,CASE WHEN daystatus IN (select distinct DayType from DayType where Category in ('Holiday','Weekend')) THEN 'A' ELSE daystatus END AS dayStatustemp,
 		                                dense_rank() OVER (PARTITION BY p.EmpSystemID ORDER BY P.WorkDate DESC) AS SEQ
 		                                FROM (select * from AttdnProcessData where
-										WorkDate<= '"+adate+"' and PlantID='"+PlantId+@"')  AS P 
+										WorkDate<= '" + adate + "' and PlantID='" + PlantId + @"')  AS P 
 		                                INNER JOIN EmployeeInformation AS ei ON ei.SystemId=p.EmpSystemID
                                         where p.DayStatus NOT IN (select distinct DayType from DayType where Category in ('Holiday','Weekend')) AND ei.EmployeeStatus='Active' AND (isnull(ei.EmployeeCurrentStatus,'')=''
                                 or isnull(ei.EmployeeCurrentStatus,'')='LONG ABSENTEEISM') 
                                 ) AS K WHERE K.dayStatustemp='A') AS K 
                                 WHERE K.SEQ=K.SQ
                                 GROUP BY K.EmpSystemID
-                                HAVING COUNT(*)>='"+maxDays+@"') AS AB ON ab.EmpSystemID=E.SystemId
+                                HAVING COUNT(*)>='" + maxDays + @"') AS AB ON ab.EmpSystemID=E.SystemId
 
 
                                 WHERE  e.EmployeeStatus='Active' AND 
 								(isnull(e.EmployeeCurrentStatus,'')='' or
 								isnull(e.EmployeeCurrentStatus,'')='LONG ABSENTEEISM') 
-								AND D.SEQ<='"+maxDays+@"' AND D.AbsentValue='1'  AND E.PlantId='"+PlantId+@"'
+								AND D.SEQ<='" + maxDays + @"' AND D.AbsentValue='1'  AND E.PlantId='" + PlantId + @"'
                                 GROUP BY e.SystemId,ab.AbsentDays, e.EmployeeCode,D.AbsentValue,d.DayStatus
                                 ,ab.FirstAbsentDate
-                                HAVING COUNT(d.AbsentValue)>='"+maxDays+"' ORDER BY AB.AbsentDays DESC";
+                                HAVING COUNT(d.AbsentValue)>='" + maxDays + "' ORDER BY AB.AbsentDays DESC";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
             }
@@ -6434,8 +6340,8 @@ LEFT JOIN hkp.WeeklyStatus WS
             catch (Exception ex)
             {
                 throw (ex);
-            }           
-        } 
+            }
+        }
         private void EmployeeAutoStatusChange_LA_Reverse(string plantid, string Todate)
         {
             try
@@ -6444,7 +6350,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 DataSet DsActive = null;
 
                 GetHRSettingForAutoLA(plantid, out HRSetting);
-             
+
                 if (HRSetting.Tables[0].Rows.Count > 0)
                 {
                     string maxDays = GetNumData(HRSetting.Tables[0].Rows[0]["LongTermAbesnteeism"].ToString());
@@ -6466,7 +6372,7 @@ LEFT JOIN hkp.WeeklyStatus WS
         }
         private void Get_tobe_Active_from_LA(string PlantId, string fdate, string tdate, out DataSet dsRef)
         {
-            ConnectionManager.DAL.ConManager objCon;       
+            ConnectionManager.DAL.ConManager objCon;
             try
             {
                 var sql = @"select systemid,EmployeeStatus,EmployeeCurrentStatus,
@@ -6476,11 +6382,11 @@ LEFT JOIN hkp.WeeklyStatus WS
                                 select EmpSystemID from AttdnProcessData p 
 								left join EmployeeInformation e on p.EmpSystemID=e.SystemId
                                 where EmployeeCurrentStatus='LONG ABSENTEEISM' and 
-								e.PlantId='"+PlantId+@"'
-								and WorkDate between '"+fdate+@"'  and '"+tdate+@"' and
+								e.PlantId='" + PlantId + @"'
+								and WorkDate between '" + fdate + @"'  and '" + tdate + @"' and
 								(p.PresentValue='1' or p.LateValue='1' or p.LvValue='1' or 
 								p.PresentValue='0.5')   
-								and EmployeeCurrentStatusEffectiveDate<='"+tdate+"')";
+								and EmployeeCurrentStatusEffectiveDate<='" + tdate + "')";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsRef, false, false, "", "1");
@@ -6514,7 +6420,7 @@ LEFT JOIN hkp.WeeklyStatus WS
             {
                 return "0";
             }
-        }        
+        }
         public void UpdateStatus(string sql)
         {
             bool IsTransactionStarted = false;
@@ -6563,7 +6469,7 @@ LEFT JOIN hkp.WeeklyStatus WS
             catch (Exception ex)
             {
                 throw ex;
-            }       
+            }
         }
 
         #endregion
@@ -6578,7 +6484,7 @@ LEFT JOIN hkp.WeeklyStatus WS
             {
                 Date = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy");
                 string PreviousDay = Convert.ToDateTime(Date).AddDays(-1).ToString("dd-MMM-yyyy");
-               
+
                 DataSet PlantLock; // Previous Day Plant Lock Checking
                 PlantLockCheck(PreviousDay, out PlantLock, PlantValue);
                 if (PlantLock.Tables[0].Rows.Count > 0)
@@ -6588,10 +6494,10 @@ LEFT JOIN hkp.WeeklyStatus WS
                 else
                 {
                     #region Year and From To Date Finding
-                   
+
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     DataSet YearFinding;
-                    string YearId="";
+                    string YearId = "";
                     FindLeaveYear(PreviousDay, out YearFinding, PlantValue);
                     if (YearFinding.Tables[0].Rows.Count > 0)
                     {
@@ -6613,11 +6519,11 @@ LEFT JOIN hkp.WeeklyStatus WS
                     #region Saving Logic 
 
                     DataSet dsRef, dsSource;
-                    var sqlx = @"select * from AnnualLeaveDataCurrent where PlantId='"+PlantValue+"'and LeaveYearId='"+YearId+"'";
+                    var sqlx = @"select * from AnnualLeaveDataCurrent where PlantId='" + PlantValue + "'and LeaveYearId='" + YearId + "'";
                     objCon.OpenDataSetThroughAdapter(sqlx, out dsRef, false, false, "", "1");
 
                     LeaveSourceDataGeneration(From, To, out dsSource, PlantValue, YearId);
-                    if(dsSource.Tables[0].Rows.Count>0)
+                    if (dsSource.Tables[0].Rows.Count > 0)
                     {
                         for (int i = 0; i < dsSource.Tables[0].Rows.Count; i++)
                         {
@@ -6627,7 +6533,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                             decimal Availed = Convert.ToDecimal(clsWebLib.RetValidLen(dsSource.Tables[0].Rows[i][@"Availed"]).ToString());
                             decimal Earned = Convert.ToDecimal(clsWebLib.RetValidLen(dsSource.Tables[0].Rows[i][@"Earned"]).ToString());
 
-                            dsRef.Tables[0].DefaultView.RowFilter = @"EmployeeId='" + EmpId + "' AND LeaveTypeId='"+LvTypeId+ "' AND LeaveYearId='"+ LvYearId+"'";
+                            dsRef.Tables[0].DefaultView.RowFilter = @"EmployeeId='" + EmpId + "' AND LeaveTypeId='" + LvTypeId + "' AND LeaveYearId='" + LvYearId + "'";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
@@ -6667,7 +6573,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 var sql = @"select ld.* from LeaveYearDefination ld left 
                 join LeaveYearDefinationPlantChild pc on
                 pc.LeaveYearDefinationId=ld.Id where 
-                FromDate<='" + Date+"' and '"+Date+ "'<=ToDate and pc.PlantId='"+Plant+"'";
+                FromDate<='" + Date + "' and '" + Date + "'<=ToDate and pc.PlantId='" + Plant + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -6678,7 +6584,7 @@ LEFT JOIN hkp.WeeklyStatus WS
             }
 
         }
-        public void LeaveSourceDataGeneration(string From,string To, out DataSet ds, string Plant,string YearId)
+        public void LeaveSourceDataGeneration(string From, string To, out DataSet ds, string Plant, string YearId)
         {
             ConnectionManager.DAL.ConManager objCon;
             try
@@ -6694,7 +6600,7 @@ LEFT JOIN hkp.WeeklyStatus WS
 			    Info.EmpTypeId,Info.LeavePolicyMasterId
                 from LeaveYearDefination ld 
                 left join LeaveYearDefinationPlantChild pc on 
-				pc.LeaveYearDefinationId=ld.Id and pc.PlantId='" + Plant+@"'
+				pc.LeaveYearDefinationId=ld.Id and pc.PlantId='" + Plant + @"'
                 left join org.Plant p on p.Id=pc.PlantId
 				left join org.Company c on c.Id=p.CompanyId
                 left join org.CompanyGroup cg on cg.Id=c.CompanyGroupId
@@ -6702,9 +6608,9 @@ LEFT JOIN hkp.WeeklyStatus WS
                 left join EmployeeInformation e on e.PlantId=p.Id
                 left join ManualLeaveData md on md.EmployeeId=e.SystemId
 				and md.LeaveYearId=ld.Id and 
-				md.LeaveTypeId=lt.Id and md.PlantId='"+Plant+@"'
+				md.LeaveTypeId=lt.Id and md.PlantId='" + Plant + @"'
                 left join AnnualLeaveDataCurrent ac on ac.EmployeeId=e.SystemId
-				and ac.LeaveYearId=ld.Id and ac.LeaveTypeId=lt.Id and ac.PlantId='"+Plant+ @"'
+				and ac.LeaveYearId=ld.Id and ac.LeaveTypeId=lt.Id and ac.PlantId='" + Plant + @"'
 				left join
 				(
 				select a.EmpSystemID,SUM(a.LvValue)AvailedLeave,A.DayStatus,a.PlantID,dc.EmpTypeId,
@@ -6725,8 +6631,8 @@ LEFT JOIN hkp.WeeklyStatus WS
 				where dt.HeaderId is not null and 
 				a.LvValue<>0 and ei.EmployeeStatus='Active'
 				and 
-				a.workdate between '" + From+@"' and '"+To+@"'
-				and ei.PlantId='"+Plant+ @"'
+				a.workdate between '" + From + @"' and '" + To + @"'
+				and ei.PlantId='" + Plant + @"'
 				group by A.EmpSystemID,a.DayStatus,a.PlantID,dc.EmpTypeId,
                 dxc.LeavePolicyMasterId ) as Info
 				on Info.EmpSystemID=e.SystemId and Info.PlantID=e.PlantId 
@@ -6742,13 +6648,13 @@ LEFT JOIN hkp.WeeklyStatus WS
                 left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
                 LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
                 JOIN LeaveType T ON t.Id=L.LeaveTypeId
-                where apd.workdate between '" + From+"' and '"+To+@"'
-                and EI.PlantID='"+Plant+@"' and t.LeaveType='Earn'
+                where apd.workdate between '" + From + "' and '" + To + @"'
+                and EI.PlantID='" + Plant + @"' and t.LeaveType='Earn'
                 group by EmpSystemID,t.Id,ei.plantid
                 ) as Masterx on Masterx.EmpSystemID=e.SystemId 
 				and e.PlantId=Masterx.PlantId and
                 Masterx.LeaveId=lt.Id          
-                where p.Id='"+Plant+"' and ld.Id='"+YearId+ @"' and			
+                where p.Id='" + Plant + "' and ld.Id='" + YearId + @"' and			
                 e.EmployeeStatus='Active' ) as dd
                 left join LeavePolicyDetail lpd on lpd.LPMSystemID=dd.LeavePolicyMasterId
 				and lpd.LTSystemID=dd.LeaveTypeId	
@@ -6819,7 +6725,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 }
                 catch (Exception)
                 {
-                    
+
                 }
                 throw ex;
             }
@@ -6856,7 +6762,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 }
             }
             dr["AddedBy"] = "RosterProcess";
-            dr["DateAdded"] = DateTime.Now.ToString(); 
+            dr["DateAdded"] = DateTime.Now.ToString();
             dr["AddedFromIP"] = "1";
             dr["UpdatedBy"] = "RosterProcess";
             dr["DateUpdated"] = DateTime.Now.ToString();
@@ -6883,7 +6789,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                     {
                         var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
                         CatchPlant = PlantValue;
-                        ShiftProcess(Date, PlantValue,"Scheduler");
+                        ShiftProcess(Date, PlantValue, "Scheduler");
                     }
                     catch (Exception ex)
                     {
@@ -6908,7 +6814,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                     {
                         var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
                         CatchPlant = PlantValue;
-                        AttndProcess(Date, PlantValue,"Scheduler");
+                        AttndProcess(Date, PlantValue, "Scheduler");
                     }
                     catch (Exception ex)
                     {
@@ -6933,13 +6839,13 @@ LEFT JOIN hkp.WeeklyStatus WS
                     try
                     {
                         CatchPlant = PlantValue;
-                        DayStatus(Date, PlantValue,"Scheduler");
+                        DayStatus(Date, PlantValue, "Scheduler");
                     }
                     catch (Exception ex)
                     {
                         CommonLogFunction(ex, CatchPlant, "DayStatusProcess");
                     }
-                    try                        
+                    try
                     {
                         CatchPlant = PlantValue;
                         ManualScheduler(PlantValue);
@@ -6948,7 +6854,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                     {
                         CommonLogFunction(ex, CatchPlant, "ManualProcess");
                     }
-                    
+
                 }
             }
         }
@@ -6959,8 +6865,8 @@ LEFT JOIN hkp.WeeklyStatus WS
             SaveLog("Group Call", "DOJProcess", false);
 
             DataSet PlantList;
-            GetPlant(GroupId, out PlantList);           
-          
+            GetPlant(GroupId, out PlantList);
+
             if (PlantList.Tables[0].Rows.Count > 0)
             {
 
@@ -6971,7 +6877,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                     {
                         var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
                         CatchPlant = PlantValue;
-                        PastDOJProcess(Date, PlantValue,"Scheduler");
+                        PastDOJProcess(Date, PlantValue, "Scheduler");
                     }
                     catch (Exception ex)
                     {
@@ -6995,13 +6901,13 @@ LEFT JOIN hkp.WeeklyStatus WS
                     string CatchPlant = "";
                     try
                     {
-                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString(); 
+                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
                         CatchPlant = PlantValue;
-                        RosterProcess(PlantValue, Date,"Scheduler");
+                        RosterProcess(PlantValue, Date, "Scheduler");
                     }
                     catch (Exception ex)
                     {
-                        CommonLogFunction(ex, CatchPlant, "RosterProcess");                       
+                        CommonLogFunction(ex, CatchPlant, "RosterProcess");
                     }
                 }
             }
@@ -7038,12 +6944,12 @@ LEFT JOIN hkp.WeeklyStatus WS
 
         #endregion
 
-        public void CommonLogFunction(Exception ex, string CatchPlant,string Process)
+        public void CommonLogFunction(Exception ex, string CatchPlant, string Process)
         {
-            string error = "Plant:- " + CatchPlant + " Exception :-" +ex.ToString();
+            string error = "Plant:- " + CatchPlant + " Exception :-" + ex.ToString();
             SaveLog(error, Process, true);
-       
-        } 
+
+        }
 
     }
 
@@ -7104,4 +7010,3 @@ LEFT JOIN hkp.WeeklyStatus WS
     }
 
 }
-  
