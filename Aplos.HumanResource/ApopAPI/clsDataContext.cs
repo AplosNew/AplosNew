@@ -13767,18 +13767,22 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
         {
             try
             {
+                if (DataToSave == null || !DataToSave.Any())
+                    return "No Data";
+
                 DataSet dsMaster;
-                string TableName = "dbo.Ultimodata";
-                string PackedBy = "''";
-                string RefNo = "''";
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                if (DataToSave.Count() == 0)
-                    return "";
-                List<UltimoDataGetSet> items = DataToSave.ToList();
+                string TableName = "dbo.UltimodataNew";
 
-                
+                ConnectionManager.DAL.ConManager con =
+                    new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from dbo.Ultimodata where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+                // ?? Load empty structure instead of filtering by first Id
+                con.OpenDataSetThroughAdapter(
+                    "SELECT TOP 0 * FROM dbo.UltimodataNew",
+                    out dsMaster,
+                    false,
+                    "1");
+
 
 
                 foreach (UltimoDataGetSet item in DataToSave)
@@ -13897,9 +13901,9 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                 }
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                //string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-                return MasterId;
+                return "Success";
 
             }
             catch (Exception ex)
