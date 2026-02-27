@@ -13772,7 +13772,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
 
 
         #region Ultimo Data
-        public string PostUltimoData(IEnumerable<UltimoDataGetSet> DataToSave)
+        public string PostUltimoData(IEnumerable<UltimoDataGetSetUnit1> DataToSave)
         {
             try
             {
@@ -13793,11 +13793,10 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                     "1");
 
 
-
-                foreach (UltimoDataGetSet item in DataToSave)
+                foreach (UltimoDataGetSetUnit1 item in DataToSave)
                 {
                     dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
-                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    if (DataToSave.Count() > 0)
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
@@ -13805,7 +13804,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out string _Id);
 
-                        dr["Id"] =  _Id;
+                        dr["Id"] = item.Id;
                         dr["macidfk"] = item.macidfk;
                         dr["CountID"] = item.CountID;
                         dr["macshed"] = item.macshed;
@@ -13895,7 +13894,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                         dr["Orderno"] = item.Orderno;
                         dr["LotId"] = item.LotId;
                         dr["EntityId"] = item.EntityId;
-                        
+
 
 
                         dr["AddedBy"] = "Server";
@@ -15842,6 +15841,102 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
     }
 
     public class UltimoDataGetSet
+    {
+        public string Id { get; set; }
+        public string macidfk { get; set; }
+        public string CountID { get; set; }
+        public string macshed { get; set; }
+        public string machineNo { get; set; }
+        public string ActCount { get; set; }
+        public string Nominalcount { get; set; }
+        public string countArticle { get; set; }
+        public string Operator { get; set; }
+        public string MachineGroupid { get; set; }
+        public string side { get; set; }
+        public string Supervisor { get; set; }
+        public string ShiftDate { get; set; }
+        public string Shiftid { get; set; }
+        public string ShiftNo { get; set; }
+        public string ebnormalacross { get; set; }
+        public string ebidleacross { get; set; }
+        public string ebstartupacross { get; set; }
+        public string stopacross { get; set; }
+        public string doffacross { get; set; }
+        public string kg { get; set; }
+        public string grsh { get; set; }
+        public string RunMins { get; set; }
+        public string gpss { get; set; }
+        public string MetPerMin { get; set; }
+        public string tpi { get; set; }
+        public string spndlrpm { get; set; }
+        public string FrontRollerRPM { get; set; }
+        public string monitoredMins { get; set; }
+        public string aef { get; set; }
+        public string pef { get; set; }
+        public string util { get; set; }
+        public string stoptime { get; set; }
+        public string dofftime { get; set; }
+        public string stopcount { get; set; }
+        public string doffcount { get; set; }
+        public string longdoff { get; set; }
+        public string minperstop { get; set; }
+        public string minperdoff { get; set; }
+        public string doffper { get; set; }
+        public string stopper { get; set; }
+        public string pnewaste { get; set; }
+        public string ebnormal { get; set; }
+        public string ebstartup { get; set; }
+        public string ebidle { get; set; }
+        public string ebtotal { get; set; }
+        public string ebs { get; set; }
+        public string normalaef { get; set; }
+        public string idleaef { get; set; }
+        public string startupaef { get; set; }
+        public string totalaef { get; set; }
+        public string ebr { get; set; }
+        public string normaltime { get; set; }
+        public string idletime { get; set; }
+        public string startuptime { get; set; }
+        public string emnormal { get; set; }
+        public string emstartup { get; set; }
+        public string emidle { get; set; }
+        public string emtotal { get; set; }
+        public string ebnormalClosed { get; set; }
+        public string ebidleClosed { get; set; }
+        public string ebstartupClosed { get; set; }
+        public string ebnormalClosedduration { get; set; }
+        public string ebidleClosedduration { get; set; }
+        public string ebstartupClosedduration { get; set; }
+        public string wasteNumerator { get; set; }
+        public string wasteDenominator { get; set; }
+        public string slipsPercent { get; set; }
+        public string slips { get; set; }
+        public string rogues { get; set; }
+        public string RoguePercent { get; set; }
+        public string spndldowtime { get; set; }
+        public string spndldowntimeper { get; set; }
+        public string ukg { get; set; }
+        public string otherstoptime { get; set; }
+        public string pwrstoptime { get; set; }
+        public string apppower { get; set; }
+        public string kwh { get; set; }
+        public string Seb100sp { get; set; }
+        public string Volt_ry { get; set; }
+        public string Volt_yb { get; set; }
+        public string Volt_br { get; set; }
+        public string powerfactor { get; set; }
+        public string Activepower_kw { get; set; }
+        public string spindles { get; set; }
+        public string Articlename { get; set; }
+        public string Hank { get; set; }
+        public string Orderno { get; set; }
+        public string LotId { get; set; }
+        public string EntityId { get; set; }
+
+
+    }
+
+    public class UltimoDataGetSetUnit1
     {
         public string Id { get; set; }
         public string macidfk { get; set; }
