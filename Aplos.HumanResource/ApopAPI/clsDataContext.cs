@@ -13780,14 +13780,14 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                     return "No Data";
 
                 DataSet dsMaster;
-                string TableName = "dbo.UltimodataNew";
+                string TableName = "dbo.Ultimodata";
 
                 ConnectionManager.DAL.ConManager con =
                     new ConnectionManager.DAL.ConManager("1");
 
                 // ?? Load empty structure instead of filtering by first Id
                 con.OpenDataSetThroughAdapter(
-                    "SELECT TOP 0 * FROM dbo.UltimodataNew",
+                    "SELECT TOP 0 * FROM dbo.Ultimodata",
                     out dsMaster,
                     false,
                     "1");
