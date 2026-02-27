@@ -13772,7 +13772,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
 
 
         #region Ultimo Data
-        public string PostUltimoData(IEnumerable<UltimoDataGetSetUnit1> DataToSave)
+        public string PostUltimoData(IEnumerable<UltimoDataGetSet> DataToSave)
         {
             try
             {
@@ -13793,7 +13793,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                     "1");
 
 
-                foreach (UltimoDataGetSetUnit1 item in DataToSave)
+                foreach (UltimoDataGetSet item in DataToSave)
                 {
                     dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
                     if (DataToSave.Count() > 0)
