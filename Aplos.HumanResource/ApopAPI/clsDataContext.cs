@@ -5664,7 +5664,7 @@ WHERE Emp.Employeestatus = 'Active' and HG.Id = @hrgroupid  ";
                     }
                     if (tbs == null && longabsent == null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null  ) asv order by BudgetCode ";
+                        strSQL = strSQL + "   ) asv order by BudgetCode ";
                     }
 
 
@@ -5959,7 +5959,7 @@ convert(time,ARD.ptime) > convert(time,SD.Intime)
                     }
                     if (tbs == null && longabsent == null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null ) a ";
+                        strSQL = strSQL + "  ) a ";
                     }
 
                     #endregion Sql
@@ -6147,7 +6147,7 @@ and emp.employeecode NOT IN (2222229, 2222230)   and MBGT.Active = 1  and Hg.Id 
                     }
                     if (tbs == null && longabsent == null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null ) a ";
+                        strSQL = strSQL + "  ) a ";
                     }
 
                     #endregion Sql
