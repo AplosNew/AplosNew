@@ -10,7 +10,6 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
     $scope.RunShiftProcess = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.NewAttdnProcess.$valid) {
-
             $http({
                 method: 'GET',
                 url: $scope.path + 'RunShiftProcess?Date=' + $scope.Attnd.Date,
