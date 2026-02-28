@@ -1226,7 +1226,7 @@ and	E.DOJ <= '" + Date + @"' AND (E.DOS >= '" + Date + @"' OR ISNULL(E.DOS,'') =
                 EmployeeInformation e
                 left join EmployeeWeeklyOff ex on e.SystemId=ex.EmpSystemId
                 where e.SystemId in( select empsystemid from EmployeeWeeklyOff)
-<<<<<<< HEAD
+ 
 and E.BudgetCode not in(Select SystemId from 
 				 dbo.RosterBudget RB 
 -- 1️⃣ Get applicable EffectiveDate
@@ -1249,9 +1249,7 @@ LEFT JOIN hkp.WeeklyStatus WS
        ON WS.Id = RPC.WeeklyStatusId
 				)
                 and e.PlantId='" + Plant + @"' --and e.SystemId='2525844'
-=======
-                and e.PlantId='" + Plant + @"'
->>>>>>> c0e8710fcb614da44e7093160752fef42deacac8
+ 
                 group by e.SystemId
                 ) as dd	";
 
@@ -1313,9 +1311,7 @@ LEFT JOIN dbo.RosterPatternChild RPC
       AND RPC.Days31 = D.DayInWeek
 LEFT JOIN hkp.WeeklyStatus WS
        ON WS.Id = RPC.WeeklyStatusId
-<<<<<<< HEAD
-
-
+ 
 LEFT JOIN (Select dd.*,
                 (Select wcc.DayType from
                 dbo.WeekOffChild wcc where wcc.WOSequence =dd.DayDiff 
@@ -1372,9 +1368,6 @@ LEFT JOIN hkp.WeeklyStatus WS
                 group by e.SystemId
                 ) as dd) IWO ON IWO.SystemId=apd.EmpSystemId
 				where apd.workdate='" + Date + @"' and apd.PlantId='" + plant + @"' and isnull(EmpSystemID,'') IN ( -- and apd.EmpSystemID='2525844'
-=======
-				where apd.workdate='" + Date + "' and apd.PlantId='" + plant + @"' and isnull(EmpSystemID,'') IN ( -- and apd.EmpSystemID='2525844'
->>>>>>> c0e8710fcb614da44e7093160752fef42deacac8
 									SELECT isnull(ei.SystemId,'') 
                                     FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + plant + @"'
                                    AND  ei.DOJ <= '" + Date + @"' 
