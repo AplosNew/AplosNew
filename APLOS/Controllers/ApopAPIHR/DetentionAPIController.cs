@@ -1753,7 +1753,7 @@ namespace Aplos.Controllers.ApopAPIHR
 
         #region Ultimo Data
 
-        public string PostUltimoData([FromBody] IEnumerable<UltimoDataGetSet> DataToSave)
+        public string PostUltimoData([FromBody] IEnumerable<UltimoDataGetSetUnitNew> DataToSave)
         {
             try
             {

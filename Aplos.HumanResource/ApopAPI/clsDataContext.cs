@@ -5442,18 +5442,21 @@ where emp.EmployeeStatus = 'Active' and  Emp.EmployeeCode = '" + Empcode + "'";
                     strSQL1 = @"DECLARE @WorkDate DATE = '" +  date + @"' , @hrgroupid varchar(100) = '"+ groupid + @"';
 
 WITH TodayIN AS
-(
-    SELECT 
-        APD.BudgetId,
-        COUNT(AR.LogDownLoadNum) AS ToDayIN
-    FROM AttdnRawData AR
-    INNER JOIN AttdnProcessData APD 
-        ON APD.EmpSystemID = AR.LogDownLoadNum
-        AND APD.WorkDate = AR.PDate
-    WHERE AR.PDate = @WorkDate
-      AND AR.PType = 'IN'
-    GROUP BY APD.BudgetId
-)
+	(
+		SELECT 
+			APD.BudgetId,
+			Case when APD.ManualShiftID is not null then APD.ManualShiftID 
+			When APD.Rostershiftid is not null then APD.Rostershiftid else APD.BudgetedShiftID end ShiftId
+			,COUNT(AR.LogDownLoadNum) AS ToDayIN
+		FROM AttdnRawData AR
+		INNER JOIN AttdnProcessData APD 
+			ON APD.EmpSystemID = AR.LogDownLoadNum
+			AND APD.WorkDate = AR.PDate
+		WHERE AR.PDate = @WorkDate
+		  AND AR.PType = 'IN'
+		GROUP BY APD.BudgetId,  Case when APD.ManualShiftID is not null then APD.ManualShiftID 
+			When APD.Rostershiftid is not null then APD.Rostershiftid else APD.BudgetedShiftID end
+	)
 
 Select * from (SELECT  Distinct
     '' AS SrNo,
@@ -5627,7 +5630,7 @@ WHERE Emp.Employeestatus = 'Active' and HG.Id = @hrgroupid  ";
                     }
                     if (entityid == null && shiftid != null && locations == null)
                     {
-                        strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'";
+                        strSQL = strSQL + "  and TI.ShiftId =  '" + shiftid + "'";
                     }
                     if (entityid == null && shiftid == null && locations != null)
                     {
@@ -5635,11 +5638,11 @@ WHERE Emp.Employeestatus = 'Active' and HG.Id = @hrgroupid  ";
                     }
                     if (entityid != null && shiftid != null && locations == null)
                     {
-                        strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
+                        strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'" + "  and TI.ShiftId =  '" + shiftid + "'";
                     }
                     if (entityid == null && shiftid != null && locations != null)
                     {
-                        strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'" + " and  RM.Location = '" + locations + "'";
+                        strSQL = strSQL + "  and TI.ShiftId =  '" + shiftid + "'" + " and  RM.Location = '" + locations + "'";
                     }
                     if (entityid != null && shiftid == null && locations != null)
                     {
@@ -5647,7 +5650,7 @@ WHERE Emp.Employeestatus = 'Active' and HG.Id = @hrgroupid  ";
                     }
                     if (entityid != null && shiftid != null && locations != null)
                     {
-                        strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
+                        strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'" + "  and TI.ShiftId =  '" + shiftid + "'";
                     }
 
                     if (tbs != null && longabsent == null)
@@ -5661,7 +5664,7 @@ WHERE Emp.Employeestatus = 'Active' and HG.Id = @hrgroupid  ";
                     }
                     if (tbs == null && longabsent == null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null  ) asv order by BudgetCode ";
+                        strSQL = strSQL + "   ) asv order by BudgetCode ";
                     }
 
 
@@ -5735,18 +5738,21 @@ WHERE Emp.Employeestatus = 'Active' and HG.Id = @hrgroupid  ";
                     strSQL1 = @"DECLARE @WorkDate DATE = '" + date + @"' , @hrgroupid varchar(100) = '" + groupid + @"';
 
  WITH TodayIN AS
-(
-    SELECT 
-        APD.BudgetId,
-        COUNT(AR.LogDownLoadNum) AS ToDayIN
-    FROM AttdnRawData AR
-    INNER JOIN AttdnProcessData APD 
-        ON APD.EmpSystemID = AR.LogDownLoadNum
-        AND APD.WorkDate = AR.PDate
-    WHERE AR.PDate = @WorkDate
-      AND AR.PType = 'IN'
-    GROUP BY APD.BudgetId
-)
+	(
+		SELECT 
+			APD.BudgetId,
+			Case when APD.ManualShiftID is not null then APD.ManualShiftID 
+			When APD.Rostershiftid is not null then APD.Rostershiftid else APD.BudgetedShiftID end ShiftId
+			,COUNT(AR.LogDownLoadNum) AS ToDayIN
+		FROM AttdnRawData AR
+		INNER JOIN AttdnProcessData APD 
+			ON APD.EmpSystemID = AR.LogDownLoadNum
+			AND APD.WorkDate = AR.PDate
+		WHERE AR.PDate = @WorkDate
+		  AND AR.PType = 'IN'
+		GROUP BY APD.BudgetId,  Case when APD.ManualShiftID is not null then APD.ManualShiftID 
+			When APD.Rostershiftid is not null then APD.Rostershiftid else APD.BudgetedShiftID end
+	)
 
 Select * from (SELECT  Distinct
     '' AS SrNo,
@@ -5919,7 +5925,7 @@ convert(time,ARD.ptime) > convert(time,SD.Intime)
                     }
                     if (entityid == null && shiftid != null && locations == null)
                     {
-                        strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'";
+                        strSQL = strSQL + "  and TI.ShiftId =  '" + shiftid + "'";
                     }
                     if (entityid == null && shiftid == null && locations != null)
                     {
@@ -5927,11 +5933,11 @@ convert(time,ARD.ptime) > convert(time,SD.Intime)
                     }
                     if (entityid != null && shiftid != null && locations == null)
                     {
-                        strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
+                        strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'" + "  and TI.ShiftId =  '" + shiftid + "'";
                     }
                     if (entityid == null && shiftid != null && locations != null)
                     {
-                        strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'" + " and  RM.Location = '" + locations + "'";
+                        strSQL = strSQL + "  and TI.ShiftId =  '" + shiftid + "'" + " and  RM.Location = '" + locations + "'";
                     }
                     if (entityid != null && shiftid == null && locations != null)
                     {
@@ -5939,7 +5945,7 @@ convert(time,ARD.ptime) > convert(time,SD.Intime)
                     }
                     if (entityid != null && shiftid != null && locations != null)
                     {
-                        strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
+                        strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'" + "  and TI.ShiftId =  '" + shiftid + "'";
                     }
 
                     if (tbs != null && longabsent == null)
@@ -5953,7 +5959,7 @@ convert(time,ARD.ptime) > convert(time,SD.Intime)
                     }
                     if (tbs == null && longabsent == null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null ) a ";
+                        strSQL = strSQL + "  ) a ";
                     }
 
                     #endregion Sql
@@ -6026,18 +6032,21 @@ convert(time,ARD.ptime) > convert(time,SD.Intime)
                     strSQL1 = @"DECLARE @WorkDate DATE = '" + date + @"' , @hrgroupid varchar(100) = '" + groupid + @"';
 
 WITH TodayIN AS
-(
-    SELECT 
-        APD.BudgetId,
-        COUNT(AR.LogDownLoadNum) AS ToDayIN
-    FROM AttdnRawData AR
-    INNER JOIN AttdnProcessData APD 
-        ON APD.EmpSystemID = AR.LogDownLoadNum
-        AND APD.WorkDate = AR.PDate
-    WHERE AR.PDate = @WorkDate
-      AND AR.PType = 'IN'
-    GROUP BY APD.BudgetId
-)
+	(
+		SELECT 
+			APD.BudgetId,
+			Case when APD.ManualShiftID is not null then APD.ManualShiftID 
+			When APD.Rostershiftid is not null then APD.Rostershiftid else APD.BudgetedShiftID end ShiftId
+			,COUNT(AR.LogDownLoadNum) AS ToDayIN
+		FROM AttdnRawData AR
+		INNER JOIN AttdnProcessData APD 
+			ON APD.EmpSystemID = AR.LogDownLoadNum
+			AND APD.WorkDate = AR.PDate
+		WHERE AR.PDate = @WorkDate
+		  AND AR.PType = 'IN'
+		GROUP BY APD.BudgetId,  Case when APD.ManualShiftID is not null then APD.ManualShiftID 
+			When APD.Rostershiftid is not null then APD.Rostershiftid else APD.BudgetedShiftID end
+	)
 
 select * from (  select Distinct '' as SrNo ,  SC.StandardName Section,SBC.StandardName SubSection, 
 DSG.StandardName Designation, POS.Activity, 
@@ -6104,7 +6113,7 @@ and emp.employeecode NOT IN (2222229, 2222230)   and MBGT.Active = 1  and Hg.Id 
                     }
                     if (entityid == null && shiftid != null && locations == null)
                     {
-                        strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'";
+                        strSQL = strSQL + "  and TI.ShiftId =  '" + shiftid + "'";
                     }
                     if (entityid == null && shiftid == null && locations != null)
                     {
@@ -6112,11 +6121,11 @@ and emp.employeecode NOT IN (2222229, 2222230)   and MBGT.Active = 1  and Hg.Id 
                     }
                     if (entityid != null && shiftid != null && locations == null)
                     {
-                        strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
+                        strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'" + "  and TI.ShiftId =  '" + shiftid + "'";
                     }
                     if (entityid == null && shiftid != null && locations != null)
                     {
-                        strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'" + " and  RM.Location = '" + locations + "'";
+                        strSQL = strSQL + "  and TI.ShiftId =  '" + shiftid + "'" + " and  RM.Location = '" + locations + "'";
                     }
                     if (entityid != null && shiftid == null && locations != null)
                     {
@@ -6124,7 +6133,7 @@ and emp.employeecode NOT IN (2222229, 2222230)   and MBGT.Active = 1  and Hg.Id 
                     }
                     if (entityid != null && shiftid != null && locations != null)
                     {
-                        strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
+                        strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'" + "  and TI.ShiftId =  '" + shiftid + "'";
                     }
 
                     if (tbs != null && longabsent == null)
@@ -6138,7 +6147,7 @@ and emp.employeecode NOT IN (2222229, 2222230)   and MBGT.Active = 1  and Hg.Id 
                     }
                     if (tbs == null && longabsent == null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null ) a ";
+                        strSQL = strSQL + "  ) a ";
                     }
 
                     #endregion Sql
@@ -13763,28 +13772,31 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
 
 
         #region Ultimo Data
-        public string PostUltimoData(IEnumerable<UltimoDataGetSet> DataToSave)
+        public string PostUltimoData(IEnumerable<UltimoDataGetSetUnitNew> DataToSave)
         {
             try
             {
+                if (DataToSave == null || !DataToSave.Any())
+                    return "No Data";
+
                 DataSet dsMaster;
-                string TableName = "dbo.Ultimodata";
-                string PackedBy = "''";
-                string RefNo = "''";
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                if (DataToSave.Count() == 0)
-                    return "";
-                List<UltimoDataGetSet> items = DataToSave.ToList();
+                string TableName = "dbo.UltimodataNew";
 
-                
+                ConnectionManager.DAL.ConManager con =
+                    new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from dbo.Ultimodata where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+                // ?? Load empty structure instead of filtering by first Id
+                con.OpenDataSetThroughAdapter(
+                    "SELECT TOP 0 * FROM dbo.UltimodataNew",
+                    out dsMaster,
+                    false,
+                    "1");
 
 
-                foreach (UltimoDataGetSet item in DataToSave)
+                foreach (UltimoDataGetSetUnitNew item in DataToSave)
                 {
                     dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
-                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    if (DataToSave.Count() > 0)
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
@@ -13792,7 +13804,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out string _Id);
 
-                        dr["Id"] =  _Id;
+                        dr["Id"] = item.Id;
                         dr["macidfk"] = item.macidfk;
                         dr["CountID"] = item.CountID;
                         dr["macshed"] = item.macshed;
@@ -13882,7 +13894,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                         dr["Orderno"] = item.Orderno;
                         dr["LotId"] = item.LotId;
                         dr["EntityId"] = item.EntityId;
-                        
+
 
 
                         dr["AddedBy"] = "Server";
@@ -13897,9 +13909,9 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                 }
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                //string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-                return MasterId;
+                return "Success";
 
             }
             catch (Exception ex)
@@ -13913,24 +13925,27 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
         {
             try
             {
+                if (DataToSave == null || !DataToSave.Any())
+                    return "No Data";
+
                 DataSet dsMaster;
                 string TableName = "dbo.Ultimodata";
-                string PackedBy = "''";
-                string RefNo = "''";
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                if (DataToSave.Count() == 0)
-                    return "";
-                List<UltimoDataGetSet> items = DataToSave.ToList();
 
+                ConnectionManager.DAL.ConManager con =
+                    new ConnectionManager.DAL.ConManager("1");
 
-
-                con.OpenDataSetThroughAdapter("select * from dbo.Ultimodata where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+                // ?? Load empty structure instead of filtering by first Id
+                con.OpenDataSetThroughAdapter(
+                    "SELECT TOP 0 * FROM dbo.Ultimodata",
+                    out dsMaster,
+                    false,
+                    "1");
 
 
                 foreach (UltimoDataGetSet item in DataToSave)
                 {
                     dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
-                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    if (DataToSave.Count() > 0)
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
@@ -13938,7 +13953,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out string _Id);
 
-                        dr["Id"] = _Id;
+                        dr["Id"] = item.Id;
                         dr["macidfk"] = item.macidfk;
                         dr["CountID"] = item.CountID;
                         dr["macshed"] = item.macshed;
@@ -14043,9 +14058,9 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                 }
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                //string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-                return MasterId;
+                return "Success";
 
             }
             catch (Exception ex)
@@ -15826,6 +15841,102 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
     }
 
     public class UltimoDataGetSet
+    {
+        public string Id { get; set; }
+        public string macidfk { get; set; }
+        public string CountID { get; set; }
+        public string macshed { get; set; }
+        public string machineNo { get; set; }
+        public string ActCount { get; set; }
+        public string Nominalcount { get; set; }
+        public string countArticle { get; set; }
+        public string Operator { get; set; }
+        public string MachineGroupid { get; set; }
+        public string side { get; set; }
+        public string Supervisor { get; set; }
+        public string ShiftDate { get; set; }
+        public string Shiftid { get; set; }
+        public string ShiftNo { get; set; }
+        public string ebnormalacross { get; set; }
+        public string ebidleacross { get; set; }
+        public string ebstartupacross { get; set; }
+        public string stopacross { get; set; }
+        public string doffacross { get; set; }
+        public string kg { get; set; }
+        public string grsh { get; set; }
+        public string RunMins { get; set; }
+        public string gpss { get; set; }
+        public string MetPerMin { get; set; }
+        public string tpi { get; set; }
+        public string spndlrpm { get; set; }
+        public string FrontRollerRPM { get; set; }
+        public string monitoredMins { get; set; }
+        public string aef { get; set; }
+        public string pef { get; set; }
+        public string util { get; set; }
+        public string stoptime { get; set; }
+        public string dofftime { get; set; }
+        public string stopcount { get; set; }
+        public string doffcount { get; set; }
+        public string longdoff { get; set; }
+        public string minperstop { get; set; }
+        public string minperdoff { get; set; }
+        public string doffper { get; set; }
+        public string stopper { get; set; }
+        public string pnewaste { get; set; }
+        public string ebnormal { get; set; }
+        public string ebstartup { get; set; }
+        public string ebidle { get; set; }
+        public string ebtotal { get; set; }
+        public string ebs { get; set; }
+        public string normalaef { get; set; }
+        public string idleaef { get; set; }
+        public string startupaef { get; set; }
+        public string totalaef { get; set; }
+        public string ebr { get; set; }
+        public string normaltime { get; set; }
+        public string idletime { get; set; }
+        public string startuptime { get; set; }
+        public string emnormal { get; set; }
+        public string emstartup { get; set; }
+        public string emidle { get; set; }
+        public string emtotal { get; set; }
+        public string ebnormalClosed { get; set; }
+        public string ebidleClosed { get; set; }
+        public string ebstartupClosed { get; set; }
+        public string ebnormalClosedduration { get; set; }
+        public string ebidleClosedduration { get; set; }
+        public string ebstartupClosedduration { get; set; }
+        public string wasteNumerator { get; set; }
+        public string wasteDenominator { get; set; }
+        public string slipsPercent { get; set; }
+        public string slips { get; set; }
+        public string rogues { get; set; }
+        public string RoguePercent { get; set; }
+        public string spndldowtime { get; set; }
+        public string spndldowntimeper { get; set; }
+        public string ukg { get; set; }
+        public string otherstoptime { get; set; }
+        public string pwrstoptime { get; set; }
+        public string apppower { get; set; }
+        public string kwh { get; set; }
+        public string Seb100sp { get; set; }
+        public string Volt_ry { get; set; }
+        public string Volt_yb { get; set; }
+        public string Volt_br { get; set; }
+        public string powerfactor { get; set; }
+        public string Activepower_kw { get; set; }
+        public string spindles { get; set; }
+        public string Articlename { get; set; }
+        public string Hank { get; set; }
+        public string Orderno { get; set; }
+        public string LotId { get; set; }
+        public string EntityId { get; set; }
+
+
+    }
+
+    public class UltimoDataGetSetUnitNew
     {
         public string Id { get; set; }
         public string macidfk { get; set; }

@@ -641,10 +641,6 @@ LEFT JOIN hkp.WeeklyStatus WS
                     #endregion
 
 
-
-
-
-
                     #region Compensatory Logic
                     DataSet OriginalDateComp;
                     OriginalDateData(Date, out OriginalDateComp, PlantValue);
@@ -1375,7 +1371,7 @@ LEFT JOIN hkp.WeeklyStatus WS
 									SELECT isnull(ei.SystemId,'') 
                                     FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + plant + @"'
                                    AND  ei.DOJ <= '" + Date + @"' 
-                                   AND (ei.DOS >= '" + Date + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))  ";
+                                   AND (ei.DOS >= '" + Date + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
