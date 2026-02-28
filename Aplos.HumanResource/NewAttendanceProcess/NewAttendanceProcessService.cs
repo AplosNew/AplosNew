@@ -526,17 +526,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                     string DayType = null;
                     string newformatDate = Convert.ToDateTime(Date).ToString("yyyyMMdd");
 
-
-
-
                     UpdateRosterWeekOffData(Date, PlantValue);
 
-                    if (IndividualWeekOff.Tables[0].Rows.Count > 0)
+                     if (IndividualWeekOff.Tables[0].Rows.Count > 0)
                     {
                         var sqlxNew = @"select * from AttdnProcessData 
                                    WHERE WorkDate='" + Date + @"'
                                     AND isnull(EmpSystemID,'') IN (SELECT isnull(ei.SystemId,'') 
-                                    FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + PlantValue + @"'   and EI.BudgetCode not in(Select SystemId from 
+ 
+                                    FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + PlantValue + @"'   and EI.BudgetCode not in(Select BudgetId from 
 				 dbo.RosterBudget RB 
 -- 1️⃣ Get applicable EffectiveDate
 OUTER APPLY (
@@ -559,6 +557,7 @@ LEFT JOIN hkp.WeeklyStatus WS
 				)) --and ei.SystemId='25251110' ";
 
                         objConR.OpenDataSetThroughAdapter(sqlxNew, out dsRefApd, false, false, "", "1");
+
                         DataView dvi = new DataView(IndividualWeekOff.Tables[0]);
                         dvi.RowFilter = "SystemId = '" + EmpId + "'";
                         if (dvi.Count > 0)
@@ -1227,6 +1226,7 @@ and	E.DOJ <= '" + Date + @"' AND (E.DOS >= '" + Date + @"' OR ISNULL(E.DOS,'') =
                 EmployeeInformation e
                 left join EmployeeWeeklyOff ex on e.SystemId=ex.EmpSystemId
                 where e.SystemId in( select empsystemid from EmployeeWeeklyOff)
+<<<<<<< HEAD
 and E.BudgetCode not in(Select SystemId from 
 				 dbo.RosterBudget RB 
 -- 1️⃣ Get applicable EffectiveDate
@@ -1249,6 +1249,9 @@ LEFT JOIN hkp.WeeklyStatus WS
        ON WS.Id = RPC.WeeklyStatusId
 				)
                 and e.PlantId='" + Plant + @"' --and e.SystemId='2525844'
+=======
+                and e.PlantId='" + Plant + @"'
+>>>>>>> c0e8710fcb614da44e7093160752fef42deacac8
                 group by e.SystemId
                 ) as dd	";
 
@@ -1310,6 +1313,7 @@ LEFT JOIN dbo.RosterPatternChild RPC
       AND RPC.Days31 = D.DayInWeek
 LEFT JOIN hkp.WeeklyStatus WS
        ON WS.Id = RPC.WeeklyStatusId
+<<<<<<< HEAD
 
 
 LEFT JOIN (Select dd.*,
@@ -1368,6 +1372,9 @@ LEFT JOIN hkp.WeeklyStatus WS
                 group by e.SystemId
                 ) as dd) IWO ON IWO.SystemId=apd.EmpSystemId
 				where apd.workdate='" + Date + @"' and apd.PlantId='" + plant + @"' and isnull(EmpSystemID,'') IN ( -- and apd.EmpSystemID='2525844'
+=======
+				where apd.workdate='" + Date + "' and apd.PlantId='" + plant + @"' and isnull(EmpSystemID,'') IN ( -- and apd.EmpSystemID='2525844'
+>>>>>>> c0e8710fcb614da44e7093160752fef42deacac8
 									SELECT isnull(ei.SystemId,'') 
                                     FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + plant + @"'
                                    AND  ei.DOJ <= '" + Date + @"' 
@@ -2662,8 +2669,8 @@ LEFT JOIN hkp.WeeklyStatus WS
             {
 
                 var sql = @"SELECT CompanyGroupId, Id as PlantValue FROM ORG.Plant WHERE CompanyGroupId = 
+ 
                '" + CompanyGpId + "' AND  Active = 1 AND Archive = 0  ";
-
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
