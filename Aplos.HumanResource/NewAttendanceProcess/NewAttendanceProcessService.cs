@@ -530,31 +530,13 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                      if (IndividualWeekOff.Tables[0].Rows.Count > 0)
                     {
+                        var empIds = IndividualWeekOff.Tables[0].AsEnumerable().Select(r => "'" + r["SystemId"].ToString() + "'");
+
+                        string tempEmpSysId = string.Join(",", empIds);
+
                         var sqlxNew = @"select * from AttdnProcessData 
                                    WHERE WorkDate='" + Date + @"'
-                                    AND isnull(EmpSystemID,'') IN (SELECT isnull(ei.SystemId,'') 
- 
-                                    FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + PlantValue + @"'   and EI.BudgetCode not in(Select BudgetId from 
-				 dbo.RosterBudget RB 
--- 1️⃣ Get applicable EffectiveDate
-OUTER APPLY (
-    SELECT TOP (1) *
-    FROM dbo.RosterEffectiveDate
-    WHERE RPHeaderId = RB.RosterId
-      AND EffectiveDate <= '" + Date + @"'
-    ORDER BY EffectiveDate DESC
-) RED
--- 2️⃣ Calculate DayInWeek ONCE
-CROSS APPLY (
-    SELECT ((DATEDIFF(DAY, RED.EffectiveDate, '" + Date + @"')) % (select count(Days31) from dbo.RosterPatternChild where Days31<>'' AND  RPHeaderId=RB.RosterId )) + 1 AS DayInWeek
-) D
--- 3️⃣ Pick correct RosterPatternChild row
-LEFT JOIN dbo.RosterPatternChild RPC
-       ON RPC.RPHeaderId = RB.RosterId
-      AND RPC.Days31 = D.DayInWeek
-LEFT JOIN hkp.WeeklyStatus WS
-       ON WS.Id = RPC.WeeklyStatusId
-				)) --and ei.SystemId='25251110' ";
+                                    AND isnull(EmpSystemID,'') IN ("+ tempEmpSysId + @") --and ei.SystemId='25251110' ";
 
                         objConR.OpenDataSetThroughAdapter(sqlxNew, out dsRefApd, false, false, "", "1");
 
