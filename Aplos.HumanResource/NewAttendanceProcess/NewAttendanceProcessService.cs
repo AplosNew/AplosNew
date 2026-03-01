@@ -212,7 +212,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             }
                             else
                             {
-                                if (EmpId.ToString() == "2525844")
+                                if (EmpId.ToString() == "252510146")
                                 {
 
                                 }
@@ -528,19 +528,10 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     if (CompanyWeekOff.Tables[0].Rows.Count > 0)
                     {
-                        for (int c = 0; c < CompanyWeekOff.Tables[0].Rows.Count; c++)
-                        {
-                            // Company WeekOff Employees Weekly Status Updation to W 
-                            string PlantId = CompanyWeekOff.Tables[0].Rows[c][@"PlantId"].ToString();
-                            string WkDate = CompanyWeekOff.Tables[0].Rows[c][@"WkDate"].ToString();
-
                             var sql = @"Update AttdnProcessData Set WeeklyStatus='W'  
-                                           WHERE WorkDate='" + WkDate + "' AND AND isnull(EmpSystemID,'') IN" +
-                            " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                            "ei WHERE  ei.PlantId ='" + PlantId + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
-                            "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
-                            "from EmployeeWeeklyOff where EffectiveDate<='" + WkDate + "'))AND WeeklyStatus IS NULL";
-
+                                           WHERE WorkDate='" + Date + @"' AND WeeklyStatus IS NULL  AND isnull(EmpSystemID,'') IN  (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS 
+                            ei WHERE  ei.PlantId ='" + PlantValue + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901') 
+                            and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'')  from EmployeeWeeklyOff where EffectiveDate<='" + Date + @"')) ";
 
                             ConnectionManager.DAL.ConManager objCone = null;
                             objCone = new ConnectionManager.DAL.ConManager("1");
@@ -550,18 +541,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                             objCone.ExecuteNonQueryWrapper(sql, true, "1");
                             objCone.CommitTransaction();
 
-                        }
                     }
                     else
                     {
-                        // Company WeekOff Employees Weekly Status Updation to NW 
-
                         var sql = @"Update AttdnProcessData Set WeeklyStatus='NW'  
-                                          WHERE WorkDate='" + Date + @"' AND isnull(EmpSystemID,'') IN" +
+                                          WHERE WorkDate='" + Date + @"' AND WeeklyStatus IS NULL AND isnull(EmpSystemID,'') IN" +
                            " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
                            "ei WHERE  ei.PlantId='" + PlantValue + "'  and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
                            "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
-                           "from EmployeeWeeklyOff where EffectiveDate<='" + Date + "')) AND WeeklyStatus IS NULL";
+                           "from EmployeeWeeklyOff where EffectiveDate<='" + Date + "')) ";
 
                         ConnectionManager.DAL.ConManager objCone = null;
                         objCone = new ConnectionManager.DAL.ConManager("1");
