@@ -563,7 +563,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                            "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
                            "from EmployeeWeeklyOff where EffectiveDate<='" + Date + "')) AND WeeklyStatus IS NULL";
 
-
                         ConnectionManager.DAL.ConManager objCone = null;
                         objCone = new ConnectionManager.DAL.ConManager("1");
                         objCone.OpenConnection("1");
