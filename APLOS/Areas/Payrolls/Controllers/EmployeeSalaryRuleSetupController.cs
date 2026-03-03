@@ -1180,13 +1180,30 @@ ISNULL(
             AND ManpowerBudgetId = E.BudgetCode
             AND SalaryHeadId = OL.SalaryHeadID
         )
+       WHEN OL.UserName='MinmumWage' THEN 
+		(
+		SELECT TOP 1 
+            LSSV.SalaryHeadValue 
+    FROM MST.LegalSalaryGradeDesignation LSGD
+    INNER JOIN SCS.LegalSalaryGrade LSG 
+        ON LSGD.LegalSalaryGradeId = LSG.Id
+    INNER JOIN MST.LegalSalaryStructure LSS 
+        ON LSG.Id = LSS.LegalSalaryGradeId
+    INNER JOIN MST.LegalSalaryStructureValue LSSV 
+        ON LSS.Id = LSSV.LegalSalaryStructureId
+		LEFT JOIN MST.ManpowerBudget MB ON MB.Id=E.BudgetCode
+    WHERE LSGD.LegalDesignationId =E.LegalDesignationId
+        AND LSGD.PlantId = SIDM.PlantID
+        AND LSS.EmployeeLocationId = MB.EmployeeLocationId
+        AND LSS.EffectiveDate <= '" + fromDate + @"'
+        ORDER BY LSS.EffectiveDate DESC
+		)
 
         -- keep this LAST
         WHEN OL.SalaryHeadID <> '' 
         THEN CAST(SD.DefineAmount AS varchar(100))
 
         ELSE 0
-
     END
 ,0)
 			 ,CAST(ISNULL(APD.AbsentValue,0) AS integer ) AbsentValue
@@ -1751,7 +1768,6 @@ ORDER BY E.SystemId,OL.Sequence";
                                     DataRow drmo = dvSLD[0].Row;
                                     NewEditLogRow(drmo, logData);
                                 }
-
                                 logData = null;
                             }
 
@@ -1791,12 +1807,8 @@ ORDER BY E.SystemId,OL.Sequence";
                                 UpdateSlrProcAttdenDataRow("EDIT", para, empId, dvEmpWise[0]["PlantID"].ToString(), OTHDay, NorOTHDay, ExtOTHDay, dicMMDSSI_Sub, ref drSPAttdnProc);
                                 drSPAttdnProc.EndEdit();
                             }
-
                             #endregion Salary Proc Attendence
-
                         }
-
-
                     }
                     SendNotification("Status: Process Completed");
                     #endregion data update 
