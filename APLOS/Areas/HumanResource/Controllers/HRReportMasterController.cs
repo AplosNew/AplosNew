@@ -86,7 +86,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-
+        [Authorize]
         public ActionResult GetList()
         {
             try
@@ -400,6 +400,7 @@ AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudget
             dr.EndEdit();
         }
 
+        [Authorize]
         public double GetSequence()
         {
             DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM HKP.HRReportMaster");
@@ -627,6 +628,7 @@ AND mbd.Id =(Select top(1) Id from MST.ManpowerBudgetDetail Where ManpowerBudget
 
         #region 2nd Tab
 
+        [Authorize]
         public ActionResult GetListB()
         {
             try
