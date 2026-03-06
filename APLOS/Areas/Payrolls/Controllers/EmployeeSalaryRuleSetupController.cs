@@ -1155,18 +1155,58 @@ where s.SalaryID='" + SalaryID + "'";
                 string sql = @"SELECT E.SystemId EmpSystemId,SS.Id,OL.Id EmployeeSalaryRuleItemId,OL.UserName,OL.Formula,OL.FormulaId,'' SystemID
 ,DATEFROMPARTS(YEAR('" + toDate + "'), MONTH('" + toDate + "'), 1) AS MonthStartDate, EOMONTH('" + toDate + "') AS MonthEndDate,DAY(EOMONTH('" + toDate + @"')) MonthDays
 ,SH.HeadCategory,OL.SalaryHeadID,SH.HeadType,SIDM.SystemID SalaryID,SIDM.GroupID,SIDM.PlantID,ISNULL(SS.PFLimit,0) PFLimit,ISNULL(SS.ESICLimit,0) ESICLimit,ISNULL(SS.AgeLimit,0) AgeLimit 
-,Value= ISNULL(CASE WHEN OL.UserName='WeekOff' THEN APD.WeekOffValue
-			 WHEN OL.UserName='Leave' THEN APD.LvValue
-			 WHEN OL.UserName='HoliDay' THEN APD.HoliDayValue
-			 WHEN OL.UserName='PayDay' THEN APD.PayDayValue
-			 WHEN OL.UserName='NetDay' THEN APD.PayDayValue
-			 WHEN OL.UserName='NightShiftDays' THEN NAPD.NightShiftDays
-			 WHEN OL.UserName='ShortDuration' THEN APD.CountedShortLeave
-			 WHEN OL.UserName='LateIN' THEN APD.LateIN
-			 WHEN OL.UserName='EarlyOut' THEN APD.EarlyOut
-			 WHEN OL.UserName='HalfDuration' THEN APD.HalfDuration
-			 WHEN OL.SalaryHeadID<>'' THEN CAST(cast(SD.DefineAmount AS decimal(18,0)) AS varchar(100))
-             ELSE CAST(0 AS varchar(100)) END,0)
+,Value = 
+ISNULL(
+    CASE 
+
+        WHEN OL.UserName='WeekOff' THEN APD.WeekOffValue
+        WHEN OL.UserName='Leave' THEN APD.LvValue
+        WHEN OL.UserName='HoliDay' THEN APD.HoliDayValue
+        WHEN OL.UserName='PayDay' THEN APD.PayDayValue
+        WHEN OL.UserName='NetDay' THEN APD.PayDayValue
+        WHEN OL.UserName='NightShiftDays' THEN NAPD.NightShiftDays
+        WHEN OL.UserName='ShortDuration' THEN APD.CountedShortLeave
+        WHEN OL.UserName='LateIN' THEN APD.LateIN
+        WHEN OL.UserName='EarlyOut' THEN APD.EarlyOut
+        WHEN OL.UserName='HalfDuration' THEN APD.HalfDuration
+
+        -- ✅ AttendanceBonus MUST be before SalaryHead check
+        WHEN OL.UserName = 'AttendanceBonus' 
+        THEN 
+        (
+            SELECT TOP 1 Amount 
+            FROM dbo.SalaryRuleSpecialAllowance 
+            WHERE Days = ISNULL(APD.AbsentValue,0)
+            AND ManpowerBudgetId = E.BudgetCode
+            AND SalaryHeadId = OL.SalaryHeadID
+        )
+       WHEN OL.UserName='MinmumWage' THEN 
+		(
+		SELECT TOP 1 
+            LSSV.SalaryHeadValue 
+    FROM MST.LegalSalaryGradeDesignation LSGD
+    INNER JOIN SCS.LegalSalaryGrade LSG 
+        ON LSGD.LegalSalaryGradeId = LSG.Id
+    INNER JOIN MST.LegalSalaryStructure LSS 
+        ON LSG.Id = LSS.LegalSalaryGradeId
+    INNER JOIN MST.LegalSalaryStructureValue LSSV 
+        ON LSS.Id = LSSV.LegalSalaryStructureId
+		LEFT JOIN MST.ManpowerBudget MB ON MB.Id=E.BudgetCode
+    WHERE LSGD.LegalDesignationId =E.LegalDesignationId
+        AND LSGD.PlantId = SIDM.PlantID
+        AND LSS.EmployeeLocationId = MB.EmployeeLocationId
+        AND LSS.EffectiveDate <= '" + fromDate + @"'
+        ORDER BY LSS.EffectiveDate DESC
+		)
+
+        -- keep this LAST
+        WHEN OL.SalaryHeadID <> '' 
+        THEN CAST(SD.DefineAmount AS varchar(100))
+
+        ELSE 0
+    END
+,0)
+			 ,CAST(ISNULL(APD.AbsentValue,0) AS integer ) AbsentValue
 
 ,DATEDIFF(YEAR, E.DOB, GETDATE()) - CASE  WHEN DATEADD(YEAR, DATEDIFF(YEAR, E.DOB, GETDATE()), E.DOB) > GETDATE()  THEN 1  ELSE 0  END AS Age
 ,OL.EntryState,CO.BaseCurrencyId ,E.GivenDesignationId DesignationId,E.LegalDesignationId
@@ -1180,17 +1220,18 @@ LEFT JOIN HKP.EmployeeSalaryRuleSetup SS ON SS.Id=OL.EmployeeSalaryRuleSetupId
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId IN(" + empId + @")
 LEFT JOIN  dbo.EmployeeBankInfo EB ON EB.EmpSystemID=E.SystemId AND RowID in ( select top(1) RowID from dbo.EmployeeBankInfo where EB.EmpSystemID=EmpSystemID AND IsApproved=1 order by DateAdded desc)
 LEFT JOIN MST.DesignationMaster DM ON DM.Id=E.GivenDesignationId
-LEFT JOIN (Select sum(PresentValue)PresentValue,SUM(LateValue)LateValue,SUM(LvValue)LvValue,SUM(WeekOffValue)WeekOffValue,SUM(PayDayValue)PayDayValue,SUM(HoliDayValue)HoliDayValue,ISNULL(SUM(CountedShortLeave),0)CountedShortLeave
+LEFT JOIN (Select sum(PresentValue)PresentValue,SUM(AbsentValue)AbsentValue,SUM(LateValue)LateValue,SUM(LvValue)LvValue,SUM(WeekOffValue)WeekOffValue,SUM(PayDayValue)PayDayValue,SUM(HoliDayValue)HoliDayValue,ISNULL(SUM(CountedShortLeave),0)CountedShortLeave
 ,Count(APD.LateIn)LateIn,Count(APD.EarlyOut)EarlyOut, HalfDuration= CASE WHEN LeaveDuration=0.5 THEN CounT(LeaveDuration) ELSE 0 END,APD.EmpSystemID from dbo.AttdnProcessData APD where APD.EmpSystemID IN(" + empId + @") AND WorkDate between '" + fromDate + "' AND '" + toDate + @"'  Group by APD.EmpSystemID,LeaveDuration)APD ON APD.EmpSystemID=E.SystemId
 LEFT JOIN(Select COUNT(DayStatus)NightShiftDays,APD.EmpSystemID from dbo.AttdnProcessData APD 
 LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=APD.ShiftSystemID
 where APD.EmpSystemID IN(" + empId + @") AND SD.ShiftType='Night Shift' AND DayStatus='P' AND APD.WorkDate between '" + fromDate + "' AND '" + toDate + @"'
 Group By APD.EmpSystemID) NAPD ON NAPD.EmpSystemID=e.SystemId
+LEFT JOIN dbo.SalaryRuleSpecialAllowance SRA ON ISNULL(SRA.Days,0) = ISNULL(APD.AbsentValue,0) AND SRA.ManpowerBudgetId = E.BudgetCode AND SRA.SalaryHeadId = OL.SalaryHeadID
 
  LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = E.SystemId  AND SIDM.EmployeeSalaryRuleSetupId=OL.EmployeeSalaryRuleSetupId
  LEFT JOIN SalaryInfoDefine SD ON SD.SalaryID=SIDM.SystemID AND OL.SalaryHeadID = SD.SalaryHeadID 
 LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId=E.LegalDesignationId and SIDM.PlantID=LSGD.PlantId
- LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SD.SalaryHeadID
+ LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=OL.SalaryHeadID
  LEFT JOIN ORG.Plant PL ON PL.Id=SIDM.PlantID
  LEFT JOIN ORG.Company CO ON CO.Id=PL.CompanyId
 Where SIDM.isapproved=1 and OL.EmployeeSalaryRuleSetupId IN
@@ -1545,6 +1586,10 @@ ORDER BY E.SystemId,OL.Sequence";
                                     dtValueRow["EmployeeSalaryRuleItemId"] = dvEmpWise[i]["EmployeeSalaryRuleItemId"].ToString().Trim();
                                     dtValueRow["SystemID"] = dvEmpWise[i]["SystemID"].ToString().Trim();
                                     dtValueRow["SalaryHeadID"] = dvEmpWise[i]["SalaryHeadID"].ToString().Trim();
+                                    if (dtValueRow["SalaryHeadID"].ToString() == "SHD202073")
+                                    {
+
+                                    }
                                     dtValueRow["EntryAmount"] = dvEmpWise[i]["Value"].ToString().Trim();
                                     dtValueRow["HeadType"] = dvEmpWise[i]["HeadType"].ToString().Trim();
                                     dtValueRow["Value"] = Math.Round((Convert.ToDecimal(dvEmpWise[i]["Value"].ToString()) / tempSalaryCalculationDays) * tempPayDay, 0);
@@ -1560,6 +1605,10 @@ ORDER BY E.SystemId,OL.Sequence";
                                         spc["SystemID"] = _childPK_seed_fromDB + _child_emp_seed;
                                         spc["SlrProcMstSystemID"] = _Id;
                                         spc["DefineAmount"] = dtValueRow["Value"];
+                                        if (dtValueRow["SalaryHeadID"].ToString() == "SHD202073")
+                                        {
+
+                                        }
                                         if (!string.IsNullOrEmpty(dtValueRow["HeadType"].ToString()))
                                             spc["DisbusmentAmount"] = dtValueRow["HeadType"].ToString() == "D" ? Convert.ToDecimal(dtValueRow["Value"]) * (-1) : dtValueRow["Value"];
                                         else
@@ -1582,6 +1631,10 @@ ORDER BY E.SystemId,OL.Sequence";
                                 else if (!string.IsNullOrEmpty(dvEmpWise[i]["FormulaId"].ToString()) && !string.IsNullOrEmpty(dvEmpWise[i]["SalaryHeadID"].ToString()))
                                 {
                                     dtValueRow = dtValue.NewRow();
+                                    if (dvEmpWise[i]["SalaryHeadID"].ToString().Trim() == "SHD202065")
+                                    {
+
+                                    }
                                     ReLoadFormulaWithValue(dvEmpWise[i]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
                                     //sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("###0");
                                     sFormulaResult = clsSalaryStructureAplos.EvaluateUpto2Decimal(_formulaValue);
@@ -1589,15 +1642,19 @@ ORDER BY E.SystemId,OL.Sequence";
                                     dtValueRow["EmployeeSalaryRuleItemId"] = dvEmpWise[i]["EmployeeSalaryRuleItemId"].ToString().Trim();
                                     dtValueRow["SalaryHeadID"] = dvEmpWise[i]["SalaryHeadID"].ToString().Trim();
                                     dtValueRow["HeadType"] = dvEmpWise[i]["HeadType"].ToString().Trim();
+                                    
 
-
-                                    if (dvEmpWise[i]["HeadCategory"].ToString().Trim() == "Basic")
+                                    if (dvEmpWise[i]["HeadCategory"].ToString().Trim() == "Basic" )
                                     {
                                         tempBasicValue = Math.Round(sFormulaResult, 0);
+                                        dtValueRow["EntryAmount"] = dvEmpWise[i]["Value"].ToString().Trim();
+                                        dtValueRow["Value"] = Math.Round(sFormulaResult, 0);
                                     }
                                     else if (dvEmpWise[i]["HeadCategory"].ToString().Trim() == "GROSS")
                                     {
                                         tempGrossValue = Math.Round(sFormulaResult, 0);
+                                        dtValueRow["EntryAmount"] = dvEmpWise[i]["Value"].ToString().Trim();
+                                        dtValueRow["Value"] = Math.Round(sFormulaResult, 0);
                                     }
 
                                     //if (dvEmpWise[i]["HeadCategory"].ToString().Trim() == "ESIC Employee Contribution" || dvEmpWise[i]["HeadCategory"].ToString().Trim() == "ESIC Employer Contribution")
@@ -1647,7 +1704,10 @@ ORDER BY E.SystemId,OL.Sequence";
                                         spc["DefineAmount"] = dtValueRow["Value"];
                                         spc["AcltExcDisbSlrHDID"] = dtValueRow["SalaryHeadID"];
 
+                                        if(dtValueRow["SalaryHeadID"].ToString() == "SHD202065")
+                                        {
 
+                                        }
                                         if (!string.IsNullOrEmpty(dtValueRow["HeadType"].ToString()))
                                             spc["DisbusmentAmount"] = dtValueRow["HeadType"].ToString() == "D" ? Convert.ToDecimal(dtValueRow["Value"]) * (-1) : Convert.ToDecimal(dtValueRow["Value"]);
                                         else
@@ -1708,7 +1768,6 @@ ORDER BY E.SystemId,OL.Sequence";
                                     DataRow drmo = dvSLD[0].Row;
                                     NewEditLogRow(drmo, logData);
                                 }
-
                                 logData = null;
                             }
 
@@ -1748,12 +1807,8 @@ ORDER BY E.SystemId,OL.Sequence";
                                 UpdateSlrProcAttdenDataRow("EDIT", para, empId, dvEmpWise[0]["PlantID"].ToString(), OTHDay, NorOTHDay, ExtOTHDay, dicMMDSSI_Sub, ref drSPAttdnProc);
                                 drSPAttdnProc.EndEdit();
                             }
-
                             #endregion Salary Proc Attendence
-
                         }
-
-
                     }
                     SendNotification("Status: Process Completed");
                     #endregion data update 

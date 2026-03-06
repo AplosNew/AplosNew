@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using context = System.Web.HttpContext;
 
 namespace Library.HumanResource.NewAttendanceProcess
@@ -211,7 +212,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             }
                             else
                             {
-                                if (EmpId.ToString() == "2525844")
+                                if (EmpId.ToString() == "252510146")
                                 {
 
                                 }
@@ -515,218 +516,22 @@ namespace Library.HumanResource.NewAttendanceProcess
                     #endregion
 
                     #region WeekOff Flagging
-                    DataSet dsRosterWeekOff;
-                    DataSet IndividualWeekOff;
                     DataSet CompanyWeekOff;
-                    DataSet dsRefApd;
                     CompanyWeekOffData(Date, out CompanyWeekOff, PlantValue);
-                    IndividualWeekOffData(Date, out IndividualWeekOff, PlantValue);
-                    RosterWeekOffData(Date, out dsRosterWeekOff, PlantValue);
                     ConnectionManager.DAL.ConManager objConR = new ConnectionManager.DAL.ConManager("1");
                     string DayType = null;
                     string newformatDate = Convert.ToDateTime(Date).ToString("yyyyMMdd");
-                    var sqlxNew = @"select * from AttdnProcessData 
-                                   WHERE WorkDate='" + Date + @"'
-                                    AND isnull(EmpSystemID,'') IN (SELECT isnull(ei.SystemId,'') 
-                                    FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + PlantValue + @"' )";
 
-                    objConR.OpenDataSetThroughAdapter(sqlxNew, out dsRefApd, false, false, "", "1");
-                    if (dsRosterWeekOff.Tables[0].Rows.Count > 0)
+                    UpdateRosterWeekOffData(Date, PlantValue);
+                    
+                    UpdateIndividualData(Date, PlantValue);
+
+                    if (CompanyWeekOff.Tables[0].Rows.Count > 0)
                     {
-
-
-                        // Employee Week Off DataSet Generation
-
-
-                        for (int r = 0; r < dsRefApd.Tables[0].Rows.Count; r++)
-                        {
-                            EmpId = dsRefApd.Tables[0].Rows[r][@"EmpSystemId"].ToString();
-
-                            DataView dv = new DataView(dsRosterWeekOff.Tables[0]);
-                            dv.RowFilter = "EmpSystemId = '" + EmpId + "'";
-
-                            if (dv.Count > 0)
-                            {
-                                DayType = clsWebLib.RetValidLen(dv[0]["DayType"]).ToString();
-                            }
-                            else
-                            {
-                                DayType = string.Empty; // or default value
-                            }
-
-                            
-                            if (!string.IsNullOrEmpty(DayType))
-                            {
-                                dsRefApd.Tables[0].DefaultView.RowFilter = @"RowId='" + newformatDate + EmpId + "' ";
-                                if (dsRefApd.Tables[0].DefaultView.Count > 0)
-                                {
-                                    // Week Off Updation in APD Level
-                                    if (DayType.ToString() != "")
-                                    {
-                                        DataRow dr = dsRefApd.Tables[0].DefaultView[0].Row;
-                                        dr.BeginEdit();
-                                        dr["UpdatedBy"] = "Schedule";
-                                        dr["WeeklyStatus"] = DayType;
-                                        dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                        dr.EndEdit();
-                                    }
-                                }
-                            }
-                            else if (IndividualWeekOff.Tables[0].Rows.Count > 0)
-                            {
-                                DataView dvi = new DataView(IndividualWeekOff.Tables[0]);
-                                dvi.RowFilter = "SystemId = '" + EmpId + "'";
-                                if (dvi.Count > 0)
-                                {
-                                    DayType = clsWebLib.RetValidLen(dvi[0]["DayType"]).ToString();
-                                }
-                                else
-                                {
-                                    DayType = string.Empty; // or default value
-                                }
-
-                                dsRefApd.Tables[0].DefaultView.RowFilter = @"RowId='" + newformatDate + EmpId + "' ";
-                                if (dsRefApd.Tables[0].DefaultView.Count > 0)
-                                {
-                                    // Week Off Updation in APD Level
-                                    if (DayType.ToString() != "")
-                                    {
-                                        DataRow dr = dsRefApd.Tables[0].DefaultView[0].Row;
-                                        dr.BeginEdit();
-                                        dr["UpdatedBy"] = "Schedule";
-                                        dr["WeeklyStatus"] = DayType;
-                                        dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                        dr.EndEdit();
-                                    }
-                                }
-
-
-                            }
-                            else
-                            {
-                                if (CompanyWeekOff.Tables[0].Rows.Count > 0)
-                                {
-
-                                    for (int c = 0; c < CompanyWeekOff.Tables[0].Rows.Count; c++)
-                                    {
-                                        // Company WeekOff Employees Weekly Status Updation to W 
-                                        string PlantId = CompanyWeekOff.Tables[0].Rows[c][@"PlantId"].ToString();
-                                        string WkDate = CompanyWeekOff.Tables[0].Rows[c][@"WkDate"].ToString();
-
-                                        var sql = @"Update AttdnProcessData Set WeeklyStatus='W'  
-                                           WHERE WorkDate='" + WkDate + "'AND isnull(EmpSystemID,'') IN" +
-                                        " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                                        "ei WHERE  ei.PlantId ='" + PlantId + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
-                                        "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
-                                        "from EmployeeWeeklyOff where EffectiveDate<='" + WkDate + "'))";
-
-
-                                        ConnectionManager.DAL.ConManager objCone = null;
-                                        objCone = new ConnectionManager.DAL.ConManager("1");
-                                        objCone.OpenConnection("1");
-                                        objCone.BeginTransaction();
-
-                                        objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                        objCone.CommitTransaction();
-
-                                    }
-                                }
-                                else
-                                {
-                                    // Company WeekOff Employees Weekly Status Updation to NW 
-
-                                    var sql = @"Update AttdnProcessData Set WeeklyStatus='NW'  
-                                          WHERE WorkDate='" + Date + @"' AND isnull(EmpSystemID,'') IN" +
-                                       " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                                       "ei WHERE  ei.PlantId='" + PlantValue + "'  and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
-                                       "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
-                                       "from EmployeeWeeklyOff where EffectiveDate<='" + Date + "'))";
-
-
-                                    ConnectionManager.DAL.ConManager objCone = null;
-                                    objCone = new ConnectionManager.DAL.ConManager("1");
-                                    objCone.OpenConnection("1");
-                                    objCone.BeginTransaction();
-
-                                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                    objCone.CommitTransaction();
-                                }
-                            }
-
-
-                        }
-                        SaveDataSets(dsRefApd);
-                    }
-                    else if (IndividualWeekOff.Tables[0].Rows.Count > 0)
-                    {
-                        DataView dvi = new DataView(IndividualWeekOff.Tables[0]);
-                        dvi.RowFilter = "SystemId = '" + EmpId + "'";
-                        if (dvi.Count > 0)
-                        {
-                            DayType = clsWebLib.RetValidLen(dvi[0]["DayType"]).ToString();
-                        }
-                        else
-                        {
-                            DayType = string.Empty; // or default value
-                        }
-
-                        dsRefApd.Tables[0].DefaultView.RowFilter = @"RowId='" + newformatDate + EmpId + "' ";
-                        if (dsRefApd.Tables[0].DefaultView.Count > 0)
-                        {
-                            // Week Off Updation in APD Level
-                            if (DayType.ToString() != "")
-                            {
-                                DataRow dr = dsRefApd.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                dr["UpdatedBy"] = "Schedule";
-                                dr["WeeklyStatus"] = DayType;
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr.EndEdit();
-                            }
-                        }
-
-                        SaveDataSets(dsRefApd);
-                    }
-                    else
-                    {
-                        if (CompanyWeekOff.Tables[0].Rows.Count > 0)
-                        {
-
-                            for (int c = 0; c < CompanyWeekOff.Tables[0].Rows.Count; c++)
-                            {
-                                // Company WeekOff Employees Weekly Status Updation to W 
-                                string PlantId = CompanyWeekOff.Tables[0].Rows[c][@"PlantId"].ToString();
-                                string WkDate = CompanyWeekOff.Tables[0].Rows[c][@"WkDate"].ToString();
-
-                                var sql = @"Update AttdnProcessData Set WeeklyStatus='W'  
-                                           WHERE WorkDate='" + WkDate + "'AND isnull(EmpSystemID,'') IN" +
-                                " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                                "ei WHERE  ei.PlantId ='" + PlantId + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
-                                "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
-                                "from EmployeeWeeklyOff where EffectiveDate<='" + WkDate + "'))";
-
-
-                                ConnectionManager.DAL.ConManager objCone = null;
-                                objCone = new ConnectionManager.DAL.ConManager("1");
-                                objCone.OpenConnection("1");
-                                objCone.BeginTransaction();
-
-                                objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                objCone.CommitTransaction();
-
-                            }
-                        }
-                        else
-                        {
-                            // Company WeekOff Employees Weekly Status Updation to NW 
-
-                            var sql = @"Update AttdnProcessData Set WeeklyStatus='NW'  
-                                          WHERE WorkDate='" + Date + @"' AND isnull(EmpSystemID,'') IN" +
-                               " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                               "ei WHERE  ei.PlantId='" + PlantValue + "'  and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
-                               "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
-                               "from EmployeeWeeklyOff where EffectiveDate<='" + Date + "'))";
-
+                            var sql = @"Update AttdnProcessData Set WeeklyStatus='W'  
+                                           WHERE WorkDate='" + Date + @"' AND WeeklyStatus IS NULL  AND isnull(EmpSystemID,'') IN  (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS 
+                            ei WHERE  ei.PlantId ='" + PlantValue + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901') 
+                            and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'')  from EmployeeWeeklyOff where EffectiveDate<='" + Date + @"')) ";
 
                             ConnectionManager.DAL.ConManager objCone = null;
                             objCone = new ConnectionManager.DAL.ConManager("1");
@@ -735,9 +540,27 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             objCone.ExecuteNonQueryWrapper(sql, true, "1");
                             objCone.CommitTransaction();
-                        }
-                        SaveDataSets(dsRefApd);
+
                     }
+                    else
+                    {
+                        var sql = @"Update AttdnProcessData Set WeeklyStatus='NW'  
+                                          WHERE WorkDate='" + Date + @"' AND WeeklyStatus IS NULL AND isnull(EmpSystemID,'') IN" +
+                           " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
+                           "ei WHERE  ei.PlantId='" + PlantValue + "'  and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
+                           "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
+                           "from EmployeeWeeklyOff where EffectiveDate<='" + Date + "')) ";
+
+                        ConnectionManager.DAL.ConManager objCone = null;
+                        objCone = new ConnectionManager.DAL.ConManager("1");
+                        objCone.OpenConnection("1");
+                        objCone.BeginTransaction();
+
+                        objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                        objCone.CommitTransaction();
+                    }
+
+
                     #endregion
 
 
@@ -1289,13 +1112,137 @@ and	E.DOJ <= '" + Date + @"' AND (E.DOS >= '" + Date + @"' OR ISNULL(E.DOS,'') =
                 throw (ex);
             }
         }
-        public void IndividualWeekOffData(string Date, out DataSet ds, string Plant)
+        
+        public void CompanyWeekOffData(string Date, out DataSet ds, string plant)
         {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
+                var sql = @"select distinct odd.DayName,od.PlantId,Format(odd.OffDayDate,'yyyy-MMM-dd')WkDate
+				from scs.OffDayMaster od 
+				left join scs.OffDayDetail odd on odd.OffDayMasterId=od.Id
+				where od.OffDayType='W' 
+				and od.PlantId='" + plant + @"'
+				and odd.OffDayDate='" + Date + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
-                var sql = @"Select dd.*,
+        
+        public void UpdateRosterWeekOffData(string Date, string plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"UPDATE apd SET WeeklyStatus=ISNULL(ISNULL(ws.Code,IWO.DayType),NULL) 
+ 
+				FROM AttdnProcessData apd
+LEFT JOIN dbo.EmployeeInformation EI 
+       ON EI.SystemId = apd.EmpSystemId
+LEFT JOIN dbo.RosterBudget RB 
+       ON RB.BudgetId = EI.BudgetCode
+-- 1️⃣ Get applicable EffectiveDate
+OUTER APPLY (
+    SELECT TOP (1) *
+    FROM dbo.RosterEffectiveDate
+    WHERE RPHeaderId = RB.RosterId
+      AND EffectiveDate <= apd.WorkDate
+    ORDER BY EffectiveDate DESC
+) RED
+-- 2️⃣ Calculate DayInWeek ONCE
+CROSS APPLY (
+    SELECT ((DATEDIFF(DAY, RED.EffectiveDate, apd.WorkDate)) % (select count(Days31) from dbo.RosterPatternChild where Days31<>'' AND  RPHeaderId=RB.RosterId )) + 1 AS DayInWeek
+) D
+-- 3️⃣ Pick correct RosterPatternChild row
+LEFT JOIN dbo.RosterPatternChild RPC
+       ON RPC.RPHeaderId = RB.RosterId
+      AND RPC.Days31 = D.DayInWeek
+LEFT JOIN hkp.WeeklyStatus WS
+       ON WS.Id = RPC.WeeklyStatusId
+
+
+LEFT JOIN (Select dd.*,
+                (Select wcc.DayType from
+                dbo.WeekOffChild wcc where wcc.WOSequence =dd.DayDiff 
+                and wcc.WOHeaderId = dd.WeekOffHeaderId) 
+                as DayType,'' RosterDayType
+                from
+                (Select e.SystemId,
+                
+                (Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
+                where EmpSystemId = e.SystemId and ex.EffectiveDate<='" + Date + @"'
+                order by ex.EffectiveDate desc) WeekOffHeaderId,
+
+                (DATEDIFF(DAY, (Select top 1 ed.EffectiveDate from
+                dbo.WeekOffHeader h 
+                left join dbo.WeekOffEffectiveDate ed on ed.WOHeaderId = h.Id               
+                where ed.EffectiveDate <= '" + Date + @"' and ed.WOHeaderId =  
+				(Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
+                where EmpSystemId = e.SystemId and ex.EffectiveDate<='" + Date + @"'
+                order by ex.EffectiveDate desc)
+                order by ed.EffectiveDate desc) , '" + Date + @"') % 
+                (Select max(WOSequence) from WeekOffHeader h 
+                left join WeekOffChild wc on wc.WOHeaderId=h.Id 
+                where h.Id =  
+				(Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
+                where EmpSystemId = e.SystemId and ex.EffectiveDate<='" + Date + @"'
+                order by ex.EffectiveDate desc)
+				)
+				)+1 as DayDiff
+                from 
+                EmployeeInformation e
+                left join EmployeeWeeklyOff ex on e.SystemId=ex.EmpSystemId
+				LEFT JOIN dbo.RosterBudget RB 
+       ON RB.BudgetId = E.BudgetCode
+-- 1️⃣ Get applicable EffectiveDate
+OUTER APPLY (
+    SELECT TOP (1) *
+    FROM dbo.RosterEffectiveDate
+    WHERE RPHeaderId = RB.RosterId
+      AND EffectiveDate <= '" + Date + @"'
+    ORDER BY EffectiveDate DESC
+) RED
+-- 2️⃣ Calculate DayInWeek ONCE
+CROSS APPLY (
+    SELECT ((DATEDIFF(DAY, RED.EffectiveDate, '" + Date + @"')) % (select count(Days31) from dbo.RosterPatternChild where Days31<>'' AND  RPHeaderId=RB.RosterId )) + 1 AS DayInWeek
+) D
+-- 3️⃣ Pick correct RosterPatternChild row
+LEFT JOIN dbo.RosterPatternChild RPC
+       ON RPC.RPHeaderId = RB.RosterId
+      AND RPC.Days31 = D.DayInWeek
+LEFT JOIN hkp.WeeklyStatus WS
+       ON WS.Id = RPC.WeeklyStatusId
+                where e.SystemId in( select empsystemid from EmployeeWeeklyOff)
+                and e.PlantId='" + plant + @"' --and e.SystemId='2525844'
+                group by e.SystemId
+                ) as dd) IWO ON IWO.SystemId=apd.EmpSystemId
+				where apd.workdate='" + Date + @"' and apd.PlantId='" + plant + @"' and isnull(EmpSystemID,'') IN ( -- and apd.EmpSystemID='2525844'
+									SELECT isnull(ei.SystemId,'') 
+                                    FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + plant + @"'
+                                   AND  ei.DOJ <= '" + Date + @"' 
+                                   AND (ei.DOS >= '" + Date + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))  ";
+                ConnectionManager.clsConnection objCone = new ConnectionManager.clsConnection();
+                objCone.BeginTransaction();
+                objCone.executeQuery(sql);
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void UpdateIndividualData(string Date, string plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sqlxNew = @"UPDATE apd SET apd.WeeklyStatus=ISNULL(x.DayType,'') from (
+                Select dd.*,
                 (Select wcc.DayType from
                 dbo.WeekOffChild wcc where wcc.WOSequence =dd.DayDiff 
                 and wcc.WOHeaderId = dd.WeekOffHeaderId) 
@@ -1327,60 +1274,20 @@ and	E.DOJ <= '" + Date + @"' AND (E.DOS >= '" + Date + @"' OR ISNULL(E.DOS,'') =
                 EmployeeInformation e
                 left join EmployeeWeeklyOff ex on e.SystemId=ex.EmpSystemId
                 where e.SystemId in( select empsystemid from EmployeeWeeklyOff)
-                and e.PlantId='" + Plant + @"'
-                group by e.SystemId
-                ) as dd	";
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-        public void CompanyWeekOffData(string Date, out DataSet ds, string plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"select distinct odd.DayName,od.PlantId,Format(odd.OffDayDate,'yyyy-MMM-dd')WkDate
-				from scs.OffDayMaster od 
-				left join scs.OffDayDetail odd on odd.OffDayMasterId=od.Id
-				where od.OffDayType='W' 
-				and od.PlantId='" + plant + @"'
-				and odd.OffDayDate='" + Date + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-
-        public void RosterWeekOffData(string Date, out DataSet ds, string plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"select ei.EmployeeName,apd.EmpSystemId,rpc.RPHeaderId,ei.BudgetCode,rpc.ShiftDefinitionID,rpc.Days31,apd.Daystatus,ws.Code DayType,apd.*
-				FROM AttdnProcessData apd
-LEFT JOIN dbo.EmployeeInformation EI 
-       ON EI.SystemId = apd.EmpSystemId
-LEFT JOIN dbo.RosterBudget RB 
-       ON RB.BudgetId = EI.BudgetCode
+ 
+and E.BudgetCode not in(Select SystemId from 
+				 dbo.RosterBudget RB 
 -- 1️⃣ Get applicable EffectiveDate
 OUTER APPLY (
     SELECT TOP (1) *
     FROM dbo.RosterEffectiveDate
     WHERE RPHeaderId = RB.RosterId
-      AND EffectiveDate <= apd.WorkDate
+      AND EffectiveDate <= '" + Date + @"'
     ORDER BY EffectiveDate DESC
 ) RED
 -- 2️⃣ Calculate DayInWeek ONCE
 CROSS APPLY (
-    SELECT ((DATEDIFF(DAY, RED.EffectiveDate, apd.WorkDate)) % (select count(Days31) from dbo.RosterPatternChild where Days31<>'' AND  RPHeaderId=RB.RosterId )) + 1 AS DayInWeek
+    SELECT ((DATEDIFF(DAY, RED.EffectiveDate, '" + Date + @"')) % (select count(Days31) from dbo.RosterPatternChild where Days31<>'' AND  RPHeaderId=RB.RosterId )) + 1 AS DayInWeek
 ) D
 -- 3️⃣ Pick correct RosterPatternChild row
 LEFT JOIN dbo.RosterPatternChild RPC
@@ -1388,13 +1295,17 @@ LEFT JOIN dbo.RosterPatternChild RPC
       AND RPC.Days31 = D.DayInWeek
 LEFT JOIN hkp.WeeklyStatus WS
        ON WS.Id = RPC.WeeklyStatusId
-				where apd.workdate='" + Date + "' and apd.PlantId='" + plant + @"' and isnull(EmpSystemID,'') IN ( -- and apd.EmpSystemID='2525844'
-									SELECT isnull(ei.SystemId,'') 
-                                    FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + plant + @"'
-                                   AND  ei.DOJ <= '" + Date + @"' 
-                                   AND (ei.DOS >= '" + Date + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
+				)
+                and e.PlantId='" + plant + @"' 
+                group by e.SystemId
+                ) as dd	
+				) x  join (select  PlantID,WorkDate,WeeklyStatus,EmpSystemID from AttdnProcessData 
+                                   WHERE WorkDate='" + Date + @"' and PlantId='" + plant + @"' 
+                                     ) apd on apd.EmpSystemID=x.SystemId AND apd.WeeklyStatus IS NULL  ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                objCon.BeginTransaction();
+                objCon.executeQuery(sqlxNew);
+                objCon.CommitTransaction();
             }
             catch (Exception ex)
             {
@@ -2581,8 +2492,8 @@ LEFT JOIN hkp.WeeklyStatus WS
             {
 
                 var sql = @"SELECT CompanyGroupId, Id as PlantValue FROM ORG.Plant WHERE CompanyGroupId = 
-               '" + CompanyGpId + "' AND  Active = 1 AND Archive = 0";
-
+ 
+               '" + CompanyGpId + "' AND  Active = 1 AND Archive = 0 ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
