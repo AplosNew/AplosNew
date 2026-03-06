@@ -93,7 +93,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         , CurrencyId: null
         , OrderType: 'ExternalOrder'
         , TotalQty: null
-        , SSPT: null
+        , CSPT: null
         , NoOfLineItem: null
         , ResponsiblePersonId: null
         , ResponsiblePersonName: null
@@ -1557,7 +1557,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                             BuyerReferenceNo: null,
                             OwnReferenceNo: null,
                             TotalQty: null,
-                            SSPT: null,
+                            CSPT: null,
                             AddedBy: null,
                             AddedDate: null,
                             AddedFromIP: null,
@@ -1651,7 +1651,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             ArticleName: null,
             BuyerReferenceNo: null,
             OwnReferenceNo: null,
-            SSPT: null,
+            CSPT: null,
             TotalQty: null,
             AddedBy: null,
             AddedDate: null,
