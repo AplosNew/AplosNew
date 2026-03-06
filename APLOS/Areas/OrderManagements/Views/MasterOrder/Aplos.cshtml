@@ -430,6 +430,7 @@
                                         <th>UoM</th>
                                         <th>Article</th>
                                         <th>Customer Article</th>
+                                        <th>S.SPT</th>
                                         <th>Item Costing</th>
                                         <th>Additional Info</th>
                                         <th>Buyer Ref.No</th>
@@ -503,13 +504,13 @@
                                             </div>
                                         </td>
                                         @*<td>
-                                                <div class="input-group">
-                                                    <input type="text" name="Customer" ng-model="x.MaterialMasterName" class="form-control" readonly style="width: 200px;">
-                                                    <span class="input-group-btn">
-                                                        <button ng-click="getMaterial($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                    </span>
-                                                </div>
-                                            </td>*@
+            <div class="input-group">
+                <input type="text" name="Customer" ng-model="x.MaterialMasterName" class="form-control" readonly style="width: 200px;">
+                <span class="input-group-btn">
+                    <button ng-click="getMaterial($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                </span>
+            </div>
+        </td>*@
                                         <td>
 
                                             <div class="input-group">
@@ -529,6 +530,9 @@
                                                     <button ng-click="GetArticleAliasData($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-plus-sign"></i></button>
                                                 </span>
                                             </div>
+                                        </td>
+                                        <td>
+                                            <input type="number" ng-model=" x.SSPT" class="form-control" style="width: 105px;" ng-maxlength="50">
                                         </td>
                                         <td>
                                             <button ng-click="GetMOSORatePopup($index,x);" style="background: yellow;" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Item Costing"><i class="glyphicon glyphicon-th-list"></i></button>
