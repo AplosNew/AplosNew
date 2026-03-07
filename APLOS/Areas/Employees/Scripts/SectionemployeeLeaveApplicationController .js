@@ -200,8 +200,6 @@ function SectionemployeeLeaveApplicationController(commonMessage, $scope, $rootS
         }
 
         $scope.ServicePeriod = "" + years + " years " + months + " months " + days + " days";
-        console.log('$scope.ServicePeriod', $scope.ServicePeriod);
-
         angular.element(document.querySelector('#employeePopUp')).modal('hide');
         $scope.getData();
         $scope.leavetypecbo();

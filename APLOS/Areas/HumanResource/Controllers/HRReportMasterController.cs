@@ -41,7 +41,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 throw e;
             }
         }
-
+        [Authorize]
         public ActionResult GetUserGroup(string id)
         {
             try

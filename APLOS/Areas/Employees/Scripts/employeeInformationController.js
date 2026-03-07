@@ -90,7 +90,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         SpouseName: null,
         SpouseNationalID: null,
         SpouseOccupation: null,
-        NoOfChildren: null,
+        NoOfChildren: 0,
         PresentAddress1: null,
         PresentAddress2: null,
         ParmanentAddress1: null,
@@ -1418,7 +1418,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 $scope.employeeInformation.SpouseNationalID = null;
                 $scope.employeeInformation.SpouseName = null;
                 $scope.employeeInformation.SpouseOccupation = null;
-                $scope.employeeInformation.NoOfChildren = null;
+                $scope.employeeInformation.NoOfChildren = 0;
             }
         }
     };

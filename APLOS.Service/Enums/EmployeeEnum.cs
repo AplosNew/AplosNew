@@ -76,8 +76,11 @@ namespace Library.Service.Enums
         [Description("Nominee Info")]
         NomineeInfo,
         [Description("Service Book")]
-        ServiceBook
+        ServiceBook,
+        [Description("Employee Personal File")]
+        EmployeePersonalFile
     }
+
     public enum PaymentMode
     {
         Bank,
