@@ -604,6 +604,7 @@ namespace Library.Service.OrderManagements
                             ,BOQNo=(Select COUNT(Id) from [dbo].[QuickBOQ] Where MasterOrderItemId=MOI.Id)
                             ,SONo=(Select COUNT(Id) from TRN.SalesOrder Where MasterOrderItemId=MOI.Id)
                             ,MOI.Consignment,MOI.OrderCostingMasterTemplateId,'' TempList,PM.Id ProductMasterId,CAST(1 as bit) ByDefault,PL.UserName ProductLibrary,OCT.UserName OrderCostingMasterTemplate,MOI.Rate,ISNULL(AA.ArticlePartyName,P.UserName) CustomerArticle,ISNULL(ART.IsDefaultProductionGrouping,0)IsDefault,MOI.ItemCategory
+                        ,MOI.CSPT                        
                         FROM TRN.MasterOrderItem AS MOI
                         JOIN MST.MaterialMaster AS MM ON MOI.MaterialMasterId=MM.Id
                         LEFT JOIN MST.MaterialMasterArticle AS ART ON MOI.ArticleId=ART.Id
@@ -1520,6 +1521,7 @@ Where SO.CheckByStatus = 'Checked' AND ApprovedStatus = 'To Be Approve' AND SO.A
                         dr["TestingStandardId"] = item.TestingStandardId;
                         dr["Type"] = item.Type;
                         dr["ProductionGrouping"] = item.ProductionGrouping;
+                        dr["CSPt"] = item.CSPT;
                         dr["IsRepeat"] = item.IsRepeat;
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = item.AddedDate;
