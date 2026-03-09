@@ -35,6 +35,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             return View();
         }
+
+        [Authorize]
+        public ActionResult DispatchPlan()
+        {
+            return View();
+        }
         #endregion
 
         #region -- Operations
@@ -331,7 +337,52 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        #region DispatchPlan
+        [HttpPost]
+        public JsonResult DispatchPlanInsert(Dictionary<string, object> data)
+        {
+            SaveDispatchPlanData(data);
+            return Json(new { Data = data, Message = AplosMessage.Insert });
+        }
+        private void SaveDispatchPlanData(Dictionary<string, object> data)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[DispatchPlanMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id ;
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "DispatchPlanMaster", out _Id);
+
+                    data["Id"] = "DP" + _Id;
+                    data["PlantId"] = identity.PlantId;
+                    data["ByWhom"] = identity.UserId;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    data["PlantId"] = identity.PlantId;
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        #endregion
         #endregion
     }
-    
+
 }
