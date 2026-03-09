@@ -101,7 +101,7 @@ namespace Library.Service.HumanResources
                 {
 
                     var pk = _signatrueService.GetAutoNumber("LT-", DateTime.Now).ToString();
-                    entity.SystemID = "LT-" + DateTime.Now.ToString("yy") + "-" + pk;
+                    entity.SystemID = "LT" + DateTime.Now.ToString("yy") + "-" + pk;
 
                     var fDate = Convert.ToDateTime(entity.FromDate);
                     var tDate = Convert.ToDateTime(entity.ToDate);

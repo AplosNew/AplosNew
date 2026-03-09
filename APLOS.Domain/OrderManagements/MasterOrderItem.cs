@@ -27,6 +27,7 @@ namespace Library.Model.OrderManagements
         public string Remark { get; set; }
         public string ItemCategory { get; set; }
         public string OrderStatusId { get; set; }
+        public decimal? CSPT { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties

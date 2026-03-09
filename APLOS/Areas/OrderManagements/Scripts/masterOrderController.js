@@ -93,6 +93,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         , CurrencyId: null
         , OrderType: 'ExternalOrder'
         , TotalQty: null
+        , CSPT: null
         , NoOfLineItem: null
         , ResponsiblePersonId: null
         , ResponsiblePersonName: null
@@ -693,6 +694,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         $scope.btndisable = false;
                         return ShowResult('Production Group is required.', 'failure');
                     }
+
                 }
                 $http({
                     method: 'POST'
@@ -1555,6 +1557,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                             BuyerReferenceNo: null,
                             OwnReferenceNo: null,
                             TotalQty: null,
+                            CSPT: null,
                             AddedBy: null,
                             AddedDate: null,
                             AddedFromIP: null,
@@ -1648,6 +1651,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             ArticleName: null,
             BuyerReferenceNo: null,
             OwnReferenceNo: null,
+            CSPT: null,
             TotalQty: null,
             AddedBy: null,
             AddedDate: null,

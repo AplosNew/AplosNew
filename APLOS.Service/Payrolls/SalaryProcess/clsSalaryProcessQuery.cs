@@ -346,8 +346,8 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
 
                                WHERE E.systemid in (" + _emps + ")";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(strSql, out dsRef);
             }
             catch (Exception ex)
             {

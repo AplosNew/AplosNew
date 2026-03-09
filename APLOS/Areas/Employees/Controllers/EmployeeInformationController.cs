@@ -469,6 +469,16 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetEmployeePersonalFileInMSWord(string empId, string reportType, string tempId)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _employeeProfileService.GetEmployeePersonalFileInMSWord(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, empId, "Permanent", reportType, tempId);//, strPathHindi, strPathEnglish, strPathBangla);
+            return View();
+
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetWithoutUserEmployeeList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
