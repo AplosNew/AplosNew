@@ -88,7 +88,7 @@ namespace Library.Service.Employees
         void EmployeeJoiningLetterInMSWord(string companyGroupId, string companyId, string plantId, string empId, string empType, string reportType, string tempId);
         void EmployeeAcknowledgementInMSWord(string companyGroupId, string companyId, string plantId, string empId, string empType, string reportType, string tempId);
         void ConfirmationletterInMSWord(string companyGroupId, string companyId, string plantId, string empId, string empType, string reportType, string tempId);
-        void GetEmployeePersonalFileInMSWord(string companyGroupId, string companyId, string plantId, string empId, string empType, string reportType, string tempId)
+        void GetEmployeePersonalFileInMSWord(string companyGroupId, string companyId, string plantId, string empId, string empType, string reportType, string tempId);
         //void generateReport( string CalanderYearId, string FromDate, string ToDate,string plantId, string EmpSystemID, string empType, string reportType, string tempId);
         //void generateReport(string CalanderYearId, string FromDate, string ToDate, string plantId, string empID, string reportType,string EmployeeType, string tempId);
 
