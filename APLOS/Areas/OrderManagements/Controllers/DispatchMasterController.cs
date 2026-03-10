@@ -355,7 +355,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[DispatchPlanMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id ;
-
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
