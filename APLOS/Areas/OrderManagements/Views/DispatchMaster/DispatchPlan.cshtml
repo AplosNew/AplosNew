@@ -3,7 +3,7 @@
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="DispatchPlan" role="tab" data-toggle="tab">DispatchPlan</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" aria-controls="GLpload" role="tab" data-toggle="tab">Plant</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" aria-controls="GLpload" role="tab" data-toggle="tab">Plan</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);" href="" aria-controls="DispatchUpdate" role="tab" data-toggle="tab">DispatchUpdate</a></li>
             </ul>
         </div>
@@ -12,6 +12,31 @@
                 <togglable></togglable>
                 <div class="form-elements" ng-form id="dispatchPlanNew1" name="dispatchPlanNewForm">
                     <div class="col-xs-12 col-sm-4 col-md-4 form-horizontal">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Year No<sup>*</sup></label>
+                            <div class="col-sm-3 show-message">
+                                <input type="number" name="Code" ng-model="dispatchPlanNew.YearNo" class="form-control" required tabindex="2" maxlength="10" autocomplete="off">
+                            </div>
+                            <label class="col-sm-2 control-label">Month No<sup>*</sup></label>
+                            <div class="col-sm-3 show-message">
+                                <div class="select-style">
+                                    <select name="MonthNo" ng-model="dispatchPlanNew.MonthNo" class="col-sm-3 form-control">
+                                        <option value="1">January</option>
+                                        <option value="2">February</option>
+                                        <option value="3">March</option>
+                                        <option value="4">April</option>
+                                        <option value="5">May</option>
+                                        <option value="6">June</option>
+                                        <option value="7">July</option>
+                                        <option value="8">August</option>
+                                        <option value="9">September</option>
+                                        <option value="10">October</option>
+                                        <option value="11">November</option>
+                                        <option value="12">December</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="col-sm-3 col-md-4 control-label">Plant</label>
                             <div class="col-sm-3 col-md-8">
@@ -30,19 +55,14 @@
                                 <input type="text" name="FromDate" ng-model="dispatchPlanNew.FromDate" datepicker class="form-control" tabindex="4" maxlength="50">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Plan No</label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text"   name="RevisionNo" ng-model="dispatchPlanNew.PlanNo" class="form-control" tabindex="3" maxlength="50">
-                            </div>
-                        </div>
+                        
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Checked By<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
                                     <select class="form-control" ng-model="dispatchPlanNew.CheckedBy"
                                             ng-options="item.Value as item.Text for item in serviceGroupList" id="serviceGroupId" ng-change="GetHSNCodeByServiceGroupId();"
-                                            name="Cost Center SubCategory"  tabindex="7">
+                                            name="Cost Center SubCategory" tabindex="7">
                                         <option></option>
                                     </select>
                                 </div>
@@ -50,7 +70,7 @@
                         </div>
 
 
-                        
+
 
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Active</label>
@@ -65,29 +85,10 @@
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-4 col-md-4 form-horizontal">
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Year No<sup>*</sup></label>
-                            <div class="col-sm-3 show-message">
-                                <input type="text" name="Code" ng-model="dispatchPlanNew.YearNo" class="form-control" required tabindex="2" maxlength="10">
-                            </div>
-                            <label class="col-sm-2 control-label">Month No<sup>*</sup></label>
-                            <div class="col-sm-3 show-message">
-                                    <div class="select-style">
-                                        <select name="MonthNo" ng-model="dispatchPlanNew.MonthNo" class="col-sm-3 form-control">
-                                            <option value="1">January</option>
-                                            <option value="2">February</option>
-                                            <option value="3">March</option>
-                                            <option value="4">April</option>
-                                            <option value="5">May</option>
-                                            <option value="6">June</option>
-                                            <option value="7">July</option>
-                                            <option value="8">August</option>
-                                            <option value="9">September</option>
-                                            <option value="10">October</option>
-                                            <option value="11">November</option>
-                                            <option value="12">December</option>
-                                        </select>
-                                    </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Revision No</label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="RevisionNo" ng-model="dispatchPlanNew.RevisionNo" class="form-control" tabindex="3" maxlength="50">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
@@ -120,17 +121,18 @@
                     </div>
                     <div class="col-xs-12 col-sm-4 col-md-4 form-horizontal">
                         <div class="form-group">
+                            <label class="col-sm-4 control-label">Plan No</label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="RevisionNo" ng-model="dispatchPlanNew.PlanNo" class="form-control" tabindex="3" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">By Whom</label>
                             <div class="col-sm-8 show-message">
                                 <input type="text" readonly name="ServiceCategory" ng-model="dispatchPlanNew.ServiceCategory" class="form-control" tabindex="3" maxlength="50">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Revision No</label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text"  name="RevisionNo" ng-model="dispatchPlanNew.RevisionNo" class="form-control" tabindex="3" maxlength="50">
-                            </div>
-                        </div>
+
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -164,7 +166,22 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="Upload">
                 <togglable name=" To be Uploaded & Downloaded"></togglable>
                 <div class="form-elements form-horizontal row" ng-form name="ModelNewForm">
-
+                    <div class="col-md-9">
+                        <div class="inputBtnSection common-btn">
+                            <label class="fileUpload col-sm-4 ">
+                                <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                            </label>
+                            <input type="button" value="Import Data" class="btn btn-success"
+                                   ng-click="ImportData()" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="GetSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File Download</button></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
 
             </div>

@@ -101,5 +101,10 @@ function DispatchPlanController(commonMessage, $scope, $rootScope, baseService, 
         //}
         // }
     }
+
+    $scope.GetSampleFile = function () {
+        var ReportFormat = 'Excel';
+        location.href = $scope.path + 'GetSampleFile?reportFormat=' + ReportFormat;
+    };
 }
 

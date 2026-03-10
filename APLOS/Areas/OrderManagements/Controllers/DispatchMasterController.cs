@@ -4,10 +4,14 @@ using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
+using Library.Model.Enums;
 using Library.Model.OrderManagements;
 using Library.OrderManagement.Production;
 using Library.Security.Core;
+using Library.Service.Helpers;
 using Library.Service.OrderManagements;
+
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -52,13 +56,13 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpPost]
-        public JsonResult Insert(Dictionary<string, object> data,List<Dictionary<string, object>> selectedSalesOrderList)
+        public JsonResult Insert(Dictionary<string, object> data, List<Dictionary<string, object>> selectedSalesOrderList)
         {
             SaveData(data, selectedSalesOrderList);
             return Json(new { Data = data, Message = AplosMessage.Insert });
         }
 
-        private void SaveData(Dictionary<string, object> data,List<Dictionary<string, object>> selectedSalesOrderList)
+        private void SaveData(Dictionary<string, object> data, List<Dictionary<string, object>> selectedSalesOrderList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -88,7 +92,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
 
-                 masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
                 con.OpenDataSetThroughAdapter("SELECT * FROM dbo.DispatchDetail WHERE DispatchMasterId ='" + data["Id"] + "'", out dsDispatchDetail, false, "1");
 
@@ -147,7 +151,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 // DispatchSKUMaster & DispatchSKUDetail
                 con.OpenDataSetThroughAdapter("SELECT * FROM dbo.DispatchSKUMaster WHERE DispatchDetailId ='" + dispatchDetailId + "'", out dsDispatchSKUMaster, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM dbo.DispatchSKUDetail WHERE 1=2", out dsDispatchSKUDetail, false, "1");
-               
+
                 DataTable Detail = _sqlRepository.GetDataTable("SELECT * FROM [dbo].[PackingContentMaster] where Id IN(SELECT PackingContentMasterId FROM [dbo].[PackingChild] Where IsConfirmed=1 AND ISNULL(DispatchSKUMasterId,'')='')");
 
                 for (int i = 0; i < Detail.Rows.Count; i++)
@@ -183,8 +187,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 }
 
 
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsDispatchDetail, dsDispatchDetailSO, dsDispatchSKUMaster);
+                clsStaticInfo obj1 = new clsStaticInfo();
+                obj1.SaveDataSets(dsMaster, dsDispatchDetail, dsDispatchDetailSO, dsDispatchSKUMaster);
 
             }
             catch (Exception ex)
@@ -354,7 +358,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[DispatchPlanMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
-                string _Id ;
+                string _Id;
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
@@ -380,6 +384,208 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 throw (ex);
             }
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSampleFile(ReportFormat reportFormat)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            IWorkbook workbook = GetSampleFileServiceMaster(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName);
+            var reportFileName = "Dispatch Plan upload Sample File";
+
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+
+        }
+
+        public DataTable GetServiceMasterGLData()
+        {
+            var cmdText = @"select p.code +' - '+p.UserName CustomerName,so.Id SoId,so.OrderStatusId SOStatus,pod.ProductionOrderId POId,ps.UserName POStatus
+            ,dpc.DispatchPlanMasterId,so.Qty SOQty,dpc.DispatchPlanQty,so.Qty-dpc.DispatchPlanQty BalanceToDispatch
+            ,((so.Qty-dpc.DispatchPlanQty)/ so.Qty)*100 BalancePercentage
+            ,dpm.PlantId,dpm.YearNo,dpm.MonthNo,dpm.ResponsiblePersonId,oc.CriticalityLevel  OrderCriticalityLevel
+            ,dpm.PlanNo ,NULL DispatchCommitmentDate,NULL DispatchCategory ,NULL  Remark,NULL OrderRemark
+            FROM TRN.SalesOrder so  
+            LEFT JOIN dbo.OrderControl oc on oc.SalesOrderId=so.Id
+            LEFT JOIN trn.MasterOrderItem moi on moi.Id=so.MasterOrderItemId
+            LEFT JOIN trn.MasterOrder mo on mo.Id=moi.MasterOrderId
+            LEFT JOIN trn.ProductionOrderDetail pod on pod.SalesOrderId=so.Id
+            LEFT JOIN trn.ProductionOrder po on po.Id=pod.ProductionOrderId
+            LEFT JOIN hkp.ProductionStatus ps on ps.Id=po.ProductionStatusId 
+            LEFT JOIN  dbo.DispatchPlanChild dpc on dpc.SOId=so.Id
+            LEFT JOIN dbo.DispatchPlanMaster dpm on dpm.Id=dpc.DispatchPlanMasterId
+            LEFT JOIN hkp.Party p on p.Id=mo.PartyId
+            WHERE SO.OrderStatusId not in ('Closed','Cancelled')";
+            return _sqlRepository.GetDataTable(cmdText);
+        }
+
+        public void CreateSource(string[] Arr, int Col, string Header, ref IWorksheet sheetSource)
+        {
+            try
+            {
+                ReportUtility ru = new ReportUtility();
+                ru.SetText(ref sheetSource, 1, Col, Header);
+                for (int i = 0; i < Arr.Length; i++)
+                {
+                    var un = Arr[i].ToString();
+                    int k = i + 2;
+                    ru.SetText(ref sheetSource, k, Col, un);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IWorkbook GetSampleFileServiceMaster(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName)
+        {
+            #region declare
+            OTSBD.clsReport objRpt = null;
+            OTSBD.clsStaticInfo objStatic = null;
+            objStatic = new OTSBD.clsStaticInfo();
+            string OTConsiderOn = string.Empty;
+
+            #endregion
+            try
+            {
+                ReportUtility ru = new ReportUtility();
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                var workbook = ru.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2013;
+
+                objRpt = new OTSBD.clsReport();
+                string toDay = DateTime.Now.ToString("dd-MMM-yyyy");
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+
+                #region Lunch Out
+                IWorksheet sheet1 = null;
+                sheet1 = workbook.Worksheets[0];
+                IWorksheet sheetSource = null;
+                sheetSource = workbook.Worksheets[1];
+                xlsRow = 1;
+
+                #region ------------------Column Header------------------
+
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CustomerName"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colCustomerName = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SoId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 11; int colSoId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SOStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 11; int colSOStatus = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "POId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19; int colPOId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "POStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colPOStatus = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DispatchPlanMasterId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 22; int colDispatchPlanMasterId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SOQty"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 17; int colSOQty = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DispatchPlanQty"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30; int colDispatchPlanQty = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalanceToDispatch"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colBalanceToDispatch = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalancePercentage"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colBalancePercentage = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PlantId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25; int colPlantId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "YearNo"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colYearNo = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MonthNo"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colMonthNo = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ResponsiblePersonId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colResponsiblePersonId = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OrderCriticalityLevel"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colOrderCriticalityLevel = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PlanNo"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colPlanNo = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DispatchCommitmentDate"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colDispatchCommitmentDate = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DispatchCategory"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colDispatchCategory = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remark"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colRemark = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OrderRemark"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colOrderRemark = xlsCol;
+                //string[] _EntryLevel = { "Trainee", "NonTrainee" };
+                //CreateSource(_EntryLevel, 20, "DispatchCategory", ref sheetSource); int colDispatchCategory = 20;
+
+                endXlsCol = xlsCol;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+
+                xlsRow++;
+
+                //sheet1.Range[xlsRow, colPurchaseApplicable, xlsRow, colPurchaseApplicable].DataValidation.AllowType = ExcelDataType.Integer;
+                //sheet1.Range[xlsRow, colSalesApplicable, xlsRow, colSalesApplicable].DataValidation.AllowType = ExcelDataType.Integer;
+                //sheet1.Range[xlsRow, colIndependentApplicable, xlsRow, colIndependentApplicable].DataValidation.AllowType = ExcelDataType.Integer;
+
+                #endregion ------------------Column Header------------------
+
+                DataTable dtData = GetServiceMasterGLData();
+                for (int i = 0; i < dtData.Rows.Count; i++)
+                {
+                    sheet1[xlsRow, colCustomerName].Text = dtData.Rows[i]["CustomerName"].ToString();
+                    sheet1[xlsRow, colSoId].Text = dtData.Rows[i]["SoId"].ToString();
+                    sheet1[xlsRow, colSOStatus].Text = dtData.Rows[i]["SOStatus"].ToString();
+                    sheet1[xlsRow, colPOId].Text = dtData.Rows[i]["POId"].ToString();
+                    sheet1[xlsRow, colPOStatus].Text = dtData.Rows[i]["POStatus"].ToString();
+                    sheet1[xlsRow, colDispatchPlanMasterId].Text = dtData.Rows[i]["DispatchPlanMasterId"].ToString();
+                    sheet1[xlsRow, colSOQty].Text = dtData.Rows[i]["SOQty"].ToString();
+                    sheet1[xlsRow, colDispatchPlanQty].Text = dtData.Rows[i]["DispatchPlanQty"].ToString();
+                    sheet1[xlsRow, colBalanceToDispatch].Text = dtData.Rows[i]["BalanceToDispatch"].ToString();
+                    sheet1[xlsRow, colBalancePercentage].Text = dtData.Rows[i]["BalancePercentage"].ToString();
+                    sheet1[xlsRow, colPlantId].Text = dtData.Rows[i]["PlantId"].ToString();
+                    sheet1[xlsRow, colYearNo].Text = dtData.Rows[i]["YearNo"].ToString();
+                    sheet1[xlsRow, colMonthNo].Text = dtData.Rows[i]["MonthNo"].ToString();
+                    sheet1[xlsRow, colResponsiblePersonId].Text = dtData.Rows[i]["ResponsiblePersonId"].ToString();
+                    sheet1[xlsRow, colOrderCriticalityLevel].Text = dtData.Rows[i]["OrderCriticalityLevel"].ToString();
+                    sheet1[xlsRow, colPlanNo].Text = dtData.Rows[i]["PlanNo"].ToString();
+                    sheet1[xlsRow, colDispatchCommitmentDate].Text = dtData.Rows[i]["DispatchCommitmentDate"].ToString();
+                    sheet1[xlsRow, colOrderRemark].Text = dtData.Rows[i]["OrderRemark"].ToString();
+                    sheet1[xlsRow, colDispatchCategory].Text = dtData.Rows[i]["DispatchCategory"].ToString();
+                    //ru.SetList(ref sheet1, xlsRow, 20, xlsCol, sheetSource, colDispatchCategory, _EntryLevel.Length); xlsCol += 1;
+                    xlsRow++;
+                }
+
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.CellStyle.Font.Size = 10;
+                sheet1.Range["A1"].CellStyle.Font.Size = 10;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                sheet1.Name = "Sheet1";
+                #endregion Page Setup
+
+                #endregion  Lunch Out
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
         #endregion
     }
