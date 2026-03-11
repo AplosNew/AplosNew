@@ -1472,7 +1472,8 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
         private void MasterOrderDataTablesForGrid(Dictionary<string, object> Filter, List<Dictionary<string, object>> FilterFields, out DataTable MainData)
         {
-            string DueDate = "TT.OriginalSequentialEndDate";//or ATO.DueDate
+            //string DueDate = "TT.OriginalSequentialEndDate";//or ATO.DueDate
+            string DueDate = "ATO.DueDate";//or ATO.DueDate
             string FilterText = " WHERE 1=1";
             if (FilterFields != null)
             {
