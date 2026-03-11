@@ -183,7 +183,38 @@
                         </div>
                     </div>
                 </div>
-
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div id="GridWorkCenterProduct"
+                             ng-init="chkinit()"
+                             ej-grid e-datasource="UploadedData"
+                             e-allowfiltering="true"
+                             e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowscrolling="true"
+                             e-pagesettings-pagesize="25"
+                             e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-field="DispatchPlanMasterId" e-headertext="DispatchPlanMasterId" e-width="100"></div>
+                                <div e-column e-field="SoId" e-headertext="SoId" e-width="100"></div>
+                                <div e-column e-field="DispatchPlanQty" e-headertext="DispatchPlanQty" e-width="100"></div>
+                                <div e-column e-field="DispatchCommitmentDate" e-headertext="DispatchCommitmentDate" e-width="80"></div>
+                                <div e-column e-field="Remark" e-headertext="Remark" e-width="80"></div>
+                                <div e-column e-field="ResponsiblePersonId" e-headertext="ResponsiblePersonId" e-width="80"></div>
+                                <div e-column e-field="DispatchBalance" e-headertext="DispatchBalance" e-width="80"></div>
+                                <div e-column e-field="OrderCriticalityLevel" e-headertext="OrderCriticalityLevel" e-width="80"></div>
+                                <div e-column e-field="OrderRemark" e-headertext="OrderRemark" e-width="80"></div>
+                                <div e-column e-field="RevisionNo" e-headertext="RevisionNo" e-width="80"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 ">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li ng-show="ShowSaveBtn"> <button ng-click="SaveUploadedData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }" ng-form="tabForm3" id="TDSUpload">
                 <togglable name=" To be Uploaded & Downloaded"></togglable>

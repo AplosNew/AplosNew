@@ -3,6 +3,7 @@ using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Enums;
 using Library.Model.OrderManagements;
@@ -15,6 +16,7 @@ using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -408,8 +410,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         public DataTable GetServiceMasterGLData()
         {
-            var cmdText = @"select p.code +' - '+p.UserName CustomerName,so.Id SoId,so.OrderStatusId SOStatus,pod.ProductionOrderId POId,ps.UserName POStatus
-            ,dpc.DispatchPlanMasterId,so.Qty SOQty,dpc.DispatchPlanQty,so.Qty-dpc.DispatchPlanQty BalanceToDispatch
+            var cmdText = @"select top(10) p.code +' - '+p.UserName CustomerName,so.Id SoId,so.OrderStatusId SOStatus,pod.ProductionOrderId POId,ps.UserName POStatus
+            ,dpc.DispatchPlanMasterId,so.Qty SOQty,dpc.DispatchPlanQty,so.Qty-dpc.DispatchPlanQty DispatchBalance
             ,((so.Qty-dpc.DispatchPlanQty)/ so.Qty)*100 BalancePercentage
             ,dpm.PlantId,dpm.YearNo,dpm.MonthNo,dpm.ResponsiblePersonId,oc.CriticalityLevel  OrderCriticalityLevel
             ,dpm.PlanNo ,NULL DispatchCommitmentDate,NULL DispatchCategory ,NULL  Remark,NULL OrderRemark
@@ -492,7 +494,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DispatchPlanMasterId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 22; int colDispatchPlanMasterId = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SOQty"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 17; int colSOQty = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DispatchPlanQty"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30; int colDispatchPlanQty = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalanceToDispatch"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colBalanceToDispatch = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DispatchBalance"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colDispatchBalance = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalancePercentage"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colBalancePercentage = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PlantId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25; int colPlantId = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "YearNo"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colYearNo = xlsCol; xlsCol += 1;
@@ -534,7 +536,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet1[xlsRow, colDispatchPlanMasterId].Text = dtData.Rows[i]["DispatchPlanMasterId"].ToString();
                     sheet1[xlsRow, colSOQty].Text = dtData.Rows[i]["SOQty"].ToString();
                     sheet1[xlsRow, colDispatchPlanQty].Text = dtData.Rows[i]["DispatchPlanQty"].ToString();
-                    sheet1[xlsRow, colBalanceToDispatch].Text = dtData.Rows[i]["BalanceToDispatch"].ToString();
+                    sheet1[xlsRow, colDispatchBalance].Text = dtData.Rows[i]["DispatchBalance"].ToString();
                     sheet1[xlsRow, colBalancePercentage].Text = dtData.Rows[i]["BalancePercentage"].ToString();
                     sheet1[xlsRow, colPlantId].Text = dtData.Rows[i]["PlantId"].ToString();
                     sheet1[xlsRow, colYearNo].Text = dtData.Rows[i]["YearNo"].ToString();
@@ -586,7 +588,196 @@ namespace Aplos.Areas.OrderManagements.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public JsonResult ImportData(FormCollection form)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                List<UploadedDispatchChildViewModel> data = new List<UploadedDispatchChildViewModel>();
+
+                var file = Request.Files["file"];
+
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                else
+                {
+                    throw new CustomException(Resources.ExcelUploadError);
+                }
+                string path = "";
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetAttendanceRawData(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+                FileInfo docFile;
+                string exception = "\r\n";
+                try
+                {
+                    try
+                    {
+                        string connString = string.Empty;
+                        ExcelEngine excelEngine = null;
+                        IApplication application = null;
+                        IWorkbook workbook = null;
+
+                        excelEngine = new ExcelEngine();
+                        application = excelEngine.Excel;
+                        workbook = excelEngine.Excel.Workbooks.Open(path);
+
+                        DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+                        DataSet dsExcel = new DataSet();
+                        dsExcel.Tables.Add(dt);
+
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            exception += "\r\nTrying to delete";
+                            docFile.Delete();
+                        }
+
+                        if (dsExcel.Tables[0].Rows.Count > 0)
+                        {
+                            for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
+                            {
+                                UploadedDispatchChildViewModel vm = new UploadedDispatchChildViewModel();
+
+                                vm.DispatchPlanMasterId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.SoId = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                vm.DispatchPlanQty = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
+                                vm.DispatchCommitmentDate = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
+                                vm.Remark = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
+                                vm.ResponsiblePersonId = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
+                                vm.DispatchBalance = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
+                                vm.OrderCriticalityLevel = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.OrderRemark = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.RevisionNo = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+
+                                data.Add(vm);
+
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Please Select File");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            docFile.Delete();
+                        }
+                        throw (ex);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    //throw ex;
+                }
+                finally
+                {
+                }
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveUploadedData(List<Dictionary<string, object>> data)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsBC, dsDD;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                string strSQL = "Delete FROM DispatchPlanChild";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM DispatchPlanChild where 1=2", out dsBC, false, "1");
+
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            AddNewRow(dsBC.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                }
+                #endregion
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        public class UploadedDispatchChildViewModel
+        {
+            public string DispatchPlanMasterId { get; set; }
+            public string SoId { get; set; }
+            public string DispatchPlanQty { get; set; }
+            public string DispatchBalance { get; set; }
+            public string DispatchCommitmentDate { get; set; }
+            public string Remark { get; set; }
+            public string ResponsiblePersonId { get; set; }
+            public string OrderRemark { get; set; }
+            public string OrderCriticalityLevel { get; set; }
+            public string RevisionNo { get; set; }
+
+        }
         #endregion
+
         #endregion
     }
 
