@@ -14080,13 +14080,13 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"Select 'IM' as Value , 'IN' as Name 
+                strSQL = @"Select 'IM' as Value , 'IM' as Name 
                             union all 
                         Select 'IN' as Value , 'IN' as Name 
 union all 
-Select 'W' as Value , 'IN' as Name 
+Select 'W' as Value , 'W' as Name 
 union all 
-Select 'LateIn' as Value , 'IN' as Name ";
+Select 'LateIn' as Value , 'LateIn' as Name ";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
