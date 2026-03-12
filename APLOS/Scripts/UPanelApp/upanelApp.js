@@ -1325,8 +1325,9 @@ upanelApp.controller("DefectMarkerController", DefectMarkerController)
 upanelApp.controller("updateEmployeeDOSController", updateEmployeeDOSController)
 upanelApp.controller("EmployeeSalaryRuleSetupController", EmployeeSalaryRuleSetupController)
 upanelApp.controller("EmployeeSalaryStructureController", EmployeeSalaryStructureController)
-upanelApp.controller("EmployeeSalaryProcessController", EmployeeSalaryProcessController )
-upanelApp.controller("SalaryRuleSpecialAllowanceController", SalaryRuleSpecialAllowanceController )
+upanelApp.controller("EmployeeSalaryProcessController", EmployeeSalaryProcessController)
+upanelApp.controller("SalaryRuleSpecialAllowanceController", SalaryRuleSpecialAllowanceController)
+upanelApp.controller("EmployeeBulkUploadFNFController", EmployeeBulkUploadFNFController)
 
 
 
