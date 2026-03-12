@@ -143,7 +143,7 @@ namespace Aplos.Areas.Employees.Controllers
             return View();
         }
 
-        [Authorize]
+       
         public ActionResult BulkUpload()
         {
             return View();
