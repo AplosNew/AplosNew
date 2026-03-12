@@ -2225,6 +2225,7 @@ function taskListController($window, $timeout, cboService, commonMessage, $scope
         _currentDate.setDate(_currentDate.getDate() + numberOfDaysToAdd);
         try {
             for (var i = 0; i < $scope.issueTransactionList.length; i++) {
+                 
                 if ($scope.issueTransactionList[i].DueDateFilter < new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()))
                     if ($scope.issueTransactionList[i].CurrentStatus != 'ToClose')
                         OverDue++;
