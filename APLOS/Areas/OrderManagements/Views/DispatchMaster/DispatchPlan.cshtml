@@ -20,7 +20,7 @@
                             <label class="col-sm-2 control-label">Month No<sup>*</sup></label>
                             <div class="col-sm-3 show-message">
                                 <div class="select-style">
-                                    <select name="MonthNo" ng-model="dispatchPlanNew.MonthNo" class="col-sm-3 form-control">
+                                    <select name="MonthNo" ng-model="dispatchPlanNew.MonthNo" class="col-sm-3 form-control" >
                                         <option value="1">January</option>
                                         <option value="2">February</option>
                                         <option value="3">March</option>
@@ -88,7 +88,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Revision No</label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="RevisionNo" ng-model="dispatchPlanNew.RevisionNo" class="form-control" tabindex="3" maxlength="50">
+                                <input type="text" name="RevisionNo" ng-readonly="dispatchPlanNew.YearNo == null || dispatchPlanNew.MonthNo == null " ng-keyup="getPlanNo()" ng-model="dispatchPlanNew.RevisionNo" class="form-control" tabindex="3" maxlength="50">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
@@ -123,7 +123,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Plan No</label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="PlanNo" ng-model="dispatchPlanNew.PlanNo" class="form-control" tabindex="3" maxlength="50">
+                                <input type="text" name="PlanNo" ng-model="dispatchPlanNew.PlanNo" readonly class="form-control" tabindex="3" maxlength="50">
                             </div>
                         </div>
                         <div class="form-group">
