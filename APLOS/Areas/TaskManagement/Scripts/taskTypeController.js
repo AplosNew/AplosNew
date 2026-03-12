@@ -4,24 +4,27 @@ function taskTypeController(cboService, commonMessage, $scope, $rootScope, baseS
     $rootScope.title = 'taskType';
     $scope.Action = 'Save';
     $scope.index = -1;
-    $scope.taskTypes = [];
+    $scope.ModelList = [];
     $scope.path = 'taskmanagement/taskType/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
-    baseService.init($scope.getListUrl);
+    $scope.searchBy = "UserName"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
-    $scope.getData = function (pageno) {
-        baseService.pagination(pageno)
-            .then(function (result) {
-                $scope.taskTypes = result.Rows;
-            }, function () {
-                ShowResult(commonMessage.NetworkError, 'failure');
-            }).finally(function () {
-            });
-    };
+
+    $scope.getData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelList = response.data;
+        });
+    }
     $scope.getData();
 
     $scope.taskType = {
@@ -45,65 +48,40 @@ function taskTypeController(cboService, commonMessage, $scope, $rootScope, baseS
     };
     $scope.GetSequence();
 
-    $scope.Get = function (id, index) {
-        $scope.index = index;
-        $scope.taskType = $scope.taskTypes[$scope.index];
-        $scope.taskTypeNew = Object.assign({}, $scope.taskType);
+    
+    $scope.Get = function (args) {
+
+        $scope.taskTypeNew = Object.assign({}, args.data);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
     };
 
+
     $scope.Save = function () {
         angular.copy($scope.taskTypeNew, $scope.taskType);
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.taskTypeNewForm.$valid) {
-            if ($scope.Action === 'Save') {
-                $http({
-                    method: 'POST',
-                    url: $scope.saveUrl,
-                    data: $scope.taskType,
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.taskTypes.push(response.data.TaskType);
-                        $scope.taskTypes = $filter('orderBy')($scope.taskTypes, 'Sequence');
-                        baseService.paginationAdd();
-                        $scope.Clear();
-                      
-                    }
-                }), function errorCallBack(response) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'data': $scope.taskType },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
                 }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFields(response.data.Sequence);
+                    $scope.getData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
             }
-            else if ($scope.Action === 'Update') {
-                $http({
-                    method: 'POST',
-                    url: $scope.updateUrl,
-                    data: $scope.taskType,
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        if ($scope.index > -1) {
-                            $scope.taskTypes[$scope.index] = $scope.taskType;
-                            $scope.taskTypes = $filter('orderBy')($scope.taskTypes, 'Sequence');
-                        }
-                        $scope.Clear();
-                       
-                    }
-                }, function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                });
-            }
+
         }
     };
 
@@ -119,8 +97,7 @@ function taskTypeController(cboService, commonMessage, $scope, $rootScope, baseS
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.taskTypes.splice($scope.index, 1);
-                    baseService.paginationRemove();
+                    $scope.getData();
                     $scope.Clear();
                 }
                 function errorCallBack(response) {
@@ -135,11 +112,25 @@ function taskTypeController(cboService, commonMessage, $scope, $rootScope, baseS
         return true;
     };
 
+    $scope.Clear = function () {
+        ClearFields($scope.GetSequence());
+        return true;
+    };
+
     function ClearFields(seq) {
         $scope.Action = 'Save';
-        $scope.taskType = {};
-        $scope.taskTypeNew = {};
-        $scope.taskTypeNew.Active = true;
+        $scope.taskType = {
+            Id: null,
+            Sequence: 0,
+            Code: null,
+            ShortName: null,
+            StandardName: null,
+            UserName: null,
+            Description: null,
+            Remarks: null,
+            Active: true
+        };
+        $scope.taskTypeNew = Object.assign({}, $scope.taskType);
         $scope.taskTypeNew.Sequence = seq;
     }
 }

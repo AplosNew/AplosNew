@@ -1784,6 +1784,13 @@ namespace Aplos.Controllers.ApopAPIHR
 
         #endregion Ultimo Data
 
+        public List<Default2> GetHRReportList()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetHRReportList(out List<Default2> activelists);
+            return activelists;
+        }
+
         #endregion Pratibha
     }
 }

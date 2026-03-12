@@ -26,6 +26,7 @@ namespace Aplos.Controllers
         private readonly IManpowerBudgetJobDescriptionService _manpowerBudgetJobDescriptionService;
         private readonly IManpowerBudgetService _manpowerBudgetService;
         private readonly IPlantService _plantService;
+        private readonly ISqlRepository _sqlRepository;
 
         public OrganizationController(
             IModuleAppService moduleAppService
@@ -34,7 +35,8 @@ namespace Aplos.Controllers
             , IStructureRelationshipService structureRelationshipService
             , IManpowerBudgetService manpowerBudgetService
             , IPlantService plantService
-            , IDesignationService designationService)
+            , IDesignationService designationService
+            , ISqlRepository sqlRepository)
         {
             _moduleAppService = moduleAppService;
             _designationService = designationService;
@@ -43,6 +45,7 @@ namespace Aplos.Controllers
             _structureRelationshipService = structureRelationshipService;
             _manpowerBudgetJobDescriptionService = manpowerBudgetJobDescriptionService;
             _plantService = plantService;
+            _sqlRepository = sqlRepository;
         }
 
         #endregion Constructor
@@ -328,7 +331,8 @@ namespace Aplos.Controllers
         {
             try
             {
-                return Json(_plantService.GetCboByCompany(companyId));
+                //return Json(_plantService.GetCboByCompany(companyId));
+                return Json(_sqlRepository.GetDataTable(@"select UserName AS Text ,Id AS Value from Org.Plant Where CompanyId='"+ companyId + "' AND Active=1 AND Archive=0"));
             }
             catch (Exception ex)
             {

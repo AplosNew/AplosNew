@@ -81,5 +81,9 @@ function TaskManagementConfig($routeProvider, $locationProvider) {
             templateUrl: 'TaskManagement/TaskCloserMaster/Aplos',
             controller: 'TaskCloserMasterController'
         })
+        .when('/task-type', {
+            templateUrl: 'TaskManagement/Tasktype/Aplos',
+            controller: 'taskTypeController'
+        })
         ;
 }

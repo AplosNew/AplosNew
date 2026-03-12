@@ -253,6 +253,10 @@ namespace Library.Service.Enums
         [Description("Marker ApproveBy")]
         MarkerApproveBy,
         [Description("MachineTransfer ApproveBy")]
-        MachineTransferApproveBy
+        MachineTransferApproveBy,
+        [Description("DispatchPlan CheckedBy")]
+        DispatchPlanCheckedBy,
+        [Description("DispatchPlan ApproveBy")]
+        DispatchPlanApproveBy
     }
 }

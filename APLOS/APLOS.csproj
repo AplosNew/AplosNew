@@ -1312,6 +1312,7 @@
     <Compile Include="Areas\Setups\Controllers\TnaSettingMasterController.cs" />
     <Compile Include="Areas\Setups\Controllers\ShiftGroupController.cs" />
     <Compile Include="Areas\TaskManagement\Controllers\EditControlController.cs" />
+    <Compile Include="Areas\TaskManagement\Controllers\TaskTypeController.cs" />
     <Compile Include="Areas\TaskManagement\Controllers\TaskCloserMasterController.cs" />
     <Compile Include="Areas\TaskManagement\Controllers\TaskManagementReportController.cs" />
     <Compile Include="Areas\TaskManagement\Controllers\EntityTaskController.cs" />
@@ -1986,6 +1987,7 @@
     <Content Include="Areas\Commercial\Scripts\LCPendingReportController.js" />
     <Content Include="Areas\Commercial\Scripts\ComplianceController.js" />
     <Content Include="Areas\Costings\Scripts\OrderLineCostingItemServiceMasterMappingController.js" />
+    <Content Include="Areas\Employees\Scripts\EmployeeBulkUploadFNFController.js" />
     <Content Include="Areas\Employees\Scripts\CasteController.js" />
     <Content Include="Areas\Employees\Scripts\updateEmployeeDOSController.js" />
     <Content Include="Areas\FixedAssets\Scripts\assetDisposeController.js" />
@@ -3205,6 +3207,7 @@
     <Content Include="Areas\Accounts\Scripts\employeeOperationVariationUploadController.js" />
     <Content Include="Areas\TaskManagement\Scripts\EditControlController.js" />
     <Content Include="Areas\TaskManagement\Scripts\TaskCloserMasterController.js" />
+    <Content Include="Areas\TaskManagement\Scripts\taskTypeController.js" />
     <Content Include="Areas\TaskManagement\Scripts\UserEditControlController.js" />
     <Content Include="Areas\TaskManagement\Scripts\TaskManagementReportController.js" />
     <Content Include="Areas\TaskManagement\Scripts\taskDetailController.js" />
@@ -5101,6 +5104,7 @@
     <Content Include="Areas\Payrolls\Views\EmployeeSalaryRuleSetup\SalaryProcess.cshtml" />
     <Content Include="Areas\Payrolls\Views\EmployeeSalaryRuleSetup\SpecialAllowance.cshtml" />
     <Content Include="Areas\OrderManagements\Views\DispatchMaster\DispatchPlan.cshtml" />
+    <Content Include="Areas\Employees\Views\EmployeeInformation\BulkUpload.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -5289,6 +5293,7 @@
     <Content Include="Areas\QMS\Views\QualityProcess\AplosNew.cshtml" />
     <Content Include="Areas\QMS\Views\QualityProcess\Defect.cshtml" />
     <Content Include="Areas\QMS\Views\QualityProcess\DefectMarker.cshtml" />
+    <Content Include="Areas\TaskManagement\Views\TaskType\Aplos.cshtml" />
     <None Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>PayrollsDataSet.Designer.cs</LastGenOutput>

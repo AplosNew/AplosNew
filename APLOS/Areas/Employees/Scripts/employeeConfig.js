@@ -536,7 +536,10 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'Employees/Caste/Aplos',
             controller: 'CasteController'
         })
-
+        .when('/bulk-upload', {
+            templateUrl: 'Employees/EmployeeBulkUploadFNFController/Aplos',
+            controller: 'CasteController'
+        })
 
         ;
 } 
