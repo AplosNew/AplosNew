@@ -729,14 +729,14 @@ namespace Aplos.Areas.OrderManagements.Controllers
             try
             {
                 #region Entity 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                string strSQL = "Delete FROM DispatchPlanChild";
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //string strSQL = "Delete FROM DispatchPlanChild";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenConnection("1");
-                objCon.BeginTransaction();
-                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
-                objCon.CommitTransaction();
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenConnection("1");
+                //objCon.BeginTransaction();
+                //objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                //objCon.CommitTransaction();
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM DispatchPlanChild where 1=2", out dsBC, false, "1");

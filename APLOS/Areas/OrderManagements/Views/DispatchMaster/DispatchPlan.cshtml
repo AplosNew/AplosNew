@@ -37,7 +37,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
+                        @*<div class="form-group">
                             <label class="col-sm-3 col-md-4 control-label">Plant</label>
                             <div class="col-sm-3 col-md-8">
                                 <div class="select-style">
@@ -47,7 +47,7 @@
                                     </select>
                                 </div>
                             </div>
-                        </div>
+                        </div>*@
 
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">From Date</label>
@@ -57,12 +57,12 @@
                         </div>
                         
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Checked By<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Check By<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="dispatchPlanNew.CheckedBy"
-                                            ng-options="item.Value as item.Text for item in serviceGroupList" id="serviceGroupId" ng-change="GetHSNCodeByServiceGroupId();"
-                                            name="Cost Center SubCategory" tabindex="7">
+                                    <select class="form-control" ng-model="dispatchPlanNew.CheckBy"
+                                            ng-options="item.Value as item.Text for item in CheckByList" id="serviceGroupId"
+                                            name="CheckBy" tabindex="7">
                                         <option></option>
                                     </select>
                                 </div>
@@ -107,9 +107,9 @@
                             <label class="col-sm-4 control-label">Approved By<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="dispatchPlanNew.ApprovedBy"
-                                            ng-options="item.Value as item.Text for item in serviceGroupList" id="serviceGroupId" ng-change="GetHSNCodeByServiceGroupId();"
-                                            name="Cost Center SubCategory"   tabindex="7">
+                                    <select class="form-control" ng-model="dispatchPlanNew.ApproveBy"
+                                            ng-options="item.Value as item.Text for item in ApproveByList" id="ApproveBy"
+                                            name="ApproveBy"   tabindex="7">
                                         <option></option>
                                     </select>
                                 </div>
@@ -123,13 +123,13 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Plan No</label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="RevisionNo" ng-model="dispatchPlanNew.PlanNo" class="form-control" tabindex="3" maxlength="50">
+                                <input type="text" name="PlanNo" ng-model="dispatchPlanNew.PlanNo" class="form-control" tabindex="3" maxlength="50">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">By Whom</label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" readonly name="ServiceCategory" ng-model="dispatchPlanNew.ServiceCategory" class="form-control" tabindex="3" maxlength="50">
+                                <input type="text" readonly name="By Whom" ng-model="dispatchPlanNew.ByWhom" class="form-control" tabindex="3" maxlength="50">
                             </div>
                         </div>
 
@@ -137,7 +137,7 @@
                             <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="input-group">
-                                    <input type="text" name="ResponsiblePerson" ng-model="responsiblePerson" required style="width:200px;" class="form-control" readonly>
+                                    <input type="text" name="ResponsiblePerson" ng-model="dispatchPlanNew.ResponsiblePerson" required style="width:200px;" class="form-control" readonly>
                                     <span class="input-group-btn">
                                         <button name="submit" ng-click="getPopUpData()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                     </span>

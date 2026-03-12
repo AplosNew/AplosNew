@@ -729,6 +729,7 @@ upanelApp.controller('skillGroupingController', skillGroupingController);
 upanelApp.controller('skillMatrixController', skillMatrixController);
 upanelApp.controller('SpecialFollowUpReportController', SpecialFollowUpReportController);
 upanelApp.controller('suspensePayableController', suspensePayableController);
+upanelApp.controller('taskTypeController', taskTypeController);
 upanelApp.controller('TaskCategoryController', TaskCategoryController);
 upanelApp.controller('TaskCategoryIssueController', TaskCategoryIssueController);
 upanelApp.controller('TaskCategoryToDoController', TaskCategoryToDoController);
