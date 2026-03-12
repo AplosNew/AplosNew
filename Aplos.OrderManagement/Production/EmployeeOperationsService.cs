@@ -1164,12 +1164,17 @@ namespace Library.OrderManagement.Production
                 //            left join hkp.Skill sk on sk.Id = ptd.SkillId
                 //            left join hkp.SkillCategory skc on skc.Id = sk.SkillCategoryId";
 
-                var str = @"Select distinct ptd.OperationVariationId , pm.ProcessId , ptd.TotalSPT , skc.Id as SkillCatId,  skc.UserName ,pt.ProductionOrderId  from trn.ProductionBulletinTemplateDetail ptd
+                var str = @"Select distinct ptd.OperationVariationId , pm.ProcessId , ptd.TotalSPT , skc.Id as SkillCatId,  skc.UserName ,pt.ProductionOrderId ,PS.UserName 
+from trn.ProductionBulletinTemplateDetail ptd
                                 left join  trn.ProductionBulletinTemplateMaster pm on pm.Id  = ptd.ProductionBulletinTemplateMasterId
                                 left join  trn.ProductionBulletinTemplate pt on pt.Id = pm.ProductionBulletinTemplateId
 								left join hkp.Skill sk on sk.Id = ptd.operationMasterId
-                                left join hkp.SkillCategory skc on skc.Id = sk.SkillCategoryId";
-
+                                left join hkp.SkillCategory skc on skc.Id = sk.SkillCategoryId
+								LEFT JOIN TRN.ProductionOrder po on po.Id=pt.ProductionOrderId
+								LEFT JOIN HKP.ProductionStatus PS ON PS.Id=po.ProductionStatusId
+								LEFT JOIN dbo.EmployeeWiseProductionProcessing EWPP 
+									ON EWPP.OperationVariationId=ptd.OperationVariationId and pt.ProductionOrderId=EWPP.ProductionOrderId
+                                WHERE EWPP.date = '" + Date+"' ";
 
 
                 DataTable dtTotalSpt = _sqlRepository.GetDataTable(str);

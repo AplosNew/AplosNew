@@ -54,7 +54,10 @@ function DispatchPlanController(commonMessage, $scope, $rootScope, baseService, 
         $scope.responsiblePerson = obj.data.EmployeeName;
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     };
-
+    $scope.getPlanNo = function () {
+        $scope.dispatchPlanNew.PlanNo ='';
+        $scope.dispatchPlanNew.PlanNo = $scope.dispatchPlanNew.YearNo + $scope.dispatchPlanNew.MonthNo + $scope.dispatchPlanNew.RevisionNo;
+    }
     $scope.Save = function () {
         //$scope.$broadcast('show-errors-check-validity');
         //if ($scope.dispatchPlanNewForm.$valid) {
