@@ -907,6 +907,7 @@ upanelApp.controller("monthlyGoodWorkReportNewController", monthlyGoodWorkReport
 upanelApp.controller("weekOffOTReportController", weekOffOTReportController);
 upanelApp.controller("weekOffOTReportOriginalController", weekOffOTReportOriginalController);
 upanelApp.controller("DispatchMasterController", DispatchMasterController);
+upanelApp.controller("DispatchPlanController", DispatchPlanController);
 upanelApp.controller("FinancialStatusCustomerReceivableInvoiceDetailController", FinancialStatusCustomerReceivableInvoiceDetailController);
 upanelApp.controller("holidayOTReportController", holidayOTReportController);
 upanelApp.controller("holidayOTReportOriginalController", holidayOTReportOriginalController);

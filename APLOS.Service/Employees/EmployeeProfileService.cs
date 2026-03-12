@@ -1056,6 +1056,526 @@ namespace Library.Service.Employees
             }
         }
 
+        public DataTable GetEmployeeByIdWithSalary(string employeeId, string plantId, string employeementType, string languageId, string tempId)
+        {
+            try
+            {
+
+                string sql = @"select 0 HRAE, 0 BasicE,0 GrossE,''EduQu,''EduQua,''ExpYear,''ExpYears,''ExpDesignation,''ExpCompany,B.EmployeeCode,B.SystemId,B.EmployeeCodeEng,B.EmployeeNameEng,B.EmployeeName,B.FatherName,B.MotherName,B.ParmanentAddress,B.PresentAddress,B.ParVillage,B.PreVillage,B.CompanyName,B.CompanyAddress,B.UtilityName,B.PresentCity,B.PresentDistrict,B.PermanentDistrict,B.PresentState,B.LPresentCountry,B.FirstName,B.DesignationName,B.Department,B.DepartmentName,B.Unit,B.DOJ,B.DateOfJoin,B.DOB,B.ProbationPeriod,B.MobileNo,B.EmailId,B.Section,B.SubSection,B.DOC,B.NationalID,B.NationalID NationalIDEng,B.BloodGroup,B.EmployeePic,B.AppliedDate,B.DateOfBirth,B.SpouseName,B.EmploymentTypelocal,B.ProbationerName,B.fEm,B.SectionName,B.SubSectionName,B.LocalDepartmentName1,B.Grade,B.GradeE,B.IssueDate,B.NomineeName,B.NomineeAddress,B.NomineeNID,B.NomineeDOB,B.NomineeRelation NomineeRelative,B.CivilStatus,B.CivilStatusEng,B.PFAccountNumber,B.DocDate,B.Gender,B.GenderID,B.IdentificationMark,B.NomineeAge,B.PlantName,B.Line,B.LineName,B.Religion,B.ReligionEng,B.MarriedEmpNomineeName,B.MarriedEmpNomineeAddress,B.MarriedEmpNomineeNID,B.MarriedEmpNomineeDOB,B.MarriedEmpNomineeRelation,B.MarriedEmpNomineeAge,B.UnMarriedEmpNomineeName,B.UnMarriedEmpNomineeAddress,B.UnMarriedEmpNomineeNID,B.UnMarriedEmpNomineeDOB,B.UnMarriedEmpNomineeRelation,B.UnMarriedEmpNomineeAge,B.Salutation,B.EmployeeFingerPrint,B.CardHolderSignature,B.DOS,B.NoOfChildren,B.NoOfChildren NoOfChildrenEng,B.Weight,B.Height,B.AuthorizedSignature,B.Contractor,B.ContractorAddress,B.EmrCntPer1CellNo,B.FatherOrSpouse,B.CompanyLogo,B.BarCodeId,B.Designation,B.EntryAmount,B.SalaryHead
+,B.PrePostOffice,B.ParPostOffice,B.PrePoliceStation,B.ParPoliceStation,B.RelativeEmpName,B.RelativeEmpDesignation,B.RelativeRelation,B.FatherNameEng,B.MotherNameEng,B.SpouseNameEng,B.SuperViserEmp,B.SuperViserDesig,B.PresentAddressEng,B.ParmanentAddressEng,B.MaleChild,B.FemaleChild
+,Age=DATEDIFF(YEAR, DOB, DOJ) - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, DOB, DOJ), DOB) > DOJ THEN 1 ELSE 0 END
+,YearEng=DATEDIFF(YEAR, DOB, DOJ) - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, DOB, DOJ), DOB) > DOJ THEN 1 ELSE 0 END
+,Years=DATEDIFF(YEAR, DOB, DOJ) - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, DOB, DOJ), DOB) > DOJ THEN 1 ELSE 0 END
+,Months= DATEDIFF(MONTH, DATEADD(YEAR, (DATEDIFF(YEAR, DOB, DOJ) - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, DOB, DOJ), DOB) > DOJ THEN 1 ELSE 0 END), DOB), DOJ)
+                  - CASE WHEN DATEADD(MONTH, DATEDIFF(MONTH, DATEADD(YEAR, (DATEDIFF(YEAR, DOB, DOJ) - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, DOB, DOJ), DOB) > DOJ THEN 1 ELSE 0 END), DOB), DOJ), DATEADD(YEAR, (DATEDIFF(YEAR, DOB, DOJ) - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, DOB, DOJ), DOB) > DOJ THEN 1 ELSE 0 END), DOB)) > DOJ THEN 1 ELSE 0 END
+
+,[Days] = DATEDIFF(DAY, DATEADD(MONTH, DATEDIFF(MONTH, DATEADD(YEAR, (DATEDIFF(YEAR, DOB, DOJ) - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, DOB, DOJ), DOB) > DOJ THEN 1 ELSE 0 END), DOB), DOJ)
+                  - CASE WHEN DATEADD(MONTH, DATEDIFF(MONTH, DATEADD(YEAR, (DATEDIFF(YEAR, DOB, DOJ) - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, DOB, DOJ), DOB) > DOJ THEN 1 ELSE 0 END), DOB), DOJ), DATEADD(YEAR, (DATEDIFF(YEAR, DOB, DOJ) - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, DOB, DOJ), DOB) > DOJ THEN 1 ELSE 0 END), DOB)) > DOJ THEN 1 ELSE 0 END, DATEADD(YEAR, (DATEDIFF(YEAR, DOB, DOJ) - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, DOB, DOJ), DOB) > DOJ THEN 1 ELSE 0 END), DOB)), DOJ)
+into #tempOT from
+(SELECT A.EmployeeCode,A.SystemId,A.EmployeeCodeEng, A.EmployeeNameEng,A.EmployeeName,A.FatherName,A.MotherName,A.ParmanentAddress,A.PresentAddress,A.ParVillage,A.PreVillage,A.CompanyName,A.CompanyAddress,A.UtilityName,A.PresentCity,A.PresentDistrict,A.PermanentDistrict,A.PresentState,A.LPresentCountry,A.FirstName,A.DesignationName,A.Department,A.DepartmentName,A.Unit,A.DOJ,A.DateOfJoin,A.DOB,A.ProbationPeriod,A.MobileNo,A.EmailId,A.Section,A.SubSection,A.DOC,A.NationalID,A.BloodGroup,A.EmployeePic,A.AppliedDate,A.DateOfBirth,A.SpouseName,A.EmploymentTypelocal,A.ProbationerName,A.fEm,A.SectionName,A.SubSectionName,A.LocalDepartmentName1,A.Grade,A.GradeE,A.IssueDate,A.NomineeName,A.NomineeAddress,A.NomineeNID,A.NomineeDOB,A.NomineeRelation,A.CivilStatus,A.CivilStatusEng,A.PFAccountNumber,A.DocDate,A.Gender,A.GenderID,A.IdentificationMark,A.NomineeAge,A.PlantName,A.Line,A.LineName,A.Religion,A.ReligionEng,A.MarriedEmpNomineeName,A.MarriedEmpNomineeAddress,A.MarriedEmpNomineeNID,A.MarriedEmpNomineeDOB,A.MarriedEmpNomineeRelation,A.MarriedEmpNomineeAge,A.UnMarriedEmpNomineeName,A.UnMarriedEmpNomineeAddress,A.UnMarriedEmpNomineeNID,A.UnMarriedEmpNomineeDOB,A.UnMarriedEmpNomineeRelation,A.UnMarriedEmpNomineeAge,A.Salutation,A.EmployeeFingerPrint,A.CardHolderSignature,A.DOS,A.NoOfChildren,A.Weight,A.Height,A.AuthorizedSignature,A.Contractor,A.ContractorAddress,A.EmrCntPer1CellNo,A.FatherOrSpouse,A.CompanyLogo,A.BarCodeId,A.Designation,A.EntryAmount,A.SalaryHead
+,A.PrePostOffice,A.ParPostOffice,A.PrePoliceStation,A.ParPoliceStation,A.RelativeEmpName,A.RelativeEmpDesignation,A.RelativeRelation,A.FatherNameEng,A.MotherNameEng,A.SpouseNameEng,A.SuperViserEmp,A.SuperViserDesig,A.PresentAddressEng,A.ParmanentAddressEng,A.MaleChild,A.FemaleChild
+
+FROM
+(SELECT T.*,SA.EntryAmount,SA.SalaryHead FROM(SELECT Top 1 EmployeeCode,SystemId,  
+                           TAB3.EmployeeName,TAB3.FatherName,TAB3.MotherName,
+						   TAB3.ParmanentAddress, TAB3.PresentAddress
+						   ,LEFT(TAB3.ParmanentAddress, CHARINDEX(',', TAB3.ParmanentAddress + ',') - 1)ParVillage
+						   ,LEFT(TAB3.PresentAddress, CHARINDEX(',', TAB3.PresentAddress + ',') - 1)PreVillage,
+
+                            ISNULL(LocalCompanyName,CompanyName) CompanyName,
+                            ISNULL(CompanyAddress,CompanyAddress) CompanyAddress,
+                            ISNULL(UtilityName,UtilityName) UtilityName,
+                            ISNULL(PresentCity,PresentCity) PresentCity,							
+                            ISNULL(PresentDistrict,PreDistrict) PresentDistrict,
+							ISNULL(PermanentDistrict,ParDistrict) PermanentDistrict,
+                            ISNULL(PresentState,PresentState) PresentState,
+							PrePostOffice,ParPostOffice,PrePoliceStation,ParPoliceStation,
+                            RelativeEmpName, RelativeEmpDesignation,RelativeRelation,
+                            ISNULL(LPresentCountry,LPermanentCountry) LPresentCountry,
+                            ISNULL(FirstName,FirstName) FirstName,
+                            ISNULL(LegalDesignationLocal,LegalDesignation) DesignationName,
+                            ISNULL(LocalDepartmentName1,Department) Department,
+                            Department DepartmentName,
+                            ISNULL(UnitLocal,Unit) Unit,
+                            ISNULL(DateOfJoin,DateOfJoin) DOJ,
+                            ISNULL(DateOfJoin,DateOfJoin) DateOfJoin,
+                            ISNULL(DateOfBirth,DateOfBirth) DOB,
+                            ISNULL(confirm,confirm) ProbationPeriod,
+                            ISNULL(MobileNo,MobileNo) MobileNo,                            
+                             Section,SubSection,EmailId,FatherNameEng,MotherNameEng,SpouseNameEng,                          
+                            ISNULL(DOC,DOC) DOC,
+                            ISNULL(NationalID,NationalID) NationalID,
+                            ISNULL(BloodGroup,BloodGroup) BloodGroup,
+                            ISNULL(EmployeePic,EmployeePic) EmployeePic,AppliedDate,DateOfBirth,SpouseName,EmploymentTypelocal
+							,ProbationerName, fEm,SectionName,SubSectionName, LocalDepartmentName1
+                            ,ISNULL(GradeLocal,Grade) Grade,Grade GradeE
+                            ,IssueDate,NomineeName,NomineeAddress,NomineeNID,NomineeDOB
+							,NomineeRelation,CivilStatus,CivilStatusEng,PFAccountNumber,DocDate
+                            ,Gender,GenderID,IdentificationMark,NomineeAge
+                            ,ISNULL(PlantLocal,Plant) PlantName    
+                            ,ISNULL(LineLocal,Line) Line,Line LineName ,Religion,ReligionEng
+                            ,MarriedEmpNomineeName=CASE WHEN CivilStatus='Married' then NomineeName else '' end
+							,MarriedEmpNomineeAddress=CASE WHEN CivilStatus='Married' then NomineeAddress else '' end
+							,MarriedEmpNomineeNID=CASE WHEN CivilStatus='Married' then NomineeNID else '' end
+							,MarriedEmpNomineeDOB=CASE WHEN CivilStatus='Married' then NomineeDOB else '' end
+							,MarriedEmpNomineeRelation=CASE WHEN CivilStatus='Married' then NomineeRelation else '' end
+							,MarriedEmpNomineeAge=CASE WHEN CivilStatus='Married' then NomineeAge else '' end
+
+							,UnMarriedEmpNomineeName=CASE WHEN CivilStatus!='Married' then NomineeName else '' end
+							,UnMarriedEmpNomineeAddress=CASE WHEN CivilStatus!='Married' then NomineeAddress else '' end
+							,UnMarriedEmpNomineeNID=CASE WHEN CivilStatus!='Married' then NomineeNID else '' end
+							,UnMarriedEmpNomineeDOB=CASE WHEN CivilStatus!='Married' then NomineeDOB else '' end
+							,UnMarriedEmpNomineeRelation=CASE WHEN CivilStatus!='Married' then NomineeRelation else '' end
+							,UnMarriedEmpNomineeAge=CASE WHEN CivilStatus!='Married' then NomineeAge else '' end
+                            ,Salutation,EmployeeFingerPrint,CardHolderSignature,DOS,NoOfChildren,Weight,Height,AuthorizedSignature,Contractor,ContractorAddress
+                            ,EmrCntPer1CellNo,FatherOrSpouse,CompanyLogo,BarCodeId,Designation,EmployeeCodeEng, EmployeeNameEng,SuperViserEmp,SuperViserDesig,PresentAddressEng,ParmanentAddressEng,MaleChild,FemaleChild
+                                    FROM(SELECT TAB2.*, AM.Phone, AM.Email, AM.Website, AM.Address1 FROM 
+									--tab2
+									(SELECT TAB1.*, LAN.StandardName 
+                                    FROM (SELECT CM.Image CompanyLogo,E.SystemID as EmpSystemID,LDN.UserName Designation,
+                                    CM.UserName CompanyName,AM.Address1 CompanyAddress,E.EmpPicPath EmployeePic,E.SystemId,E.EmployeeCode, Convert(varchar, E.DOJ, 105) DOJ,
+                                    REPLACE(CONVERT(VARCHAR(11),E.DOJ,106),' ','-') DateOfJoin,BG.UserName BloodGroup,REPLACE(CONVERT(VARCHAR(11),E.DOB,106),' ','-') DateOfBirth
+                                    ,E.NationalID,E.EmploymentType,D.UserName DesignationName, dm.EmployeeCategoryId,ec.UserName EmployeeCategory,L.UserName Line,
+			                		E.EmpSignature CardHolderSignature,P.AuthorizedSignature
+                                    ,E.CellPhnNo MobileNo,E.EmailId,E.FatherName FatherNameEng,E.MotherName MotherNameEng,E.SpouseName SpouseNameEng,DP.UserName Department,SE.UserName Section,SSE.UserName SubSection,A.[Name] LocalCompanyName, B.[Name] LocalDesignationName,C.[Name] LocalDepartmentName,
+			                		N.Name NameLabel
+                                    ,DN.Name DesignationLabel,DPN.Name DepartmentLabel,LN.Name LineLabel,LET.Name EmploymentTypeLabel, ID.Name IDNoLabel,  PT.Name EmploymentTypeName,
+			                		DJ.Name DOJLabel, ET.Name EmergencyTellNoLabel, BGP.Name BloodGroupLabel
+                                    ,E.EmployeeNameLocal,LL.UtilityName,NID.Name NIDLabel, LMB.Name MobileNoLabel,
+			                		LD.Name LegalDesignationLocal,SEC.Name SectionName,SSEC.Name SubSectionName,CAC.[Name] LocalDepartmentName1
+									,GD.ShortName Grade,LSGA.Name GradeLocal
+                                    ,Convert(varchar, DATEADD(year, 5, E.DOJ),105) AS Validity,LNN.Name LineLocal,UN.Username Unit, LUN.[Name] UnitLocal, Convert(varchar, E.DOC, 105) DOC,FORMAT(E.AppliedDate,'dd-MMM-yyyy') AppliedDate
+                                    ,PCN.Name LPermanentCountry,PRCN.Name LPresentCountry,ISNULL(PRPO.Name,PrePO.UserName)PrePostOffice,ISNULL(PARMPO.Name,ParPO.UserName)ParPostOffice,ISNULL(PRPS.Name,PrePS.UserName)PrePoliceStation,ISNULL(PARMPS.Name,ParPS.UserName)ParPoliceStation,RelativeEmp.EmployeeNameLocal RelativeEmpName,REDGL.Name RelativeEmpDesignation,ISNULL(RelativeRelationL.Name,RelativeRelation.UserName)RelativeRelation
+			                		,ParD.UserName ParDistrict,PD.Name PermanentDistrict,PreD.UserName PreDistrict,PRD.Name PresentDistrict,PST.Name PermanentState, PRST.Name PresentState,PCT.Name PermanentCity, PRCT.Name PresentCity
+                                    ,CASE WHEN E.DOCDay=0 THEN E.DOCMonth ELSE E.DOCDay/30 END AS confirm, PL.LanguageId, PL.Id as 'PlantId', CM.AddressMasterId,E.FirstName,LDN.UserName LegalDesignation,ISNULL(E.SpouseNameLocal,E.SpouseName) SpouseName,  ISNULL(LET.Name,E.EmploymentType) EmploymentTypelocal
+									,LPRL.Name ProbationerName , PT.Name fEm, FORMAT(E.IssueDate,'dd-MMM-yyyy') IssueDate,
+                                       	FORMAT(E.DOS,'dd-MMM-yyyy') DOS,E.NoOfChildren,E.[Weight],E.Height,									
+										case when isnull(cg.Id,'')='' THEN isnull(E.EmployeeNameLocal,E.EmployeeName) ELSE E.EmployeeName END AS EmployeeName
+										,case when isnull(cg.Id,'')='' THEN isnull(E.FatherNameLocal,E.FatherName) ELSE E.FatherName END AS FatherName
+										,case when isnull(cg.Id,'')='' THEN isnull(E.MotherNameLocal,E.MotherName) ELSE E.MotherName END AS MotherName
+										,case when isnull(cg.Id,'')='' THEN isnull(E.ParmanentAddress1Local+''+CASE WHEN ISNULL(E.ParmanentAddress2Local,'')<>'' THEN ','+E.ParmanentAddress2Local ELSE '' END										
+										,E.ParmanentAddress1+''+CASE WHEN ISNULL(E.ParmanentAddress2,'')<>'' THEN ', '+E.ParmanentAddress2 ELSE '' END) ELSE E.ParmanentAddress1+''+CASE WHEN ISNULL(E.ParmanentAddress2,'')<>'' THEN ', '+E.ParmanentAddress2 ELSE '' END END AS ParmanentAddress
+										,case when isnull(cg.Id,'')='' THEN isnull(E.PresentAddress1Local,E.PresentAddress1) ELSE E.PresentAddress1 END AS PresentAddress
+
+										
+
+										
+                                       ,case when isnull(cg.Id,'')='' THEN isnull(Case When E.GenderID ='Male' then  LMM.Name else LMF.Name end,E.GenderID) ELSE E.GenderID END AS Gender,E.GenderID
+                                        ,case when isnull(cg.Id,'')='' THEN isnull(E.LocalIdentificationMark,E.IdentificationMark) ELSE E.IdentificationMark END AS IdentificationMark
+                                        ,case when isnull(cg.Id,'')='' THEN isnull(NomineeInfo.localName,NomineeInfo.Name) ELSE NomineeInfo.Name END AS NomineeName
+										,case when isnull(cg.Id,'')='' THEN isnull(NomineeInfo.AddressLocal,NomineeInfo.Address) ELSE Address END AS NomineeAddress
+                                       
+										,NomineeInfo.NationalID NomineeNID,  FORMAT(NomineeInfo.DOB,'dd-MMM-yyyy') NomineeDOB,isnull(cast((DATEDIFF(m, NomineeInfo.DOB, GETDATE())/12) as varchar),0) NomineeAge
+                                        ,Isnull(LNomR.Name, Relationship.UserName) NomineeRelation 
+										,Isnull(CS.Name, CivilStatus.UserName) CivilStatus,CivilStatus.UserName CivilStatusEng 
+										,PFDocument.docNumber PFAccountNumber,PFDocument.DocDate
+                                        ,PL.UserName Plant,PLL.Name PlantLocal,ISNULL(LReligion.Name,Religion.UserName) Religion,Religion.UserName ReligionEng,S.UserName Salutation
+                                        ,efp.FileName EmployeeFingerPrint,PRT.UserName Contractor,AD.ContractorAddress
+                                        ,E.EmrCntPer1CellNo,FatherOrSpouse = case when E.FatherName is null then e.SpouseName else E.FatherName  end
+                                        ,CONCAT(e.SystemId,'#',e.EmployeeCode,'#',e.EmployeeName)BarCodeId,E.EmployeeCode EmployeeCodeEng,e.EmployeeName EmployeeNameEng,E.ParmanentAddress1 PresentAddressEng,E.PresentAddress1 ParmanentAddressEng,E.MaleChild,E.FemaleChild
+,SuperViserEmp=(Select EmployeeName from dbo.EmployeeInformation where SuperViser=1 and SectionId=E.SectionId)
+										,SuperViserDesig=(Select l.UserName from dbo.EmployeeInformation ED										
+										left Join hkp.LegalDesignation L on l.id=ed.LegalDesignationId
+										where SuperViser=1 and SectionId=E.SectionId)
+										from EmployeeInformation E
+                                        LEFT JOIN HKP.Party PRT ON PRT.Id = E.VendorId
+									    LEFT JOIN(
+									    Select AM.Id,ContractorAddress=CASE WHEN ISNULL(A.UserName,'')='' THEN '' ELSE A.UserName+', ' END+CASE WHEN ISNULL(CT.UserName,'')='' THEN '' ELSE CT.UserName+', ' END+ 
+										CASE WHEN ISNULL(S.UserName,'')='' THEN '' ELSE S.UserName+', ' END+CASE WHEN ISNULL(CN.UserName,'')='' THEN '' ELSE CN.UserName+', ' END
+										+CASE WHEN ISNULL(C.UserName,'')='' THEN '' ELSE C.UserName+'. ' END
+										from MST.AddressMaster  AM
+										LEFT JOIN SCS.Continent C ON C.Id=AM.ContinentId
+										LEFT JOIN SCS.Country CN ON CN.Id=AM.CountryId
+										LEFT JOIN SCS.[State] S ON S.Id=AM.StateId
+										LEFT JOIN SCS.City CT ON CT.Id=AM.CityId
+										LEFT JOIN SCS.Area A ON A.Id=AM.AreaId									
+									) AD ON AD.Id=PRT.AddressMasterId
+                                    LEFT JOIN HKP.Salutation S ON S.Id = E.Salutation
+									LEFT JOIN org.CompanyGroup  CG on e.GroupID=cg.Id and CG.LanguageId='" + languageId + @"'
+									LEFT JOIN ORG.Company CM ON CM.Id = E.CompanyId
+
+									LEFT JOIN SCS.PoliceStation PrePS ON PrePS.Id=E.PresThanaID
+									 LEFT JOIN SCS.PoliceStation ParPS ON ParPS.Id=E.ParmThanaID
+									LEFT JOIN SCS.PostOffice PrePO ON PrePO.Id=E.PresPostOfficeID
+									 LEFT JOIN SCS.PostOffice ParPO ON ParPO.Id=E.ParmPostOfficeID
+									 LEFT JOIN SCS.District PreD ON PreD.Id=E.PresDistrictID
+									 LEFT JOIN SCS.District ParD ON ParD.Id=E.ParmDistrictID
+
+                                    LEFT JOIN MST.AddressMaster AM ON AM.Id = CM.AddressMasterId
+                                    LEFT JOIN HKP.BloodGroup BG ON BG.Id = E.BloodGroupID
+                                    LEFT JOIN MST.ManpowerBudget bbb ON e.BudgetCode = bbb.Id
+                                    LEFT JOIN MST.ManpowerBudget MPB ON MPB.Id=bbb.ROBudgetCode
+									left join ORG.Position POS on POS.Id=MPB.PositionId
+									LEFT JOIN ORG.Position PS ON PS.Id=bbb.PositionId
+                                    LEFT JOIN HKP.Designation D ON D.Id = E.GivenDesignationId
+                                    LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId = e.GivenDesignationId
+                                    LEFT JOIN  hkp.LegalDesignation LDN ON LDN.Id=E.LegalDesignationId
+                                    LEFT JOIN HKP.EmployeeCategory EC ON EC.Id = DM.EmployeeCategoryId
+                                    LEFT JOIN ORG.Line L ON L.Id=E.LineId
+                                    LEFT JOIN ORG.Unit UN ON UN.Id=E.UnitId
+			                		LEFT JOIN [SCS].[PlantSetting] P ON P.PlantId=E.PlantId AND P.ModuleName='HR'
+                                    LEFT JOIN ORG.Department DP ON DP.Id=PS.DepartmentId
+                                    LEFT JOIN org.Section SE ON SE.Id=E.SectionId
+                                    LEFT JOIN org.SubSection SSE ON SSE.Id=E.SubSectionId
+			                		LEFT JOIN ORG.Plant PL ON PL.Id=E.PlantId
+                                    LEFT JOIN EmployeeFingerPrint efp ON efp.EmpSystemID=E.SystemId AND efp.Id=(SELECT TOP 1 Id FROM EmployeeFingerPrint WHERE EmpSystemID=E.SystemId)
+                                    left Join MST.PayrollGroupMaster PGM on PGM.EmployeeId = E.EmployeeId
+                                    LEFT JOIN EmployeeNomineeInfo NomineeInfo ON NomineeInfo.EmpSystemId = E.SystemId ------NomineeInfo
+                                    LEFT JOIN (
+						                    SELECT LSGD.PlantId,LSGD.LegalDesignationId,LS.ShortName,LSGD.LegalSalaryGradeId from [MST].[LegalSalaryGradeDesignation] LSGD
+                                            LEFT JOIN [SCS].[LegalSalaryGrade] LS ON LS.Id=LSGD.LegalSalaryGradeId 
+						                        ) GD ON GD.PlantId=E.PlantId AND GD.LegalDesignationId=E.LegalDesignationId
+
+								    LEFT JOIN dbo.EmployeeInformation RelativeEmp ON RelativeEmp.Systemid=E.RelativeSystemId
+									LEFT JOIN HKP.LocalLanguage REDGL ON REDGL.DesignationId=RelativeEmp.GivenDesignationId  AND PL.LanguageId='" + languageId + @"'
+									LEFT JOIN  scs.Relationship RelativeRelation ON RelativeRelation.Id = E.RelationShip
+									LEFT JOIN HKP.LocalLanguage RelativeRelationL ON RelativeRelationL.RelationShipId=E.RelationShip  AND PL.LanguageId='" + languageId + @"'
+
+									LEFT JOIN  scs.Relationship Relationship ON NomineeInfo.Relation = Relationship.Id 
+									LEFT JOIN HKP.CivilStatus CivilStatus ON CivilStatus.Id = E.CivilStatusID
+
+                                   LEFT JOIN HKP.LocalLanguage CS ON CivilStatus.Id=CS.CivilStatusID AND PL.LanguageId='" + languageId + @"'
+								   left join (
+								   select d.docNumber,d.EmpSystemid,FORMAT(d.DocDate,'dd-MMM-yyyy')DocDate from EmployeeDocument d
+									left join hkp.ComplianceDocument cd on cd.Id=d.ComplianceDocumentid
+									where  cd.profiletype='PF'
+								   
+								   ) PFDocument on PFDocument.EmpSystemId= E.SystemId
+						             left join scs.Religion Religion on Religion.Id=E.ReligionID
+									 LEFT JOIN HKP.LocalLanguage LReligion ON LReligion.ReligionID=E.ReligionID AND PL.LanguageId='" + languageId + @"'
+
+									 
+                                    LEFT JOIN HKP.LocalLanguage LSGA ON LSGA.LegalSalaryGradeId=GD.LegalSalaryGradeId AND LSGA.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage A ON A.CompanyId=E.CompanyId AND A.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage LL ON LL.CompanyId=E.CompanyId AND LL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage PLL ON PLL.PlantId=E.PlantId AND PLL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage B ON B.DesignationId=E.GivenDesignationId AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage C ON C.DepartmentId =PS.DepartmentId AND PL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage LD ON LD.LegalDesignationId=E.LegalDesignationId AND PL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage LNN ON LNN.LineId=E.LineId AND PL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage PCN ON PCN.CountryId=E.ParmCountryID AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage PRCN ON PRCN.CountryId=E.ParmCountryID AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage PD ON PD.DistrictId=E.ParmDistrictID AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage PRD ON PRD.DistrictId=E.PresDistrictID AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage PST ON PST.StateId=E.ParmStateId AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage PRST ON PRST.StateId=E.PresStateId AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage PCT ON PCT.CityId=E.ParmCityID AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage PRCT ON PRCT.CityId=E.PresCityID AND PL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage LUN ON LUN.UnitId=E.UnitId AND PL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage LNomR ON LNomR.RelationshipId=NomineeInfo.Relation AND PL.LanguageId='" + languageId + @"'
+									
+			                		LEFT JOIN HKP.LocalLanguage PRPO ON PRPO.PostOfficeId=E.PresPostOfficeID AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage PARMPO ON PARMPO.PostOfficeId=E.ParmPostOfficeID AND PL.LanguageId='" + languageId + @"'
+
+									LEFT JOIN HKP.LocalLanguage PRPS ON PRPO.PoliceStationId=E.PresThanaID AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage PARMPS ON PARMPO.PostOfficeId=E.ParmThanaID AND PL.LanguageId='" + languageId + @"'
+
+                                    LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Male'and LanguageId='" + languageId + @"') LMM ON LMM.LanguageId=PL.LanguageId
+                                    LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Female'and LanguageId='" + languageId + @"') LMF ON LMF.LanguageId=PL.LanguageId
+									LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName=(SELECT EmploymentType FROM dbo.EmployeeInformation where SystemId='" + employeeId + @"')and LanguageId='" + languageId + @"' ) LET ON LET.LanguageId=PL.LanguageId
+                                    LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Name' and LanguageId='" + languageId + @"') N ON N.LanguageId=PL.LanguageId
+                                    LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage wHERE LabelName='Designation'and LanguageId='" + languageId + @"') DN ON DN.LanguageId=PL.LanguageId
+                                    LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage wHERE LabelName='Department'and LanguageId='" + languageId + @"') DPN ON DPN.LanguageId=PL.LanguageId
+                                    LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage wHERE LabelName='Line'and LanguageId='" + languageId + @"') LN ON LN.LanguageId=PL.LanguageId
+			                		LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='IDNo'and LanguageId='" + languageId + @"') ID ON ID.LanguageId=PL.LanguageId
+			                		LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Permanent'and LanguageId='" + languageId + @"') PT ON PT.LanguageId=PL.LanguageId
+			                		LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='DOJ'and LanguageId='" + languageId + @"') DJ ON DJ.LanguageId=PL.LanguageId
+			                		LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='EmergencyTelNo'and LanguageId='" + languageId + @"') ET ON ET.LanguageId=PL.LanguageId
+			                		LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='BloodGroup'and LanguageId='" + languageId + @"') BGP ON BGP.LanguageId=PL.LanguageId
+			                		LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='NIDNo'and LanguageId='" + languageId + @"') NID ON BGP.LanguageId=PL.LanguageId
+	                                LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Permanent'and LanguageId='" + languageId + @"') PML ON PML.LanguageId=PL.LanguageId
+			                		LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Address'and LanguageId='" + languageId + @"') LA ON LA.LanguageId=PL.LanguageId
+                                    LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='MobileNo'and LanguageId='" + languageId + @"') LMB ON LMB.LanguageId=PL.LanguageId
+									LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Probationer'and LanguageId='" + languageId + @"') LPRL ON LPRL.LanguageId = PL.LanguageId
+									LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Permanent' and LanguageId='" + languageId + @"') PTl ON PTl.LanguageId=PL.LanguageId
+									LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = E.SectionId AND PL.LanguageId = SEC.LanguageId  AND PL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage SSEC ON SSEC.SubSectionId = E.SubSectionId AND PL.LanguageId = SSEC.LanguageId  AND PL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage CAC ON CAC.DepartmentId =E.DepartmentId AND PL.LanguageId=CAC.LanguageId  AND PL.LanguageId='" + languageId + @"'
+                                    WHERE E.SystemID ='" + employeeId + @"') TAB1 LEFT JOIN SCS.Language AS LAN ON LAN.Id=TAB1.LanguageId) TAB2 LEFT JOIN MST.AddressMaster AS AM ON AM.Id=TAB2.AddressMasterId) TAB3 
+									LEFT JOIN  (SELECT * FROM SCS.RptConfigTemplate WHERE Id='" + tempId + @"' and PlantId='" + plantId + @"') AS RPTM ON TAB3.PlantId=RPTM.PlantId)T 
+									
+									LEFT JOIN (
+							select convert(numeric(10,2), SD.EntryAmount) EntryAmount ,SH.SalaryHead,SM.EmpInfoSystemID FROM SalaryInfoDefineMaster SM
+                            LEFT JOIN SalaryInfoDefine SD ON SD.SalaryID=SM.SystemID
+                            LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SD.SalaryHeadID
+							WHERE SM.EmpInfoSystemID ='" + employeeId + @"') SA ON SA.EmpInfoSystemID=T.SystemId
+							)A
+)B 
+									DECLARE @sql nvarchar(max), @col nvarchar(max)
+                            SELECT @col = (
+                                SELECT DISTINCT ','+QUOTENAME(REPLACE(CONVERT(VARCHAR(40), SalaryHead, 113), '', ' '))    
+                                FROM #tempOT 
+                                FOR XML PATH ('')
+                            )                             SELECT @sql = N'
+                            (SELECT *
+                            FROM #tempOT
+                            PIVOT (
+                                MAX([EntryAmount]) FOR [SalaryHead] IN ('+STUFF(@col,1,1,'')+')
+                            ) as pvt)' 
+                            EXEC sp_executesql @sql
+                            drop table #tempOT";
+
+
+
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private void GetDataSet(string sql, out DataSet ds)
+        {
+            ds = new DataSet();
+            try
+            {
+                ConnectionManager.clsConnection _con = new ConnectionManager.clsConnection();
+                _con.BeginTransaction();
+                _con.getDataSet(sql, out ds);
+                _con.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public void GetEmployeePersonalFileInMSWord(string companyGroupId, string companyId, string plantId, string empId, string empType, string reportType, string tempId)
+        {
+            try
+            {
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility oRU = new ReportUtility();
+                string File = "";
+                string langID = "";
+                string strPath = "";
+                string language = "";
+                var fileName = "";
+                string filepath = "";
+                var lang = GetLanguage(plantId, tempId, reportType);
+
+
+                if (lang.Count > 0)
+                {
+                    var dtLangId = getLanguageId(lang["Language"].ToString()); //getLanguageId
+                    langID = dtLangId.Rows[0]["Id"].ToString();
+                    var dtLangName = getLanguageName(langID);
+                    language = dtLangName.Rows[0]["UserName"].ToString();
+
+
+                    fileName = lang["TemplateFileName"].ToString();
+                    strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
+                    File = fileName;
+                    if (!System.IO.File.Exists(strPath))
+                    {
+                        throw new CustomException("File <" + fileName + "> Not Found.");
+                    }
+                }
+                else
+                {
+                    langID = tempId;
+                    var dtLangName = getLanguageName(langID);
+                    language = dtLangName.Rows[0]["UserName"].ToString();
+                    fileName = "EmployeePersonalFile.doc";
+                    strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
+                    File = fileName;
+                    if (!System.IO.File.Exists(strPath))
+                    {
+                        throw new CustomException("File <" + fileName + "> Not Found.");
+                    }
+                }
+                DataTable dtEmp = GetEmployeeByIdWithSalary(empId, plantId, empType, langID, tempId);
+
+
+
+                GetDataSet(@"SELECT top(1)ISNULL(LEQ.Name,Q.UserName) EduQua,Q.UserName EduQu,EQ.EmpSystemID FROM dbo.EmpAcademicQualificationInformation EQ
+                                     LEFT JOIN[SCS].[QualificationLevel] Q ON Q.Id = EQ.EductLevelSystemID
+                                     LEFT JOIN HKP.LocalLanguage LEQ ON LEQ.QualificationLevelId = Q.ID AND LEQ.LanguageId = '" + langID + @"'
+                                     Where EmpSystemID = '" + empId + @"' Order By DateAdded DESC", out DataSet dsEduQua);
+
+                GetDataSet(@"SELECT top 1 Designation ExpDesignation,Employer ExpCompany FROM dbo.EmpExperienceInformation  Where EmpSystemID='" + empId + @"' Order By DateAdded DESC", out DataSet dsEExp);
+
+                GetDataSet(@"SELECT 
+    CAST(SUM(DurationYear) + (SUM(DurationMonth) / 12) AS VARCHAR) + ' Years ' +
+    CAST(SUM(DurationMonth) % 12 AS VARCHAR) + ' Months' AS ExpYear
+FROM dbo.EmpExperienceInformation  Where EmpSystemID='" + empId + @"'", out DataSet dsEmpExp);
+
+                GetDataSet(@"select convert(numeric(10,2), SD.EntryAmount) HRAE FROM SalaryInfoDefineMaster SM
+                            LEFT JOIN SalaryInfoDefine SD ON SD.SalaryID=SM.SystemID
+                            LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SD.SalaryHeadID
+							WHERE SM.EmpInfoSystemID ='" + empId + "' AND SH.SalaryHead='HRA'", out DataSet dsHRAE);
+
+                GetDataSet(@"select convert(numeric(10,2), SD.EntryAmount) BasicE FROM SalaryInfoDefineMaster SM
+                            LEFT JOIN SalaryInfoDefine SD ON SD.SalaryID=SM.SystemID
+                            LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SD.SalaryHeadID
+							WHERE SM.EmpInfoSystemID ='" + empId + "' AND SH.SalaryHead='Basic'", out DataSet dsBasic);
+
+                GetDataSet(@"select convert(numeric(10,2), SD.EntryAmount) GrossE FROM SalaryInfoDefineMaster SM
+                            LEFT JOIN SalaryInfoDefine SD ON SD.SalaryID=SM.SystemID
+                            LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SD.SalaryHeadID
+							WHERE SM.EmpInfoSystemID ='" + empId + "' AND SH.SalaryHead='Gross'", out DataSet dsGross);
+
+                for (int i = 0; i < dtEmp.Rows.Count; i++)
+                {
+                    if (dsEduQua.Tables[0].Rows.Count > 0)
+                    {
+                        dtEmp.Rows[i]["EduQua"] = dsEduQua.Tables[0].Rows[0]["EduQua"];
+                        dtEmp.Rows[i]["EduQu"] = dsEduQua.Tables[0].Rows[0]["EduQu"];
+                    }
+
+                    if (dsEExp.Tables[0].Rows.Count > 0)
+                    {
+                        dtEmp.Rows[i]["ExpDesignation"] = dsEExp.Tables[0].Rows[0]["ExpDesignation"];
+                        dtEmp.Rows[i]["ExpCompany"] = dsEExp.Tables[0].Rows[0]["ExpCompany"];
+                    }
+
+                    if (dsEmpExp.Tables[0].Rows.Count > 0)
+                    {
+                        dtEmp.Rows[i]["ExpYear"] = dsEmpExp.Tables[0].Rows[0]["ExpYear"];
+                        dtEmp.Rows[i]["ExpYears"] = dsEmpExp.Tables[0].Rows[0]["ExpYear"];
+                    }
+
+                    if (dsHRAE.Tables[0].Rows.Count > 0)
+                    {
+                        dtEmp.Rows[i]["HRAE"] = dsHRAE.Tables[0].Rows[0]["HRAE"];
+                    }
+
+                    if (dsBasic.Tables[0].Rows.Count > 0)
+                    {
+                        dtEmp.Rows[i]["BasicE"] = dsBasic.Tables[0].Rows[0]["BasicE"];
+                    }
+
+                    if (dsGross.Tables[0].Rows.Count > 0)
+                    {
+                        dtEmp.Rows[i]["GrossE"] = dsGross.Tables[0].Rows[0]["GrossE"];
+                    }
+                }
+
+
+
+                filepath = "";
+                if (System.IO.File.Exists(strPath))
+                {
+                    filepath = strPath;
+                }
+
+                FileInfo DocFile = new FileInfo(filepath);
+                if (DocFile.Exists == false)
+                {
+                    //DocFile = new FileInfo(System.Web.HttpContext.Current.Server.MapPath(".") + "\\Doc1.docx");
+                    throw new CustomException("File Not Found");
+                }
+
+                bool IsDefLan = false;
+
+                var tokens = (fileName.Substring(("EmployeePersonalFile").Length));
+                int charLocation = tokens.IndexOf(".", StringComparison.Ordinal);
+                var TemplateLan = tokens.Substring(0, charLocation);
+
+                WordDocument document = new WordDocument(DocFile.FullName);
+
+
+
+                TextSelection[] X = document.FindAll(new Regex("{.*?}")).ToArray();
+                List<string> allresult = new List<string>();
+                for (int i = 0; i < X.Length; i++)
+                    allresult.Add(X[i].SelectedText);
+
+
+                Dictionary<string, int> replaced = new Dictionary<string, int>();
+
+                string value = "";
+                for (int i = 0; i < allresult.Count; i++)
+                {
+                    try
+                    {
+                        string foundText = allresult[i];
+
+                        if (replaced.ContainsKey(foundText) == false)
+                            replaced.Add(foundText, 0);
+
+                        //for fixed info
+                        string colName = foundText.Trim().Replace("{", "").Replace("}", "");
+                        if (dtEmp.Columns.Contains(colName))
+                        {
+
+                            value = dtEmp.Rows[0][dtEmp.Columns[colName].ColumnName].ToString();
+
+                            if (colName == "EmployeeCodeEng" || colName == "DOJ" || colName == "DOB" || colName == "NationalIDEng" || colName == "MobileNo" || colName == "NoOfChildrenEng" || colName == "YearEng" || colName == "HRAE" || colName == "BasicE" || colName == "GrossE" || colName == "ExpYears")
+                            {
+                                replaced[foundText] = document.Replace(foundText, value, false, false);
+                            }
+                            else
+                            {
+                                if (bplib.clsWebLib.IsNumeric(value))
+                                    replaced[foundText] = document.Replace(foundText, cnDgt(value, language), false, false);
+                                else if (bplib.clsWebLib.IsDateOK(value))
+                                    replaced[foundText] = document.Replace(foundText, GetFormatedDate(value, language), false, false);
+                                else
+                                    replaced[foundText] = document.Replace(foundText, value, false, false);
+                            }
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+
+                        throw ex;
+                    }
+                }
+                WSection section = document.Sections[4];
+                //if (!string.IsNullOrEmpty(dtEmp.Rows[0]["EmployeePic"].ToString()))
+                //{
+                //    var pic = dtEmp.Rows[0]["EmployeePic"].ToString();
+                //    string picpath = ResourcesPathReader.GetEmployeeDestinationPicPath() + pic;
+                //    //WPicture ImgwPicture = new WPicture(document);
+                //    if (System.IO.File.Exists(picpath))
+                //    {
+                //        try
+                //        {
+                //            Image Img = Image.FromFile(picpath);
+                //            Image newImage = resizeImage(Img, 120, 120);
+
+                //            section.Tables[1].Rows[0].Cells[0].Paragraphs[0].AppendPicture(newImage);
+                //        }
+                //        catch (Exception ex)
+                //        {
+                //            throw (ex);
+                //        }
+                //    }
+                //}
+
+                foreach (string item in replaced.Keys)
+                {
+                    if (replaced[item] == 0)
+                        document.Replace(item, "", false, true);
+
+                }
+
+                string fileNames = string.Empty;
+                if (!string.IsNullOrEmpty(dtEmp.Rows[0]["EmployeeCode"].ToString()))
+                {
+
+                    fileNames = dtEmp.Rows[0]["EmployeeCode"].ToString() + "-EmployeePersonalFile.docx";
+
+                }
+                else
+                {
+                    fileNames = "-EmployeePersonalFile.docx";
+                }
+                document.Save(fileNames, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+                document.Close();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
         private void CreateServiceBookInWord(string companyGroupId, string companyId, string plantId, string empId, string empType, string reportType, string tempId)//, string templatePathHindi, string templatePathEnglish, string templatePathBangla)
         {
             try

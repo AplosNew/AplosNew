@@ -493,7 +493,16 @@
                                 <input type="text" name="Spouse NationalID" ng-model="employeeInformation.SpouseNationalID" class="form-control" maxlength="50" tabindex="20">
                             </div>
                         </div>
-
+                        <div class="form-group" ng-show="celebrationType">
+                            <label class="col-sm-4 control-label">Male Child</label>
+                            <div class="col-sm-2">
+                                <input type="text" name="Male Child" ng-model="employeeInformation.MaleChild" class="form-control" maxlength="50" tabindex="20">
+                            </div>
+                            <label class="col-sm-2 control-label">Female Child</label>
+                            <div class="col-sm-2">
+                                <input type="text" name="Female Child" ng-model="employeeInformation.FemaleChild" class="form-control" maxlength="50" tabindex="20">
+                            </div>
+                        </div>
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">

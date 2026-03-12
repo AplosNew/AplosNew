@@ -3,88 +3,116 @@
 </h3>
 
 <div class="form-horizontal" ng-form name="employeeInformationForm" ng-scroll="auto">
-    <div class="row text-right aplos-grid-toggle">
-        <div class="col-xs-12 col-sm-12 col-sm-12">
-            <div class="search-form">
-                <div class="row">
-                    <div class="col-xs-12 col-sm-3 col-md-3">
-                        <div class="select-style">
-                            <select ng-model="$root.parameters.searchBy">
-                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                            </select>
-                        </div>
+    <div class="col-xs-12">
+        <div class="row">
+
+            <div class="col-sm-4 radio">
+                <input type="radio" name="baselinedate" ng-model="EmployeeStatus" value="Active">
+                <span></span><span>Active Employee</span><br />
+
+            </div>
+            <div class="col-sm-4 radio">
+                <input type="radio" name="baselinedate" ng-model="EmployeeStatus" value="Separated" ng-checked="Separated">
+                <span></span><span>InActive Employee</span><br />
+
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li><button ng-click="getData();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Go</button></li>
+                        </ul>
                     </div>
-                    <div class="col-xs-12 col-sm-7 col-md-7">
-                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
                     </div>
-                    <div class="col-xs-12 col-sm-2 col-md-2">
-                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="table-responsive modal-table aplos-grid-toggle">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Employee Code</th>
-                    <th>Employee Name</th>
-                    <th>DOJ</th>
-                    <th>DOB</th>
-                    <th>Department</th>
-                    <th>Designation</th>
-                    <th>Report Type</th>
-                    <th>Language</th>
-                    <th>Print</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr dir-paginate="x in employees |itemsPerPage:$root.pageSize" total-items="$root.total_count" pagination-id="metaData.name + 'employees'">
-                    <td>{{x.EmployeeCode}}</td>
-                    <td>{{x.EmployeeName}}</td>
-                    <td>{{x.DOJ | dateFiltering}}</td>
-                    <td>{{x.DOB | dateFiltering}}</td>
-                    <td>{{x.Department}}</td>
-                    <td>{{x.LegalDesignation}}</td>
-                    <td>
-                        <div class="select-style">
-                            <select id="CompliedShiftGroupId" class="form-control" name="Complied Shift Group" ng-model="x.SelectedItem" ng-change="loadTemplateCbo(x.SelectedItem,$index)" tabindex="1">
-                                <option value="">--Select--</option>
-                                <option ng-repeat="option in ReportTypeList" value="{{option.Value}}">{{option.Text}}</option>
-                            </select>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="select-style">
-                            <select class="" ng-model="x.Id" name="Complied Shift Group" tabindex="1" ng-disabled="x.SelectedItem===''">
-                                <option value="">--Select--</option>
-                                <option ng-repeat="option in templateList" value="{{option.Value}}">{{option.Text}}</option>
-                            </select>
-                        </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Employee Code</th>
+                <th>Employee Name</th>
+                <th>DOJ</th>
+                <th>DOB</th>
+                <th>Department</th>
+                <th>Section</th>
+                <th>Designation</th>
+                <th>Report Type</th>
+                <th>Language</th>
+                <th>Print</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in employees |itemsPerPage:$root.pageSize" total-items="$root.total_count" pagination-id="metaData.name + 'employees'">
+                <td>{{x.EmployeeCode}}</td>
+                <td>{{x.EmployeeName}}</td>
+                <td>{{x.DOJ | dateFiltering}}</td>
+                <td>{{x.DOB | dateFiltering}}</td>
+                <td>{{x.Department}}</td>
+                <td>{{x.Section}}</td>
+                <td>{{x.LegalDesignation}}</td>
+                <td>
+                    <div class="select-style">
+                        <select id="CompliedShiftGroupId" class="form-control" name="Complied Shift Group" ng-model="x.SelectedItem" ng-change="loadTemplateCbo(x.SelectedItem,$index)" tabindex="1">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in ReportTypeList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="select-style">
+                        <select class="" ng-model="x.Id" name="Complied Shift Group" tabindex="1" ng-disabled="x.SelectedItem===''">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in templateList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
 
-                    </td>
+                </td>
 
 
-                    <td>
-                        <div class="common-btn">
-                            <ul class="common-btn list-inline text-left">
-                                <li> <button class="btn" ng-click="PrintLocal(x.SystemId,x.Id,x.SelectedItem,$index);">DownLoad</button></li>
-                            </ul>
+                <td>
+                    <div class="common-btn">
+                        <ul class="common-btn list-inline text-left">
+                            <li> <button class="btn" ng-click="PrintLocal(x.SystemId,x.Id,x.SelectedItem,$index);">DownLoad</button></li>
+                        </ul>
 
-                        </div>
-                    </td>
+                    </div>
+                </td>
 
-                </tr>
-            </tbody>
-        </table>
-        <dir-pagination-controls max-size="10"
-                                 pagination-id="metaData.name + 'employees'"
-                                 direction-links="true"
-                                 boundary-links="true"
-                                 on-page-change="getData(newPageNumber)">
-        </dir-pagination-controls>
-    </div>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             pagination-id="metaData.name + 'employees'"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
 </div>
 
 

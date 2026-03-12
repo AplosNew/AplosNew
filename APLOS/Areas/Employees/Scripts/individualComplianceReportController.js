@@ -6,12 +6,17 @@ function individualComplianceReportController(addressService, fileReader, cboSer
     $scope.index = -1;
     $scope.employees = [];
     $scope.path = 'employees/employeeinformation/';
-    $scope.getListUrl = $scope.path + 'getemployeelist';
+    $scope.getListUrl = $scope.path + 'GetActiveAndInActiveEmployeeList';
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl, null, 10, null, 'EmployeeCode', 'EmployeeCode');
+
+    $scope.EmployeeStatus = 'Active';
+
+
     $scope.getData = function (pageno) {
+        $rootScope.parameters.EmployeeStatus = $scope.EmployeeStatus;
         baseService.pagination(pageno)
             .then(function (result) {
                 $scope.employees = result.Rows;
@@ -22,6 +27,9 @@ function individualComplianceReportController(addressService, fileReader, cboSer
 
     };
     $scope.getData();
+
+
+
     $scope.paraModel = {
         empId: null,
         reportType: null,
@@ -93,11 +101,11 @@ function individualComplianceReportController(addressService, fileReader, cboSer
 
                 location.href = 'employees/EmployeeInformation/EmployeeAcknowledgementInMSWord?empId=' + empId + '&reportType=' + selected + '&tempId=' + id;
             }
-            
+
             if (selected === 'IncrementHistory') {
 
                 location.href = 'employees/EmployeeInformation/IncrementHistory?empId=' + empId + '&reportType=' + selected + '&tempId=' + id;
-            } 
+            }
             if (selected === 'ExitInterview') {
 
                 location.href = 'employees/EmployeeInformation/ExitInterview?empId=' + empId + '&reportType=' + selected + '&tempId=' + id;
@@ -105,15 +113,21 @@ function individualComplianceReportController(addressService, fileReader, cboSer
 
             if (selected === 'ConfirmationLetter') {
 
-                var href= 'employees/EmployeeInformation/ConfirmationletterInMSWord?empId=' + empId + '&reportType=' + selected + '&tempId=' + id;
-                $rootScope.report(href);   
+                var href = 'employees/EmployeeInformation/ConfirmationletterInMSWord?empId=' + empId + '&reportType=' + selected + '&tempId=' + id;
+                $rootScope.report(href);
             }
+            if (selected === 'EmployeePersonalFile') {
+
+                var href = 'employees/EmployeeInformation/GetEmployeePersonalFileInMSWord?empId=' + empId + '&reportType=' + selected + '&tempId=' + id;
+                $rootScope.report(href);
+            }
+
             if (selected === 'LeaveRegister') {
                 $scope.paraModel.empId = empId;
                 $scope.paraModel.reportType = selected;
                 $scope.paraModel.tempId = id;
                 $scope.parametersPopUp();
-               
+
             }
 
             if (selected === 'IdCard') {
@@ -128,23 +142,23 @@ function individualComplianceReportController(addressService, fileReader, cboSer
                 $scope.model.IssueDate = $filter('date')(new Date(), 'dd-MM-yyyy');;
                 $scope.model.DOJ = $filter('dateFiltering')($scope.obj[0].DOJ, 'dd-M-yyyy');
                 $scope.model.EmpSystemId = $scope.obj[0].SystemId;
-                
+
                 angular.element(document.querySelector('#IdCardPopUpModel')).modal('show');
             }
-            
+
             if (selected === 'WarningLetter') {
                 $scope.obj = $filter("filter")($scope.employees, { SystemId: empId });
                 $scope.paraModel.reportType = selected;
                 $scope.paraModel.tempId = id;
-                $scope.paraModel.empType = $scope.obj[0].EmploymentType;             
+                $scope.paraModel.empType = $scope.obj[0].EmploymentType;
                 $scope.GetSequence(empId);
                 $scope.WarningLettermodel.IssueDate = $filter('dateFiltering')($scope.obj[0].DOJ, 'dd-M-yyyy');
                 $scope.WarningLettermodel.DOJ = $filter('dateFiltering')($scope.obj[0].DOJ, 'dd-M-yyyy');
                 $scope.WarningLettermodel.EmpSystemId = $scope.obj[0].SystemId;
                 var eDialog = $("#WarningLetterPopUpModel").data("ejDialog");
-                eDialog.open();             
+                eDialog.open();
             }
-            
+
         } catch (e) {
             ShowResult(e, "failure");
         }
@@ -161,7 +175,7 @@ function individualComplianceReportController(addressService, fileReader, cboSer
     };
 
     $scope.idIndex = -1;
-    $scope.IdCardPrint = function (index,data) {
+    $scope.IdCardPrint = function (index, data) {
         $scope.idIndex = index;
         location.href = 'Employees/EmployeeIdCard/PrintEmployeeIDCard?empId=' + $scope.model.EmpSystemId + '&tempId=' + $scope.paraModel.tempId + '&empType=' + $scope.paraModel.empType + '&reportType=' + $scope.paraModel.reportType + '&issuDate=' + data.IssueDate + '&workTypeId=' + data.EmployeeWorkTypeId;
         $scope.idIndex = -1;
@@ -173,12 +187,12 @@ function individualComplianceReportController(addressService, fileReader, cboSer
         EmpSystemId: null,
         IssueDate: null,
         ExpiryDate: null,
-        EmployeeWorkTypeId:null
+        EmployeeWorkTypeId: null
     }
     $scope.WarningLettermodel = {
         Id: null,
         EmpSystemId: null,
-        WarningColumn: 'firstwarning'      
+        WarningColumn: 'firstwarning'
     }
     $scope.issueIdCardList = [];
     $scope.GetIssueIdCardByEmployee = function (employeeId) {
@@ -225,7 +239,7 @@ function individualComplianceReportController(addressService, fileReader, cboSer
                 throw "IssueDate " + $scope.model.IssueDate + " can not less than DOJ " + $scope.model.DOJ + "";
             }
 
-            if (baseService.arrayLength($scope.issueIdCardList)===0) {
+            if (baseService.arrayLength($scope.issueIdCardList) === 0) {
                 if ((new Date($scope.model.IssueDate) < new Date($scope.model.DOJ)) || (new Date($scope.model.IssueDate) > new Date($scope.model.DOJ))) {
                     throw "IssueDate " + $scope.model.IssueDate + " must be DOJ " + $scope.model.DOJ + "";
                 }
@@ -381,6 +395,10 @@ function individualComplianceReportController(addressService, fileReader, cboSer
         {
             'name': 'Department',
             'value': 'Department'
+        },
+        {
+            'name': 'Section',
+            'value': 'Section'
         },
         {
             'name': 'Designation',
