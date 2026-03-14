@@ -921,6 +921,58 @@ namespace Library.Service.Employees
             }
         }
 
+        public GridModel GetActiveAndInActiveEmployeeList(GridParameter parameters, string companyGroupId, string plantId, string EmployeeStatus)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT EI.*,PO.UserName PresThanaName,ParmPO.UserName ParmThanaName,D.UserName PresDistrictName,ParmD.UserName ParmDistrictName
+                 ,C.UserName PresCountryName,ParmC.UserName ParmCountryName,ParmP.UserName ParmPostOfficeName, PerP.UserName PresPostOfficeName
+                 ,PerCT.UserName PresCityName,ParCT.UserName ParmCityName,AM.CountryId
+                 ,CG.[Image] CompanyGroupLogo, CNT.PhoneLength, COM.IsTINRequiredForSalaryAbove
+                 ,CNT.TINCaption, CNT.NIDCaption, CNT.NIDLength, CNT.TINLength, COM.TINRequiredForSalaryAbove
+                 ,DG.UserName GivenDesignation, DP.UserName Department, PMB.Code,PR.UserName PositionName,E.UserName EntityName,DSG.UserName Designation,PR.DesignationId
+                 ,EAG.AttendanceGroupId,PGM.PayrollGroupId, OM.Code OperationMasterCode, OV.Code OperationVariationCode,LD.UserName LegalDesignation,S.UserName Section
+                FROM dbo.Employeeinformation EI
+                LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id
+                LEFT JOIN scs.PoliceStation PO ON EI.PresThanaID=PO.Id
+                LEFT JOIN scs.PoliceStation ParmPO ON EI.ParmThanaID=ParmPO.Id
+                LEFT JOIN SCS.District D ON EI.PresDistrictID = D.Id
+                LEFT JOIN SCS.District ParmD ON EI.ParmDistrictID = ParmD.Id
+                LEFT JOIN SCS.Country C ON EI.PresCountryID = C.ID
+                LEFT JOIN SCS.Country ParmC	ON EI.ParmCountryID = ParmC.ID
+                LEFT JOIN SCS.PostOffice ParmP ON EI.ParmPostOfficeID = ParmP.ID
+                LEFT JOIN SCS.PostOffice PerP ON EI.PresPostOfficeID = PerP.ID
+                LEFT JOIN SCS.City PerCT ON EI.PresCityID = PerCT.ID
+                LEFT JOIN SCS.City ParCT ON EI.ParmCityID = ParCT.ID
+                LEFT JOIN SCS.[State] ParmS ON EI.ParmStateId = ParmS.Id
+                LEFT JOIN SCS.[State] PresS ON EI.PresStateId = PresS.Id
+                LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id
+                LEFT JOIN MST.AddressMaster AM ON PL.AddressMasterId=AM.Id
+                LEFT JOIN SCS.Country CNT ON AM.CountryId=CNT.Id
+                LEFT JOIN ORG.Company COM ON EI.CompanyId=COM.Id
+                LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
+                LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
+                LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
+                LEFT JOIN dbo.EmployeeAttendanceGroup EAG on EAG.EmployeeId=EI.SystemId
+                LEFT JOIN MST.PayrollGroupMaster PGM on PGM.EmployeeId=EI.SystemId
+                LEFT JOIN MST.OperationMaster OM ON OM.Id=EI.OperationMasterID
+                LEFT JOIN MST.OperationVariation OV ON OV.Id=EI.OperationVariationId
+                LEFT JOIN [HKP].[LegalDesignation] LD ON LD.Id=EI.LegalDesignationId
+                LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
+                                     WHERE EI.EmployeeStatus ='" + EmployeeStatus + "' AND EI.PlantId='" + plantId + @"' AND  EI.GroupId='" + companyGroupId + "'";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
         public GridModel GetEmployeeWithPlant(GridParameter parameters, string plantId)
         {
             try

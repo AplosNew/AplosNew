@@ -2282,6 +2282,7 @@ public class clsSalaryStructureAplosNew
             // _para.EmpTaxGroupPk= dr["TaxGroupIDSR"].ToString();
             _para.DOJ = dr["DOJ"].ToString();
             _para.DesignationGroupId = dr["DesignationGroupId"].ToString();
+            _para.LegalDesignationId = dr["LegalDesignationId"].ToString();
             _para.BudgetCodeId = dr["BudgetCode"].ToString();
             if (string.IsNullOrEmpty(dr["EffectiveDate"].ToString()))
             {
@@ -11572,7 +11573,7 @@ public class clsSalaryStructureAplosNew
         }
     }//End Function 
 
-    public void GetDesignationMasterWiseMinSalary(BnsParaListNew para, out System.Data.DataSet dsRef)
+    public void GetDesignationMasterWiseMinSalary(BnsParaListNew para, out System.Data.DataSet dsRef,string LegalDesignationId)
     {
         string strSQL;
         ConnectionManager.DAL.ConManager objCon;
@@ -11596,7 +11597,7 @@ public class clsSalaryStructureAplosNew
 					                            ) LSS ON LSG.Id = LSS.LegalSalaryGradeId
 		                            INNER JOIN [MST].[LegalSalaryStructureValue] LSSV ON LSS.Id = LSSV.LegalSalaryStructureId
 		                            LEFT JOIN [dbo].[SalaryHead] SH ON LSSV.SalaryHeadId = SH.SalaryHeadID  
-                            WHERE LSGD.PlantId = '" + para.PlantID + @"'
+                            WHERE LSGD.PlantId = '" + para.PlantID + @"'  AND DMLD.LegalDesignationId='"+ LegalDesignationId + @"'
 							GROUP BY DMLD.LegalDesignationId, LSSV.LegalSalaryStructureId, SH.SalaryHead, LSSV.SalaryHeadId, LSSV.SalaryHeadValue, LSS.EmployeeLocationId 
 							ORDER BY DMLD.LegalDesignationId";
 
@@ -11694,7 +11695,7 @@ public class clsSalaryStructureAplosNew
 
             GetSalarySlabWiseValue(_para.PlantId, out dsSalarySlabWiseValue);
 
-            GetDesignationMasterWiseMinSalary(Bnspara, out dsMinWagSalary);
+            GetDesignationMasterWiseMinSalary(Bnspara, out dsMinWagSalary,_para.LegalDesignationId);
 
 
             DataTable dtValue = new DataTable();
@@ -19942,6 +19943,7 @@ public class CustomParaNew
     public bool IsBonusRtnPolicyDefined { get; set; } = false;
     public string AddedFromIP { get; set; }
     public string UpdatedFromIP { get; set; }
+    public string LegalDesignationId { get; set; }
 
 }
 public class EmpSalaryInfoDefineModelNew

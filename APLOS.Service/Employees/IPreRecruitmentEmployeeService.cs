@@ -63,5 +63,6 @@ namespace Library.Service.Employees
         GridModel GetAllCandidate(GridParameter parameters, string plantId);
 
         GridModel GetEmployeeWithPlant(GridParameter parameters, string plantId);
+        GridModel GetActiveAndInActiveEmployeeList(GridParameter parameters, string companyGroupId, string plantId, string EmployeeStatus);
     }
 }

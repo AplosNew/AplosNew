@@ -543,6 +543,13 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(_preRecruitmentEmployeeService.Query(parameters, identity.CompanyGroupId, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetActiveAndInActiveEmployeeList(GridParameter parameters, string EmployeeStatus)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_preRecruitmentEmployeeService.GetActiveAndInActiveEmployeeList(parameters, identity.CompanyGroupId, identity.PlantId, EmployeeStatus), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost, Authorize]
         public JsonResult GetEmployeeDataList(string column, string value)
         {

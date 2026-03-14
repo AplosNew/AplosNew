@@ -668,7 +668,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                 #endregion
 
                 string EmpSel = "";
-                if(Emps == "''")
+
+                for (int i = data.Count - 1; i >= 0; i--)
+                {
+                    var item = data.ElementAt(i);
+                    Emps += ",'" + item["EmpSystemID"] + "'";
+                }
+
+                if (Emps == "''")
                 {
                     EmpSel = "";
                 }
@@ -676,6 +683,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 {
                     EmpSel = "and ap.EmpSystemID in (" + Emps + ")";
                 }
+
+                
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string addedname = identity.Name;

@@ -152,6 +152,7 @@ function attendanceProcessUIController(commonMessage, $scope, $rootScope, baseSe
                 method: "POST",
                 dataType: 'JSON',
                 url: 'HumanResource/AttendanceManagement/GetEmployeeInformation',
+               // url: 'HumanResource/AttendanceProcessData/getAllEmployees',
                 data: parameters
             }).then(function successCallback(response) {
                 if (response.data.length > 0) {
