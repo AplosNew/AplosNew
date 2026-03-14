@@ -909,6 +909,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                         dsMaster.Tables[0].DefaultView[0]["LockedBy"] = DBNull.Value;
                                         dsMaster.Tables[0].DefaultView[0]["LockedDate"] = DBNull.Value;
                                         dsMaster.Tables[0].DefaultView[0]["ManualDayStatus"] = data[i]["DayStatus"].ToString();
+                                        //dsMaster.Tables[0].DefaultView[0]["DayStatus"] = data[i]["DayStatus"].ToString();
                                         dsMaster.Tables[0].DefaultView[0]["isManualDayStatus"] = true;
                                         dsMaster.Tables[0].DefaultView[0]["OTComfirmBy"] = DBNull.Value;
                                         dsMaster.Tables[0].DefaultView[0]["DateOTComfirm"] = DBNull.Value;
