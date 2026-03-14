@@ -1,7 +1,7 @@
 ﻿'use strict';
 taskTypeController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function taskTypeController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'taskType';
+    $rootScope.title = 'Task Type';
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.ModelList = [];

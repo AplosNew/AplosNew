@@ -22,6 +22,7 @@ using Aplos.HumanResource;
 using bplib;
 using Library.Model.HumanResources;
 using Library.Model.Enums;
+using System.Linq;
 
 namespace Aplos.Areas.Employees.Controllers
 {
@@ -142,7 +143,7 @@ namespace Aplos.Areas.Employees.Controllers
             return View();
         }
 
-        [Authorize]
+       
         public ActionResult BulkUpload()
         {
             return View();
@@ -2210,17 +2211,17 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=TT.ResponsiblePersonId) AS TEM
                 #region ------------------Column Header------------------
 
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12; int colEC= xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 14; int colEC= xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SystemId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 11; int colSId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeName"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colEN= xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colDOJ= xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOS"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colDOS= xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Entity"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colEntity = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Company"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colCompany = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeName"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 21; int colEN= xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12; int colDOJ= xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOS"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12; int colDOS= xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Entity"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colEntity = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Company"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colCompany = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Plant"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colPlant = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colES= xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCurrentStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colECS= xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeUserStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colEUS= xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 17; int colES= xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCurrentStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 22; int colECS= xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeUserStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colEUS= xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remark"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colRemark= xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ToUpdate"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colToUpdate = xlsCol; 
                 endXlsCol = xlsCol;
@@ -2304,7 +2305,7 @@ Left Join MST.ManpowerBudget M ON M.Id=E.BudgetCode
 Left Join ORG.Entity En ON En.Id=M.EntityId
 Left join Org.Company C ON C.Id=E.CompanyId
 Left join Org.Plant P ON P.Id=E.PlantId
-Where E.EmpType<>'Guest'";
+Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
             return _sqlRepository.GetDataTable(cmdText);
         }
 
@@ -2442,9 +2443,16 @@ Where E.EmpType<>'Guest'";
             try
             {
                 #region Entity 
-              
+
+                string tempEmpSysId = "''";
+                for (int i = data.Count - 1; i >= 0; i--)
+                {
+                    var item = data.ElementAt(i);
+                    tempEmpSysId += ",'" + item["SystemId"] + "'";
+                }
+
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.EmployeeInformation", out dsBC, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.EmployeeInformation Where SystemID IN (" + tempEmpSysId + ")", out dsBC, false, "1");
 
                 if (data != null)
                 {
@@ -2456,7 +2464,7 @@ Where E.EmpType<>'Guest'";
                         if (dv.Count > 0)
                         {
                             DataRow drmo = dv[0].Row;
-                            EditRow(drmo, item);
+                            NewEditLogRow(drmo, item);
                         }
                     }
 
@@ -2472,6 +2480,26 @@ Where E.EmpType<>'Guest'";
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+        private void NewEditLogRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["DateUpdated"] = System.DateTime.Now.ToString();
+            dr.EndEdit();
+        }
+
         public class UploadedEmployeeViewModel
         {
             public string EmployeeCode { get; set; }
