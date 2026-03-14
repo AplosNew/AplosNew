@@ -55,8 +55,8 @@ function DispatchPlanController(commonMessage, $scope, $rootScope, baseService, 
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     };
     $scope.getPlanNo = function () {
-        $scope.dispatchPlanNew.PlanNo ='';
-        $scope.dispatchPlanNew.PlanNo = $scope.dispatchPlanNew.YearNo + $scope.dispatchPlanNew.MonthNo + $scope.dispatchPlanNew.RevisionNo;
+        $scope.dispatchPlanNew.PlanNo = null;
+        $scope.dispatchPlanNew.PlanNo = $scope.dispatchPlanNew.PlanNo + $scope.dispatchPlanNew.MonthNO + $scope.dispatchPlanNew.RevisionNo;
     }
     $scope.Save = function () {
         //$scope.$broadcast('show-errors-check-validity');
