@@ -1170,7 +1170,11 @@ LEFT JOIN (Select dd.*,
                 (Select wcc.DayType from
                 dbo.WeekOffChild wcc where wcc.WOSequence =dd.DayDiff 
                 and wcc.WOHeaderId = dd.WeekOffHeaderId) 
-                as DayType,'' RosterDayType
+                as DayType
+                ,(Select wcc.[Day] from
+                dbo.WeekOffChild wcc where wcc.WOSequence =dd.DayDiff 
+                and wcc.WOHeaderId = dd.WeekOffHeaderId) 
+                as [WeekDay],'' RosterDayType
                 from
                 (Select e.SystemId,
                 
@@ -1220,7 +1224,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 where e.SystemId in( select empsystemid from EmployeeWeeklyOff)
                 and e.PlantId='" + plant + @"' --and e.SystemId='2525844'
                 group by e.SystemId
-                ) as dd) IWO ON IWO.SystemId=apd.EmpSystemId
+                ) as dd) IWO ON IWO.SystemId=apd.EmpSystemId  and DATENAME(WEEKDAY,apd.WorkDate)=IWO.[WeekDay]
 				where apd.workdate='" + Date + @"' and apd.PlantId='" + plant + @"' and isnull(EmpSystemID,'') IN ( -- and apd.EmpSystemID='2525844'
 									SELECT isnull(ei.SystemId,'') 
                                     FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + plant + @"'
@@ -1247,6 +1251,10 @@ LEFT JOIN hkp.WeeklyStatus WS
                 dbo.WeekOffChild wcc where wcc.WOSequence =dd.DayDiff 
                 and wcc.WOHeaderId = dd.WeekOffHeaderId) 
                 as DayType
+                ,(Select wcc.[Day] from
+                dbo.WeekOffChild wcc where wcc.WOSequence =dd.DayDiff 
+                and wcc.WOHeaderId = dd.WeekOffHeaderId) 
+                as [WeekDay]
                 from
                 (Select e.SystemId,
                 
@@ -1301,7 +1309,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 ) as dd	
 				) x  join (select  PlantID,WorkDate,WeeklyStatus,EmpSystemID from AttdnProcessData 
                                    WHERE WorkDate='" + Date + @"' and PlantId='" + plant + @"' 
-                                     ) apd on apd.EmpSystemID=x.SystemId AND apd.WeeklyStatus IS NULL  ";
+                                     ) apd on apd.EmpSystemID=x.SystemId AND apd.WeeklyStatus IS NULL and x.[WeekDay]=DATENAME(WEEKDAY,apd.WorkDate)   ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();
                 objCon.executeQuery(sqlxNew);
