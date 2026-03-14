@@ -307,6 +307,48 @@ namespace OTSBD
                 objCon = null;
             }
         }//End Function
+
+        public void GetDesignationMasterWiseMinSalaryNew(BnsParaListNew para, out System.Data.DataSet dsRef, string legalDesignationId)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+
+            try
+            {
+                strSQL = @"SELECT DMLD.LegalDesignationId DesignationId, LSSV.LegalSalaryStructureId, SH.SalaryHead, LSSV.SalaryHeadId, LSSV.SalaryHeadValue, LSS.EmployeeLocationId 
+                            FROM [MST].[DesignationMaster] DM
+		                            INNER JOIN [MST].[DesignationMasterLegalDesignation] DMLD ON DM.Id = DMLD.DesignationMasterId
+		                            INNER JOIN [MST].[LegalSalaryGradeDesignation] LSGD ON LSGD.LegalDesignationId = DMLD.LegalDesignationId
+		                            INNER JOIN [SCS].[LegalSalaryGrade] LSG ON LSGD.LegalSalaryGradeId = LSG.Id
+		                            INNER JOIN (
+					                            SELECT A.* FROM [MST].[LegalSalaryStructure] A
+						                            INNER JOIN
+								                              (
+								                               SELECT LegalSalaryGradeId, EmployeeLocationId, MAX(EffectiveDate) EffectiveDate FROM [MST].[LegalSalaryStructure] 
+                                                                WHERE EffectiveDate <= '" + para.EDate + @"'
+									                           GROUP BY LegalSalaryGradeId, EmployeeLocationId
+								                              ) B ON A.LegalSalaryGradeId = B.LegalSalaryGradeId AND A.EffectiveDate = B.EffectiveDate
+																 AND A.EmployeeLocationId = B.EmployeeLocationId
+					                            ) LSS ON LSG.Id = LSS.LegalSalaryGradeId
+		                            INNER JOIN [MST].[LegalSalaryStructureValue] LSSV ON LSS.Id = LSSV.LegalSalaryStructureId
+		                            LEFT JOIN [dbo].[SalaryHead] SH ON LSSV.SalaryHeadId = SH.SalaryHeadID  
+                            WHERE LSGD.PlantId = '" + para.PlantID + @"' AND  DMLD.LegalDesignationId='" + legalDesignationId + @"'
+							GROUP BY DMLD.LegalDesignationId, LSSV.LegalSalaryStructureId, SH.SalaryHead, LSSV.SalaryHeadId, LSSV.SalaryHeadValue, LSS.EmployeeLocationId 
+							ORDER BY DMLD.LegalDesignationId";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void GetDesignationMasterWiseMinSalary(BnsParaListNew para, out System.Data.DataSet dsRef)
         {
             string strSQL;
