@@ -351,28 +351,8 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
             }
         }
 
-        public void CompanyWeekOffData(string fDate, string tDate, out DataSet ds, string plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"select distinct odd.DayName,od.PlantId,Format(odd.OffDayDate,'yyyy-MMM-dd')WkDate
-				from scs.OffDayMaster od 
-				left join scs.OffDayDetail odd on odd.OffDayMasterId=od.Id
-				where od.OffDayType='W' 
-				and od.PlantId='" + plant + @"'
-				and odd.OffDayDate between '"+ fDate + @"' and '" + tDate + @"'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-
-
-        public void UpdateRosterWeekOffData(string fDate, string tDate, string plant)
+        
+        public void UpdateRosterWeekOffData(string fDate, string tDate, string plant,string data)
         {
             ConnectionManager.DAL.ConManager objCon;
             try
@@ -408,7 +388,12 @@ LEFT JOIN (Select dd.*,
                 (Select wcc.DayType from
                 dbo.WeekOffChild wcc where wcc.WOSequence =dd.DayDiff 
                 and wcc.WOHeaderId = dd.WeekOffHeaderId) 
-                as DayType,'' RosterDayType
+                as DayType,
+(Select wcc.[Day] from
+                dbo.WeekOffChild wcc where wcc.WOSequence =dd.DayDiff 
+                and wcc.WOHeaderId = dd.WeekOffHeaderId) 
+                as [WeekDay]
+,'' RosterDayType
                 from
                 (Select e.SystemId,
                 
@@ -456,14 +441,14 @@ LEFT JOIN dbo.RosterPatternChild RPC
 LEFT JOIN hkp.WeeklyStatus WS
        ON WS.Id = RPC.WeeklyStatusId
                 where e.SystemId in( select empsystemid from EmployeeWeeklyOff)
-                and e.PlantId='" + plant + @"' --and e.SystemId='2525844'
+                and e.PlantId='" + plant + @"' and e.SystemId in ("+ data + @")
                 group by e.SystemId
-                ) as dd) IWO ON IWO.SystemId=apd.EmpSystemId
+                ) as dd) IWO ON IWO.SystemId=apd.EmpSystemId and DATENAME(WEEKDAY,apd.WorkDate)=IWO.[WeekDay]
 				where apd.workdate  between '" + fDate + @"' and '" + tDate + @"' and apd.PlantId='" + plant + @"' and isnull(EmpSystemID,'') IN ( -- and apd.EmpSystemID='2525844'
 									SELECT isnull(ei.SystemId,'') 
                                     FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + plant + @"'
                                    AND  ei.DOJ <= '" + fDate + @"' 
-                                   AND (ei.DOS >= '" + fDate + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))  ";
+                                   AND (ei.DOS >= '" + fDate + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')  and apd.EmpSystemID in (" + data + @"))  ";
                 ConnectionManager.clsConnection objCone = new ConnectionManager.clsConnection();
                 objCone.BeginTransaction();
                 objCone.executeQuery(sql);
@@ -474,7 +459,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 throw (ex);
             }
         }
-        public void UpdateIndividualData(string fDate, string tDate, string plant)
+        public void UpdateIndividualData(string fDate, string tDate, string plant, string data)
         {
             ConnectionManager.DAL.ConManager objCon;
             try
@@ -485,6 +470,10 @@ LEFT JOIN hkp.WeeklyStatus WS
                 dbo.WeekOffChild wcc where wcc.WOSequence =dd.DayDiff 
                 and wcc.WOHeaderId = dd.WeekOffHeaderId) 
                 as DayType
+                ,(Select wcc.[Day] from
+                dbo.WeekOffChild wcc where wcc.WOSequence =dd.DayDiff 
+                and wcc.WOHeaderId = dd.WeekOffHeaderId) 
+                as [WeekDay]
                 from
                 (Select e.SystemId,
                 
@@ -539,7 +528,8 @@ LEFT JOIN hkp.WeeklyStatus WS
                 ) as dd	
 				) x  join (select  PlantID,WorkDate,WeeklyStatus,EmpSystemID from AttdnProcessData 
                                    WHERE WorkDate  between '" + fDate + @"' and '" + tDate + @"' and PlantId='" + plant + @"' 
-                                     ) apd on apd.EmpSystemID=x.SystemId AND apd.WeeklyStatus IS NULL  ";
+                                     ) apd on apd.EmpSystemID=x.SystemId AND apd.EmpSystemID in ("+ data + @") AND apd.WeeklyStatus IS NULL  
+									 and x.[WeekDay]=DATENAME(WEEKDAY,apd.WorkDate)  ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();
                 objCon.executeQuery(sqlxNew);
@@ -577,50 +567,13 @@ LEFT JOIN hkp.WeeklyStatus WS
                 #endregion
 
                 #region WeekOff Flagging
-                DataSet CompanyWeekOff;
 
-                CompanyWeekOffData(FD,TD, out CompanyWeekOff, identity.PlantId);
                 ConnectionManager.DAL.ConManager objConR = new ConnectionManager.DAL.ConManager("1");
                 string DayType = null;
 
-                UpdateRosterWeekOffData(FD,TD, identity.PlantId);
+                UpdateRosterWeekOffData(FD,TD, identity.PlantId, data);
 
-                UpdateIndividualData(FD,TD, identity.PlantId);
-
-                if (CompanyWeekOff.Tables[0].Rows.Count > 0)
-                {
-                    var sql = @"Update AttdnProcessData Set WeeklyStatus='W'  
-                                           WHERE WorkDate between'" + FD + @"' and '" + TD + @"' AND WeeklyStatus IS NULL  AND isnull(EmpSystemID,'') IN  (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS 
-                            ei WHERE  ei.PlantId ='" + identity.PlantId + "' AND ei.DOJ <= '" + FD + "' AND (ei.DOS >= '" + FD + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901') 
-                            and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'')  from EmployeeWeeklyOff where EffectiveDate<='" + FD + @"')) ";
-
-                    ConnectionManager.DAL.ConManager objCone = null;
-                    objCone = new ConnectionManager.DAL.ConManager("1");
-                    objCone.OpenConnection("1");
-                    objCone.BeginTransaction();
-
-                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                    objCone.CommitTransaction();
-
-                }
-                else
-                {
-                    var sql = @"Update AttdnProcessData Set WeeklyStatus='NW'  
-                                          WHERE WorkDate  between '" + FD + @"' and '" + TD + @"' AND WeeklyStatus IS NULL AND isnull(EmpSystemID,'') IN" +
-                       " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                       "ei WHERE  ei.PlantId='" + identity.PlantId + "'  and ei.DOJ <= '" + FD + "' AND (ei.DOS >= '" + FD + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
-                       "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
-                       "from EmployeeWeeklyOff where EffectiveDate<='" + FD + "')) ";
-
-                    ConnectionManager.DAL.ConManager objCone = null;
-                    objCone = new ConnectionManager.DAL.ConManager("1");
-                    objCone.OpenConnection("1");
-                    objCone.BeginTransaction();
-
-                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                    objCone.CommitTransaction();
-                }
-
+                UpdateIndividualData(FD,TD, identity.PlantId,data);
 
                 #endregion
 

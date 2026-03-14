@@ -259,7 +259,7 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
             $http({
                 method: 'POST',
                 data: { EffectiveDate: $scope.selectedValues.FromDate, EmpData: EmpString },
-                url: $scope.path + 'ProcessAttendanceNew'
+                url: $scope.path + 'ProcessAttendance'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, "failure");
