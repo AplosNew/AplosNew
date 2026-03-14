@@ -12070,6 +12070,15 @@ public class clsSalaryStructureAplosNew
 
                                         GetAmountHeadCategoryWise(_para.SalaryRuleId, dsLocal.Tables[0].Rows[i]["HeadCategory"].ToString(), dsEntityAllowance, dsMBAllowance, dsLocal, dsOpenVal, out strTempEntryAmt, out _currency);
 
+                                        if (dsMinWagSalary.Tables[0].Rows.Count > 0 && dsLocal.Tables[0].Rows[i]["SalaryHead"].ToString().Trim() == "Minimum Wage")
+                                        {
+                                            strTempEntryAmt = dsMinWagSalary.Tables[0].Rows[0]["SalaryHeadValue"].ToString();
+                                        }
+                                        else
+                                        {
+                                            strTempEntryAmt = dvOpenValFil[0]["Amount"].ToString().Trim();
+                                        }
+
                                         if (string.IsNullOrEmpty(strTempEntryAmt.Trim()) == true)
                                         { strTempEntryAmt = "0.0"; }
 
