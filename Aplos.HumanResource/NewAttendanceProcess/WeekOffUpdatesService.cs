@@ -351,6 +351,287 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
             }
         }
 
+        public void CompanyWeekOffData(string fDate, string tDate, out DataSet ds, string plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select distinct odd.DayName,od.PlantId,Format(odd.OffDayDate,'yyyy-MMM-dd')WkDate
+				from scs.OffDayMaster od 
+				left join scs.OffDayDetail odd on odd.OffDayMasterId=od.Id
+				where od.OffDayType='W' 
+				and od.PlantId='" + plant + @"'
+				and odd.OffDayDate between '"+ fDate + @"' and '" + tDate + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
+        public void UpdateRosterWeekOffData(string fDate, string tDate, string plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"UPDATE apd SET WeeklyStatus=ISNULL(ISNULL(ws.Code,IWO.DayType),NULL) 
+ 
+				FROM AttdnProcessData apd
+LEFT JOIN dbo.EmployeeInformation EI 
+       ON EI.SystemId = apd.EmpSystemId
+LEFT JOIN dbo.RosterBudget RB 
+       ON RB.BudgetId = EI.BudgetCode
+-- 1️⃣ Get applicable EffectiveDate
+OUTER APPLY (
+    SELECT TOP (1) *
+    FROM dbo.RosterEffectiveDate
+    WHERE RPHeaderId = RB.RosterId
+      AND EffectiveDate <= apd.WorkDate
+    ORDER BY EffectiveDate DESC
+) RED
+-- 2️⃣ Calculate DayInWeek ONCE
+CROSS APPLY (
+    SELECT ((DATEDIFF(DAY, RED.EffectiveDate, apd.WorkDate)) % (select count(Days31) from dbo.RosterPatternChild where Days31<>'' AND  RPHeaderId=RB.RosterId )) + 1 AS DayInWeek
+) D
+-- 3️⃣ Pick correct RosterPatternChild row
+LEFT JOIN dbo.RosterPatternChild RPC
+       ON RPC.RPHeaderId = RB.RosterId
+      AND RPC.Days31 = D.DayInWeek
+LEFT JOIN hkp.WeeklyStatus WS
+       ON WS.Id = RPC.WeeklyStatusId
+
+
+LEFT JOIN (Select dd.*,
+                (Select wcc.DayType from
+                dbo.WeekOffChild wcc where wcc.WOSequence =dd.DayDiff 
+                and wcc.WOHeaderId = dd.WeekOffHeaderId) 
+                as DayType,'' RosterDayType
+                from
+                (Select e.SystemId,
+                
+                (Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
+                where EmpSystemId = e.SystemId and ex.EffectiveDate<='" + fDate + @"'
+                order by ex.EffectiveDate desc) WeekOffHeaderId,
+
+                (DATEDIFF(DAY, (Select top 1 ed.EffectiveDate from
+                dbo.WeekOffHeader h 
+                left join dbo.WeekOffEffectiveDate ed on ed.WOHeaderId = h.Id               
+                where ed.EffectiveDate <= '" + fDate + @"' and ed.WOHeaderId =  
+				(Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
+                where EmpSystemId = e.SystemId and ex.EffectiveDate<='" + fDate + @"'
+                order by ex.EffectiveDate desc)
+                order by ed.EffectiveDate desc) , '" + fDate + @"') % 
+                (Select max(WOSequence) from WeekOffHeader h 
+                left join WeekOffChild wc on wc.WOHeaderId=h.Id 
+                where h.Id =  
+				(Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
+                where EmpSystemId = e.SystemId and ex.EffectiveDate<='" + fDate + @"'
+                order by ex.EffectiveDate desc)
+				)
+				)+1 as DayDiff
+                from 
+                EmployeeInformation e
+                left join EmployeeWeeklyOff ex on e.SystemId=ex.EmpSystemId
+				LEFT JOIN dbo.RosterBudget RB 
+       ON RB.BudgetId = E.BudgetCode
+-- 1️⃣ Get applicable EffectiveDate
+OUTER APPLY (
+    SELECT TOP (1) *
+    FROM dbo.RosterEffectiveDate
+    WHERE RPHeaderId = RB.RosterId
+      AND EffectiveDate <= '" + fDate + @"'
+    ORDER BY EffectiveDate DESC
+) RED
+-- 2️⃣ Calculate DayInWeek ONCE
+CROSS APPLY (
+    SELECT ((DATEDIFF(DAY, RED.EffectiveDate, '" + fDate + @"')) % (select count(Days31) from dbo.RosterPatternChild where Days31<>'' AND  RPHeaderId=RB.RosterId )) + 1 AS DayInWeek
+) D
+-- 3️⃣ Pick correct RosterPatternChild row
+LEFT JOIN dbo.RosterPatternChild RPC
+       ON RPC.RPHeaderId = RB.RosterId
+      AND RPC.Days31 = D.DayInWeek
+LEFT JOIN hkp.WeeklyStatus WS
+       ON WS.Id = RPC.WeeklyStatusId
+                where e.SystemId in( select empsystemid from EmployeeWeeklyOff)
+                and e.PlantId='" + plant + @"' --and e.SystemId='2525844'
+                group by e.SystemId
+                ) as dd) IWO ON IWO.SystemId=apd.EmpSystemId
+				where apd.workdate  between '" + fDate + @"' and '" + tDate + @"' and apd.PlantId='" + plant + @"' and isnull(EmpSystemID,'') IN ( -- and apd.EmpSystemID='2525844'
+									SELECT isnull(ei.SystemId,'') 
+                                    FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + plant + @"'
+                                   AND  ei.DOJ <= '" + fDate + @"' 
+                                   AND (ei.DOS >= '" + fDate + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))  ";
+                ConnectionManager.clsConnection objCone = new ConnectionManager.clsConnection();
+                objCone.BeginTransaction();
+                objCone.executeQuery(sql);
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void UpdateIndividualData(string fDate, string tDate, string plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sqlxNew = @"UPDATE apd SET apd.WeeklyStatus=ISNULL(x.DayType,'') from (
+                Select dd.*,
+                (Select wcc.DayType from
+                dbo.WeekOffChild wcc where wcc.WOSequence =dd.DayDiff 
+                and wcc.WOHeaderId = dd.WeekOffHeaderId) 
+                as DayType
+                from
+                (Select e.SystemId,
+                
+                (Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
+                where EmpSystemId = e.SystemId and ex.EffectiveDate<='" + fDate + @"'
+                order by ex.EffectiveDate desc) WeekOffHeaderId,
+
+                (DATEDIFF(DAY, (Select top 1 ed.EffectiveDate from
+                dbo.WeekOffHeader h 
+                left join dbo.WeekOffEffectiveDate ed on ed.WOHeaderId = h.Id               
+                where ed.EffectiveDate <= '" + fDate + @"' and ed.WOHeaderId =  
+				(Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
+                where EmpSystemId = e.SystemId and ex.EffectiveDate<='" + fDate + @"'
+                order by ex.EffectiveDate desc)
+                order by ed.EffectiveDate desc) , '" + fDate + @"') % 
+                (Select max(WOSequence) from WeekOffHeader h 
+                left join WeekOffChild wc on wc.WOHeaderId=h.Id 
+                where h.Id =  
+				(Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
+                where EmpSystemId = e.SystemId and ex.EffectiveDate<='" + fDate + @"'
+                order by ex.EffectiveDate desc)
+				)
+				)+1 as DayDiff
+                from 
+                EmployeeInformation e
+                left join EmployeeWeeklyOff ex on e.SystemId=ex.EmpSystemId
+                where e.SystemId in( select empsystemid from EmployeeWeeklyOff)
+ 
+and E.BudgetCode not in(Select SystemId from 
+				 dbo.RosterBudget RB 
+-- 1️⃣ Get applicable EffectiveDate
+OUTER APPLY (
+    SELECT TOP (1) *
+    FROM dbo.RosterEffectiveDate
+    WHERE RPHeaderId = RB.RosterId
+      AND EffectiveDate <= '" + fDate + @"'
+    ORDER BY EffectiveDate DESC
+) RED
+-- 2️⃣ Calculate DayInWeek ONCE
+CROSS APPLY (
+    SELECT ((DATEDIFF(DAY, RED.EffectiveDate, '" + fDate + @"')) % (select count(Days31) from dbo.RosterPatternChild where Days31<>'' AND  RPHeaderId=RB.RosterId )) + 1 AS DayInWeek
+) D
+-- 3️⃣ Pick correct RosterPatternChild row
+LEFT JOIN dbo.RosterPatternChild RPC
+       ON RPC.RPHeaderId = RB.RosterId
+      AND RPC.Days31 = D.DayInWeek
+LEFT JOIN hkp.WeeklyStatus WS
+       ON WS.Id = RPC.WeeklyStatusId
+				)
+                and e.PlantId='" + plant + @"' 
+                group by e.SystemId
+                ) as dd	
+				) x  join (select  PlantID,WorkDate,WeeklyStatus,EmpSystemID from AttdnProcessData 
+                                   WHERE WorkDate  between '" + fDate + @"' and '" + tDate + @"' and PlantId='" + plant + @"' 
+                                     ) apd on apd.EmpSystemID=x.SystemId AND apd.WeeklyStatus IS NULL  ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.executeQuery(sqlxNew);
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public string ProcessAttendanceNew(string EffectiveDate, string data)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string addedname = identity.Name;
+                string addeddate = DateTime.Now.ToString();
+                #region Plant Lock Checking
+
+                DataSet PlantLock;
+                string FD = EffectiveDate;
+                string TD = DateTime.Now.ToString("yyyy-MM-dd");
+                PlantLockCheck(FD, TD, out PlantLock, identity.PlantId);
+                string pl = "";
+                if (PlantLock.Tables[0].Rows.Count > 0)
+                {
+                    for (var i = 0; i < PlantLock.Tables[0].Rows.Count; i++)
+                    {
+                        pl = pl + " " + PlantLock.Tables[0].Rows[i]["LockedDate"].ToString() + ", ";
+                    }
+                    return "The Plant is Locked for - " + pl;
+
+                }
+                #endregion
+
+                #region WeekOff Flagging
+                DataSet CompanyWeekOff;
+
+                CompanyWeekOffData(FD,TD, out CompanyWeekOff, identity.PlantId);
+                ConnectionManager.DAL.ConManager objConR = new ConnectionManager.DAL.ConManager("1");
+                string DayType = null;
+
+                UpdateRosterWeekOffData(FD,TD, identity.PlantId);
+
+                UpdateIndividualData(FD,TD, identity.PlantId);
+
+                if (CompanyWeekOff.Tables[0].Rows.Count > 0)
+                {
+                    var sql = @"Update AttdnProcessData Set WeeklyStatus='W'  
+                                           WHERE WorkDate between'" + FD + @"' and '" + TD + @"' AND WeeklyStatus IS NULL  AND isnull(EmpSystemID,'') IN  (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS 
+                            ei WHERE  ei.PlantId ='" + identity.PlantId + "' AND ei.DOJ <= '" + FD + "' AND (ei.DOS >= '" + FD + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901') 
+                            and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'')  from EmployeeWeeklyOff where EffectiveDate<='" + FD + @"')) ";
+
+                    ConnectionManager.DAL.ConManager objCone = null;
+                    objCone = new ConnectionManager.DAL.ConManager("1");
+                    objCone.OpenConnection("1");
+                    objCone.BeginTransaction();
+
+                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                    objCone.CommitTransaction();
+
+                }
+                else
+                {
+                    var sql = @"Update AttdnProcessData Set WeeklyStatus='NW'  
+                                          WHERE WorkDate  between '" + FD + @"' and '" + TD + @"' AND WeeklyStatus IS NULL AND isnull(EmpSystemID,'') IN" +
+                       " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
+                       "ei WHERE  ei.PlantId='" + identity.PlantId + "'  and ei.DOJ <= '" + FD + "' AND (ei.DOS >= '" + FD + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
+                       "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
+                       "from EmployeeWeeklyOff where EffectiveDate<='" + FD + "')) ";
+
+                    ConnectionManager.DAL.ConManager objCone = null;
+                    objCone = new ConnectionManager.DAL.ConManager("1");
+                    objCone.OpenConnection("1");
+                    objCone.BeginTransaction();
+
+                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                    objCone.CommitTransaction();
+                }
+
+
+                #endregion
+
+                return "true";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public string ProcessAttendance(string EffectiveDate,string data)
         {
             try
