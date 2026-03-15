@@ -120,6 +120,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                 var colESICEE = 0;
                 var colWagesTotal = 0;
                 var colTotal = 0;
+                var colReason = 0;
+                var colLWD = 0;
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
@@ -155,6 +157,8 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Employer", 10); colESICER = xlsCol; xlsCol++;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Total", 10); colTotal = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Reason Code for Zero Workings Days", 10); colReason = xlsCol; xlsCol++;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, " Last Working Day", 10); colLWD = xlsCol;
                 DataRow drAttdnSummary = null;
                 endXlsCol = xlsCol;
                 xlsRow++;
@@ -294,6 +298,20 @@ namespace Aplos.Areas.Payrolls.Controllers
                     sheet1.Range[xlsRow, colESICER].BorderAround(ExcelLineStyle.Hair);
                     ru.SetText(ref sheet1, xlsRow, colTotal, Convert.ToInt32(esicER) + Convert.ToInt32(esicEE) * (-1));
                     sheet1.Range[xlsRow, colTotal].BorderAround(ExcelLineStyle.Hair);
+
+                    if (esicER != 0)
+                    {
+                        ru.SetTextBorder(ref sheet1, xlsRow, colReason, 0);
+                    }
+                    else if (dtEmpInfo.Rows[i]["EmployeeStatus"].ToString() == "Separated")
+                    {
+                        ru.SetTextBorder(ref sheet1, xlsRow, colReason, 0);
+                    }
+                    else
+                    {
+                        ru.SetTextBorder(ref sheet1, xlsRow, colReason, 1);
+                    }
+                    ru.SetTextBorder(ref sheet1, xlsRow, colLWD, dtEmpInfo.Rows[i]["LastWorkingDay"].ToString());
 
                     #endregion Loop
                     xlsRow++;
@@ -641,6 +659,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 strSQL = @"  SELECT E.SystemID EmpSystemId,E.PlantId
                             , E.EmployeeCode, E.EmployeeName,E.DOB, E.DOJ,E.DOS, E.EmployeeStatus
                             ,ed.DocNumber
+,LastWorkingDay=CASE WHEN E.EmployeeStatus='Separated' THEN (Select top 1 FORMAT(WorkDate,'dd-MMM-yyyy') From dbo.AttdnProcessData Where EmpSystemId=E.SystemId Order By WorkDate DESC) ELSE '' END
                             ,DATEDIFF(YY,E.DOB,'" + date + @"') As Age
 											
 											,E.EmployeeCategorySystemID,ECA.UserName EmpCategoryName,ECA.UserName EmpCategoryId
