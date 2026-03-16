@@ -698,7 +698,7 @@ namespace Aplos.Areas.Employees.Controllers
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN JobLocation J ON J.systemid = EMP.JobLocationID
-                                        LEFT JOIN org.Unit U on U.Id=EN.UnitId 
+                                        LEFT JOIN org.Unit U on U.Id=E.UnitId 
                                         WHERE emp.PlantID='" + identity.PlantId + @"' and " + normalDate + @") 
                                 AS K where " + strKey + " order by EmployeeCodePreFix,EmployeeCodeNumeric";
 
