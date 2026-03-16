@@ -1800,54 +1800,82 @@ namespace Library.General.TaskScheduler
             try
             {
                 var sql = @"SELECT A.* FROM (
-SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup
-,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
- FROM EmployeeInformation ei
-LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
-LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=MB.PositionId 
-LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
-LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
-WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
-UNION ALL
-SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup
-,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END 
-FROM EmployeeInformation ei
-LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
-LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=MB.PositionId 
-LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
-LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
-WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
-UNION ALL
-SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup
-,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
-   FROM EmployeeInformation ei
-LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
-LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=MB.PositionId 
-LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
-LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
-WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
-UNION ALL
-SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup
-,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
- FROM EmployeeInformation ei
-LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
-LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=MB.PositionId 
-LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
-LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
-WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
-) A --WHERE A.DesignationGroup<>'Unclassified'
+        SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department
+        --,E.Id EntityId,E.UserName Entity,p.UserReportGroup
+        ,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
+        ,AssignTo=CASE WHEN TA.AuthorizationType IN('AssignTo') THEN ei.EmployeeName ELSE '' END
+        ,AssignBy=CASE WHEN TA.AuthorizationType IN('CreatedBy') THEN ei.EmployeeName ELSE '' END
+        ,TM.TaskType,TM.CurrentStatus,TC.UserName TaskCategory,TSC.UserName TaskSubCategory
+         FROM EmployeeInformation ei
+        LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+        LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+        LEFT JOIN ORG.Position p ON p.Id=MB.PositionId 
+        LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
+        LEFT JOIN TaskManagerMaster TM ON TM.Id=TA.TaskManagerMasterId
+        LEFT JOIN hkp.TaskCategory TC ON TM.TaskCategoryId=TC.Id
+        LEFT JOIN hkp.TaskSubCategory TSC ON TM.TaskSubCategoryId=TSC.Id
+        LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
+        LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+        LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+        WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 AND (Convert(date,TA.DueDate) Between Convert(date,'"+ fromDate + "') AND Convert(date, '"+ todate + @"'))
+        UNION ALL
+        SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department
+        --,E.Id EntityId,E.UserName Entity,p.UserReportGroup
+        ,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END 
+        ,AssignTo=CASE WHEN TA.AuthorizationType IN('AssignTo') THEN ei.EmployeeName ELSE '' END
+        ,AssignBy=CASE WHEN TA.AuthorizationType IN('CreatedBy') THEN ei.EmployeeName ELSE '' END
+        ,TM.TaskType,TM.CurrentStatus,TC.UserName TaskCategory,TSC.UserName TaskSubCategory
+         FROM EmployeeInformation ei
+        LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+        LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+        LEFT JOIN ORG.Position p ON p.Id=MB.PositionId 
+        LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
+        LEFT JOIN TaskManagerMaster TM ON TM.Id=TA.TaskManagerMasterId
+        LEFT JOIN hkp.TaskCategory TC ON TM.TaskCategoryId=TC.Id
+        LEFT JOIN hkp.TaskSubCategory TSC ON TM.TaskSubCategoryId=TSC.Id
+        LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
+        LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+        LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+        WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 AND (Convert(date,TA.DueDate) Between Convert(date, '"+ fromDate + "')  AND Convert(date, '" + todate + @"'))
+        UNION ALL
+        SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department
+        --,E.Id EntityId,E.UserName Entity,p.UserReportGroup
+        ,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
+        ,AssignTo=CASE WHEN TA.AuthorizationType IN('AssignTo') THEN ei.EmployeeName ELSE '' END
+        ,AssignBy=CASE WHEN TA.AuthorizationType IN('CreatedBy') THEN ei.EmployeeName ELSE '' END
+        ,TM.TaskType,TM.CurrentStatus,TC.UserName TaskCategory,TSC.UserName TaskSubCategory
+         FROM EmployeeInformation ei
+        LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+        LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+        LEFT JOIN ORG.Position p ON p.Id=MB.PositionId 
+        LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
+        LEFT JOIN TaskManagerMaster TM ON TM.Id=TA.TaskManagerMasterId
+        LEFT JOIN hkp.TaskCategory TC ON TM.TaskCategoryId=TC.Id
+        LEFT JOIN hkp.TaskSubCategory TSC ON TM.TaskSubCategoryId=TSC.Id
+        LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
+        LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+        LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+        WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 AND (Convert(date,TA.DueDate) Between Convert(date, '" + fromDate + "')  AND Convert(date, '" + todate + @"'))
+        UNION ALL
+        SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department
+        --,E.Id EntityId,E.UserName Entity,p.UserReportGroup
+        ,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
+        ,AssignTo=CASE WHEN TA.AuthorizationType IN('AssignTo') THEN ei.EmployeeName ELSE '' END
+        ,AssignBy=CASE WHEN TA.AuthorizationType IN('CreatedBy') THEN ei.EmployeeName ELSE '' END
+        ,TM.TaskType,TM.CurrentStatus,TC.UserName TaskCategory,TSC.UserName TaskSubCategory
+         FROM EmployeeInformation ei
+        LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+        LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+        LEFT JOIN ORG.Position p ON p.Id=MB.PositionId 
+        LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
+        LEFT JOIN TaskManagerMaster TM ON TM.Id=TA.TaskManagerMasterId
+        LEFT JOIN hkp.TaskCategory TC ON TM.TaskCategoryId=TC.Id
+        LEFT JOIN hkp.TaskSubCategory TSC ON TM.TaskSubCategoryId=TSC.Id
+        LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
+        LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+        LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+        WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 AND (Convert(date,TA.DueDate) Between Convert(date, '" + fromDate + "')  AND Convert(date, '" + todate + @"'))
+        ) A  --WHERE A.DesignationGroup<>'Unclassified'
 
 ";
 

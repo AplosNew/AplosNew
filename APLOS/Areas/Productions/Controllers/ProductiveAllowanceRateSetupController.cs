@@ -306,10 +306,10 @@ namespace Aplos.Areas.Productions.Controllers
                             jj.Add("BudgetCode", dtId.DefaultView[0]["BudgetCode"].ToString());
                             ret.Add(jj);
                         }
-                        else
-                        {
-                            throw new Exception("The BudgetCode at Line no - " + i + 1 + " doesn't exist!!");
-                        }
+                        //else
+                        //{
+                        //    throw new Exception("The BudgetCode at Line no - " + i + 1 + " doesn't exist!!");
+                        //}
 
                     }
                 }

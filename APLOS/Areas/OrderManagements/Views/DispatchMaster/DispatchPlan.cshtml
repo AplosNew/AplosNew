@@ -21,15 +21,15 @@
                             <div class="col-sm-3 show-message">
                                 <div class="select-style">
                                     <select name="MonthNo" ng-model="dispatchPlanNew.MonthNo" class="col-sm-3 form-control" >
-                                        <option value="1">January</option>
-                                        <option value="2">February</option>
-                                        <option value="3">March</option>
-                                        <option value="4">April</option>
-                                        <option value="5">May</option>
-                                        <option value="6">June</option>
-                                        <option value="7">July</option>
-                                        <option value="8">August</option>
-                                        <option value="9">September</option>
+                                        <option value="01">January</option>
+                                        <option value="02">February</option>
+                                        <option value="03">March</option>
+                                        <option value="04">April</option>
+                                        <option value="05">May</option>
+                                        <option value="06">June</option>
+                                        <option value="07">July</option>
+                                        <option value="08">August</option>
+                                        <option value="09">September</option>
                                         <option value="10">October</option>
                                         <option value="11">November</option>
                                         <option value="12">December</option>
@@ -160,7 +160,56 @@
                     </div>
                 </div>
                 <div class="aplos-grid-toggle">
-
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="$root.parameters.searchBy">
+                                                <option ng-repeat="option in searchByServiceMasterList" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>YearNo</th>
+                                    <th>Month No</th>
+                                    <th>PlanNo</th>
+                                    <th>Responsible Person</th>
+                                    <th>Active</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in dispatchPlanMasters |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                                    <td>{{x.Id}}</td>
+                                    <td>{{x.YearNo}}</td>
+                                    <td>{{x.MonthNo}}</td>
+                                    <td>{{x.PlanNo}}</td>
+                                    <td>{{x.ResponsiblePerson}}</td>
+                                    <td>{{x.Active?'Yes':'No'}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <dir-pagination-controls max-size="10"
+                                                 direction-links="true"
+                                                 boundary-links="true"
+                                                 on-page-change="getData(newPageNumber)">
+                        </dir-pagination-controls>
+                    </div>
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" id="Upload">

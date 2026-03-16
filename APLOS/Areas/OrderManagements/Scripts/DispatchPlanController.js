@@ -5,7 +5,7 @@ function DispatchPlanController(commonMessage, $scope, $rootScope, baseService, 
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.path = 'OrderManagements/DispatchMaster/';
-    $scope.getListUrl = $scope.path + 'getlist?ids=null';
+    $scope.getListUrl = $scope.path + 'GetDispatchPlanList';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'DispatchPlanInsert';
     $scope.updateUrl = $scope.path + 'edit';
@@ -36,6 +36,38 @@ function DispatchPlanController(commonMessage, $scope, $rootScope, baseService, 
         return $scope.tab === tabNum;
     };
 
+
+    $scope.searchByServiceMasterList = [
+        {
+            'name': 'Id',
+            'value': 'Id'
+        },
+        {
+            'name': 'Year',
+            'value': 'YearNo'
+        },
+        {
+            'name': 'Month',
+            'value': 'MonthNo'
+        },
+        {
+            'name': 'PlanNo',
+            'value': 'PlanNo'
+        }
+    ];
+    $scope.dispatchPlanMasters = [];
+    baseService.init($scope.getListUrl, null, null, null, "Id", "PlanNo");
+    $scope.getData = function (pageno) {
+        baseService.pagination(pageno)
+            .then(function (result) {
+                $scope.dispatchPlanMasters = result.Rows;
+            }, function () {
+                ShowResult(commonMessage.NetworkError, 'failure');
+            }).finally(function () {
+            });
+    };
+    $scope.getData();
+
     $scope.employee = [];
     $scope.getPopUpData = function () {
         $scope.employee = [];
@@ -51,12 +83,12 @@ function DispatchPlanController(commonMessage, $scope, $rootScope, baseService, 
 
     $scope.setEmpData = function (obj) {
         $scope.dispatchPlanNew.ResponsiblePersonId = obj.data.SystemID;
-        $scope.responsiblePerson = obj.data.EmployeeName;
+        $scope.dispatchPlanNew.ResponsiblePerson = obj.data.EmployeeName;
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     };
     $scope.getPlanNo = function () {
         $scope.dispatchPlanNew.PlanNo = null;
-        $scope.dispatchPlanNew.PlanNo = $scope.dispatchPlanNew.PlanNo + $scope.dispatchPlanNew.MonthNO + $scope.dispatchPlanNew.RevisionNo;
+        $scope.dispatchPlanNew.PlanNo = $scope.dispatchPlanNew.YearNo+'-' + $scope.dispatchPlanNew.MonthNo+'-' + $scope.dispatchPlanNew.RevisionNo;
     }
     $scope.Save = function () {
         //$scope.$broadcast('show-errors-check-validity');

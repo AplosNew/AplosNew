@@ -46,9 +46,13 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
                 var columnList = [
                     { field: 'DesignationGroup', width: 20, headerText: "Designation Group", type: "string" },
                     { field: 'TaskCreatedBy', width: 20, headerText: "Task CreatedBy", type: "string" },
+                    { field: 'AssignTo', width: 20, headerText: "AssignTo", type: "string" },
+                    { field: 'AssignBy', width: 20, headerText: "Assigned By", type: "string" },
                     { field: 'Department', width: 20, headerText: "Department", type: "string" },
-                    { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
-                    { field: 'UserReportGroup', width: 20, headerText: "User Group2", type: "string" }
+                    { field: 'TaskType', width: 20, headerText: "TaskType", type: "string" },
+                    { field: 'CurrentStatus', width: 20, headerText: "Task Status", type: "string" },
+                    { field: 'TaskCategory', width: 20, headerText: "Task Category", type: "string" },
+                    { field: 'TaskSubCategory', width: 20, headerText: "Task Sub Category", type: "string" } 
 
                 ];
                 $("#filters").ejGrid({
@@ -84,9 +88,13 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
         var parameters = [];
         parameters.push({ "Key": "DesignationGroupId", "Value": getString(fl, "DesignationGroupId") });
         parameters.push({ "Key": "DepartmentId", "Value": getString(fl, "DepartmentId") });
-        parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
-        parameters.push({ "Key": "UserReportGroup", "Value": getString(fl, "UserReportGroup") });
+        parameters.push({ "Key": "AssignTo", "Value": getString(fl, "AssignTo") });
+        parameters.push({ "Key": "AssignBy", "Value": getString(fl, "AssignBy") });
         parameters.push({ "Key": "TaskCreatedBy", "Value": getString(fl, "TaskCreatedBy") });
+        parameters.push({ "Key": "TaskType", "Value": getString(fl, "TaskType") });
+        parameters.push({ "Key": "CurrentStatus", "Value": getString(fl, "CurrentStatus") });
+        parameters.push({ "Key": "TaskCategory", "Value": getString(fl, "TaskCategory") });
+        parameters.push({ "Key": "TaskSubCategory", "Value": getString(fl, "TaskSubCategory") });
 
         $scope.parameters = parameters;
     }

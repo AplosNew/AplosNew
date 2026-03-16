@@ -9,7 +9,9 @@ using Library.Model.Enums;
 using Library.Model.OrderManagements;
 using Library.OrderManagement.Production;
 using Library.Security.Core;
+using Library.Service.Enums;
 using Library.Service.Helpers;
+using Library.Service.Logs;
 using Library.Service.OrderManagements;
 
 using Syncfusion.XlsIO;
@@ -17,8 +19,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Web.Mvc;
+using System.Web.Script.Serialization;
 
 #endregion
 
@@ -344,6 +348,27 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         #region DispatchPlan
+        [Authorize, HttpGet]
+        public JsonResult GetDispatchPlanList(GridParameter parameters)
+        {
+            return Json(getDispatchPlanData(parameters), JsonRequestBehavior.AllowGet);
+        }
+        public GridModel getDispatchPlanData(GridParameter parameters)
+        {
+            try
+            {
+                parameters.CmdText = @"select dpm.*,ei.EmployeeName ResponsiblePerson from DispatchPlanMaster dpm 
+                    left join EmployeeInformation ei on ei.SystemId=dpm.ResponsiblePersonId";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Setup.ToString()));
+            }
+        }
+
         [HttpPost]
         public JsonResult DispatchPlanInsert(Dictionary<string, object> data)
         {
