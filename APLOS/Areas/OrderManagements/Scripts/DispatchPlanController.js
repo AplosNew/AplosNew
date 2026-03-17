@@ -22,7 +22,8 @@ function DispatchPlanController(commonMessage, $scope, $rootScope, baseService, 
         MonthNo: null,
         YearNo: null,
         RevisionNo: null,
-        ByWhom: null,
+        ByWhom: $window.FullName,
+        ByWhomId: $window.employeeId,
 
     };
 

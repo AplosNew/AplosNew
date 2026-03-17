@@ -4,6 +4,7 @@
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="DispatchPlan" role="tab" data-toggle="tab">DispatchPlan</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" aria-controls="GLpload" role="tab" data-toggle="tab">Plan</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);" href="" aria-controls="CA" role="tab" data-toggle="tab">Check/Approve</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);" href="" aria-controls="DispatchUpdate" role="tab" data-toggle="tab">DispatchUpdate</a></li>
             </ul>
         </div>
@@ -248,6 +249,7 @@
                                 <div e-column e-field="SOStatus" e-headertext="SOStatus" e-width="100"></div>
                                 <div e-column e-field="POId" e-headertext="POId" e-width="100"></div>
                                 <div e-column e-field="POStatus" e-headertext="POStatus" e-width="100"></div>
+                                <div e-column e-field="ProductionEntity" e-headertext="ProductionEntity" e-width="100"></div>
                                 <div e-column e-field="DispatchPlanMasterId" e-headertext="DispatchPlanMasterId" e-width="100"></div>
                                 <div e-column e-field="SOQty" e-headertext="SOQty" e-width="100"></div>
                                 <div e-column e-field="DispatchPlanQty" e-headertext="DispatchPlanQty" e-width="100"></div>
@@ -255,7 +257,7 @@
                                 <div e-column e-field="BalancePercentage" e-headertext="BalancePercentage" e-width="80"></div>
                                 <div e-column e-field="DispatchCommitmentDate" e-headertext="DispatchCommitmentDate" e-width="80"></div>
                                 <div e-column e-field="Remark" e-headertext="Remark" e-width="80"></div>
-                                <div e-column e-field="ResponsiblePersonId" e-headertext="ResponsiblePersonId" e-width="80"></div>
+                                <div e-column e-field="ResponsiblePerson" e-headertext="ResponsiblePerson" e-width="80"></div>
                                 <div e-column e-field="OrderCriticalityLevel" e-headertext="OrderCriticalityLevel" e-width="80"></div>
                                 <div e-column e-field="OrderRemark" e-headertext="OrderRemark" e-width="80"></div>
                                 <div e-column e-field="RevisionNo" e-headertext="RevisionNo" e-width="80"></div>
