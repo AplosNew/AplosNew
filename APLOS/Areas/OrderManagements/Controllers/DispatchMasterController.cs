@@ -433,8 +433,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         }
 
-        public DataTable GetServiceMasterGLData()
+        public DataTable GetServiceMasterGLData(string PlantId)
         {
+
             var cmdText = @"select top(10) p.code +' - '+p.UserName CustomerName,so.Id SoId,so.OrderStatusId SOStatus,pod.ProductionOrderId POId,ps.UserName POStatus
             ,dpc.DispatchPlanMasterId,so.Qty SOQty,dpc.DispatchPlanQty,so.Qty-dpc.DispatchPlanQty DispatchBalance
             ,((so.Qty-dpc.DispatchPlanQty)/ so.Qty)*100 BalancePercentage
@@ -450,7 +451,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             LEFT JOIN  dbo.DispatchPlanChild dpc on dpc.SOId=so.Id
             LEFT JOIN dbo.DispatchPlanMaster dpm on dpm.Id=dpc.DispatchPlanMasterId
             LEFT JOIN hkp.Party p on p.Id=mo.PartyId
-            WHERE SO.OrderStatusId not in ('Closed','Cancelled')";
+            WHERE SO.OrderStatusId not in ('Closed','Cancelled')  and mo.PlantId = '"+ PlantId + "'";
             return _sqlRepository.GetDataTable(cmdText);
         }
 
@@ -550,7 +551,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                 #endregion ------------------Column Header------------------
 
-                DataTable dtData = GetServiceMasterGLData();
+                DataTable dtData = GetServiceMasterGLData(PlantId);
                 for (int i = 0; i < dtData.Rows.Count; i++)
                 {
                     sheet1[xlsRow, colCustomerName].Text = dtData.Rows[i]["CustomerName"].ToString();

@@ -68,6 +68,31 @@ function DispatchPlanController(commonMessage, $scope, $rootScope, baseService, 
     };
     $scope.getData();
 
+    $scope.CheckByList = [];
+    $scope.getCboCheckedByList = function () {
+        cboService.getAuthorizationConfigCbo('DispatchPlanCheckedBy', function (result) {
+            $scope.CheckByList = result;
+            if ($scope.CheckByList.length == 1) {
+                $scope.dispatchPlanNew.CheckBy = $scope.CheckByList[0].Id;
+            }
+        });
+    };
+    $scope.getCboCheckedByList();
+
+
+    $scope.ApproveByList = [];
+    $scope.getCboApprovedList = function () {
+        cboService.getAuthorizationConfigCbo('DispatchPlanApproveBy', function (result) {
+            $scope.ApproveByList = result;
+            if ($scope.ApproveByList.length == 1) {
+                $scope.dispatchPlanNew.ApproveBy = $scope.ApproveByList[0].Id;
+            }
+        });
+    };
+    $scope.getCboApprovedList();
+
+    
+
     $scope.employee = [];
     $scope.getPopUpData = function () {
         $scope.employee = [];
@@ -107,7 +132,7 @@ function DispatchPlanController(commonMessage, $scope, $rootScope, baseService, 
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    //$scope.getData();
+                    $scope.getData();
                     //$scope.serviceMasters = $filter('orderBy')($scope.serviceMasters, 'Sequence');
                     //baseService.paginationAdd();
                     //ClearFields(response.data.Sequence);
