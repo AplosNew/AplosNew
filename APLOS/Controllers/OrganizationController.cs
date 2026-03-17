@@ -331,8 +331,8 @@ namespace Aplos.Controllers
         {
             try
             {
-                //return Json(_plantService.GetCboByCompany(companyId));
-                return Json(_sqlRepository.GetDataTable(@"select UserName AS Text ,Id AS Value from Org.Plant Where CompanyId='"+ companyId + "' AND Active=1 AND Archive=0"));
+                return Json(_plantService.GetCboByCompany(companyId));
+                //return Json(_sqlRepository.GetDataTable(@"select UserName AS Text ,Id AS Value from Org.Plant Where CompanyId='"+ companyId + "' AND Active=1 AND Archive=0"));
             }
             catch (Exception ex)
             {

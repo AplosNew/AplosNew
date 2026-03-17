@@ -992,17 +992,20 @@ public class clsSalaryProcessAplosR
                             else
                             {
 
-                                if ((fstDT.ToString("dd-MMM-yyyy").ToUpper() == para.FromDate.ToUpper().Trim()) && (lstDT.ToString("dd-MMM-yyyy").ToUpper() == para.ToDate.ToUpper().Trim()))
-                                {
-                                    SendNotification("Getting Monthly Attendance Summary", TotProcComp, TotSelectEmpForProc);
+                                //if ((fstDT.ToString("dd-MMM-yyyy").ToUpper() == para.FromDate.ToUpper().Trim()) && (lstDT.ToString("dd-MMM-yyyy").ToUpper() == para.ToDate.ToUpper().Trim()))
+                                //{
+                                //    SendNotification("Getting Monthly Attendance Summary", TotProcComp, TotSelectEmpForProc);
 
-                                    objSlrProc.GetAttdnDataMonthlySummary(intMonthNo, intYearNo, sEmpSysID, out dsMMDSSI);
-                                }
-                                else
-                                {
-                                    SendNotification("Getting Attendance Process Data", TotProcComp, TotSelectEmpForProc);
-                                    objSlrProc.GetAttdnDataForMonthlyProc(sEmpSysID, para.FromDate, para.ToDate, out dsMMDSSI);
-                                }
+                                //    objSlrProc.GetAttdnDataMonthlySummary(intMonthNo, intYearNo, sEmpSysID, out dsMMDSSI);
+                                //}
+                                //else
+                                //{
+                                //    SendNotification("Getting Attendance Process Data", TotProcComp, TotSelectEmpForProc);
+                                //    objSlrProc.GetAttdnDataForMonthlyProc(sEmpSysID, para.FromDate, para.ToDate, out dsMMDSSI);
+                                //}
+                                SendNotification("Getting Monthly Attendance Summary", TotProcComp, TotSelectEmpForProc);
+
+                                objSlrProc.GetAttdnDataMonthlySummary(intMonthNo, intYearNo, sEmpSysID, out dsMMDSSI);
                             }
                             #endregion
 

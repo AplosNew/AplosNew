@@ -27138,8 +27138,13 @@ namespace Library.Service.HumanResources
                 nd = Convert.ToDateTime(doj).Day;
                 monthName = Convert.ToDateTime(doj).ToString("MMM");
                 var monthNo = Convert.ToDateTime(doj).ToString("MM");
+                var dosmonthNo = Convert.ToDateTime(dtEmpInformation.Rows[0]["DOS"]).ToString("MM");
                 var yearNo = Convert.ToDateTime(dtEmpInformation.Rows[0]["DOS"]).ToString("yyyy");
                 if (monthNo == "12")
+                {
+                    yearNo = Convert.ToDateTime(dtEmpInformation.Rows[0]["DOS"]).AddYears(-1).ToString("yyyy");
+                }
+                if (Convert.ToInt32(monthNo) > Convert.ToInt32(dosmonthNo))
                 {
                     yearNo = Convert.ToDateTime(dtEmpInformation.Rows[0]["DOS"]).AddYears(-1).ToString("yyyy");
                 }

@@ -150,7 +150,9 @@ namespace Aplos.Areas.Payrolls.Controllers
                 var colAge = 0;
                 var slCount = 0;
                 var colWagesTotal = 0;
-
+                var colROA = 0;
+                var colEC = 0;
+                var colNCP = 0;
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
@@ -191,7 +193,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                     SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "Total", 8, 25, ExcelHAlign.HAlignRight); colTotal = xlsCol; xlsCol++;
                     SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "Pensionable wage.", 15, 25, ExcelHAlign.HAlignRight); colWAGES8point33percent = xlsCol; xlsCol++;
                     SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "WAGES ABOVE 15000", 9, 25, ExcelHAlign.HAlignRight); colWagesAbove15000 = xlsCol; xlsCol++;
-                    SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "Remarks DOL", 9, 25, ExcelHAlign.HAlignRight); colRemarksDOL = xlsCol;
+                    SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "Remarks DOL", 9, 25, ExcelHAlign.HAlignRight); colRemarksDOL = xlsCol; xlsCol++;
+                    SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "NCP Days", 9, 25, ExcelHAlign.HAlignRight); colNCP = xlsCol; xlsCol++;
+                    SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "Edli Charges", 9, 25, ExcelHAlign.HAlignRight); colEC = xlsCol; xlsCol++;
+                    SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "REFUND_OF_ADVANCES", 9, 25, ExcelHAlign.HAlignRight); colROA = xlsCol;
                     endXlsCol = xlsCol;
                     xlsRow++;
 
