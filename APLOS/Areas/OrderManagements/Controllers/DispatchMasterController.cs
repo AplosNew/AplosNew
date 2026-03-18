@@ -393,13 +393,16 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                     data["Id"] = "DP" + _Id;
                     data["PlantId"] = identity.PlantId;
-                    data["ByWhom"] = identity.UserId;
+                    data["ByWhomId"] = identity.EmployeeId;
+                    data["CheckedStatus"]="To Be Check";
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
                     _Id = data["Id"].ToString();
                     data["PlantId"] = identity.PlantId;
+                    data["ByWhomId"] = identity.EmployeeId;
+                    data["CheckedStatus"] = "To Be Check";
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 clsStaticInfo obj = new clsStaticInfo();
@@ -436,11 +439,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public DataTable GetServiceMasterGLData(string PlantId)
         {
 
-            var cmdText = @"select top(10) p.code +' - '+p.UserName CustomerName,so.Id SoId,so.OrderStatusId SOStatus,pod.ProductionOrderId POId,ps.UserName POStatus
+            var cmdText = @"select top (10)  p.code +' - '+p.UserName CustomerName,so.Id SoId,so.OrderStatusId SOStatus,pod.ProductionOrderId POId,ps.UserName POStatus
             ,dpc.DispatchPlanMasterId,so.Qty SOQty,dpc.DispatchPlanQty,so.Qty-dpc.DispatchPlanQty DispatchBalance
             ,((so.Qty-dpc.DispatchPlanQty)/ so.Qty)*100 BalancePercentage
-            ,dpm.PlantId,dpm.YearNo,dpm.MonthNo,dpm.ResponsiblePersonId,oc.CriticalityLevel  OrderCriticalityLevel
-            ,dpm.PlanNo ,NULL DispatchCommitmentDate,NULL DispatchCategory ,NULL  Remark,NULL OrderRemark
+            ,dpm.PlantId,dpm.YearNo,dpm.MonthNo,'' ResponsiblePerson,oc.CriticalityLevel  OrderCriticalityLevel
+            ,dpm.PlanNo ,NULL DispatchCommitmentDate,NULL DispatchCategory ,NULL  Remark,NULL OrderRemark,EN.UserName ProductionEntity
             FROM TRN.SalesOrder so  
             LEFT JOIN dbo.OrderControl oc on oc.SalesOrderId=so.Id
             LEFT JOIN trn.MasterOrderItem moi on moi.Id=so.MasterOrderItemId
@@ -448,10 +451,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
             LEFT JOIN trn.ProductionOrderDetail pod on pod.SalesOrderId=so.Id
             LEFT JOIN trn.ProductionOrder po on po.Id=pod.ProductionOrderId
             LEFT JOIN hkp.ProductionStatus ps on ps.Id=po.ProductionStatusId 
+            LEFT JOIN ORG.Entity EN ON EN.Id=PO.EntityId
             LEFT JOIN  dbo.DispatchPlanChild dpc on dpc.SOId=so.Id
             LEFT JOIN dbo.DispatchPlanMaster dpm on dpm.Id=dpc.DispatchPlanMasterId
             LEFT JOIN hkp.Party p on p.Id=mo.PartyId
-            WHERE SO.OrderStatusId not in ('Closed','Cancelled')  and mo.PlantId = '"+ PlantId + "'";
+            WHERE SO.OrderStatusId not in ('Closed','Cancelled')  and mo.PlantId = '" + PlantId + "'";
             return _sqlRepository.GetDataTable(cmdText);
         }
 
@@ -512,11 +516,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 #region ------------------Column Header------------------
 
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CustomerName"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colCustomerName = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CustomerName"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30; int colCustomerName = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SoId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 11; int colSoId = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SOStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 11; int colSOStatus = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "POId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19; int colPOId = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "POStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colPOStatus = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ProductionEntity"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16; int colProductionEntity = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DispatchPlanMasterId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 22; int colDispatchPlanMasterId = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SOQty"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 17; int colSOQty = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DispatchPlanQty"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30; int colDispatchPlanQty = xlsCol; xlsCol += 1;
@@ -524,12 +529,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalancePercentage"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colBalancePercentage = xlsCol; xlsCol += 1;
                 //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PlantId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25; int colPlantId = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "YearNo"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colYearNo = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MonthNo"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colMonthNo = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ResponsiblePersonId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colResponsiblePersonId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OrderCriticalityLevel"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colOrderCriticalityLevel = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PlanNo"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colPlanNo = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DispatchCommitmentDate"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colDispatchCommitmentDate = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DispatchCategory"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colDispatchCategory = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MonthNo"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 9; int colMonthNo = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ResponsiblePerson"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colResponsiblePerson = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OrderCriticalityLevel"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colOrderCriticalityLevel = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PlanNo"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25; int colPlanNo = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DispatchCommitmentDate"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25; int colDispatchCommitmentDate = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DispatchCategory"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colDispatchCategory = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remark"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colRemark = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OrderRemark"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40; int colOrderRemark = xlsCol;
                 //string[] _EntryLevel = { "Trainee", "NonTrainee" };
@@ -559,6 +564,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet1[xlsRow, colSOStatus].Text = dtData.Rows[i]["SOStatus"].ToString();
                     sheet1[xlsRow, colPOId].Text = dtData.Rows[i]["POId"].ToString();
                     sheet1[xlsRow, colPOStatus].Text = dtData.Rows[i]["POStatus"].ToString();
+                    sheet1[xlsRow, colProductionEntity].Text = dtData.Rows[i]["ProductionEntity"].ToString();
                     sheet1[xlsRow, colDispatchPlanMasterId].Text = dtData.Rows[i]["DispatchPlanMasterId"].ToString();
                     sheet1[xlsRow, colSOQty].Text = dtData.Rows[i]["SOQty"].ToString();
                     sheet1[xlsRow, colDispatchPlanQty].Text = dtData.Rows[i]["DispatchPlanQty"].ToString();
@@ -567,7 +573,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     //sheet1[xlsRow, colPlantId].Text = dtData.Rows[i]["PlantId"].ToString();
                     sheet1[xlsRow, colYearNo].Text = dtData.Rows[i]["YearNo"].ToString();
                     sheet1[xlsRow, colMonthNo].Text = dtData.Rows[i]["MonthNo"].ToString();
-                    sheet1[xlsRow, colResponsiblePersonId].Text = dtData.Rows[i]["ResponsiblePersonId"].ToString();
+                    sheet1[xlsRow, colResponsiblePerson].Text = dtData.Rows[i]["ResponsiblePerson"].ToString();
                     sheet1[xlsRow, colOrderCriticalityLevel].Text = dtData.Rows[i]["OrderCriticalityLevel"].ToString();
                     sheet1[xlsRow, colPlanNo].Text = dtData.Rows[i]["PlanNo"].ToString();
                     sheet1[xlsRow, colDispatchCommitmentDate].Text = dtData.Rows[i]["DispatchCommitmentDate"].ToString();
@@ -690,20 +696,21 @@ namespace Aplos.Areas.OrderManagements.Controllers
                                 vm.SoStatus = dsExcel.Tables[0].Rows[i][2].ToString().Trim(); 
                                 vm.POId = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
                                 vm.POStatus = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
-                                vm.DispatchPlanMasterId = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
-                                vm.SOQty = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
-                                vm.DispatchPlanQty = dsExcel.Tables[0].Rows[i][7].ToString().Trim();
-                                vm.DispatchBalance = dsExcel.Tables[0].Rows[i][8].ToString().Trim();
-                                vm.BalancePercentage = dsExcel.Tables[0].Rows[i][9].ToString().Trim();
-                                vm.YearNo = dsExcel.Tables[0].Rows[i][10].ToString().Trim();
-                                vm.MonthNo = dsExcel.Tables[0].Rows[i][11].ToString().Trim();
-                                vm.ResponsiblePersonId = dsExcel.Tables[0].Rows[i][12].ToString().Trim();
-                                vm.OrderCriticalityLevel = dsExcel.Tables[0].Rows[i][13].ToString().Trim();
-                                vm.PlanNo = dsExcel.Tables[0].Rows[i][14].ToString().Trim();
-                                vm.DispatchCommitmentDate = dsExcel.Tables[0].Rows[i][15].ToString().Trim();
-                                vm.DispatchCategory = dsExcel.Tables[0].Rows[i][16].ToString().Trim();
-                                vm.Remark = dsExcel.Tables[0].Rows[i][17].ToString().Trim();
-                                vm.OrderRemark = dsExcel.Tables[0].Rows[i][18].ToString().Trim();
+                                vm.ProductionEntity = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
+                                vm.DispatchPlanMasterId = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.SOQty = dsExcel.Tables[0].Rows[i][7].ToString().Trim();
+                                vm.DispatchPlanQty = dsExcel.Tables[0].Rows[i][8].ToString().Trim();
+                                vm.DispatchBalance = dsExcel.Tables[0].Rows[i][9].ToString().Trim();
+                                vm.BalancePercentage = dsExcel.Tables[0].Rows[i][10].ToString().Trim();
+                                vm.YearNo = dsExcel.Tables[0].Rows[i][11].ToString().Trim();
+                                vm.MonthNo = dsExcel.Tables[0].Rows[i][12].ToString().Trim();
+                                vm.ResponsiblePerson = dsExcel.Tables[0].Rows[i][13].ToString().Trim();
+                                vm.OrderCriticalityLevel = dsExcel.Tables[0].Rows[i][14].ToString().Trim();
+                                vm.PlanNo = dsExcel.Tables[0].Rows[i][15].ToString().Trim();
+                                vm.DispatchCommitmentDate = dsExcel.Tables[0].Rows[i][16].ToString().Trim();
+                                vm.DispatchCategory = dsExcel.Tables[0].Rows[i][17].ToString().Trim();
+                                vm.Remark = dsExcel.Tables[0].Rows[i][18].ToString().Trim();
+                                vm.OrderRemark = dsExcel.Tables[0].Rows[i][19].ToString().Trim();
 
                                 data.Add(vm);
 
@@ -804,6 +811,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             public string SoStatus { get; set; }
             public string POId { get; set; }
             public string POStatus { get; set; }
+            public string ProductionEntity { get; set; }
             public string DispatchPlanMasterId { get; set; }
             public string SOQty { get; set; }
             public string DispatchPlanQty { get; set; }
@@ -812,7 +820,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             //public string PlantId { get; set; }
             public string YearNo { get; set; }
             public string MonthNo { get; set; }
-            public string ResponsiblePersonId { get; set; }
+            public string ResponsiblePerson { get; set; }
             public string OrderCriticalityLevel { get; set; }
             public string PlanNo { get; set; }
             public string DispatchCommitmentDate { get; set; }
