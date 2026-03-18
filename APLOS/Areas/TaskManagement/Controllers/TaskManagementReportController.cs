@@ -222,6 +222,14 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 int colDepartment = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Department";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+                int colEntity = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Entity";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+                int colIsTaskMilestone = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "IsTaskMilestone";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
                 //xlsCol++;
 
                 //xlsCol++;
@@ -237,7 +245,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 //shape.IsTextLocked = false;
                 //shape.AutoSize = false;
 
-               
+
 
                 xlsCol++;
 
@@ -358,6 +366,8 @@ namespace Aplos.Areas.TaskManagement.Controllers
                     sheet1.Range[xlsRow, iEmployeeName].Text = dtTask.Rows[i]["EmployeeName"].ToString();
                     sheet1.Range[xlsRow, iDesignation].Text = dtTask.Rows[i]["LegalDesignation"].ToString();
                     sheet1.Range[xlsRow, colDepartment].Text = dtTask.Rows[i]["Department"].ToString();
+                    sheet1.Range[xlsRow, colEntity].Text = dtTask.Rows[i]["Entity"].ToString();
+                    sheet1.Range[xlsRow, colIsTaskMilestone].Text = dtTask.Rows[i]["IsTaskMilestone"].ToString();
                     //sheet1.Range[xlsRow, iTaskCreated].Number = clsStaticInfo.dbl(dtTask.Rows[i]["CreatedTask"].ToString());
 
                     //double PerTotalTask = Math.Round((Convert.ToDouble(dtTask.Rows[i]["CreatedTask"].ToString()) / TotalCreatedTask) * 100, 2);
@@ -672,6 +682,18 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1.Range[xlsRow, xlsCol].Text = "Department";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30;
                 xlsCol++;
+                
+
+
+                int iEntity = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Entity";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30;
+                xlsCol++;
+
+                int iIsTaskMilestone = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "IsTaskMilestone";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30;
+                xlsCol++;
 
                 int colNoOfEmp = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "No Of Employee";
@@ -806,6 +828,8 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 {
                     sheet1[xlsRow, colSLNO].Number = (i + 1);
                     sheet1.Range[xlsRow, iDesignation].Text = dtTask.Rows[i]["Department"].ToString();
+                    sheet1.Range[xlsRow, iEntity].Text = dtTask.Rows[i]["Entity"].ToString();
+                    sheet1.Range[xlsRow, iIsTaskMilestone].Text = dtTask.Rows[i]["IsTaskMilestone"].ToString();
                     sheet1.Range[xlsRow, colNoOfEmp].Number = clsStaticInfo.dbl(dtTask.Rows[i]["NoOfEmp"].ToString());
                     //sheet1.Range[xlsRow, iTaskCreated].Number = clsStaticInfo.dbl(dtTask.Rows[i]["CreatedTask"].ToString());
 
@@ -1506,5 +1530,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 throw ex;
             }
         }
+
+      
     }
 }
