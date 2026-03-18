@@ -16,7 +16,7 @@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Year No<sup>*</sup></label>
                             <div class="col-sm-3 show-message">
-                                <input type="number" name="Code" ng-model="dispatchPlanNew.YearNo" class="form-control" required tabindex="2" maxlength="10" autocomplete="off">
+                                <input type="number" name="Year No" ng-model="dispatchPlanNew.YearNo" class="form-control" required tabindex="2" maxlength="10" autocomplete="off">
                             </div>
                             <label class="col-sm-2 control-label">Month No<sup>*</sup></label>
                             <div class="col-sm-3 show-message">
@@ -38,17 +38,6 @@
                                 </div>
                             </div>
                         </div>
-                        @*<div class="form-group">
-                            <label class="col-sm-3 col-md-4 control-label">Plant</label>
-                            <div class="col-sm-3 col-md-8">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="dispatchPlanNew.PlantId"
-                                            ng-options="item.Value as item.Text for item in companyList">
-                                        <option></option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>*@
 
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">From Date</label>
@@ -138,7 +127,7 @@
                             <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="input-group">
-                                    <input type="text" name="ResponsiblePerson" ng-model="dispatchPlanNew.ResponsiblePerson" required style="width:200px;" class="form-control" readonly>
+                                    <input type="text" name="ResponsiblePerson" ng-model="dispatchPlanNew.ResponsiblePerson" required class="form-control" readonly>
                                     <span class="input-group-btn">
                                         <button name="submit" ng-click="getPopUpData()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                     </span>

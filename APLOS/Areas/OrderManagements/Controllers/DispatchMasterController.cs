@@ -401,6 +401,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 {
                     _Id = data["Id"].ToString();
                     data["PlantId"] = identity.PlantId;
+                    data["ByWhomId"] = identity.EmployeeId;
+                    data["CheckedStatus"] = "To Be Check";
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 clsStaticInfo obj = new clsStaticInfo();
@@ -437,7 +439,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public DataTable GetServiceMasterGLData(string PlantId)
         {
 
-            var cmdText = @"select  p.code +' - '+p.UserName CustomerName,so.Id SoId,so.OrderStatusId SOStatus,pod.ProductionOrderId POId,ps.UserName POStatus
+            var cmdText = @"select top (10)  p.code +' - '+p.UserName CustomerName,so.Id SoId,so.OrderStatusId SOStatus,pod.ProductionOrderId POId,ps.UserName POStatus
             ,dpc.DispatchPlanMasterId,so.Qty SOQty,dpc.DispatchPlanQty,so.Qty-dpc.DispatchPlanQty DispatchBalance
             ,((so.Qty-dpc.DispatchPlanQty)/ so.Qty)*100 BalancePercentage
             ,dpm.PlantId,dpm.YearNo,dpm.MonthNo,'' ResponsiblePerson,oc.CriticalityLevel  OrderCriticalityLevel

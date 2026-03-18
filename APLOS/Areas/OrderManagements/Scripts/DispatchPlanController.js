@@ -10,11 +10,12 @@ function DispatchPlanController(commonMessage, $scope, $rootScope, baseService, 
     $scope.saveUrl = $scope.path + 'DispatchPlanInsert';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
-    $scope.dispatchPlanNew = {
+
+    $scope.dispatchPlan = {
         Id: null,
-        FromDate: $filter("dateFiltering")(Date.now()),
-        ToDate: $filter("dateFiltering")(Date.now()),
-        CloseDate: $filter("dateFiltering")(Date.now()),
+        FromDate: null,
+        ToDate: null,
+        CloseDate: null,
         PlanNo: null,
         ResponsiblePersonId: null,
         CheckBy: null,
@@ -22,12 +23,11 @@ function DispatchPlanController(commonMessage, $scope, $rootScope, baseService, 
         MonthNo: null,
         YearNo: null,
         RevisionNo: null,
-        ByWhom: $window.FullName,
+        ByWhom: $window.employeeName,
         ByWhomId: $window.employeeId,
-
+        Active: true
     };
-
-    //$scope.dispatchPlanNew = Object.assign({}, $scope.dispatchPlanVM);
+    $scope.dispatchPlanNew = Object.assign({}, $scope.dispatchPlan);
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -69,6 +69,18 @@ function DispatchPlanController(commonMessage, $scope, $rootScope, baseService, 
     };
     $scope.getData();
 
+    $scope.Get = function (id, index) {
+        $scope.index = index;
+        $scope.dispatchPlanNew = $scope.dispatchPlanMasters[$scope.index];
+        $scope.dispatchPlanNew.ByWhom = $window.employeeName;
+        $scope.dispatchPlanNew.YearNo = Number($scope.dispatchPlanNew.YearNo);
+        $scope.Action = "Update";
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+
     $scope.CheckByList = [];
     $scope.getCboCheckedByList = function () {
         cboService.getAuthorizationConfigCbo('DispatchPlanCheckedBy', function (result) {
@@ -92,7 +104,7 @@ function DispatchPlanController(commonMessage, $scope, $rootScope, baseService, 
     };
     $scope.getCboApprovedList();
 
-    
+
 
     $scope.employee = [];
     $scope.getPopUpData = function () {
@@ -114,12 +126,12 @@ function DispatchPlanController(commonMessage, $scope, $rootScope, baseService, 
     };
     $scope.getPlanNo = function () {
         $scope.dispatchPlanNew.PlanNo = null;
-        $scope.dispatchPlanNew.PlanNo = $scope.dispatchPlanNew.YearNo+'-' + $scope.dispatchPlanNew.MonthNo+'-' + $scope.dispatchPlanNew.RevisionNo;
+        $scope.dispatchPlanNew.PlanNo = $scope.dispatchPlanNew.YearNo + '-' + $scope.dispatchPlanNew.MonthNo + '-' + $scope.dispatchPlanNew.RevisionNo;
     }
     $scope.Save = function () {
-        //$scope.$broadcast('show-errors-check-validity');
-        //if ($scope.dispatchPlanNewForm.$valid) {
-        if ($scope.Action == "Save") {
+        $scope.$broadcast('show-errors-check-validity');
+
+        if ($scope.dispatchPlanNewForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -134,33 +146,13 @@ function DispatchPlanController(commonMessage, $scope, $rootScope, baseService, 
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.getData();
-                    //$scope.serviceMasters = $filter('orderBy')($scope.serviceMasters, 'Sequence');
-                    //baseService.paginationAdd();
-                    //ClearFields(response.data.Sequence);
+                    $scope.Clear();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
         }
-        //else if ($scope.Action == "Update") {
-        //    $http({
-        //        method: 'POST',
-        //        url: $scope.updateUrl,
-        //        data: $scope.serviceMaster,
-        //        dataType: 'JSON'
-        //    }).then(function successCallback(response) {
-        //        if (response.data.Error == true)
-        //            ShowResult(response.data.Message, 'failure');
-        //        else {
-        //            ShowResult(response.data.Message, 'success');
-        //            $scope.getData();
-        //            ClearFields(response.data.Sequence);
-        //        }
-        //    }, function errorCallBack(response) {
-        //        ShowResult(response.data.Message, 'failure');
-        //    });
-        //}
-        // }
+
     }
 
     $scope.GetSampleFile = function () {
@@ -232,7 +224,7 @@ function DispatchPlanController(commonMessage, $scope, $rootScope, baseService, 
                 //    throw "ServiceMasterId is required.";
                 //}
                 $scope.UploadedData[i].Id = null;
-               
+
             }
             $http({
                 method: 'POST',
@@ -261,5 +253,25 @@ function DispatchPlanController(commonMessage, $scope, $rootScope, baseService, 
 
         }
     };
+
+    $scope.Clear = function () {
+        $scope.dispatchPlan = {
+            Id: null,
+            FromDate: null,
+            ToDate: null,
+            CloseDate: null,
+            PlanNo: null,
+            ResponsiblePersonId: null,
+            CheckBy: null,
+            ApproveBy: null,
+            MonthNo: null,
+            YearNo: null,
+            RevisionNo: null,
+            ByWhom: $window.employeeName,
+            ByWhomId: $window.employeeId,
+            Active: true
+        };
+        $scope.dispatchPlanNew = Object.assign({}, $scope.dispatchPlan);
+    }
 }
 
