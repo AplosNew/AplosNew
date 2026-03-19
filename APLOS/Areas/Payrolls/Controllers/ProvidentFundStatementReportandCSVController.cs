@@ -154,6 +154,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 var slCount = 0;
                 var colROA = 0;
                 var colEC = 0;
+                var colAC = 0;
                 var colNCP = 0;
 
 
@@ -202,6 +203,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "WAGES ABOVE 15000", 9, 25, ExcelHAlign.HAlignRight); colWagesAbove15000 = xlsCol; xlsCol++;
                     SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "Remarks DOL", 9, 25, ExcelHAlign.HAlignRight); colRemarksDOL = xlsCol; xlsCol++;
                     SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "NCP Days", 9, 25, ExcelHAlign.HAlignRight); colNCP = xlsCol; xlsCol++;
+                    SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "Admin Charges", 9, 25, ExcelHAlign.HAlignRight); colAC = xlsCol; xlsCol++;
                     SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "Edli Charges", 9, 25, ExcelHAlign.HAlignRight); colEC = xlsCol; xlsCol++;
                     SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "REFUND_OF_ADVANCES", 9, 25, ExcelHAlign.HAlignRight); colROA = xlsCol;
                     endXlsCol = xlsCol;
@@ -227,6 +229,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         int vpfDecimalPoint = 0;
                         var wages8point33percent = 0;
                         var wagesAbove15000 = 0;
+                        var tncp = 0.00;
 
 
                         if (dicSalary.ContainsKey(dtEmpInfo.Rows[i]["EmpSystemId"].ToString()))
@@ -294,6 +297,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                             {
                                 Workingdays = clsStaticInfo.dbl(drAttdnSummary["TotalProcDate"].ToString()) - clsStaticInfo.dbl(drAttdnSummary["TotalAbsent"].ToString());
                             }
+                            tncp = clsStaticInfo.dbl(drAttdnSummary["TotalNonPayDay"].ToString());
                         }
 
                         //if (dvEmpInfo.Count > 0)
@@ -353,6 +357,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                         ru.SetTextBorder(ref sheet1, xlsRow, colAge, age);
                         ru.SetTextBorder(ref sheet1, xlsRow, colDays, Workingdays);//dtEmpInfo.Tables[0].Rows[i][""].ToString()
                         sheet1.Range[xlsRow, colDays].NumberFormat = ru.NumberFormatNegativeSignDelimeterDecimalTwo();
+
+                        ru.SetTextBorder(ref sheet1, xlsRow, colNCP, tncp);//dtEmpInfo.Tables[0].Rows[i][""].ToString()
+                        sheet1.Range[xlsRow, colNCP].NumberFormat = ru.NumberFormatNegativeSignDelimeterDecimalTwo();
+
                         //
                         //sheet1.Range[xlsRow, colWagesAmount].Number = Convert.ToDouble(basic);// + Environment.NewLine + totalPayDay;
                         //sheet1.Range[xlsRow, colWagesAmount].NumberFormat = GetDecimalFormat(basicIntegerInDisb, basicDecimalPoint);
@@ -1720,7 +1728,7 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
 														INNER JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
 																							AND SPM.SystemID IN  (" + salaryProcessID + @")	
                                                         INNER JOIN SalaryHead SH ON SH.SalaryHeadID=SPC.SalaryHeadID 
-														AND SH.HeadCategory IN ('PF Voluntary','Pension','Basic','PF Employer Contribution','PF Employee Contribution') 
+														AND SH.HeadCategory IN ('PF Voluntary','Pension','Basic','PF Employer Contribution','PF Employee Contribution','GROSS') 
 														
                                             Inner join EmployeeInformation EEI ON EEI.SystemId = SPC.EmpInfoSystemID
 														LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EEI.SalaryRuleMasterSystemID
