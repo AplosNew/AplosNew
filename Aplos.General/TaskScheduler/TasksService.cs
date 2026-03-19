@@ -1801,55 +1801,42 @@ namespace Library.General.TaskScheduler
             {
                 var sql = @"SELECT A.* FROM (
         SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department
-        --,E.Id EntityId,E.UserName Entity,p.UserReportGroup
+        ,E.Id EntityId,E.UserName Entity,p.UserReportGroup
         ,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
         ,AssignTo=CASE WHEN TA.AuthorizationType IN('AssignTo') THEN ei.EmployeeName ELSE '' END
         ,AssignBy=CASE WHEN TA.AuthorizationType IN('CreatedBy') THEN ei.EmployeeName ELSE '' END
         ,TM.TaskType,TM.CurrentStatus,TC.UserName TaskCategory,TSC.UserName TaskSubCategory
+		,TM.TaskCategoryId,TM.TaskSubCategoryId,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' else 'No' End
          FROM EmployeeInformation ei
         LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
         LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
         LEFT JOIN ORG.Position p ON p.Id=MB.PositionId 
         LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
         LEFT JOIN TaskManagerMaster TM ON TM.Id=TA.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=TM.TNATasksId
+		LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
         LEFT JOIN hkp.TaskCategory TC ON TM.TaskCategoryId=TC.Id
         LEFT JOIN hkp.TaskSubCategory TSC ON TM.TaskSubCategoryId=TSC.Id
         LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
         LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
         LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
-        WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 AND (Convert(date,TA.DueDate) Between Convert(date,'"+ fromDate + "') AND Convert(date, '"+ todate + @"'))
+        WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + "') AND Convert(date, '"+ todate + @"'))
         UNION ALL
         SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department
-        --,E.Id EntityId,E.UserName Entity,p.UserReportGroup
+        ,E.Id EntityId,E.UserName Entity,p.UserReportGroup
         ,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END 
         ,AssignTo=CASE WHEN TA.AuthorizationType IN('AssignTo') THEN ei.EmployeeName ELSE '' END
         ,AssignBy=CASE WHEN TA.AuthorizationType IN('CreatedBy') THEN ei.EmployeeName ELSE '' END
         ,TM.TaskType,TM.CurrentStatus,TC.UserName TaskCategory,TSC.UserName TaskSubCategory
+		,TM.TaskCategoryId,TM.TaskSubCategoryId,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' else 'No' End
          FROM EmployeeInformation ei
         LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
         LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
         LEFT JOIN ORG.Position p ON p.Id=MB.PositionId 
         LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
         LEFT JOIN TaskManagerMaster TM ON TM.Id=TA.TaskManagerMasterId
-        LEFT JOIN hkp.TaskCategory TC ON TM.TaskCategoryId=TC.Id
-        LEFT JOIN hkp.TaskSubCategory TSC ON TM.TaskSubCategoryId=TSC.Id
-        LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
-        LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
-        LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
-        WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 AND (Convert(date,TA.DueDate) Between Convert(date, '"+ fromDate + "')  AND Convert(date, '" + todate + @"'))
-        UNION ALL
-        SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department
-        --,E.Id EntityId,E.UserName Entity,p.UserReportGroup
-        ,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
-        ,AssignTo=CASE WHEN TA.AuthorizationType IN('AssignTo') THEN ei.EmployeeName ELSE '' END
-        ,AssignBy=CASE WHEN TA.AuthorizationType IN('CreatedBy') THEN ei.EmployeeName ELSE '' END
-        ,TM.TaskType,TM.CurrentStatus,TC.UserName TaskCategory,TSC.UserName TaskSubCategory
-         FROM EmployeeInformation ei
-        LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
-        LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-        LEFT JOIN ORG.Position p ON p.Id=MB.PositionId 
-        LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
-        LEFT JOIN TaskManagerMaster TM ON TM.Id=TA.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=TM.TNATasksId
+		LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
         LEFT JOIN hkp.TaskCategory TC ON TM.TaskCategoryId=TC.Id
         LEFT JOIN hkp.TaskSubCategory TSC ON TM.TaskSubCategoryId=TSC.Id
         LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
@@ -1858,17 +1845,42 @@ namespace Library.General.TaskScheduler
         WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 AND (Convert(date,TA.DueDate) Between Convert(date, '" + fromDate + "')  AND Convert(date, '" + todate + @"'))
         UNION ALL
         SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department
-        --,E.Id EntityId,E.UserName Entity,p.UserReportGroup
+        ,E.Id EntityId,E.UserName Entity,p.UserReportGroup
         ,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
         ,AssignTo=CASE WHEN TA.AuthorizationType IN('AssignTo') THEN ei.EmployeeName ELSE '' END
         ,AssignBy=CASE WHEN TA.AuthorizationType IN('CreatedBy') THEN ei.EmployeeName ELSE '' END
         ,TM.TaskType,TM.CurrentStatus,TC.UserName TaskCategory,TSC.UserName TaskSubCategory
+		,TM.TaskCategoryId,TM.TaskSubCategoryId,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' else 'No' End
          FROM EmployeeInformation ei
         LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
         LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
         LEFT JOIN ORG.Position p ON p.Id=MB.PositionId 
         LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
         LEFT JOIN TaskManagerMaster TM ON TM.Id=TA.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=TM.TNATasksId
+		LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
+        LEFT JOIN hkp.TaskCategory TC ON TM.TaskCategoryId=TC.Id
+        LEFT JOIN hkp.TaskSubCategory TSC ON TM.TaskSubCategoryId=TSC.Id
+        LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
+        LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
+        LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+        WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 AND (Convert(date,TA.DueDate) Between Convert(date, '" + fromDate + "')  AND Convert(date, '" + todate + @"'))
+        UNION ALL
+        SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department
+        ,E.Id EntityId,E.UserName Entity,p.UserReportGroup
+        ,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
+        ,AssignTo=CASE WHEN TA.AuthorizationType IN('AssignTo') THEN ei.EmployeeName ELSE '' END
+        ,AssignBy=CASE WHEN TA.AuthorizationType IN('CreatedBy') THEN ei.EmployeeName ELSE '' END
+        ,TM.TaskType,TM.CurrentStatus,TC.UserName TaskCategory,TSC.UserName TaskSubCategory
+		,TM.TaskCategoryId,TM.TaskSubCategoryId,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' else 'No' End
+         FROM EmployeeInformation ei
+        LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+        LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+        LEFT JOIN ORG.Position p ON p.Id=MB.PositionId 
+        LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
+        LEFT JOIN TaskManagerMaster TM ON TM.Id=TA.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=TM.TNATasksId
+		LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
         LEFT JOIN hkp.TaskCategory TC ON TM.TaskCategoryId=TC.Id
         LEFT JOIN hkp.TaskSubCategory TSC ON TM.TaskSubCategoryId=TSC.Id
         LEFT JOIN [MST].DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
@@ -1906,10 +1918,10 @@ namespace Library.General.TaskScheduler
             //}
             if (!string.IsNullOrEmpty(EmpIds))
             {
-                wt = "WHERE X.SystemId IN("+ EmpIds + ")";
-                wh = "AND X.SystemId IN("+ EmpIds + ")";
+                wt = "WHERE X.SystemId IN(" + EmpIds + ")";
+                wh = "AND X.SystemId IN(" + EmpIds + ")";
             }
-            if (parameters["TaskCreatedBy"]== "'','Self'")
+            if (parameters["TaskCreatedBy"] == "'','Self'")
             {
                 taskCreatedBy = "AND TA.AuthorizationType IN('CreatedBy','AssignTo')";
                 tcb = " AND AuthorizationType IN('CreatedBy','AssignTo')";
@@ -1924,16 +1936,18 @@ namespace Library.General.TaskScheduler
                 taskCreatedBy = "";
                 tcb = "";
             }
-            string strSql = "";
+            string strSql;
             if (model["Status"] == "All")
             {
                 //AvgStorypoints=ROUND((ISNULL(SUM(X.TaskDue),0)*2)/(NULLIF(SUM(X.CreatedTask),0)),0)
                 strSql = @"SELECT Z.* FROM (
-SELECT X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.EmployeeCategory,X.Department,SUM(X.UnRead)UnRead,SUM(X.TaskDue) TaskDue,SUM(X.OnTimeTask) OnTimeTask,SUM(X.LateTask) LateTask,SUM(X.PeriviousPeriodOverdueTask)PeriviousPeriodOverdueTask,AvgStorypoints=0,SUM(X.EarlyTask)EarlyTask,EarlyColsedStoryPoint=CASE WHEN SUM(X.EarlyTask)=0 THEN 0 ELSE 1.5 END,SUM(X.OverdueTask)OverdueTask,SUM(X.ApproveBy)ApproveBy,SUM(X.CheckBy)CheckBy,SUM(X.CrossCheckBy)CrossCheckBy
+SELECT X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.EmployeeCategory,X.Department,X.Entity,X.IsTaskMilestone,SUM(X.UnRead)UnRead,SUM(X.TaskDue) TaskDue,SUM(X.OnTimeTask) OnTimeTask,SUM(X.LateTask) LateTask,SUM(X.PeriviousPeriodOverdueTask)PeriviousPeriodOverdueTask,AvgStorypoints=0,SUM(X.EarlyTask)EarlyTask
+,EarlyColsedStoryPoint=CASE WHEN SUM(X.EarlyTask)=0 THEN 0 ELSE 1.5 END,SUM(X.OverdueTask)OverdueTask,SUM(X.ApproveBy)ApproveBy,SUM(X.CheckBy)CheckBy,SUM(X.CrossCheckBy)CrossCheckBy
 FROM (
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,e.UserName Entity,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask
+,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy ,'No' IsTaskMilestone
   FROM dbo.EmployeeInformation AS ei 
---LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '"+todate+ @"')) "+tcb+ @") TA ON TA.ResponsiblePersonId= ei.SystemId 
+--LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) " + tcb + @") TA ON TA.ResponsiblePersonId= ei.SystemId 
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Position p ON p.Id=MB.PositionId
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -1948,7 +1962,8 @@ WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,e.UserName Entity,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask
+,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit UR 
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -1960,15 +1975,18 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(UR.isRead,0)=0 AND ISNULL(UR.IsDone,0)=0 AND (Convert(date,UR.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND UR.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,e.UserName Entity
+,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -1980,15 +1998,18 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
 AND (Convert(date,TD.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND TD.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit OTT 
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2000,15 +2021,18 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate+@"') AND Convert(date, '"+todate+ @"')) AND ISNULL(OTT.isDone,0)=1 AND OTT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
+AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 AND OTT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @")  
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2020,15 +2044,18 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND LT.AuthorizationType='AssignTo'  AND tmm.currentstatus='Closed' AND ISNULL(LT.isDone,0)=1 " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2040,17 +2067,20 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND Convert(date, '" + todate+ @"') > Convert(date,ET.UpdatedDate) 
+AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
 AND Convert(date, ET.DueDate) > Convert(date,ET.UpdatedDate)
 AND ISNULL(ET.isDone,0)=1 AND ET.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask ,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask ,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2062,17 +2092,20 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND Convert(date,ET.DueDate) BETWEEN '" + fromDate+@"' AND '"+todate+ @"'
+AND Convert(date,ET.DueDate) BETWEEN '" + fromDate + @"' AND '" + todate + @"'
 AND (Convert(date, ET.DueDate) > Convert(date,'" + todate + @"') OR ET.UpdatedDate IS NULL)
 AND ISNULL(ET.isDone,0)=0 AND ET.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed'  " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
 --LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit WHERE ISNULL(isDone,0)=0 AND (Convert(date,DueDate) < Convert(date,'" + fromDate + @"')) " + tcb + @") PPDT ON PPDT.ResponsiblePersonId=ei.SystemId
@@ -2085,19 +2118,24 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + fromDate + @"')) AND PPDT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,COUNT(tmm.Id) CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,COUNT(tmm.Id) CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -2113,13 +2151,16 @@ AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -2135,13 +2176,16 @@ AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,COUNT(tmm.Id) ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,EC.UserName EmployeeCategory,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,COUNT(tmm.Id) ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -2157,16 +2201,17 @@ AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName
-)X " + wt+ @" GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department,X.EmployeeCategory)Z "; 
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,EC.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
+)X " + wt + @" GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department,X.EmployeeCategory,X.Entity,X.IsTaskMilestone)Z ";
 
             }
             else if (model["Status"] == "Issue")
             {
                 strSql = @"SELECT Z.* FROM (
-SELECT X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department,SUM(X.UnRead)UnRead,SUM(X.TaskDue) TaskDue,SUM(X.OnTimeTask) OnTimeTask,SUM(X.LateTask) LateTask,SUM(X.PeriviousPeriodOverdueTask)PeriviousPeriodOverdueTask,AvgStorypoints=0,SUM(X.EarlyTask)EarlyTask,EarlyColsedStoryPoint=CASE WHEN SUM(X.EarlyTask)=0 THEN 0 ELSE 1.5 END,SUM(X.OverdueTask)OverdueTask,SUM(X.ApproveBy)ApproveBy,SUM(X.CheckBy)CheckBy,SUM(X.CrossCheckBy)CrossCheckBy
+SELECT X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department,X.Entity,X.IsTaskMilestone,SUM(X.UnRead)UnRead,SUM(X.TaskDue) TaskDue,SUM(X.OnTimeTask) OnTimeTask,SUM(X.LateTask) LateTask,SUM(X.PeriviousPeriodOverdueTask)PeriviousPeriodOverdueTask,AvgStorypoints=0,SUM(X.EarlyTask)EarlyTask,EarlyColsedStoryPoint=CASE WHEN SUM(X.EarlyTask)=0 THEN 0 ELSE 1.5 END,SUM(X.OverdueTask)OverdueTask,SUM(X.ApproveBy)ApproveBy,SUM(X.CheckBy)CheckBy,SUM(X.CrossCheckBy)CrossCheckBy
 FROM (
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM dbo.EmployeeInformation AS ei 
 LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit 
 Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) " + tcb + @"
@@ -2180,6 +2225,8 @@ LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TTA.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
@@ -2187,7 +2234,8 @@ WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit UR
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2198,6 +2246,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(isRead,0)=0 AND (Convert(date,UR.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND UR.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
@@ -2205,9 +2255,10 @@ AND ISNULL(isRead,0)=0 AND (Convert(date,UR.DueDate) Between Convert(date,'" + f
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit TD 
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
 --LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit WHERE (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))AND ISNULL(isDone,0)=0 " + tcb + @") TD ON TD.ResponsiblePersonId=ei.SystemId
@@ -2219,6 +2270,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
 AND (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND TD.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed'" + tcb + @"
@@ -2226,9 +2279,10 @@ AND (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit OTT
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2239,6 +2293,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 AND OTT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -2246,9 +2302,10 @@ AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @")  
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2259,6 +2316,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND ISNULL(LT.isDone,0)=1 AND LT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -2266,10 +2325,11 @@ AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2280,6 +2340,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
@@ -2289,10 +2351,11 @@ AND ISNULL(ET.isDone,0)=1 AND ET.AuthorizationType='AssignTo' AND tmm.currentsta
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask ,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask ,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2303,6 +2366,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date,ET.DueDate) BETWEEN '" + fromDate + @"' AND '" + todate + @"'
@@ -2312,9 +2377,10 @@ AND ISNULL(ET.isDone,0)=0 AND ET.AuthorizationType='AssignTo' AND tmm.currentsta
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2325,6 +2391,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + fromDate + @"')) AND PPDT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -2332,13 +2400,16 @@ AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,COUNT(tmm.Id) CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,COUNT(tmm.Id) CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2354,13 +2425,16 @@ AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2376,13 +2450,16 @@ AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,COUNT(tmm.Id) ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,COUNT(tmm.Id) ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2398,7 +2475,7 @@ AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 )X " + wt + @" GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department)Z ";
             }
             else if (model["Status"] == "TNA")
@@ -2406,7 +2483,8 @@ GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
                 strSql = @"SELECT Z.* FROM (
 SELECT X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department,SUM(X.UnRead)UnRead,SUM(X.TaskDue) TaskDue,SUM(X.OnTimeTask) OnTimeTask,SUM(X.LateTask) LateTask,SUM(X.PeriviousPeriodOverdueTask)PeriviousPeriodOverdueTask,AvgStorypoints=0,SUM(X.EarlyTask)EarlyTask,EarlyColsedStoryPoint=CASE WHEN SUM(X.EarlyTask)=0 THEN 0 ELSE 1.5 END,SUM(X.OverdueTask)OverdueTask,SUM(X.ApproveBy)ApproveBy,SUM(X.CheckBy)CheckBy,SUM(X.CrossCheckBy)CrossCheckBy
 FROM (
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM dbo.EmployeeInformation AS ei 
 LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit 
 Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) " + tcb + @"
@@ -2420,6 +2498,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TTA.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
@@ -2427,7 +2507,8 @@ WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit UR
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2438,6 +2519,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(UR.isRead,0)=0 AND ISNULL(UR.IsDone,0)=0 AND (Convert(date,UR.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND UR.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
@@ -2445,9 +2528,10 @@ AND ISNULL(UR.isRead,0)=0 AND ISNULL(UR.IsDone,0)=0 AND (Convert(date,UR.DueDate
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2458,6 +2542,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
+LEFT JOIN TNATasks TT ON TT.Id=tmm.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
 AND (Convert(date,TD.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND TD.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
@@ -2465,9 +2551,10 @@ AND (Convert(date,TD.DueDate) Between Convert(date,'" + fromDate + @"') AND Conv
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead, 0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead, 0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit OTT
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2479,15 +2566,17 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 AND OTT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @")  
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead, 0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead, 0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2499,16 +2588,18 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(LT.isDone,0)=1 AND LT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId 
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2520,6 +2611,7 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
 AND Convert(date, ET.DueDate) > Convert(date,ET.UpdatedDate)
@@ -2528,10 +2620,11 @@ AND ISNULL(ET.isDone,0)=1 AND ET.AuthorizationType='AssignTo' AND tmm.currentsta
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2543,6 +2636,7 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date,ET.DueDate) BETWEEN '" + fromDate + @"' AND '" + todate + @"'
 AND (Convert(date, ET.DueDate) > Convert(date,'" + todate + @"') OR ET.UpdatedDate IS NULL)
@@ -2551,10 +2645,11 @@ AND ISNULL(ET.isDone,0)=0 AND ET.AuthorizationType='AssignTo' AND tmm.currentsta
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2566,20 +2661,23 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + fromDate + @"')) AND PPDT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,COUNT(tmm.Id) CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,COUNT(tmm.Id) CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -2594,14 +2692,16 @@ AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -2616,14 +2716,16 @@ AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,COUNT(tmm.Id) ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,COUNT(tmm.Id) ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -2638,16 +2740,17 @@ AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
-)X " + wt + @" GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department)Z ";
-            
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,e.UserName,TTM.IsTaskMilestone
+)X " + wt + @" GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department,X.Entity,X.IsTaskMilestone)Z ";
+
             }
             else
             {
                 strSql = @"SELECT Z.* FROM (
-SELECT X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department,SUM(X.UnRead)UnRead,SUM(X.TaskDue) TaskDue,SUM(X.OnTimeTask) OnTimeTask,SUM(X.LateTask) LateTask,SUM(X.PeriviousPeriodOverdueTask)PeriviousPeriodOverdueTask,AvgStorypoints=0,SUM(X.EarlyTask)EarlyTask,EarlyColsedStoryPoint=CASE WHEN SUM(X.EarlyTask)=0 THEN 0 ELSE 1.5 END,SUM(X.OverdueTask)OverdueTask,SUM(X.ApproveBy)ApproveBy,SUM(X.CheckBy)CheckBy,SUM(X.CrossCheckBy)CrossCheckBy
+SELECT X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department,X.Entity,X.IsTaskMilestone,SUM(X.UnRead)UnRead,SUM(X.TaskDue) TaskDue,SUM(X.OnTimeTask) OnTimeTask,SUM(X.LateTask) LateTask,SUM(X.PeriviousPeriodOverdueTask)PeriviousPeriodOverdueTask,AvgStorypoints=0,SUM(X.EarlyTask)EarlyTask,EarlyColsedStoryPoint=CASE WHEN SUM(X.EarlyTask)=0 THEN 0 ELSE 1.5 END,SUM(X.OverdueTask)OverdueTask,SUM(X.ApproveBy)ApproveBy,SUM(X.CheckBy)CheckBy,SUM(X.CrossCheckBy)CrossCheckBy
 FROM (
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM dbo.EmployeeInformation AS ei 
 LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit 
 Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) " + tcb + @"
@@ -2661,6 +2764,8 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN dbo.TaskAudit TTA ON TTA.ResponsiblePersonId=TA.ResponsiblePersonId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TTA.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
@@ -2669,7 +2774,8 @@ WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,ISNULL(COUNT(UR.Id),0) UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,ISNULL(COUNT(UR.Id),0) UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit UR
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2680,16 +2786,19 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(UR.isRead,0)=0 AND ISNULL(UR.IsDone,0)=0 AND (Convert(date,UR.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND UR.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2700,16 +2809,19 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
 AND (Convert(date,TD.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND TD.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed'" + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead, 0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead, 0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit OTT
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2720,16 +2832,19 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 AND OTT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @")  
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead, 0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead, 0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2740,16 +2855,19 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND ISNULL(LT.isDone,0)=1 AND LT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId 
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2760,6 +2878,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
 AND Convert(date, ET.DueDate) > Convert(date,ET.UpdatedDate)
@@ -2768,9 +2888,10 @@ AND ISNULL(ET.isDone,0)=1 AND ET.AuthorizationType='AssignTo' AND tmm.currentsta
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup,e.UserName,TTM.IsTaskMilestone
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask ,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask ,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2781,6 +2902,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date,ET.DueDate) BETWEEN '" + fromDate + @"' AND '" + todate + @"'
 AND (Convert(date, ET.DueDate) > Convert(date,'" + todate + @"') OR ET.UpdatedDate IS NULL)
@@ -2789,9 +2912,10 @@ AND ISNULL(ET.isDone,0)=0 AND ET.AuthorizationType='AssignTo' AND tmm.currentsta
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup,e.UserName,TTM.IsTaskMilestone
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2802,19 +2926,24 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + fromDate + @"')) AND PPDT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,COUNT(tmm.Id) CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,COUNT(tmm.Id) CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -2829,13 +2958,16 @@ AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,0 ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -2850,13 +2982,16 @@ AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup,e.UserName,TTM.IsTaskMilestone
 
 UNION ALL
-SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,COUNT(tmm.Id) ApproveBy
+SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName LegalDesignation,Dp.UserName Department,e.UserName Entity
+,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,COUNT(tmm.Id) ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -2871,8 +3006,8 @@ AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup
-)X WHERE X.TaskTypeGroup='ToDo' " + wh + @" GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department)Z";
+GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup,e.UserName,TTM.IsTaskMilestone
+)X WHERE X.TaskTypeGroup='ToDo' " + wh + @" GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department,X.Entity,X.IsTaskMilestone)Z";
             }
             return _sqlRepository.GetDataTable(strSql);
 
@@ -2917,10 +3052,11 @@ GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm
                 if (model["Status"] == "All")
                 {
                     strSql = @"SELECT Z.* FROM (
-SELECT X.Department,SUM(X.NoOfEmp)NoOfEmp,SUM(X.UnRead)UnRead,SUM(X.TaskDue) TaskDue,SUM(X.OnTimeTask) OnTimeTask,SUM(X.LateTask) LateTask,SUM(X.PeriviousPeriodOverdueTask)PeriviousPeriodOverdueTask
+SELECT X.Department,X.Entity,X.IsTaskMilestone,SUM(X.NoOfEmp)NoOfEmp,SUM(X.UnRead)UnRead,SUM(X.TaskDue) TaskDue,SUM(X.OnTimeTask) OnTimeTask,SUM(X.LateTask) LateTask,SUM(X.PeriviousPeriodOverdueTask)PeriviousPeriodOverdueTask
 ,AvgStorypoints=0,SUM(X.EarlyTask)EarlyTask,EarlyColsedStoryPoint=CASE WHEN SUM(X.EarlyTask)=0 THEN 0 ELSE 1.5 END,SUM(X.OverdueTask) OverdueTask,SUM(X.ApproveBy)ApproveBy,SUM(X.CheckBy)CheckBy,SUM(X.CrossCheckBy)CrossCheckBy
 FROM (
-SELECT DP.UserName Department,COUNT(ei.SystemId) NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,COUNT(ei.SystemId) NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask
+,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,'No' IsTaskMilestone
   FROM dbo.EmployeeInformation AS ei 
 LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit 
 Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) "+tcb+ @"
@@ -2936,10 +3072,11 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName 
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask
+,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit UR
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2949,16 +3086,19 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(UR.isRead,0)=0 AND ISNULL(UR.IsDone,0)=0 AND (Convert(date,UR.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND UR.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask
+,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2968,16 +3108,18 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
 AND (Convert(date,TD.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND TD.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit OTT
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -2987,16 +3129,18 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 AND OTT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3006,16 +3150,18 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(LT.isDone,0)=1 AND LT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3025,6 +3171,8 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
 AND Convert(date, ET.DueDate) > Convert(date,ET.UpdatedDate)
@@ -3033,9 +3181,9 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3045,6 +3193,8 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date,ET.DueDate) BETWEEN '" + fromDate+@"' AND '"+todate+ @"'
 AND (Convert(date, ET.DueDate) > Convert(date,'" + todate + @"') OR ET.UpdatedDate IS NULL)
@@ -3053,10 +3203,10 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3066,19 +3216,23 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + fromDate + @"')) AND PPDT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,COUNT(tmm.Id) CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,COUNT(tmm.Id) CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -3093,13 +3247,15 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -3114,13 +3270,15 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,COUNT(tmm.Id) ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,COUNT(tmm.Id) ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -3135,9 +3293,9 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
-)X GROUP BY X.Department)Z";
+)X GROUP BY X.Department,X.Entity,x.IsTaskMilestone)Z";
                 }
                 else if (model["Status"] == "ToDo")
                 {
@@ -3145,7 +3303,7 @@ GROUP BY DP.Id,DP.UserName
 SELECT X.Department,SUM(X.NoOfEmp)NoOfEmp,SUM(X.UnRead)UnRead,SUM(X.TaskDue) TaskDue,SUM(X.OnTimeTask) OnTimeTask,SUM(X.LateTask) LateTask,SUM(X.PeriviousPeriodOverdueTask)PeriviousPeriodOverdueTask,AvgStorypoints=0,X.TaskTypeGroup,SUM(X.EarlyTask)EarlyTask,EarlyColsedStoryPoint=CASE WHEN SUM(X.EarlyTask)=0 THEN 0 ELSE 1.5 END,SUM(X.OverdueTask) OverdueTask,SUM(X.ApproveBy)ApproveBy,SUM(X.CheckBy)CheckBy,SUM(X.CrossCheckBy)CrossCheckBy
 FROM (
 
-SELECT DP.UserName Department,COUNT(ei.SystemId) NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,COUNT(ei.SystemId) NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM dbo.EmployeeInformation AS ei 
 LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit WHERE (Convert(date,AddedDate) Between Convert(date,'" + fromDate+@"') AND Convert(date, '"+todate+ @"')) " + tcb + @") TA ON TA.ResponsiblePersonId= ei.SystemId
 LEFT JOIN(SELECT distinct ResponsiblePersonId,TaskManagerMasterId from TaskAudit) TTA ON TTA.ResponsiblePersonId= ei.SystemId
@@ -3156,15 +3314,17 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TTA.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup
+GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,ISNULL(COUNT(UR.Id),0) UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,ISNULL(COUNT(UR.Id),0) UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit UR 
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3174,16 +3334,18 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(UR.isRead,0)=0 AND ISNULL(UR.IsDone,0)=0 AND (Convert(date,UR.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND UR.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup
+GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3193,16 +3355,18 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
 AND (Convert(date,TD.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND TD.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup
+GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit OTT
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3212,15 +3376,17 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 AND OTT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
-AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup
+AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei  ON LT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3230,16 +3396,18 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND ISNULL(LT.isDone,0)=1 AND LT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup
+GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3249,6 +3417,8 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
 AND Convert(date, ET.DueDate) > Convert(date,ET.UpdatedDate)
@@ -3257,9 +3427,9 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup
+GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup,e.UserName , TTM.IsTaskMilestone
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3269,6 +3439,8 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date,ET.DueDate) BETWEEN '" + fromDate + @"' AND '" + todate + @"'
 AND (Convert(date, ET.DueDate) > Convert(date,'" + todate + @"') OR ET.UpdatedDate IS NULL)
@@ -3277,9 +3449,9 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup
+GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup,e.UserName , TTM.IsTaskMilestone
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
 --LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit WHERE ISNULL(isDone,0)=0 AND (Convert(date,DueDate) < Convert(date,'" + fromDate + @"')) " + tcb + @") PPDT ON PPDT.ResponsiblePersonId=ei.SystemId
@@ -3290,19 +3462,23 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + fromDate + @"')) AND PPDT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup
+GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup,e.UserName, TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,COUNT(tmm.Id) CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,COUNT(tmm.Id) CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -3317,13 +3493,15 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup
+GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -3338,13 +3516,15 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup
+GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,COUNT(tmm.Id) ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,tmm.TaskTypeGroup,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,COUNT(tmm.Id) ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -3359,7 +3539,7 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup
+GROUP BY DP.Id,DP.UserName,tmm.TaskTypeGroup,e.UserName , TTM.IsTaskMilestone
 
 )X 
 WHERE X.TaskTypeGroup='ToDo' 
@@ -3370,7 +3550,7 @@ GROUP BY X.Department,X.TaskTypeGroup)Z";
                     strSql = @"SELECT Z.* FROM (
 SELECT X.Department,SUM(X.NoOfEmp)NoOfEmp,SUM(X.UnRead)UnRead,SUM(X.TaskDue) TaskDue,SUM(X.OnTimeTask) OnTimeTask,SUM(X.LateTask) LateTask,SUM(X.PeriviousPeriodOverdueTask)PeriviousPeriodOverdueTask,AvgStorypoints=0,SUM(X.EarlyTask)EarlyTask,EarlyColsedStoryPoint=CASE WHEN SUM(X.EarlyTask)=0 THEN 0 ELSE 1.5 END,SUM(X.OverdueTask) OverdueTask,SUM(X.ApproveBy)ApproveBy,SUM(X.CheckBy)CheckBy,SUM(X.CrossCheckBy)CrossCheckBy
 FROM (
-SELECT DP.UserName Department,COUNT(ei.SystemId) NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,COUNT(ei.SystemId) NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
   FROM dbo.EmployeeInformation AS ei 
 LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit) TA ON TA.ResponsiblePersonId= ei.SystemId
 LEFT JOIN(SELECT distinct ResponsiblePersonId,TaskManagerMasterId from TaskAudit Where (Convert(date,AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) " + tcb + @") TTA ON TTA.ResponsiblePersonId= ei.SystemId
@@ -3381,16 +3561,18 @@ LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TTA.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,ISNULL(COUNT(UR.Id),0) UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,ISNULL(COUNT(UR.Id),0) UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit UR
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3401,6 +3583,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(UR.isRead,0)=0 AND ISNULL(UR.IsDone,0)=0 AND (Convert(date,UR.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND UR.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
@@ -3408,10 +3592,10 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3422,6 +3606,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
 AND (Convert(date,TD.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND TD.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
@@ -3429,10 +3615,10 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit OTT
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3443,6 +3629,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 AND OTT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -3450,10 +3638,10 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3464,6 +3652,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND ISNULL(LT.isDone,0)=1 AND LT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -3471,10 +3661,10 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3485,6 +3675,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
@@ -3494,9 +3686,9 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3507,6 +3699,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date,ET.DueDate) BETWEEN '" + fromDate + @"' AND '" + todate + @"'
@@ -3516,9 +3710,9 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId 
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3529,6 +3723,8 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + fromDate + @"')) AND PPDT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
@@ -3536,13 +3732,15 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName 
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,COUNT(tmm.Id) CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,COUNT(tmm.Id) CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3559,13 +3757,15 @@ AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3582,13 +3782,15 @@ AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,COUNT(tmm.Id) ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,COUNT(tmm.Id) ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
+INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3605,7 +3807,7 @@ AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 )X  GROUP BY X.Department)Z";
                 }
                 else
@@ -3613,7 +3815,7 @@ GROUP BY DP.Id,DP.UserName
                     strSql = @"SELECT Z.* FROM (
 SELECT X.Department,SUM(X.NoOfEmp)NoOfEmp,SUM(X.UnRead)UnRead,SUM(X.TaskDue) TaskDue,SUM(X.OnTimeTask) OnTimeTask,SUM(X.LateTask) LateTask,SUM(X.PeriviousPeriodOverdueTask)PeriviousPeriodOverdueTask,AvgStorypoints=0,SUM(X.EarlyTask)EarlyTask,EarlyColsedStoryPoint=CASE WHEN SUM(X.EarlyTask)=0 THEN 0 ELSE 1.5 END,SUM(X.OverdueTask) OverdueTask,SUM(X.ApproveBy)ApproveBy,SUM(X.CheckBy)CheckBy,SUM(X.CrossCheckBy)CrossCheckBy
 FROM (
-SELECT DP.UserName Department,COUNT(ei.SystemId) NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,COUNT(ei.SystemId) NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit TTA
 LEFT JOIN dbo.EmployeeInformation AS ei ON TTA.ResponsiblePersonId= ei.SystemId
 LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit) TA ON TA.ResponsiblePersonId= ei.SystemId
@@ -3627,16 +3829,17 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TTA.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND (Convert(date,TTA.AddedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,ISNULL(COUNT(UR.Id),0) UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,ISNULL(COUNT(UR.Id),0) UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit UR
 LEFT JOIN dbo.EmployeeInformation AS ei ON UR.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3648,16 +3851,17 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(UR.isRead,0)=0 AND ISNULL(UR.IsDone,0)=0 AND (Convert(date,UR.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND UR.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit TD
 LEFT JOIN dbo.EmployeeInformation AS ei ON TD.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3668,6 +3872,7 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1 AND ISNULL(TD.IsDone,0)=0
 AND (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND TD.AuthorizationType='AssignTo' AND tmm.currentstatus<>'Closed' " + tcb + @"
@@ -3675,10 +3880,10 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead,0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit OTT
 LEFT JOIN dbo.EmployeeInformation AS ei ON OTT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3690,16 +3895,17 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 AND OTT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit LT
 LEFT JOIN dbo.EmployeeInformation AS ei ON LT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3711,16 +3917,17 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND ISNULL(LT.isDone,0)=1 AND LT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,ISNULL(COUNT(ET.Id),0) EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3732,6 +3939,7 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
 AND Convert(date, ET.DueDate) > Convert(date,ET.UpdatedDate)
@@ -3740,9 +3948,9 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,ISNULL(COUNT(ET.Id),0) OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit ET
 LEFT JOIN dbo.EmployeeInformation AS ei ON ET.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3753,6 +3961,7 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND Convert(date,ET.DueDate) BETWEEN '" + fromDate + @"' AND '" + todate + @"'
 AND (Convert(date, ET.DueDate) > Convert(date,'" + todate + @"') OR ET.UpdatedDate IS NULL)
@@ -3761,9 +3970,9 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskAudit PPDT
 LEFT JOIN dbo.EmployeeInformation AS ei ON PPDT.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
@@ -3774,20 +3983,22 @@ LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=DM.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + fromDate + @"')) AND PPDT.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,COUNT(tmm.Id) CheckBy,0 CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,COUNT(tmm.Id) CheckBy,0 CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -3802,14 +4013,15 @@ AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,0 ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,0 ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -3824,14 +4036,16 @@ AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
+GROUP BY DP.Id,DP.UserName,e.UserName , TTM.IsTaskMilestone
 
 UNION ALL
-SELECT DP.UserName Department,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,COUNT(tmm.Id) ApproveBy
+SELECT DP.UserName Department,e.UserName Entity,0 NoOfEmp,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 EarlyTask,0 OverdueTask
+,0 CheckBy,COUNT(tmm.Id) CrossCheckBy,COUNT(tmm.Id) ApproveBy,IsTaskMilestone=case when TTM.IsTaskMilestone=1 then 'Yes' ELSE 'No' End
   FROM TaskManagerMaster AS tmm 
 INNER JOIN TaskAudit AS ta ON ta.TaskManagerMasterId=tmm.Id
 LEFT JOIN TaskAudit AS TTO ON TTO.TaskManagerMasterId=tmm.Id AND TTO.AuthorizationType='CreatedBy'
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
+LEFT JOIN TaskTemplate TTM ON TTM.Id=TT.TaskTemplateId
 LEFT JOIN dbo.EmployeeInformation AS ei ON ta.ResponsiblePersonId=ei.SystemId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -3846,8 +4060,8 @@ AND tmm.CurrentStatus<>'Closed' AND isnull(ta.isDone,0)=0  AND ta.AuthorizationT
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-GROUP BY DP.Id,DP.UserName
-)X  GROUP BY X.Department)Z";
+GROUP BY DP.Id,DP.UserName,e.UserName, TTM.IsTaskMilestone
+)X  GROUP BY X.Department,X.Entity,X.IsTaskMilestone)Z";
                 }
                 return _sqlRepository.GetDataTable(strSql);
             }
