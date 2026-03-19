@@ -138,6 +138,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                 var colPFUANNo = 0;
                 var colEmployeeName = 0;
                 var colDays = 0;
+                var colBasic = 0;
+                var colgross = 0;
                 var colWagesAmount = 0;
                 var colEmployeeShare12parcent = 0;
                 var colVPF = 0;
@@ -206,12 +208,15 @@ namespace Aplos.Areas.Payrolls.Controllers
                     for (int i = 0; i < dtEmpInfo.Rows.Count; i++)
                     {
                         double basic = 0.00;
+                        double gross = 0.00;
                         double pension = 0.00;
                         double pfER = 0.00;
                         double pfEE = 0.00;
                         double VPF = 0.00;
                         bool basicIntegerInDisb = false;
                         int basicDecimalPoint = 0;
+                        bool grossIntegerInDisb = false;
+                        int grossDecimalPoint = 0;
                         bool pfERIntegerInDisb = false;
                         int pfERDecimalPoint = 0;
                         bool pfEEIntegerInDisb = false;
@@ -235,6 +240,12 @@ namespace Aplos.Areas.Payrolls.Controllers
                                     basic = clsStaticInfo.dbl(item["DisbusmentAmount"].ToString());
                                     basicIntegerInDisb = bplib.clsWebLib.GetBoolData(item["IntegerInDisb"]);
                                     basicDecimalPoint = (int)clsStaticInfo.dbl(item["DecimalNo"].ToString());
+                                }
+                                if (item["HeadCategory"].ToString() == "GROSS")
+                                {
+                                    gross = clsStaticInfo.dbl(item["DisbusmentAmount"].ToString());
+                                    grossIntegerInDisb = bplib.clsWebLib.GetBoolData(item["IntegerInDisb"]);
+                                    grossDecimalPoint = (int)clsStaticInfo.dbl(item["DecimalNo"].ToString());
                                 }
                                 if (item["HeadCategory"].ToString() == "Pension")
                                 {
@@ -377,6 +388,21 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                         sheet1.Range[xlsRow, colFPFEmployersShare8point33percent].Number = Convert.ToDouble(pension);// + Environment.NewLine + totalPayDay;
                         sheet1.Range[xlsRow, colFPFEmployersShare8point33percent].NumberFormat = GetDecimalFormat(pensionIntegerInDisb, pensionDecimalPoint);
+
+                        sheet1.Range[xlsRow, colBasic].Number = Convert.ToDouble(basic);// + Environment.NewLine + totalPayDay;
+                        sheet1.Range[xlsRow, colBasic].NumberFormat = GetDecimalFormat(basicIntegerInDisb, basicDecimalPoint);
+
+                        sheet1.Range[xlsRow, colgross].Number = Convert.ToDouble(gross);// + Environment.NewLine + totalPayDay;
+                        sheet1.Range[xlsRow, colgross].NumberFormat = GetDecimalFormat(grossIntegerInDisb, grossDecimalPoint);
+
+                        sheet1.Range[xlsRow, colAC].Number = ((Convert.ToDouble(gross) + Convert.ToDouble(basic) + Convert.ToDouble(pfER)) * 0.5) / 100;// + Environment.NewLine + totalPayDay;
+                        sheet1.Range[xlsRow, colAC].NumberFormat = GetDecimalFormat(grossIntegerInDisb, grossDecimalPoint);
+
+                        sheet1.Range[xlsRow, colEC].Number = ((Convert.ToDouble(gross) + Convert.ToDouble(basic) + Convert.ToDouble(pfER)) * 0.5) / 100;// + Environment.NewLine + totalPayDay;
+                        sheet1.Range[xlsRow, colEC].NumberFormat = GetDecimalFormat(grossIntegerInDisb, grossDecimalPoint);
+
+
+
                         sheet1.Range[xlsRow, colFPFEmployersShare8point33percent].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         sheet1.Range[xlsRow, colFPFEmployersShare8point33percent].HorizontalAlignment = ExcelHAlign.HAlignRight;
                         sheet1.Range[xlsRow, colFPFEmployersShare8point33percent].BorderAround(ExcelLineStyle.Hair);
@@ -1818,7 +1844,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 														INNER JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
 																							AND SPM.SystemID IN  (" + salaryProcessID + @")	
                                                         INNER JOIN SalaryHead SH ON SH.SalaryHeadID=SPC.SalaryHeadID 
-														AND SH.HeadCategory IN ('PF Voluntary','Pension','Basic','PF Employer Contribution','PF Employee Contribution') 
+														AND SH.HeadCategory IN ('PF Voluntary','Pension','Basic','PF Employer Contribution','PF Employee Contribution','GROSS') 
 														
                                             Inner join EmployeeInformation EEI ON EEI.SystemId = SPC.EmpInfoSystemID
 														LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EEI.SalaryRuleMasterSystemID
