@@ -415,8 +415,8 @@ namespace OTSBD
 																----   ) B ON A.EmpSystemId = B.EmpSystemId AND A.EffectiveDate = B.EffectiveDate
                                                         ) VPF ON E.SystemId = VPF.EmpSystemID
                                 WHERE E.GroupID = '" + sGroupID + @"' AND E.PlantId = '" + sPlantID + @"' --AND E.EmployeeStatus = 'Active'
-                                    and  E.DOJ <= '" + para.ToDate + @"' AND (E.DOS >= '" + para.FromDate + @"' OR E.DOS IS NULL OR E.DOS = NULL
-                                      OR E.DOS = '' OR E.DOS = '01/01/1901' OR E.EmployeeStatus = 'Active')
+                                    --and  E.DOJ <= '" + para.ToDate + @"' AND (E.DOS >= '" + para.FromDate + @"' OR E.DOS IS NULL OR E.DOS = NULL
+                                    --  OR E.DOS = '' OR E.DOS = '01/01/1901' OR E.EmployeeStatus = 'Active')
 	                                  AND DM.PFPolicyMasterID = '" + sPFMstSystemID + @"' AND E.SystemId IN (" + para.sEmpSystemID + @")";
                 }
                 strSQL += @"
