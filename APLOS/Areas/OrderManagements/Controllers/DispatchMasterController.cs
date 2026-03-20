@@ -416,10 +416,10 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetSampleFile(ReportFormat reportFormat)
+        public ActionResult GetSampleFile(ReportFormat reportFormat, string mId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            IWorkbook workbook = GetSampleFileServiceMaster(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName);
+            IWorkbook workbook = GetSampleFileServiceMaster(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName,mId);
             var reportFileName = "Dispatch Plan upload Sample File";
 
             switch (reportFormat)
@@ -439,7 +439,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public DataTable GetServiceMasterGLData(string PlantId)
         {
 
-            var cmdText = @"select top (10)  p.code +' - '+p.UserName CustomerName,so.Id SoId,so.OrderStatusId SOStatus,pod.ProductionOrderId POId,ps.UserName POStatus
+            var cmdText = @"select p.code +' - '+p.UserName CustomerName,so.Id SoId,so.OrderStatusId SOStatus,pod.ProductionOrderId POId,ps.UserName POStatus
             ,dpc.DispatchPlanMasterId,so.Qty SOQty,dpc.DispatchPlanQty,so.Qty-dpc.DispatchPlanQty DispatchBalance
             ,((so.Qty-dpc.DispatchPlanQty)/ so.Qty)*100 BalancePercentage
             ,dpm.PlantId,dpm.YearNo,dpm.MonthNo,'' ResponsiblePerson,oc.CriticalityLevel  OrderCriticalityLevel
@@ -478,7 +478,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             }
         }
 
-        public IWorkbook GetSampleFileServiceMaster(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName)
+        public IWorkbook GetSampleFileServiceMaster(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName,string mId)
         {
             #region declare
             OTSBD.clsReport objRpt = null;
@@ -565,7 +565,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet1[xlsRow, colPOId].Text = dtData.Rows[i]["POId"].ToString();
                     sheet1[xlsRow, colPOStatus].Text = dtData.Rows[i]["POStatus"].ToString();
                     sheet1[xlsRow, colProductionEntity].Text = dtData.Rows[i]["ProductionEntity"].ToString();
-                    sheet1[xlsRow, colDispatchPlanMasterId].Text = dtData.Rows[i]["DispatchPlanMasterId"].ToString();
+                    sheet1[xlsRow, colDispatchPlanMasterId].Text = mId;
                     sheet1[xlsRow, colSOQty].Text = dtData.Rows[i]["SOQty"].ToString();
                     sheet1[xlsRow, colDispatchPlanQty].Text = dtData.Rows[i]["DispatchPlanQty"].ToString();
                     sheet1[xlsRow, colDispatchBalance].Text = dtData.Rows[i]["DispatchBalance"].ToString();

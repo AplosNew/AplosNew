@@ -155,10 +155,13 @@ function DispatchPlanController(commonMessage, $scope, $rootScope, baseService, 
 
     }
 
-    $scope.GetSampleFile = function () {
+    $scope.GetSampleFile = function (index) {
+        $scope.index = index;
+        $scope.mastermodel = $scope.dispatchPlanMasters[$scope.index];
         var ReportFormat = 'Excel';
-        location.href = $scope.path + 'GetSampleFile?reportFormat=' + ReportFormat;
+        location.href = $scope.path + 'GetSampleFile?reportFormat=' + ReportFormat + '&mId=' + $scope.mastermodel.Id;
     };
+
 
     $scope.UploadedData = [];
     $scope.picdata = null;
