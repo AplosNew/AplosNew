@@ -178,6 +178,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                     SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "Name of the Employee", 21, 25, ExcelHAlign.HAlignCenter); colEmployeeName = xlsCol; xlsCol++;
                     SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "Age", 5, 25, ExcelHAlign.HAlignCenter); colAge = xlsCol; xlsCol++;
                     SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "Days", 5, 25, ExcelHAlign.HAlignCenter); colDays = xlsCol; xlsCol++;
+                    SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "GROSS_WAGES", 5, 25, ExcelHAlign.HAlignCenter); colgross = xlsCol; xlsCol++;
+                    SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "BAISC_WAGES", 5, 25, ExcelHAlign.HAlignCenter); colBasic = xlsCol; xlsCol++;
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         iCount = xlsCol;
