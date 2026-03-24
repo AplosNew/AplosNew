@@ -3697,7 +3697,8 @@ LEFT JOIN hkp.WeeklyStatus WS
                         string WorkDate = PrevDurationStat.Tables[0].Rows[0][@"WorkDate"].ToString();
 
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "' and PlantID='" + PlantValue + "'";
+                        
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "' and PlantID='" + PlantValue + "' ";
 
                         objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
@@ -3710,7 +3711,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                             string Duration = clsWebLib.RetValidLen(PrevDurationStat.Tables[0].Rows[i][@"Duration"]).ToString();
                             string In = clsWebLib.RetValidLen(PrevDurationStat.Tables[0].Rows[i][@"ProcessIntime"]).ToString();
                             string Out = clsWebLib.RetValidLen(PrevDurationStat.Tables[0].Rows[i][@"ProcessOutTime"]).ToString();
-
+                            
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
@@ -3726,14 +3727,15 @@ LEFT JOIN hkp.WeeklyStatus WS
                                     {
                                         dr["DurationStatus"] = "FD"; // Full Day
                                     }
-                                    else if (Convert.ToDouble(Duration) >= Convert.ToDouble(HalfDayDuration))
-                                    {
-                                        dr["DurationStatus"] = "HD"; // Half Day
-                                    }
                                     else if (Convert.ToDouble(Duration) >= Convert.ToDouble(ShortDuration))
                                     {
                                         dr["DurationStatus"] = "SD"; // Short Day
                                     }
+                                    else if (Convert.ToDouble(Duration) >= Convert.ToDouble(HalfDayDuration))
+                                    {
+                                        dr["DurationStatus"] = "HD"; // Half Day
+                                    }
+                                    
                                     else if (Convert.ToDouble(Duration) < Convert.ToDouble(ShortDuration))
                                     {
                                         dr["DurationStatus"] = "A"; // Absent
