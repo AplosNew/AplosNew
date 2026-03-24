@@ -1309,7 +1309,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 ) as dd	
 				) x  join (select  PlantID,WorkDate,WeeklyStatus,EmpSystemID from AttdnProcessData 
                                    WHERE WorkDate='" + Date + @"' and PlantId='" + plant + @"' 
-                                     ) apd on apd.EmpSystemID=x.SystemId AND apd.WeeklyStatus IS NULL and x.[WeekDay]=DATENAME(WEEKDAY,apd.WorkDate)   ";
+                                     ) apd on apd.EmpSystemID=x.SystemId  and x.[WeekDay]=DATENAME(WEEKDAY,apd.WorkDate)   ";
 
    var sqlxNW = @"UPDATE apd SET apd.WeeklyStatus=ISNULL(x.DayType,'') from (
                 Select dd.*,
