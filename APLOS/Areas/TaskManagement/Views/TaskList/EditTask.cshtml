@@ -78,8 +78,8 @@
                         <br />
                         <div class="form-group">
                             @*<div class="col-sm-2" style="float:left;padding:0px;">
-                                    <div id="UploadDefault" e-dialogPosition-x="0" e-multiplefilesselection="true" e-width="50" e-buttontext-browse="+File" e-success="getFileList" e-showroundedcorner="false" e-height="30" e-dialogtext-title="File Attachments" e-autoupload="true" e-begin="onBeginUpload" e-filesize="10485760" ej-uploadbox e-saveurl="uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt" e-error="errorPicUpload"></div>
-                                </div>*@
+                    <div id="UploadDefault" e-dialogPosition-x="0" e-multiplefilesselection="true" e-width="50" e-buttontext-browse="+File" e-success="getFileList" e-showroundedcorner="false" e-height="30" e-dialogtext-title="File Attachments" e-autoupload="true" e-begin="onBeginUpload" e-filesize="10485760" ej-uploadbox e-saveurl="uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt" e-error="errorPicUpload"></div>
+                </div>*@
                             <span class="glyphicon glyphicon-paperclip" style="font-size:14pt; font-weight:bolder; padding:10px;" ng-click="OpenFileUploadPOPUp();"></span>
                             <div class="col-sm-10" style="padding:0px;padding-left:8px;">
                                 <div class="form-group">
@@ -103,7 +103,6 @@
 
                         <div class="col-sm-3">
                             Due
-
                             <input e-change="UpdateToDoMaster" e-dateformat="dd-MMM-yyyy" e-enabled="AllowToDoEdit" ej-datepicker e-value="ToDoModel.DueDate" e-width="100%" />
                         </div>
                         <div class="col-sm-3">
@@ -121,7 +120,19 @@
 
 
                     </div>
-
+                    <div class="col-xs-12 col-sm-8 col-md-8">
+                        <div class="col-sm-6">
+                            Critically Level
+                            <div class="select-style">
+                                <select class="form-control" ng-model="ToDoModel.CriticallyLevel" name="Critically Level" ng-change="UpdateToDoMaster();">
+                                    <option value="">--Select--</option>
+                                    <option value="Normal">Normal</option>
+                                    <option value="Critical">Critical</option>
+                                    <option value="important ">Important </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>

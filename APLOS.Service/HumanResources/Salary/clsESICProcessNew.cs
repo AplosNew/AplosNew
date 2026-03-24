@@ -368,9 +368,9 @@ namespace OTSBD
 										    ---INNER JOIN (SELECT * FROM [dbo].[ESICEligibleEmployee] WHERE IsActive = 1) EEE ON E.SystemId = EEE.EmpSystemID
 										    --LEFT JOIN [dbo].[SalaryInfoDefineMaster] SLR ON E.SystemId = SLR.EmpInfoSystemID
 			                                LEFT JOIN [dbo].[ESICPolicyMaster] ESICPLMst ON DM.ESICPolicyMasterID = ESICPLMst.ID
-                                WHERE E.GroupID = '" + para.GroupID + @"' AND E.PlantId = '" + para.PlantID + @"' AND --E.EmployeeStatus = 'Active'
-                                      E.DOJ <= '" + para.ToDate + @"' AND (E.DOS > '" + para.FromDate + @"' OR E.DOS IS NULL OR E.DOS = NULL
-                                      OR E.DOS = '' OR E.DOS = '01/01/1901' OR E.EmployeeStatus = 'Active')
+                                WHERE E.GroupID = '" + para.GroupID + @"' AND E.PlantId = '" + para.PlantID + @"' --AND E.EmployeeStatus = 'Active'
+                                      --E.DOJ <= '" + para.ToDate + @"' AND (E.DOS > '" + para.FromDate + @"' OR E.DOS IS NULL OR E.DOS = NULL
+                                      --OR E.DOS = '' OR E.DOS = '01/01/1901' OR E.EmployeeStatus = 'Active')
 	                                  AND DM.ESICPolicyMasterID = '" + sESICMstSystemID + @"' AND E.SystemId IN (" + para.sEmpSystemID + @")";
                 }
                 strSQL += @"

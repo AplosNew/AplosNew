@@ -423,7 +423,8 @@ function taskListController($window, $timeout, cboService, commonMessage, $scope
         CheckBy: { EmployeeId: null, EmployeeCode: null, EmployeeName: null, EmpPicPath: '' },
         CrossCheckBy: { EmployeeId: null, EmployeeCode: null, EmployeeName: null, EmpPicPath: '' },
         ApproveBy: { EmployeeId: null, EmployeeCode: null, EmployeeName: null, EmpPicPath: '' },
-        Schedule: {}
+        Schedule: {},
+        CriticallyLevel:null
     };
     $scope.ToDoModel = Object.assign({}, $scope.ToDoModelBase);
 

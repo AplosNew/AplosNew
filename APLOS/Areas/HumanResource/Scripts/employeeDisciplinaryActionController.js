@@ -86,6 +86,11 @@ function employeeDisciplinaryActionController(cboService, commonMessage, $scope,
                     name: 'Department',
                     value: 'Department'
                 }
+                ,
+                {
+                    name: 'Entity',
+                    value: 'EntityName'
+                }
 
             ];
 
