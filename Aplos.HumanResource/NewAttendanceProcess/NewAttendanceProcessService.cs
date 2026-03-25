@@ -1379,7 +1379,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();
                 objCon.executeQuery(sqlxNew);
-                objCon.executeQuery(sqlxNW);
+                //objCon.executeQuery(sqlxNW);
                 objCon.CommitTransaction();
             }
             catch (Exception ex)
