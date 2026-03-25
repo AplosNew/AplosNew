@@ -442,8 +442,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
             var cmdText = @"select p.code +' - '+p.UserName CustomerName,so.Id SoId,so.OrderStatusId SOStatus,pod.ProductionOrderId POId,ps.UserName POStatus
             ,dpc.DispatchPlanMasterId,so.Qty SOQty,dpc.DispatchPlanQty,so.Qty-dpc.DispatchPlanQty DispatchBalance
             ,((so.Qty-dpc.DispatchPlanQty)/ so.Qty)*100 BalancePercentage
-            ,dpm.PlantId,dpm.YearNo,dpm.MonthNo,'' ResponsiblePerson,oc.CriticalityLevel  OrderCriticalityLevel
-            ,dpm.PlanNo ,NULL DispatchCommitmentDate,NULL DispatchCategory ,NULL  Remark,NULL OrderRemark,EN.UserName ProductionEntity
+            ,dpc.PlantId,dpc.YearNo,dpc.MonthNo,'' ResponsiblePerson,oc.CriticalityLevel  OrderCriticalityLevel
+            ,dpc.PlanNo ,NULL DispatchCommitmentDate,NULL DispatchCategory ,NULL  Remark,NULL OrderRemark,EN.UserName ProductionEntity
             FROM TRN.SalesOrder so  
             LEFT JOIN dbo.OrderControl oc on oc.SalesOrderId=so.Id
             LEFT JOIN trn.MasterOrderItem moi on moi.Id=so.MasterOrderItemId
@@ -452,8 +452,10 @@ namespace Aplos.Areas.OrderManagements.Controllers
             LEFT JOIN trn.ProductionOrder po on po.Id=pod.ProductionOrderId
             LEFT JOIN hkp.ProductionStatus ps on ps.Id=po.ProductionStatusId 
             LEFT JOIN ORG.Entity EN ON EN.Id=PO.EntityId
-            LEFT JOIN  dbo.DispatchPlanChild dpc on dpc.SOId=so.Id
+            LEFT JOIN(select dpc.DispatchPlanMasterId,dpc.SOId,SUM(dpc.DispatchPlanQty) DispatchPlanQty,dpm.PlantId,dpm.YearNo,dpm.MonthNo,dpm.PlanNo from  dbo.DispatchPlanChild dpc 
             LEFT JOIN dbo.DispatchPlanMaster dpm on dpm.Id=dpc.DispatchPlanMasterId
+			group by dpc.DispatchPlanMasterId,dpc.SOId,dpm.PlantId,dpm.YearNo,dpm.MonthNo,dpm.PlanNo
+			) dpc on dpc.SOId=so.Id
             LEFT JOIN hkp.Party p on p.Id=mo.PartyId
             WHERE SO.OrderStatusId not in ('Closed','Cancelled')  and mo.PlantId = '" + PlantId + "'";
             return _sqlRepository.GetDataTable(cmdText);
