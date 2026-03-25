@@ -1289,17 +1289,21 @@ namespace Library.HumanResource.NewAttendanceProcess
 										   Division.UserName Division, Department.UserName Department,
                                              ISNULL(EmpC.UserName,'') EmployeeCategory,cdata.UserName as Contractor,											
 											 Section.UserName Section, SubSection.UserName SubSection,Line.UserName Line,
-									Month(dd.FromDate)MonthNo,YEAR(dd.FromDate)YearNo,Plant.UserName PlantName from 
-            (select p.EmpSystemID as EmployeePK,REPLACE(CONVERT(VARCHAR(11), MIN(p.WorkDate), 113), ' ', '-') FromDate,   
+									Month(dd.FromDate)MonthNo,YEAR(dd.FromDate)YearNo,Plant.UserName PlantName
+									,dd.RosterGroup from 
+           
+		   (select p.EmpSystemID as EmployeePK,REPLACE(CONVERT(VARCHAR(11), MIN(p.WorkDate), 113), ' ', '-') FromDate,   
                REPLACE(CONVERT(VARCHAR(11), MAX(p.WorkDate), 113), ' ', '-') ToDate,
                 COUNT(p.WorkDate) TotalProcDate,
                 isnull(SUM(P.PresentValue),'0')TotalPresent,isnull(SUM(p.LateValue),'0')TotalLate,isnull(SUM(p.AbsentValue),'0')TotalAbsent
                 ,isnull(SUM(p.LvValue),'0')TotalLv,isnull(SUM(p.CompAssignLvValue),'0')TotalCompAssignLv,
                 isnull(SUM(p.WeekOffValue),'0')TotalWeekOff,isnull(SUM(p.HoliDayValue),'0')TotalHoliDay,isnull(SUM(p.WeekOffHoliDayValue),'0')TotalWeekOffHoliDay
                ,isnull(SUM(p.PayDayValue),'0')TotalPayDay,isnull(SUM(p.ActualWorkingDayValue),'0')TotalActualDays
+			   ,ISNULL(RPH.UserName,'') RosterGroup
 			            from AttdnProcessData p
+                        LEFT JOIN [DBO].RosterPatternHeader RPH ON RPH.Id=P.RosterId
                         where isnull(p.DayStatus,'')!='' and WorkDate between '" + objm.FDate+@"'
-						 and '"+objm.TDate+ @"' group BY EmpSystemID) as dd
+						 and '"+objm.TDate+ @"' group BY EmpSystemID,RPH.UserName) as dd
 						 join EmployeeInformation  e on e.SystemId=dd.EmployeePK	
                   LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
                                     left join hkp.party cdata on cdata.id=e.VendorId

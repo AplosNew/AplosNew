@@ -380,13 +380,10 @@ namespace Aplos.Areas.Attendances.Controllers
                                     ,e.EmployeeCodePreFix,e.EmployeeCodeNumeric
                                     ,ISNULL(jl.JobLocation, '') JobLocation
 									,ISNULL(e.PaymentMode,'') PaymentMode
-									,ISNULL(bb.UserName,'') BankName
+									,ISNULL(bb.UserName,'') BankName,ISNULL(RPH.UserName,'') RosterGroup
 
                                     FROM EmployeeInformation e
-                                   
 									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
-                                    
-
                                     LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
 									,dg.UserName GivenDesignationGroup--,srm.SalaryRuleName
 									FROM mst.DesignationMaster dm
@@ -404,7 +401,8 @@ namespace Aplos.Areas.Attendances.Controllers
                                     LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
                                     LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId
                                     LEFT JOIN [ORG].[Line] ON Line.Id = mpb.LineId
-
+                                    LEFT JOIN [DBO].Rosterbudget RB ON RB.BudgetId=E.BudgetCode
+                                    LEFT JOIN [DBO].RosterPatternHeader RPH ON RPH.Id=RB.RosterId
                                     
 						LEFT JOIN [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
 			LEFT JOIN [MST].DesignationMasterLegalDesignation LDM ON LDM.LegalDesignationId=E.LegalDesignationId
