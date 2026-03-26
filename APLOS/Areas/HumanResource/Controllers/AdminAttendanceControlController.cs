@@ -241,6 +241,9 @@ namespace Aplos.Areas.HumanResource.Controllers
             report.SetHeaderText(ref sheet, ROW, COL, "EmpSystemID", 8, ExcelHAlign.HAlignLeft);
             int ColEmpId = COL;
             COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "EmployeeCode", 25, ExcelHAlign.HAlignLeft);
+            int ColEC = COL;
+            COL++;
             report.SetHeaderText(ref sheet, ROW, COL, "Employee  Name", 25, ExcelHAlign.HAlignLeft);
             int ColEN = COL;
             COL++;
@@ -293,6 +296,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 //sheet[ROW, ColEmpSystemId].Text = data.Rows[i]["EmpSystemId"].ToString();
                 sheet[ROW, ColRowId].Text = data.Rows[i]["RowId"].ToString();
                 sheet[ROW, ColEmpId].Text = data.Rows[i]["EmpSystemID"].ToString();
+                sheet[ROW, ColEC].Text = data.Rows[i]["EmployeeCode"].ToString();
                 sheet[ROW, ColWD].Text = data.Rows[i]["WorkDate"].ToString();
                 sheet[ROW, ColInT].Text = data.Rows[i]["InTime"].ToString();
                 sheet[ROW, ColOuT].Text = data.Rows[i]["OutTime"].ToString();
@@ -477,6 +481,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             public string OutTime { get; set; }
             public string ShiftSystemID { get; set; }
             public string DayStatus { get; set; }
+            public string EmployeeCode { get; set; }
 
         }
     }
