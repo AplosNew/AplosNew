@@ -333,30 +333,10 @@ namespace Aplos.Controllers
         {
             try
             {
-                List<object> plantList = new List<object>();
+              
 
-                string query = "SELECT Id PlantId, Username PlantName FROM Org.Plant";
-
-                using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString))
-                {
-                    SqlCommand cmd = new SqlCommand(query, con);
-                    cmd.Parameters.AddWithValue("@CompanyId", companyId);
-
-                    con.Open();
-                    SqlDataReader reader = cmd.ExecuteReader();
-
-                    while (reader.Read())
-                    {
-                        plantList.Add(new
-                        {
-                            PlantId = reader["PlantId"].ToString(),
-                            PlantName = reader["PlantName"].ToString()
-                        });
-                    }
-                }
-
-                return Json(plantList);
-                //return Json(_plantService.GetCboByCompany(companyId));
+                
+                return Json(_plantService.GetCboByCompany(companyId));
                 //return Json(_sqlRepository.GetDataTable(@"select UserName AS Text ,Id AS Value from Org.Plant Where CompanyId='"+ companyId + "' AND Active=1 AND Archive=0"));
             }
             catch (Exception ex)
