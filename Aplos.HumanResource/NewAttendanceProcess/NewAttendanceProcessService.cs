@@ -1270,7 +1270,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 where EmpSystemId = e.SystemId and ex.EffectiveDate<='" + Date + @"'
                 order by ex.EffectiveDate desc)
                 order by ed.EffectiveDate desc) , '" + Date + @"') % 
-                (Select max(WOSequence) from WeekOffHeader h 
+                (Select min(WOSequence) from WeekOffHeader h 
                 left join WeekOffChild wc on wc.WOHeaderId=h.Id 
                 where h.Id =  
 				(Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
