@@ -321,6 +321,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                     int iSec = 0;
                     int iSubSection = 0;
                     int iDesig = 0;
+                    int iRosterName = 0;
+                    int iWO = 0;
+                    int iBudgetCode = 0;
+                    int iEntity = 0;
                     int iTtlAPD = 0;
                     int iWorkingCount = 0;
                     int cPayDays = 0;
@@ -468,11 +472,43 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet1.Range[xlsRow, iDesig].Text = "Designation";
                     sheet1.Range[xlsRow, iDesig].ColumnWidth = 18;
                     sheet1.Range[xlsRow, iDesig].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iDesig].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                     sheet1.Range[xlsRow, iDesig, xlsRow + 1, iDesig].Merge();
 
+                    xlsCol += 1;
+                    iRosterName = xlsCol;
+                    sheet1.Range[xlsRow, iRosterName].Text = "Roster Name";
+                    sheet1.Range[xlsRow, iRosterName].ColumnWidth = 18;
+                    sheet1.Range[xlsRow, iRosterName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iRosterName].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iRosterName, xlsRow + 1, iRosterName].Merge();
 
-                    xlsCol = iDesig;
+                    xlsCol += 1;
+                    iWO = xlsCol;
+                    sheet1.Range[xlsRow, iWO].Text = "Week Off";
+                    sheet1.Range[xlsRow, iWO].ColumnWidth = 18;
+                    sheet1.Range[xlsRow, iWO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iWO].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iWO, xlsRow + 1, iWO].Merge();
+
+                    xlsCol += 1;
+                    iEntity = xlsCol;
+                    sheet1.Range[xlsRow, iEntity].Text = "Entity";
+                    sheet1.Range[xlsRow, iEntity].ColumnWidth = 18;
+                    sheet1.Range[xlsRow, iEntity].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iEntity].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iEntity, xlsRow + 1, iEntity].Merge();
+
+                    xlsCol += 1;
+                    iBudgetCode = xlsCol;
+                    sheet1.Range[xlsRow, iBudgetCode].Text = "Budget Code";
+                    sheet1.Range[xlsRow, iBudgetCode].ColumnWidth = 18;
+                    sheet1.Range[xlsRow, iBudgetCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iBudgetCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iBudgetCode, xlsRow + 1, iBudgetCode].Merge();
+
+                    xlsCol = iBudgetCode;
                     int StartDayCol = xlsCol;
                     while (dtFrmDt <= dtEndDate)
                     {
@@ -674,9 +710,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                         sheet1.Range[xlsRow, iContractor].Text = dvMonthlyAttnSumm[i]["Contractor"].ToString().Trim();
 
                         sheet1.Range[xlsRow, iDesig].Text = dvMonthlyAttnSumm[i]["LegalDG"].ToString().Trim();
+                        sheet1.Range[xlsRow, iRosterName].Text = dvMonthlyAttnSumm[i]["RosterName"].ToString().Trim();
+                        sheet1.Range[xlsRow, iWO].Text = dvMonthlyAttnSumm[i]["WeekOff"].ToString().Trim();
+                        sheet1.Range[xlsRow, iEntity].Text = dvMonthlyAttnSumm[i]["Entity"].ToString().Trim();
+                        sheet1.Range[xlsRow, iBudgetCode].Text = dvMonthlyAttnSumm[i]["BudgetCode"].ToString().Trim();
                         string _m = clsWebLib.GetMonthName(Month);
                         dtFrmDt = Convert.ToDateTime("01-" + _m + "-" + Year);
-                        xlsCol = iDesig;
+                        xlsCol = iBudgetCode;
                         string ecode = dvMonthlyAttnSumm[i]["EmployeeCode"].ToString().Trim();
                         string _SystemId = dvMonthlyAttnSumm[i]["EmployeePK"].ToString().Trim();
 
@@ -1290,7 +1330,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                              ISNULL(EmpC.UserName,'') EmployeeCategory,cdata.UserName as Contractor,											
 											 Section.UserName Section, SubSection.UserName SubSection,Line.UserName Line,
 									Month(dd.FromDate)MonthNo,YEAR(dd.FromDate)YearNo,Plant.UserName PlantName
-									,dd.RosterGroup from 
+									,ISNULL(RPH.UserName,'') RosterName,WOH.UserName WeekOff,EN.UserName Entity,mpb.Code BudgetCode from 
            
 		   (select p.EmpSystemID as EmployeePK,REPLACE(CONVERT(VARCHAR(11), MIN(p.WorkDate), 113), ' ', '-') FromDate,   
                REPLACE(CONVERT(VARCHAR(11), MAX(p.WorkDate), 113), ' ', '-') ToDate,
@@ -1299,16 +1339,19 @@ namespace Library.HumanResource.NewAttendanceProcess
                 ,isnull(SUM(p.LvValue),'0')TotalLv,isnull(SUM(p.CompAssignLvValue),'0')TotalCompAssignLv,
                 isnull(SUM(p.WeekOffValue),'0')TotalWeekOff,isnull(SUM(p.HoliDayValue),'0')TotalHoliDay,isnull(SUM(p.WeekOffHoliDayValue),'0')TotalWeekOffHoliDay
                ,isnull(SUM(p.PayDayValue),'0')TotalPayDay,isnull(SUM(p.ActualWorkingDayValue),'0')TotalActualDays
-			   ,ISNULL(RPH.UserName,'') RosterGroup
 			            from AttdnProcessData p
-                        LEFT JOIN [DBO].RosterPatternHeader RPH ON RPH.Id=P.RosterId
                         where isnull(p.DayStatus,'')!='' and WorkDate between '" + objm.FDate+@"'
-						 and '"+objm.TDate+ @"' group BY EmpSystemID,RPH.UserName) as dd
-						 join EmployeeInformation  e on e.SystemId=dd.EmployeePK	
-                  LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
-                                    left join hkp.party cdata on cdata.id=e.VendorId
-									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
-                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
+						 and '"+objm.TDate+ @"' group BY EmpSystemID) as dd
+						 JOIN EmployeeInformation  e on e.SystemId=dd.EmployeePK	
+                                    LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+                                    LEFT JOIN dbo.RosterBudget RB ON RB.BudgetId=MPB.ID
+                   LEFT JOIN [DBO].RosterPatternHeader RPH ON RPH.Id=RB.RosterId
+				   LEFT JOIN [DBO].EmployeeWeeklyOff EWO ON EWO.EmpSystemId=E.SystemId
+				   AND EWO.Id=(select top 1 Id from dbo.EmployeeWeeklyOff where EmpSystemID = E.SystemId Order By EffectiveDate desc)
+				   LEFT JOIN dbo.WeekOffHeader WOH ON WOH.Id=EWO.WOHeaderId
+                                    LEFT JOIN hkp.party cdata on cdata.id=e.VendorId
+									LEFT JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
                                     LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
                                     LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
                                     LEFT JOIN [ORG].[Plant] ON Plant.Id = EN.PlantId
@@ -1320,7 +1363,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 			                        LEFT JOIN [MST].DesignationMasterLegalDesignation LDM ON LDM.LegalDesignationId=E.LegalDesignationId
 			                        LEFT JOIN [MST].DesignationMaster DesM ON DesM.Id = LDM.DesignationMasterId
                                     LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-                                    LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
+                                    LEFT JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
                              where
 							  (E.DOS IS NULL  OR E.DOS >= '" + objm.FDate+@"') 
 									AND E.DOJ <= '"+objm.TDate+"'";

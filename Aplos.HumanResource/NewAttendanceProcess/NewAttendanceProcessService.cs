@@ -1270,7 +1270,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                 where EmpSystemId = e.SystemId and ex.EffectiveDate<='" + Date + @"'
                 order by ex.EffectiveDate desc)
                 order by ed.EffectiveDate desc) , '" + Date + @"') % 
-                (Select max(WOSequence) from WeekOffHeader h 
+                (Select min(WOSequence) from WeekOffHeader h 
                 left join WeekOffChild wc on wc.WOHeaderId=h.Id 
                 where h.Id =  
 				(Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
@@ -1310,6 +1310,8 @@ LEFT JOIN hkp.WeeklyStatus WS
 				) x  join (select  PlantID,WorkDate,WeeklyStatus,EmpSystemID from AttdnProcessData 
                                    WHERE WorkDate='" + Date + @"' and PlantId='" + plant + @"' 
                                      ) apd on apd.EmpSystemID=x.SystemId  and x.[WeekDay]=DATENAME(WEEKDAY,apd.WorkDate)   ";
+
+
 
    var sqlxNW = @"UPDATE apd SET apd.WeeklyStatus=ISNULL(x.DayType,'') from (
                 Select dd.*,
@@ -1376,6 +1378,84 @@ LEFT JOIN hkp.WeeklyStatus WS
 				) x  join (select  PlantID,WorkDate,WeeklyStatus,EmpSystemID from AttdnProcessData 
                                    WHERE WorkDate='" + Date + @"' and PlantId='" + plant + @"' 
                                      ) apd on apd.EmpSystemID=x.SystemId AND    x.[WeekDay]!=DATENAME(WEEKDAY,apd.WorkDate)   ";
+
+                sqlxNew = @"DECLARE @TargetDate DATE = '" + Date + @"';
+DECLARE @PlantId    VARCHAR(10) = '" + plant + @"' ;
+
+;WITH WeekOffCalc AS
+(
+    SELECT 
+        e.SystemId,
+        WC.DayType
+    FROM EmployeeInformation e
+
+    CROSS APPLY
+    (
+        SELECT TOP (1) ex.WOHeaderId
+        FROM dbo.EmployeeWeeklyOff ex
+        WHERE ex.EmpSystemId = e.SystemId
+          AND ex.EffectiveDate <= @TargetDate
+        ORDER BY ex.EffectiveDate DESC
+    ) EW
+
+    CROSS APPLY
+    (
+        SELECT TOP (1) ed.EffectiveDate
+        FROM dbo.WeekOffEffectiveDate ed
+        WHERE ed.WOHeaderId = EW.WOHeaderId
+          AND ed.EffectiveDate <= @TargetDate
+        ORDER BY ed.EffectiveDate DESC
+    ) ED
+
+    CROSS APPLY
+    (
+        SELECT COUNT(*) AS CycleDays
+        FROM dbo.WeekOffChild
+        WHERE WOHeaderId = EW.WOHeaderId
+    ) SEQ
+
+    CROSS APPLY
+    (
+        SELECT ((DATEDIFF(DAY, ED.EffectiveDate, @TargetDate) % SEQ.CycleDays) + 1) AS DaySeq
+    ) DD
+
+    LEFT JOIN dbo.WeekOffChild WC
+           ON WC.WOHeaderId = EW.WOHeaderId
+          AND WC.WOSequence = DD.DaySeq
+
+    WHERE e.PlantId = @PlantId
+      AND EXISTS (SELECT 1 FROM EmployeeWeeklyOff ex WHERE ex.EmpSystemId = e.SystemId)
+),
+
+RosterEmployees AS
+(
+    SELECT DISTINCT e.SystemId
+    FROM EmployeeInformation e
+    JOIN dbo.RosterBudget RB ON RB.BudgetId = e.BudgetCode
+    -- Only consider roster patterns that exist for this date
+    OUTER APPLY
+    (
+        SELECT TOP (1) RED.EffectiveDate
+        FROM dbo.RosterEffectiveDate RED
+        WHERE RED.RPHeaderId = RB.RosterId
+          AND RED.EffectiveDate <= @TargetDate
+        ORDER BY RED.EffectiveDate DESC
+    ) RED
+)
+
+UPDATE apd
+SET apd.WeeklyStatus = ISNULL(wc.DayType,'')
+FROM AttdnProcessData apd
+
+JOIN WeekOffCalc wc
+     ON wc.SystemId = apd.EmpSystemID
+
+LEFT JOIN RosterEmployees re
+       ON re.SystemId = apd.EmpSystemID
+
+WHERE apd.WorkDate = @TargetDate
+  AND apd.PlantId  = @PlantId";
+
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();
                 objCon.executeQuery(sqlxNew);

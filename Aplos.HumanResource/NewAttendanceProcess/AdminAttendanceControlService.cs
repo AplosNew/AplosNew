@@ -626,7 +626,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     EmpSel = "and EmpSystemID in (" + Emps + ")";
                 }
 
-                var str = @"select EMP.EmployeeName,APD.RowId,APD.EmpSystemID,APD.WorkDate,APD.InTime,APD.OutTime,APD.ShiftSystemID,APD.DayStatus,DEPT.UserName Department,S.UserName Section,SS.UserName SubSection,LN.UserName Line
+                var str = @"select EMP.EmployeeCode,EMP.EmployeeName,APD.RowId,APD.EmpSystemID,APD.WorkDate,APD.InTime,APD.OutTime,APD.ShiftSystemID,APD.DayStatus,DEPT.UserName Department,S.UserName Section,SS.UserName SubSection,LN.UserName Line
                             from AttdnProcessData APD
 							LEFT OUTER JOIN EmployeeInformation EMP ON APD.EmpSystemid=EMP.SystemID
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id

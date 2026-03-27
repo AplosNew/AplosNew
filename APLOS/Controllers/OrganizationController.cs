@@ -6,7 +6,9 @@ using Library.Service.Modules;
 using Library.Service.Organizations;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
+using System.Data.SqlClient;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
@@ -331,8 +333,11 @@ namespace Aplos.Controllers
         {
             try
             {
-                return Json(_plantService.GetCboByCompany(companyId));
-                //return Json(_sqlRepository.GetDataTable(@"select UserName AS Text ,Id AS Value from Org.Plant Where CompanyId='"+ companyId + "' AND Active=1 AND Archive=0"));
+              
+
+                
+               // return Json(_plantService.GetCboByCompany(companyId));
+                return Json(_sqlRepository.GetDataTable(@"select UserName AS PlantName  ,Id AS PlantId from Org.Plant Where Active=1 AND Archive=0"));
             }
             catch (Exception ex)
             {
