@@ -1311,6 +1311,8 @@ LEFT JOIN hkp.WeeklyStatus WS
                                    WHERE WorkDate='" + Date + @"' and PlantId='" + plant + @"' 
                                      ) apd on apd.EmpSystemID=x.SystemId  and x.[WeekDay]=DATENAME(WEEKDAY,apd.WorkDate)   ";
 
+
+
    var sqlxNW = @"UPDATE apd SET apd.WeeklyStatus=ISNULL(x.DayType,'') from (
                 Select dd.*,
                 (Select 'NW' DayType from
@@ -1376,6 +1378,9 @@ LEFT JOIN hkp.WeeklyStatus WS
 				) x  join (select  PlantID,WorkDate,WeeklyStatus,EmpSystemID from AttdnProcessData 
                                    WHERE WorkDate='" + Date + @"' and PlantId='" + plant + @"' 
                                      ) apd on apd.EmpSystemID=x.SystemId AND    x.[WeekDay]!=DATENAME(WEEKDAY,apd.WorkDate)   ";
+
+                
+
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();
                 objCon.executeQuery(sqlxNew);

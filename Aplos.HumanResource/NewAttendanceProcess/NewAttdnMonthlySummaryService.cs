@@ -323,6 +323,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                     int iDesig = 0;
                     int iRosterName = 0;
                     int iWO = 0;
+                    int iBudgetCode = 0;
+                    int iEntity = 0;
                     int iTtlAPD = 0;
                     int iWorkingCount = 0;
                     int cPayDays = 0;
@@ -490,7 +492,23 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet1.Range[xlsRow, iWO].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, iWO, xlsRow + 1, iWO].Merge();
 
-                    xlsCol = iWO;
+                    xlsCol += 1;
+                    iEntity = xlsCol;
+                    sheet1.Range[xlsRow, iEntity].Text = "Entity";
+                    sheet1.Range[xlsRow, iEntity].ColumnWidth = 18;
+                    sheet1.Range[xlsRow, iEntity].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iEntity].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iEntity, xlsRow + 1, iEntity].Merge();
+
+                    xlsCol += 1;
+                    iBudgetCode = xlsCol;
+                    sheet1.Range[xlsRow, iBudgetCode].Text = "Budget Code";
+                    sheet1.Range[xlsRow, iBudgetCode].ColumnWidth = 18;
+                    sheet1.Range[xlsRow, iBudgetCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iBudgetCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iBudgetCode, xlsRow + 1, iBudgetCode].Merge();
+
+                    xlsCol = iBudgetCode;
                     int StartDayCol = xlsCol;
                     while (dtFrmDt <= dtEndDate)
                     {
@@ -694,9 +712,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                         sheet1.Range[xlsRow, iDesig].Text = dvMonthlyAttnSumm[i]["LegalDG"].ToString().Trim();
                         sheet1.Range[xlsRow, iRosterName].Text = dvMonthlyAttnSumm[i]["RosterName"].ToString().Trim();
                         sheet1.Range[xlsRow, iWO].Text = dvMonthlyAttnSumm[i]["WeekOff"].ToString().Trim();
+                        sheet1.Range[xlsRow, iEntity].Text = dvMonthlyAttnSumm[i]["Entity"].ToString().Trim();
+                        sheet1.Range[xlsRow, iBudgetCode].Text = dvMonthlyAttnSumm[i]["BudgetCode"].ToString().Trim();
                         string _m = clsWebLib.GetMonthName(Month);
                         dtFrmDt = Convert.ToDateTime("01-" + _m + "-" + Year);
-                        xlsCol = iWO;
+                        xlsCol = iBudgetCode;
                         string ecode = dvMonthlyAttnSumm[i]["EmployeeCode"].ToString().Trim();
                         string _SystemId = dvMonthlyAttnSumm[i]["EmployeePK"].ToString().Trim();
 
@@ -1310,7 +1330,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                              ISNULL(EmpC.UserName,'') EmployeeCategory,cdata.UserName as Contractor,											
 											 Section.UserName Section, SubSection.UserName SubSection,Line.UserName Line,
 									Month(dd.FromDate)MonthNo,YEAR(dd.FromDate)YearNo,Plant.UserName PlantName
-									,ISNULL(RPH.UserName,'') RosterName,WOH.UserName WeekOff from 
+									,ISNULL(RPH.UserName,'') RosterName,WOH.UserName WeekOff,EN.UserName Entity,mpb.Code BudgetCode from 
            
 		   (select p.EmpSystemID as EmployeePK,REPLACE(CONVERT(VARCHAR(11), MIN(p.WorkDate), 113), ' ', '-') FromDate,   
                REPLACE(CONVERT(VARCHAR(11), MAX(p.WorkDate), 113), ' ', '-') ToDate,
