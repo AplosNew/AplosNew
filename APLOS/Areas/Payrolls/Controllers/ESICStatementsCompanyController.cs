@@ -224,21 +224,23 @@ namespace Aplos.Areas.Payrolls.Controllers
                     {
 
                         drAttdnSummary = dicAttdnSummary[dtEmpInfo.Rows[i]["EmpSystemId"].ToString()];
-                        if (!String.IsNullOrEmpty(dtEmpInfo.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper()))
-                        {
-                            if (dtEmpInfo.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOffAndHoliday.ToString().ToUpper())
-                            {
-                                Workingdays = clsStaticInfo.dbl(drAttdnSummary["TotalProcDate"].ToString()) - clsStaticInfo.dbl(drAttdnSummary["TotalAbsent"].ToString()) - clsStaticInfo.dbl(drAttdnSummary["TotalHoliDay"].ToString()) - clsStaticInfo.dbl(drAttdnSummary["TotalWeekOff"].ToString());
-                            }
-                            if (dtEmpInfo.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOff.ToString().ToUpper())
-                            {
-                                Workingdays = clsStaticInfo.dbl(drAttdnSummary["TotalProcDate"].ToString()) - clsStaticInfo.dbl(drAttdnSummary["TotalAbsent"].ToString()) - clsStaticInfo.dbl(drAttdnSummary["TotalWeekOff"].ToString());
-                            }
-                        }
-                        else
-                        {
-                            Workingdays = clsStaticInfo.dbl(drAttdnSummary["TotalProcDate"].ToString()) - clsStaticInfo.dbl(drAttdnSummary["TotalAbsent"].ToString());
-                        }
+                        //if (!String.IsNullOrEmpty(dtEmpInfo.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper()))
+                        //{
+                        //    if (dtEmpInfo.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOffAndHoliday.ToString().ToUpper())
+                        //    {
+                        //        Workingdays = clsStaticInfo.dbl(drAttdnSummary["TotalProcDate"].ToString()) - clsStaticInfo.dbl(drAttdnSummary["TotalAbsent"].ToString()) - clsStaticInfo.dbl(drAttdnSummary["TotalHoliDay"].ToString()) - clsStaticInfo.dbl(drAttdnSummary["TotalWeekOff"].ToString());
+                        //    }
+                        //    if (dtEmpInfo.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOff.ToString().ToUpper())
+                        //    {
+                        //        Workingdays = clsStaticInfo.dbl(drAttdnSummary["TotalProcDate"].ToString()) - clsStaticInfo.dbl(drAttdnSummary["TotalAbsent"].ToString()) - clsStaticInfo.dbl(drAttdnSummary["TotalWeekOff"].ToString());
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    Workingdays = clsStaticInfo.dbl(drAttdnSummary["TotalProcDate"].ToString()) - clsStaticInfo.dbl(drAttdnSummary["TotalAbsent"].ToString());
+                        //}
+
+                        Workingdays = clsStaticInfo.dbl(drAttdnSummary["TotalPayDay"].ToString());
                     }
 
 

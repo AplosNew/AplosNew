@@ -337,18 +337,18 @@ namespace Library.HumanResource.NewAttendanceProcess
                             }
                         }
 
-                        var sql = @"update AttdnProcessData set ShiftSystemID='" + ShiftId + @"',ShiftDuration='" + ShiftDurn + @"',ShiftInTime='" + ShiftIn + @"',
+                        var asql = @"update AttdnProcessData set ShiftSystemID='" + ShiftId + @"',ShiftDuration='" + ShiftDurn + @"',ShiftInTime='" + ShiftIn + @"',
                                            ShiftOutTime='" + ShiftOut + @"',ShiftHalfDayDuration='" + HalfDayDuration + @"',ShiftShortDuration='" + ShortDuration + @"',
                                            ShiftFullDayDuration='" + FullDayDuration + @"',ShiftHoursWithoutOT='" + HoursWithoutOT + @"' where RowId 
                                            IN(" + EmpSet + ")";
 
-                        ConnectionManager.DAL.ConManager objCone = null;
-                        objCone = new ConnectionManager.DAL.ConManager("1");
-                        objCone.OpenConnection("1");
-                        objCone.BeginTransaction();
+                        ConnectionManager.DAL.ConManager objConea = null;
+                        objConea = new ConnectionManager.DAL.ConManager("1");
+                        objConea.OpenConnection("1");
+                        objConea.BeginTransaction();
 
-                        objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                        objCone.CommitTransaction();
+                        objConea.ExecuteNonQueryWrapper(asql, true, "1");
+                        objConea.CommitTransaction();
 
 
 
@@ -421,13 +421,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                         var sql = @"Update AttdnProcessData Set HolidayStatus='H' 
                                       where PlantID='" + PlantValue + "' and WorkDate='" + WorkDate + "'";
 
-                        ConnectionManager.DAL.ConManager objCone = null;
-                        objCone = new ConnectionManager.DAL.ConManager("1");
-                        objCone.OpenConnection("1");
-                        objCone.BeginTransaction();
+                        ConnectionManager.DAL.ConManager objConeh = null;
+                        objConeh = new ConnectionManager.DAL.ConManager("1");
+                        objConeh.OpenConnection("1");
+                        objConeh.BeginTransaction();
 
-                        objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                        objCone.CommitTransaction();
+                        objConeh.ExecuteNonQueryWrapper(sql, true, "1");
+                        objConeh.CommitTransaction();
 
 
                     }
@@ -521,30 +521,30 @@ namespace Library.HumanResource.NewAttendanceProcess
                     ConnectionManager.DAL.ConManager objConR = new ConnectionManager.DAL.ConManager("1");
                     string DayType = null;
                     string newformatDate = Convert.ToDateTime(Date).ToString("yyyyMMdd");
-
+                    var csql = "";
+                    var cisql = "";
                     UpdateRosterWeekOffData(Date, PlantValue);
-                    
+
                     UpdateIndividualData(Date, PlantValue);
 
                     if (CompanyWeekOff.Tables[0].Rows.Count > 0)
                     {
-                            var sql = @"Update AttdnProcessData Set WeeklyStatus='W'  
+                        csql = @"Update AttdnProcessData Set WeeklyStatus='W'  
                                            WHERE WorkDate='" + Date + @"' AND WeeklyStatus IS NULL  AND isnull(EmpSystemID,'') IN  (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS 
                             ei WHERE  ei.PlantId ='" + PlantValue + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901') 
                             and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'')  from EmployeeWeeklyOff where EffectiveDate<='" + Date + @"')) ";
 
-                            ConnectionManager.DAL.ConManager objCone = null;
-                            objCone = new ConnectionManager.DAL.ConManager("1");
-                            objCone.OpenConnection("1");
-                            objCone.BeginTransaction();
+                        ConnectionManager.DAL.ConManager objConec = null;
+                        objConec = new ConnectionManager.DAL.ConManager("1");
+                        objConec.OpenConnection("1");
+                        objConec.BeginTransaction();
 
-                            objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                            objCone.CommitTransaction();
+                        objConec.ExecuteNonQueryWrapper(csql, true, "1");
+                        objConec.CommitTransaction();
 
                     }
-                    else
-                    {
-                        var sql = @"Update AttdnProcessData Set WeeklyStatus='NW'  
+
+                    cisql = @"Update AttdnProcessData Set WeeklyStatus='NW'  
                                           WHERE WorkDate='" + Date + @"' AND WeeklyStatus IS NULL AND isnull(EmpSystemID,'') IN
                             (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS 
                            ei WHERE  ei.PlantId='" + PlantValue + "'  and ei.DOJ <= '" + Date + @"' AND (ei.DOS >= '" + Date + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')
@@ -556,14 +556,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                           select RB.BudgetId from dbo.RosterBudget RB
                             left join dbo.RosterEffectiveDate rph on rph.RPHeaderId = RB.RosterId where EffectiveDate<= '" + Date + @"' )";
 
-                        ConnectionManager.DAL.ConManager objCone = null;
-                        objCone = new ConnectionManager.DAL.ConManager("1");
-                        objCone.OpenConnection("1");
-                        objCone.BeginTransaction();
+                    ConnectionManager.DAL.ConManager objCone = null;
+                    objCone = new ConnectionManager.DAL.ConManager("1");
+                    objCone.OpenConnection("1");
+                    objCone.BeginTransaction();
 
-                        objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                        objCone.CommitTransaction();
-                    }
+                    objCone.ExecuteNonQueryWrapper(cisql, true, "1");
+                    objCone.CommitTransaction();
+
 
 
                     #endregion
@@ -632,13 +632,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                               "  ei WHERE  ei.PlantId ='" + PlantValue + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
 
 
-                                ConnectionManager.DAL.ConManager objCone = null;
-                                objCone = new ConnectionManager.DAL.ConManager("1");
-                                objCone.OpenConnection("1");
-                                objCone.BeginTransaction();
-
-                                objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                objCone.CommitTransaction();
+                                ConnectionManager.DAL.ConManager objConed = null;
+                                objConed = new ConnectionManager.DAL.ConManager("1");
+                                objConed.OpenConnection("1");
+                                objConed.BeginTransaction();
+                                objConed.ExecuteNonQueryWrapper(sql, true, "1");
+                                objConed.CommitTransaction();
                             }
 
                         }
@@ -1117,7 +1116,7 @@ and	E.DOJ <= '" + Date + @"' AND (E.DOS >= '" + Date + @"' OR ISNULL(E.DOS,'') =
                 throw (ex);
             }
         }
-        
+
         public void CompanyWeekOffData(string Date, out DataSet ds, string plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -1138,7 +1137,7 @@ and	E.DOJ <= '" + Date + @"' AND (E.DOS >= '" + Date + @"' OR ISNULL(E.DOS,'') =
             }
         }
 
-        
+
         public void UpdateRosterWeekOffData(string Date, string plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -1318,7 +1317,7 @@ LEFT JOIN hkp.WeeklyStatus WS
 
 
 
-   
+
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();
@@ -2511,7 +2510,7 @@ LEFT JOIN hkp.WeeklyStatus WS
 
                 var sql = @"SELECT CompanyGroupId, Id as PlantValue FROM ORG.Plant WHERE CompanyGroupId = 
  
-               '" + CompanyGpId + "' AND  Active = 1 AND Archive = 0 ";
+               '" + CompanyGpId + "' AND  Active = 1 AND Archive = 0";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -3640,7 +3639,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                         string WorkDate = PrevDurationStat.Tables[0].Rows[0][@"WorkDate"].ToString();
 
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        
+
                         var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "' and PlantID='" + PlantValue + "' ";
 
                         objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
@@ -3654,7 +3653,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                             string Duration = clsWebLib.RetValidLen(PrevDurationStat.Tables[0].Rows[i][@"Duration"]).ToString();
                             string In = clsWebLib.RetValidLen(PrevDurationStat.Tables[0].Rows[i][@"ProcessIntime"]).ToString();
                             string Out = clsWebLib.RetValidLen(PrevDurationStat.Tables[0].Rows[i][@"ProcessOutTime"]).ToString();
-                            
+
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
@@ -3678,7 +3677,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                                     {
                                         dr["DurationStatus"] = "HD"; // Half Day
                                     }
-                                    
+
                                     else if (Convert.ToDouble(Duration) < Convert.ToDouble(ShortDuration))
                                     {
                                         dr["DurationStatus"] = "A"; // Absent
