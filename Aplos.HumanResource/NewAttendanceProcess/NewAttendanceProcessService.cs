@@ -547,9 +547,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                         var sql = @"Update AttdnProcessData Set WeeklyStatus='NW'  
                                           WHERE WorkDate='" + Date + @"' AND WeeklyStatus IS NULL AND isnull(EmpSystemID,'') IN
                             (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS 
-                           ei WHERE  ei.PlantId='" + PlantValue + "'  and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')
-                           and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') 
-                           from EmployeeWeeklyOff where EffectiveDate<='" + Date + @"')) and isnull(BudgetId,'') not in (
+                           ei WHERE  ei.PlantId='" + PlantValue + "'  and ei.DOJ <= '" + Date + @"' AND (ei.DOS >= '" + Date + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')
+                          and 'NW' in ( select WC.DayType  from EmployeeWeeklyOff O
+							  left join dbo.WeekOffChild  WC ON WC.WOHeaderId=O.WOHeaderId
+							  where EffectiveDate<='" + Date + @"' -- and O.EmpSystemID = '25256157'
+							  and WC.[Day]=DATENAME(WEEKDAY,'" + Date + @"'))
+						   )  and isnull(BudgetId,'') not in (
                           select RB.BudgetId from dbo.RosterBudget RB
                             left join dbo.RosterEffectiveDate rph on rph.RPHeaderId = RB.RosterId where EffectiveDate<= '" + Date + @"' )";
 
