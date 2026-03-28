@@ -547,14 +547,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                     cisql = @"Update AttdnProcessData Set WeeklyStatus='NW'  
                                           WHERE WorkDate='" + Date + @"' AND WeeklyStatus IS NULL AND isnull(EmpSystemID,'') IN
                             (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS 
-                           ei WHERE  ei.PlantId='" + PlantValue + "'  and ei.DOJ <= '" + Date + @"' AND (ei.DOS >= '" + Date + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')
+                           ei WHERE  ei.PlantId='" + PlantValue + @"'  and ei.DOJ <= '" + Date + @"' AND (ei.DOS >= '" + Date + @"' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')
                           and 'NW' in ( select WC.DayType  from EmployeeWeeklyOff O
 							  left join dbo.WeekOffChild  WC ON WC.WOHeaderId=O.WOHeaderId
 							  where EffectiveDate<='" + Date + @"' -- and O.EmpSystemID = '25256157'
 							  and WC.[Day]=DATENAME(WEEKDAY,'" + Date + @"'))
-						   )  and isnull(BudgetId,'') not in (
-                          select RB.BudgetId from dbo.RosterBudget RB
-                            left join dbo.RosterEffectiveDate rph on rph.RPHeaderId = RB.RosterId where EffectiveDate<= '" + Date + @"' )";
+						   )     and isnull(EmpSystemID,'') not in (
+                          select isnull(ei.SystemId,'')  FROM EmployeeInformation AS  ei 
+						  left join dbo.RosterBudget RB on RB.BudgetId=ei.BudgetCode
+                            left join dbo.RosterEffectiveDate rph on rph.RPHeaderId = RB.RosterId where EffectiveDate<= '" + Date + @"' and ei.PlantId='" + PlantValue + @"')";
 
                     ConnectionManager.DAL.ConManager objCone = null;
                     objCone = new ConnectionManager.DAL.ConManager("1");
