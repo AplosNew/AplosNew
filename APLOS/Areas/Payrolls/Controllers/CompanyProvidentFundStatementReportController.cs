@@ -401,7 +401,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         sheet1.Range[xlsRow, colAC].NumberFormat = GetDecimalFormat(grossIntegerInDisb, grossDecimalPoint);
 
                         var EC = ((Convert.ToDouble(gross) + Convert.ToDouble(basic) + Convert.ToDouble(pfER)) * 0.5) / 100;
-                        if (EC < 75)
+                        if (EC > 75)
                         {
                             sheet1.Range[xlsRow, colEC].Number = 75;
                         }
