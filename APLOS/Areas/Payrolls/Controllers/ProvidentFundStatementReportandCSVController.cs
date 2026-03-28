@@ -339,7 +339,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                         if (Convert.ToInt16(age) > 58 && Convert.ToDouble(basic) > EarningValueRangeTo)
                         {
-                            wages8point33percent =(int)clsStaticInfo.dbl(EarningValueRangeTo);
+                            wages8point33percent = (int)clsStaticInfo.dbl(EarningValueRangeTo);
                             wagesAbove15000 = Convert.ToInt32(Total) - Convert.ToInt32(EarningValueRangeTo);
                         }
                         else if (Convert.ToInt16(age) > 58 && Convert.ToDouble(basic) < EarningValueRangeTo)
@@ -361,7 +361,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         slCount++;
                         #region Loop
 
-                        
+
                         ru.SetTextBorder(ref sheet1, xlsRow, colSrNo, slCount);
                         ru.SetTextBorder(ref sheet1, xlsRow, colPaycode, dtEmpInfo.Rows[i]["EmployeeCode"].ToString());
                         ru.SetTextBorder(ref sheet1, xlsRow, colPFUANNo, dtEmpInfo.Rows[i]["DocNumber"].ToString());//dtEmpInfo.Tables[0].Rows[i][""].ToString()
@@ -413,10 +413,18 @@ namespace Aplos.Areas.Payrolls.Controllers
                         sheet1.Range[xlsRow, colgross].Number = Convert.ToDouble(gross);// + Environment.NewLine + totalPayDay;
                         sheet1.Range[xlsRow, colgross].NumberFormat = GetDecimalFormat(grossIntegerInDisb, grossDecimalPoint);
 
-                        sheet1.Range[xlsRow, colAC].Number = ((Convert.ToDouble(gross) + Convert.ToDouble(basic) + Convert.ToDouble(pfER))*0.5)/100;// + Environment.NewLine + totalPayDay;
+                        sheet1.Range[xlsRow, colAC].Number = Math.Ceiling(((Convert.ToDouble(gross) + Convert.ToDouble(basic) + Convert.ToDouble(pfER)) * 0.5) / 100);// + Environment.NewLine + totalPayDay;
                         sheet1.Range[xlsRow, colAC].NumberFormat = GetDecimalFormat(grossIntegerInDisb, grossDecimalPoint);
 
-                        sheet1.Range[xlsRow, colEC].Number = ((Convert.ToDouble(gross) + Convert.ToDouble(basic) + Convert.ToDouble(pfER)) * 0.5) / 100;// + Environment.NewLine + totalPayDay;
+                        var EC = ((Convert.ToDouble(gross) + Convert.ToDouble(basic) + Convert.ToDouble(pfER)) * 0.5) / 100;
+                        if (EC < 75)
+                        {
+                            sheet1.Range[xlsRow, colEC].Number = 75;
+                        }
+                        else
+                        {
+                            sheet1.Range[xlsRow, colEC].Number = Math.Ceiling(EC);
+                        }
                         sheet1.Range[xlsRow, colEC].NumberFormat = GetDecimalFormat(grossIntegerInDisb, grossDecimalPoint);
 
                         sheet1.Range[xlsRow, colFPFEmployersShare8point33percent].VerticalAlignment = ExcelVAlign.VAlignCenter;
