@@ -430,7 +430,7 @@ namespace Library.Service.Attendances
                                     LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
                                     LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId
                                     " + Apjoin + @"
-                                    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.LegalDesignationId
+                                    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
                                     LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId			                                       
                                     LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
 
