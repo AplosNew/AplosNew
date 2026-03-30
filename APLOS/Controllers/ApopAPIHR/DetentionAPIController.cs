@@ -1791,6 +1791,18 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+
+        #region TNA API
+
+        public List<TNAGetSet> GetTNAReport()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetTNAReport(out List<TNAGetSet> activelists);
+            return activelists;
+        }
+
+        #endregion TNA API
+
         #endregion Pratibha
     }
 }
