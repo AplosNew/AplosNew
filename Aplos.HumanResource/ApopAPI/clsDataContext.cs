@@ -14112,7 +14112,7 @@ Select 'LateIn' as Value , 'LateIn' as Name ";
         }
 
 
-        public void GetTNAReport(out List<TNAGetSet> DataList)
+        /*public void GetTNAReport(out List<TNAGetSet> DataList)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -14380,7 +14380,7 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
             {
                 objCon = null;
             }
-        }
+        }*/
 
         #endregion Pratibha
     }

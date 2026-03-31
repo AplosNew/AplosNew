@@ -28,10 +28,34 @@ namespace Aplos.Controllers.ApopAPIHR
     {
         
         clsDataContext clsData = new clsDataContext();
-        public DetentionAPIController()
+
+
+        private readonly IModuleAppService _moduleAppService;
+        private readonly IDesignationService _designationService;
+        private readonly IEntityService _entityService;
+        private readonly IStructureRelationshipService _structureRelationshipService;
+        private readonly IManpowerBudgetJobDescriptionService _manpowerBudgetJobDescriptionService;
+        private readonly IManpowerBudgetService _manpowerBudgetService;
+        private readonly IPlantService _plantService;
+        private readonly ISqlRepository _sqlRepository;
+        public DetentionAPIController(IModuleAppService moduleAppService
+            , IEntityService entityService
+            , IManpowerBudgetJobDescriptionService manpowerBudgetJobDescriptionService
+            , IStructureRelationshipService structureRelationshipService
+            , IManpowerBudgetService manpowerBudgetService
+            , IPlantService plantService
+            , IDesignationService designationService
+            , ISqlRepository sqlRepository)
         {
 
-            
+            _moduleAppService = moduleAppService;
+            _designationService = designationService;
+            _entityService = entityService;
+            _manpowerBudgetService = manpowerBudgetService;
+            _structureRelationshipService = structureRelationshipService;
+            _manpowerBudgetJobDescriptionService = manpowerBudgetJobDescriptionService;
+            _plantService = plantService;
+            _sqlRepository = sqlRepository;
         }
 
         public List<ActiveTask> GetCloseTask(string UserId)
@@ -1794,11 +1818,222 @@ namespace Aplos.Controllers.ApopAPIHR
 
         #region TNA API
 
-        public List<TNAGetSet> GetTNAReport()
+        public IHttpActionResult GetTNAReport()
         {
-            clsDataContext clsData = new clsDataContext();
-            clsData.GetTNAReport(out List<TNAGetSet> activelists);
-            return activelists;
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+
+                // return Json(_plantService.GetCboByCompany(companyId));
+                return Json(_sqlRepository.GetDataTable(@"SELECT K.*
+                                  FROM (SELECT 
+                                TAM.ProcessId,CASE WHEN tm.CurrentStatus='Closed' THEN format(tm.ClosingDate,'dd-MMM-yyyy') ELSE NULL END AS ClosingDate,
+                                CASE WHEN tm.CurrentStatus='Closed' THEN isnull(USRCL.FullName,isnull(EACL.EmployeeName,TM.ClosedBy)) ELSE NULL END AS ClosedBy,
+                                pr.DepartmentId,ATO.ResponsiblePersonId AS AssignToId,AB.ResponsiblePersonId AS AssignById,TM.CurrentStatus,
+                               mott.Sequence, isnull(TAM.TaskCategoryId,'')TaskCategoryId,isnull(TAM.TaskSubCategoryId,'')AS TaskSubCategoryId,
+                                tc.UserName AS Category,tsc.UserName as SubCategory,FORMAT(TSK.CreatedTime,'dd-MMM-yyyy hh:mm:ss tt') AS LastChatDate,TSK.CommentText AS LastChatComment,
+                                format(TT.OriginalSequentialEndDate,'dd-MMM-yyyy') AS DueDate,
+                                format(OriginalSequentialStartDate,'dd-MMM-yyyy') AS OriginalSequentialStartDate, format(OriginalSequentialEndDate,'dd-MMM-yyyy') AS OriginalSequentialEndDate,
+                                format(TempStartDate,'dd-MMM-yyyy') AS TempStartDate, format(TempEndDate,'dd-MMM-yyyy') AS TempEndDate,
+                                concat(TM.TaskType,'/',MO.Dependency) AS TaskType,
+                                datediff(day,TT.OriginalSequentialEndDate,TM.closingDate) AS EarlyOrLateBy,
+mott.TaskDescription TaskName,
+                           tm.TaskDescription AS Task,format(ISNULL(ATO.RevisedCommitmentDate,ISNULL(ATO.CommitmentDate,NULL)),'dd-MMM-yyyy') AS CommitmentDate,
+EAB.EmployeeName AS AssignBy,EATO.EmployeeName AS AssignTo,TTD.DependentDatesEnum,TTD.TaskDependentOn,FORMAT(TT.DependentDate,'dd-MMM-yyyy')DependentDate,
+                                MO.*
+                                 FROM TaskManagerMaster AS tm
+                                    inner join (SELECT  'Order' AS Dependency, tt.TaskTemplateId,TMMM.Id AS TaskMasterId, 
+                                        MO.MasterOrderNo AS MasterOrderId,MO.BuyerId,
+                             B.UserName AS Buyer
+                            
+                            ,StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+                            trn.MasterOrderItem XMOI 
+                            where MO.Id=XMOI.MasterOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                            SONo=STUFF((select distinct ','+so.Id from 
+                            trn.MasterOrderItem XMOI 
+                            INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
+                            where MO.Id=XMOI.MasterOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                            LineItemReference=STUFF((select distinct ','+so.LineItemReference from 
+                            trn.MasterOrderItem XMOI 
+                            INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
+                            where MO.Id=XMOI.MasterOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                            SOQty=(select sum(SO.Qty) from 
+                            trn.MasterOrderItem XMOI 
+                            INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
+                            where MO.Id=XMOI.MasterOrderId),
+
+                            PRNo=STUFF((select distinct ','+pod.ProductionOrderId from 
+                            trn.MasterOrderItem XMOI 
+                            INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
+                            INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id 
+                            where MO.Id=XMOI.MasterOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                          
+                            ,Department=bd.UserName,Division=bd2.UserName
+                            FROM TaskManagerMaster AS TMMM
+
+                              INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMMM.TNATasksId 
+                            LEFT OUTER JOIN TNAMaster AS TM ON TM.Id = TT.TNAMasterId
+                            inner JOIN [TRN].[MasterOrder] AS MO ON MO.Id = TM.MasterOrderId
+                             LEFT OUTER JOIN [HKP].[Buyer] AS B ON B.Id = MO.BuyerId
+                            LEFT OUTER JOIN hkp.BuyerDepartment AS bd ON bd.Id=mo.BuyerDepartmentId    LEFT OUTER JOIN hkp.BuyerDivision AS bd2 ON bd2.Id=mo.BuyerDivisionId     
+                            UNION
+
+                            SELECT  'Item' AS Dependency, tt.TaskTemplateId, TMM.Id AS TaskMasterId,
+                             MO.MasterOrderNo,B.Id, B.UserName AS Buyer
+                            ,StyleNo= MOI.BuyerReferenceNo,
+                            SONo=STUFF((select distinct ','+so.Id from 
+                            trn.MasterOrderItem XMOI 
+                            INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
+                            where MO.Id=XMOI.MasterOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                            LineItemReference=STUFF((select distinct ','+so.LineItemReference from 
+                            trn.MasterOrderItem XMOI 
+                            INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
+                            where MO.Id=XMOI.MasterOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                            SOQty=(select sum(so.Qty) from 
+                            trn.MasterOrderItem XMOI 
+                            INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
+                            where MO.Id=XMOI.MasterOrderId),
+
+                            PRNo=STUFF((select distinct ','+pod.ProductionOrderId from 
+                            trn.MasterOrderItem XMOI 
+                            INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
+                            INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id 
+                            where MO.Id=XMOI.MasterOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            ,Department=bd.UserName,Division=bd2.UserName
+                            FROM TaskManagerMaster AS TMM
+
+                            LEFT OUTER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId 
+                            inner JOIN TNAMaster AS TM ON TM.Id = TT.TNAMasterId
+                            inner JOIN [TRN].[MasterOrderItem] AS MOI ON MOI.Id = TM.MasterOrderItemId
+                            LEFT OUTER JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
+                            LEFT OUTER JOIN [HKP].[Buyer] AS B ON B.Id = MO.BuyerId 
+                            LEFT OUTER JOIN hkp.BuyerDepartment AS bd ON bd.Id=mo.BuyerDepartmentId    LEFT OUTER JOIN hkp.BuyerDivision AS bd2 ON bd2.Id=mo.BuyerDivisionId    
+
+
+                            UNION 
+
+                            SELECT 'Sales Order' AS Dependency, tt.TaskTemplateId, TMM.Id AS TaskMasterId,
+                               MO.MasterOrderNo,B.Id, B.UserName AS Buyer
+                            ,StyleNo= MOI.BuyerReferenceNo
+                            ,SONo=so.Id
+                            ,so.LineItemReference
+                            ,SOQty=SO.Qty
+                            ,PRNo=STUFF((select distinct ','+xpod.ProductionOrderId from  trn.ProductionOrderDetail AS xpod
+                            where xpod.SalesOrderId = so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                          
+                            ,Department=bd.UserName,Division=bd2.UserName
+                            FROM TaskManagerMaster AS TMM
+
+                              INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId 
+                            LEFT OUTER JOIN TNAMaster AS TM ON TM.Id = TT.TNAMasterId
+                            inner JOIN [TRN].[SalesOrder] AS SO ON SO.Id =  TM.SalesOrderId
+                            LEFT OUTER JOIN [TRN].[MasterOrderItem] AS MOI ON MOI.Id = SO.MasterOrderItemId
+                            LEFT OUTER JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
+                            LEFT OUTER JOIN [HKP].[Buyer] AS B ON B.Id = MO.BuyerId
+                            LEFT OUTER JOIN hkp.BuyerDepartment AS bd ON bd.Id=mo.BuyerDepartmentId    LEFT OUTER JOIN hkp.BuyerDivision AS bd2 ON bd2.Id=mo.BuyerDivisionId    
+                            UNION 
+
+                          
+
+                            SELECT 'Prod. Order' AS Dependency,tt.TaskTemplateId, TMM.Id AS TaskMasterId, 
+                               pr.MasterOrderId,PR.BuyerId,pr.Buyer,pr.StyleNo, pr.SONo,pr.LineItemReference,PR.SOQty, pr.ProductionOrderId
+                            ,Department=bd.UserName,Division=bd2.UserName
+
+                                 FROM TaskManagerMaster AS tmm
+                                INNER JOIN TNATasks AS TT ON TT.Id=tmm.TNATasksId
+                                INNER JOIN TNAMaster AS T ON t.Id=tt.TNAMasterId  AND isnull(t.ProductionOrderId,'')<>''
+                                    INNER JOIN trn.ProductionOrder AS po ON PO.Id=t.ProductionOrderId
+                                INNER JOIN
+                                (
+                                SELECT distinct po.Id AS ProductionOrderId,mo.BuyerDepartmentId,mo.BuyerDivisionId,
+                                b.Id AS BuyerId,b.UserName AS Buyer,
+                                
+                                MasterOrderId=STUFF((select distinct ','+XMOI.MasterOrderId from 
+trn.MasterOrderItem XMOI 
+INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+where podx.ProductionOrderId=po.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+,StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+trn.MasterOrderItem XMOI 
+INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+where podx.ProductionOrderId=po.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                
+                                 ,SONo=STUFF((select distinct ','+sox.Id from 
+trn.MasterOrderItem XMOI 
+INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+where podx.ProductionOrderId=po.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+                                                ,LineItemReference=STUFF((select distinct ','+sox.LineItemReference from 
+trn.MasterOrderItem XMOI 
+INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+where podx.ProductionOrderId=po.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+                                                ,SOQty=(select sum(sox.Qty) from 
+trn.MasterOrderItem XMOI 
+INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+where podx.ProductionOrderId=po.Id)
+                               
+FROM trn.ProductionOrder PO
+INNER JOIN trn.ProductionOrderDetail AS pod ON pod.ProductionOrderId=po.Id AND pod.Id=(SELECT TOP 1 Id FROM trn.ProductionOrderDetail AS px WHERE px.ProductionOrderId=po.Id)
+                                INNER JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
+                                inner join trn.MasterOrderItem MOI on MOI.Id=so.MasterOrderItemId
+INNER JOIN trn.MasterOrder AS mo ON mo.Id=MOI.MasterOrderId
+LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
+                                ) AS PR ON pr.ProductionOrderId=po.Id
+                                
+                                LEFT OUTER JOIN [HKP].[TaskSubCategory] AS TSC ON TSC.Id = TMM.TaskSubCategoryId
+LEFT OUTER JOIN HKP.TaskCategory AS TC ON TC.Id = TMM.TaskCategoryId
+LEFT OUTER JOIN hkp.BuyerDepartment AS bd ON bd.Id=PR.BuyerDepartmentId   
+LEFT OUTER JOIN hkp.BuyerDivision AS bd2 ON bd2.Id=PR.BuyerDivisionId  ) AS MO on MO.TaskMasterId=tm.Id
+                                INNER JOIN TNATasks AS TT ON TT.Id=tm.TNATasksId
+                                LEFT OUTER JOIN TaskAudit AS AB ON ab.TaskManagerMasterId=tm.Id AND ab.AuthorizationType='CreatedBy'
+                                LEFT OUTER JOIN TaskAudit AS ATO ON ATO.TaskManagerMasterId=tm.Id AND ATO.AuthorizationType='AssignTo'
+
+                                LEFT OUTER JOIN EmployeeInformation AS EAB ON eab.SystemId=ab.ResponsiblePersonId
+                                LEFT OUTER JOIN EmployeeInformation AS EATO ON EATO.SystemId=ATO.ResponsiblePersonId
+                                LEFT OUTER JOIN EmployeeInformation AS EACL ON EACL.SystemId=TM.ClosedBy
+                                LEFT OUTER JOIN SEC.[USER] AS USRCL ON USRCL.UserId=TM.ClosedBy
+
+                               LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=EATO.BudgetCode
+       LEFT JOIN ORG.Position pr ON pr.Id=MB.PositionId
+LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
+                                left outer join TaskComments TSK on TSK.TaskManagerMasterId=TM.Id AND TSK.ID=(SELECT TOP 1 ID FROM TaskComments T WHERE T.TaskManagerMasterId=TM.ID ORDER BY T.CreatedTime DESC)
+
+                              
+                                LEFT OUTER JOIN MasterOrderTaskTemplate AS mott ON mott.Id=MO.TaskTemplateId
+                                LEFT OUTER JOIN TaskMaster AS TAM ON TAM.Id=mott.TaskMasterId
+                                INNER JOIN hkp.TaskCategory AS tc ON TAM.TaskCategoryId=tc.Id AND TC.Active=1
+                                INNER JOIN hkp.TaskSubCategory AS tsc ON tsc.Id=TAM.TaskSubCategoryId AND TSC.Active=1
+
+                                LEFT OUTER JOIN hkp.Process AS p ON p.Id=TAM.ProcessId
+                                INNER JOIN hkp.TaskAppliedOn AS tao ON tao.Id=tam.TaskAppliedOnId
+                                left join  HKP.TaskDependentDates AS TTD on TTD.id=mott.TaskDependentDatesId
+                                    
+                                ) AS K  WHERE 1=1   ORDER BY Buyer,StyleNo,SONo,PRNo
+"));
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
         }
 
         #endregion TNA API
