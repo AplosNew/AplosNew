@@ -1585,6 +1585,11 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                                     var ss = dicLocal_Sub[i].SalaryHeadID;
 
+                                                    if ("SHD202065" == ss)
+                                                    {
+
+                                                    }
+
                                                     if (string.IsNullOrEmpty(sGNRApplicableMonthNo))
                                                     {
                                                         IsDisbustForThisMonth = true;
@@ -3867,6 +3872,11 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                             #region variable
                                             EntCur = dicLocal_Sub[i].EntryAmount;
                                             string shid = dicLocal_Sub[i].SalaryHeadID;
+
+                                            if ("SHD202065" == dicLocal_Sub[i].SalaryHeadID)
+                                            {
+
+                                            }
 
                                             //=====================
                                             IsBaseOnNetPay = dicLocal_Sub[i].BaseOnNetPay;

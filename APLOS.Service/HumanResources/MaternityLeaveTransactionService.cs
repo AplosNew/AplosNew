@@ -2317,6 +2317,71 @@ LEFT JOIN MST.ManpowerBudget mpb ON E.BudgetCode=mpb.Id
             {
                 fromDate = Convert.ToDateTime(fromDate).AddMonths(-1).ToString("dd-MMM-yyyy");
                 #region Query 
+                //                var cmdText1 = @"SELECT EI.SystemId,EI.EmployeeNameLocal
+                //                                    ,EI.EmployeeCode,LD.Name LegalDesignationLocal,SEC.Name Sectionlocal
+                //                                    ,CAST(DATEDIFF(yy, EI.DOB, t.FromDate) AS varchar(4)) as [Year]
+                //                                    ,CAST(DATEDIFF(mm, DATEADD(yy, DATEDIFF(yy, EI.DOB, t.FromDate), EI.DOB), t.FromDate) AS varchar(2)) as [Month]
+                //                                    , CAST(DATEDIFF(dd, DATEADD(mm, DATEDIFF(mm, DATEADD(yy, DATEDIFF(yy, EI.DOB, t.FromDate), EI.DOB), t.FromDate), DATEADD(yy, DATEDIFF(yy, EI.DOB, t.FromDate), EI.DOB)), t.FromDate) AS varchar(2)) AS [Day]
+                //                                    , EI.EmployeeName
+                //                                    , FORMAT(EI.DOJ,'dd-MMM-yyyy') DOJ
+                //                                    , FORMAT(EI.DOB,'dd-MMM-yyyy') DOB
+                //                                    , DG.UserName GivenDesignation
+                //                                    , DP.UserName Department
+                //                                    , DSG.UserName LegalDesignation
+                //                                    ,s.UserName Section
+                //                                    ,ss.UserName Subsection
+                //                                    ,ll.UserName Line
+                //                                    ,format(t.fromdate,'dd-MMM-yyyy') LeaveStartDate
+                //                                    ,FORMAT(t.ExpectedDelivaryDate,'dd-MMM-yyy') FromDate
+                //                                    ,FORMAT(t.FromDate,'MMMM-yyyy') PaymentDate
+                //                                    --============================new 
+                //                                    ,format(mbm.BeforePaymentDate,'dd-MMM-yyyy') BeforePaymentDate
+                //                                    ,mbm.LeaveDays
+                //                                    ,mbm.IsPaidBefore IsBefore
+                //                                    ,mbm.IsPaidAfter IsAfter
+                //                                    --,isnull(mbm.AfterAmount,0)+isnull(mbm.BeforeAmount,0) TotalEarn
+                //                                    ,format(mbm.AfterPaymentDate,'dd-MMM-yyyy') AfterPaymentDate
+                //                                    --,AfterPercentageAmount=(FORMAT((isnull(c.DisbusmentAmount,0)+isnull(b.BonusAmount,0))/26, 'N2')*mbm.LeaveDays)/2
+                //                                    --,Rate=FORMAT((isnull(c.DisbusmentAmount,0)+isnull(b.BonusAmount,0))/26, 'N2')
+                //                                    --,mbm.TotalWorkingDays TotalWorkingDays
+                //                                    --,TotalEarn=isnull(c.DisbusmentAmount,0)+isnull(b.BonusAmount,0)  
+                //                                    --,TotlaEarning=FORMAT((isnull(c.DisbusmentAmount,0)+isnull(b.BonusAmount,0))/26, 'N2')*mbm.LeaveDays
+                //                                    --,BeforePercentageAmount=(FORMAT((isnull(c.DisbusmentAmount,0)+isnull(b.BonusAmount,0))/26, 'N2')*mbm.LeaveDays)/2
+
+                //,AfterPercentageAmount=(FORMAT((isnull(c.EntryAmount,0))/26, 'N2')*mbm.LeaveDays)/2
+                //                                    ,Rate=FORMAT((isnull(c.EntryAmount,0))/26, 'N2')
+                //                                    ,mbm.TotalWorkingDays TotalWorkingDays
+                //                                    ,TotalEarn=isnull(c.EntryAmount,0)
+                //                                    ,TotlaEarning=FORMAT((isnull(c.EntryAmount,0))/26, 'N2')*mbm.LeaveDays
+                //                                    ,BeforePercentageAmount=(FORMAT((isnull(c.EntryAmount,0))/26, 'N2')*mbm.LeaveDays)/2
+
+                //                                    --============================ 
+
+                //                                    FROM dbo.Employeeinformation EI
+                //                                    left join [ORG].[Plant] p on p.Id=EI.PlantId
+                //                                    LEFT JOIN HKP.LegalDesignation DSG ON ei.LegalDesignationId=DSG.Id
+                //                                    LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
+                //                                    LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId	
+                //                                    LEFT JOIN org.Section s ON s.id=EI.SectionId
+                //                                    LEFT JOIN org.SubSection ss ON ss.Id=ei.SubSectionId
+                //                                    left join org.Line ll on ll.id=ei.LineId
+                //                                    LEFT JOIN HKP.LocalLanguage LD ON LD.LegalDesignationId=EI.LegalDesignationId 
+                //                                    LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = EI.SectionId 
+                //                                    left join MaternityBenefitMaster mbm on mbm.EmpSystemId=ei.SystemId
+                //                                    LEFT JOIN (select sum(WorkingDays)as workingDays,sum(TotalEarnedAmount+EncashAmount+OtherAmount) as TotalEarn ,MaternityBenefitMasterId From MaternityBenefitDetail group by MaternityBenefitMasterId) mbd on mbd.MaternityBenefitMasterId=mbm.Id
+                //                                    left join LeaveTransaction t on t.SystemID=mbm.LeaveTransactionId
+                //                                   left join (
+                //									select top 1 SP.* from SalaryProcChild SP
+                //									left join SalaryProcMaster SPM on SPM.SystemID=SP.SlrProcMstSystemID
+                //									where
+                //									SalaryHeadID in (select SalaryHeadID from SalaryHead where HeadCategory in('Net Payable')) and EmpInfoSystemID='" + SystemId + @"'
+                //									and MonthNo=MONTH('" + fromDate + @"') and YearNo=year('" + fromDate + @"')
+                //									)c on c.EmpInfoSystemID='" + SystemId + @"'
+                //                                    left join SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID
+                //                            left join (select c.*,m.EffectiveDate from BonusPaymentActual c left join [BonusPaymentActualMaster] m on m.SystemID=c.BnsMstSystemID
+                //                            )b on b.EmpSystemID='" + SystemId + @"' and month(b.EffectiveDate)=m.MonthNo and YEAR(b.EffectiveDate)=m.YearNo
+                //                                    where ei.SystemId ='" + SystemId + @"' and EI.PlantId='" + plantId + @"' and mbm.LeaveTransactionId='" + LeaveTransactionId + @"'";
+
                 var cmdText1 = @"SELECT EI.SystemId,EI.EmployeeNameLocal
                                     ,EI.EmployeeCode,LD.Name LegalDesignationLocal,SEC.Name Sectionlocal
                                     ,CAST(DATEDIFF(yy, EI.DOB, t.FromDate) AS varchar(4)) as [Year]
@@ -2332,74 +2397,148 @@ LEFT JOIN MST.ManpowerBudget mpb ON E.BudgetCode=mpb.Id
                                     ,ss.UserName Subsection
                                     ,ll.UserName Line
                                     ,format(t.fromdate,'dd-MMM-yyyy') LeaveStartDate
-                                    ,FORMAT(t.FromDate,'dd-MMM-yyy') FromDate
+                                    ,FORMAT(t.ExpectedDelivaryDate,'dd-MMM-yyy') FromDate
+                                    ,FORMAT(t.FromDate,'MMMM-yyyy') PaymentDate
                                     --============================new 
                                     ,format(mbm.BeforePaymentDate,'dd-MMM-yyyy') BeforePaymentDate
-                                    ,mbm.LeaveDays
+                                    ,T.LeaveDays
                                     ,mbm.IsPaidBefore IsBefore
                                     ,mbm.IsPaidAfter IsAfter
                                     --,isnull(mbm.AfterAmount,0)+isnull(mbm.BeforeAmount,0) TotalEarn
                                     ,format(mbm.AfterPaymentDate,'dd-MMM-yyyy') AfterPaymentDate
-                                    ,AfterPercentageAmount=mbm.AfterAmount
-                                    ,Rate=mbm.WageRate
+                                    --,AfterPercentageAmount=(FORMAT((isnull(c.DisbusmentAmount,0)+isnull(b.BonusAmount,0))/26, 'N2')*mbm.LeaveDays)/2
+                                    --,Rate=FORMAT((isnull(c.DisbusmentAmount,0)+isnull(b.BonusAmount,0))/26, 'N2')
+                                    --,mbm.TotalWorkingDays TotalWorkingDays
+                                    --,TotalEarn=isnull(c.DisbusmentAmount,0)+isnull(b.BonusAmount,0)  
+                                    --,TotlaEarning=FORMAT((isnull(c.DisbusmentAmount,0)+isnull(b.BonusAmount,0))/26, 'N2')*mbm.LeaveDays
+                                    --,BeforePercentageAmount=(FORMAT((isnull(c.DisbusmentAmount,0)+isnull(b.BonusAmount,0))/26, 'N2')*mbm.LeaveDays)/2
+
+,AfterPercentageAmount=(FORMAT((isnull(ESS.EntryAmount,0))/26, 'N2')*mbm.LeaveDays)/2
+                                    ,Rate=FORMAT((isnull(c.EntryAmount,0))/26, 'N2')
                                     ,mbm.TotalWorkingDays TotalWorkingDays
-                                    ,isnull(c.EntryAmount,0) TotalEarn
-                                    ,TotlaEarning=mbm.WageRate*mbm.LeaveDays
-                                    ,BeforePercentageAmount=mbm.BeforeAmount
+                                    ,TotalEarn=isnull(ESS.EntryAmount,0)
+                                    ,TotlaEarning=FORMAT((isnull(ESS.EntryAmount,0))/26, 'N2')*mbm.LeaveDays
+                                    ,BeforePercentageAmount=(FORMAT((isnull(ESS.EntryAmount,0))/26, 'N2')*mbm.LeaveDays)/2
+                                    ,format(t.fromdate,'MMM-yyyy')  [MonthsName]
+                                    ,format(t.ToDate,'dd-MMM-yyyy')  ToDate
                                     --============================ 
                                     
                                     FROM dbo.Employeeinformation EI
-                                    LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
-                                    LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                     left join [ORG].[Plant] p on p.Id=EI.PlantId
                                     LEFT JOIN HKP.LegalDesignation DSG ON ei.LegalDesignationId=DSG.Id
                                     LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-                                    LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId	
-                                    LEFT JOIN org.Section s ON s.id=PR.SectionId
-                                    LEFT JOIN org.SubSection ss ON ss.Id=PR.SubSectionId
-                                    left join org.Line ll on ll.id=PMB.LineId
+                                    LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId	
+                                    LEFT JOIN org.Section s ON s.id=EI.SectionId
+                                    LEFT JOIN org.SubSection ss ON ss.Id=ei.SubSectionId
+                                    left join org.Line ll on ll.id=ei.LineId
                                     LEFT JOIN HKP.LocalLanguage LD ON LD.LegalDesignationId=EI.LegalDesignationId 
-                                    LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = PR.SectionId 
+                                    LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = EI.SectionId 
                                     left join MaternityBenefitMaster mbm on mbm.EmpSystemId=ei.SystemId
                                     LEFT JOIN (select sum(WorkingDays)as workingDays,sum(TotalEarnedAmount+EncashAmount+OtherAmount) as TotalEarn ,MaternityBenefitMasterId From MaternityBenefitDetail group by MaternityBenefitMasterId) mbd on mbd.MaternityBenefitMasterId=mbm.Id
-                                    left join LeaveTransaction t on t.SystemID=mbm.LeaveTransactionId
+                                     left join (SELECT top 1 L.* FROM LeaveTransaction L
+                                        LEFT JOIN LeaveType LT ON LT.Id = L.LTSystemID
+                                        WHERE L.EmpSystemID = '" + SystemId + @"' and LT.LeaveType='Maternity' Order By L.DateAdded DESC) T ON T.EmpSystemID='" + SystemId + @"'
                                    left join (
 									select top 1 SP.* from SalaryProcChild SP
 									left join SalaryProcMaster SPM on SPM.SystemID=SP.SlrProcMstSystemID
 									where
-									SalaryHeadID in (select SalaryHeadID from SalaryHead where HeadCategory in( 'Gross')) and EmpInfoSystemID='" + SystemId + @"'
+									SalaryHeadID in (select SalaryHeadID from SalaryHead where HeadCategory in('Net Payable')) and EmpInfoSystemID='" + SystemId + @"'
 									and MonthNo=MONTH('" + fromDate + @"') and YearNo=year('" + fromDate + @"')
 									)c on c.EmpInfoSystemID='" + SystemId + @"'
 
+									LEFT JOIN(
+ SELECT SM.SystemID,SM.EmpInfoSystemID,SM.EffectiveDate,SD.EntryAmount,SD.SalaryHeadID FROM SalaryInfoDefineMaster SM
+                            LEFT JOIN SalaryInfoDefine SD ON SD.SalaryID=SM.SystemID							
+left join dbo.SalaryHead h on h.SalaryHeadID=sd.SalaryHeadID
+                            WHERE SM.EmpInfoSystemID='" + SystemId + @"' AND SM.IsApproved=1 AND HeadCategory in('Net Payable')
+)ESS ON ESS.EmpInfoSystemID=EI.SystemId
+
+                                    left join SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID
+                            left join (select c.*,m.EffectiveDate from BonusPaymentActual c left join [BonusPaymentActualMaster] m on m.SystemID=c.BnsMstSystemID
+                            )b on b.EmpSystemID='" + SystemId + @"' and month(b.EffectiveDate)=m.MonthNo and YEAR(b.EffectiveDate)=m.YearNo
                                     where ei.SystemId ='" + SystemId + @"' and EI.PlantId='" + plantId + @"' and mbm.LeaveTransactionId='" + LeaveTransactionId + @"'";
-                
+
+                //                var cmdText2 = @"select
+                //                            YearNo,MonthNo
+                //-- ,left( DateName( month , DateAdd( month , MonthNo , -1 )),3)+'-'+CAST(YearNo as varchar(50)) 
+                //,[MonthName]                            
+                //--,left( DateName( month , DateAdd( month , MonthNo , -1 )),3) [MonthName]
+                //                            --,[MonthName]
+                //                            ,SalaryProcessMasterId
+                //                            ,EarnedAmount=isnull(DisbusmentAmount,0) 
+                //                            ,isnull(StructureAmount,0) StructureAmount
+                //							,WorkingDays
+                //							,TotalAmount=Round((isnull(DisbusmentAmount,0)+isnull(BonusAmount,0)), 0)
+                //                            from (--x
+                //                            select m.MonthNo,m.YearNo
+                //                            --,DateName( month , DateAdd( month , m.MonthNo , -1 )) [MonthName]
+                //							,format(t.fromdate,'MMM-yyyy')  [MonthName]
+
+                //                            ,c.EntryAmount StructureAmount,c.DisbusmentAmount,b.BonusAmount 
+                //                            ,c.SlrProcMstSystemID SalaryProcessMasterId
+                //	                      ,(att.TotalProcDate-att.TotalAbsent) WorkingDays
+                //                            from
+                //                            (
+                //                            select * from SalaryProcChild where
+                //                            SalaryHeadID in (select SalaryHeadID from SalaryHead where HeadCategory in('Net Payable'))
+                //                            )c                           
+
+                //                            left join SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID
+                //                            left join SalaryProceAttdnData att on att.SlrProcMstSystemID=m.SystemID and att.EmpSystemID='" + SystemId + @"'
+                //                            left join (select c.*,m.EffectiveDate from BonusPaymentActual c left join [BonusPaymentActualMaster] m on m.SystemID=c.BnsMstSystemID
+                //                            )b on b.EmpSystemID='" + SystemId + @"'  and month(b.EffectiveDate)=m.MonthNo and YEAR(b.EffectiveDate)=m.YearNo
+
+                //							left join MaternityBenefitMaster mbm on mbm.empsystemid=c.EmpInfoSystemID
+                //left join LeaveTransaction t on t.SystemID=mbm.LeaveTransactionId
+                //                            where
+                //                            c.SlrProcMstSystemID in (
+                //                            select SystemID from SalaryProcMaster  Where MonthNo=MONTH('" + fromDate + @"') and YearNo=year('" + fromDate + @"')
+                //                            )
+                //                            and c.EmpInfoSystemID='" + SystemId + @"'
+                //                            ) x";
+
                 var cmdText2 = @"select
                             YearNo,MonthNo
-                            ,left( DateName( month , DateAdd( month , MonthNo , -1 )),3) [MonthName]
+-- ,left( DateName( month , DateAdd( month , MonthNo , -1 )),3)+'-'+CAST(YearNo as varchar(50)) 
+,[MonthName]                            
+--,left( DateName( month , DateAdd( month , MonthNo , -1 )),3) [MonthName]
                             --,[MonthName]
                             ,SalaryProcessMasterId
-                            ,isnull(StructureAmount,0) EarnedAmount
+                            ,EarnedAmount=isnull(StructureAmount,0) 
                             ,isnull(StructureAmount,0) StructureAmount
-							,WorkingDays
-							,(isnull(StructureAmount,0)/WorkingDays)*112 TotalAmount
+							,WorkingDays=(Select Count(DayStatus)C from dbo.AttdnProcessData Where EmpSystemID='" + SystemId + @"' AND WorkDate between FORMAT(DATEADD(DAY, 1, EOMONTH(x.fromdate, -1)),'dd-MMM-yyyy') and FORMAT(EOMONTH(x.fromdate),'dd-MMM-yyyy') AND DayStatus='P')
+							,TotalAmount=Round((isnull(StructureAmount,0)+isnull(BonusAmount,0)), 0)
                             from (--x
                             select m.MonthNo,m.YearNo
-                            ,DateName( month , DateAdd( month , m.MonthNo , -1 )) [MonthName]
-                            ,c.EntryAmount StructureAmount,c.DisbusmentAmount 
+                            --,DateName( month , DateAdd( month , m.MonthNo , -1 )) [MonthName]
+							,format(t.fromdate,'MMM-yyyy')  [MonthName]
+                            ,t.fromdate
+                            ,SS.EntryAmount StructureAmount,c.DisbusmentAmount,b.BonusAmount 
                             ,c.SlrProcMstSystemID SalaryProcessMasterId
-	                      ,mbm.TotalWorkingDays WorkingDays
+	                      ,(att.TotalProcDate-att.TotalAbsent) WorkingDays
                             from
                             (
                             select * from SalaryProcChild where
-                            SalaryHeadID in (select SalaryHeadID from SalaryHead where HeadCategory in( 'Gross'))
+                            SalaryHeadID in (select SalaryHeadID from SalaryHead where HeadCategory in('Net Payable'))
                             )c                           
                            
                             left join SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID
-                            left join SalaryProceAttdnData att on att.SlrProcMstSystemID=m.SystemID and att.EmpSystemID='" + SystemId + @"'
+                            left join (select * from dbo.SalaryProceAttdnData Where MonthNo=MONTH('" + fromDate + @"') and YearNo=year('" + fromDate + @"') AND EmpSystemID='" + SystemId + @"' ) att on att.SlrProcMstSystemID=m.SystemID and att.EmpSystemID='" + SystemId + @"' 
                             left join (select c.*,m.EffectiveDate from BonusPaymentActual c left join [BonusPaymentActualMaster] m on m.SystemID=c.BnsMstSystemID
                             )b on b.EmpSystemID='" + SystemId + @"'  and month(b.EffectiveDate)=m.MonthNo and YEAR(b.EffectiveDate)=m.YearNo
                             
 							left join MaternityBenefitMaster mbm on mbm.empsystemid=c.EmpInfoSystemID
+left join (SELECT top 1 L.* FROM LeaveTransaction L
+                                        LEFT JOIN LeaveType LT ON LT.Id = L.LTSystemID
+                                        WHERE L.EmpSystemID = '" + SystemId + @"'  and LT.LeaveType='Maternity' Order By L.DateAdded DESC) T ON T.EmpSystemID='" + SystemId + @"' 
+
+
+LEFT JOIN(
+ SELECT SM.SystemID,SM.EmpInfoSystemID,SM.EffectiveDate,SD.EntryAmount,SD.SalaryHeadID FROM SalaryInfoDefineMaster SM
+                            LEFT JOIN SalaryInfoDefine SD ON SD.SalaryID=SM.SystemID							
+left join dbo.SalaryHead h on h.SalaryHeadID=sd.SalaryHeadID
+                            WHERE SM.EmpInfoSystemID='" + SystemId + @"' AND SM.IsApproved=1 AND HeadCategory in('Net Payable')
+)SS ON SS.EmpInfoSystemID='" + SystemId + @"'
 
                             where
                             c.SlrProcMstSystemID in (
@@ -2488,6 +2627,10 @@ LEFT JOIN MST.ManpowerBudget mpb ON E.BudgetCode=mpb.Id
                                         sheet[ColumnTemplateRow, i + 1].Text = GetFormatedDate(GetMaternityLeaveReport.Rows[0][item.ColumnName].ToString(), UserName);
                                     }
                                     if (item.ColumnName.ToUpper() == "FromDate".ToUpper())
+                                    {
+                                        sheet[ColumnTemplateRow, i + 1].Text = GetFormatedDate(GetMaternityLeaveReport.Rows[0][item.ColumnName].ToString(), UserName);
+                                    }
+                                    if (item.ColumnName.ToUpper() == "ToDate".ToUpper())
                                     {
                                         sheet[ColumnTemplateRow, i + 1].Text = GetFormatedDate(GetMaternityLeaveReport.Rows[0][item.ColumnName].ToString(), UserName);
                                     }
@@ -2644,23 +2787,26 @@ LEFT JOIN MST.ManpowerBudget mpb ON E.BudgetCode=mpb.Id
 
                 }
 
-                sheet.Range[xlsROW, 2, xlsROW, 3].Text = "সর্বমোট";
-                sheet.Range[xlsROW, 2, xlsROW, 3].Merge();
-                sheet.Range[xlsROW, 2, xlsROW, 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[xlsROW, 2, xlsROW, 5].Text = "সর্বমোট";
+                sheet.Range[xlsROW, 2, xlsROW, 5].Merge();
+                sheet.Range[xlsROW, 2, xlsROW, 5].RowHeight = 40;
+                sheet.Range[xlsROW, 2, xlsROW, 5].CellStyle.Font.Size = 20;
+                sheet.Range[xlsROW, 2, xlsROW, 5].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 
                 for (int i = 4; i <= lastCol + 1; i++)
                 {
                     sheet[xlsROW, i].Formula = "SUM(" + clsStaticInfo.GetxlsCol(i) + ColumnTemplateRow.ToString() + ":" + clsStaticInfo.GetxlsCol(i) + (xlsROW - 1).ToString() + ")";
                 }
 
-                sheet.Range[xlsROW, 7].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[xlsROW, 7].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet.Range[xlsROW, 2, xlsROW, 7].CellStyle.Font.Bold = true;
-                sheet.Range[xlsROW, 2, xlsROW, 7].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet.Range[xlsROW, 2, xlsROW, 7].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[xlsROW, 6].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[xlsROW, 6].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[xlsROW, 2, xlsROW, 6].CellStyle.Font.Bold = true;
+                sheet.Range[xlsROW, 2, xlsROW, 6].CellStyle.Font.Size = 20;
+                sheet.Range[xlsROW, 2, xlsROW, 6].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet.Range[xlsROW, 2, xlsROW, 6].BorderAround(ExcelLineStyle.Thin);
 
                 int RefROW = ColumnTemplateRow;
-                sheet.HideColumn(1);
+                //sheet.HideColumn(1);
                 sheet.DeleteRow(RefROW);
 
             }

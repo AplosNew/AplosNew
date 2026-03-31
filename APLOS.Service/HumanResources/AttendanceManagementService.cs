@@ -30957,7 +30957,7 @@ Where efs.EmpSystemId='" + empSystemId + @"'";
                     left join (select * FROM LeaveTransaction where LTSystemID in (select id from LeaveType where LeaveType='Maternity')) t on t.EmpSystemID=ei.SystemId and t.SystemID=mbm.LeaveTransactionId  and t.PlantID='" + plantId + @"'
                     left join mst.MaternityLeavePolicy mp on mp.id=t.MaternityLeavePolicyId		
                     WHERE (IsPaidAfter=1 or IsPaidBefore=1) 
-					and mbm.PlantId='" + identity.PlantId + @"'";
+					and mbm.PlantId='" + identity.PlantId + @"' order by t.FromDate desc";
 
                 return _sqlRepository.GetDataCollection(cmdText);
             }

@@ -1,5 +1,11 @@
-﻿<div class="modal fade site-modal in" id="materialarticleNewPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
+﻿<style>
+    .modellgModify {
+        width: 1200px;
+    }
+</style>
+
+<div class="modal fade site-modal in" id="materialarticleNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
             <div class="modal-header"> Material Article<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body text-center">
@@ -26,15 +32,15 @@
                     </div>
                     <div class="content-container-fluid" style="color:black;">
                         <div style="color:black;" id="MAGrid" ej-grid e-datasource="materialArticleList" e-allowfiltering="true" e-allowpaging="true" e-recorddoubleclick="setInputeMaterialArticleData"
-                             e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true" 
+                             e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
                              e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
                             <div e-columns>
                                 <div e-column e-field="MaterialGroupMasterName" e-headertext="M Group" e-width="80" e-filter="false"></div>
                                 <div e-column e-field="MaterialTypeName" e-headertext="MaterialType" e-width="100"></div>
                                 <div e-column e-field="MaterialCode" e-headertext="Material Code" e-width="80" textAlign='Center'></div>
-                                <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="80" textAlign='Center'></div>
+                                <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="150" textAlign='Center'></div>
                                 <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
-                                <div e-column e-field="StandardName" e-headertext="Article" e-width="100"></div>
+                                <div e-column e-field="StandardName" e-headertext="Article" e-width="200"></div>
                                 <div e-column e-field="HSNCode" e-headertext="HSN Code" e-width="60" textAlign='Center'></div>
                                 <div e-column e-field="BusinessProcessName" e-headertext="Business Process" e-width="60"></div>
                                 <div e-column e-field="IsAsset" e-headertext="IsAsset" e-width="60"></div>
@@ -47,7 +53,7 @@
 
 
                         </div>
-                        
+
                     </div>
                     @*<i>**Showing top 600 Article</i>*@
             </div>

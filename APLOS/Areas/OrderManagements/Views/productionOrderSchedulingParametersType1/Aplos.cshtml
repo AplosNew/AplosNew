@@ -1,4 +1,10 @@
-﻿<div id="tarekcontainer">
+﻿
+<style>
+    .modellgModify {
+        width: 1200px;
+    }
+</style>
+<div id="tarekcontainer">
 
 </div>
 <togglable name="Production Order Scheduling Parameters: Type-1({{baseProcess.UserName}})"></togglable>
@@ -384,7 +390,7 @@
 
 
 <div class="modal fade site-modal in" id="searchNewPopup" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg" id="ordermodal">
+    <div class="modal-dialog modal-lg modellgModify" id="ordermodal">
         <div class="modal-content">
             <div class="modal-header"> Production Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body">
@@ -419,8 +425,8 @@
                         <div e-column e-template="#showSOList" e-headertext="" e-width="30"></div>
 
                         <div e-column e-field="Id" e-headertext="ID" e-width="80"></div>
-                        <div e-column e-field="BuyerRefNo" e-headertext="Customer Ord#" e-width="80"></div>
-                        <div e-column e-field="OwnRefNo" e-headertext="Own Ord#" e-width="80"></div>
+                        <div e-column e-field="BuyerRefNo" e-headertext="Customer Ord#" e-width="100"></div>
+                        <div e-column e-field="OwnRefNo" e-headertext="Own Ord#" e-width="100"></div>
                         <div e-column e-field="SODesc" e-headertext="So.Description" e-width="150"></div>
                         <div e-column e-field="SOQuantity" e-headertext="Qty" e-width="60"></div>
                         <div e-column e-field="LSD" e-headertext="LSD" e-width="80"></div>

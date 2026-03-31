@@ -4539,7 +4539,7 @@ public class clsSalaryProcessAplosR
                                         EntCur = dicLocal_Sub[i].EntryAmount;
                                         string shid = dicLocal_Sub[i].SalaryHeadID;
                                         ///sru.CalculateHeadValue(para, dicLocal_Sub, AbsDay, DisbursedBtnMonth, TotWorkingDayWithHoli, intMonthNo, ref _child_salaryhead_seed, ref dtValue, ref dicSalaryHead, ref _childPK_seed_fromDB, ref _child_emp_seed, ref dicProcChild);
-                                        if ("SHD2018118" == dicLocal_Sub[i].SalaryHeadID)
+                                        if ("SHD202065" == dicLocal_Sub[i].SalaryHeadID)
                                         {
 
                                         }

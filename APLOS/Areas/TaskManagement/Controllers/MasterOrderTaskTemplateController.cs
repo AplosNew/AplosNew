@@ -61,8 +61,9 @@ namespace Aplos.Areas.TaskManagement.Controllers
                             left outer join EmployeeInformation EI on EI.Systemid=TM.EmployeeId) AS TEMP WHERE " + strkey + "";
 
 
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
         [Authorize, HttpPost]
         public ActionResult SearchEmployee(string column, string value)

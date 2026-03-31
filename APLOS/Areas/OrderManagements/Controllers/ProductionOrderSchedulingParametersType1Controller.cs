@@ -1812,6 +1812,23 @@ SELECT ept.EntityId FROM hkp.EntityProcessTag AS ept WHERE ept.ProcessId IN (SEL
 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsMaster, dsRunningWorkcenter, dsWorkcenter);
+
+                Library.Service.TaskScheduler.TaskScheduler schedule = new Library.Service.TaskScheduler.TaskScheduler(_sqlRepository);
+                schedule.UpdateTaskStatus();
+                //Production Order Related Tasks
+                string tsql = @"SELECT distinct TaskTemplateMasterId,P.EntityId  FROM trn.MasterOrder AS mo 
+                                INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                                INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
+								inner join trn.ProductionOrderDetail D ON D.SalesOrderId=SO.Id
+                                inner join trn.ProductionOrder P ON P.Id=D.ProductionOrderId
+                           WHERE d.ProductionOrderId='" + data.ProductionOrderID+"'";
+                DataTable dtSO = _sqlRepository.GetDataTable(tsql);
+                string TaskTemplateMasterId = dtSO.Rows[0]["TaskTemplateMasterId"].ToString();
+
+                DataTable dt = schedule.GetDataSourceProdOrderNew(data.ProductionOrderID, dtSO.Rows[0]["EntityId"].ToString(), TaskAppliedOnEnum.ProductionOrder);
+                if (dt.Rows.Count > 0)
+                    schedule.MakeTNAMaster(dt, data.ProductionOrderID, TaskAppliedOnEnum.ProductionOrder);
+
             }
             catch (Exception ex)
             {
@@ -7215,7 +7232,7 @@ INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[Wo
     public class ProductionOrderSchedulingParametersType1 : BaseModel
     {
         public string ID { get; set; } = "";
-        public double ProductionOrderID { get; set; } = 0;
+        public string ProductionOrderID { get; set; } = null;
         public double NoOfWorkStation { get; set; } = 0;
         public double Efficiency { get; set; } = 0;
         public double SPT { get; set; } = 0;

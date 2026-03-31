@@ -2328,11 +2328,11 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Order Status<sup>*</sup></label>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Order Status</label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select name="Order Status" class="form-control" ng-model="soSplitModel.OrderStatusId" ng-options="item.Value as item.Text for item in orderStatusList" required tabindex="105">
+                                        <select name="Order Status" class="form-control" ng-model="soSplitModel.OrderStatusId" ng-options="item.Value as item.Text for item in orderStatusList" disabled tabindex="105">
                                             <option value="">--Select--</option>
                                         </select>
                                     </div>

@@ -1,4 +1,8 @@
 ﻿<style>
+    .modellgModify {
+        width: 1200px;
+    }
+
     .ifchange {
         background-color: #f54b4b;
     }
@@ -576,7 +580,7 @@
 </div>
 
 <div class="modal site-modal in" id="POItemPopup" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
             <div class="modal-header">Production Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body text-center">
@@ -587,9 +591,9 @@
                         <div e-columns>
                             <div e-column e-template="#showSOList" e-headertext="" e-width="30"></div>
                             <div e-column e-type="string" e-field="POId" e-headertext="PrO" e-width="80"></div>
-                            <div e-column e-type="string" e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
-                            <div e-column e-type="string" e-field="OwnOrder" e-headertext="Own Ord#" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
+                            <div e-column e-type="string" e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="OwnOrder" e-headertext="Own Ord#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="120"></div>
                             <div e-column e-type="number" e-format="{0:0.00}" e-field="Qty" e-headertext="Qty" e-width="80" e-textalign="right"></div>
                             <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="LSD" e-headertext="LSD" e-width="80"></div>
                             <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
