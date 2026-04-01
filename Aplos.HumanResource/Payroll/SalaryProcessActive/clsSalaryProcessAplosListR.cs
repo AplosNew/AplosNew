@@ -1585,10 +1585,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                                     var ss = dicLocal_Sub[i].SalaryHeadID;
 
-                                                    if ("SHD202065" == ss)
-                                                    {
-
-                                                    }
+                                                   
 
                                                     if (string.IsNullOrEmpty(sGNRApplicableMonthNo))
                                                     {
