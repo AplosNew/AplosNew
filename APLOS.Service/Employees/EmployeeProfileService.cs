@@ -4340,7 +4340,7 @@ FROM dbo.EmpExperienceInformation  Where EmpSystemID='" + empId + @"'", out Data
               ) salaryInfoFrom on IH.EmpSystemID=salaryInfoFrom.EmpInfoSystemID AND IH.FromEffectiveDate=salaryInfoFrom.EffectiveDate --and IH.FromSalaryId=salaryInfoFrom.SystemID
             
             LEFT JOIN EmployeeInformation ei ON EI.SystemId=salaryInfoTo.EmpInfoSystemID
-LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+LEFT JOIN MST.ManpowerBudget mb ON mb.Id = ei.BudgetCode
                             LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 			left join org.Department dep on dep.Id = PR.DepartmentId     
             LEFT JOIN hkp.LegalDesignation LD ON IH.ToLegalDesignationId = LD.Id
@@ -4364,6 +4364,7 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
             --left join org.Department dep on dep.Id = p.DepartmentId  
 			select dep.Id as DepartmentId, dep.UserName as Department ,e.BudgetCode Code from EmployeeInformation E 
 			left join mst.ManpowerBudget mpb on mpb.Id = e.BudgetCode
+            LEFT JOIN ORG.Position PR ON mpb.PositionId=PR.Id
 			left join org.Department dep on dep.Id = PR.DepartmentId  
             ) NEW on NEW.Code=IH.ToBudgetCode  
             left join (
@@ -4408,7 +4409,7 @@ E.EmpPicPath EmployeePic
 
 
 ,e.EmploymentType as Agreement from EmployeeInformation as e
-left join mst.ManpowerBudget mpb on mpb.Id = e.BudgetCode
+left join mst.ManpowerBudget MB on MB.Id = e.BudgetCode
 LEFT JOIN ORG.Position PR ON MB.PositionId=PR.Id
 left outer join ORG.Department as d on d.Id=PR.DepartmentId
 left outer join HKP.LegalDesignation as LG on LG.Id=e.LegalDesignationId
