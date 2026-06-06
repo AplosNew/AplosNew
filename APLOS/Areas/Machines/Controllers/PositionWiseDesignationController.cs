@@ -338,20 +338,18 @@ where DM.Active=1 and DM.DesignationGroupId in (select PDG.DesignationGroupId fr
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select distinct E.UserName as EmployeeCategory,D.UserName as Division,DEP.UserName as Department,S.UserName as Section,SS.UserName as SubSection,
-P.Activity,P.UserName as Process,P.Code as PositionCode,RP.EmployeeName as ResponsiblePerson,PWD.PositionCategory,PWD.CostReviewCategory,PWD.Remarks,
+PP.Activity,PP.UserName as Process,PP.Code as PositionCode,RP.EmployeeName as ResponsiblePerson,PWD.PositionCategory,PWD.CostReviewCategory,PWD.Remarks,
 DG.UserName as DesignationGroup,isnull(DE.UserName,'') as Designation,isnull(LD.UserName,'') as LegalDesignation,isnull(PWDGL.SkillCategory,'') as SkillCategory from 
 TRN.PositionWiseDesignation PWD
 LEFT OUTER JOIN hkp.EmployeeCategory E ON E.Id=PWD.EmployeeCategoryId
-LEFT OUTER JOIN org.Position P ON P.Id=PWD.PositionCodeId
-LEFT OUTER join EmployeeInformation EI ON MB.PositionId=P.Id
-left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-							left join ORG.Position PP on PP.Id=mPB.PositionID
+LEFT OUTER JOIN org.Position PP ON PP.Id=PWD.PositionCodeId
+left join MST.ManpowerBudget MPB on MPB.PositionId=PP.Id
 LEFT OUTER join EmployeeInformation RP ON RP.SystemId=PWD.ResponsiblePersonId
 LEFT OUTER JOIN ORG.Department DEP ON DEP.Id=PP.DepartmentId
 LEFT OUTER join ORG.Division D ON D.Id=PP.DivisionId
 LEFT OUTER JOIN ORG.Section S ON S.Id=PP.SectionId
 LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=PP.SubSectionId
-LEFT OUTER JOIN hkp.Process PS ON PS.Id=P.ProcessId
+LEFT OUTER JOIN hkp.Process PS ON PS.Id=PP.ProcessId
 LEFT OUTER JOIN TRN.PositionWiseDesignationGroup PWDG ON PWDG.PDID=PWD.Id
 LEFT OUTER JOIN hkp.DesignationGroup DG ON DG.Id=PWDG.DesignationGroupId
 LEFT OUTER JOIN MST.DesignationMaster DM ON DM.DesignationGroupId=DG.Id

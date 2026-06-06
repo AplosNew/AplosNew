@@ -6066,7 +6066,7 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
         public Dictionary<string, object> GetLanguage(string plantId, string pkId, string templateType)
         {
             Library.Service.Enums.LetterType.ServiceBook.GetDescription();
-            var sql = @"SELECT Id,Language FROM SCS.RptConfigTemplate WHERE  Id='" + pkId + "'  AND PlantId='" + plantId + "' and type='" + templateType + "'";
+            var sql = @"SELECT Id,Language,TemplateFileName FROM SCS.RptConfigTemplate WHERE  Id='" + pkId + "'  AND PlantId='" + plantId + "' and type='" + templateType + "'";
             //var sql = "SELECT Id,Language FROM SCS.RptConfigTemplate WHERE  [type]='" + pkId + "'  AND PlantId='" + plantId + "'";
             return _sqlRepository.GetData(sql);
         }

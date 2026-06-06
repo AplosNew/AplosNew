@@ -127,6 +127,142 @@ namespace Aplos.Areas.Parties.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetMasterOrderEntity()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"SELECT distinct M.EntityId,E.Code,E.UserName,REPLACE(CONVERT(CHAR(11), E.EffectiveDate, 106),' ','-') AS [EffectiveDate], 
+REPLACE(CONVERT(CHAR(11), E.EffectiveDateUpTo, 106),' ','-') AS [EffectiveDate UpTo],P.UserName Plant,D.UserName Division,U.UserName Unit,Flag= CAST(0 as bit)
+FROM TRN.MasterOrder M
+LEFT JOIN ORG.Entity E ON E.Id=M.EntityId
+LEFT JOIN ORG.Plant P ON P.Id=M.PlantId
+LEFT JOIN ORG.Division D ON D.Id=E.DivisionId
+LEFT JOIN ORG.Unit U ON U.Id=E.UnitId
+Where M.PlantId='"+identity.PlantId+"'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetBuyerMasterEntity(string masterId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"SELECT BM.*,E.Code,E.UserName,REPLACE(CONVERT(CHAR(11), E.EffectiveDate, 106),' ','-') AS [EffectiveDate], 
+REPLACE(CONVERT(CHAR(11), E.EffectiveDateUpTo, 106),' ','-') AS [EffectiveDate UpTo],P.UserName Plant
+,D.UserName Division,U.UserName Unit
+FROM [dbo].[BuyerMasterEntity] BM
+JOIN ORG.Entity E ON E.Id=BM.EntityId
+JOIN ORG.Plant P ON P.Id=E.PlantId
+JOIN ORG.Division D ON D.Id=E.DivisionId
+JOIN ORG.Unit U ON U.Id=E.UnitId
+Where BM.BuyerMasterId='"+ masterId + "'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveMOE(List<Dictionary<string, object>> data, string masterId)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsBC;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.BuyerMasterEntity where BuyerMasterId='" + masterId + "'", out dsBC, false, "1");
+
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "' AND EntityId='"+item["EntityId"] +"'";
+
+                        if (dv.Count == 0)
+                        {
+                            AddNewRow(dsBC.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                }
+                #endregion
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+
+
+        [HttpGet, Authorize]
         public JsonResult GetTaskData(string taskTemplateMasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

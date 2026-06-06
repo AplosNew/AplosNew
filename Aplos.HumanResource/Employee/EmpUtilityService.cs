@@ -237,7 +237,7 @@ namespace Library.Service.EmployeeServices
 								 left join dbo.EmployeeInformation emp on emp.SystemId = apd.EmpSystemID 
 								left join hkp.Designation d on d.Id=emp.DesignationSystemID
 								left join org.Department dx on dx.Id=emp.DepartmentId
-					LEFT JOIN MST.ManpowerBudget MB ON apd.BudgetId = MB.Id
+					LEFT JOIN MST.ManpowerBudget MB ON emp.BudgetCode = MB.Id
 left join ORG.Position POS on POS.Id = MB.PositionId
 					left join hkp.LegalDesignation l on l.Id=emp.LegalDesignationId
 					left join ORG.Section SC on SC.Id = POS.SectionId
@@ -250,7 +250,7 @@ left join HKP.EmployeeCategory EC on EC.Id = Dm.EmployeeCategoryId
 left join org.Line LL on LL.Id	= MB.LineId
                                 where emp.EmployeeStatus = 'Active' and EmployeeCode='" + Code + "' and apd.WorkDate = convert(date, getdate())";
 
-                       return _sqlRepository.GetDataCollection(Sql, null);
+                return _sqlRepository.GetDataCollection(Sql, null);
             }
             catch (Exception ex)
             {
@@ -263,7 +263,7 @@ left join org.Line LL on LL.Id	= MB.LineId
             try
             {
                 var sql = "SELECT EmployeeCode as Code,SystemID as Value,EmployeeName as Text,CellPhnNo FROM dbo.EmployeeInformation " +
-                    "where EmployeeStatus = 'Active' and GroupID='" + GpId + "' and CompanyId='" + CompId + "' and PlantId='" + PlantId + "'";
+                    "where EmployeeStatus = 'Active' and PlantId='" + PlantId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -290,7 +290,7 @@ left join org.Line LL on LL.Id	= MB.LineId
                 , (SELECT UserName FROM[HKP].[Designation] WHERE Id = PRD.DesignationId) AS[Designation]
                 FROM[MST].[ManpowerBudget] AS PMB INNER JOIN ORG.Entity AS ERD ON PMB.EntityId = ERD.Id
                 INNER JOIN ORG.Position AS PRD ON PMB.PositionId = PRD.Id
-                WHERE PMB.Active = 1 AND PMB.Archive = 0 AND ERD.CompanyGroupId = '" + GpId + "' AND ERD.CompanyId = '" + CompId + "' AND ERD.PlantId = '" + PlantId + "'AND ERD.Active = 1 AND ERD.Archive = 0 AND PMB.Code='" + Code + "'";
+                WHERE PMB.Active = 1 AND PMB.Archive = 0  AND ERD.Active = 1 AND ERD.Archive = 0 AND PMB.Code='" + Code + "'";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -623,13 +623,13 @@ left join org.Line LL on LL.Id	= MB.LineId
             }
         }
 
-        public IEnumerable<object> GetBudgetCode(string GpId, string CompId,string PlntId)
+        public IEnumerable<object> GetBudgetCode(string GpId, string CompId, string PlntId)
         {
             try
             {
                 var sql = @"SELECT distinct M.Code FROM MST.ManpowerBudget M
                         join org.Entity en on en.Id = M.EntityId
-                        where m.Active='1' AND M.Archive='0' and M.CompanyId='"+CompId+"' AND M.CompanyGroupId='"+GpId+"' and en.PlantId = '"+PlntId+"'";
+                        where m.Active='1' AND M.Archive='0' and en.PlantId = '" + PlntId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
 
             }

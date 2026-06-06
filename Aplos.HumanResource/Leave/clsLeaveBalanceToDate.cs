@@ -1904,7 +1904,7 @@ DEPT.UserName AS Department,ct.UserName AS EmployeeCategory, A.LeaveName,A.DaysC
                                                         LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
                                                         LEFT JOIN LeavePolicyDetail AS lp ON lp.LPMSystemID=dmc.LeavePolicyMasterId AND s.LeaveTypeId=lp.LTSystemID
                                                         where CalanderYearId='" + calYearId + @"' and S.EmployeeId ='" + EmployeeSystemId + @"' AND lp.EncashmentBasis='CalanderYear') els
-										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId
+										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId AND lt.Code ='CL'
                                         LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
 
@@ -1935,7 +1935,8 @@ DEPT.UserName AS Department,ct.UserName AS EmployeeCategory, A.LeaveName,A.DaysC
 																 (--w
 																 select LeavePolicyMasterId from 
 																		 (SELECT DC.LeavePolicyMasterId,dm.DesignationId FROM MST.DesignationMaster DM
-																										LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
+																		 LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
+                                                                           where dc.plantid=(select plantid  from dbo.EmployeeInformation where SystemId='" + EmployeeSystemId + @"')
 																		 ) dm where dm.DesignationId =(select givendesignationId from dbo.EmployeeInformation where SystemId='" + EmployeeSystemId + @"')
 																	)--w
                                                  ) ltd on ltd.LTSystemID = lt.Id
@@ -1986,7 +1987,7 @@ else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2)),0)
  select A.LeaveYearId CalanderYearID,0 IsExceptionAllowed,a.Id SystemID,A.LeaveTypeId LTSystemID,A.EmployeeId EmployeeID,lt.UserName LeaveName, lt.Description LeaveDescription,lt.LeaveType
  ,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate,A.Opening 
  from dbo.AnnualLeaveDataCurrent A
-										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn' AND Code='PL'
 										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
 										  Where LY.FromDate between'" + _FromDate + @"' AND '" + _ToDate + @"' 
 										  AND LY.ToDate between'" + _FromDate + @"' AND '" + _ToDate + @"'
@@ -1994,7 +1995,7 @@ else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2)),0)
 										  ) A  
 LEFT JOIN (
 select A.EmployeeId,A.LeaveTypeId,lt.UserName LeaveName,A.CarryForward from dbo.AnnualLeaveDataPast A
-										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn' AND Code='PL'
                                         LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
 										 Where LY.FromDate between '" + _LFromDate + @"' AND '" + _LToDate + @"' 
 										  AND LY.ToDate between '" + _LFromDate + @"' AND '" + _LToDate + @"' AND A.EmployeeId='" + EmployeeSystemId + @"')B ON B.EmployeeId=A.EmployeeId  AND A.LTSystemID=B.LeaveTypeId
@@ -2006,6 +2007,7 @@ left outer join (select ltd.* from dbo.LeavePolicyDetail ltd
 																		 (
 																			SELECT DC.LeavePolicyMasterId,dm.DesignationId FROM MST.DesignationMaster DM
 																			LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
+                                                                            where dc.plantid=(select plantid  from dbo.EmployeeInformation where SystemId='" + EmployeeSystemId + @"')
 																		 ) dm where dm.DesignationId =(select givendesignationId  from dbo.EmployeeInformation where SystemId='" + EmployeeSystemId + @"')
 																	)--w
                                                  ) ltd on ltd.LTSystemID = A.LTSystemID
@@ -2146,7 +2148,7 @@ ELSE CONVERT(BIT,0) END  ---No
                                                         LEFT JOIN LeavePolicyDetail AS lp ON lp.LPMSystemID=dmc.LeavePolicyMasterId AND s.LeaveTypeId=lp.LTSystemID
                                                         where CalanderYearId='" + calYearId + @"' and S.EmployeeId ='" + EmployeeSystemId + @"' AND lp.EncashmentBasis='CalanderYear'
 														) els
-										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId
+										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId AND lt.Code ='CL'
         LEFT JOIN (Select Sum(LTD.LeaveDuration) Rejected,LT.EmpSystemId,LT.LTSystemID  from LeaveTransaction LT
                                                             Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
                                                             Where WorkDate between '" + _FromDate + @"' AND '" + _ToDate + @"' AND IsCancel=1
@@ -2180,8 +2182,8 @@ ELSE CONVERT(BIT,0) END  ---No
 																 select LeavePolicyMasterId from 
 																		 (
 																				SELECT DC.LeavePolicyMasterId,dm.DesignationId FROM MST.DesignationMaster DM
-																										LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
-
+																				LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
+                                                                                where dc.plantid=(select plantid  from dbo.EmployeeInformation where SystemId='" + EmployeeSystemId + @"')
 																		 ) dm where dm.DesignationId =(select givendesignationId from dbo.EmployeeInformation where SystemId='" + EmployeeSystemId + @"')
 																	)--w
                                                  ) ltd on ltd.LTSystemID = lt.Id
@@ -2216,14 +2218,14 @@ else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2)),0)
  select A.LeaveYearId CalanderYearID,0 IsExceptionAllowed,a.Id SystemID,A.LeaveTypeId LTSystemID,A.EmployeeId EmployeeID,lt.UserName LeaveName, lt.Description LeaveDescription,lt.LeaveType
  ,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate,A.Opening 
  from dbo.AnnualLeaveDataCurrent A
-										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn' AND Code='PL'
 										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
 										  Where LY.FromDate between'" + _FromDate + @"' AND '" + _ToDate + @"' 
 										  AND LY.ToDate between'" + _FromDate + @"' AND '" + _ToDate + @"'
 										  ) A  
 LEFT JOIN (
 select BroughtForward=CASE WHEN A.Adjustment=0 THEN A.Opening ELSE A.Adjustment END,A.EmployeeId,A.LeaveTypeId,lt.UserName LeaveName,A.CarryForward from dbo.AnnualLeaveDataPast A
-										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn' AND Code='PL'
                                         LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
 										  Where LY.FromDate between '" + _LFromDate + @"' AND '" + _LToDate + @"' 
 										  AND LY.ToDate between '" + _LFromDate + @"' AND '" + _LToDate + @"')B ON B.EmployeeId=A.EmployeeId  AND A.LTSystemID=B.LeaveTypeId
@@ -2235,6 +2237,7 @@ left outer join (select ltd.* from dbo.LeavePolicyDetail ltd
 																		 (
 																			SELECT DC.LeavePolicyMasterId,dm.DesignationId FROM MST.DesignationMaster DM
 																			LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
+                                                                            where dc.plantid=(select plantid  from dbo.EmployeeInformation where SystemId='" + EmployeeSystemId + @"')
 																		 ) dm where dm.DesignationId =(select givendesignationId  from dbo.EmployeeInformation where SystemId='" + EmployeeSystemId + @"')
 																	)--w
                                                  ) ltd on ltd.LTSystemID = A.LTSystemID

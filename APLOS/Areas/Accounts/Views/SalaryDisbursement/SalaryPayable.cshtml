@@ -476,6 +476,7 @@
                             <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetSalaryPayableVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                             <li>@*<a class="btn btn-action" href="Accounts/SalaryDisbursement/GetEmployeeSalaryProcessedReportSalaryLogWiseInVoucher?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a>*@</li>
                             <li><a class="btn btn-action" ng-click="GetEmployeeSalaryProcessedReportSalaryLogWiseInVoucher(x);"><i class="fa fa-file-excel-o"></i></a></li>
+                            <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetSalaryPayableVoucherOtherGLReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                         </ul>
                     </td>
                 </tr>

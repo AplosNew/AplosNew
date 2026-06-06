@@ -367,7 +367,7 @@ Where PT.EntityId='" + EntityId + @"' AND PT.BaseProcessId='" + ProcessId + @"'
 							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
 							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
 
-WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
+WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -1018,7 +1018,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
         {
             try
             {
-                string sql = @"SELECT BTD.Id,BTD.ProductionBulletinTemplateMasterId,BTD.Sequence,BTD.OperationVariationId,BTD.OperationGroup,BTD.SkillMasterId,BTD.MachineVarientId,BTD.FGZoneId,BTD.FGComponentId
+                string sql = @"SELECT BTD.Id,BTD.ProductionBulletinTemplateMasterId,BTD.Sequence,BTD.OperationVariationId,BTD.OperationGroup,BTD.SkillMasterId,BTD.MachineVarientId,BTD.FGZoneId,BTD.FGComponentId,BTD.IsLastOperation
                             ,CONVERT(NUMERIC(10,2),BTD.AdditionalSPT) AdditionalSPT, CONVERT(NUMERIC(10,2),BTD.TotalSPT) TotalSPT, CONVERT(NUMERIC(10,2),BTD.AllotedWorkstation) AllotedWorkstation
                             , CONVERT(NUMERIC(10,2),BTD.AllotedManpower) AllotedManpower, BTD.AttachmentId,BTD.GaugeFolderId,BTD.OperationConsumptionId,BTD.OperationTypeId,CONVERT(NUMERIC(10,2),BTD.Frequency) Frequency
                             ,BTD.Remark,BTD.OperationCategoryId,BTD.QualityLevel,CONVERT(NUMERIC(10,2),BTD.AvgAllotedTime) AvgAllotedTime,CONVERT(NUMERIC(10,0),BTD.OperationTargetPerHr) OperationTargetPerHr
@@ -1660,6 +1660,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                             dr["NeedleConsumption"] = item.NeedleConsumption;
                             dr["BobbinConsumption"] = item.BobbinConsumption;
                             dr["LooperConsumption"] = item.LooperConsumption;
+                            dr["IsLastOperation"] = item.IsLastOperation;
 
                             dr["AddedBy"] = identity.Name;
                             dr["AddedDate"] = DateTime.Now;
@@ -1733,7 +1734,7 @@ WHERE  " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                             dr["NeedleConsumption"] = item.NeedleConsumption;
                             dr["BobbinConsumption"] = item.BobbinConsumption;
                             dr["LooperConsumption"] = item.LooperConsumption;
-
+                            dr["IsLastOperation"] = item.IsLastOperation;
                             dr["UpdatedBy"] = identity.Name;
                             dr["UpdatedDate"] = DateTime.Now.ToString();
                             dr["UpdatedFromIp"] = identity.IPAddress;

@@ -53,7 +53,7 @@ namespace Aplos.Areas.Securities.Controllers
                 sql = @"SELECT P.CompanyId, P.Id AS PlantId, P.Code, P.UserName AS PlantName FROM [ORG].[Plant] AS P WHERE P.CompanyGroupId='" + identity.CompanyGroupId + "' AND P.CompanyId='" + identity.CompanyId + "' AND P.Active=1 AND P.Archive=0";
             else
                 sql = @"SELECT A.CompanyId, A.PlantId, P.Code, P.UserName AS PlantName FROM [SEC].[UserAccessPlant] AS A
-                            JOIN [ORG].[Plant] AS P ON A.PlantId=P.Id WHERE A.Active=1 AND A.CompanyGroupId='" + identity.CompanyGroupId + "' AND A.UserId='" + identity.UserId + "'";
+                            JOIN [ORG].[Plant] AS P ON A.PlantId=P.Id WHERE A.Active=1 AND A.CompanyGroupId='" + identity.CompanyGroupId + "' AND A.CompanyId='" + identity.CompanyId + "' AND A.UserId='" + identity.UserId + "'";
 
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

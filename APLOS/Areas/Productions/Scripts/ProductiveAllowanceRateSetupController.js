@@ -902,6 +902,85 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
         $scope.ModelNeweet = Object.assign({}, $scope.ModelTemp);
     }
 
+    // Getting the Order Size MasterData start
+
+    $scope.orderSizeObj = {
+        Id: null,
+        Days: null,
+        Basic: null,
+        Critical: null,
+        SemiCritical: null,
+        Special: null,
+        Remark: null
+    };
+
+    $scope.orderSizeList = [];
+    $scope.getOrderSizeAllowance = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getOrderSizeAllowanceData",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.orderSizeList = response.data;
+        });
+    }
+    $scope.getOrderSizeAllowance();
+
+    $scope.GetOrderSize = function (args) {
+
+        $scope.orderSizeObj = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+    //$scope.getRsHeaderGrid = function (e) {
+    //    var processArr = e.data.Processes.split(',');
+    //    var entityArr = e.data.Entity.split(',');
+
+    //    var Prs = $("#selProcessrs").data("ejDropDownList").selectItemByText(processArr);
+    //    var Ers = $("#selEntityrs").data("ejDropDownList").selectItemByText(entityArr);
+    //    Object.assign($scope.orderSizeObj, e.data);
+    //    if (!$rootScope.isCollapsed) {
+    //        $rootScope.toggle();
+    //    }
+
+    //}
+
+    $scope.SaveOrderSize = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "saveOrderSizeAllowance",
+            data: {
+                'Data': $scope.orderSizeObj,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+
+            if (response.data.Error == "No") {
+                ShowResult(response.data.Msg, 'success');
+                Object.assign($scope.orderSizeObj, response.data.Data);
+                $scope.getOrderSizeAllowance();
+            }
+            else {
+                ShowResult(response.data.Msg, 'failure');
+            }
+        });
+    }
+
+    $scope.clearOrderSize = function () {
+        $scope.orderSizeObj = {
+            Id: null,
+            Days: null,
+            Basic: null,
+            Critical: null,
+            SemiCritical: null,
+            Special: null,
+            Remark: null
+        };
+        $scope.Action = 'Save';
+
+    }
 }
 
 //-----------------------------------------------------------------------------------

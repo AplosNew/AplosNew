@@ -85,6 +85,9 @@
                         <select name="Size Group" class="form-control" ng-model="bulletinTemplateNew.SizeGroupId" ng-options="item.Value as item.Text for item in sizeGroupList" tabindex="5" required>
                             <option value="">--Select--</option>
                         </select>
+                        @*<input ej-dropdownlist e-enablefiltersearch="true" allow-paging="true" allow-Adding="true" allow-Editing="true"
+                            e-datasource="sizeGroupList" e-value="bulletinTemplateNew.SizeGroupId" e-fields-value="Value" toolbar-Settings="toolbarItems" edit-Settings="editSettings"
+                            e-fields-text="Text" e-width="100%" />*@
                     </div>
                 </div>
             </div>
@@ -123,6 +126,10 @@
                         <select name="Product Master" class="form-control" ng-model="bulletinTemplateNew.ProductMasterId" ng-options="item.Value as item.Text for item in productMasterList" tabindex="4" required>
                             <option value="">--Select--</option>
                         </select>
+
+                        @*<input ej-dropdownlist e-enablefiltersearch="true" allow-paging="true" allow-Adding="true" allow-Editing="true"
+                            e-datasource="productMasterList" e-value="bulletinTemplateNew.ProductMasterId" e-fields-value="Value" toolbar-Settings="toolbarItems" edit-Settings="editSettings"
+                            e-fields-text="Text" e-width="100%" />*@
                     </div>
                 </div>
             </div>
@@ -291,9 +298,9 @@
                             <div e-column e-template="#Quality" e-headertext="Quality Level" e-width="40" style="height: 20px;"></div>
 
                             @*<div e-column e-template="#SPI" e-headertext="SPI" e-width="50" style="height: 20px;"></div>
-        <div e-column e-template="#NoOfStitch" e-headertext="No Of Rows" e-width="50" style="height: 20px;"></div>
-        <div e-column e-template="#OperationLength" e-headertext="Operation Length-cm" e-width="50" style="height: 20px;"></div>
-        <div e-column e-template="#FabWdth" e-headertext="Fabric Width-inch" e-width="50" style="height: 20px;"></div>*@
+                                <div e-column e-template="#NoOfStitch" e-headertext="No Of Rows" e-width="50" style="height: 20px;"></div>
+                                <div e-column e-template="#OperationLength" e-headertext="Operation Length-cm" e-width="50" style="height: 20px;"></div>
+                                <div e-column e-template="#FabWdth" e-headertext="Fabric Width-inch" e-width="50" style="height: 20px;"></div>*@
                             @*<div e-column e-template="#StitchCode" e-headertext="Stitch Code" e-width="80" style="height: 20px;"></div>*@
                             <div e-column e-template="#Frequency" e-headertext="Frequency" e-width="40" style="height: 20px;"></div>
 
@@ -324,8 +331,8 @@
                     </script>
                     <script type="text/template" id="OperationCategory">
                         @*<div class="col-sm-10" style="padding:0px; width:90px;margin:-12px;">
-                <input ej-dropdownlist e-datasource="$parent.OperationCategoryList" e-value="data.OperationCategoryId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
-            </div>*@
+                                <input ej-dropdownlist e-datasource="$parent.OperationCategoryList" e-value="data.OperationCategoryId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                            </div>*@
                         <div class="select-style">
                             <select class="form-control" ng-model="data.OperationCategoryId" name="Operation Category">
                                 <option value="">--Select--</option>

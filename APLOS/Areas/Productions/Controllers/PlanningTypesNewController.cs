@@ -170,7 +170,7 @@ namespace Aplos.Areas.Productions.Controllers
 							    	,E.EmailId
 							    	,E.EmpType
 							    	,E.GivenDesignationId
-									,EC.Id EmployeeCategoryId
+									--,EC.Id EmployeeCategoryId
 							    	,EN.UserName EntityName
 							    	,D.UserName Designation
 							    	,GD.UserName GivenDesignation

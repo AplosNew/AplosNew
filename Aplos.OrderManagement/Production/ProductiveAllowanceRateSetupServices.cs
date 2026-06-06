@@ -617,7 +617,98 @@ namespace Library.OrderManagement.Production
 
         #endregion RateSetup
 
+        #region --OrderSizeAllowance
+        public IEnumerable<object> getOrderSizeAllowanceData()
+        {
+            try
+            {
+                var str = @"Select * from  [dbo].[OrderSizeAllowance] ";
 
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public Dictionary<string, string> saveOrderSizeAlw(Dictionary<string, string> headerData)
+        {
+            try
+            {
+                //Master Table - Wastw-Transaction
+                string TableName = "[dbo].[OrderSizeAllowance]";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                //if( cl headerData["Id"])
+
+                //con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id <> '" + headerData["Id"] + "' ", out dsMaster, false, "1");
+                //if (dsMaster.Tables[0].Rows.Count > 0)
+                //{
+                //    throw new Exception("Same UserName is already there!!");
+                //}
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id = '" + headerData["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master Upload
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                bplib.clsGenID genid = new bplib.clsGenID();
+
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                    dr.BeginEdit();
+                    dr["Days"] = headerData["Days"];
+                    dr["Basic"] = headerData["Basic"];
+                    dr["SemiCritical"] = headerData["SemiCritical"];
+                    dr["Critical"] = headerData["Critical"];
+                    dr["Special"] = headerData["Special"];
+                    dr["Remark"] = headerData["Remark"];
+                    dr.EndEdit();
+                }
+                else
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+                    genid.GenID("dbo.OrderSizeAllowance", out _Id);
+                    headerData["Id"] = _Id;
+                    dr["Id"] = _Id;
+                    dr["Days"] = headerData["Days"];
+                    dr["Basic"] = headerData["Basic"];
+                    dr["SemiCritical"] = headerData["SemiCritical"];
+                    dr["Critical"] = headerData["Critical"];
+                    dr["Special"] = headerData["Special"];
+                    dr["Remark"] = headerData["Remark"];
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+
+
+
+                #endregion data Master Upload
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return headerData;
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+
+        #endregion
     }
 
     #region SpecialOperationService

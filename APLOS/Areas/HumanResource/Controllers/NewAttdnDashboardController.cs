@@ -35,10 +35,10 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetGroupWiseCompanyList(string date, string stat, string EmpCat, string EmpStat, string EmpShift)
+        public ActionResult GetGroupWiseCompanyList(string date, string stat, string EmpCat, string EmpStat, string EmpShift, bool pv)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var data = na.GroupWiseCompanyList(identity.CompanyGroupId, date, stat, EmpCat, EmpStat , EmpShift);
+            var data = na.GroupWiseCompanyList(identity.CompanyGroupId, date, stat, EmpCat, EmpStat , EmpShift,pv);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
@@ -65,10 +65,10 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult DetailTableClick(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat,string EmpShift)
+        public ActionResult DetailTableClick(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat,string EmpShift, bool pv)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var JsonData = Json(na.DetailTableClick(ChartColumnList, seq, date, identity.CompanyGroupId, Column, data, stat, EmpCat, EmpStat, EmpShift), JsonRequestBehavior.AllowGet); ;
+            var JsonData = Json(na.DetailTableClick(ChartColumnList, seq, date, identity.CompanyGroupId, Column, data, stat, EmpCat, EmpStat, EmpShift,pv), JsonRequestBehavior.AllowGet); ;
             JsonData.MaxJsonLength = int.MaxValue;
             return JsonData;
         }

@@ -59,11 +59,10 @@ namespace Aplos.Areas.Materials.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT UM.*,P.UserName PartyName, ei.EmployeeName ResponsiblePersonName,IPS.UserName InPutSource
+            string sql = @"select top 100 * from (SELECT UM.*,P.UserName PartyName, ei.EmployeeName ResponsiblePersonName
                         FROM [dbo].[UtilityMaster] UM
                         LEFT JOIN HKP.Party AS p ON P.Id=UM.PartyId
-                        LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=UM.ResponsiblePersonId
-						LEFT JOIN [dbo].[UtilityMaster] IPS ON IPS.Id=UM.InPutSourceId) AS TEMP WHERE " + strkey + " order by sequence";
+                        LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=UM.ResponsiblePersonId) AS TEMP WHERE " + strkey + " order by sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -76,10 +75,12 @@ namespace Aplos.Areas.Materials.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT UM.*,P.UserName PartyName, ei.EmployeeName ResponsiblePersonName
+            string sql = @"select top 100 * from (SELECT CAST(0 as bit) Flag,UM.*,P.UserName PartyName, ei.EmployeeName ResponsiblePersonName
                         FROM [dbo].[UtilityMaster] UM
                         LEFT JOIN HKP.Party AS p ON P.Id=UM.PartyId
-                        LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=UM.ResponsiblePersonId Where UM.Id<>'"+ UtilityMasterId + @"') AS TEMP WHERE " + strkey + " order by sequence";
+                        LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=UM.ResponsiblePersonId Where UM.Id<>'"+ UtilityMasterId + @"'
+                        AND UM.Id NOT IN(Select InPutSourceId from [dbo].[UtilityMasterInPutSource] Where UtilityMasterId='" + UtilityMasterId + @"')
+                        AND UM.Active=1) AS TEMP WHERE " + strkey + " order by sequence";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -573,6 +574,117 @@ left join SCS.WorkCenterMaster AS wcm ON wcm.Id = MMA.WorkCenterMasterId where A
             {
                 throw ex;
             }
+        }
+
+
+        [HttpPost, Authorize]
+        public JsonResult CreateIPS(List<Dictionary<string, object>> assets)
+        {
+            try
+            {
+                SaveIPSData(assets);
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+        }
+
+
+        private void SaveIPSData(List<Dictionary<string, object>> data)
+        {
+            try
+            {
+                string _Id = "";
+                if (data != null)
+                {
+                    DataSet dsMaster;
+                   
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.UtilityMasterInPutSource", out dsMaster, false, "1");
+                    int idcount = 0;
+                    foreach (var item in data)
+                    {
+
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                           
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpPost,Authorize]
+        public ActionResult DeleteIPS(string id)
+        {
+            DeleteIPSData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+
+        public void DeleteIPSData(string id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+
+                strSQL = "DELETE FROM [dbo].[UtilityMasterInPutSource] WHERE Id = '" + id + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
+
+        [HttpPost, Authorize]
+        public ActionResult GetIPSData(string UtilityMasterId)
+        {
+            string sql = @"Select I.*,U.Sequence,U.Code,U.ShortName,U.StandardName,U.UserName,U.Active from [dbo].[UtilityMasterInPutSource] I
+LEFT JOIN [dbo].[UtilityMaster] U ON U.Id=I.InPutSourceId where I.UtilityMasterId ='" + UtilityMasterId + @"'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
     }

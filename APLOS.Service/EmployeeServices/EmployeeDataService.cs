@@ -123,61 +123,64 @@ namespace Library.Service.EmployeeServices
                 DataSet dsMaster;
                 string TableName = "dbo.EmpServiceData";
 
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                if (DataToSave.Count() == 0)
+                ConnectionManager.DAL.ConManager con =
+                    new ConnectionManager.DAL.ConManager("1");
+
+                if (DataToSave == null || !DataToSave.Any())
                     return "";
 
                 List<EmployeeData> items = DataToSave.ToList();
 
+                // Empty structure only
+                con.OpenDataSetThroughAdapter(
+                    "select * from " + TableName + " where 1=2",
+                    out dsMaster,
+                    false,
+                    "1");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+                string lastInsertedId = "";
 
-                string _Id = "";
-
-                foreach (EmployeeData item in DataToSave)
+                foreach (EmployeeData item in items)
                 {
-                    if (dsMaster.Tables[0].Rows.Count == 0 && items[0].Id == null)
-                    {
-                        DataRow dr = dsMaster.Tables[0].NewRow();
+                    DataRow dr = dsMaster.Tables[0].NewRow();
 
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableName, out _Id);
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    string _Id = "";
 
-                        dr["Id"] = "ED" + _Id;
-                        dr["EmployeeId"] = item.EmployeeId;
-                        dr["Date"] = item.Date;
-                        dr["Time"] = item.Time;
-                        dr["ShiftId"] = item.ShiftId;
-                        dr["EmployeeServiceCategoryId"] = item.EmployeeServiceCategoryId;
-                        dr["Chargeable"] = item.Chargeable;
-                        dr["IsProcessed"] = false;
-                        dr["From"] = item.From;
-                        dr["To"] = item.To;
-                        dr["Quantity"] = item.Quantity;
-                        dr["Particulars"] = item.Particulars;
-                        dr["BillOtherReferenceNo"] = item.BillOtherReferenceNo;
-                        dr["Amount"] = item.Amount;
+                    genid.GenID(TableName, out _Id);
 
-                        dr["AddedBy"] = item.AddedBy;
-                        dr["AddedDate"] = DateTime.Now.ToString();
-                        dr["AddedFromIP"] = item.AddedFromIP;
+                    lastInsertedId = "ED" + _Id;
 
-                        dsMaster.Tables[0].Rows.Add(dr);
-                    }
+                    dr["Id"] = lastInsertedId;
+                    dr["EmployeeId"] = item.EmployeeId;
+                    dr["Date"] = item.Date;
+                    dr["Time"] = item.Time;
+                    dr["ShiftId"] = item.ShiftId;
+                    dr["EmployeeServiceCategoryId"] = item.EmployeeServiceCategoryId;
+                    dr["Chargeable"] = item.Chargeable;
+                    dr["IsProcessed"] = false;
+                    dr["From"] = item.From;
+                    dr["To"] = item.To;
+                    dr["Quantity"] = item.Quantity;
+                    dr["Particulars"] = item.Particulars;
+                    dr["BillOtherReferenceNo"] = item.BillOtherReferenceNo;
+                    dr["Amount"] = item.Amount;
 
+                    dr["AddedBy"] = item.AddedBy;
+                    dr["AddedDate"] = DateTime.Now.ToString();
+                    dr["AddedFromIP"] = item.AddedFromIP;
+
+                    dsMaster.Tables[0].Rows.Add(dr);
                 }
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-                return MasterId;
 
-
+                return lastInsertedId;
             }
-
             catch (Exception ex)
             {
-                throw (ex);
+                throw;
             }
         }
 

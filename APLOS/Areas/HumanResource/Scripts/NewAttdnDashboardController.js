@@ -1,5 +1,5 @@
 ﻿'use strict';
-NewAttdnDashboardController.$inject = ['cboService', '$scope', '$rootScope', '$routeParams', 'baseService', '$http', '$filter','$window'];
+NewAttdnDashboardController.$inject = ['cboService', '$scope', '$rootScope', '$routeParams', 'baseService', '$http', '$filter', '$window'];
 function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParams, baseService, $http, $filter, $window) {
 
     $scope.Title = "Daily In Status";
@@ -18,6 +18,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
     $scope.Stat = "All";
     $scope.EmpCat = null;
     $scope.EmpShift = null;
+    $scope.PhysicalVerification = false;
 
     $scope.docEmployeeCategoryList = [];
     cboService.getCboEmployeeCategoryGroupByCompanyGroup(null, function (result) {
@@ -56,6 +57,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                 'EmpCat': $scope.EmpCat,
                 'EmpStat': $scope.EmpStat,
                 'EmpShift': $scope.EmpShift,
+                'pv': $scope.PhysicalVerification
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -101,7 +103,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
         }
     };
 
-    
+
 
     function getDrillDownList(companyId) {
         $http({
@@ -279,6 +281,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
 
 
 
+
     $scope.dFunction = function () {
         $scope.clickCount = 0;
         $http({
@@ -286,7 +289,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
             url: 'NewAttdnDashboard/GetGroupWiseCompanyList/',
             data: {
                 'date': $scope.Date, 'stat': $scope.Stat,
-                'EmpCat': $scope.EmpCat, 'EmpStat': $scope.EmpStat, 'EmpShift': $scope.EmpShift,
+                'EmpCat': $scope.EmpCat, 'EmpStat': $scope.EmpStat, 'EmpShift': $scope.EmpShift, 'pv': $scope.PhysicalVerification
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -313,7 +316,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                 url: 'NewAttdnDashboard/GetGroupWiseCompanyList/',
                 data: {
                     'date': $scope.Date, 'stat': $scope.Stat,
-                    'EmpCat': $scope.EmpCat, 'EmpStat': $scope.EmpStat, 'EmpShift': $scope.EmpShift,
+                    'EmpCat': $scope.EmpCat, 'EmpStat': $scope.EmpStat, 'EmpShift': $scope.EmpShift, 'pv': $scope.PhysicalVerification
                 },
 
                 dataType: 'JSON'
@@ -389,6 +392,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                 'EmpCat': $scope.EmpCat,
                 'EmpStat': $scope.EmpStat,
                 'EmpShift': $scope.EmpShift,
+                'pv': $scope.PhysicalVerification
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {

@@ -1,0 +1,101 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Employee Wise Production Report</h3>
+<div class="form-elements form-horizontal" ng-form name="ProductionRelayForm">
+
+    <div class="row">
+        <div class="form-control">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors id="div_FromDate">
+                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-9 show-message">
+                        <input type="text" name="From Date" ng-model="fromDate" datepicker class="form-control" required tabindex="5">
+                    </div>
+                </div>
+
+                <div class="form-group" show-errors>
+                    <label class="col-sm-3 control-label">Entity<sup>*</sup></label>
+                    <div class="col-sm-9 show-message">
+                        <div class="select-style">
+                            <select id="entityId" class="form-control" name="Entity" ng-model="EntityId" tabindex="7" ng-change="getProcess();getWkC();" required>
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Process</label>
+                    <div class="col-sm-9 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="ProcessId" name="Process" ng-change="getWkC();GetShiftList();"
+                                    ng-options="item.Value as item.Text for item in ProcessList">
+                                <option value="">--Select--</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Shift</label>
+                    <div class="col-sm-9 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="shiftId" name="Shift"
+                                    ng-options="item.Value as item.Text for item in ShiftList">
+                                <option value="">--Select--</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors id="div_ToDate">
+                    <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-9 show-message">
+                        <input type="text" name="To Date" ng-model="toDate" datepicker class="form-control" required tabindex="6">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-3 control-label">Incentive Type <sup>*</sup></label>
+                    <div class="col-sm-9 show-message">
+                        <div class="select-style">
+                            <select name="Planning Type Process" ng-model="IncentiveType" class="col-sm-3 form-control"
+                                    ng-options="item.Text as item.Text for item in IncentiveTypeList">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Work Center</label>
+                    <div class="col-sm-9 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="workCenterId" name="WorkCenter"
+                                    ng-options="item.Value as item.Text for item in workCenterList">
+                                <option value="">--Select--</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Day Status</label>
+                    <div class="col-sm-9 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="dayStatus" name="dayStatus"
+                                    ng-options="item.Value as item.Text for item in dayStatusList">
+                                <option value="">--Select--</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button ng-click="EmployeeWiseProductionSummary();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download Summary</button></li>
+                    <li><button ng-click="EmployeeWiseProductionReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download Detail</button></li>
+                    <li><button ng-click="EfficencyIncentiveReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download EfficencyIncentive</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>

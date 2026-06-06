@@ -274,6 +274,151 @@ namespace Aplos.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, AllowAnonymous]
+        public JsonResult _Login(
+    string timezoneoffset,
+    string userId,
+    string password,
+    string remember,
+    string authToken,
+    string groupId,
+    string groupName,
+    string companyId,
+    string companyName,
+    string plantId)
+        {
+            var http = System.Web.HttpContext.Current;
+            bool isRemember = !string.IsNullOrWhiteSpace(remember) && remember == "on";
+
+            string ip = AccessInfo.GetWorkstationIP(http);
+            dynamic location = AccessInfo.GetLocation(ip);
+
+            // Fallback location if API fails
+            if (location == null)
+            {
+                location = new
+                {
+                    country_code = "",
+                    country_name = "",
+                    region_code = "",
+                    region_name = "",
+                    city = "",
+                    latitude = "",
+                    longitude = "",
+                    time_zone = "",
+                    zip_code = ""
+                };
+            }
+
+            // ==============================
+            // 🌍 TIMEZONE FIX (IMPORTANT)
+            // ==============================
+            DateTime utcNow = DateTime.UtcNow;
+            DateTime userLocalTime = utcNow;
+            int offsetMinutes = 0;
+
+            if (!string.IsNullOrEmpty(timezoneoffset))
+            {
+                int.TryParse(timezoneoffset, out offsetMinutes);
+
+                // JS offset is reversed sign
+                // Bangladesh sends -360 → we add +360
+                userLocalTime = utcNow.AddMinutes(-offsetMinutes);
+
+                // Save in session for future use
+                HttpContext.Session["timezoneoffset"] = offsetMinutes;
+            }
+
+            // ==============================
+            // 🔐 LOGIN PROCESS
+            // ==============================
+            var result = _userService.ApplicationPanelLogin(authToken, groupId, companyId, userId, password);
+
+            if (result["Status"].ToString() == "Success")
+            {
+                var employeeId = result["EmployeeId"]?.ToString();
+
+                SetAuthentication(
+                    result["Id"].ToString(),
+                    userId,
+                    result["UserFullName"].ToString(),
+                    isRemember,
+                    ip,
+                    authToken,
+                    groupId,
+                    groupName,
+                    Convert.ToBoolean(result["ConcurrentUser"]),
+                    companyId,
+                    companyName,
+                    Convert.ToBoolean(result["IsSysAdmin"]),
+                    true,
+                    employeeId,
+                    null,
+                    null,
+                    result);
+            }
+
+            // ==============================
+            // 🏢 COMPANY INFO
+            // ==============================
+            string sql = $"SELECT * FROM ORg.Company WHERE Id='{companyId}'";
+            DataTable dtCompany = _sqlrepository.GetDataTable(sql);
+
+            result.Add("CompanyFullName", dtCompany.Rows[0]["UserName"].ToString());
+            result.Add("CompanyImage", dtCompany.Rows[0]["Image"].ToString());
+
+            // ==============================
+            // 📝 ACCESS LOG (FIXED)
+            // ==============================
+            try
+            {
+                AccessLog al = new AccessLog();
+                al.Id = userId + DateTime.UtcNow.Ticks.ToString();
+
+                // ✔ Always store UTC
+                al.AccessTime = utcNow;
+
+                // ✔ Store user's real local time
+                //al.LocalAccessTime = userLocalTime;
+
+                // ✔ Store offset separately
+                //al.TimeZoneOffsetMinutes = offsetMinutes;
+
+                al.Browser = AccessInfo.GetBrowserName(http);
+                al.OS = AccessInfo.GetOS(http);
+                al.UserAgent = HttpContext.Request.UserAgent;
+                al.UserId = userId;
+                al.WorkStationIP = ip;
+                al.WorkStationName = AccessInfo.GetWorkstationName(ip);
+
+                al.CountryCode = Convert.ToString(location.country_code);
+                al.CountryName = Convert.ToString(location.country_name);
+                al.RegionCode = Convert.ToString(location.region_code);
+                al.RegionName = Convert.ToString(location.region_name);
+                al.City = Convert.ToString(location.city);
+                al.Latitude = Convert.ToString(location.latitude);
+                al.Longitude = Convert.ToString(location.longitude);
+                al.TimeZone = Convert.ToString(location.time_zone);
+                al.ZipCode = Convert.ToString(location.zip_code);
+
+                al.Panel = PanelEnum.uPanel.ToString();
+                al.Status = result["Status"].ToString() == "Success";
+                al.Resistered = al.Status;
+                al.IsCookieEnable = http.Request.Browser.Cookies;
+                al.IsJavascriptEnable = http.Request.Browser.VBScript;
+                al.Dstoffset = http.Request.Browser.Platform;
+
+                clsConnectionManager clsConnection = new clsConnectionManager();
+                clsConnection.getDataSet("SELECT * FROM ACS.AccessLog WHERE 1=2", out DataSet dsAccessLog);
+
+                AddNewRow(dsAccessLog.Tables[0], al);
+                SaveDataSets(dsAccessLog);
+            }
+            catch { }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
         public static PhysicalAddress GetMacAddress()
         {
             var myInterfaceAddress = NetworkInterface.GetAllNetworkInterfaces()

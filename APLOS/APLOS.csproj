@@ -1840,6 +1840,9 @@
     </Compile>
     <Compile Include="Helpers\ExcelResult.cs" />
     <Compile Include="Helpers\XlsIOExtension.cs" />
+    <Compile Include="Reports\HumanResource\Payrolls\PayrollsDataSet.cs">
+      <DependentUpon>PayrollsDataSet.xsd</DependentUpon>
+    </Compile>
     <Compile Include="Reports\HumanResource\Payrolls\PayrollsDataSet.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -1989,6 +1992,10 @@
     <Content Include="Areas\Costings\Scripts\OrderLineCostingItemServiceMasterMappingController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeeBulkUploadFNFController.js" />
     <Content Include="Areas\Employees\Scripts\CasteController.js" />
+    <Content Include="Areas\Employees\Scripts\employeeAttdnTrendReportController.js" />
+    <Content Include="Areas\Employees\Scripts\userfavouriteReportController.js" />
+    <Content Include="Areas\Employees\Scripts\favouriteReportController.js" />
+    <Content Include="Areas\Employees\Scripts\userDefineReportController.js" />
     <Content Include="Areas\Employees\Scripts\updateEmployeeDOSController.js" />
     <Content Include="Areas\FixedAssets\Scripts\assetDisposeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\assetDisposePostController.js" />
@@ -2029,6 +2036,7 @@
     <Content Include="Areas\Payrolls\Scripts\EmployeeSalaryProcessController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanEditController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
+    <Content Include="Areas\Productions\Scripts\EmployeeWiseProductionReportController.js" />
     <Content Include="Areas\Productions\Scripts\MarkerCheckController.js" />
     <Content Include="Areas\Productions\Scripts\MarkerApproveController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionCuttingBookingController.js" />
@@ -3205,6 +3213,8 @@
     <Content Include="Areas\Setups\Scripts\plantSettingController.js" />
     <Content Include="Areas\Setups\Views\HSNTaxPercentageNew\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Scripts\employeeOperationVariationUploadController.js" />
+    <Content Include="Areas\Skills\Scripts\skillPlanningController.js" />
+    <Content Include="Areas\Skills\Scripts\SkillDevelopmentMasterController.js" />
     <Content Include="Areas\TaskManagement\Scripts\EditControlController.js" />
     <Content Include="Areas\TaskManagement\Scripts\TaskCloserMasterController.js" />
     <Content Include="Areas\TaskManagement\Scripts\taskTypeController.js" />
@@ -5105,6 +5115,12 @@
     <Content Include="Areas\Payrolls\Views\EmployeeSalaryRuleSetup\SpecialAllowance.cshtml" />
     <Content Include="Areas\OrderManagements\Views\DispatchMaster\DispatchPlan.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeeInformation\BulkUpload.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionReport\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_OrderSize.cshtml" />
+    <Content Include="Areas\Employees\Views\EmployeeInFoReport\Report.cshtml" />
+    <Content Include="Areas\Employees\Views\EmployeeInFoReport\Trend.cshtml" />
+    <Content Include="Areas\Employees\Views\EmployeeInFoReport\Filter.cshtml" />
+    <Content Include="Areas\Employees\Views\EmployeeInFoReport\UserFilter.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -5294,6 +5310,8 @@
     <Content Include="Areas\QMS\Views\QualityProcess\Defect.cshtml" />
     <Content Include="Areas\QMS\Views\QualityProcess\DefectMarker.cshtml" />
     <Content Include="Areas\TaskManagement\Views\TaskType\Aplos.cshtml" />
+    <Content Include="Areas\Skills\Views\Skill\SkillDevelopmentMaster.cshtml" />
+    <Content Include="Areas\Skills\Views\Skill\Planning.cshtml" />
     <None Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>PayrollsDataSet.Designer.cs</LastGenOutput>

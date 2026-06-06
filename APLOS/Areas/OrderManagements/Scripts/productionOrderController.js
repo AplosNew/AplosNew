@@ -41,6 +41,13 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         }
     }
 
+    $scope.orderLevelList = [
+        { Value: "Basic", Text: "Basic" },
+        { Value: "Critical", Text: "Critical" },
+        { Value: "SemiCritical", Text: "Semi Critical" },
+        { Value: "Special", Text: "Special" }
+    ];
+
     $scope.rowDataBoundOrder = function rowDataBoundOrder(e) {
         try {
             if (e.data.Owner == 'OWN') {
@@ -408,6 +415,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         , UserDefineLotNo: null
         , UsedInPB: false
         , PlanningTypeProcessId: null
+        , OrderLevel: null
     };
     $scope.model = Object.assign({}, $scope.model);
 
@@ -441,7 +449,10 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
             $scope.model.UserDefineLotNo = $scope.model.Id;
         }
-
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
         getProductionRecipeMaterialList();
 
         //$scope.GetBulletinTamplate2ndIndexReport(Row.data.Id);
@@ -451,10 +462,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             $scope.pbookingmessage = "Lot generation is not possible as Production is booked with this Production Order.";
         }
 
-        $scope.Action = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
+
     };
     $scope.Load = function (Row) {
         $scope.TotalSPT = 0;
@@ -527,8 +535,9 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                     $scope.processId = $scope.prdProcessSetList[i].ProcessId;
                     $scope.prdProcessSetList[i].IsProductionVerification = true;
                 }
-                UomCboByFGMaterialMaster($scope.prdProcessSetList[i].MaterialMasterId);
             }
+            const tempMaterialMasterId = $scope.prdProcessSetList.map(x => x.materialMasterId).filter(id => id != null).join(",");
+            UomCboByFGMaterialMaster(tempMaterialMasterId);
 
             getProductionOrderEntityList();
 
@@ -1098,12 +1107,12 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             }
             $scope.prdProcessSetList = response.data;
             for (var i = 0; i < $scope.prdProcessSetList.length; i++) {
-                UomCboByFGMaterialMaster($scope.prdProcessSetList[i].MaterialMasterId);
                 if ($scope.prdProcessSetList[i].Sequence == 1) {
                     $scope.prdProcessSetList[i].IsProductionVerification = true;
                 }
             }
-
+            const tempMaterialMasterId = $scope.prdProcessSetList.map(x => x.materialMasterId).filter(id => id != null).join(",");
+            UomCboByFGMaterialMaster(tempMaterialMasterId);
         });
     }
 
@@ -2826,7 +2835,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                         }
 
                         //$scope.PicFileName = virtualPath.ProductionBulletinImage + $scope.bulletinTemplateNew.PicFileName;
-                        $scope.getProductionBulletinProcess($scope.bulletinTemplateNew.Id);
+                        // $scope.getProductionBulletinProcess($scope.bulletinTemplateNew.Id);
                     }
                     $scope.DisableActionButtons = false;
                 },
@@ -3838,11 +3847,26 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.calculatedBulletinModel = { Id: Math.floor(Math.random() * 9) - 10, TotalSPT: 0, TotalManpower: 0, TotalWorkStation: 0, MCtotalspt: 0, MCtotalMP: 0, NonMCtotalspt: 0, NonMCtotalMP: 0, PitchTime: 0, ProductionEfficiencyPerHour: 0, MaxAllottedTime: 0, ProductionEfficiencyPerDay: 0, OrganizationEfficiency: 0, LineTargetPerHour: 0 };
 
+    $scope.setIsLastOperation = function (data) {
+        for (var i = 0; i <= $scope.operationList.length - 1; i++) {
+            if ($scope.operationList[i].Sequence === data.data.Sequence) {
+                $scope.operationList[i].IsLastOperation = true;
+                break;
+            }
+        }
+    };
+
     $scope.SaveOperation = function () {
         try {
             if (baseService.arrayLength($scope.operationList) < 0) {
                 throw "Select Opearation.";
             }
+
+            var getRow = $filter("filter")($scope.operationList, { "IsLastOperation": true });
+            if (getRow.length == 0) {
+                throw "Please select Last Operation.";
+            }
+
             $scope.calculatedBulletinModel.TotalSPT = $scope.TotalSPT;
             $scope.calculatedBulletinModel.TotalManpower = $scope.TotalManpower;
             $scope.calculatedBulletinModel.TotalWorkStation = $scope.TotalWorkStation;

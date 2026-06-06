@@ -66,7 +66,7 @@ namespace Library.Service.Skills
 		                                        ,SK.[Description]
 		                                        ,SK.Remarks
 		                                        ,SK.Active
-		                                        ,SK.Id,SK.SkillGroupId,SK.OperationApplicable,SK.DashboardApplicable,SG.UserName SkillGroup,SK.OperationActivityId,OA.UserName OperationActivity
+		                                        ,SK.Id,SK.SkillGroupId,SK.OperationApplicable,SK.DashboardApplicable,SG.UserName SkillGroup,SK.OperationActivityId,OA.UserName OperationActivity,Flag=CAST(0 AS BIT)
                                        FROM [" + DbSchema.HKP + @"].[Skill] AS SK
                                        LEFT OUTER JOIN [" + DbSchema.HKP + @"].[SkillCategory] AS SC ON SK.SkillCategoryId=SC.Id
                                        LEFT JOIN [SCS].[SkillGrouping] SG ON SG.Id=SK.SkillGroupId

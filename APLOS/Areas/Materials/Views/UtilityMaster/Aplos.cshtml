@@ -8,6 +8,7 @@
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Details</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="asset" role="tab" data-toggle="tab">Consumption Item</a></li>
                 <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="asset" role="tab" data-toggle="tab">Utility Category</a></li>
+                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="InPutSource" role="tab" data-toggle="tab">InPut Source</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -141,14 +142,15 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-4 control-label">InPut Source</label>
+                        <label class="col-sm-4 control-label">Utility Level</label>
                         <div class="col-sm-8">
-                            <div class="input-group">
-                                <input type="text" name="InPutSource" ng-model="ModelNew.InPutSource" class="form-control" readonly>
-                                <span class="input-group-btn">
-                                    <button ng-click="GetUtilityMasterData();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                </span>
-                            </div>
+                            <input type="text" name="Utility Level" ng-model="ModelNew.UtilityLevel" class="form-control" autocomplete="off" tabindex="4" maxlength="50">
+                            @*<div class="input-group">
+            <input type="text" name="InPutSource" ng-model="ModelNew.InPutSource" class="form-control" readonly>
+            <span class="input-group-btn">
+                <button ng-click="GetUtilityMasterData();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+            </span>
+        </div>*@
                         </div>
                     </div>
                     <div class="form-group">
@@ -329,9 +331,9 @@
                             <div class="col-sm-8">
                                 <div class="select-style">
                                     @*<select id="UoMId" class="form-control" ng-model="UtilityCategoryModelNew.UoMId" name="UoM" tabindex="12">
-                                <option value="">--Select--</option>
-                                <option ng-repeat="option in uOMList" value="{{option.Value}}">{{option.Text}}</option>
-                            </select>*@
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in uOMList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>*@
                                     <input id="UOM_Id" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" ng-model="UtilityCategoryModelNew.UOMId" e-datasource="uOMList" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
 
                                 </div>
@@ -364,10 +366,42 @@
                     </div>
                 </div>
             </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button ng-click="GetUtilityMasterData();" ng-disabled="ModelNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add InPut Source</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div id="GridIPS" ej-grid e-datasource="SelectedIPSDataList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-headertext="Actions" e-template="#ShowActionButtonIPS" e-width="1"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                                <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="ShowActionButtonIPS">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeIPS(this);" style="margin: -6px;"></i></button>
+                        </script>
+                    </div>
+                </div>
             </div>
 
-    </div>
 
+
+        </div>
+
+    </div>
 </div>
 <confirm-archive-generic modalid="confirmUtilityDetailsRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeUtilityDetailsRow();"></confirm-archive-generic>
 
@@ -630,10 +664,11 @@
                 </div>
                 <div class="row text-right">
                     <div class="col-xs-12 col-sm-12 col-sm-12">
-                        <div id="GridUM" ej-grid e-datasource="UtilityMasterList" e-recorddoubleclick="GetUtilityMaster"
+                        <div id="GridUM" ej-grid e-datasource="UtilityMasterList" e-templaterefresh="refreshTemplateIPS" @*e-recorddoubleclick="GetUtilityMaster"*@
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                             <div e-columns>
+                                <div e-column e-headertext="" e-headertemplateid="#headerTemplateIPS" e-template="#checkboxTemplateIPS" e-textalign="center" e-width="1"></div>
                                 <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
                                 <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
                                 <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
@@ -645,10 +680,15 @@
                         </div>
                     </div>
                 </div>
-
+                <script type="text/template" id="checkboxTemplateIPS">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplateIPS">
+                    <input type="checkbox" id="headchkips" />
+                </script>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li><button type="button" class="btn btn-default" ng-click="closeUtilityMasterPopUp();">Close</button></li>
+                        <li><button type="button" class="btn btn-default" ng-click="closeUtilityMasterPopUp();">Apply</button></li>
                     </ul>
                 </div>
             </div>
@@ -692,3 +732,4 @@
 </div>
 
 <confirm-archive-generic modalid="confirmAssetPopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteAsset();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmIPSPopUp" title="Confirmation" message={{message_IPSconfirmation}} data-ng-click-right-button="DeleteIPS();"></confirm-archive-generic>

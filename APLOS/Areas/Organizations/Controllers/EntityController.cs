@@ -8,6 +8,7 @@ using Library.Model.Organizations;
 using Library.Service.Organizations;
 using Library.Service.Setups;
 using Syncfusion.XlsIO;
+using System.Collections.Generic;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -87,6 +88,26 @@ namespace Aplos.Areas.Organizations.Controllers
             companyId = identity.CompanyId;
             //}
             return Json(_entityService.GetCbo(companyGroupId, companyId, plantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, AllowAnonymous]
+        public JsonResult GetCboByPlantAdmin(string companyGroupId, string companyId, string plantId)
+        {
+            return Json(GetCboDataByPlantId(companyGroupId, companyId, plantId), JsonRequestBehavior.AllowGet);
+        }
+        public IEnumerable<object> GetCboDataByPlantId(string companyGroupId, string companyId, string plantId)
+        {
+            if (string.IsNullOrEmpty(plantId) || plantId == "undefined")
+            {
+                return _sqlRepository.GetDataCollection(@"SELECT UserName AS [Text],Id AS Value FROM ORG.Entity  AS L 
+                WHERE CompanyGroupId = '" + companyGroupId + "' AND CompanyId = '" + companyId + "'");
+            }
+            else
+            {
+                return _sqlRepository.GetDataCollection(@"SELECT UserName AS [Text],Id AS Value FROM ORG.Entity  AS L 
+                WHERE CompanyGroupId = '" + companyGroupId + "' AND CompanyId = '" + companyId + "' AND PlantId = '" + plantId + @"' ");
+            }
+
         }
 
         [HttpGet, Authorize]

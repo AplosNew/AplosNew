@@ -17222,7 +17222,7 @@ WHERE ENC.Id IS NULL;
                                         left outer join dbo.LeaveType as lty on lty.Id = lpd.LTSystemID
 										where  ISNULL(lty.LeaveType,'') <> '' AND emp.PlantId = '" + plantId + @"'
                                         AND (emp.EmployeeStatus = 'Active' or YEAR(emp.DOS) = '" + SelectedYear + @"')
-                                        --AND EmpSystemID IN('1800164')
+                                        --AND EmpSystemID IN('25254953')
                                         ";
 
                 objCon = new ConnectionManager.clsConnectionManager(600); ;
@@ -17640,13 +17640,15 @@ WHERE ENC.Id IS NULL;
             DataTable dtCarryForward = null;
             DataSet dsEsicEnum = null;
             dsSaveSummary = null;
+            string empId=null;
+
             try
             {
                 #region variables
                 bplib.clsGenID genid = new bplib.clsGenID();
                 var _count = 0;
 
-                string empId;
+               
                 string CalendarYearId;
                 string lvtId;
                 decimal currentYearAllocation = 0;
@@ -17750,7 +17752,7 @@ WHERE ENC.Id IS NULL;
                             #region variables
                             decimal _CalculatedWorkingDays = 0;
                             empId = dtLeaveInfo.Rows[i]["EmployeeId"].ToString();
-                            if (empId == "25252362")
+                            if (empId == "25254953")
                             {
 
                             }
@@ -18260,6 +18262,7 @@ WHERE ENC.Id IS NULL;
             }
             catch (Exception ex)
             {
+                empId.ToString();
                 throw ex;
             }
         }

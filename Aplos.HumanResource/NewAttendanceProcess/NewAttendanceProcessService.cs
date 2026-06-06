@@ -953,6 +953,60 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
         #endregion
 
+        #region ActualBudgetCodeProcess
+
+        public void ActualBudgetCodeProcess(string Date)
+        {
+            try
+            {
+                var sql = @"DECLARE @fromdate DATE = '"+ Date + @"', 
+        @todate   DATE = '" + Date + @"';
+
+;WITH ATT AS
+(
+    SELECT * FROM attdnprocessdata WHERE WorkDate BETWEEN @fromdate AND @todate
+),
+SRC AS
+(
+    SELECT ATT.WorkDate,ATT.EmpSystemID,MPO.Code AS ActualBudgetCode,E.EmployeeCurrentStatus
+    FROM ATT
+    LEFT JOIN dbo.EmployeeInformation E ON E.SystemId = ATT.EmpSystemID
+    LEFT JOIN MST.ManpowerBudget MB ON MB.Id = ATT.BudgetId 
+    LEFT JOIN ORG.Line LN ON LN.Id = MB.LineId
+    LEFT JOIN TempBudgetCodeChange TMB ON TMB.EmpSystemId = ATT.EmpSystemID AND TMB.WorkDate = ATT.WorkDate 
+    LEFT JOIN MST.ManpowerBudget TB ON TB.Id = TMB.NewBudgetId 
+    LEFT JOIN ORG.Position POS ON POS.Id = ISNULL(TB.PositionId , MB.PositionId) 
+    LEFT JOIN ORG.Entity UN ON UN.Id = ISNULL(TB.EntityId , MB.EntityId)
+    LEFT JOIN PhysicalVerification PV ON PV.EmpSystemId = ATT.EmpSystemId AND PV.WorkDate = ATT.WorkDate
+    OUTER APPLY
+    ( 
+        SELECT TOP 1 Code FROM MST.ManpowerBudget MBBO 
+        WHERE MBBO.PositionId = POS.Id 
+          AND MBBO.ShiftDefinationId = COALESCE(ATT.ManualShiftID, ATT.RosterShiftID, ATT.BudgetedShiftID) 
+          AND MBBO.LineId = ISNULL(PV.[LineNo], LN.Id)
+    ) MPO
+)
+UPDATE A
+SET 
+    A.ActualBudgetCode = S.ActualBudgetCode,
+    A.EmployeeCurrentStatus = S.EmployeeCurrentStatus
+FROM attdnprocessdata A
+JOIN SRC S
+    ON A.EmpSystemID = S.EmpSystemID
+   AND A.WorkDate   = S.WorkDate;";
+                ConnectionManager.clsConnection objCone = new ConnectionManager.clsConnection();
+                objCone.BeginTransaction();
+                objCone.executeQuery(sql);
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        #endregion
+
         #region ShiftProcess SourceData
 
         void UnProcessedEmp(string Date, out DataSet ds, string PlantId)
@@ -6959,6 +7013,14 @@ LEFT JOIN hkp.WeeklyStatus WS
 
                 }
             }
+        }
+
+        public void ActualBudgetCodeProcessGroupWise(string Date, string GroupId)
+        {
+            // Log Check
+            SaveLog("Group Call", "ActualBudgetCodeProcess", false);
+
+            ActualBudgetCodeProcess(Date);
         }
 
         #endregion

@@ -19017,40 +19017,22 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                                                     , sh.SalaryHead, sh.HeadCategory,sh.[Sequence] SequenceNumber, sh.HeadType, ISNULL(SH.PartOfNetPay,0) PartOfNetPay,FORMAT(SPM.DateAdded,'dd-MMM-yyyy') SlrProcDate
 
                                      FROM SalaryProcChild SPC
-
                                         left JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
-
-
-
                                                         LEFT JOIN SalaryHead sh on sh.SalaryHeadID= spc.SalaryHeadID
-
-
                                                         LEFT JOIN scs.Currency CR ON SPM.AmtDefinitionCurrencyID = CR.Id
-
                                                         LEFT JOIN (
                                                                    SELECT* FROM ExchangerateDateWiseForHR
-
                                                                    WHERE FromDate IN (SELECT MAX(FromDate) FromDate FROM SalaryProcMaster
-
-
-                                                                                                            WHERE SystemID IN(" + salaryProcessID + @")
-																  )) EXR ON SPM.AmtDefinitionCurrencyID = EXR.FromCurrencyCode
-
-                                                                                            AND SPC.PlantID = Exr.PlantID
-
+                                                                     WHERE SystemID IN(" + salaryProcessID + @")
+																  )) EXR ON SPM.AmtDefinitionCurrencyID = EXR.FromCurrencyCode AND SPC.PlantID = Exr.PlantID
                                                         LEFT JOIN SCS.Currency CRE ON EXR.FromCurrencyCode = CRE.Id
-
                                                         where isnull(SPC.SlrProcMstSystemID,'')  IN(" + salaryProcessID + @")) EmpSlr--ON EmpBasic.SystemID = EmpSlr.EmpInfoSystemID AND EmpBasic.PlantID = EmpSlr.PlantID
-
-                                            Inner join EmployeeInformation EEI ON EEI.SystemId = EmpSlr.EmpSystemID
-
-                                         LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EEI.SalaryRuleMasterSystemID
-
+                                        Inner join EmployeeInformation EEI ON EEI.SystemId = EmpSlr.EmpSystemID
+                                        left join dbo.SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID=EmpSlr.EmpSystemID
+                                        LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = SIDM.SalaryRuleMasterSystemID
                                         LEFT JOIN SalaryRuleGeneral SRG ON SRG.SalaryRuleMasterSystemID = SRM.SystemID  AND SRG.SalaryHeadID = EmpSlr.SalaryHeadID
-                                        LEFT JOIN [MST].[PlantSalaryHeadSequence] PSH
-                                                                       ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID AND PSH.PlantId=EEI.PlantId
+                                        LEFT JOIN [MST].[PlantSalaryHeadSequence] PSH ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID AND PSH.PlantId=EEI.PlantId
                                         LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = EmpSlr.SalaryHeadID
-
                                                 WHERE EEI.GroupID = '" + companyGroupId + @"' AND  EmpSlr.PlantId IN(" + plantId + @")";
 
                 try

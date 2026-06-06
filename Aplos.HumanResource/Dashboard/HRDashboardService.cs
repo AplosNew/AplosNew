@@ -9652,8 +9652,11 @@ LEFT OUTER JOIN
 									,C.Id AS CompanyId, ISNULL(LDes.UserName,'') Designation
                                     ,DayNumber.DaysCount AbsentDays
                                     ,ISNULL(E.EmployeeCurrentStatus,E.EmployeeStatus)EmployeeCurrentStatus,MB.Code BudgetCode,POS.Activity,E.CellPhnNo ContactNo
-									,ISNULL(rg.UserName,NULL) ResGroup,tg.UserName TransportGroup,A.DayStatus LatestWorkingDayStatus,FORMAT(A.WorkDate,'dd-MMM-yyyy')LatestPresentDate,''AbsentReasonifApplicable,''Remark
-
+									,ISNULL(rg.UserName,NULL) ResGroup,tg.UserName TransportGroup
+--,A.DayStatus LatestWorkingDayStatus,FORMAT(A.WorkDate,'dd-MMM-yyyy')LatestPresentDate,''AbsentReasonifApplicable,''Remark
+,''AbsentReasonifApplicable,''Remark
+									,LatestPresentDate=(Select top 1 FORMAT(WorkDate,'dd-MMM-yyyy') From dbo.AttdnProcessData Where EmpSystemId=E.SystemId Order By WorkDate DESC)
+									,LatestWorkingDayStatus=(Select top 1 DayStatus From dbo.AttdnProcessData Where EmpSystemId=E.SystemId Order By WorkDate DESC)
 								FROM ORG.CompanyGroup CG
 								LEFT JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
 								LEFT JOIN EmployeeInformation E ON e.GroupID = CG.Id and c.Id = E.CompanyId

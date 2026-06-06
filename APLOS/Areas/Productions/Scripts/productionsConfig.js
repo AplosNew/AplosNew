@@ -422,5 +422,12 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/Marker/Approve',
             controller: 'MarkerApproveController'
         })
+        .when('/emp-production-report', {
+            templateUrl: 'Productions/ProductionReport/Aplos',
+            controller: 'EmployeeWiseProductionReportController'
+        })
+
+
+
         ;
 }

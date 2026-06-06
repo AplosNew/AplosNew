@@ -192,6 +192,130 @@ namespace Aplos.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, AllowAnonymous]
+        public JsonResult _Login(
+    string timezoneoffset,
+    string userId,
+    string password,
+    string remember,
+    string authToken,
+    string groupId,
+    string groupName)
+        {
+            var http = System.Web.HttpContext.Current;
+            bool isRemember = !string.IsNullOrWhiteSpace(remember) && remember == "on";
+
+            string ip = AccessInfo.GetWorkstationIP(http);
+            dynamic location = AccessInfo.GetLocation(ip);
+
+            // Fallback location if API fails
+            if (location == null)
+            {
+                location = new
+                {
+                    country_code = "",
+                    country_name = "",
+                    region_code = "",
+                    region_name = "",
+                    city = "",
+                    latitude = "",
+                    longitude = "",
+                    time_zone = "",
+                    zip_code = ""
+                };
+            }
+
+            // ==============================
+            // 🌍 TIMEZONE FIX
+            // ==============================
+            DateTime utcNow = DateTime.UtcNow;
+            DateTime userLocalTime = utcNow;
+            int offsetMinutes = 0;
+
+            if (!string.IsNullOrEmpty(timezoneoffset))
+            {
+                int.TryParse(timezoneoffset, out offsetMinutes);
+
+                // JS offset is reversed sign
+                userLocalTime = utcNow.AddMinutes(-offsetMinutes);
+
+                HttpContext.Session["timezoneoffset"] = offsetMinutes;
+            }
+
+            // ==============================
+            // 🔐 LOGIN
+            // ==============================
+            var result = _userService.Login(authToken, groupId, userId, password);
+
+            if (result["Status"].ToString() == "Success")
+            {
+                var employeeId = result["EmployeeId"]?.ToString();
+
+                SetAuthentication(
+                    result["Id"].ToString(),
+                    userId,
+                    result["UserFullName"].ToString(),
+                    isRemember,
+                    ip,
+                    authToken,
+                    groupId,
+                    groupName,
+                    employeeId);
+            }
+
+            // ==============================
+            // 📝 ACCESS LOG (FIXED)
+            // ==============================
+            try
+            {
+                _accessLogService.Insert(new AccessLog
+                {
+                    // ✔ Always store UTC
+                    AccessTime = utcNow,
+
+                    // ✔ Store user real local time (NEW COLUMN)
+                    //LocalAccessTime = userLocalTime,
+
+                    // ✔ Store offset (NEW COLUMN)
+                    //TimeZoneOffsetMinutes = offsetMinutes,
+
+                    Browser = AccessInfo.GetBrowserName(http),
+                    OS = AccessInfo.GetOS(http),
+                    UserAgent = HttpContext.Request.UserAgent,
+                    UserId = userId,
+                    WorkStationIP = ip,
+                    WorkStationName = AccessInfo.GetWorkstationName(ip),
+
+                    CountryCode = Convert.ToString(location.country_code),
+                    CountryName = Convert.ToString(location.country_name),
+                    RegionCode = Convert.ToString(location.region_code),
+                    RegionName = Convert.ToString(location.region_name),
+                    City = Convert.ToString(location.city),
+                    Latitude = Convert.ToString(location.latitude),
+                    Longitude = Convert.ToString(location.longitude),
+                    TimeZone = Convert.ToString(location.time_zone),
+                    ZipCode = Convert.ToString(location.zip_code),
+
+                    Panel = PanelEnum.aPanel.ToString(),
+                    Status = result["Status"].ToString() == "Success",
+                    Resistered = result["Status"].ToString() == "Success",
+
+                    IsCookieEnable = http.Request.Browser.Cookies,
+                    IsJavascriptEnable = http.Request.Browser.VBScript,
+                    Dstoffset = http.Request.Browser.Platform,
+
+                    CompanyGroupId = null,
+                    DaylightName = null,
+                    DeviceType = null,
+                    Gmtoffset = null,
+                    ScreenSize = null
+                });
+            }
+            catch { }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
         private void SetAuthentication(string id, string userId, string fullName, bool isRemember, string ip, string authenticationToken, string companyGroupId, string companyGroupName, string employeeId)
         {
             var basicTicket = CustomIdentity.CreateBasicTicket(

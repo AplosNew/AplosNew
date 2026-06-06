@@ -386,6 +386,14 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
         }
     };
 
+    $scope.setDisableFS = function () {
+        $scope.leaveApplicationNew.LeaveDayType = 'ShortLeave';
+        if ($scope.leaveApplicationNew.LeaveDayType === 'ShortLeave') {
+            $scope.lvTodate = true;
+            $scope.leaveApplicationNew.ToDate = null;
+        }
+    };
+
     $scope.setEnable = function () {
         $scope.leaveApplicationNew.LeaveDayType = 'FullDay';
         if ($scope.leaveApplicationNew.LeaveDayType === 'FullDay') {
@@ -399,7 +407,7 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
         var fd = $filter('dateFiltering')($scope.leaveApplicationNew.FromDate, 'dd-MM-yyyy');
         var td = $filter('dateFiltering')($scope.leaveApplicationNew.ToDate, 'dd-MM-yyyy');
 
-        if ($scope.leaveApplicationNew.LeaveDayType === 'SecondHalfDay' || $scope.leaveApplicationNew.LeaveDayType === 'FirstHalfDay') {
+        if ($scope.leaveApplicationNew.LeaveDayType === 'SecondHalfDay' || $scope.leaveApplicationNew.LeaveDayType === 'FirstHalfDay' || $scope.leaveApplicationNew.LeaveDayType === 'ShortLeave') {
             $scope.leaveApplicationNew.ToDate = $scope.leaveApplicationNew.FromDate;
         }
 

@@ -1717,7 +1717,7 @@ namespace Library.Service.Employees
                                         (
                                         select SystemId,EmployeeId,  max(EndDate) EndDate, min(StartDate) StartDate
                                              from dbo.EmpExperienceInformation
-                                             where EmployeeId = 'EMP128'
+                                             where EmployeeId = '"+ EmpId + @"'
                                              group by EmployeeId,SystemId
                                          )
                                          x on x.EmployeeId = e.SystemId

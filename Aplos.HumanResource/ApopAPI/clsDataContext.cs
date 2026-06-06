@@ -5425,7 +5425,7 @@ where emp.EmployeeStatus = 'Active' and  Emp.EmployeeCode = '" + Empcode + "'";
             }
         }
 
-        public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid, string inmis, string locations, string entityid, string tbs, string longabsent,string Budgetcodeid)
+        public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid, string inmis, string locations, string entityid, string tbs, string longabsent, string Budgetcodeid)
         {
             if (inmis == "IN" || inmis == "IM" || inmis == "W")
             {
@@ -5439,8 +5439,8 @@ where emp.EmployeeStatus = 'Active' and  Emp.EmployeeCode = '" + Empcode + "'";
                 try
                 {
                     #region Sql
-                    strSQL1 = @"DECLARE @WorkDate DATE = '" +  date + @"' , @hrgroupid varchar(100) = '"+ groupid + @"';
-
+                    strSQL1 = @"DECLARE @WorkDate DATE = '" + date + @"' , @hrgroupid varchar(100) = '" + groupid + @"';
+ 
 WITH TodayIN AS
 	(
 		SELECT 
@@ -5457,7 +5457,7 @@ WITH TodayIN AS
 		GROUP BY APD.BudgetId,  Case when APD.ManualShiftID is not null then APD.ManualShiftID 
 			When APD.Rostershiftid is not null then APD.Rostershiftid else APD.BudgetedShiftID end
 	)
-
+ 
 Select * from (SELECT  Distinct
     '' AS SrNo,
     '' AS LeaveCode,
@@ -5472,23 +5472,23 @@ Select * from (SELECT  Distinct
     '' AS InStatus,
     UN.Id AS EntityId,
     UN.UserName AS EntityName,
-
+ 
     CASE 
         WHEN APD.WeeklyStatus = 'W' THEN 'W'
         WHEN ARD.ptime IS NULL THEN 'IM'
         ELSE 'IN'
     END AS RawDayStatus,
-
+ 
     ARD.ptime AS InTime,
     PV2.intime AS InVerificationTime,
-
+ 
     MBGT.Code AS BudgetCode,
     SD.ShiftDefinationName AS Shift,
     SD.SystemID AS ShiftId,
     EMP.CellPhnNo AS MobileNo,
-
+ 
     APD.WeeklyStatus,
-
+ 
     RG.StandardName AS Residence,
     TG.StandardName AS Transport,
     HRG.ManpowerBudgetId,
@@ -5499,106 +5499,106 @@ Select * from (SELECT  Distinct
     MBGT.Deployment,
 	ISNULL(TI.ToDayIN,0) AS ToDayIN,
     Diffenence= ISNULL(TI.ToDayIN,0)-MBGT.Deployment,
-
+ 
     CASE 
         WHEN ISNULL(TI.ToDayIN,0) - MBGT.Deployment > 0 THEN 'Excess'
         WHEN ISNULL(TI.ToDayIN,0) - MBGT.Deployment < 0 THEN 'Short'
         ELSE 'Ok'
     END AS DifferenceColor
-
+ 
 FROM mst.ManpowerBudget MBGT
-
+ 
 LEFT JOIN EmployeeInformation EMP 
     ON EMP.Budgetcode = MBGT.Id
-
+ 
 LEFT JOIN ORG.POSITION POS 
     ON POS.ID = MBGT.POSITIONID
-
+ 
 LEFT JOIN MST.ManpowerBudgetDetail MBD 
     ON MBD.ManpowerBudgetId = MBGT.ID
-
+ 
 LEFT JOIN ORG.Entity UN 
     ON UN.Id = MBGT.EntityId
-
+ 
 LEFT JOIN ORG.Department DP 
     ON DP.ID = POS.DepartmentId
-
+ 
 LEFT JOIN ORG.Section SC 
     ON SC.Id = POS.SectionId
-
+ 
 LEFT JOIN ORG.SubSection SBC 
     ON SBC.Id = POS.SubSectionId
-
+ 
 LEFT JOIN HKP.Designation DSG 
     ON DSG.Id = POS.DesignationId
-
+ 
 LEFT JOIN HKP.LegalDesignation GDSG 
     ON GDSG.Id = EMP.LegalDesignationId
-
+ 
 LEFT JOIN MST.DesignationMasterLegalDesignation DMLD 
     ON DMLD.LegalDesignationId = GDSG.Id
-
+ 
 LEFT JOIN MST.DesignationMaster DM 
     ON DM.Id = DMLD.DesignationMasterId
-
+ 
 LEFT JOIN SCS.DesignationMasterConfiguration DMC 
     ON DMC.DesignationMasterId = DM.Id
-
+ 
 LEFT JOIN HKP.DesignationGroup EDSGG 
     ON EDSGG.Id = DM.DesignationGroupId
-
+ 
 LEFT JOIN HKP.EmployeeCategory X 
     ON X.Id = DM.EmployeeCategoryId
-
+ 
 LEFT JOIN ShiftDefination SD 
     ON SD.SystemId = MBGT.ShiftDefinationId
-
+ 
 LEFT JOIN SalaryRuleMaster SRM 
     ON SRM.SystemId = DMC.SalaryRuleMasterId
-
+ 
 LEFT JOIN EmployeeBankInfo BNK 
     ON BNK.EmpSystemID = EMP.SystemId
-
+ 
 LEFT JOIN ResidenceGroup RG 
     ON RG.Id = EMP.ResidenceGroupId
-
+ 
 LEFT JOIN TransportGroup TG 
     ON TG.Id = EMP.TransportGroupId
-
+ 
 LEFT JOIN EmployeeCodeType ECT 
     ON ECT.Id = EMP.EmployeeCodeTypeId
-
+ 
 LEFT JOIN HKP.Process PR 
     ON PR.Id = POS.ProcessId
-
+ 
 LEFT JOIN SCS.District DT 
     ON DT.Id = EMP.ParmDistrictID
-
+ 
 LEFT JOIN SCS.State ST 
     ON ST.Id = EMP.ParmStateId
-
+ 
 LEFT JOIN TRN.HRReportMasterChild HRG 
     ON HRG.ManpowerBudgetId = EMP.BudgetCode
-
+ 
 LEFT JOIN HKP.HRReportMaster HG 
     ON HG.Id = HRG.HRReportMasterId
-
+ 
 LEFT JOIN ResidenceAllocatedEmployees RA 
     ON RA.EmployeeSystemId = EMP.SystemID
-
+ 
 LEFT JOIN ResidenceMaster RM 
     ON RM.Id = RA.ResidenceId
-
+ 
 LEFT JOIN TodayIN TI 
     ON TI.BudgetId = MBGT.Id
-
+ 
 OUTER APPLY (
     SELECT TOP 1 WeeklyStatus
     FROM Attdnprocessdata AP
     WHERE AP.Workdate = @WorkDate
       AND AP.Empsystemid = EMP.Systemid
 ) APD
-
+ 
 OUTER APPLY (
     SELECT TOP 1 ptime
     FROM AttdnRawData AR
@@ -5607,7 +5607,7 @@ OUTER APPLY (
       AND AR.PType = 'IN'
     ORDER BY ptime DESC
 ) ARD
-
+ 
 OUTER APPLY (
     SELECT TOP 1 intime
     FROM PhysicalVerification PV
@@ -5615,7 +5615,7 @@ OUTER APPLY (
       AND PV.Empsystemid = EMP.Systemid
     ORDER BY intime DESC
 ) PV2
-
+ 
 WHERE Emp.Employeestatus = 'Active' and HG.Id = @hrgroupid  ";
 
 
@@ -5666,7 +5666,6 @@ WHERE Emp.Employeestatus = 'Active' and HG.Id = @hrgroupid  ";
                     {
                         strSQL = strSQL + "   ) asv order by BudgetCode ";
                     }
-
 
 
 
@@ -5736,8 +5735,8 @@ WHERE Emp.Employeestatus = 'Active' and HG.Id = @hrgroupid  ";
                 {
                     #region Sql
                     strSQL1 = @"DECLARE @WorkDate DATE = '" + date + @"' , @hrgroupid varchar(100) = '" + groupid + @"';
-
- WITH TodayIN AS
+ 
+WITH TodayIN AS
 	(
 		SELECT 
 			APD.BudgetId,
@@ -5753,7 +5752,7 @@ WHERE Emp.Employeestatus = 'Active' and HG.Id = @hrgroupid  ";
 		GROUP BY APD.BudgetId,  Case when APD.ManualShiftID is not null then APD.ManualShiftID 
 			When APD.Rostershiftid is not null then APD.Rostershiftid else APD.BudgetedShiftID end
 	)
-
+ 
 Select * from (SELECT  Distinct
     '' AS SrNo,
     '' AS LeaveCode,
@@ -5768,19 +5767,19 @@ Select * from (SELECT  Distinct
     'LI' AS InStatus,
     UN.Id AS EntityId,
     UN.UserName AS EntityName,
-
+ 
     'LI' AS RawDayStatus,
-
+ 
     ARD.ptime AS InTime,
     PV2.intime AS InVerificationTime,
-
+ 
     MBGT.Code AS BudgetCode,
     SD.ShiftDefinationName AS Shift,
     SD.SystemID AS ShiftId,
     EMP.CellPhnNo AS MobileNo,
-
+ 
     APD.WeeklyStatus,
-
+ 
     RG.StandardName AS Residence,
     TG.StandardName AS Transport,
     HRG.ManpowerBudgetId,
@@ -5791,7 +5790,7 @@ Select * from (SELECT  Distinct
     MBGT.Deployment,
 	ISNULL(TI.ToDayIN,0) AS ToDayIN,
     Diffenence= ISNULL(TI.ToDayIN,0)-MBGT.Deployment,
-
+ 
     CASE 
         WHEN ISNULL(TI.ToDayIN,0) - MBGT.Deployment > 0 THEN 'Excess'
         WHEN ISNULL(TI.ToDayIN,0) - MBGT.Deployment < 0 THEN 'Short'
@@ -5799,100 +5798,100 @@ Select * from (SELECT  Distinct
     END AS DifferenceColor
 	,LateInTime = cast((ARD.ptime -  SD.Intime) as time(0))
 	,'LI' as LateInStatus
-
+ 
 FROM mst.ManpowerBudget MBGT
-
+ 
 LEFT JOIN EmployeeInformation EMP 
     ON EMP.Budgetcode = MBGT.Id
-
+ 
 LEFT JOIN ORG.POSITION POS 
     ON POS.ID = MBGT.POSITIONID
-
+ 
 LEFT JOIN MST.ManpowerBudgetDetail MBD 
     ON MBD.ManpowerBudgetId = MBGT.ID
-
+ 
 LEFT JOIN ORG.Entity UN 
     ON UN.Id = MBGT.EntityId
-
+ 
 LEFT JOIN ORG.Department DP 
     ON DP.ID = POS.DepartmentId
-
+ 
 LEFT JOIN ORG.Section SC 
     ON SC.Id = POS.SectionId
-
+ 
 LEFT JOIN ORG.SubSection SBC 
     ON SBC.Id = POS.SubSectionId
-
+ 
 LEFT JOIN HKP.Designation DSG 
     ON DSG.Id = POS.DesignationId
-
+ 
 LEFT JOIN HKP.LegalDesignation GDSG 
     ON GDSG.Id = EMP.LegalDesignationId
-
+ 
 LEFT JOIN MST.DesignationMasterLegalDesignation DMLD 
     ON DMLD.LegalDesignationId = GDSG.Id
-
+ 
 LEFT JOIN MST.DesignationMaster DM 
     ON DM.Id = DMLD.DesignationMasterId
-
+ 
 LEFT JOIN SCS.DesignationMasterConfiguration DMC 
     ON DMC.DesignationMasterId = DM.Id
-
+ 
 LEFT JOIN HKP.DesignationGroup EDSGG 
     ON EDSGG.Id = DM.DesignationGroupId
-
+ 
 LEFT JOIN HKP.EmployeeCategory X 
     ON X.Id = DM.EmployeeCategoryId
-
+ 
 LEFT JOIN ShiftDefination SD 
     ON SD.SystemId = MBGT.ShiftDefinationId
-
+ 
 LEFT JOIN SalaryRuleMaster SRM 
     ON SRM.SystemId = DMC.SalaryRuleMasterId
-
+ 
 LEFT JOIN EmployeeBankInfo BNK 
     ON BNK.EmpSystemID = EMP.SystemId
-
+ 
 LEFT JOIN ResidenceGroup RG 
     ON RG.Id = EMP.ResidenceGroupId
-
+ 
 LEFT JOIN TransportGroup TG 
     ON TG.Id = EMP.TransportGroupId
-
+ 
 LEFT JOIN EmployeeCodeType ECT 
     ON ECT.Id = EMP.EmployeeCodeTypeId
-
+ 
 LEFT JOIN HKP.Process PR 
     ON PR.Id = POS.ProcessId
-
+ 
 LEFT JOIN SCS.District DT 
     ON DT.Id = EMP.ParmDistrictID
-
+ 
 LEFT JOIN SCS.State ST 
     ON ST.Id = EMP.ParmStateId
-
+ 
 LEFT JOIN TRN.HRReportMasterChild HRG 
     ON HRG.ManpowerBudgetId = EMP.BudgetCode
-
+ 
 LEFT JOIN HKP.HRReportMaster HG 
     ON HG.Id = HRG.HRReportMasterId
-
+ 
 LEFT JOIN ResidenceAllocatedEmployees RA 
     ON RA.EmployeeSystemId = EMP.SystemID
-
+ 
 LEFT JOIN ResidenceMaster RM 
     ON RM.Id = RA.ResidenceId
-
+ 
 LEFT JOIN TodayIN TI 
     ON TI.BudgetId = MBGT.Id
-
+ 
 OUTER APPLY (
     SELECT TOP 1 WeeklyStatus
     FROM Attdnprocessdata AP
     WHERE AP.Workdate = @WorkDate
       AND AP.Empsystemid = EMP.Systemid
 ) APD
-
+ 
 OUTER APPLY (
     SELECT TOP 1 ptime
     FROM AttdnRawData AR
@@ -5901,7 +5900,7 @@ OUTER APPLY (
       AND AR.PType = 'IN'
     ORDER BY ptime DESC
 ) ARD
-
+ 
 OUTER APPLY (
     SELECT TOP 1 intime
     FROM PhysicalVerification PV
@@ -5909,10 +5908,10 @@ OUTER APPLY (
       AND PV.Empsystemid = EMP.Systemid
     ORDER BY intime DESC
 ) PV2
-
+ 
 WHERE Emp.Employeestatus = 'Active' and HG.Id = @hrgroupid    and 
 convert(time,ARD.ptime) > convert(time,SD.Intime) 
- ";
+";
 
                     if (inmis == "LateIn")
                     {
@@ -6030,7 +6029,7 @@ convert(time,ARD.ptime) > convert(time,SD.Intime)
                 {
                     #region Sql
                     strSQL1 = @"DECLARE @WorkDate DATE = '" + date + @"' , @hrgroupid varchar(100) = '" + groupid + @"';
-
+ 
 WITH TodayIN AS
 	(
 		SELECT 
@@ -6047,8 +6046,8 @@ WITH TodayIN AS
 		GROUP BY APD.BudgetId,  Case when APD.ManualShiftID is not null then APD.ManualShiftID 
 			When APD.Rostershiftid is not null then APD.Rostershiftid else APD.BudgetedShiftID end
 	)
-
-select * from (  select Distinct '' as SrNo ,  SC.StandardName Section,SBC.StandardName SubSection, 
+ 
+select * from (  select Distinct '' as SrNo ,  SC.StandardName Section,SBC.StandardName SubSection, 
 DSG.StandardName Designation, POS.Activity, 
 MBGT.Code BudgetCode,
 ISNULL(TI.ToDayIN , 0) as ToDayIN, 
@@ -6057,9 +6056,9 @@ Hrg.ManpowerBudgetId, Hg.UserName UserGroup , Hg.Id as GroupId  ,MBGT.Deployment
 case when (ISNULL(TI.ToDayIN , 0)-MBGT.Deployment) > 0 then 'Access' 
 when (ISNULL(TI.ToDayIN , 0)-MBGT.Deployment) < 0 then 'Short' 
 else 'Ok' end DifferenceColor
-,MBGTD.Totalnumber Sanction , Onroll.Onroll
+,(Select top 1 Totalnumber from mst.manpowerbudgetdetail where ManpowerBudgetid = MBGT.Id ) Sanction , Onroll.Onroll
 from MST.ManpowerBudget MBGT
-left join mst.manpowerbudgetdetail MBGTD  on MBGTD.ManpowerBudgetid = MBGT.Id
+--left join mst.manpowerbudgetdetail MBGTD  on MBGTD.ManpowerBudgetid = MBGT.Id
 left Join EmployeeInformation EMP on MBGT.Id = EMP.BudgetCode
 --LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
 LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
@@ -6421,7 +6420,7 @@ and EmployeeCode = '" + EmpSysId + "' order by AddedDate Desc ";
 
                     }
 
-                   
+
 
                 }
                 clsStaticInfo _info = new clsStaticInfo();
@@ -7930,7 +7929,11 @@ where ei.EmployeeStatus = 'Active' and EI.SystemId = '" + Id + "'";
             {
                 strSQL = @"select Top 1 EI.SystemId as Value  , EI.EmployeeName as Name from MST.ManpowerBudget MB 
 left join EmployeeInformation EI on EI.BudgetCode = MB.ROBudgetCode
-where EI.EmployeeStatus = 'Active' and MB.ROBudgetCode = '" + Id + "'";
+LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EI.LegalDesignationId
+left join mst.DesignationMasterLegalDesignation dmld on dmld.LegalDesignationId = GDSG.Id
+left join mst.DesignationMaster dm on dm.Id = dmld.DesignationMasterId
+left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
+where EI.EmployeeStatus = 'Active' and x.UserName = 'Staff'  and MB.ROBudgetCode = '" + Id + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -11799,7 +11802,7 @@ where QAT.ParameterId='" + ParameterId + "'";
                     Id += ",'" + item.Id + "'";
                 }
 
-                con.OpenDataSetThroughAdapter("select * from UtilityTransaction where Id='" + items[0].Id +  "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from UtilityTransaction where Id='" + items[0].Id + "'", out dsMaster, false, "1");
 
 
                 foreach (UtilityMasterGet item in DataToSave)
@@ -12299,13 +12302,13 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
 
             string stradd = "";
             string Daysadd = "";
-            if(ResPer != "null")
+            if (ResPer != "null")
             {
-                stradd += " and SO.ResponsiblePersonId = '" + ResPer + "' "; 
+                stradd += " and SO.ResponsiblePersonId = '" + ResPer + "' ";
             }
             if (Type != "Both")
             {
-                if(Type == "Export")
+                if (Type == "Export")
                 {
                     stradd += " and PAG.StandardName = 'Customer Export' ";
                 }
@@ -12314,7 +12317,7 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
                     stradd += " and PAG.StandardName = 'Customer Local' ";
                 }
             }
-            if(Status != "null")
+            if (Status != "null")
             {
                 stradd += " and SO.OrderStatusId = '" + Status + "' ";
             }
@@ -12335,10 +12338,10 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
                 
             }*/
 
-            
-            if(ToSP != "null")
+
+            if (ToSP != "null")
             {
-                if(ToSP == "ToShip")
+                if (ToSP == "ToShip")
                 {
                     Daysadd = " ,[Days] = case when so.CommitmentDate is not null then  DATEDIFF(DAY,  GETDATE() , so.CommitmentDate  ) when  so.CommitmentDate is null and so.PlanExFactoryDate is not null then  DATEDIFF(DAY,  GETDATE() , so.PlanExFactoryDate  )  else DATEDIFF(DAY, GETDATE(), so.DeliveryDate) end ";
                     stradd += " and SO.OrderStatusId = 'ToShip' and (case when so.CommitmentDate is not null then  DATEDIFF(DAY,  GETDATE() , so.CommitmentDate  ) when  so.CommitmentDate is null and so.PlanExFactoryDate is not null then  DATEDIFF(DAY,  GETDATE() , so.PlanExFactoryDate  )  else DATEDIFF(DAY, GETDATE(), so.DeliveryDate) end) <= " + Date +
@@ -12350,16 +12353,16 @@ and   dateadd(day,-1,getdate()) and EmpSystemID = '" + EmpSysId + "' group by Em
                     stradd += " and SO.OrderStatusId <> 'ToShip' and (case when so.CommitmentDate is not null then  DATEDIFF(DAY,  GETDATE() , so.CommitmentDate  ) when  so.CommitmentDate is null and so.PlanExFactoryDate is not null then  DATEDIFF(DAY,  GETDATE() , so.PlanExFactoryDate  )  else DATEDIFF(DAY, GETDATE(), so.DeliveryDate) end) <= " + Date +
                         "ORDER BY  (case when so.CommitmentDate is not null then  DATEDIFF(DAY,  GETDATE() , so.CommitmentDate  ) when  so.CommitmentDate is null and so.PlanExFactoryDate is not null then  DATEDIFF(DAY,  GETDATE() , so.PlanExFactoryDate  )  else DATEDIFF(DAY, GETDATE(), so.DeliveryDate) end) asc";
                 }
-                if(ToSP == "ToPlane")
+                if (ToSP == "ToPlane")
                 {
                     Daysadd = " ,[Days] = DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
-                    stradd += "  and pod.ProductionOrderId is null  and SO.OrderStatusId = 'Active' and DATEDIFF(DAY,  GETDATE() , so.AddedDate) <= " + Date + 
+                    stradd += "  and pod.ProductionOrderId is null  and SO.OrderStatusId = 'Active' and DATEDIFF(DAY,  GETDATE() , so.AddedDate) <= " + Date +
                         " ORDER BY  DATEDIFF(DAY,  GETDATE() , so.AddedDate) asc";
                 }
                 if (ToSP == "ToSchedul")
                 {
                     Daysadd = " ,[Days] = DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
-                    stradd += "  and pod.ProductionOrderId is null and SO.OrderStatusId = 'Active'  and DATEDIFF(DAY,  GETDATE() , so.AddedDate) <= " + Date + 
+                    stradd += "  and pod.ProductionOrderId is null and SO.OrderStatusId = 'Active'  and DATEDIFF(DAY,  GETDATE() , so.AddedDate) <= " + Date +
                         "ORDER BY  DATEDIFF(DAY,  GETDATE() , so.AddedDate) ";
                 }
 
@@ -12444,7 +12447,7 @@ Isnull(so.CM,0)*isnull(so.Rate,0) CMValue
 
 
 " + Daysadd + @"
-,Case When " + Daysadd.ToString().Replace(",[Days] =","") + @" < 0 then 'Over due' when  " + Daysadd.ToString().Replace(",[Days] =", "") + @" = 0 then 'Today' else 'Future' end Colour
+,Case When " + Daysadd.ToString().Replace(",[Days] =", "") + @" < 0 then 'Over due' when  " + Daysadd.ToString().Replace(",[Days] =", "") + @" = 0 then 'Today' else 'Future' end Colour
  FROM trn.MasterOrder MO
 LEFT JOIN org.Plant AS p2 ON p2.id=mo.PlantId
 LEFT JOIN org.Entity AS e ON e.Id=mo.EntityId
@@ -12570,7 +12573,7 @@ left join HKP.CompanyParty CPS on CPS.PartyId = Pt.Id and CPS.PartyType = 'Custo
 left join HKP.PartyAccountGroup PAG on PAG.Id = CPS.PartyAccountGroupId 
 left join OrderControl OCT on OCT.SalesOrderId = SO.Id 
    WHERE  SO.OrderStatusId not in ('Closed' , 'Cancelled')" +
-   stradd ;
+   stradd;
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -12738,7 +12741,7 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
                         dr["Remarks"] = item.Remarks;
                         dr["ActionToBeTakenId"] = item.ActionToBeTakenId;
                         dr["ActionToBeTaken"] = item.ActionToBeTaken;
-                        
+
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedFromIP"] = "163.47.212.50";
                         dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -12797,9 +12800,9 @@ left join OrderControl OCT on OCT.SalesOrderId = SO.Id
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out string _Id);
 
-                        dr["Id"] =  _Id;
+                        dr["Id"] = _Id;
                         dr["SalesOrderId"] = item.SalesOrderId;
-                        if(item.ShippingComment != "null")
+                        if (item.ShippingComment != "null")
                         {
                             dr["PlaneDeliveryDate"] = DBNull.Value;
                         }
@@ -12878,7 +12881,7 @@ where (SO.OrderStatusId = 'Active' or so.OrderStatusId = 'ToShip')";
             }
         }
 
-        public void GetSODetail(out List<SocreationGet> DataList , string CustomerId)
+        public void GetSODetail(out List<SocreationGet> DataList, string CustomerId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -13012,7 +13015,7 @@ left join (Select pol.Id,pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotN
             }
         }
 
-       
+
 
         public string PostPendingDispatchSave(IEnumerable<PendingDispatchGet> DataToSave)
         {
@@ -13082,7 +13085,7 @@ left join (Select pol.Id,pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotN
         #endregion Pending Dispatch
 
         #region Daily Inverification
-        public void GetActiveEmployee(out List<Default2> DataList ,  string EmpSysId)
+        public void GetActiveEmployee(out List<Default2> DataList, string EmpSysId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -13326,7 +13329,7 @@ where EmpSystemID = '" + EmpSysId + @"' and ComplianceDocumentId = '31'
             }
         }
 
-        public void GetAddInfoFiled(out List<AddInfoList> DataList, string Ids,string Category)
+        public void GetAddInfoFiled(out List<AddInfoList> DataList, string Ids, string Category)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -13394,7 +13397,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                         SalesOrderId = dsRef.Tables[0].Rows[i]["SalesOrderId"].ToString(),
                         SalesId = dsRef.Tables[0].Rows[i]["SalesId"].ToString(),
                         AdditionalInfoId = dsRef.Tables[0].Rows[i]["AdditionalInfoId"].ToString(),
-                        
+
                     });
                 }
             }
@@ -13678,7 +13681,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
             string strSQL = "";
             DataList = new List<NewBudgetCodeChange>();
             string strnew = "";
-            if(LineId == "null")
+            if (LineId == "null")
             {
                 strnew = "";
             }
@@ -14383,10 +14386,206 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
         }*/
 
         #endregion Pratibha
+
+        public string CreateFeedback(IEnumerable<EmployeeFeedBackModel> DataToSave)
+        {
+
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.Employeefeedback";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<EmployeeFeedBackModel> items = DataToSave.ToList();
+
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                foreach (EmployeeFeedBackModel item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        clsGenID genid = new clsGenID();
+                        genid.GenID(TableName, out _Id);
+
+                        dr["Id"] = "EF" + _Id;
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["Date"] = item.Date;
+                        dr["ReasoningId"] = item.ReasoningId;
+                        dr["Action"] = item.Action;
+                        dr["Remarks"] = item.Remarks;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = DateTime.Now.ToString();
+                        dr["AddedFromIP"] = item.AddedFromIP;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return MasterId;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public string PostAttendanceCorrect(IEnumerable<AttendanceCorrectModel> DataToSave)
+        {
+
+
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "AttendanceCorrect";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<AttendanceCorrectModel> items = DataToSave.ToList();
+
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                foreach (AttendanceCorrectModel item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        clsGenID genid = new clsGenID();
+                        genid.GenID(TableName, out _Id);
+
+                        dr["Id"] = "20" + _Id;
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["Month"] = item.Month;
+                        dr["IsCorrect"] = item.IsCorrect;
+                        dr["CreatedDate"] = System.DateTime.Now.ToString();
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return MasterId;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+
+        }
+
+
+        public string PostAttendanceOT(IEnumerable<AttendanceOTModel> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.AttdnProcessData";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+
+                string EmpId = "''";
+                foreach (AttendanceOTModel item in DataToSave)
+                {
+                    EmpId += ",'" + item.EmpSystemID + "'";
+                }
+
+                var items = DataToSave.ToList();
+
+                var sqly = @"select * from dbo.AttdnProcessData where WorkDate='" + items[0].WorkDate + " ' and EmpSystemId IN(" + EmpId + ")";
+                con.OpenDataSetThroughAdapter(sqly, out dsMaster, false, "1");
+
+
+                foreach (AttendanceOTModel item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"EmpSystemId='" + item.EmpSystemID + "' ";
+
+                    if (clsWebLib.RetValidLen(item.AdditionalOT).ToString() != "")
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["TargetOT"] = item.TargetOT;
+                        dr["PlanOT"] = item.PlanOT;
+                        dr["AllowedOTLimit"] = item.AllowedOTLimit;
+                        dr["AppliedOTLimit"] = item.AppliedOTLimit;
+                        dr["StandardOT"] = item.StandardOT;
+                        dr["AdditionalOT"] = item.AdditionalOT;
+                        dr["OTWeek"] = item.OTWeek;
+                        dr["OTMonth"] = item.OTMonth;
+                        dr["OTYear"] = item.OTYear;
+                        dr["EmpSystemID"] = item.EmpSystemID;
+                        dr["WorkDate"] = item.WorkDate;
+                        dr["IsOTComfirm"] = item.IsOTComfirm;
+                        dr["OTComfirmBy"] = item.OTComfirmBy;
+                        dr["DateOTComfirm"] = DateTime.Now.ToString();
+                        dr.EndEdit();
+
+                    }
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return "true";
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+
+
     }
 
+    public class AttendanceCorrectModel
+    {
+        public string Id { get; set; }
+        public string EmpSystemId { get; set; }
+        public string Month { get; set; }
+        public bool IsCorrect { get; set; }
+        public string CreatedDate { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
 
+    }
+    public class EmployeeFeedBackModel
+    {
 
+        public string Id { get; set; } = "";
+        public string EmpSystemId { get; set; } = "";
+        public string Date { get; set; } = "";
+        public string ReasoningId { get; set; } = "";
+        public string Action { get; set; } = "";
+        public string Remarks { get; set; } = "";
+        public string AddedBy { get; set; } = "";
+        public string AddedDate { get; set; } = "";
+        public string AddedFromIP { get; set; } = "";
+    }
 
     public class ServerNotifications
     {
@@ -16148,7 +16347,7 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
         public string NewBudget { get; set; }
         public string NewBudgetId { get; set; }
         public string ExistingBudgetId { get; set; }
-        
+
     }
 
     public class UltimoDataGetSet
@@ -16340,6 +16539,25 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
         public string LotId { get; set; }
         public string EntityId { get; set; }
 
+
+    }
+
+    public class AttendanceOTModel
+    {
+        public string TargetOT { get; set; }
+        public string PlanOT { get; set; }
+        public string AllowedOTLimit { get; set; }
+        public string AppliedOTLimit { get; set; }
+        public string StandardOT { get; set; }
+        public string AdditionalOT { get; set; }
+        public string OTWeek { get; set; }
+        public string OTMonth { get; set; }
+        public string OTYear { get; set; }
+        public string EmpSystemID { get; set; }
+        public string WorkDate { get; set; }
+        public string IsOTComfirm { get; set; }
+        public string OTComfirmBy { get; set; }
+        public string DateOTComfirm { get; set; }
 
     }
 

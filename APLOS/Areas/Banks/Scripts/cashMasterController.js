@@ -110,11 +110,10 @@ function cashMasterController(cboService, commonMessage, $scope, $rootScope, bas
     };
 
     $scope.getCboEntityByPlant = function (companyId, plantId) {
-        cboService.getCboEntityByPlant(null, companyId, plantId, function (result) {
+        cboService.GetCboByPlantAdmin(null, companyId, plantId, function (result) {
             $scope.entityList = result;
         });
     };
-
     $scope.getCboPlantByCompany = function (companyId) {
         cboService.getCboPlantByCompany(companyId, function (result) {
             $scope.plantList = result;

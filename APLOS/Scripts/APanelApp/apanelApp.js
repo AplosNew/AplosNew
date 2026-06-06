@@ -364,7 +364,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('disciplinaryActionCategoryController', disciplinaryActionCategoryController)
     .controller("entityConfigController", entityConfigController)
     .controller("planningTypesController", planningTypesController)
-    .controller("planningTypesNewController", planningTypesNewController)
+    
     .controller("productionBookingPeriodController", productionBookingPeriodController)
     .controller("issueCategoryController", issueCategoryController)
     .controller("issueSubCategoryController", issueSubCategoryController)

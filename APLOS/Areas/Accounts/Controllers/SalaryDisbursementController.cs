@@ -235,6 +235,27 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
+       
+        [HttpGet, Authorize]
+        public ActionResult GetSalaryPayableVoucherOtherGLReport(ReportFormat reportFormat, string voucherId)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = accountsSalaryPayableService.GetSalaryPayableVoucherOtherGLReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
+
 
         [HttpPost, Authorize]
         public ActionResult GetEmployeeSalaryProcessedReportSalaryLogWiseInVoucher(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, string voucherId)

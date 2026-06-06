@@ -1275,11 +1275,11 @@ Where SO.CheckByStatus = 'Checked' AND ApprovedStatus = 'To Be Approve' AND SO.A
             }
         }
 
-        public Dictionary<string, object> GetTaskTemplateMasterId(string buyerId, string buyerDivisionId, string buyerDepartmentId)
+        public Dictionary<string, object> GetTaskTemplateMasterId(string buyerId, string buyerDivisionId, string buyerDepartmentId,string entityId)
         {
             try
             {
-                var sql = "SELECT BM.TaskTemplateMasterId FROM mst.BuyerMaster AS  BM WHERE bm.BuyerId='" + buyerId + "' AND isnull(bm.BuyerDepartmentId,'" + buyerDepartmentId + "')='" + buyerDepartmentId + "' AND isnull(bm.BuyerDivisionId,'" + buyerDivisionId + "')='" + buyerDivisionId + "'";
+                var sql = "SELECT BM.TaskTemplateMasterId FROM mst.BuyerMaster AS  BM WHERE bm.BuyerId='" + buyerId + "' AND isnull(bm.BuyerDepartmentId,'" + buyerDepartmentId + "')='" + buyerDepartmentId + "' AND isnull(bm.BuyerDivisionId,'" + buyerDivisionId + "')='" + buyerDivisionId + "' AND Id IN(select distinct BuyerMasterId from [dbo].[BuyerMasterEntity] Where EntityId='"+ entityId + "')";
                 return _sqlRepository.GetData(sql);
             }
             catch (Exception ex)
@@ -1353,7 +1353,7 @@ Where SO.CheckByStatus = 'Checked' AND ApprovedStatus = 'To Be Approve' AND SO.A
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (!string.IsNullOrEmpty(entity.BuyerId))
                 {
-                    var taskTemplateMasterId = GetTaskTemplateMasterId(entity.BuyerId, entity.BuyerDivisionId, entity.BuyerDepartmentId);
+                    var taskTemplateMasterId = GetTaskTemplateMasterId(entity.BuyerId, entity.BuyerDivisionId, entity.BuyerDepartmentId,entity.EntityId);
                     if (taskTemplateMasterId.Count > 0)
                     {
                         entity.TaskTemplateMasterId = taskTemplateMasterId["TaskTemplateMasterId"].ToString();
@@ -1660,16 +1660,38 @@ WHERE MOI.MasterOrderId='" + id + "'";
 
         public void Update(MasterOrder entity, string masterId, IEnumerable<MasterOrderResPerson> personList, IEnumerable<MasterOrderItem> itemList, UserRemarksControl userRemarksControl)
         {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster;
             var flag = false;
             try
             {
+                var dbmo = Find(entity.Id);
+
+                string _sql = @"select PO.Id from trn.ProductionOrder PO
+LEFT JOIn trn.ProductionOrderDetail D ON D.ProductionOrderId=PO.Id
+LEFT JOIN TRN.SalesOrder SO ON SO.id=D.SalesOrderId
+LEFT JOIN TRN.MasterOrderItem I ON I.Id=SO.MasterOrderItemId
+LEFT JOIN TRN.MasterOrder MO ON MO.Id=I.MasterOrderId
+Where MO.Id='"+entity.Id+"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(_sql, out dsMaster, false, "1");
+
+                if (dbmo.CompanyId!=entity.CompanyId && dbmo.PlantId!=entity.PlantId && dsMaster.Tables[0].Rows.Count>0)
+                {
+                    throw new Exception("Company and Plant change not possible as Production Order is created.");
+                }
+
+                if (dbmo.PlantId != entity.PlantId && dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Plant change not possible as Production Order is created.");
+                }
 
                 var personDbDataList = _personRepository.Query(t => t.MasterOrderId == masterId).Select().ToList();
                 var itemDbDataList = _itemRepository.Query(t => t.MasterOrderId == masterId).Select().ToList();
 
                 if (!string.IsNullOrEmpty(entity.BuyerId))
                 {
-                    var taskTemplateMasterId = GetTaskTemplateMasterId(entity.BuyerId, entity.BuyerDivisionId, entity.BuyerDepartmentId);
+                    var taskTemplateMasterId = GetTaskTemplateMasterId(entity.BuyerId, entity.BuyerDivisionId, entity.BuyerDepartmentId,entity.EntityId);
                     if (taskTemplateMasterId.Count > 0)
                     {
                         entity.TaskTemplateMasterId = taskTemplateMasterId["TaskTemplateMasterId"].ToString();
@@ -2459,6 +2481,12 @@ WHERE MOI.MasterOrderId='" + id + "'";
                     {
                         sodata.ApprovedStatus = "To Be Approve";
                     }
+                    if (sodata.CheckByStatus == "Reject")
+                    {
+                        sodata.OrderStatusId = "Cancelled";
+                        sodata.ApproveBy = null;
+                    }
+                    sodata.CheckByRemark = salesOrderMaster.CheckByRemark;
                     sodata.CheckByDate = DateTime.Now;
 
                     _salesOrderRepository.Update(sodata);
@@ -2511,6 +2539,12 @@ Where S.MasterOrderItemId='" + moItemId + "'"
                     sodata.ApproveByDate = DateTime.Now;
                     sodata.OrderStatusId = masterOrderStatus;
                     sodata.ApprovedStatus = salesOrderMaster.ApprovedStatus;
+                    if (salesOrderMaster.ApprovedStatus== "UnApprove")
+                    {
+                        sodata.CheckByStatus = "To Be Check";
+                    }
+
+                    sodata.ApproveByRemark = salesOrderMaster.ApproveByRemark;
                     _salesOrderRepository.Update(sodata);
                 }
 

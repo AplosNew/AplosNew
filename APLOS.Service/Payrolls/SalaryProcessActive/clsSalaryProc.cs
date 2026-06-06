@@ -336,6 +336,64 @@ namespace OTSBD
             }
         }//End Function 
 
+        public void GetAttdnDataForMonthlyProc_B(string sEmpSystemID, string sfrmDate, string sToDate, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                //clsCrossModule ob = new clsCrossModule();
+                GenericAttendance.clsCrossModule ob = new GenericAttendance.clsCrossModule();
+                strSQL = @"SELECT EmpSystemID, MIN(WorkDate) FromDate, MAX(WorkDate) ToDate, 
+                                   CAST(COUNT(WorkDate) As int) TotalProcDate,
+                                   CAST(COUNT(WorkDate) As int) TotalWorkingDay,
+                                   CAST(COUNT(WorkDate) As int) TotalActualWorkingDay,
+                                TotalPayDay= SUM(ISNULL(CAST((CASE WHEN APD.DayStatus ='P' OR APD.DayStatus ='PW' OR APD.DayStatus ='L' THEN 1 ELSE 0 END) As decimal(18, 2)), '0.00')),
+                                SUM(ISNULL(CAST(NonPayDayValue As decimal(18, 2)), '0.00')) TotalNonPayDay,
+                                TotalPresent= SUM(ISNULL(CAST((CASE WHEN APD.DayStatus ='P' OR APD.DayStatus ='PW' THEN 1 ELSE 0 END) As decimal(18, 2)), '0.00')),
+                                TotalLate= SUM(ISNULL(CAST((CASE WHEN APD.DayStatus ='L' THEN 1 ELSE 0 END) As decimal(18, 2)), '0.00')),
+                                TotalAbsent= SUM(ISNULL(CAST((CASE WHEN APD.DayStatus ='A' THEN 1 ELSE 0 END) As decimal(18, 2)), '0.00')),
+                                 SUM(ISNULL(CAST(LeaveDuration As decimal(18, 2)), '0.00')) TotalLv,
+                                0.00 TotalMLv,
+                                TotalWeekOff= SUM(ISNULL(CAST((CASE WHEN APD.DayStatus ='W' THEN 1 ELSE 0 END) As decimal(18, 2)), '0.00')),
+                                WeekoffDays= SUM(ISNULL(CAST((CASE WHEN APD.DayStatus ='W' THEN 1 ELSE 0 END) As decimal(18, 2)), '0.00')),
+                                SUM(ISNULL(CAST(0 As decimal(18, 2)),'0.00')) TotalCompAssignLv,
+                                SUM(ISNULL(CAST(HoliDayValue As decimal(18, 2)),'0.00')) TotalHoliDay,
+                                SUM(ISNULL(CAST(0 As decimal(18, 2)),'0.00')) TotalWeekOffHoliDay,
+                                SUM(ISNULL(CAST(OTHr As decimal(18, 2)), '0.00')) TotalOTHr,
+                                0.00 TotalNormalOTHr,
+                                0.00 TotalExtraOTHr, 
+                                SUM(ISNULL(CAST((CASE WHEN ISNULL(ds.PayDay,0)=0 THEN l.AvailedValue ELSE 0 END) As decimal(18, 2)), '0.00')) TotalLWP,  
+                                SUM(ISNULL(CAST((CASE WHEN ISNULL(ds.PayDay,0)>0 THEN l.AvailedValue ELSE 0 END) As decimal(18, 2)), '0.00')) TotalLVWithPay 
+                             
+			                            
+	                             FROM dbo.AttdnProcessData apd left join daytype p on apd.DayStatus=p.DayType
+								 LEFT JOIN LeaveType AS lt ON lt.Id=apd.LTSystemID
+								 LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=apd.EmpSystemID
+                                LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                                LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                                LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+                                LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=apd.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
+                                left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
+								LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id AND l.LeaveTypeId=apd.LTSystemID
+                                WHERE WorkDate BETWEEN '" + sfrmDate + @"'
+                                    AND '" + sToDate + @"'  
+                                    AND (" + sEmpSystemID + @")
+                            GROUP BY EmpSystemID";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function 
+
         public void xGetAttdnDataForMonthlyProc(string sEmpSystemID, string sfrmDate, string sToDate, out DataSet dsRef)
         {
             string strSQL;

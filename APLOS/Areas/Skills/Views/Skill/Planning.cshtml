@@ -1,0 +1,313 @@
+﻿<style>
+    .selected {
+        background-color: rgba(234, 97, 83, 0.42) !important;
+        border: 1px solid black;
+    }
+</style>
+<togglable name="Skill Planning"></togglable>
+<div class="form-elements form-horizontal">
+    <input type="hidden" ng-model="skillNew.Id">
+    <div class="tab-design">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Planning</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="process" role="tab" data-toggle="tab">Skill Plan</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="process" role="tab" data-toggle="tab">Transaction</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="row" ng-form="skillNewForm">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">TraningName<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Traning Name" ng-model="skillNew.TraningName" class="form-control" required maxlength="50" tabindex="1">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">BatchNo<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" name="BatchNo" ng-model="skillNew.BatchNo" disabled class="form-control" maxlength="50" tabindex="3">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <input type="text" name="ResponsiblePerson" ng-model="skillNew.ResponsiblePerson" required class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button name="submit" ng-click="getPopUpData()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Requirement Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Requirement Date" datepicker ng-model="skillNew.RequirementDate" class="form-control" required maxlength="50" tabindex="1">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="3" ng-model="skillNew.Remarks" maxlength="250" tabindex="8"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Batch Status<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" name="BatchStatus" ng-model="skillNew.BatchStatus" class="form-control" maxlength="50" tabindex="3">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">User Batch No<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Standard Name" ng-model="skillNew.UserBatchNo" class="form-control" required tabindex="4" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Requirement Given By<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="RequirementGivenBy" ng-model="skillNew.RequirementGivenBy" class="form-control" required tabindex="2" maxlength="10">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Start Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="StartDate" datepicker ng-model="skillNew.StartDate" class="form-control" required maxlength="50" tabindex="1">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Transfer Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="TransferDate" datepicker ng-model="skillNew.TransferDate" class="form-control" required maxlength="50" tabindex="1">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Final Closing Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="FinalClosingDate" datepicker ng-model="skillNew.FinalClosingDate" class="form-control" required maxlength="50" tabindex="1">
+                            </div>
+                        </div>
+
+
+
+                    </div>
+
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="row" ng-form="skillPlanNewForm">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Batch No<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="skillPNew.BatchNo"
+                                            ng-options="item.Id as item.BatchNo for item in skills" required id="BatchNo"
+                                            name="BatchNo" tabindex="1">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Skill<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <input type="text" name="Skill" ng-model="skillPNew.SkillName" required class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button name="submit" ng-click="SkillPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Trainee Required<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Trainee Required" ng-model="skillPNew.TraineeRequired" class="form-control" required maxlength="50" tabindex="1">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="3" ng-model="skillPNew.Remarks" maxlength="250" tabindex="5"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Trainee Plan<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Trainee Plan" ng-model="skillPNew.TraineePlan" class="form-control" required maxlength="50" tabindex="1">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Duration Plan<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Duration Plan" ng-model="skillPNew.DurationPlan" class="form-control" required maxlength="50" tabindex="1">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Trainer Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Trainer Name" ng-model="skillPNew.TrainerName" class="form-control" required maxlength="50" tabindex="1">
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveSP();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            <li> <button ng-click="DltSP();" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                            <li> <button ng-click="ClearSP();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div style="color: black;" id="GridSPMaster" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="skillplanList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-recorddoubleclick="GetSP" e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-type="string" e-field="Id" e-headertext="Id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                        <div e-column e-type="string" e-field="SkillName" e-headertext="SkillName" e-width="80"></div>
+                        <div e-column e-type="string" e-field="BatchNo" e-headertext="BatchNo" e-width="80"></div>
+                        <div e-column e-type="string" e-field="TraineeRequired" e-headertext="TraineeRequired" e-width="80"></div>
+                        <div e-column e-type="string" e-field="TrainerName" e-headertext="TrainerName" e-width="80"></div>
+                        <div e-column e-type="string" e-field="TraineePlan" e-headertext="TraineePlan" e-width="80"></div>
+                        <div e-column e-type="string" e-field="DurationPlan" e-headertext="DurationPlan" e-width="80"></div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class="row" ng-form="skillNewTrnForm">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="aplos-grid-toggle">
+    @*<div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="$root.parameters.searchBy">
+                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+    <div class="table-responsive modal-table">
+        <div class="content-container-fluid" style="color:black;">
+            <div style="color: black;" id="GridMaster" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="skills" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                 e-recorddoubleclick="Get" e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-type="string" e-field="Id" e-headertext="Id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                    <div e-column e-type="string" e-field="TraningName" e-headertext="TraningName" e-width="80"></div>
+                    <div e-column e-type="string" e-field="BatchNo" e-headertext="BatchNo" e-width="80"></div>
+                    <div e-column e-type="string" e-field="UserBatchNo" e-headertext="UserBatchNo" e-width="80"></div>
+                    <div e-column e-type="string" e-field="RequirementGivenBy" e-headertext="RequirementGivenBy" e-width="80"></div>
+                    <div e-column e-type="string" e-field="ResponsiblePerson" e-headertext="ResponsiblePerson" e-width="80"></div>
+                    <div e-column e-type="string" e-field="RequirementDate" e-headertext="RequirementDate" e-width="80"></div>
+                    <div e-column e-type="string" e-field="StartDate" e-format="{0:dd-MMM-yyyy}" e-headertext="StartDate" e-width="80"></div>
+                    <div e-column e-type="string" e-field="TransferDate" e-format="{0:dd-MMM-yyyy}" e-headertext="TransferDate" e-width="80"></div>
+                    <div e-column e-type="string" e-field="FinalClosingDate" e-format="{0:dd-MMM-yyyy}" e-headertext="FinalClosingDate" e-width="80"></div>
+                    <div e-column e-type="string" e-field="BatchStatus" e-headertext="BatchStatus" e-width="80"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteSP();"></confirm-archive-generic>
+<div class="modal site-modal" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closePopup('employeeNewPopUp');">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color: black;" id="Grid" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-type="string" e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="SkillPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Skill Informations
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive modal-table">
+                    <div class="table-responsive ">
+                        <div style="color:black;" id="GridSkill" ej-grid e-datasource="skillList" e-recorddoubleclick="SetSkill"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="4" e-isprimarykey="true"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="3" e-isprimarykey="true"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="4" e-isprimarykey="true"></div>
+                                <div e-column e-field="ShortName" e-headertext="ShortName" e-width="4" e-isprimarykey="true"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="6" e-isprimarykey="true"></div>
+                                <div e-column e-field="StandardName" e-headertext="StandardName" e-width="6" e-isprimarykey="true"></div>
+                                <div e-column e-field="SkillCategoryName" e-headertext="SkillCategoryName" e-width="6" e-isprimarykey="true"></div>
+                                <div e-column e-field="SkillGroup" e-headertext="SkillGroup" e-width="6" e-isprimarykey="true"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button type="button" class="btn btn-default" ng-click="closeSkillPopUp();">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

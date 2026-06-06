@@ -1001,7 +1001,7 @@ public class clsSalaryProcessAplosR
                                 else
                                 {
                                     SendNotification("Getting Attendance Process Data", TotProcComp, TotSelectEmpForProc);
-                                    objSlrProc.GetAttdnDataForMonthlyProc(sEmpSysID, para.FromDate, para.ToDate, out dsMMDSSI);
+                                    objSlrProc.GetAttdnDataForMonthlyProc_B(sEmpSysID, para.FromDate, para.ToDate, out dsMMDSSI);
                                 }
                                 //SendNotification("Getting Monthly Attendance Summary", TotProcComp, TotSelectEmpForProc);
 

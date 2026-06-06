@@ -1821,7 +1821,7 @@ SELECT ept.EntityId FROM hkp.EntityProcessTag AS ept WHERE ept.ProcessId IN (SEL
                                 INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
 								inner join trn.ProductionOrderDetail D ON D.SalesOrderId=SO.Id
                                 inner join trn.ProductionOrder P ON P.Id=D.ProductionOrderId
-                           WHERE d.ProductionOrderId='" + data.ProductionOrderID+"'";
+                           WHERE d.ProductionOrderId='" + data.ProductionOrderID + "'";
                 DataTable dtSO = _sqlRepository.GetDataTable(tsql);
                 string TaskTemplateMasterId = dtSO.Rows[0]["TaskTemplateMasterId"].ToString();
 
@@ -1951,7 +1951,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                     Library.Service.TaskScheduler.TaskScheduler schedule = new Library.Service.TaskScheduler.TaskScheduler(_sqlRepository);
                     schedule.UpdateTaskStatus();
                     //Production Order Related Tasks
-                    
+
                     for (int i = 0; i < productionOrders.Rows.Count; i++)
                     {
                         po = productionOrders.Rows[i]["ProductionOrderID"].ToString();
@@ -2092,6 +2092,11 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                 productionOrders = dtProductionParameters(ProcessingEntities);
                 for (int i = 0; i < productionOrders.Rows.Count; i++)
                 {
+                    var poid = productionOrders.Rows[i]["ProductionOrderID"].ToString();
+                    if (poid == "2519")
+                    {
+
+                    }
                     dtCalendar = dicCalendar[productionOrders.Rows[i]["EntityId"].ToString()];
 
                     sbLog = new StringBuilder();

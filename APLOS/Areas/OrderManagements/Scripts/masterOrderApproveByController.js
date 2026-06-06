@@ -135,6 +135,7 @@ function masterOrderApproveByController(accountService, $window, cboService, com
 
     $scope.ApproveStatusList = [
         { Value: "Approved", Text: "Approved" },
+        { Value: "UnApprove", Text: "UnApprove" },
         { Value: "Reject", Text: "Reject" }
     ];
 
@@ -842,7 +843,7 @@ function masterOrderApproveByController(accountService, $window, cboService, com
         $scope.RemarksControlmodel = { Id: null, MasterOrderId: null, RemarkControlId: null, RemarksControl: null, UserRemarks: null };
     }
 
-    
+
 
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
 
@@ -928,7 +929,7 @@ function masterOrderApproveByController(accountService, $window, cboService, com
         $scope.packingTypeList = response.data;
     });
 
-    
+
     $scope.commitmentList = [];
 
     $scope.showCommitmentPopUp = function () {
@@ -1087,7 +1088,7 @@ function masterOrderApproveByController(accountService, $window, cboService, com
         $scope.getPopUpData();
     };
 
-    
+
     $scope.removeRowModal = function (ob, index) {
         try {
             $scope.message_confirmation = "Are you sure want to permanent delete [" + ob.Submaterial + "] ";
@@ -2074,6 +2075,10 @@ function masterOrderApproveByController(accountService, $window, cboService, com
 
             if (baseService.isUndefinedOrNull($scope.soModel.ApprovedStatus) || $scope.soModel.ApprovedStatus == 'To Be Approve') {
                 throw "Approved Status is required.";
+            }
+
+            if ($scope.soModel.ApprovedStatus == 'UnApprove' || $scope.soModel.ApprovedStatus == 'Reject' && baseService.isUndefinedOrNull($scope.soModel.ApproveByRemark)) {
+                throw "ApproveBy Remark is required.";
             }
 
             $http({
@@ -4695,7 +4700,7 @@ function masterOrderApproveByController(accountService, $window, cboService, com
         angular.element(document.querySelector('#SOPopUpData')).modal('show');
     }
 
-   
+
     $scope.SODataList = [];
     $scope.GetSavedSOData = function (packingDetailId) {
         $scope.SODataList = [];
@@ -5004,7 +5009,7 @@ function masterOrderApproveByController(accountService, $window, cboService, com
         });
     }
 
-    
+
     $scope.PackingTypeId = null;
     $scope.SaveSKUDetail = function () {
         try {

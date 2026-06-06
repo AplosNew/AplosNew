@@ -143,7 +143,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
         }
         return string;
     }
-   
+
 
 
 
@@ -164,7 +164,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
     $scope.OTConfirmationValue = null;
 
     $scope.OTConfirmSelection = [
-        {'Id':'0', 'Value': 'To Confirm'},
+        { 'Id': '0', 'Value': 'To Confirm' },
         { 'Id': '1', 'Value': 'Confirmed' },
         { 'Id': '2', 'Value': 'All' },
     ];
@@ -212,7 +212,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
             throw ('Invaild Request');
         }
 
-       
+
 
         var gridObj = $("#WeekList").data("ejGrid");
         var filteredRecords = gridObj.getFilteredRecords();
@@ -229,7 +229,8 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
             url: $scope.path + 'getGridData',
             data: {
                 'Week': $scope.Week, 'FromDate': $scope.FromDate, 'ToDate': $scope.ToDate
-                /*,  'DayStatus': $scope.DayStatus*/, 'Parameters': parameters },
+                /*,  'DayStatus': $scope.DayStatus*/, 'Parameters': parameters
+            },
         }).then(function succ(resp) {
             if (resp.data.Error === true) {
                 ShowResult(resp.data.Message, 'failure');
@@ -239,7 +240,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
                 $scope.DataList = resp.data;
                 ProcessChk();
             }
-            
+
         })
     }
 
@@ -250,16 +251,34 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
             throw ('Invalid Request');
         }
 
+        var g = $("#GridProcess").data("ejGrid");
+        var fl = g.getFilteredRecords();
+
         var ProcArr = [];
-        for (var i = 0; i < $scope.DataList.length; i++) {
-            ProcArr.push({
-                'EmpSystemID': $scope.DataList[i].EmpSystemID, 'WorkDate': $scope.DataList[i].WorkDate, 'PlanOT': $scope.DataList[i].PlanOT, 'ProcessedOT': $scope.DataList[i].ProcessedOT,
-                'DayLimit': $scope.DataList[i].DayLimit, 'StandardOT': $scope.DataList[i].StandardOT, 'AppliedOTLimit': $scope.DataList[i].AppliedOTLimit,
-                'AllowedOTLimit': $scope.DataList[i].AllowedOTLimit, 'AdditionalOT': $scope.DataList[i].AdditionalOT, 'WeekLimit': $scope.DataList[i].WeekLimit,
-                'TargetOT': $scope.DataList[i].TargetOT, 'ApplicableWM': $scope.DataList[i].ApplicableWM, 'IsOTComfirm': $scope.DataList[i].IsOTComfirm, 'IsManualOutTime': $scope.DataList[i].IsManualOutTime,
-                'MonthlyLimit': $scope.DataList[i].MonthlyLimit, 'OutTime': $scope.DataList[i].OutTime, 'PlantId': $scope.DataList[i].PlantId, 'ProcessOutTime': $scope.DataList[i].ProcessOutTime,
-                'RowId': $scope.DataList[i].RowId
-            });
+
+        if (fl.length > 0) {
+            for (var i = 0; i <fl.length; i++) {
+                ProcArr.push({
+                    'EmpSystemID':fl[i].EmpSystemID, 'WorkDate':fl[i].WorkDate, 'PlanOT':fl[i].PlanOT, 'ProcessedOT':fl[i].ProcessedOT,
+                    'DayLimit':fl[i].DayLimit, 'StandardOT':fl[i].StandardOT, 'AppliedOTLimit':fl[i].AppliedOTLimit,
+                    'AllowedOTLimit':fl[i].AllowedOTLimit, 'AdditionalOT':fl[i].AdditionalOT, 'WeekLimit':fl[i].WeekLimit,
+                    'TargetOT':fl[i].TargetOT, 'ApplicableWM':fl[i].ApplicableWM, 'IsOTComfirm':fl[i].IsOTComfirm, 'IsManualOutTime':fl[i].IsManualOutTime,
+                    'MonthlyLimit':fl[i].MonthlyLimit, 'OutTime':fl[i].OutTime, 'PlantId':fl[i].PlantId, 'ProcessOutTime':fl[i].ProcessOutTime,
+                    'RowId':fl[i].RowId
+                });
+            }
+        }
+        else {
+            for (var i = 0; i < $scope.DataList.length; i++) {
+                ProcArr.push({
+                    'EmpSystemID': $scope.DataList[i].EmpSystemID, 'WorkDate': $scope.DataList[i].WorkDate, 'PlanOT': $scope.DataList[i].PlanOT, 'ProcessedOT': $scope.DataList[i].ProcessedOT,
+                    'DayLimit': $scope.DataList[i].DayLimit, 'StandardOT': $scope.DataList[i].StandardOT, 'AppliedOTLimit': $scope.DataList[i].AppliedOTLimit,
+                    'AllowedOTLimit': $scope.DataList[i].AllowedOTLimit, 'AdditionalOT': $scope.DataList[i].AdditionalOT, 'WeekLimit': $scope.DataList[i].WeekLimit,
+                    'TargetOT': $scope.DataList[i].TargetOT, 'ApplicableWM': $scope.DataList[i].ApplicableWM, 'IsOTComfirm': $scope.DataList[i].IsOTComfirm, 'IsManualOutTime': $scope.DataList[i].IsManualOutTime,
+                    'MonthlyLimit': $scope.DataList[i].MonthlyLimit, 'OutTime': $scope.DataList[i].OutTime, 'PlantId': $scope.DataList[i].PlantId, 'ProcessOutTime': $scope.DataList[i].ProcessOutTime,
+                    'RowId': $scope.DataList[i].RowId
+                });
+            }
         }
 
         var Proc = JSON.stringify(ProcArr);
@@ -267,7 +286,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
         $http({
             method: 'POST',
             url: $scope.path + 'ProcessData',
-            data: { 'Data': Proc, 'OTWeek': $scope.Week, 'SelectedOT' : $scope.SelectedOT},
+            data: { 'Data': Proc, 'OTWeek': $scope.Week, 'SelectedOT': $scope.SelectedOT },
         }).then(function succ(resp) {
             if (resp.data.Error === true) {
                 ShowResult(resp.data.Message, 'failure');
@@ -370,5 +389,5 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
             ShowResult(response.data.Message, 'failure');
         });
     }
-    
+
 }

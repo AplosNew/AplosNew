@@ -807,6 +807,12 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 //AttendanceProcessAplos ob = new AttendanceProcessAplos();
                 //ob.LockValidation(items[0].PlantID, items[0].FromDate.ToString("dd-MMM-yyyy"), Convert.ToDateTime(items[0].ToDate).ToString("dd-MMM-yyyy"), items[0].EmpSystemID);
 
+                if (items[0].LTSystemID == "LVT-20193" || items[0].LTSystemID == "LVT-20194" || items[0].LTSystemID == "SP211" || items[0].LTSystemID == "SP201")
+                {
+                    throw new CustomException("You Can't Apply Medical Leave Please Contact To HR");
+                }
+
+
                 if (!string.IsNullOrEmpty(items[0].SystemID))
                 {
                     con.OpenDataSetThroughAdapter("select IsApproved from " + TableName + " where SystemID='" + items[0].SystemID + "'", out dsApprove, false, "1");
@@ -860,7 +866,6 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 {
                     LVPolicyMasterSystemID = dtx.Rows[0]["LVPolicyMasterSystemID"].ToString();
                 }
-
 
 
                 decimal leaveDays_ = items[0].LeaveDays;
@@ -1108,14 +1113,13 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 var fromDate = "01-Jan-" + newyear;
                 var toDate = "31-Dec-" + newyear;
                 var sql = @"SELECT LT.SystemID,LT.FromDate,LT.ToDate,LT.IsApproved,LT.LvReason,LT.LeaveDays,
-               e.SectionId ,LT.LeaveDayType, L.UserName  AS leaveTypeName,e.EmployeeName,e.EmployeeCode,FORMAT(DOJ,'dd-MMM-yyyy')DOJ,format(DOC,'dd-MMM-yyyy')DOC
+               e.SectionId ,LT.LeaveDayType,Concat(E.EmployeeCode ,'-', L.UserName)  AS leaveTypeName,e.EmployeeName,e.EmployeeCode,FORMAT(DOJ,'dd-MMM-yyyy')DOJ,format(DOC,'dd-MMM-yyyy')DOC
                                     FROM [dbo].[LeaveTransaction] AS LT
                                     LEFT JOIN [dbo].[LeaveType] AS L ON L.Id=LT.LTSystemID
                                     LEFT JOIN EmployeeInformation E ON E.SystemId=LT.EmpSystemID
-                                    WHERE LT.GroupID='" + companyGroupId + @"' AND E.CompanyId='" + companyId + @"' -- AND LT.PlantID='" + plantId + @"'
-                                    AND LT.EmpSystemID='" + employeeId + @"'
-                                    AND L.LeaveType<>'Maternity' AND (LT.FromDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"'
-                                    OR LT.ToDate BETWEEN '" + fromDate + @"' AND '" + toDate + "') Order by LT.FromDate DESC";
+                                   WHERE  -- AND LT.PlantID='" + plantId + @"'
+                                     LT.AppliedBy='" + employeeId + @"'
+                                    AND L.LeaveType<>'Maternity'  Order by LT.FromDate DESC";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

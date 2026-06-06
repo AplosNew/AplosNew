@@ -97,10 +97,10 @@ namespace Library.Service.OrderManagements
             {
                 //old
                 string systemid = "";
-                //bplib.clsGenID objID = new bplib.clsGenID();
-                //objID.GenHRID(System.DateTime.Now.ToShortDateString(), "PRODUCTION ORDER", out systemid);
+                bplib.clsGenID objID = new bplib.clsGenID();
+                objID.GenHRID(System.DateTime.Now.ToShortDateString(), "PRODUCTION ORDER", out systemid);
 
-                systemid = GetAutoNumber(nameof(ProductionOrder), PKGeneratorEnum.Auto, null, DateTime.Now);
+                //systemid = GetAutoNumber(nameof(ProductionOrder), PKGeneratorEnum.Auto, null, DateTime.Now);
 
 
                 // new 

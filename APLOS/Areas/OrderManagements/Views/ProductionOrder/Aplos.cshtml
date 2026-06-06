@@ -82,8 +82,15 @@
         </div>
         <div class="form-group">
             <label class="col-sm-4 control-label">Production Order ID</label>
-            <label class="col-sm-8 control-label">{{model.Id}}</label>
-
+            <label class="col-sm-3 control-label">{{model.Id}}</label>
+            <label class="col-sm-2 control-label">Order Level</label>
+            <div class="col-sm-3">
+                <div class="select-style">
+                    <select name="Order Level" class="form-control" ng-model="model.OrderLevel" ng-options="item.Value as item.Text for item in orderLevelList" tabindex="1">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
         </div>
         <div class="form-group">
             <label class="col-sm-4 control-label">Upload Picture</label>
@@ -162,7 +169,7 @@
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Material</a></li>
             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Process Set</a></li>
-            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Bulletin</a></li>
+            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);getProductionBulletinProcess(bulletinTemplateNew.Id);" href="" data-toggle="tab">Bulletin</a></li>
             <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">Work Center</a></li>
             <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" data-toggle="tab">First Process Work Center</a></li>
             <li ng-show="model.IsPreDefineLotApplicable==true" role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" data-toggle="tab">Lot Control</a></li>
@@ -553,6 +560,8 @@
                                          e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
                                         <div e-columns>
                                             <div e-column e-field="Id" e-headertext="id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                            <div e-column e-template="#lastOperation" e-headertext="Last Operation" e-width="50" style="height: 20px;"></div>
+
                                             <div e-column e-field="OperationCode" e-headertext="Operation Code" e-width="40" style="height: 20px;"></div>
                                             <div e-column e-template="#Sequence" e-headertext="Sequence" e-width="50" style="height: 20px;"></div>
                                             <div e-column e-field="OperationVariation" e-headertext="Operation Variation" e-width="110" style="height: 20px;"></div>
@@ -604,9 +613,14 @@
                                     <script type="text/template" id="checkboxDelTemplate">
                                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.DelFlag" />
                                     </script>
-                                    @*<script type="text/x-jsrender" id="headerDelTemplate">
-                                            <input type="checkbox" id="headchk" />
-                                        </script>*@
+                                    <script type="text/template" id="lastOperation">
+                                        <div class="radio">
+                                            <label>
+                                                <input type="radio" name="lastoptradio" ng-checked="data.IsLastOperation" ng-click="$parent.setIsLastOperation(this)" value="" />
+                                                <span class="cr"><i class="cr-icon"></i></span>
+                                            </label>
+                                        </div>
+                                    </script>
                                     <script type="text/template" id="Sequence">
                                         <div class="col-sm-10" style="padding:0px; width:70px;">
                                             <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.Sequence" e-width="80" />
@@ -1110,18 +1124,18 @@
 
                             <div e-column e-headertext="" e-template="#checkboxTemplateSOSearch" e-textalign="center" e-width="30"></div>
                             <div e-column e-type="string" e-field="OrderType" e-headertext="Order Type" e-width="70"></div>
+                            <div e-column e-type="string" e-field="SalesOrderId" e-headertext="SO. ID" e-width="70"></div>
+                            <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Production Own #" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
+                            <div e-column e-field="Qty" e-headertext="Qty" e-width="80" e-textalign="right"></div>
+                            <div e-column e-field="DeliveryDate" e-headertext="Del. Date" e-width="80"></div>
                             <div e-column e-type="string" e-field="ShipmentFromStock" e-headertext="ShipmentFromStock" e-width="50"></div>
                             <div e-column e-type="string" e-field="ProductName" e-headertext="Product" e-width="180" e></div>
                             <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="120"></div>
-                            <div e-column e-type="string" e-field="SalesOrderId" e-headertext="SO. ID" e-width="70"></div>
-                            <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Production Own #" e-width="100"></div>
                             <div e-column e-type="string" e-field="ProductionGrouping" e-headertext="Product Grouping" e-width="120" e></div>
                             <div e-column e-type="string" e-field="BuyerOrderNo" e-headertext="Customer Order#" e-width="70"></div>
                             <div e-column e-type="string" e-field="LineItemReference" e-headertext="LineItemReference" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
-                            <div e-column e-field="Qty" e-headertext="Qty" e-width="80" e-textalign="right"></div>
                             <div e-column e-type="string" e-field="MasterOrderItemId" e-headertext="M. Order Item" e-width="70"></div>
-                            <div e-column e-field="DeliveryDate" e-headertext="Del. Date" e-width="80"></div>
                             <div e-column e-field="CommitmentDate" e-headertext="Commi.Date" e-width="80"></div>
                             <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Customer Item#" e-width="100"></div>
                             <div e-column e-type="string" e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100"></div>
@@ -1176,7 +1190,6 @@
         </div>
     </div>
 </div>
-
 
 @*<confirm-archive-generic modalid="confirmRecipeMaterialPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow();"></confirm-archive-generic>*@
 <!-- #endregion -->

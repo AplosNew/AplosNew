@@ -65,7 +65,9 @@ namespace Aplos.Areas.Leave.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 clsLeaveBalance ep = new clsLeaveBalance();
-                return Json(ep.GetEmp(identity.PlantId, identity.CompanyId, YearId), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(ep.GetEmp(identity.PlantId, identity.CompanyId, YearId), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
             }
             catch (Exception ex)
             {

@@ -880,7 +880,7 @@ FORMAT(dateadd(day,Convert(int,
             string sql = @"SELECT D.Id
                          ,Format(D.LetterIssueDate, 'dd-MMM-yyyy') LetterIssueDate
                          ,Format(D.NextLetterDueDate, 'dd-MMM-yyyy') NextLetterDueDate
-                         ,Format(M.EntryDate, 'dd-MMM-yyyy') EntryDate,DATEDIFF(Day,M.EntryDate,D.LetterIssueDate)+1 NumberOfAbsentDays
+                         ,Format(M.EntryDate, 'dd-MMM-yyyy') EntryDate,DATEDIFF(Day,M.EntryDate,Getdate())+1 NumberOfAbsentDays
                          ,M.EmpSystemId
                          ,M.Id CaseNo ,sd1.Sequence LetterNo
                          ,dasc.LetterLanguage
@@ -923,8 +923,6 @@ FORMAT(dateadd(day,Convert(int,
 
 
 
-
-
                 if (!string.IsNullOrEmpty(fileName))
                 {
                     strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), fileName);
@@ -934,7 +932,6 @@ FORMAT(dateadd(day,Convert(int,
                         throw new CustomException("File Not Found");
                     }
                 }
-
 
 
                 FileInfo DocFile = new FileInfo(strPath);
@@ -992,6 +989,7 @@ FORMAT(dateadd(day,Convert(int,
                 document.Replace("{NumberOfAbsentDays}", cnDgt(dsMaster.Tables[0].Rows[0]["NumberOfAbsentDays"].ToString(), LetterLanguage), false, true);
                 document.Replace("{IncidenceDate}", GetFormatedDate(dsMaster.Tables[0].Rows[0]["EntryDate"].ToString(), LetterLanguage), false, true);
                 document.Replace("{LetterIssueDate}", GetFormatedDate(dsMaster.Tables[0].Rows[0]["LetterIssueDate"].ToString(), LetterLanguage), false, true);
+                document.Replace("{NextLetterDueDate}", GetFormatedDate(dsMaster.Tables[0].Rows[0]["NextLetterDueDate"].ToString(), LetterLanguage), false, true);
                 document.Replace("{EntryDate}", dsMaster.Tables[0].Rows[0]["EntryDate"].ToString(), false, true);
                 document.Replace("{Sequence}", dsMaster.Tables[0].Rows[0]["Sequence"].ToString(), false, true);
                 document.Replace("{EmployeeCode}", dsMaster.Tables[0].Rows[0]["EmployeeCode"].ToString(), false, true);
@@ -1018,7 +1016,6 @@ FORMAT(dateadd(day,Convert(int,
 
 
 
-
                 foreach (string item in replaced.Keys)
                 {
                     if (replaced[item] == 0)
@@ -1033,11 +1030,7 @@ FORMAT(dateadd(day,Convert(int,
 
 
 
-
-
                 //}
-
-
 
 
 
@@ -1058,15 +1051,6 @@ FORMAT(dateadd(day,Convert(int,
             {
                 throw ex;
             }
-
-
-
-
-
-
-            //DisciplinaryActionLetterInMSWordFun(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, empId, empType, reportType, tempId);
-
-
 
 
             return View();

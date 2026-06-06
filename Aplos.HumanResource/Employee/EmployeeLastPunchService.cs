@@ -34,7 +34,7 @@ namespace Library.HumanResource.Employee
                 var sql = @"select SystemId as EmpId,EmployeeName,EmployeeCode,Format(DOJ,'dd-MMM-yyyy')DOJ,
                 TenureMonth=DATEDIFF(month,FORMAT(DOJ,'dd-MMM-yyyy'), FORMAT(GETDATE(),'dd-MMM-yyyy')),EmployeeStatus,
                 EmployeeCurrentStatus,LastPunch.InTime as LastIn,FORMAT(LastPunch.WorkDate,'dd-MMM-yyyy') as LastWorkDate,s.UserName as Section,ss.UserName as SubSection,d.UserName as
-                Department,l.UserName as Designation,px.UserName as Plant from
+                Department,l.UserName as Designation,px.UserName as Plant,EN.UserName as Entity from
                 (
                 select * from (
                 select dense_rank() over (partition by empsystemid order by workdate desc) as Rnk1,a.InTime,
@@ -42,8 +42,9 @@ namespace Library.HumanResource.Employee
                 from AttdnProcessData a where (isnull(InTime,'') !='' or isnull(OutTime,'')!='')
                 )as LastPunch where rnk1=1)LastPunch 
                 left join EmployeeInformation e on e.systemid=lastpunch.empsystemid
- LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
-                            LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
+                LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
+                LEFT JOIN ORG.Position P ON MB.PositionId=P.Id
+                LEFT JOIN ORG.Entity EN ON EN.Id=mb.EntityId
                 left join org.Plant px on px.Id=e.PlantId
                 left join org.Section s on s.Id=p.SectionId
                 left join org.SubSection ss on ss.Id=p.SubSectionId

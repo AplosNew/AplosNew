@@ -95,7 +95,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <br />
                 <hr style="margin-top: 32px;margin-left: -30px;" />
                 <div class="form-group">
@@ -111,6 +111,15 @@
                     </div>
                 </div>
                 <hr style="margin-top: 20px;margin-left: -30px;" />
+                <div class="form-group">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="MOentityPopUp();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i> Select Entity</button></li>
+                            <li> <button ng-click="GetBuyerMasterEntityPOPUp();" class="btn" tabindex="11"><i class="glyphicon glyphicon-list"></i> Selected Entity</button></li>
+                        </ul>
+                    </div>
+
+                </div>
             </div>
         </div>
         <div class="row">
@@ -251,7 +260,7 @@
 
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                     <div class="form-group">
-                       
+
                         <div class="col-sm-2">
                             Create By
                         </div>
@@ -770,6 +779,85 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="MPOentityPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Entity Informations</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12" style="color:black;">
+                        <div id="GridENT" ej-grid e-datasource="entityList" e-templaterefresh="refreshTemplateemployee"
+                             e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-cellselected="cellSelected"
+                             e-allowscrolling="true" e-minwidth="450" e-minheight="400" e-allowselection="false" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                                <div e-column e-type="string" e-field="EntityId" e-headertext="EntityId" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Division" e-headertext="Division" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Unit" e-headertext="Unit" e-width="80"></div>
+                                <div e-column e-type="string" e-field="EffectiveDate" e-headertext="Effective Date" e-width="80"></div>
+                                <div e-column e-type="string" e-field="EffectiveDateUpTo" e-headertext="Effective Date UpTo" e-width="80"></div>
+                            </div>
+
+                        </div>
+                        <script type="text/template" id="checkboxTemplate">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                        </script>
+                        <script type="text/x-jsrender" id="headerTemplate">
+                            <input type="checkbox" id="headchk" />
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <ul class="list-inline text-right">
+                    <li><button type="button" class="btn btn-default" ng-click="CloseMOE();">Apply</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="BuyerMasterEntityPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Buyer Master Entity Informations</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12" style="color:black;">
+                        <div id="GridBuyerENT" ej-grid e-datasource="BuyerMasterEntityList"
+                             e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-cellselected="cellSelected"
+                             e-allowscrolling="true" e-minwidth="450" e-minheight="400" e-allowselection="false" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="EntityId" e-headertext="EntityId" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Division" e-headertext="Division" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Unit" e-headertext="Unit" e-width="80"></div>
+                                <div e-column e-type="string" e-field="EffectiveDate" e-headertext="Effective Date" e-width="80"></div>
+                                <div e-column e-type="string" e-field="EffectiveDateUpTo" e-headertext="Effective Date UpTo" e-width="80"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <ul class="list-inline text-right">
+                    <li><button type="button" class="btn btn-default" ng-click="CloseBuyerMasterEntity();">Close</button></li>
+                </ul>
             </div>
         </div>
     </div>

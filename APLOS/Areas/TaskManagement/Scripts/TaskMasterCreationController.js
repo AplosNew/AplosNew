@@ -176,9 +176,35 @@ function TaskMasterCreationController(cboService, commonMessage, $scope, $rootSc
         SubTask = args.data;
     };
 
+    function CheckField(fieldname, field) {
+        try {
+            if (baseService.isUndefinedOrNull(field)) {
+                throw "[" + fieldname + "] is required.";
+            }
+
+        } catch (ex) {
+            throw ex;
+        }
+    }
     $scope.Save = function () {
         try {
 
+            CheckField("Task Description", $scope.model.TaskDescription);
+            CheckField("User Define Task", $scope.model.UserDefineTask);
+            CheckField("Code", $scope.model.Code);
+            CheckField("Standard Name", $scope.model.StandardName);
+            CheckField("Sequence", $scope.model.Sequence);
+            CheckField("Task Category", $scope.model.TaskCategoryId);
+            CheckField("Task SubCategory", $scope.model.TaskSubCategoryId);
+            CheckField("Process", $scope.model.ProcessId);
+            CheckField("Department", $scope.model.DepartmentId);
+            CheckField("Task Type", $scope.model.TaskType);
+            CheckField("Task AppliedOn", $scope.model.TaskAppliedOnId);
+            CheckField("Task Dependent Date", $scope.model.TaskDependentDatesId);
+            CheckField("Responsible Person Category", $scope.model.ResponsiblePersonCategory);
+            CheckField("Lag Days", $scope.model.LagDays);
+            CheckField("Standard Days", $scope.model.StandardDays);
+            CheckField("Story Point", $scope.model.StoryPoint);
 
             var DropDownListObj = $("#ddlPlantList").data("ejDropDownList");
             var plantList = DropDownListObj.getSelectedValue();

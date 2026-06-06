@@ -4,6 +4,7 @@ using Library.Accounting.Accounts;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
+using Library.Data.Sql;
 using Library.Model.Addresses;
 using Library.Model.Organizations;
 using Library.Model.Setups;
@@ -22,10 +23,12 @@ namespace Aplos.Areas.Organizations.Controllers
         #region Constructor
 
         private readonly ICompanyService _companyService;
+        private readonly ISqlRepository _sqlRepository;
 
-        public CompanyController(ICompanyService companyService)
+        public CompanyController(ICompanyService companyService, ISqlRepository sqlRepository)
         {
             _companyService = companyService;
+            _sqlRepository = sqlRepository;
         }
 
         #endregion Constructor
@@ -54,10 +57,15 @@ namespace Aplos.Areas.Organizations.Controllers
             return Json(_companyService.GetCboInterCompany(companyGroupId), JsonRequestBehavior.AllowGet);
         }
 
+       
         [HttpGet, AllowAnonymous]
         public JsonResult GetCboByCOA(string coaId)
         {
-            return Json(_companyService.GetCboByCOA(coaId), JsonRequestBehavior.AllowGet);
+            return Json(GetCboDataByCOA(coaId), JsonRequestBehavior.AllowGet);
+        }
+        public IEnumerable<object> GetCboDataByCOA(string coaId)
+        {
+            return _sqlRepository.GetDataCollection("SELECT UserName AS [Text],Id AS Value FROM ORG.Company  AS c WHERE COAId='" + coaId + "' And Active=1 Order By Sequence");
         }
 
         [HttpGet, Authorize]

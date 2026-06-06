@@ -1328,8 +1328,14 @@ upanelApp.controller("EmployeeSalaryStructureController", EmployeeSalaryStructur
 upanelApp.controller("EmployeeSalaryProcessController", EmployeeSalaryProcessController)
 upanelApp.controller("SalaryRuleSpecialAllowanceController", SalaryRuleSpecialAllowanceController)
 upanelApp.controller("EmployeeBulkUploadFNFController", EmployeeBulkUploadFNFController)
-
-
+upanelApp.controller("EmployeeWiseProductionReportController", EmployeeWiseProductionReportController)
+upanelApp.controller("planningTypesNewController", planningTypesNewController)
+upanelApp.controller("SkillDevelopmentMasterController", SkillDevelopmentMasterController)
+upanelApp.controller("skillPlanningController", skillPlanningController)
+upanelApp.controller("userDefineReportController", userDefineReportController)
+upanelApp.controller("employeeAttdnTrendReportController", employeeAttdnTrendReportController)
+upanelApp.controller("favouriteReportController", favouriteReportController)
+upanelApp.controller("userfavouriteReportController", userfavouriteReportController)
 
 
 upanelApp.config(AccessControllerConfig);
@@ -1696,7 +1702,7 @@ upanelApp.run(["$rootScope", "$cookies", "$window", "$location", "$filter", "bas
             return angular.isUndefined(val) || val === null || val === "";
         };
 
-        
+
         $rootScope.template =
             '<div class="row" style="display:inline-box;">'
             + '    <div style="float:left;padding-left:10px;" class="glyphicon glyphicon-list"> '

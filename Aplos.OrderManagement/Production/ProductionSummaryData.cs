@@ -437,8 +437,8 @@ namespace Library.OrderManagement.Production
 
             string CmdText = @"SELECT PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
                                    ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity
-								  ,PlannedQty=CASE WHEN PQ.Qty=0 THEN PO.PlannedQty ELSE PO.PlannedQty END
-                            ,((CASE WHEN PQ.Qty=0 THEN PO.PlannedQty ELSE PO.PlannedQty END)-ISNULL(CEILING(PRS.TotalProductionQty),0)) RemainingQty
+								  ,PlannedQty=CASE WHEN ISNULL(PQ.Qty,0)=0 THEN PO.PlannedQty ELSE PQ.Qty END
+                            ,((CASE WHEN ISNULL(PQ.Qty,0)=0 THEN PO.PlannedQty ELSE PQ.Qty END)-ISNULL(CEILING(PRS.TotalProductionQty),0)) RemainingQty
                             , ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
 									,SONo=STUFF((select distinct ','+XSO.Id from 
                                                                  trn.SalesOrder XSO 
@@ -3273,8 +3273,8 @@ SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, 
             {
                 if (status == "PROCESS")
                 {
-                    var sql = @"SELECT  PlannedQty=CASE WHEN S.Qty=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE S.Qty END
-                          ,ISNULL(CEILING((CASE WHEN S.Qty=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE S.Qty END) - ISNULL(CEILING(PRS.TotalProductionQty),0)),0) RemainingQty, ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
+                    var sql = @"SELECT  PlannedQty=CASE WHEN ISNULL(S.Qty,0)=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE S.Qty END
+                          ,ISNULL(CEILING((CASE WHEN ISNULL(S.Qty,0)=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE S.Qty END) - ISNULL(CEILING(PRS.TotalProductionQty),0)),0) RemainingQty, ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
                          FROM trn.ProductionOrder AS PO
 						 LEFT JOIN (Select Qty, ProductionOrderId from productionOrderSchedulingParametersType1  WHERE ProductionOrderId ='" + productionOrderId + @"') S ON S.ProductionOrderId = PO.Id 	
                          LEFT JOIN (
@@ -3285,8 +3285,8 @@ SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, 
                 }
                 else
                 {
-                    var sql = @"SELECT  PlannedQty=CASE WHEN S.Qty=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE S.Qty END
-                          ,ISNULL(CEILING((CASE WHEN S.Qty=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE S.Qty END) - ISNULL(CEILING(PRS.TotalProductionQty),0)),0) RemainingQty, ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
+                    var sql = @"SELECT  PlannedQty=CASE WHEN ISNULL(S.Qty,0)=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE S.Qty END
+                          ,ISNULL(CEILING((CASE WHEN ISNULL(S.Qty,0)=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE S.Qty END) - ISNULL(CEILING(PRS.TotalProductionQty),0)),0) RemainingQty, ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
                          FROM trn.ProductionOrder AS PO
 						 LEFT JOIN (Select Qty, ProductionOrderId from productionOrderSchedulingParametersType1  WHERE ProductionOrderId ='" + productionOrderId + @"') S ON S.ProductionOrderId = PO.Id
                          LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId
@@ -3394,7 +3394,7 @@ SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, 
         {
             try
             {
-                var sql = @"SELECT Id as Value,UserName as Text FROM SCS.WorkCenterMaster WHERE ProcessId='" + ProcessId + "' AND PlantId='" + plantId + "' AND EntityId='" + EntityId + "' Order  by Sequence";
+                var sql = @"SELECT Id as Value,UserName as Text FROM SCS.WorkCenterMaster WHERE Active = 1 and ProcessId='" + ProcessId + "' AND PlantId='" + plantId + "' AND EntityId='" + EntityId + "' Order  by Sequence";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
 

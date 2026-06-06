@@ -1949,15 +1949,23 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
             try
             {
                 string strkey = "1=1";
+                DataTable dt = null;
                 if (string.IsNullOrEmpty(column) == false)
                     strkey = column + " like '%" + value + "%'";
-                string ca = @"select E.SystemId from dbo.AuthorizationConfig A 
-                          Inner Join dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                if (!string.IsNullOrEmpty(empId))
+                {
+                    string ca = @"select E.SystemId from dbo.AuthorizationConfig A 
+                          Inner JOIN dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='SalesOrderCheckedBy' AND E.EmployeeStatus='Active' AND E.SystemId=" + empId + "";
-                var dt = _sqlRepository.GetDataTable(ca);
+                     dt = _sqlRepository.GetDataTable(ca); 
+                }
+                else
+                {
+                    throw new Exception("This employee is not authorized for checking.");
+                }
                 if (dt.Rows.Count == 0)
                 {
-                    throw new Exception("This employee is not authorize for checking.");
+                    throw new Exception("This employee is not authorized for checking.");
                 }
                 string sql = @"select * from (SELECT A.Id, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId, EN.UserName Entity,FORMAT(A.AddedDate,'dd-MMM-yyyy') AS CreationDate,a.AddedBy AS CreatedBy
                                     , A.OrderType, A.PartyId, P.Code CustomerCode, P.UserName AS CustomerName, A.BuyerId,B.UserName Buyer
@@ -2013,7 +2021,7 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
                             WHERE A.CompanyId='" + companyId + @"' AND A.Id IN(Select distinct MOI.MasterOrderId from  TRN.SalesOrder SO
 LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId
 LEFT JOIN TRN.MasterOrder MO ON MO.Id = MOI.MasterOrderId
-Where SO.CheckByStatus = 'To Be Check')) AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
+Where SO.CheckByStatus IN('To Be Check','Reject'))) AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -2074,7 +2082,7 @@ Where SO.CheckByStatus = 'To Be Check')) AS TEMP WHERE " + strkey + " ORDER BY A
                         LEFT JOIN dbo.ProductLibrary PL ON PL.Id=MOI.ProductLibraryId
                         LEFT JOIN dbo.OrderCostingMasterTemplate OCT ON OCT.Id=MOI.OrderCostingMasterTemplateId
                         WHERE MOI.MasterOrderId='" + masterOrderId + @"' AND MOI.Id IN(Select distinct SO.MasterOrderItemId from  TRN.SalesOrder SO
-Where SO.CheckByStatus = 'To Be Check')";
+Where SO.CheckByStatus IN('To Be Check','Reject'))";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

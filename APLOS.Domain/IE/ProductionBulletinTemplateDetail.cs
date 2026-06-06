@@ -53,6 +53,7 @@ namespace Library.Model.IE
         public decimal NeedleConsumption { get; set; }
         public decimal BobbinConsumption { get; set; }
         public decimal LooperConsumption { get; set; }
+        public bool IsLastOperation { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties

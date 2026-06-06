@@ -165,7 +165,7 @@ namespace Library.Service.IEnumerable
 
         public void DeleteBulletin(string id)
         {
-            string strSQL, strPSQL, strBSQL, strOSQL;
+            string strSQL, strPSQL, strBSQL, strOSQL, strCSQL;
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
@@ -173,6 +173,7 @@ namespace Library.Service.IEnumerable
                 //    throw new CustomException("First delete Operation!");
 
                 strOSQL = "DELETE FROM  [MST].[BulletinTemplateDetail] WHERE BulletinTemplateMasterId IN (SELECT ID FROM  [MST].[BulletinTemplateMaster]  WHERE BulletinTemplateId='" + id + "')";
+                strCSQL = "DELETE FROM dbo.BulletinCalculation WHERE BulletinTemplateMasterId IN (SELECT ID FROM  [MST].[BulletinTemplateMaster]  WHERE BulletinTemplateId='" + id + "')";
                 strPSQL = "DELETE FROM [MST].[BulletinTemplateMaster] WHERE BulletinTemplateId='" + id + "'";
                 strBSQL = "DELETE FROM [MST].[BulletinTemplateBuyerInfo] WHERE BulletinTemplateId='" + id + "'";
                 strSQL = "DELETE FROM [MST].[BulletinTemplate] WHERE Id = '" + id + "'";
@@ -181,6 +182,7 @@ namespace Library.Service.IEnumerable
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
                 objCon.ExecuteNonQueryWrapper(strOSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strCSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strPSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strBSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
@@ -531,12 +533,28 @@ namespace Library.Service.IEnumerable
                     if (dsBC.Tables[0].Rows.Count == 0)
                     {
                         AuditService.AddedLog(bulletinCalculation);
+                        if (bulletinCalculation.OrganizationEfficiency== "Infinity")
+                        {
+                            bulletinCalculation.OrganizationEfficiency = "0"; 
+                        }
+                        if (bulletinCalculation.PitchTime == "Infinity")
+                        {
+                            bulletinCalculation.PitchTime = "0"; 
+                        }
                         _bulletinCalculationRepository.Insert(bulletinCalculation);
                         _unitOfWork.SaveChanges();
                     }
                     else
                     {
                         bulletinCalculation.Id = Convert.ToInt32(dsBC.Tables[0].Rows[0]["Id"].ToString());
+                        if (bulletinCalculation.OrganizationEfficiency == "Infinity")
+                        {
+                            bulletinCalculation.OrganizationEfficiency = "0";
+                        }
+                        if (bulletinCalculation.PitchTime == "Infinity")
+                        {
+                            bulletinCalculation.PitchTime = "0";
+                        }
                         AuditService.UpdatedLog(bulletinCalculation);
                         _bulletinCalculationRepository.Update(bulletinCalculation);
                         _unitOfWork.SaveChanges();

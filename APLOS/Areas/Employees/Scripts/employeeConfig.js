@@ -540,6 +540,23 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'Employees/EmployeeInformation/BulkUpload',
             controller: 'EmployeeBulkUploadFNFController'
         })
+        .when('/report', {
+            templateUrl: 'Employees/EmployeeInFoReport/Report',
+            controller: 'userDefineReportController'
+        })
+        .when('/trend-report', {
+            templateUrl: 'Employees/EmployeeInFoReport/Trend',
+            controller: 'employeeAttdnTrendReportController'
+        })
+        .when('/filter', {
+            templateUrl: 'Employees/EmployeeInFoReport/Filter',
+            controller: 'favouriteReportController'
+        })
+        .when('/user-filter', {
+            templateUrl: 'Employees/EmployeeInFoReport/UserFilter',
+            controller: 'userfavouriteReportController'
+        })
+
 
         ;
 } 

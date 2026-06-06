@@ -35,6 +35,7 @@ namespace Library.Model.OrderManagements
         //public decimal ProductionPriority { get; set; } = 0;
         public string Remarks { get; set; }
         public string RequiredTimeUnit { get; set; }
+        public string OrderLevel { get; set; }
         public string UserDefineLotNo { get; set; }
         public bool IsPreDefineLotApplicable { get; set; }
         public bool IsWorkCenterValidateApplicable { get; set; }

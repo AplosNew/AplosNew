@@ -2548,6 +2548,11 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     _leave_days = 0.5m;
                     leaveDays = 0.5m;
                 }
+                else if (leaveTransaction.LeaveDayType == "ShortLeave")
+                {
+                    _leave_days = 0.25m;
+                    leaveDays = 0.25m;
+                }
                 else
                 {
                     clsEmpWiseLeavePolicyInfo _obj_POD = new clsEmpWiseLeavePolicyInfo(identity.PlantId);
@@ -2565,6 +2570,11 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 if (leaveTransaction.LeaveDayType == "FirstHalfDay" || leaveTransaction.LeaveDayType == "SecondHalfDay")
                 {
                     leaveTransaction.LeaveDays = 0.5m;
+                    leaveTransaction.ToDate = leaveTransaction.FromDate;
+                }
+                else if (leaveTransaction.LeaveDayType == "ShortLeave")
+                {
+                    leaveTransaction.LeaveDays = 0.25m;
                     leaveTransaction.ToDate = leaveTransaction.FromDate;
                 }
                 else
@@ -2639,9 +2649,14 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     duration = 0.5m;
                     halfDay = true;
                 }
-                else
+                else if (leaveTransaction.LeaveDayType == "SecondHalfDay")
                 {
                     duration = 0.5m;
+                    halfDay = false;
+                }
+                else
+                {
+                    duration = 0.25m;
                     halfDay = false;
                 }
                 if (!string.IsNullOrEmpty(leaveTransaction.SystemID))//77

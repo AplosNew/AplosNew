@@ -1052,6 +1052,7 @@
                                     <th>Actions</th>
                                     <th>Check Status</th>
                                     <th>Approve By</th>
+                                    <th>Remark</th>
                                     <th>SO Number</th>
                                     <th>Delivery Date</th>
                                     <th>Destination</th>
@@ -1102,6 +1103,9 @@
                                     </td>
                                     <td>
                                         <input ej-dropdownlist e-datasource="ApproveByList" e-value="x.ApproveBy" e-fields-text="Text" e-fields-value="Value" e-width="100" />
+                                    </td>
+                                    <td>
+                                        <input type="text" name="Remark" ng-model="x.CheckByRemark" class="form-control" maxlength="250">
                                     </td>
                                     <td>{{x.Id}}</td>
                                     <td>{{x.DeliveryDate}}</td>

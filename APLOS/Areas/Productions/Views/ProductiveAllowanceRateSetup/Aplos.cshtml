@@ -50,7 +50,9 @@
     <button data-tab="_EmployeeTimeOut" class="b-nav-tab" style="border:none">
         Employee Time Out Applicable
     </button>
-
+    <button data-tab="_OrderSize" class="b-nav-tab" style="border:none">
+        Order Size
+    </button>
     @*<div></div>*@
 </div>
 
@@ -78,6 +80,9 @@
     @{
         Html.RenderPartial("_EmployeeTimeOut");
     }
+</div>
+<div id="_OrderSize" class="b-tab">
+    @{ Html.RenderPartial("_OrderSize"); }
 </div>
 @*<script>
         'use strict';

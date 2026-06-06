@@ -1,4 +1,5 @@
 ﻿using Aplos.Controllers;
+using Aplos.Properties;
 using ConnectionManager;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
@@ -41,6 +42,23 @@ namespace Aplos.Areas.Employees.Controllers
 
 
         public ActionResult Aplos()
+        {
+            return View();
+        }
+
+        public ActionResult Report()
+        {
+            return View();
+        }
+        public ActionResult Filter()
+        {
+            return View();
+        }
+        public ActionResult UserFilter()
+        {
+            return View();
+        }
+        public ActionResult Trend()
         {
             return View();
         }
@@ -258,14 +276,14 @@ namespace Aplos.Areas.Employees.Controllers
                 //int cCTC = 0;
                 int cREN = 0;
                 int cREC = 0;
-                
+
                 #endregion variable
 
                 int endXlsCol = 0;
                 xlsRow++;
                 xlsCol = 1;
                 #region Column Header
-                
+
 
                 oRU.SetHeaderText(ref sheet1, xlsRow - 1, xlsCol, "Employee info", ExcelHAlign.HAlignCenter);
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SystemID"); cSystemID = xlsCol; xlsCol++;
@@ -319,8 +337,8 @@ namespace Aplos.Areas.Employees.Controllers
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Week Off", 25); cWeekOff = xlsCol; xlsCol++;
                 //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Week Off Effective Date"); cWEDate = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Align With Company", 11); cAlignWithCC = xlsCol; xlsCol++;
-               // oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Individual Week Off", 9); cIndv = xlsCol; xlsCol++;
-               //  oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Min. OT"); cMaxOtHour = xlsCol; xlsCol++;
+                // oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Individual Week Off", 9); cIndv = xlsCol; xlsCol++;
+                //  oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Min. OT"); cMaxOtHour = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Job Location", 14); cJL = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Company", 25); cCompany = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Department", 30); cDepartment = xlsCol; xlsCol++;
@@ -398,8 +416,8 @@ namespace Aplos.Areas.Employees.Controllers
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Training Title", 25); int ColTrainingTitle = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Training Topic", 25); int ColTrainingTopic = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Training Institute", 25); int ColTrainingInstitute = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ExCompany", 25);  int ColExCompany = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ExDesigntion", 25);int ColExDesigntion = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ExCompany", 25); int ColExCompany = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ExDesigntion", 25); int ColExDesigntion = xlsCol; xlsCol++;
                 xlsCol--;
                 endXlsCol = xlsCol;
                 xlsRow++;
@@ -552,7 +570,7 @@ namespace Aplos.Areas.Employees.Controllers
                     {
                         DataRow drTemp = dsAlignWithCompany[dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()];
 
-                       // oRU.SetText(ref sheet1, xlsRow, cWEDate, drTemp["WeekOffEffectiveDate"].ToString());
+                        // oRU.SetText(ref sheet1, xlsRow, cWEDate, drTemp["WeekOffEffectiveDate"].ToString());
                         oRU.SetText(ref sheet1, xlsRow, cAlignWithCC, drTemp["AlignWithCC"].ToString());
                         /*oRU.SetText(ref sheet1, xlsRow, cIndv, drTemp["FstOffDay"].ToString());
                         if (drTemp["AlignWithCC"].ToString() == "Yes")
@@ -579,16 +597,16 @@ namespace Aplos.Areas.Employees.Controllers
                         oRU.SetText(ref sheet1, xlsRow, cBonus, drTemp["BONUS"].ToString());
                     }
 
-                    if (plantWiseData.Rows.Count>0)
+                    if (plantWiseData.Rows.Count > 0)
                     {
                         if (Convert.ToBoolean(plantWiseData.Rows[0]["IsSalaryStructureShowInEIReport"]) == true)
                         {
                             if (dsGross.ContainsKey(dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()))
-                    {
-                        DataRow drTemp = dsGross[dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()];
+                            {
+                                DataRow drTemp = dsGross[dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()];
 
-                        oRU.SetText(ref sheet1, xlsRow, ColGS, drTemp["DefineAmount"].ToString());
-                    }
+                                oRU.SetText(ref sheet1, xlsRow, ColGS, drTemp["DefineAmount"].ToString());
+                            }
                         }
                     }
 
@@ -1396,12 +1414,12 @@ namespace Aplos.Areas.Employees.Controllers
                 report.PageSetup(ref sheet1, 5, ExcelPageOrientation.Landscape);
 
 
-                string fileName = "EmployeeInformation-"+identity.UserId+".xls";
+                string fileName = "EmployeeInformation-" + identity.UserId + ".xls";
 
-            string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName);
-            workbook.Version = ExcelVersion.Excel2016;
-            workbook.SaveAs(fullPath);
-            return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName);
+                workbook.Version = ExcelVersion.Excel2016;
+                workbook.SaveAs(fullPath);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
 
             }
@@ -1422,7 +1440,7 @@ namespace Aplos.Areas.Employees.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var str = @"select IsSalaryStructureShowInEIReport from PlantWiseHRMSSetting 
-                            where PlantID = '"+identity.PlantId+"'";
+                            where PlantID = '" + identity.PlantId + "'";
                 return _sqlRepository.GetDataTable(str);
             }
             catch (Exception e)
@@ -1771,5 +1789,1125 @@ LEFT JOIN (SELECT R.EmpSystemID,B.EmployeeCode RefEmpCode,R.Ref1Name,R.Ref1CellP
                 throw ex;
             }
         }
+
+        [HttpGet, Authorize]
+        public ActionResult getFiltersData()
+        {
+            try
+            {
+                var sql = @"SELECT SD.SystemID ShiftId,SD.UserName ShiftName,P.Id PositionId,P.PositionCategory
+,EN.Id EntityId, EN.UserName EntityName,S.Id SectionId,S.UserName Section FROM  MST.ManpowerBudget M 
+LEFT JOIN ORG.Position P ON P.Id=M.PositionId
+LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
+LEFT JOIN ORG.Section S ON S.Id=P.SectionId
+LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftDefinationId";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getShiftCbo()
+        {
+            try
+            {
+                var sql = @"Select distinct SD.SystemID ShiftId, ShiftName=(SD.ShiftDefinationDescription+'-'+SD.UserName) from MST.ManpowerBudget M
+JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftDefinationId
+Where M.Active=1 AND SD.IsActive=1";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult getPositionCbo()
+        {
+            try
+            {
+                var sql = @"Select distinct P.PositionCategory from MST.ManpowerBudget M
+JOIN ORG.Position P ON P.Id=M.PositionId
+Where M.Active=1 AND P.PositionCategory<>''";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getEntityCbo()
+        {
+            try
+            {
+                var sql = @"Select distinct EN.Id EntityId, EN.UserName EntityName from MST.ManpowerBudget M
+LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
+Where M.Active=1 ";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getSectionCbo()
+        {
+            try
+            {
+                var sql = @"Select distinct S.Id SectionId,S.UserName Section from MST.ManpowerBudget M
+LEFT JOIN ORG.Position P ON P.Id=M.PositionId
+LEFT JOIN ORG.Section S ON S.Id=P.SectionId
+Where M.Active=1 ";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getMenuMasterCbo()
+        {
+            try
+            {
+                var sql = @"Select * from MST.MenuMaster";
+                JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetFavouriteMaster()
+        {
+            try
+            {
+                var sql = @"Select * from [dbo].[FavouriteMaster]";
+                JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetFavouriteMasterChild(string masterId)
+        {
+            try
+            {
+                var sql = @"Select * from [dbo].[FavouriteMasterChild] Where FavouriteMasterId='"+masterId+"'";
+                JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getFavouriteFiltersData()
+        {
+            try
+            {
+                var sql = @"SELECT SD.SystemID ShiftId,SD.UserName ShiftName,P.Id PositionId,P.PositionCategory
+,EN.Id EntityId, EN.UserName EntityName,S.Id SectionId,S.UserName Section FROM dbo.FavouriteFilter M
+LEFT JOIN ORG.Position P ON P.Id=M.PositionCategory
+LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
+LEFT JOIN ORG.Section S ON S.Id=P.SectionId
+LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult _SaveFavouriteFilter(Dictionary<string, object> data)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsBC;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //string strSQL = "Delete FROM DailyHRFavouriteFilter";
+
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenConnection("1");
+                //objCon.BeginTransaction();
+                //objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                //objCon.CommitTransaction();
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.FavouriteFilter Where UserId='" + identity.UserId + "'", out dsBC, false, "1");
+
+                if (data != null)
+                {
+                    DataView dv = new DataView(dsBC.Tables[0]);
+                    dv.RowFilter = "Id='" + Convert.ToInt64(data["Id"]) + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        data["UserId"] = identity.UserId;
+                        if (string.IsNullOrEmpty(identity.EmployeeId))
+                        {
+                            data["EmployeeId"] = null;
+                        }
+                        else
+                        {
+                            data["EmployeeId"] = identity.EmployeeId;
+                        }
+
+                        AddNewRow(dsBC.Tables[0], data);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, data);
+                    }
+                }
+                #endregion
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveFavouriteFilter(Dictionary<string, object> data)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsBC, dsMaster;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //string strSQL = "Delete FROM DailyHRFavouriteFilter";
+
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenConnection("1");
+                //objCon.BeginTransaction();
+                //objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                //objCon.CommitTransaction();
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                objCon.OpenDataSetThroughAdapter("select * from dbo.FavouriteMaster where StandardName='" + data["StandardName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Standard Name already exists!!!");
+
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.FavouriteMaster Where Href='" + data["Href"] + "'", out dsBC, false, "1");
+
+                if (data != null)
+                {
+                    DataView dv = new DataView(dsBC.Tables[0]);
+                    dv.RowFilter = "Id='" + data["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        //data["UserId"] = identity.UserId;
+                        //if (string.IsNullOrEmpty(identity.EmployeeId))
+                        //{
+                        //    data["EmployeeId"] = null;
+                        //}
+                        //else
+                        //{
+                        //    data["EmployeeId"] = identity.EmployeeId;
+                        //}
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("FavouriteMaster", out _Id);
+
+                        data["Id"] = _Id;
+                        AddNewRow(dsBC.Tables[0], data);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, data);
+                    }
+                }
+                #endregion
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveFavouriteChild(Dictionary<string, object> data, string masterId)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsBC, dsMaster;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                objCon.OpenDataSetThroughAdapter("select * from dbo.FavouriteMasterChild where ColumnName='" + data["ColumnName"] + "' AND  Id<>'" + data["Id"] + "'AND  FavouriteMasterId='" + masterId + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Column Name already exists!!!");
+
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.FavouriteMasterChild Where ColumnName='" + data["ColumnName"] + "' AND  FavouriteMasterId='" + masterId + "'", out dsBC, false, "1");
+
+                if (data != null)
+                {
+                    DataView dv = new DataView(dsBC.Tables[0]);
+                    dv.RowFilter = "Id='" + Convert.ToInt64(data["Id"]) + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        data["FavouriteMasterId"] = masterId;
+                        AddNewRow(dsBC.Tables[0], data);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, data);
+                    }
+                }
+                #endregion
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetDailyReportData(Dictionary<string, string> parameters, string date)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                DataTable dtTask = null;
+                dtTask = GetDailyReportData(parameters, date, identity.PlantId);
+                var jsondata = Json(CustomJsonResultService.DataTableToJson(dtTask), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        //[HttpPost, Authorize]
+        //public ActionResult GetDailyReport(Dictionary<string, string> parameters, string date)
+        //{
+
+        //    try
+        //    {
+
+        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //        string fileName = "";
+
+        //        fileName = GetDailyReportXL(parameters, date, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "DailyReport");
+        //        return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(ex.Message, JsonRequestBehavior.AllowGet);
+        //    }
+        //}
+
+        [HttpPost, Authorize]
+        public ActionResult GetDailyReport(string reportFileName, List<Dictionary<string, object>> data,string date)
+        {
+            try
+            {
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+
+                    dt.Columns.Add(item);
+                }
+
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+
+                        dr[item] = data[i][item];
+                    }
+
+                    dt.Rows.Add(dr);
+                }
+
+                string fileName = "";
+                fileName = GetDailyReportXL(dt, "", reportFileName, date);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+
+        public string GetDailyReportXL(DataTable data, string ReportHeader, string reportFileName, string date)
+        {
+            clsReport objRpt = null;
+            clsReport objRptSR = null;
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            var SheetName = "DailyReport";
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                var reportUtility = new ReportUtility();
+                workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+                workbook.Worksheets[0].Name = "Data";
+                sheet = workbook.Worksheets[0];
+
+                //Add rich-text Excel comment
+                IFont fontCaption = workbook.CreateFont();
+                fontCaption.Size = 8f;
+                IFont fontRegular = workbook.CreateFont();
+                fontRegular.Italic = true;
+                fontRegular.Size = 6f;
+
+                // ExcelEngine excelEngine = null;
+
+                workbook.Version = ExcelVersion.Excel2013;
+                var sheet1 = workbook.Worksheets[0];
+
+                #region Logo
+                string strPath = "";
+                Image companyLogo = null;
+                try
+                {
+                    DataTable dtCompanyImage = _sqlRepository.GetDataTable("SELECT * FROM ORG.COMPANY WHERE ID = '" + identity.CompanyId + @"'");
+
+                    strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), dtCompanyImage.Rows[0]["Image"].ToString());
+                    companyLogo = Image.FromFile(strPath);
+                }
+                catch (Exception)
+                {
+                }
+                #endregion
+                objRpt = new clsReport();
+
+                objRptSR = new clsReport(_sqlRepository);
+
+                DataTable dtTask = data;
+                if (dtTask.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found....");
+                }
+
+                DataTable dtCmp = objRptSR.SelectedCompanyDT(identity.CompanyId);
+
+                DataTable dtFactory = objRptSR.SelectedPlantDT(identity.PlantId);
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+
+                #region Header
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+                string FactoryName = "";
+                string CmpName = "";
+                xlsRow = 6;
+                int StartRow = xlsRow;
+                sheet1[xlsRow, xlsCol].Text = "Category";
+                int colCat = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 8;
+                xlsCol++;
+
+                int colDiv = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Division";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int colDep = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Deployment";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 9;
+                xlsCol++;
+
+                int colSan = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Sanction";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 9;
+                xlsCol++;
+
+                int colAct = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Active Emp";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 9;
+                xlsCol++;
+                int col5DayAbs = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "5 Days Absent";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol++;
+                int colNetOnroll = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Net Onroll";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 9;
+                xlsCol++;
+
+                int colOnrollSS = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Onroll Short Surplus";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 17;
+                xlsCol++;
+
+                int colLeave = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Leave";
+                IRange range1 = sheet1[xlsRow, xlsCol];
+                //ICommentShape shape1 = range1.AddComment();
+                //shape1.RichText.Append("Emp Due Task FP / Total Due Task FP", fontCaption);
+                //shape1.IsTextLocked = false;
+                //shape1.AutoSize = false;
+
+                xlsCol++;
+                int colWeekoff = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Weekoff";
+
+                xlsCol++;
+                int colAbsent = xlsCol;
+                sheet1[xlsRow, xlsCol].Text = "Absent";
+
+                xlsCol++;
+                int colAbsentper = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Absent %";
+
+                xlsCol++;
+                int colND = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Net Deployed";
+
+                xlsCol++;
+                int colSA = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Scan Applicable";
+
+
+                xlsCol++;
+                int colSC = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Scan Complete";
+
+                xlsCol++;
+                int colSP = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Scan Pending";
+
+                xlsCol++;
+                int colYI = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Yesterday's In";
+                IRange range2 = sheet1[xlsRow, xlsCol];
+                //ICommentShape shape2 = range2.AddComment();
+                //shape2.RichText.Append("(Task Completed On Time*2+Task Completed Late*1+Early Task*2)-Task Unread", fontCaption);
+                //shape2.IsTextLocked = false;
+                //shape2.AutoSize = false;
+
+                xlsCol++;
+                int colVM = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Varification Missing";
+
+                xlsCol++;
+                int colPD = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Production Data";
+
+                xlsCol++;
+                int colZPD = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Prod Data Missing";
+
+                xlsCol++;
+                int colIPM = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "In Punch Missing";
+
+                xlsCol++;
+                int colTR = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Trainee";
+
+                xlsCol++;
+                int colLast30DOJ = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Last 30 Days Joining";
+
+                xlsCol++;
+                int colLast30DOS = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Last 30 Days Left";
+
+                endXlsCol = xlsCol;
+
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 6, xlsRow, endXlsCol].ColumnWidth = 12;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 38;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Color = ExcelKnownColors.Black;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
+                #endregion
+
+                /// string Percentage = "";
+                int startRow = 0;
+                int perStartRow = 0;
+                xlsRow++;
+                startRow = xlsRow;
+                perStartRow = xlsRow;
+
+
+                for (int i = 0; i < dtTask.Rows.Count; i++)
+                {
+                    sheet1.Range[xlsRow, colCat].Text = dtTask.Rows[i]["EmpCategory"].ToString();
+                    sheet1.Range[xlsRow, colDiv].Text = dtTask.Rows[i]["Division"].ToString();
+
+                    sheet1.Range[xlsRow, colDep].Number = clsStaticInfo.dbl(dtTask.Rows[i]["Deployment"].ToString());
+                    sheet1.Range[xlsRow, colSan].Number = clsStaticInfo.dbl(dtTask.Rows[i]["Sanction"].ToString());
+                    sheet1.Range[xlsRow, colAct].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ActiveEmployee"].ToString());
+                    sheet1.Range[xlsRow, col5DayAbs].Number = clsStaticInfo.dbl(dtTask.Rows[i]["AbsentLast5Days"].ToString());
+                    sheet1.Range[xlsRow, colNetOnroll].Number = clsStaticInfo.dbl(dtTask.Rows[i]["NetOnroll"].ToString());
+                    sheet1.Range[xlsRow, colOnrollSS].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnrollShortSurplus"].ToString());
+                    sheet1.Range[xlsRow, colLeave].Number = clsStaticInfo.dbl(dtTask.Rows[i]["LeaveYesterday"].ToString());
+                    sheet1.Range[xlsRow, colWeekoff].Number = clsStaticInfo.dbl(dtTask.Rows[i]["WeekOffYesterday"].ToString());
+                    sheet1.Range[xlsRow, colAbsent].Number = clsStaticInfo.dbl(dtTask.Rows[i]["AbsentYesterday"].ToString());
+                    sheet1.Range[xlsRow, colAbsentper].Number = clsStaticInfo.dbl(dtTask.Rows[i]["AbsentPerYesterday"].ToString());
+                    sheet1.Range[xlsRow, colND].Number = clsStaticInfo.dbl(dtTask.Rows[i]["NetDeployedYesterday"].ToString());
+                    sheet1.Range[xlsRow, colSA].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ScanApplicable"].ToString());
+                    sheet1.Range[xlsRow, colSC].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ScanComplete"].ToString());
+                    sheet1.Range[xlsRow, colSP].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ScanPending"].ToString());
+                    sheet1.Range[xlsRow, colYI].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TotalInTime"].ToString());
+                    sheet1.Range[xlsRow, colVM].Number = clsStaticInfo.dbl(dtTask.Rows[i]["VarificationMissingYesterday"].ToString());
+                    sheet1.Range[xlsRow, colPD].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ProductionEmp"].ToString());
+                    sheet1.Range[xlsRow, colZPD].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ZeroProductionEmp"].ToString());
+                    sheet1.Range[xlsRow, colIPM].Number = clsStaticInfo.dbl(dtTask.Rows[i]["NoInTimeYesterday"].ToString());
+                    sheet1.Range[xlsRow, colTR].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TraineePresentValue"].ToString());
+                    sheet1.Range[xlsRow, colLast30DOJ].Number = clsStaticInfo.dbl(dtTask.Rows[i]["JoinedLast30Days"].ToString());
+                    sheet1.Range[xlsRow, colLast30DOS].Number = clsStaticInfo.dbl(dtTask.Rows[i]["LeftLast30Days"].ToString());
+
+                    xlsRow++;
+                }
+
+
+                sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
+                #region ******************Report Header******************
+
+                xlsRow = 1;
+                FactoryName = string.Empty;
+                string FactoryAddress = string.Empty;
+
+                if (dtCmp.Rows.Count > 0)
+                {
+                    CmpName = dtCmp.Rows[0]["CompanyName"].ToString();
+                }
+                else
+                {
+                    CmpName = "";
+                }
+                sheet1.Range[xlsRow, xlsCol].Text = CmpName;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 12;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 17;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                if (dtFactory.Rows.Count > 0)
+                {
+                    FactoryName = dtFactory.Rows[0]["UserName"].ToString();
+                }
+                else
+                {
+                    FactoryName = "";
+                }
+                sheet1.Range[xlsRow, xlsCol].Text = FactoryName;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 18;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                if (dtFactory.Rows.Count > 0)
+                {
+                    FactoryAddress = dtFactory.Rows[0]["Address1"].ToString();
+                }
+                else
+                {
+                    FactoryAddress = "";
+                }
+                sheet1.Range[xlsRow, xlsCol].Text = FactoryAddress;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                //sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 22;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                sheet1.Range[xlsRow, xlsCol].Text = "Daily Report: " + date;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+                sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                #endregion ******************Report Header******************
+
+                #region Freeze Panes
+
+                sheet1.IsDisplayZeros = false;
+                sheet1.UsedRange["A7"].FreezePanes();
+                sheet1.FirstVisibleColumn = 1;
+                sheet1.FirstVisibleRow = 6;
+
+                #endregion Freeze Panes
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.CellStyle.Font.Size = 10;
+                sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                sheet1.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + SheetName + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                #endregion Page Setup
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName+ ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (System.Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        public DataTable GetDailyReportData(Dictionary<string, string> parameters, string date, string plantId)
+        {
+            string strSql = @"DECLARE @PlantId varchar(10) = '" + plantId + @"'
+DECLARE @ReportDate date = '" + date + @"'
+DECLARE @ProductionDate date = '" + date + @"'
+
+;WITH Base AS
+(
+    -- Only divisions/categories that belong to THIS plant
+        SELECT DISTINCT
+        D.Id DivisionId,
+        D.UserName Division,
+        EmpC.Id EmpCategoryId,
+        EmpC.UserName EmpCategory
+    FROM EmployeeInformation E
+    JOIN MST.ManpowerBudget mb ON mb.Id = E.BudgetCode
+    LEFT JOIN ORG.Position PR ON mb.PositionId=PR.Id
+    JOIN ORG.Division D ON D.Id=PR.DivisionId
+    LEFT JOIN MST.DesignationMaster DesM ON DesM.DesignationId=PR.DesignationId
+    LEFT JOIN HKP.EmployeeCategory EmpC ON EmpC.Id=DesM.EmployeeCategoryId
+    WHERE E.PlantId=@PlantId  
+            AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @") 
+            AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @") 
+            AND MB.EntityId IN(" + parameters["EntityId"] + @")
+            AND PR.SectionId IN(" + parameters["SectionId"] + @")
+),
+
+---------------------------------------------------------
+-- ACTIVE EMPLOYEE
+---------------------------------------------------------
+ActiveEmp AS
+(
+    SELECT D.Id DivisionId,EmpC.Id EmpCategoryId,COUNT(E.SystemId) ActiveEmployee
+    FROM EmployeeInformation E
+    LEFT JOIN MST.ManpowerBudget mb ON mb.Id=E.BudgetCode
+    LEFT JOIN ORG.Position PR ON mb.PositionId=PR.Id
+    JOIN ORG.Division D ON D.Id=PR.DivisionId
+    LEFT JOIN MST.DesignationMaster DesM ON DesM.DesignationId=E.GivenDesignationId
+    LEFT JOIN HKP.EmployeeCategory EmpC ON EmpC.Id=DesM.EmployeeCategoryId
+    WHERE E.PlantId=@PlantId
+      AND (E.EmployeeStatus<>'Separated' OR E.DOS IS NULL OR E.DOS>@ReportDate)
+      AND E.DOJ<=@ReportDate
+AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @") 
+AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @") 
+AND MB.EntityId IN(" + parameters["EntityId"] + @")
+AND PR.SectionId IN(" + parameters["SectionId"] + @")
+    GROUP BY D.Id,EmpC.Id
+),
+
+---------------------------------------------------------
+-- DEPLOYMENT
+---------------------------------------------------------
+Deployment AS
+(
+    SELECT D.Id DivisionId,EmpC.Id EmpCategoryId,SUM(LBD.Deployment) Deployment
+    FROM MST.ManpowerBudget mmb
+    JOIN MST.ManpowerBudgetDetail LBD ON LBD.ManpowerBudgetId=mmb.Id
+    LEFT JOIN ORG.Position PR ON mmb.PositionId=PR.Id
+    JOIN ORG.Division D ON D.Id=PR.DivisionId
+    LEFT JOIN MST.DesignationMaster DesM ON DesM.DesignationId=PR.DesignationId
+    LEFT JOIN HKP.EmployeeCategory EmpC ON EmpC.Id=DesM.EmployeeCategoryId
+    WHERE LBD.EffectiveDate <= @ReportDate
+      AND EXISTS (SELECT 1 FROM EmployeeInformation E WHERE E.BudgetCode=mmb.Id AND E.PlantId=@PlantId)
+AND mmb.ShiftDefinationId IN(" + parameters["ShiftId"] + @") 
+AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
+AND mmb.EntityId IN(" + parameters["EntityId"] + @")
+AND PR.SectionId IN(" + parameters["SectionId"] + @")
+    GROUP BY D.Id,EmpC.Id
+),
+
+---------------------------------------------------------
+-- Sanction
+---------------------------------------------------------
+Sanction AS
+(
+    SELECT D.Id DivisionId,EmpC.Id EmpCategoryId,SUM(mmb.Deployment) Sanction
+    FROM MST.ManpowerBudget mmb
+    LEFT JOIN ORG.Position PR ON mmb.PositionId=PR.Id
+    JOIN ORG.Division D ON D.Id=PR.DivisionId
+    LEFT JOIN MST.DesignationMaster DesM ON DesM.DesignationId=PR.DesignationId
+    LEFT JOIN HKP.EmployeeCategory EmpC ON EmpC.Id=DesM.EmployeeCategoryId
+    WHERE mmb.Active=1
+      AND EXISTS (SELECT 1 FROM EmployeeInformation E WHERE E.BudgetCode=mmb.Id AND E.PlantId=@PlantId)
+AND mmb.ShiftDefinationId IN(" + parameters["ShiftId"] + @") 
+AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
+AND mmb.EntityId IN(" + parameters["EntityId"] + @")
+AND PR.SectionId IN(" + parameters["SectionId"] + @")
+    GROUP BY D.Id,EmpC.Id
+),
+
+---------------------------------------------------------
+-- Scan Applicable
+---------------------------------------------------------
+ScanApplicable AS
+(
+    
+    SELECT D.Id DivisionId,EmpC.Id EmpCategoryId,COUNT(E.SystemId) ScanApplicableEmployee
+    FROM EmployeeInformation E
+    LEFT JOIN MST.ManpowerBudget mb ON mb.Id=E.BudgetCode
+    LEFT JOIN ORG.Position PR ON mb.PositionId=PR.Id
+    JOIN ORG.Division D ON D.Id=PR.DivisionId
+    LEFT JOIN MST.DesignationMaster DesM ON DesM.DesignationId=E.GivenDesignationId
+    LEFT JOIN HKP.EmployeeCategory EmpC ON EmpC.Id=DesM.EmployeeCategoryId
+    WHERE E.PlantId=@PlantId
+      AND (E.EmployeeStatus<>'Separated' OR E.DOS IS NULL OR E.DOS>@ReportDate)
+      AND E.DOJ<=@ReportDate AND PR.PhysicalVarification=1
+AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @") 
+AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
+AND MB.EntityId IN(" + parameters["EntityId"] + @")
+AND PR.SectionId IN(" + parameters["SectionId"] + @")
+    GROUP BY D.Id,EmpC.Id
+),
+
+---------------------------------------------------------
+-- YESTERDAY PhysicalVerification
+---------------------------------------------------------
+YesterdayPhysicalVerification AS
+(
+    SELECT D.Id DivisionId,EmpC.Id EmpCategoryId,
+        SUM(CASE WHEN A.InTime IS NOT NULL THEN 1 END) ScanComplete,
+        SUM(CASE WHEN A.InTime IS NULL THEN 1 END) ScanPending
+    FROM PhysicalVerification A
+    JOIN EmployeeInformation E ON E.SystemId=A.EmpSystemID
+    LEFT JOIN MST.ManpowerBudget mb ON mb.Id=E.BudgetCode
+    LEFT JOIN ORG.Position PR ON mb.PositionId=PR.Id
+    JOIN ORG.Division D ON D.Id=PR.DivisionId
+    LEFT JOIN MST.DesignationMaster DesM ON DesM.DesignationId=E.GivenDesignationId
+    LEFT JOIN HKP.EmployeeCategory EmpC ON EmpC.Id=DesM.EmployeeCategoryId
+    WHERE E.PlantId=@PlantId AND A.Workdate=@ReportDate
+AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @") 
+AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
+AND MB.EntityId IN(" + parameters["EntityId"] + @")
+AND PR.SectionId IN(" + parameters["SectionId"] + @")
+    GROUP BY D.Id,EmpC.Id
+),
+
+---------------------------------------------------------
+-- YESTERDAY STATUS
+---------------------------------------------------------
+YesterdayStatus AS
+(
+    SELECT D.Id DivisionId,EmpC.Id EmpCategoryId,
+        SUM(CASE WHEN A.DayStatus='P' OR A.DayStatus='L' THEN 1 END) PresentValue,
+        SUM(CASE WHEN A.LTSystemID<>'' THEN 1 END) LeaveEmp,
+        SUM(CASE WHEN A.DayStatus='W' THEN 1 END) WeekOffEmp,
+        SUM(CASE WHEN A.DayStatus='A' THEN 1 END) AbsentEmp,
+        SUM(CASE WHEN A.InTime IS NULL THEN 1 END) NoInTimeEmp,
+        SUM(CASE WHEN A.InTime IS NOT NULL THEN 1 END) TotalInTime
+    FROM AttdnProcessData A
+    JOIN EmployeeInformation E ON E.SystemId=A.EmpSystemID
+    LEFT JOIN MST.ManpowerBudget mb ON mb.Id=E.BudgetCode
+    LEFT JOIN ORG.Position PR ON mb.PositionId=PR.Id
+    JOIN ORG.Division D ON D.Id=PR.DivisionId
+    LEFT JOIN MST.DesignationMaster DesM ON DesM.DesignationId=E.GivenDesignationId
+    LEFT JOIN HKP.EmployeeCategory EmpC ON EmpC.Id=DesM.EmployeeCategoryId
+    WHERE A.PlantId=@PlantId AND A.Workdate=@ReportDate
+AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @") 
+AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
+AND MB.EntityId IN(" + parameters["EntityId"] + @")
+AND PR.SectionId IN(" + parameters["SectionId"] + @")
+    GROUP BY D.Id,EmpC.Id
+),
+---------------------------------------------------------
+-- Trainee Yesterday
+---------------------------------------------------------
+TraineeYesterday AS
+(
+    SELECT D.Id DivisionId,EmpC.Id EmpCategoryId,
+        SUM(CASE WHEN A.DayStatus='P' OR A.DayStatus='L'  OR A.DayStatus='OD'
+        OR A.DayStatus='HDCL' OR A.DayStatus='HDP'  OR A.DayStatus='HDPL'
+        OR A.DayStatus='SDCL' OR A.DayStatus='SDP'  OR A.DayStatus='SDPL'
+        THEN 1 END) TraineePresentValue
+       
+    FROM AttdnProcessData A
+    JOIN EmployeeInformation E ON E.SystemId=A.EmpSystemID
+    LEFT JOIN MST.ManpowerBudget mb ON mb.Id=E.BudgetCode
+    LEFT JOIN ORG.Position PR ON mb.PositionId=PR.Id
+    JOIN ORG.Division D ON D.Id=PR.DivisionId
+    LEFT JOIN MST.DesignationMaster DesM ON DesM.DesignationId=E.GivenDesignationId
+    LEFT JOIN HKP.EmployeeCategory EmpC ON EmpC.Id=DesM.EmployeeCategoryId
+    LEFT JOIN HKP.Designation DG ON DG.Id=E.GivenDesignationId
+    WHERE A.PlantId=@PlantId AND A.Workdate=@ReportDate AND DG.UserName='Trainee'
+AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @") 
+AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
+AND MB.EntityId IN(" + parameters["EntityId"] + @")
+AND PR.SectionId IN(" + parameters["SectionId"] + @")
+    GROUP BY D.Id,EmpC.Id
+),
+
+---------------------------------------------------------
+-- ⭐ LAST 5 DAYS CONTINUOUS ABSENT (NEW)
+---------------------------------------------------------
+Last5DaysAbsentEmp AS
+(
+    SELECT A.EmpSystemID
+    FROM AttdnProcessData A
+    WHERE A.PlantId=@PlantId
+      AND A.DayStatus='A'
+      AND CONVERT(date,A.Workdate) BETWEEN DATEADD(DAY,-4,@ReportDate) AND @ReportDate
+    GROUP BY A.EmpSystemID
+    HAVING COUNT(DISTINCT CONVERT(date,A.WorkDate)) = 5
+),
+Last5DaysAbsentAgg AS
+(
+    SELECT D.Id DivisionId,EmpC.Id EmpCategoryId,COUNT(E.SystemId) Absent5DaysEmp
+    FROM Last5DaysAbsentEmp L5
+    JOIN EmployeeInformation E ON E.SystemId=L5.EmpSystemID
+    LEFT JOIN MST.ManpowerBudget mb ON mb.Id=E.BudgetCode
+    LEFT JOIN ORG.Position PR ON mb.PositionId=PR.Id
+    JOIN ORG.Division D ON D.Id=PR.DivisionId
+    LEFT JOIN MST.DesignationMaster DesM ON DesM.DesignationId=E.GivenDesignationId
+    LEFT JOIN HKP.EmployeeCategory EmpC ON EmpC.Id=DesM.EmployeeCategoryId
+    WHERE (E.EmployeeStatus<>'Separated' OR E.DOS IS NULL OR E.DOS>@ReportDate)
+      AND E.DOJ<=@ReportDate
+AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @") 
+AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
+AND MB.EntityId IN(" + parameters["EntityId"] + @")
+AND PR.SectionId IN(" + parameters["SectionId"] + @")
+    GROUP BY D.Id,EmpC.Id
+),
+
+---------------------------------------------------------
+-- PRODUCTION
+---------------------------------------------------------
+Production AS
+(
+    SELECT D.Id DivisionId,EmpC.Id EmpCategoryId,
+        SUM(CASE WHEN A.Qty<>0 THEN 1 END) ProdEmp,
+        SUM(CASE WHEN A.Qty=0 THEN 1 END) ZeroProdEmp
+    FROM OperationWiseEmployees A
+    JOIN EmployeeInformation E ON E.SystemId=A.EmployeeId
+    LEFT JOIN MST.ManpowerBudget mb ON mb.Id=E.BudgetCode
+    LEFT JOIN ORG.Position PR ON mb.PositionId=PR.Id
+    JOIN ORG.Division D ON D.Id=PR.DivisionId
+    LEFT JOIN MST.DesignationMaster DesM ON DesM.DesignationId=E.GivenDesignationId
+    LEFT JOIN HKP.EmployeeCategory EmpC ON EmpC.Id=DesM.EmployeeCategoryId
+    WHERE A.Date=@ProductionDate AND E.PlantId=@PlantId
+AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @") 
+AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
+AND MB.EntityId IN(" + parameters["EntityId"] + @")
+AND PR.SectionId IN(" + parameters["SectionId"] + @")
+    GROUP BY D.Id,EmpC.Id
+),
+
+---------------------------------------------------------
+-- MOVEMENT
+---------------------------------------------------------
+Movement AS
+(
+    SELECT D.Id DivisionId,EmpC.Id EmpCategoryId,
+        SUM(CASE WHEN E.DOJ BETWEEN DATEADD(DAY,-30,@ReportDate) AND @ReportDate THEN 1 END) Joined30,
+        SUM(CASE WHEN E.DOS BETWEEN DATEADD(DAY,-30,@ReportDate) AND @ReportDate THEN 1 END) Left30
+    FROM EmployeeInformation E
+    LEFT JOIN MST.ManpowerBudget mb ON mb.Id=E.BudgetCode
+    LEFT JOIN ORG.Position PR ON mb.PositionId=PR.Id
+    JOIN ORG.Division D ON D.Id=PR.DivisionId
+    LEFT JOIN MST.DesignationMaster DesM ON DesM.DesignationId=E.GivenDesignationId
+    LEFT JOIN HKP.EmployeeCategory EmpC ON EmpC.Id=DesM.EmployeeCategoryId
+    WHERE E.PlantId=@PlantId
+AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @") 
+AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
+AND MB.EntityId IN(" + parameters["EntityId"] + @")
+AND PR.SectionId IN(" + parameters["SectionId"] + @")
+    GROUP BY D.Id,EmpC.Id
+)
+
+---------------------------------------------------------
+-- FINAL RESULT
+---------------------------------------------------------
+SELECT 
+    B.Division,
+    B.EmpCategory,
+    ISNULL(DP.Deployment,0) Deployment,
+    ISNULL(SC.Sanction,0) Sanction,
+    ISNULL(A.ActiveEmployee,0) ActiveEmployee,
+    ISNULL(L5.Absent5DaysEmp,0) AbsentLast5Days,   -- ⭐ NEW COLUMN
+    NetOnroll=ISNULL(A.ActiveEmployee,0)-ISNULL(L5.Absent5DaysEmp,0),
+    OnrollShortSurplus=(ISNULL(A.ActiveEmployee,0)-ISNULL(L5.Absent5DaysEmp,0))-ISNULL(SC.Sanction,0),
+    ISNULL(Y.LeaveEmp,0) LeaveYesterday,
+    ISNULL(Y.WeekOffEmp,0) WeekOffYesterday,
+    ISNULL(Y.AbsentEmp,0) AbsentYesterday,
+    AbsentPerYesterday=ISNULL((ISNULL(Y.LeaveEmp,0)+ISNULL(Y.AbsentEmp,0))/NULLIF((ISNULL(A.ActiveEmployee,0)-ISNULL(L5.Absent5DaysEmp,0)),0),0),
+    NetDeployedYesterday=(ISNULL(A.ActiveEmployee,0)-ISNULL(L5.Absent5DaysEmp,0))-ISNULL(Y.LeaveEmp,0)-ISNULL(Y.WeekOffEmp,0)-ISNULL(Y.AbsentEmp,0),
+    ISNULL(SA.ScanApplicableEmployee,0) ScanApplicable,
+    ISNULL(YPV.ScanComplete,0)ScanComplete,
+    ISNULL(YPV.ScanPending,0)ScanPending,
+    ISNULL(Y.TotalInTime,0) TotalInTime,
+    ISNULL(Y.NoInTimeEmp,0) NoInTimeYesterday,
+    VarificationMissingYesterday=ISNULL(Y.PresentValue,0)-ISNULL(YPV.ScanComplete,0),
+    ISNULL(P.ProdEmp,0) ProductionEmp,
+    ISNULL(P.ZeroProdEmp,0) ZeroProductionEmp,
+    ISNULL(TY.TraineePresentValue,0) TraineePresentValue,
+    ISNULL(M.Joined30,0) JoinedLast30Days,
+    ISNULL(M.Left30,0) LeftLast30Days
+FROM Base B
+LEFT JOIN ActiveEmp A ON A.DivisionId=B.DivisionId AND A.EmpCategoryId=B.EmpCategoryId
+LEFT JOIN Deployment DP ON DP.DivisionId=B.DivisionId AND DP.EmpCategoryId=B.EmpCategoryId
+LEFT JOIN Sanction SC ON SC.DivisionId=B.DivisionId AND SC.EmpCategoryId=B.EmpCategoryId
+LEFT JOIN ScanApplicable SA ON SA.DivisionId=B.DivisionId AND SA.EmpCategoryId=B.EmpCategoryId
+LEFT JOIN YesterdayPhysicalVerification YPV ON YPV.DivisionId=B.DivisionId AND YPV.EmpCategoryId=B.EmpCategoryId
+LEFT JOIN TraineeYesterday TY ON TY.DivisionId=B.DivisionId AND TY.EmpCategoryId=B.EmpCategoryId
+LEFT JOIN YesterdayStatus Y ON Y.DivisionId=B.DivisionId AND Y.EmpCategoryId=B.EmpCategoryId
+LEFT JOIN Last5DaysAbsentAgg L5 ON L5.DivisionId=B.DivisionId AND L5.EmpCategoryId=B.EmpCategoryId
+LEFT JOIN Production P ON P.DivisionId=B.DivisionId AND P.EmpCategoryId=B.EmpCategoryId
+LEFT JOIN Movement M ON M.DivisionId=B.DivisionId AND M.EmpCategoryId=B.EmpCategoryId
+ORDER BY B.EmpCategory,B.Division";
+            return _sqlRepository.GetDataTable(strSql);
+
+        }
+
+
+
+
+
+
     }
 }

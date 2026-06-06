@@ -26,6 +26,7 @@ namespace Library.Model.Machines
         public decimal TotalSAM { get; set; }
         public string AdditionalSAMSymbol { get; set; }
         public decimal AdditionalSAM { get; set; }
+        public decimal StandardSPT { get; set; }
         public decimal Frequency { get; set; }
         public decimal MachineAllowance { get; set; }
         public decimal AdditionalAllowance { get; set; }

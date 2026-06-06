@@ -77,7 +77,7 @@ namespace Library.HumanResource.NewOTProcess
             {
                 
 
-                var str = @"select a.EmpSystemID,a.RowId,e.EmployeeCode,a.DayStatus,format(a.WorkDate ,'dd-MMM-yyyy') as WorkDate,e.PlantId,p.UserName as Plant,
+                var str = @"select a.EmpSystemID,a.RowId,e.EmployeeCode,a.DayStatus,a.WorkDate,e.PlantId,p.UserName as Plant,
                             a.InTime,a.OutTime,a.ProcessOutTime,a.IsManualOutTime,a.ProcessedOT,isnull((a.ProcessedOT*dt.OTMultiplingFactor),'0') as TargetOT,
                             isnull(PreallocatedOTHr*60,'0') as PlanOT,isnull(dt.DayLimit,'0')DayLimit,a.IsOTComfirm,
                             isnull(a.StandardOT,'0')StandardOT,isnull(a.AppliedOTLimit,'0')AppliedOTLimit,
@@ -790,7 +790,7 @@ namespace Library.HumanResource.NewOTProcess
 						 LEFT JOIN dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate='" + workDate + @"'
                          LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=APD.ShiftSystemID
                          WHERE EI.PlantId='" + plantId+ @"' AND ISNULL(APD.OverStay,0)<>0 AND EI.ExcludeOT=0 AND EI.SystemId NOT IN (Select EmployeeId from dbo.ExceptionGoodWorkEmployee)
-                        -- AND EI.EmployeeStatus='Active' --AND EI.EmployeeCurrentStatus IS NULL
+                         AND EI.EmployeeStatus='Active' --AND EI.EmployeeCurrentStatus IS NULL
 						 and APD.IsOTEntitled=1 and APD.DayTypeOTApplicable != 0 and APD.Duration>0 and ISNULL(APD.ProcessedOT,0)=0
 ";
                 return _sqlRepository.GetDataCollection(str);

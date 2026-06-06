@@ -85,6 +85,7 @@ function cboService($http, $window, $rootScope, baseService) {
         , getCboEntityByCompanyWise: getCboEntityByCompanyWise
         , getCboEntityByPlant: getCboEntityByPlant
         , getEntityCboByPlant: getEntityCboByPlant
+        , GetCboByPlantAdmin: GetCboByPlantAdmin
         , getCboProductionEntitiesByPlant: getCboProductionEntitiesByPlant
         , getEntityByUser: getEntityByUser
         , getEntityByGeneralUser: getEntityByGeneralUser
@@ -2256,6 +2257,24 @@ function cboService($http, $window, $rootScope, baseService) {
         }
         base('Organizations/entity/GetCboByPlant?companyGroupId=' + companyGroupId + '&companyId=' + companyId + '&plantId=' + plantId, callback);
     }
+
+    function GetCboByPlantAdmin(companyGroupId, companyId, plantId, callback) {
+        if (baseService.isUndefinedOrNull(companyGroupId)) {
+            if (!baseService.isUndefinedOrNull($window.companyGroupId))
+                companyGroupId = $window.companyGroupId;
+            else
+                companyGroupId = null;
+        }
+        if (baseService.isUndefinedOrNull(companyId)) {
+            if (!baseService.isUndefinedOrNull($window.companyId)) {
+                companyId = $window.companyId;
+            }
+            else
+                companyId = null;
+        }
+        base('Organizations/entity/GetCboByPlantAdmin?companyGroupId=' + companyGroupId + '&companyId=' + companyId + '&plantId=' + plantId, callback);
+    }
+
 
     function getEntityCboByPlant(companyGroupId, companyId, plantId, callback) {
         if (baseService.isUndefinedOrNull(companyGroupId)) {

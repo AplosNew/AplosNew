@@ -677,6 +677,7 @@ function BuyerMasterController(commonMessage, $scope, $rootScope, baseService, $
         if (baseService.isUndefinedOrNull($scope.buyerMasterNew.BuyerDivisionId)) {
             $scope.buyerMasterNew.BuyerDivisionId = "ALL";
         }
+        $scope.GetBuyerMasterEntity();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -891,6 +892,139 @@ function BuyerMasterController(commonMessage, $scope, $rootScope, baseService, $
         $scope.employeeinformationData = [];
         $scope.buyerMasterEntityList = [];
         $scope.entityDataList = [];
+        $scope.BuyerMasterEntityList = [];
         $scope.taskTemplateList = [];
     }
+
+    // #region checkbox all MO Entity
+    $scope.entityList = [];
+    $scope.BuyerMasterEntityList = [];
+    $scope.MOentityPopUp = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.buyerMasterNew.Id)) {
+                throw "Select Buyer Definition.";
+            }
+            $http({
+                method: 'GET',
+                url: 'Parties/BuyerMaster/GetMasterOrderEntity'
+            }).then(function successCallback(response) {
+                $scope.entityList = response.data;
+            });
+            angular.element(document.querySelector('#MPOentityPopUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.GetBuyerMasterEntity = function () {
+        $http({
+            method: 'GET',
+            url: 'Parties/BuyerMaster/GetBuyerMasterEntity?masterId=' + $scope.buyerMasterNew.Id
+        }).then(function successCallback(response) {
+            $scope.BuyerMasterEntityList = response.data;
+        });
+
+    };
+
+    $scope.GetBuyerMasterEntityPOPUp = function () {
+        angular.element(document.querySelector('#BuyerMasterEntityPopUp')).modal('show');
+    };
+    $scope.CloseBuyerMasterEntity = function () {
+        angular.element(document.querySelector('#BuyerMasterEntityPopUp')).modal('hide');
+    };
+
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridENT").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.entityList.length; i++) {
+                $scope.entityList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridENT").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.selectedentityList = [];
+    function MakeData() {
+        for (var i = 0; i < $scope.entityList.length; i++) {
+            if ($scope.entityList[i].Flag == true) {
+                if (checkExists($scope.selectedentityList, $scope.entityList[i].EntityId) === false) {
+                    var ob = {};
+                    ob.Id = null;
+                    ob.BuyerMasterId = $scope.buyerMasterNew.Id;
+                    ob.EntityId = $scope.entityList[i].EntityId;
+
+                    $scope.selectedentityList.push(ob);
+                    ob = {};
+                }
+                else {
+                    throw "This Entity " + $scope.entityList[i].UserName + " is already taken.";
+                }
+            }
+        }
+
+    }
+
+    function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EntityId === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.CloseMOE = function () {
+        try {
+            MakeData();
+            $scope.SaveMOE();
+            angular.element(document.querySelector('#MPOentityPopUp')).modal('hide');
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.SaveMOE = function () {
+        try {
+
+            $http({
+                method: 'POST',
+                url: 'Parties/BuyerMaster/SaveMOE',
+                data: { 'data': $scope.selectedentityList, 'masterId': $scope.buyerMasterNew.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetBuyerMasterEntity();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    // #endregion checkbox all
+
+
 }

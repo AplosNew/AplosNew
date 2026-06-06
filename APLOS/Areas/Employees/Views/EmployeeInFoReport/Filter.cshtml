@@ -1,0 +1,237 @@
+﻿<togglable name="Favourite Filter Setting"></togglable>
+<div class="form-horizontal form-elements" ng-form="modelForm">
+    <div class="tab-design">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="process" role="tab" data-toggle="tab">Filter Setting</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="row" ng-form="filterNewForm">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">UI Name</label>
+                            <div class="col-sm-8">
+                                <input ej-dropdownlist e-enablefiltersearch="true" allow-paging="true" allow-Adding="true" allow-Editing="true"
+                                       e-datasource="UINameList" e-value="ModelNew.UIName" e-fields-value="Description" toolbar-Settings="toolbarItems" edit-Settings="editSettings"
+                                       e-fields-text="Description" e-change="GetHref" e-width="100%"/>
+
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50" ng-keyup="CheckSpecialCharecter();">
+                            </div>
+                        </div>
+
+                        @*<div class="form-group">
+                                <label class="col-sm-4 control-label">Shift</label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="ModelNew.ShiftId"
+                                                ng-options="item.ShiftId as item.ShiftName for item in ShiftList" id="ShiftId"
+                                                name="ShiftId" tabindex="1">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Entity</label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="ModelNew.EntityId"
+                                                ng-options="item.EntityId as item.EntityName for item in EntityList" id="EntityId"
+                                                name="Entity" tabindex="1">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>*@
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">VisibleToAll</label>
+                            <div class="col-sm-2">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="ModelNew.VisibleToAll" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-4 control-label">Visible At BudgetCode</label>
+                            <div class="col-sm-2">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="ModelNew.VisibleAtBudgetCode" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Visible To All PositionCode</label>
+                            <div class="col-sm-2">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="ModelNew.VisibleToAllPositionCode" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-4 control-label">Is Global Emp Applicable</label>
+                            <div class="col-sm-2">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="ModelNew.IsGlobalEmpApplicable" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Href</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="ModelNew.Href" disabled
+                                            ng-options="item.Href as item.Href for item in HrefList" id="Href"
+                                            name="ShiftId" tabindex="1">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                            </div>
+                        </div>
+                        @*<div class="form-group">
+                                <label class="col-sm-4 control-label">Position </label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="ModelNew.PositionCategory"
+                                                ng-options="item.PositionCategory as item.PositionCategory for item in PositionList" id="Position"
+                                                name="Position" tabindex="1">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Section</label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="ModelNew.SectionId"
+                                                ng-options="item.SectionId as item.Section for item in SectionList" id="Section"
+                                                name="Section" tabindex="1">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>*@
+
+                    </div>
+
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveFavouriteFilter();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="tab-design">
+                    <div class="site-tab">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Child</a></li>
+                        </ul>
+                    </div>
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
+                            <div class="row" ng-form="modelChildForm">
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group" show-errors>
+                                        <label class="col-sm-4 control-label">ColumnName<sup>*</sup></label>
+                                        <div class="col-sm-8 show-message">
+                                            <input type="text" name="Standard Name" ng-model="ModelCNew.ColumnName" class="form-control" required tabindex="4" maxlength="50">
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">FilterApply</label>
+                                        <div class="col-sm-2">
+                                            <div class="checkbox-site">
+                                                <label>
+                                                    <input type="checkbox" ng-model="ModelCNew.FilterApply" tabindex="8">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <label class="col-sm-4 control-label">MandatoryDisplay</label>
+                                        <div class="col-sm-2">
+                                            <div class="checkbox-site">
+                                                <label>
+                                                    <input type="checkbox" ng-model="ModelCNew.MandatoryDisplay" tabindex="8">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="SaveChild();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                                    </ul>
+                                </div>
+                                <div style="color:black;" id="GridC" ej-grid e-datasource="modelChildList" 
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-gridlines="vertical"
+                                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                                    <div e-columns>
+                                        <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="ColumnName" e-headertext="ColumnName" e-width="80"></div>
+                                        <div e-column e-type="string" e-field="FilterApply" e-headertext="FilterApply" e-width="100"></div>
+                                        <div e-column e-type="string" e-field="MandatoryDisplay" e-headertext="MandatoryDisplay" e-width="100"></div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="aplos-grid-toggle">
+    <div class="table-responsive aplos-grid-toggle">
+        <div style="color:black;" id="Grid" ej-grid e-datasource="modelList" e-recorddoubleclick="Get"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-gridlines="vertical"
+             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+            <div e-columns>
+                <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
+                <div e-column e-type="string" e-field="Href" e-headertext="Href" e-width="80"></div>
+                <div e-column e-type="string" e-field="UIName" e-headertext="UIName" e-width="100"></div>
+                <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="100"></div>
+                <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+
+

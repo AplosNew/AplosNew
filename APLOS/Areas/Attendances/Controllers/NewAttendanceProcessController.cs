@@ -75,6 +75,29 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult ActualBudgetCodeProcess(string Date)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            if (Convert.ToDateTime(Date) > DateTime.Now)
+            {
+                throw new Exception("Future Date Cannot be selected!!");
+            }
+
+            try
+            {
+                rep.ActualBudgetCodeProcess(Date);
+            }
+            catch (Exception ex)
+            {
+                rep.CommonLogFunction(ex, null, "ActualBudgetCodeProcess");
+                return Json(new { Error = true, Message = ex.ToString() }, JsonRequestBehavior.AllowGet);
+
+            }
+            return Json(new { Error = false, Message = "Actual Budget Code Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult RunTBS_LA_Process(string Date)
         {
             if (Convert.ToDateTime(Date) > DateTime.Now)

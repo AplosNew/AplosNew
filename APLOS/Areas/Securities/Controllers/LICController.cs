@@ -13,6 +13,7 @@ using OTSBD;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -58,8 +59,33 @@ namespace Aplos.Areas.Securities.Controllers
 
                 for (int i = 0; i < dsData.Tables[0].Rows.Count; i++)
                 {
-                    dsData.Tables[0].Rows[i]["LicKey1"] = Convert.ToDateTime(EncDec.Decrypt(dsData.Tables[0].Rows[i]["LicKey1"].ToString(), key));
-                    dsData.Tables[0].Rows[i]["LicKey2"] = Convert.ToDateTime(EncDec.Decrypt(dsData.Tables[0].Rows[i]["LicKey2"].ToString(), key));
+                    //dsData.Tables[0].Rows[i]["LicKey1"] = Convert.ToDateTime(EncDec.Decrypt(dsData.Tables[0].Rows[i]["LicKey1"].ToString(), key));
+                    // dsData.Tables[0].Rows[i]["LicKey2"] = Convert.ToDateTime(EncDec.Decrypt(dsData.Tables[0].Rows[i]["LicKey2"].ToString(), key));
+
+
+
+                    string[] formats =
+                    {
+    "M/d/yyyy h:mm:ss tt",
+    "M/d/yyyy H:mm:ss",
+    "M/d/yyyy",
+    "yyyy-MM-dd",
+    "dd-MM-yyyy"
+};
+
+                    var date1Str = EncDec.Decrypt(dsData.Tables[0].Rows[i]["LicKey1"].ToString(), key);
+                    var date2Str = EncDec.Decrypt(dsData.Tables[0].Rows[i]["LicKey2"].ToString(), key);
+
+                    DateTime parsed1, parsed2;
+
+                    if (!DateTime.TryParseExact(date1Str, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsed1))
+                        throw new Exception("Invalid LicKey1 date: " + date1Str);
+
+                    if (!DateTime.TryParseExact(date2Str, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsed2))
+                        throw new Exception("Invalid LicKey2 date: " + date2Str);
+
+                    dsData.Tables[0].Rows[i]["LicKey1"] = parsed1;
+                    dsData.Tables[0].Rows[i]["LicKey2"] = parsed2;
                 }
             }
 

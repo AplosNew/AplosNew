@@ -561,5 +561,31 @@ namespace Aplos.Areas.Productions.Controllers
         #endregion
 
         #endregion
+
+        #region --Order Size Allowance
+        [HttpPost, Authorize]
+        public ActionResult getOrderSizeAllowanceData()
+        {
+            return Json(pa.getOrderSizeAllowanceData(), JsonRequestBehavior.AllowGet);
+        }
+        #region Savings
+        [HttpPost]
+        public ActionResult saveOrderSizeAllowance(Dictionary<string, string> data)
+        {
+            try
+            {
+                return Json(new { Error = "No", Data = pa.saveOrderSizeAlw(data), Msg = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = "Yes", Msg = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+        #endregion Savings
+
+        #endregion
+
     }
 }

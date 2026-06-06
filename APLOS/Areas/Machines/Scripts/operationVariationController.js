@@ -38,6 +38,7 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
         , PersonalAllowance: 0
         , IsMachineRequired: 'M'
         , TotalSAM: 0
+        , StandardSPT: 0
         , OperationMasterId: null
         , OperationMasterCode: null
         , Color: null

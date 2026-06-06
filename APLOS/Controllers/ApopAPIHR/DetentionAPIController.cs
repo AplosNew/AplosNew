@@ -2039,5 +2039,209 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
         #endregion TNA API
 
         #endregion Pratibha
+
+        #region Attendance tracker
+
+        public IHttpActionResult GetEmployeeInformation(string Empcode, string PlantId)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+
+                // return Json(_plantService.GetCboByCompany(companyId));
+                return Json(_sqlRepository.GetDataTable(@"select EMP.SystemId as SysId,EMA.PIN MYAppPin , EMP.Employeecode as Code,EMP.EmployeeName,DOB, DOJ, DOS, Employeestatus,EmployeeCurrentStatus, Nationalid, Fathername, Mothername, 
+		GenderID, Presentaddress1, ParmanentAddress1, cellphnno, Emailid, PresentArea, 
+UN.Id EntityId,Un.Username as Entity, DP.StandardName as Department, SC.StandardName as Section, SBC.Id SubSectionId,SBC.StandardName as SubSection, 
+x.UserName as Category,LDSG.Id LegalDegId, LDSG.StandardName as LegalDesignation, GDSG.StandardName as GivenDesignation, 
+MB.Code BudgetCode,POS.Code PositionCode  , PT.Username PLant
+,US.UserId AplosId  , SD.SystemId ShiftId , Dv.Username Division , MB.Active MBActive , emp.EmploymentType
+,MB.Id BudgetId , AG.StandardName AccountGroup
+from EmployeeInformation emp
+LEFT JOIN MST.ManpowerBudget MB ON MB.Id = emp.BudgetCode 
+left join org.Position pos on pos.Id =  mb.PositionId
+left join org.division Dv on DV.Id = POS.Divisionid
+left join ORG.Entity UN on UN.Id =  MB.EntityId
+left join ORG.Department DP on DP.ID = POS.DepartmentId
+left join ORG.Section SC on SC.Id = POS.SectionId
+left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=EMP.DesignationGroupId
+LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+left join mst.DesignationMasterLegalDesignation dmld on dmld.LegalDesignationId = GDSG.Id
+left join mst.DesignationMaster dm on dm.Id = dmld.DesignationMasterId
+left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
+left join sec.[User] US on US.EmployeeId = emp.SystemId
+left join hkp.EmployeeMobileAppsAuthorization EMA on EMA.EmployeeId = emp.SystemId
+left join ShiftDefination SD on SD.SystemId = MB.ShiftDefinationid
+left join org.plant PT on PT.Id = emp.PlantId
+left join [dbo].[AccountsGroup] AG on AG.Id = MB.AccountsGroupId
+where  emp.plantid = '20252' and  emp.Employeecode = '" + Empcode + "' and PT.Id = '" + PlantId + "'"));
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+     
+
+        [HttpPost]
+        public string SaveEmployeeFeedback([FromBody] IEnumerable<EmployeeFeedBackModel> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.CreateFeedback(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        public IHttpActionResult GetServiceEntity(string Empcode, string plantid)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select Id Value , UserName Name  from org.Entity where Active = 1 and Plantid = '" + plantid + "' order by Id desc"));
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetServiceLine(string Empcode, string plantid)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+
+                return Json(_sqlRepository.GetDataTable(@"Select Id Value , UserName Name  from org.Line where Active = 1  order by Id desc"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+
+        public IHttpActionResult GetServiceAttdn(string date, string lineid, string entityid, string category)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"select Ei.Systemid , EI.Employeecode , EI.EmployeeName ,EI.CellPhnNo PhoneNo, apd.Daystatus , 
+(Select Top 1 rm.UserName from Employeefeedback EF
+Left join  [HKP].[AbsentismReasoningMaster] rm on rm.id = EF.ReasoningId 
+where EF.EmpSystemId = apd.EmpSystemID and EF.Date = apd.WorkDate order by EF.AddedDate desc)  Reason , 
+(Select Top 1 EF.Remarks from Employeefeedback EF where EF.EmpSystemId = apd.EmpSystemID and EF.Date = apd.WorkDate order by EF.AddedDate desc) Remarks 
+from AttdnProcessData apd
+left join Employeeinformation ei on ei.systemid = apd.Empsystemid
+left join mst.manpowerbudget mb on mb.id = ei.budgetcode 
+LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EI.LegalDesignationId
+left join mst.DesignationMasterLegalDesignation dmld on dmld.LegalDesignationId = GDSG.Id
+left join mst.DesignationMaster dm on dm.Id = dmld.DesignationMasterId
+left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
+where apd.Daystatus = 'A' and x.UserName = '" + category + "' and  mb.lineid = '" + lineid + "' and mb.entityid = '" + entityid + "' and apd.workdate = '" + date + "' order by EI.Employeecode asc"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+
+
+        public IHttpActionResult GetAttendance(string Empcode, string month, string PlantId)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+
+                // return Json(_plantService.GetCboByCompany(companyId));
+                return Json(_sqlRepository.GetDataTable(@"select Ei.Systemid ,Ei.EmployeeCode,APd.WorkDate,Apd.DayStatus, APd.InTime,APd.OutTime,APd.OTHr from AttdnProcessData as APd
+Left join EmployeeInformation as EI on EI.SystemID=APD.EmpSystemId
+left join org.plant PT on PT.Id = EI.PlantId
+where  EI.EmployeeCode='" + Empcode + "' and format(APd.WorkDate,'MMMM') = '" + month + "' and PT.Id = '" + PlantId + "'  and APd.PlantID = '20252' AND APd.WorkDate < CAST(GETDATE() AS DATE) order by APd.WorkDate desc"));
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        [HttpPost]
+        public string PostAttendanceCorrect([FromBody] IEnumerable<AttendanceCorrectModel> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostAttendanceCorrect(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        [HttpPost]
+        public string PostAttendanceOT([FromBody] IEnumerable<AttendanceOTModel> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostAttendanceOT(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        #endregion Attendance tracker
     }
 }

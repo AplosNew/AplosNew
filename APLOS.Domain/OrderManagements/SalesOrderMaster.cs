@@ -54,6 +54,8 @@ namespace Library.Model.OrderManagements
         public string ApprovedStatus { get; set; }
         public string DeliveryGroup { get; set; }
         public string LineItemReference { get; set; }
+        public string CheckByRemark { get; set; }
+        public string ApproveByRemark { get; set; }
 
         #endregion Scalar Properties
 

@@ -56,17 +56,26 @@ function masterOrderCheckByController(accountService, $window, cboService, commo
     ];
     $scope.files = [];
     $scope.getData = function () {
-        $scope.files = [];
-        if (!baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
-            $http({
-                method: 'POST',
-                data: {
-                    'companyId': $scope.fileNew.CompanyId, 'column': $scope.SearchColumn, 'value': $scope.SearchValue
-                },
-                url: $scope.getListUrl
-            }).then(function successCallback(response) {
-                $scope.files = response.data;
-            });
+        try {
+            $scope.files = [];
+            if (!baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
+                $http({
+                    method: 'POST',
+                    data: {
+                        'companyId': $scope.fileNew.CompanyId, 'column': $scope.SearchColumn, 'value': $scope.SearchValue
+                    },
+                    url: $scope.getListUrl
+                }).then(function successCallback(response) {
+                    if (response.data.Error == true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        $scope.files = response.data;
+                    }
+                });
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
     };
 
@@ -2130,6 +2139,10 @@ function masterOrderCheckByController(accountService, $window, cboService, commo
             }
             if (baseService.isUndefinedOrNull($scope.soModel.ApproveBy)) {
                 throw "Approve By is required.";
+            }
+
+            if ($scope.soModel.CheckByStatus == 'Reject' && baseService.isUndefinedOrNull($scope.soModel.CheckByRemark)) {
+                throw "CheckBy Remark is required.";
             }
 
             $http({
