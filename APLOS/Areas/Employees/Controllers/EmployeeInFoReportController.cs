@@ -1810,6 +1810,34 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftDefinationId";
         }
 
         [HttpGet, Authorize]
+        public ActionResult getColumnFiltersData()
+        {
+            try
+            {
+                var sql = @"SELECT name AS ColumnName
+FROM sys.dm_exec_describe_first_result_set
+(
+    N'
+    SELECT SD.SystemID ShiftId,SD.UserName ShiftName,P.Id PositionId,P.PositionCategory
+,EN.Id EntityId, EN.UserName EntityName,S.Id SectionId,S.UserName Section FROM  MST.ManpowerBudget M 
+LEFT JOIN ORG.Position P ON P.Id=M.PositionId
+LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
+LEFT JOIN ORG.Section S ON S.Id=P.SectionId
+LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftDefinationId
+    ',
+    NULL,
+    0
+)";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+
+        [HttpGet, Authorize]
         public ActionResult getShiftCbo()
         {
             try
