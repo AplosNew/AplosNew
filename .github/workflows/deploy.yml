@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-deploy:
+  deploy:
     runs-on: self-hosted
 
     steps:
@@ -17,13 +17,30 @@ jobs:
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v2
 
-    - name: Restore NuGet Packages
+    - name: Restore Packages
+      shell: powershell
       run: |
         nuget restore APLOS.New.sln
 
-    - name: Build Solution
+    - name: Locate MSBuild
+      shell: powershell
       run: |
-        msbuild APLOS.New.sln `
+        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+
+        $msbuild = & $vswhere `
+          -latest `
+          -requires Microsoft.Component.MSBuild `
+          -find MSBuild\**\Bin\MSBuild.exe
+
+        echo "MSBuild Path: $msbuild"
+
+        echo "MSBUILD_EXE=$msbuild" >> $env:GITHUB_ENV
+
+    - name: Build Solution
+      shell: powershell
+      run: |
+        & "$env:MSBUILD_EXE" `
+          APLOS.New.sln `
           /p:Configuration=Release `
           /p:Platform="Any CPU"
 
@@ -37,15 +54,7 @@ jobs:
             Stop-WebAppPool -Name "pratibhapop"
         }
 
-    - name: Backup Web.config
-      shell: powershell
-      run: |
-        Copy-Item `
-          "F:\aPOP\Pratibha\IIS\pratibhaPOP\web.config" `
-          "F:\aPOP\Pratibha\IIS\web.config.bak" `
-          -Force
-
-    - name: Deploy Website
+    - name: Deploy Files
       shell: powershell
       run: |
 
@@ -65,14 +74,6 @@ jobs:
         {
             exit $LASTEXITCODE
         }
-
-    - name: Restore Web.config
-      shell: powershell
-      run: |
-        Copy-Item `
-          "F:\aPOP\Pratibha\IIS\web.config.bak" `
-          "F:\aPOP\Pratibha\IIS\pratibhaPOP\web.config" `
-          -Force
 
     - name: Start IIS
       shell: powershell
