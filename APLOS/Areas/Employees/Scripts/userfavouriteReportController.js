@@ -5,14 +5,12 @@ function userfavouriteReportController(commonMessage, $scope, $rootScope, baseSe
 
     $scope.ModelTemp = {
         Id: null,
-        Href: null,
-        UIName: null,
+        FavouriteMasterId: null,
+        EmployeeId: null,
+        UserId: null,
+        UserName: null,
         StandardName: null,
         Remarks: null,
-        VisibleToAll: false,
-        VisibleAtBudgetCode: false,
-        VisibleToAllPositionCode: false,
-        IsGlobalEmpApplicable: false,
         AddedBy: null,
         AddedDate: null,
         AddedFromIP: null,
@@ -94,9 +92,10 @@ function userfavouriteReportController(commonMessage, $scope, $rootScope, baseSe
     $scope.selectDoubleClick = function (data) {
         if (data.SysAdmin)
             return ShowResult("User [" + data.UserId + "] is [" + data.UserType + "], so role is not required.", 'failure', 'popUpId')
-        $scope.userRole.UserId = data.Id;
-        $scope.userRole.UserName = data.UserId;
-        $scope.userRole.FullName = data.FullName;
+        $scope.ModelNew.UserId = data.Id;
+        $scope.ModelNew.User = data.UserId;
+        $scope.ModelNew.FullName = data.FullName;
+        $scope.ModelNew.EmployeeId = data.EmployeeId;
         $scope.getData();
         $scope.closePopUp();
     };
@@ -245,7 +244,7 @@ function userfavouriteReportController(commonMessage, $scope, $rootScope, baseSe
         }
     }
 
-     $scope.modelList = [];
+    $scope.modelList = [];
     $scope.GetData = function () {
         $http({
             method: 'GET',
@@ -291,7 +290,7 @@ function userfavouriteReportController(commonMessage, $scope, $rootScope, baseSe
                 $http({
                     method: 'POST',
                     url: "Employees/EmployeeInFoReport/SaveFavouriteChild",
-                    data: {'data': $scope.ModelCNew, 'masterId' : $scope.ModelNew.Id },
+                    data: { 'data': $scope.ModelCNew, 'masterId': $scope.ModelNew.Id },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error == true) {

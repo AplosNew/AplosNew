@@ -181,7 +181,7 @@ function favouriteReportController(commonMessage, $scope, $rootScope, baseServic
     $scope.Get = function (index) {
         $scope.index = index.data;
         angular.copy(index.data, $scope.ModelNew);
-        $scope.GetChildData();
+        $scope.getColumnFiltersData();
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     };
 
@@ -198,7 +198,7 @@ function favouriteReportController(commonMessage, $scope, $rootScope, baseServic
     $scope.getColumnFiltersData = function () {
         $http({
             method: 'GET',
-            url: 'Employees/EmployeeInFoReport/getColumnFiltersData'
+            url: 'Employees/EmployeeInFoReport/getColumnFiltersData?masterId=' + $scope.ModelNew.Id
         }).then(function successCallback(response) {
             $scope.columnList = response.data;
         });
@@ -210,14 +210,15 @@ function favouriteReportController(commonMessage, $scope, $rootScope, baseServic
             method: 'GET',
             url: 'Employees/EmployeeInFoReport/GetFavouriteMasterChild?masterId=' + $scope.ModelNew.Id
         }).then(function successCallback(response) {
-            $scope.columnList = response.data;
-            //for (var i = 0; i < $scope.columnList.length; i++) {
-            //    for (var j = 0; j < response.data.length; j++) {
-            //        if (baseService.isUndefinedOrNull(response.data[j].Id)) {
-            //            $scope.columnList[i].Flag = true;
-            //        }
-            //    }
-            //}
+            for (var i = 0; i < $scope.columnList.length; i++) {
+                for (var j = 0; j < response.data.length; j++) {
+                    if ($scope.columnList[i].ColumnName == response.data[j].ColumnName && !baseService.isUndefinedOrNull(response.data[j].Id)) {
+                        $scope.columnList[i].Flag = true;
+                        $scope.columnList[i].FilterApply = response.data[j].FilterApply;
+                        $scope.columnList[i].MandatoryDisplay = response.data[j].MandatoryDisplay;
+                    }
+                }
+            }
         });
     }
 
@@ -273,7 +274,7 @@ function favouriteReportController(commonMessage, $scope, $rootScope, baseServic
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.GetChildData();
+                        $scope.getColumnFiltersData();
                     }
                 }, function errorCallback(response) {
                     ShowResult(response.data.Message, 'failure');
