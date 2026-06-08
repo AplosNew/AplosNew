@@ -10,71 +10,87 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
 
-      - name: Setup NuGet
-        uses: NuGet/setup-nuget@v2
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v2
 
-      - name: Restore NuGet Packages
-        run: nuget restore APLOS.New.sln
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
 
-      - name: Copy Aplos.Service.Extension DLL
-        shell: powershell
-        run: |
-          New-Item -ItemType Directory -Force -Path "$env:GITHUB_WORKSPACE\Aplos.Service.Extension\bin\Debug"
+    - name: Restore Packages
+      run: nuget restore APLOS.New.sln
 
-          Copy-Item `
-            "F:\aPOP\Pratibha\IIS\pratibhaPOP\bin\Aplos.Service.Extension.dll" `
-            "$env:GITHUB_WORKSPACE\Aplos.Service.Extension\bin\Debug\" `
-            -Force
+    - name: Build Solution
+      run: |
+        msbuild APLOS.New.sln /p:Configuration=Release
 
-      - name: Build Solution
-        run: |
-          msbuild APLOS.New.sln /p:Configuration=Release
+    - name: Show Build Output
+      shell: powershell
+      run: |
+        Write-Host "===== Searching for Aplos.dll ====="
+        Get-ChildItem -Path "$env:GITHUB_WORKSPACE" -Recurse -Filter "Aplos.dll" | Select-Object FullName
 
-      - name: Find Aplos DLL
-        shell: powershell
-        run: |
-          Write-Host "===== Aplos.dll Locations ====="
-          Get-ChildItem "$env:GITHUB_WORKSPACE" -Recurse -Filter Aplos.dll |
-          Select-Object FullName
+        Write-Host "===== Release Folders ====="
+        Get-ChildItem -Path "$env:GITHUB_WORKSPACE" -Recurse -Directory | Where-Object {$_.FullName -like "*bin*Release*"} | Select-Object FullName
 
-      - name: Show Release Folders
-        shell: powershell
-        run: |
-          Write-Host "===== Release Folders ====="
-          Get-ChildItem "$env:GITHUB_WORKSPACE" -Recurse -Directory |
-          Where-Object { $_.FullName -match "bin\\Release" } |
-          Select-Object FullName
+    - name: Stop IIS App Pool
+      shell: powershell
+      run: |
+        Import-Module WebAdministration
 
-      - name: Stop IIS App Pool
-        shell: powershell
-        run: |
-          Import-Module WebAdministration
-          Stop-WebAppPool -Name "pratibhapop"
+        $pool = Get-WebAppPoolState -Name "pratibhapop"
 
-      - name: Copy DLL Files
-        shell: powershell
-        continue-on-error: true
-        run: |
-          robocopy `
-            "$env:GITHUB_WORKSPACE\APLOS\bin\Release" `
-            "F:\aPOP\Pratibha\IIS\pratibhaPOP\bin" `
-            *.dll *.pdb /E /R:1 /W:1
+        if ($pool.Value -eq "Started") {
+            Stop-WebAppPool -Name "pratibhapop"
+            Write-Host "App Pool Stopped"
+        }
+        else {
+            Write-Host "App Pool Already Stopped"
+        }
 
-          if ($LASTEXITCODE -le 3) {
+    - name: Copy DLL Files
+      shell: powershell
+      run: |
+
+        $Source = Get-ChildItem `
+          -Path "$env:GITHUB_WORKSPACE" `
+          -Recurse `
+          -Filter "Aplos.dll" |
+          Select-Object -First 1
+
+        if ($null -eq $Source) {
+            Write-Error "Aplos.dll not found."
+            exit 1
+        }
+
+        $SourceFolder = Split-Path $Source.FullName
+
+        Write-Host "Source Folder:"
+        Write-Host $SourceFolder
+
+        robocopy `
+          "$SourceFolder" `
+          "F:\aPOP\Pratibha\IIS\pratibhaPOP\bin" `
+          *.dll *.pdb `
+          /R:1 /W:1
+
+        if ($LASTEXITCODE -le 3) {
             exit 0
-          } else {
+        }
+        else {
             exit $LASTEXITCODE
-          }
+        }
 
-      - name: Start IIS App Pool
-        if: always()
-        shell: powershell
-        run: |
-          Import-Module WebAdministration
-          Start-WebAppPool -Name "pratibhapop"
+    - name: Start IIS App Pool
+      shell: powershell
+      run: |
+        Import-Module WebAdministration
+        Start-WebAppPool -Name "pratibhapop"
+
+    - name: Deployment Complete
+      shell: powershell
+      run: |
+        Write-Host "Deployment Successful"
