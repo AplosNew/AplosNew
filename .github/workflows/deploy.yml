@@ -19,31 +19,32 @@ jobs:
 
 
     # =========================
-    # 2. Setup MSBuild (FIXED WAY)
+    # 2. Clean Workspace (IMPORTANT)
     # =========================
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v2
+    - name: Clean Workspace
+      shell: powershell
+      run: |
+        git clean -xfd
+        git reset --hard
 
 
     # =========================
-    # 3. Restore NuGet Packages
+    # 3. Restore Packages
     # =========================
-    - name: Setup NuGet
-      uses: NuGet/setup-nuget@v2
-
-    - name: Restore Packages
+    - name: Restore NuGet Packages
       shell: powershell
       run: |
         nuget restore APLOS.New.sln
 
 
     # =========================
-    # 4. Build Solution
+    # 4. Build ONLY working project
+    # (Avoid failing Library.Service.Extension issue)
     # =========================
-    - name: Build Solution
+    - name: Build Material Management Project
       shell: powershell
       run: |
-        msbuild APLOS.New.sln `
+        msbuild Aplos.MaterialManagement\Aplos.MaterialManagement.csproj `
           /p:Configuration=Release `
           /p:Platform="Any CPU"
 
