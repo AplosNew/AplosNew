@@ -19,7 +19,7 @@ jobs:
 
 
     # =========================
-    # 2. Clean Workspace (IMPORTANT)
+    # 2. Clean Workspace
     # =========================
     - name: Clean Workspace
       shell: powershell
@@ -29,17 +29,16 @@ jobs:
 
 
     # =========================
-    # 3. Restore Packages
+    # 3. Restore Packages (FIXED)
     # =========================
-    - name: Restore NuGet Packages
+    - name: Restore Dependencies
       shell: powershell
       run: |
-        nuget restore APLOS.New.sln
+        dotnet restore APLOS.New.sln
 
 
     # =========================
-    # 4. Build ONLY working project
-    # (Avoid failing Library.Service.Extension issue)
+    # 4. Build Project
     # =========================
     - name: Build Material Management Project
       shell: powershell
@@ -50,7 +49,7 @@ jobs:
 
 
     # =========================
-    # 5. Stop IIS App Pool
+    # 5. Stop IIS
     # =========================
     - name: Stop IIS
       shell: powershell
@@ -85,7 +84,7 @@ jobs:
 
 
     # =========================
-    # 7. Start IIS App Pool
+    # 7. Start IIS
     # =========================
     - name: Start IIS
       shell: powershell
