@@ -22,6 +22,21 @@ jobs:
       - name: Restore NuGet Packages
         run: nuget restore APLOS.New.sln
 
+      - name: Copy Aplos.Service.Extension DLL
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path "$env:GITHUB_WORKSPACE\Aplos.Service.Extension\bin\Debug"
+
+          Copy-Item `
+            "F:\aPOP\Pratibha\IIS\pratibhaPOP\bin\Aplos.Service.Extension.dll" `
+            "$env:GITHUB_WORKSPACE\Aplos.Service.Extension\bin\Debug\" `
+            -Force
+
+      - name: Verify DLL
+        shell: powershell
+        run: |
+          dir "$env:GITHUB_WORKSPACE\Aplos.Service.Extension\bin\Debug"
+
       - name: Build and Publish
         run: |
           msbuild APLOS.New.sln /p:Configuration=Release /p:DeployOnBuild=true /p:WebPublishMethod=FileSystem /p:PublishUrl=F:\Deploy\PratibhaPOP
