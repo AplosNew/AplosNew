@@ -35,7 +35,7 @@ jobs:
       - name: Copy Files
         shell: powershell
         run: |
-          robocopy "F:\Deploy\PratibhaPOP" "F:\aPOP\Pratibha\IIS\pratibhaPOP" /E /R:1 /W:1 /XF web.config
+          robocopy "F:\Deploy\PratibhaPOP" "F:\ApopNew\pratibha\IIS\PratibhaPOP" /E /R:1 /W:1 /XF web.config
           if ($LASTEXITCODE -le 3) { exit 0 } else { exit $LASTEXITCODE }
 
       - name: Start App Pool
