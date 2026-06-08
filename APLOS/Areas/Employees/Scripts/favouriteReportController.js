@@ -211,13 +211,13 @@ function favouriteReportController(commonMessage, $scope, $rootScope, baseServic
             url: 'Employees/EmployeeInFoReport/GetFavouriteMasterChild?masterId=' + $scope.ModelNew.Id
         }).then(function successCallback(response) {
             $scope.columnList = response.data;
-            //for (var i = 0; i < $scope.columnList.length; i++) {
-            //    for (var j = 0; j < response.data.length; j++) {
-            //        if ($scope.columnList[i].) {
-
-            //        }
-            //    }
-            //}
+            for (var i = 0; i < $scope.columnList.length; i++) {
+                for (var j = 0; j < response.data.length; j++) {
+                    if (baseService.isUndefinedOrNull(response.data[j].Id)) {
+                        $scope.columnList[i].Flag = true;
+                    }
+                }
+            }
         });
     }
 
