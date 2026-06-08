@@ -1838,11 +1838,14 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftDefinationId
         }
 
         [HttpGet, Authorize]
-        public ActionResult getColumnFiltersData()
+        public ActionResult getColumnFiltersData(string masterId)
         {
             try
             {
-                var sql = @"SELECT name AS ColumnName,Flag=CAST (0 AS bit),FilterApply=CAST (0 AS bit),MandatoryDisplay=CAST (0 AS bit),null Id
+                var sql = @"SELECT ColumnName,Flag=CAST (CASE WHEN Id is null THEN 0 ELSE 1 END AS bit),FilterApply,MandatoryDisplay,Id
+FROM [dbo].[FavouriteMasterChild] Where FavouriteMasterId='"+ masterId + @"'
+union all
+SELECT name AS ColumnName,Flag=CAST (0 AS bit),FilterApply=CAST (0 AS bit),MandatoryDisplay=CAST (0 AS bit),null Id
 FROM sys.dm_exec_describe_first_result_set
 (
     N'
@@ -1855,7 +1858,9 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftDefinationId
     ',
     NULL,
     0
-)";
+)
+Where name not in(SELECT ColumnName FROM [dbo].[FavouriteMasterChild] Where FavouriteMasterId='" + masterId + @"')
+";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)

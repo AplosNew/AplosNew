@@ -11,6 +11,16 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                 <div class="row" ng-form="filterNewForm">
                     <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">User<sup>*</sup></label>
+                            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 15px;">
+                                <span class="input-group-addon">{{ModelNew.UserName}}</span>
+                                <input type="text" name="User" ng-model="ModelNew.FullName" class="form-control" required readonly>
+                                <span class="input-group-btn">
+                                    <button name="submit" class="btn single-small-btn" ng-click="popUp()" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -104,11 +114,69 @@
 
     </div>
 </div>
-
-
-
-
-
-
-
-
+<div class="modal fade site-modal in" id="popUpId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                User <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpParameters.searchBy">
+                                            <option ng-repeat="option in searchByUserList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="getPopUpData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Employee Id</th>
+                                <th>Full Name</th>
+                                <th>Auth Token</th>
+                                <th>User Type</th>
+                                <th>Auth Token Locked</th>
+                                <th>User Locked</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" total-items="popUpParameters.total_count"
+                                ng-click="selectSingleClick(x)" ng-class="{selected : x.UserId === rowSelected}" ng-dblclick="selectDoubleClick(x);" pagination-id="metaData.name + 'popUpList'">
+                                <td>{{x.UserId}}</td>
+                                <td>{{x.EmployeeId}}</td>
+                                <td>{{x.FullName}}</td>
+                                <td>{{x.AuthToken}}</td>
+                                <td>{{x.UserType}}</td>
+                                <td>{{x.AuthTokenLocked?'Locked':'UnLocked'}}</td>
+                                <td>{{x.UserLocked?'Locked':'UnLocked'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'popUpList'" direction-links="true" boundary-links="true" on-page-change="getPopUpData(newPageNumber)"></dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="selectByButton();" class="btn"><i class=""></i> Select</button></li>
+                        <li><button type="button" class="btn btn-default" ng-click="closePopUp();">Cancel</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

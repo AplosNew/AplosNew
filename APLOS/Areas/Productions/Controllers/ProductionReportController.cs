@@ -1006,7 +1006,7 @@ base AS (
     LEFT JOIN [SCS].[WorkCenterMaster] wcm on wcm.Id=owe.WorkcenterId
 	LEFT JOIN ShiftDefination SD ON SD.SystemId=OWE.ShiftId
     WHERE OWE.[Date] BETWEEN  DATEADD(dd, DATEDIFF(dd, 0, '" + fromDate + "'), 0) and DATEADD(dd, DATEDIFF(dd, 0, '" + toDate + @"'), 0)
-AND IT.UserName IN (" + tempincentiveType + ")  AND PO.EntityId='" + entityId + @"' AND ei.EmployeeStatus='Active' " + tempShiftId + " " + tempwcId + @"
+AND IT.UserName IN (" + tempincentiveType + ")  AND MB.EntityId='" + entityId + @"' AND ei.EmployeeStatus='Active' " + tempShiftId + " " + tempwcId + @"
 ),
 
 skill_agg AS (
