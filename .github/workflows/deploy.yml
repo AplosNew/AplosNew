@@ -14,17 +14,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
 
-      - name: Restore
-        run: dotnet restore
+      - name: Restore NuGet Packages
+        run: nuget restore APLOS.New.sln
 
-      - name: Publish
+      - name: Build and Publish
         run: |
-          dotnet publish -c Release -o F:\Deploy\PratibhaPOP
+          msbuild APLOS.New.sln /p:Configuration=Release /p:DeployOnBuild=true /p:WebPublishMethod=FileSystem /p:PublishUrl=F:\Deploy\PratibhaPOP
 
       - name: Stop App Pool
         shell: powershell
