@@ -51,52 +51,33 @@
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
                             <div class="row" ng-form="modelChildForm">
-                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                    <div class="form-group" show-errors>
-                                        <label class="col-sm-4 control-label">ColumnName<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="text" name="Standard Name" ng-model="ModelCNew.ColumnName" class="form-control" required tabindex="4" maxlength="50">
-                                        </div>
+                                <div style="color:black;" id="GridC" ej-grid e-datasource="columnList" e-templaterefresh="refreshTemplate"
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-gridlines="vertical"
+                                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                                    <div e-columns>
+                                        <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                                        <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="ColumnName" e-headertext="ColumnName" e-width="80"></div>
+                                        <div e-column e-headertext="FilterApply" e-template="#checkboxFilterApply" e-textalign="center" e-width="30"></div>
+                                        <div e-column e-headertext="MandatoryDisplay" e-template="#checkboxMandatoryDisplay" e-textalign="center" e-width="30"></div>
                                     </div>
-
-                                </div>
-                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                    <div class="form-group">
-                                        <label class="col-sm-4 control-label">FilterApply</label>
-                                        <div class="col-sm-2">
-                                            <div class="checkbox-site">
-                                                <label>
-                                                    <input type="checkbox" ng-model="ModelCNew.FilterApply" tabindex="8">
-                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <label class="col-sm-4 control-label">MandatoryDisplay</label>
-                                        <div class="col-sm-2">
-                                            <div class="checkbox-site">
-                                                <label>
-                                                    <input type="checkbox" ng-model="ModelCNew.MandatoryDisplay" tabindex="8">
-                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <script type="text/template" id="checkboxTemplate">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                                    </script>
+                                    <script type="text/x-jsrender" id="headerTemplate">
+                                        <input type="checkbox" id="headchk" />
+                                    </script>
+                                    <script type="text/template" id="checkboxFilterApply">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.FilterApply" />
+                                    </script>
+                                    <script type="text/template" id="checkboxMandatoryDisplay">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.MandatoryDisplay" />
+                                    </script>
                                 </div>
                                 <div class="common-btn">
                                     <ul class="list-inline text-right">
                                         <li> <button ng-click="SaveChild();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
                                     </ul>
-                                </div>
-                                <div style="color:black;" id="GridC" ej-grid e-datasource="modelChildList" 
-                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-gridlines="vertical"
-                                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                                    <div e-columns>
-                                        <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
-                                        <div e-column e-type="string" e-field="ColumnName" e-headertext="ColumnName" e-width="80"></div>
-                                        <div e-column e-type="string" e-field="FilterApply" e-headertext="FilterApply" e-width="100"></div>
-                                        <div e-column e-type="string" e-field="MandatoryDisplay" e-headertext="MandatoryDisplay" e-width="100"></div>
-                                    </div>
-
                                 </div>
                             </div>
                         </div>

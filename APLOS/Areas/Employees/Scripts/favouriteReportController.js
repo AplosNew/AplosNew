@@ -82,7 +82,8 @@ function favouriteReportController(commonMessage, $scope, $rootScope, baseServic
         } catch (e) {
             ShowResult(e, 'failure');
         }
-    }
+    } 
+
 
     $scope.SaveFavouriteFilter = function () {
         try {
@@ -175,16 +176,7 @@ function favouriteReportController(commonMessage, $scope, $rootScope, baseServic
     }
     $scope.GetData();
 
-    $scope.modelChildList = [];
-
-    $scope.GetChildData = function () {
-        $http({
-            method: 'GET',
-            url: 'Employees/EmployeeInFoReport/GetFavouriteMasterChild?masterId=' + $scope.ModelNew.Id
-        }).then(function successCallback(response) {
-            $scope.modelChildList = response.data;
-        });
-    }
+   
 
     $scope.Get = function (index) {
         $scope.index = index.data;
@@ -202,15 +194,78 @@ function favouriteReportController(commonMessage, $scope, $rootScope, baseServic
     };
     $scope.ModelCNew = Object.assign({}, $scope.ModelCTemp);
 
+    $scope.columnList = [];
+    $scope.getColumnFiltersData = function () {
+        $http({
+            method: 'GET',
+            url: 'Employees/EmployeeInFoReport/getColumnFiltersData'
+        }).then(function successCallback(response) {
+            $scope.columnList = response.data;
+        });
+    }
+    $scope.getColumnFiltersData();
+
+    $scope.GetChildData = function () {
+        $http({
+            method: 'GET',
+            url: 'Employees/EmployeeInFoReport/GetFavouriteMasterChild?masterId=' + $scope.ModelNew.Id
+        }).then(function successCallback(response) {
+            $scope.columnList = response.data;
+            //for (var i = 0; i < $scope.columnList.length; i++) {
+            //    for (var j = 0; j < response.data.length; j++) {
+            //        if ($scope.columnList[i].) {
+
+            //        }
+            //    }
+            //}
+        });
+    }
+
+    // #region checkbox all
+
+    $scope.refreshTemplate = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+    };
+
+    function CheckBoxSelectAll(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridC").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.columnList.length; i++) {
+                $scope.columnList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridC").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
+
     $scope.SaveChild = function () {
         try {
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.modelChildForm.$valid) {
+                $scope.newcolumnList = [];
+                for (var i = 0; i < $scope.columnList.length; i++) {
+                    if ($scope.columnList[i].Flag) {
+                        $scope.newcolumnList.push($scope.columnList[i]);
+                    }
+                }
 
                 $http({
                     method: 'POST',
                     url: "Employees/EmployeeInFoReport/SaveFavouriteChild",
-                    data: {'data': $scope.ModelCNew, 'masterId' : $scope.ModelNew.Id },
+                    data: { 'data': $scope.newcolumnList, 'masterId' : $scope.ModelNew.Id },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error == true) {
@@ -219,7 +274,6 @@ function favouriteReportController(commonMessage, $scope, $rootScope, baseServic
                     else {
                         ShowResult(response.data.Message, 'success');
                         $scope.GetChildData();
-                        $scope.ClearChild();
                     }
                 }, function errorCallback(response) {
                     ShowResult(response.data.Message, 'failure');
