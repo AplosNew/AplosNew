@@ -1213,11 +1213,7 @@ LEFT JOIN HKP.DefectType DT ON DT.Id=ID.DefectTypeId WHERE DefectMarkerMasterId 
         }
 
         #region ImageMaster
-        public ActionResult ImageMaster()
-        {
-            return View();
-        }
-
+      
         [HttpPost]
         public ActionResult GetImageMasterList(string column, string value)
         {

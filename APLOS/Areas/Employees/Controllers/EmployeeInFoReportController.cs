@@ -1945,7 +1945,11 @@ Where M.Active=1 ";
         {
             try
             {
-                var sql = @"Select * from [dbo].[FavouriteMasterChild] Where FavouriteMasterId='"+masterId+"'";
+                var sql = @"SELECT ColumnName,Flag=CAST (CASE WHEN Id is null THEN 0 ELSE 1 END AS bit),IsView,IsReport,Id
+FROM [dbo].[UserFavouriteChild] Where UserFavouriteId=''
+union all
+Select ColumnName,Flag=CAST (0 AS bit),IsView=CAST (1 AS bit),IsReport=CAST (0 AS bit),null Id from [dbo].[FavouriteMasterChild] Where FavouriteMasterId='"+ masterId + @"'
+AND ColumnName not in(SELECT ColumnName FROM [dbo].[UserFavouriteChild] Where UserFavouriteId='')";
                 JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 json.MaxJsonLength = int.MaxValue;
                 return json;
