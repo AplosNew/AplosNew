@@ -1201,7 +1201,6 @@ LEFT JOIN HKP.DefectType DT ON DT.Id=ID.DefectTypeId WHERE DefectMarkerMasterId 
                         Type = r["Type"],
                         Description = r["Description"]
                     });
-
                     return Json(new { Success = true, ImageFile = imageFile, Defects = defects }, JsonRequestBehavior.AllowGet);
                 }
             }
