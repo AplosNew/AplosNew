@@ -17,7 +17,6 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-
     # =========================
     # 2. Clean Workspace
     # =========================
@@ -27,29 +26,36 @@ jobs:
         git clean -xfd
         git reset --hard
 
+    # =========================
+    # 3. Set MSBuild Path
+    # =========================
+    - name: Set MSBuild Path
+      shell: powershell
+      run: |
+        echo "MSBUILD_EXE=C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe" >> $env:GITHUB_ENV
 
     # =========================
-    # 3. Restore Packages (FIXED)
+    # 4. Restore Packages
     # =========================
     - name: Restore Dependencies
       shell: powershell
       run: |
         dotnet restore APLOS.New.sln
 
-
     # =========================
-    # 4. Build Project
+    # 5. Build Project
     # =========================
     - name: Build Material Management Project
       shell: powershell
       run: |
-        msbuild Aplos.MaterialManagement\Aplos.MaterialManagement.csproj `
+        & "$env:MSBUILD_EXE" `
+          Aplos.MaterialManagement\Aplos.MaterialManagement.csproj `
+          /t:Build `
           /p:Configuration=Release `
           /p:Platform="Any CPU"
 
-
     # =========================
-    # 5. Stop IIS
+    # 6. Stop IIS App Pool
     # =========================
     - name: Stop IIS
       shell: powershell
@@ -57,17 +63,15 @@ jobs:
         Import-Module WebAdministration
 
         if ((Get-WebAppPoolState -Name "pratibhapop").Value -eq "Started") {
-            Stop-WebAppPool -Name "pratibhapop"
+          Stop-WebAppPool -Name "pratibhapop"
         }
 
-
     # =========================
-    # 6. Deploy Files
+    # 7. Deploy Files
     # =========================
     - name: Deploy Files
       shell: powershell
       run: |
-
         robocopy `
           "$env:GITHUB_WORKSPACE\APLOS" `
           "F:\aPOP\Pratibha\IIS\pratibhaPOP" `
@@ -77,14 +81,14 @@ jobs:
           /W:1
 
         if ($LASTEXITCODE -le 3) {
-            exit 0
-        } else {
-            exit $LASTEXITCODE
+          exit 0
+        }
+        else {
+          exit $LASTEXITCODE
         }
 
-
     # =========================
-    # 7. Start IIS
+    # 8. Start IIS App Pool
     # =========================
     - name: Start IIS
       shell: powershell
@@ -92,5 +96,5 @@ jobs:
         Import-Module WebAdministration
 
         if ((Get-WebAppPoolState -Name "pratibhapop").Value -ne "Started") {
-            Start-WebAppPool -Name "pratibhapop"
+          Start-WebAppPool -Name "pratibhapop"
         }
