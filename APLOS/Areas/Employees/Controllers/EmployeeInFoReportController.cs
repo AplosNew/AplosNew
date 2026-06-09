@@ -2223,6 +2223,117 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
             }
         }
 
+
+        [HttpPost, Authorize]
+        public JsonResult SaveUserFavouriteFilter(Dictionary<string, object> data)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsBC, dsMaster;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                objCon.OpenDataSetThroughAdapter("select * from dbo.UserFavourite where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.UserFavourite Where Id='" + data["Id"] + "'", out dsBC, false, "1");
+
+                if (data != null)
+                {
+                    DataView dv = new DataView(dsBC.Tables[0]);
+                    dv.RowFilter = "Id='" + data["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                       
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("FavouriteMaster", out _Id);
+
+                        data["Id"] = _Id;
+                        AddNewRow(dsBC.Tables[0], data);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, data);
+                    }
+                }
+                #endregion
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveUserFavouriteChild(List<Dictionary<string, object>> data, string masterId)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsBC;
+            string _Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                string strSQL = "Delete FROM dbo.FavouriteMasterChild Where FavouriteMasterId='" + masterId + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+
+                #region Entity 
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.FavouriteMasterChild Where FavouriteMasterId='" + masterId + "'", out dsBC, false, "1");
+
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["FavouriteMasterId"] = masterId;
+                            AddNewRow(dsBC.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                }
+
+                #endregion
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+
         //[HttpPost, Authorize]
         //public ActionResult GetDailyReport(Dictionary<string, string> parameters, string date)
         //{

@@ -14,11 +14,39 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">User<sup>*</sup></label>
                             <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 15px;">
-                                <span class="input-group-addon">{{ModelNew.UserName}}</span>
+                                <span class="input-group-addon">{{ModelNew.User}}</span>
                                 <input type="text" name="User" ng-model="ModelNew.FullName" class="form-control" required readonly>
                                 <span class="input-group-btn">
                                     <button name="submit" class="btn single-small-btn" ng-click="popUp()" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                 </span>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="4" maxlength="50" ng-keyup="CheckSpecialCharecter();">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Favourite Master</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="ModelNew.FavouriteMasterId" ng-change="GetChildData();"
+                                            ng-options="item.Id as item.UIName for item in modelList" id="Favourite Master"
+                                            name="FavouriteMaster" tabindex="1">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
+                            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 15px;">
+                                <span class="input-group-addon">{{ModelNew.EmployeeId}}</span>
+                                <input type="text" name="User" ng-model="ModelNew.FullName" class="form-control" required readonly>
+                                
                             </div>
                         </div>
                         <div class="form-group" show-errors>
@@ -27,14 +55,7 @@
                                 <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
                             </div>
                         </div>
-                    </div>
-                    <div class="col-xs-12 col-sm-6 col-md-6">
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="4" maxlength="50" ng-keyup="CheckSpecialCharecter();">
-                            </div>
-                        </div>
+
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Remarks</label>
                             <div class="col-sm-8">
@@ -61,7 +82,7 @@
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
                             <div class="row" ng-form="modelChildForm">
-                                <div style="color:black;" id="GridC" ej-grid e-datasource="columnList" e-templaterefresh="refreshTemplate"
+                                <div style="color:black;" id="GridC" ej-grid e-datasource="modelChildList" e-templaterefresh="refreshTemplate"
                                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-gridlines="vertical"
                                      e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                                     <div e-columns>

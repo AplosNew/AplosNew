@@ -96,7 +96,6 @@ function userfavouriteReportController(commonMessage, $scope, $rootScope, baseSe
         $scope.ModelNew.User = data.UserId;
         $scope.ModelNew.FullName = data.FullName;
         $scope.ModelNew.EmployeeId = data.EmployeeId;
-        $scope.getData();
         $scope.closePopUp();
     };
     $scope.selectSingleClick = function (data) {
@@ -150,13 +149,13 @@ function userfavouriteReportController(commonMessage, $scope, $rootScope, baseSe
     $scope.CheckSpecialCharecter = function () {
         try {
 
-            if (containsSpecialChars($scope.ModelNew.StandardName)) {
+            if (containsSpecialChars($scope.ModelNew.UserName)) {
 
-                $scope.ModelNew.StandardName =
-                    $scope.ModelNew.StandardName.replace(/\s/g, '')
+                $scope.ModelNew.UserName =
+                    $scope.ModelNew.UserName.replace(/\s/g, '')
                         .replace(/[`!@#$%^&*()_+\=\[\]{};':"\\|,.<>\/?~]/g, '');
 
-                throw "No spaces or special characters allowed for Standard Name.";
+                throw "No spaces or special characters allowed for User Name.";
             }
 
         } catch (e) {
@@ -260,7 +259,7 @@ function userfavouriteReportController(commonMessage, $scope, $rootScope, baseSe
     $scope.GetChildData = function () {
         $http({
             method: 'GET',
-            url: 'Employees/EmployeeInFoReport/GetFavouriteMasterChild?masterId=' + $scope.ModelNew.Id
+            url: 'Employees/EmployeeInFoReport/GetFavouriteMasterChild?masterId=' + $scope.ModelNew.FavouriteMasterId
         }).then(function successCallback(response) {
             $scope.modelChildList = response.data;
         });
@@ -281,6 +280,36 @@ function userfavouriteReportController(commonMessage, $scope, $rootScope, baseSe
 
     };
     $scope.ModelCNew = Object.assign({}, $scope.ModelCTemp);
+
+    // #region checkbox all
+
+    $scope.refreshTemplate = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+    };
+
+    function CheckBoxSelectAll(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridC").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.columnList.length; i++) {
+                $scope.columnList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridC").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
 
     $scope.SaveChild = function () {
         try {

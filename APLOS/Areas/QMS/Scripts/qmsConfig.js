@@ -208,5 +208,10 @@
             templateUrl: 'QMS/QualityProcess/DefectMarker',
             controller: 'DefectMarkerController'
         })
+        .when('/image-master', {
+            templateUrl: 'QMS/QualityProcess/ImageMaster',
+            controller: 'ImageMasterController'
+        })
+
 }
 qmsConfig.$inject = ['$routeProvider', '$locationProvider'];
