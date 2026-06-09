@@ -566,7 +566,7 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
                 ImageFile: hasNewImage ? input.files[0].name : existingFileName, // ✅ use existing file name in edit mode
                 Width: $scope.originalImageWidth,
                 Height: $scope.originalImageHeight,
-                Defects: $scope.defects.map(d => ({
+                ImageAreas: $scope.defects.map(d => ({
                     Id: d.id || 0,
                     ImageMasterId: $scope.ModelNew.Id,
                     Width: $scope.originalImageWidth,
