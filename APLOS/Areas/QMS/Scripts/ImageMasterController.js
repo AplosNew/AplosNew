@@ -595,7 +595,7 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
             }
 
             // Send to MVC
-            $http.post("/QMS/QualityProcess/SaveImageArea", formData, {
+            $http.post("QMS/QualityProcess/SaveImageArea", formData, {
                 transformRequest: angular.identity,
                 headers: { "Content-Type": undefined }
             })
