@@ -1941,15 +1941,33 @@ Where M.Active=1 ";
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetFavouriteMasterChild(string masterId)
+        public ActionResult GetUserFavouriteMaster()
+        {
+            try
+            {
+                var sql = @"Select UF.*,U.UserId [User],U.FullName,FM.StandardName FavouriteMaster from [dbo].[UserFavourite] UF
+LEFT JOIN SEC.[User] U ON U.Id=UF.UserId
+LEFT JOIN [dbo].[FavouriteMaster] FM ON Fm.Id=UF.FavouriteMasterId";
+                JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetFavouriteMasterChild(string masterId, string fmasterId)
         {
             try
             {
                 var sql = @"SELECT ColumnName,Flag=CAST (CASE WHEN Id is null THEN 0 ELSE 1 END AS bit),IsView,IsReport,Id
-FROM [dbo].[UserFavouriteChild] Where UserFavouriteId=''
+FROM [dbo].[UserFavouriteChild] Where UserFavouriteId='"+ masterId + @"'
 union all
-Select ColumnName,Flag=CAST (0 AS bit),IsView=CAST (1 AS bit),IsReport=CAST (0 AS bit),null Id from [dbo].[FavouriteMasterChild] Where FavouriteMasterId='"+ masterId + @"'
-AND ColumnName not in(SELECT ColumnName FROM [dbo].[UserFavouriteChild] Where UserFavouriteId='')";
+Select ColumnName,Flag=CAST (0 AS bit),IsView=CAST (1 AS bit),IsReport=CAST (0 AS bit),null Id from [dbo].[FavouriteMasterChild] Where FavouriteMasterId='"+ fmasterId + @"'
+AND ColumnName not in(SELECT ColumnName FROM [dbo].[UserFavouriteChild] Where UserFavouriteId='" + masterId + @"')";
                 JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 json.MaxJsonLength = int.MaxValue;
                 return json;
@@ -2272,7 +2290,7 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
                 #endregion
                 OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
                 obj.SaveDataSets(dsBC);
-                return Json(new { Error = false, Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data=data,Message = AplosMessage.Success });
             }
             catch (Exception ex)
             {
@@ -2291,7 +2309,7 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
             try
             {
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                string strSQL = "Delete FROM dbo.FavouriteMasterChild Where FavouriteMasterId='" + masterId + "'";
+                string strSQL = "Delete FROM dbo.UserFavouriteChild Where UserFavouriteId='" + masterId + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
@@ -2302,7 +2320,7 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
                 #region Entity 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.FavouriteMasterChild Where FavouriteMasterId='" + masterId + "'", out dsBC, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.UserFavouriteChild Where UserFavouriteId='" + masterId + "'", out dsBC, false, "1");
 
                 if (data != null)
                 {
@@ -2313,7 +2331,7 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
 
                         if (dv.Count == 0)
                         {
-                            item["FavouriteMasterId"] = masterId;
+                            item["UserFavouriteId"] = masterId;
                             AddNewRow(dsBC.Tables[0], item);
                         }
                         else

@@ -266,7 +266,7 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                   // $scope.productionSummaryNew.Id = response.data.Data.Id;
+                    $scope.ModelNew.Id = response.data.Data.Id;
                     $scope.getData();
 
                 }
@@ -291,7 +291,7 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    // $scope.productionSummaryNew.Id = response.data.Data.Id;
+                    $scope.getImageEntityData();
                     $scope.getData();
 
                 }
@@ -316,8 +316,7 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    // $scope.productionSummaryNew.Id = response.data.Data.Id;
-                    //$scope.getData();
+                    $scope.getProductData();
 
                 }
             }), function errorCallBack(response) {
@@ -483,25 +482,30 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
     };
 
     $scope.loadExistingDefects = function () {
+        $scope.defects = [];
         $http({
             method: 'POST',
-            url: 'QMS/QualityProcess/GetImageAndDefects',
+            url: 'QMS/QualityProcess/GetImageAreas',
             data: { masterId: $scope.ModelNew.Id },
             dataType: 'JSON',
         }).then(function successCallback(response) {
-            if (response.data.length > 0) {
+            if (!baseService.isUndefinedOrNull(response.data.ImageFile)) {
                 // Construct full image path (adjust your path here)
                 $scope.ImageFile = response.data.ImageFile;
                 const imagePath = virtualPath.GarmentPic + response.data.ImageFile;
 
                 $scope.imageSrc = imagePath;
                 $scope.imageLoaded = true;
-                $scope.defects = response.data.Defects.map(d => ({
+                $scope.defects = response.data.ImageAreas.map(d => ({
                     id: d.Id,
-                    x: parseFloat(d.XNormalized),
-                    y: parseFloat(d.YNormalized),
-                    Type: d.Type,
-                    Description: d.Description
+                    x: parseFloat(d.XAxis),
+                    y: parseFloat(d.YAxis),
+                    Code: d.Code,
+                    ImageID: d.ImageID,
+                    ImageName: d.ImageName,
+                    AreaName: d.AreaName,
+                    Zone: d.Zone,
+                    Remarks: d.Remarks
                 }));
 
                 // Wait for image render then draw defects
@@ -566,7 +570,7 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
                 ImageFile: hasNewImage ? input.files[0].name : existingFileName, // ✅ use existing file name in edit mode
                 Width: $scope.originalImageWidth,
                 Height: $scope.originalImageHeight,
-                Defects: $scope.defects.map(d => ({
+                ImageAreas: $scope.defects.map(d => ({
                     Id: d.id || 0,
                     ImageMasterId: $scope.ModelNew.Id,
                     Width: $scope.originalImageWidth,

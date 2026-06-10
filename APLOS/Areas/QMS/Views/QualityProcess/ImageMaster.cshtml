@@ -61,7 +61,7 @@
                                 <label class="col-sm-4 control-label">Entity</label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="EntityModelNew.EntityId" name="Entity"
+                                        <select class="form-control" ng-model="EntityModelNew.EntityId" ng-disabled="ModelNew.Id==null" name="Entity"
                                                 ng-options="item.Value as item.Text for item in entityList">
                                             <option value="">--Select--</option>
                                         </select>
@@ -94,7 +94,7 @@
                     <div class="form-elements">
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li> <button ng-click="ProductMasterSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> EntitySave</button></li>
+                                <li> <button ng-click="ProductMasterSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Product Save</button></li>
                             </ul>
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -102,7 +102,7 @@
                                 <label class="col-sm-4 control-label">Product</label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="ProductModelNew.ProductMasterId" name="Product"
+                                        <select class="form-control" ng-model="ProductModelNew.ProductMasterId"  ng-disabled="ModelNew.Id==null" name="Product"
                                                 ng-options="item.Value as item.Text for item in productMasterList">
                                             <option value="">--Select--</option>
                                         </select>

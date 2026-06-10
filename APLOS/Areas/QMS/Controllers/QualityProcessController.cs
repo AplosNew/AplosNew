@@ -330,7 +330,6 @@ SELECT Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetC
             DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
             return 1;
         }
 
@@ -1202,7 +1201,6 @@ LEFT JOIN HKP.DefectType DT ON DT.Id=ID.DefectTypeId WHERE DefectMarkerMasterId 
                         Type = r["Type"],
                         Description = r["Description"]
                     });
-
                     return Json(new { Success = true, ImageFile = imageFile, Defects = defects }, JsonRequestBehavior.AllowGet);
                 }
             }
@@ -1214,7 +1212,7 @@ LEFT JOIN HKP.DefectType DT ON DT.Id=ID.DefectTypeId WHERE DefectMarkerMasterId 
 
         #region ImageMaster
       
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult GetImageMasterList(string column, string value)
         {
             string strkey = "1=1";
@@ -1349,7 +1347,7 @@ LEFT JOIN HKP.DefectType DT ON DT.Id=ID.DefectTypeId WHERE DefectMarkerMasterId 
 
             }
         }
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult GetImageEntityList(string imageMasterId)
         {
             string sql = @"select IE.Id,E.UserName EntityName,IM.UserName ImageMaster,IE.ImageMasterId from [MST].[ImageEntity] IE 
@@ -1359,7 +1357,7 @@ LEFT JOIN HKP.DefectType DT ON DT.Id=ID.DefectTypeId WHERE DefectMarkerMasterId 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult GetImageProductMasterList(string imageMasterId)
         {
 
@@ -1414,12 +1412,13 @@ LEFT JOIN HKP.DefectType DT ON DT.Id=ID.DefectTypeId WHERE DefectMarkerMasterId 
                     DataView dv = new DataView(dsMaster.Tables[0]);
                     dv.RowFilter = "Id=" + d.Id + " AND ImageMasterId='" + masterId + "'";
 
-
+                    //Random random = new Random();
+                    //string randomNumber = random.Next(10000, 100000).ToString();
                     if (dv.Count == 0)
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
                         dr["ImageName"] = defectData.ImageFile;
-                        dr["ImageID"] = defectData.ImageFile;
+                        dr["ImageID"] = masterId.ToString() + '-' + d.Code.ToString();
                         dr["ImageMasterId"] = masterId;
                         // dr["Width"] = d.Width;
                         // dr["Height"] = d.Height;
@@ -1427,6 +1426,7 @@ LEFT JOIN HKP.DefectType DT ON DT.Id=ID.DefectTypeId WHERE DefectMarkerMasterId 
                         dr["YAxis"] = d.YAxis;
                         dr["AreaName"] = d.AreaName;
                         dr["Code"] = d.Code;
+                        dr["Zone"] = d.Zone;
                         dr["Remarks"] = d.Remarks;
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = DateTime.Now;
@@ -1439,14 +1439,13 @@ LEFT JOIN HKP.DefectType DT ON DT.Id=ID.DefectTypeId WHERE DefectMarkerMasterId 
 
                         dr.BeginEdit();
                         dr["ImageName"] = defectData.ImageFile;
-                        dr["ImageID"] = defectData.ImageFile;
+                        dr["ImageID"] = masterId.ToString() + '-' + d.Code.ToString();
                         dr["ImageMasterId"] = masterId;
-                        dr["Width"] = d.Width;
-                        dr["Height"] = d.Height;
                         dr["XAxis"] = d.XAxis;
                         dr["YAxis"] = d.YAxis;
                         dr["AreaName"] = d.AreaName;
                         dr["Code"] = d.Code;
+                        dr["Zone"] = d.Zone;
                         dr["Remarks"] = d.Remarks;
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = DateTime.Now.ToString();
@@ -1466,6 +1465,46 @@ LEFT JOIN HKP.DefectType DT ON DT.Id=ID.DefectTypeId WHERE DefectMarkerMasterId 
             }
         }
 
+
+        [HttpPost, Authorize]
+        public ActionResult GetImageAreas(int masterId)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                DataSet ds = null;
+                string sql = @"Select * from [dbo].[ProductArea]   WHERE ImageMasterId = " + masterId + "";
+                con.OpenDataSetThroughAdapter(sql, out ds, false, "1");
+                if (ds.Tables[0].Rows.Count == 0)
+                {
+                    return Json(new { Success = false, Message = "No image found." }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    // Assuming all defects share same image
+                    var firstRow = ds.Tables[0].Rows[0];
+                    string imageFile = Convert.ToString(firstRow["ImageName"]);
+
+                    var defects = ds.Tables[0].AsEnumerable().Select(r => new
+                    {
+                        Id = r["Id"],
+                        XAxis = r["XAxis"],
+                        YAxis = r["YAxis"],
+                        Code = r["Code"],
+                        ImageName = r["ImageName"],
+                        ImageID = r["ImageID"],
+                        AreaName = r["AreaName"],
+                        Zone = r["Zone"],
+                        Remarks = r["Remarks"]
+                    });
+                    return Json(new { Success = true, ImageFile = imageFile, ImageAreas = defects }, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Success = false, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
 
         #endregion
@@ -1546,6 +1585,7 @@ LEFT JOIN HKP.DefectType DT ON DT.Id=ID.DefectTypeId WHERE DefectMarkerMasterId 
         public int Width { get; set; }
         public int Height { get; set; }
         public string ImageMasterId { get; set; }
+        public string ImageID { get; set; }
     }
 
 }
