@@ -92,8 +92,6 @@ function userfavouriteReportController(commonMessage, $scope, $rootScope, baseSe
     };
 
     $scope.selectDoubleClick = function (data) {
-        if (data.SysAdmin)
-            return ShowResult("User [" + data.UserId + "] is [" + data.UserType + "], so role is not required.", 'failure', 'popUpId')
         $scope.ModelNew.UserId = data.Id;
         $scope.ModelNew.User = data.UserId;
         $scope.ModelNew.FullName = data.FullName;

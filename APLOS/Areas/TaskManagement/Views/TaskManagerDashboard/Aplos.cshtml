@@ -293,7 +293,9 @@
 </ej-dialog>
 <ej-dialog id="dialogDetailTaskMain" title=" Task Detail" e-enablemodal="true" e-position-y="0" e-showoninit="false"
            e-target="#maincontainer" e-width="1000" e-open="enableBtn">
-
+    <div class="common-btn">
+        <button type="button" class="btn glyphicon-arrow-down" ng-click="Print();">Download</button>
+    </div>
 
     <div id="GridTaskDetailDashboard" ng-init="chkinit()" ej-grid e-datasource="TaskDetail" e-recorddoubleclick="getTaskDetail"
          e-allowscrolling="true"
@@ -315,8 +317,8 @@
             <div e-column e-type='date' e-field="IssueRequiredDate" e-headertext="Iss. Req.Dt" e-width="80"></div>
             <div e-column e-type='date' e-field="IssueExpiryDate" e-headertext="Iss. Exp.Dt" e-width="80"></div>
             <div e-column e-type='date' e-field="IssueCloseDate" e-headertext="Iss. Close.Dt" e-width="80"></div>
-            			
-            
+
+
         </div>
     </div>
 </ej-dialog>
