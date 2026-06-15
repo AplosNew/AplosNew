@@ -216,5 +216,11 @@
             templateUrl: 'QMS/QualityProcess/inspection',
             controller: 'InspectionTransactionController'
         })
+        .when('/image-inspec-type', {
+            templateUrl: 'QMS/QualityProcess/ImageInspectionType',
+            controller: 'ImageInspectionTypeController'
+        })
+    
+
 }
 qmsConfig.$inject = ['$routeProvider', '$locationProvider'];

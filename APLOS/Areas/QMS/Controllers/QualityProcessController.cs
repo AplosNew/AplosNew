@@ -1122,6 +1122,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
 
                 // Save defects in database
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                
                 DataSet dsMaster;
                 string tableName = "ImageDefects";
 
@@ -1171,6 +1172,9 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
 
                 clsStaticInfo info = new clsStaticInfo();
                 info.SaveDataSets(dsMaster);
+              
+
+                
 
                 return Json(new { Success = true, Message = "Image and defects saved successfully." });
             }
@@ -1189,7 +1193,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 DataSet ds = null;
                 string sql = @"Select ID.*,DT.UserName Type from [dbo].[ImageDefects] ID
-LEFT JOIN HKP.DefectType DT ON DT.Id=ID.DefectTypeId WHERE DefectMarkerMasterId = " + masterId + "";
+                LEFT JOIN HKP.DefectType DT ON DT.Id=ID.DefectTypeId WHERE DefectMarkerMasterId = " + masterId + "";
                 con.OpenDataSetThroughAdapter(sql, out ds, false, "1");
                 if (ds.Tables[0].Rows.Count == 0)
                 {
@@ -1795,6 +1799,8 @@ LEFT JOIN HKP.DefectType DT ON DT.Id=ID.DefectTypeId WHERE DefectMarkerMasterId 
         }
 
 
+
+
         #endregion
 
         #region Inspection
@@ -1820,7 +1826,7 @@ LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=I.WCInchargeId
 LEFT JOIN dbo.EmployeeInformation ER ON ER.SystemId=ReportingOfficerId) AS TEMP WHERE " + strkey + " Order by AddedDate DESC";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
-              
+
 
         [HttpPost]
         public JsonResult CreateInspection(Dictionary<string, object> data)
@@ -1829,7 +1835,7 @@ LEFT JOIN dbo.EmployeeInformation ER ON ER.SystemId=ReportingOfficerId) AS TEMP 
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-               
+
                 con.OpenDataSetThroughAdapter("select * from TRN.Inspection where InspectionUserName='" + data["InspectionUserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Inspection User Name already exists!!!");
