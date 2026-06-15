@@ -582,11 +582,31 @@ namespace Aplos.Areas.TaskManagement.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                JsonResult jsondata = null;
 
                 if (taskstatus.ToUpper() == "CLOSED")
-                    return Json(new { DATA = GetClosedTaskAccordingToRresponsiblePersonListString(authorizationType, flag), EMPID = identity.EmployeeId }, JsonRequestBehavior.AllowGet);
+                {
+                    jsondata = Json(
+                        new
+                        {
+                            DATA = GetClosedTaskAccordingToRresponsiblePersonListString(authorizationType, flag),
+                            EMPID = identity.EmployeeId
+                        },
+                        JsonRequestBehavior.AllowGet
+                    );
+                }
+                else
+                {
+                    jsondata = Json(
+                        new
+                        {
+                            DATA = GetTaskAccordingToRresponsiblePersonListString(authorizationType, flag),
+                            EMPID = identity.EmployeeId
+                        },
+                        JsonRequestBehavior.AllowGet
+                    );
+                }
 
-                var jsondata = Json(new { DATA = GetTaskAccordingToRresponsiblePersonListString(authorizationType, flag), EMPID = identity.EmployeeId }, JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
             }
@@ -2339,10 +2359,10 @@ namespace Aplos.Areas.TaskManagement.Controllers
 LEFT OUTER JOIN TaskManagerSubTaskRemarks AS R ON r.TaskManagerSubTasksId = tc.Id
                         AND r.Id = (SELECT TOP 1 Id FROM TaskManagerSubTaskRemarks WHERE TaskManagerSubTasksId = tc.Id)
 LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=tc.ResponsiblePersonId
---LEFT OUTER JOIN TaskAudit AS ta ON tc.TaskManagerMasterId=ta.TaskManagerMasterId and ta.ResponsiblePersonId='" + identity.EmployeeId+ @"' AND ta.AuthorizationType='" + AuthorizationTypeEnum.CreatedBy.ToString() + @"'
+--LEFT OUTER JOIN TaskAudit AS ta ON tc.TaskManagerMasterId=ta.TaskManagerMasterId and ta.ResponsiblePersonId='" + identity.EmployeeId + @"' AND ta.AuthorizationType='" + AuthorizationTypeEnum.CreatedBy.ToString() + @"'
                     WHERE  tc.TaskManagerMasterId='" + todoId + "' order by convert(datetime, TC.AddedDate) ASC";
 
- return s;
+            return s;
         }
 
         [HttpPost, Authorize]

@@ -116,6 +116,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Setups\clsPrint.cs" />
     <Compile Include="Setups\ProcessLock.cs" />
+    <Compile Include="QMS\QMSService.cs" />
     <Compile Include="TaskScheduler\TasksService.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -2051,6 +2051,7 @@
     <Content Include="Areas\QMS\Scripts\LotWiseQualityReportController.js" />
     <Content Include="Areas\QMS\Scripts\DefineSQCIssueController.js" />
     <Content Include="Areas\QMS\Scripts\QualityProcessNewController.js" />
+    <Content Include="Areas\QMS\Scripts\InspectionTransactionController.js" />
     <Content Include="Areas\SalesManagements\Scripts\InputCreditCheckController.js" />
     <Content Include="Areas\SalesManagements\Scripts\InputCreditApproveController.js" />
     <Content Include="Areas\SalesManagements\Scripts\InputCreditController.js" />
@@ -5314,6 +5315,7 @@
     <Content Include="Areas\Skills\Views\Skill\SkillDevelopmentMaster.cshtml" />
     <Content Include="Areas\Skills\Views\Skill\Planning.cshtml" />
     <Content Include="Areas\QMS\Views\QualityProcess\ImageMaster.cshtml" />
+    <Content Include="Areas\QMS\Views\QualityProcess\Inspection.cshtml" />
     <None Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>PayrollsDataSet.Designer.cs</LastGenOutput>

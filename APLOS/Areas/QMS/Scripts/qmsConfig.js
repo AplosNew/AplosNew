@@ -212,6 +212,9 @@
             templateUrl: 'QMS/QualityProcess/ImageMaster',
             controller: 'ImageMasterController'
         })
-
+        .when('/inspection', {
+            templateUrl: 'QMS/QualityProcess/inspection',
+            controller: 'InspectionTransactionController'
+        })
 }
 qmsConfig.$inject = ['$routeProvider', '$locationProvider'];
