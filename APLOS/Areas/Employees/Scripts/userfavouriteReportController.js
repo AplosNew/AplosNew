@@ -7,6 +7,8 @@ function userfavouriteReportController(commonMessage, $scope, $rootScope, baseSe
         Id: null,
         FavouriteMasterId: null,
         EmployeeId: null,
+        FullName: null,
+        User:null,
         UserId: null,
         UserName: null,
         StandardName: null,
@@ -90,8 +92,6 @@ function userfavouriteReportController(commonMessage, $scope, $rootScope, baseSe
     };
 
     $scope.selectDoubleClick = function (data) {
-        if (data.SysAdmin)
-            return ShowResult("User [" + data.UserId + "] is [" + data.UserType + "], so role is not required.", 'failure', 'popUpId')
         $scope.ModelNew.UserId = data.Id;
         $scope.ModelNew.User = data.UserId;
         $scope.ModelNew.FullName = data.FullName;
@@ -114,32 +114,7 @@ function userfavouriteReportController(commonMessage, $scope, $rootScope, baseSe
         angular.element(document.querySelector('#popUpId')).modal('hide');
     };
     //#endregion***********************************User ********************************************************//
-
-
-
-
-    $scope.HrefList = [];
-    $scope.UINameList = [];
-
-    $scope.getMenuMasterCbo = function () {
-        $http({
-            method: 'GET',
-            url: 'Employees/EmployeeInFoReport/getMenuMasterCbo'
-        }).then(function successCallback(response) {
-            $scope.HrefList = response.data;
-            $scope.UINameList = response.data;
-        });
-    }
-    $scope.getMenuMasterCbo();
-
-    $scope.GetHref = function () {
-        for (var i = 0; i < $scope.UINameList.length; i++) {
-            if ($scope.ModelNew.UIName == $scope.UINameList[i].Description) {
-                $scope.ModelNew.Href = $scope.UINameList[i].Href;
-                break;
-            }
-        }
-    }
+         
 
     function containsSpecialChars(str) {
         const specialChars = /[`!@#$%^&*()_+\=\[\]{};':"\\|,.<>\/?~ ]/;
@@ -171,7 +146,7 @@ function userfavouriteReportController(commonMessage, $scope, $rootScope, baseSe
 
                 $http({
                     method: 'POST',
-                    url: "Employees/EmployeeInFoReport/SaveFavouriteFilter",
+                    url: "Employees/EmployeeInFoReport/SaveUserFavouriteFilter",
                     data: { 'data': $scope.ModelNew },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
@@ -180,6 +155,7 @@ function userfavouriteReportController(commonMessage, $scope, $rootScope, baseSe
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
+                        $scope.ModelNew.Id = response.data.Data.Id;
                         $scope.GetData();
                     }
                 }, function errorCallback(response) {
@@ -194,17 +170,14 @@ function userfavouriteReportController(commonMessage, $scope, $rootScope, baseSe
     $scope.Clear = function () {
         $scope.ModelTemp = {
             Id: null,
-            ShiftId: null,
-            PositionCategory: null,
-            EntityId: null,
-            SectionId: null,
-            UserId: null,
+            FavouriteMasterId: null,
             EmployeeId: null,
-            UIName: null,
-            VisibleToAll: false,
-            VisibleAtBudgetCode: false,
-            VisibleToAllPositionCode: false,
-            IsGlobalEmpApplicable: false,
+            FullName: null,
+            User: null,
+            UserId: null,
+            UserName: null,
+            StandardName: null,
+            Remarks: null,
             AddedBy: null,
             AddedDate: null,
             AddedFromIP: null,
@@ -214,52 +187,37 @@ function userfavouriteReportController(commonMessage, $scope, $rootScope, baseSe
 
         };
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.modelChildList = [];
     }
 
-    $scope.SaveFavourite = function () {
-        try {
-            $scope.$broadcast('show-errors-check-validity');
-
-            if ($scope.filterNewForm.$valid) {
-
-                $http({
-                    method: 'POST',
-                    url: "Employees/EmployeeInFoReport/SaveFavouriteFilter",
-                    data: { 'data': $scope.ModelNew },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error == true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                    }
-                }, function errorCallback(response) {
-                    ShowResult(response.data.Message, 'failure');
-                });
-            }
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    }
 
     $scope.modelList = [];
     $scope.GetData = function () {
         $http({
             method: 'GET',
-            url: 'Employees/EmployeeInFoReport/GetFavouriteMaster'
+            url: 'Employees/EmployeeInFoReport/GetUserFavouriteMaster'
         }).then(function successCallback(response) {
             $scope.modelList = response.data;
         });
     }
     $scope.GetData();
 
-    $scope.modelChildList = [];
+    $scope.FavouriteMasterlList = [];
+    $scope.GetFavouriteMasterData = function () {
+        $http({
+            method: 'GET',
+            url: 'Employees/EmployeeInFoReport/GetFavouriteMaster'
+        }).then(function successCallback(response) {
+            $scope.FavouriteMasterlList = response.data;
+        });
+    }
+    $scope.GetFavouriteMasterData();
 
+    $scope.modelChildList = [];
     $scope.GetChildData = function () {
         $http({
             method: 'GET',
-            url: 'Employees/EmployeeInFoReport/GetFavouriteMasterChild?masterId=' + $scope.ModelNew.FavouriteMasterId
+            url: 'Employees/EmployeeInFoReport/GetFavouriteMasterChild?masterId=' + $scope.ModelNew.Id + '&fmasterId=' + $scope.ModelNew.FavouriteMasterId
         }).then(function successCallback(response) {
             $scope.modelChildList = response.data;
         });
@@ -295,8 +253,8 @@ function userfavouriteReportController(commonMessage, $scope, $rootScope, baseSe
 
         var filtered = $("#GridC").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.columnList.length; i++) {
-                $scope.columnList[i].Flag = ChkOrUnchk;
+            for (var i = 0; i < $scope.modelChildList.length; i++) {
+                $scope.modelChildList[i].Flag = ChkOrUnchk;
             }
         }
         else {
@@ -315,11 +273,16 @@ function userfavouriteReportController(commonMessage, $scope, $rootScope, baseSe
         try {
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.modelChildForm.$valid) {
-
+                $scope.newcolumnList = [];
+                for (var i = 0; i < $scope.modelChildList.length; i++) {
+                    if ($scope.modelChildList[i].Flag) {
+                        $scope.newcolumnList.push($scope.modelChildList[i]);
+                    }
+                }
                 $http({
                     method: 'POST',
-                    url: "Employees/EmployeeInFoReport/SaveFavouriteChild",
-                    data: { 'data': $scope.ModelCNew, 'masterId': $scope.ModelNew.Id },
+                    url: "Employees/EmployeeInFoReport/SaveUserFavouriteChild",
+                    data: { 'data': $scope.modelChildList, 'masterId': $scope.ModelNew.Id },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error == true) {

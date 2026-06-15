@@ -6,6 +6,7 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.General.QMS;
 using Library.Model.Setups;
 using Library.Service.Enums;
 using Library.Service.Helpers;
@@ -32,12 +33,9 @@ namespace Aplos.Areas.QMS.Controllers
         //abcd
         //this is my code from tarek
         string TableName = "hkp.QualityProcess";
-        //authentication for
-        //GetList Create Delete
-
 
         #region Constructor
-
+        QMSService qMSService = new QMSService();
         private readonly ISqlRepository _sqlRepository;
         public QualityProcessController(ISqlRepository R)
         {
@@ -46,6 +44,7 @@ namespace Aplos.Areas.QMS.Controllers
 
         #endregion Constructor
 
+        #region Pages
 
         [Authorize]
         public ActionResult Aplos()
@@ -72,6 +71,12 @@ namespace Aplos.Areas.QMS.Controllers
         {
             return View();
         }
+
+        public ActionResult Inspection()
+        {
+            return View();
+        }
+        #endregion Pages
 
         [AllowAnonymous]
         public JsonResult GetCbo()
@@ -906,7 +911,7 @@ WHERE PMB.Active=1 AND QMB.QualityProcessMasterId='" + masterId + "'";
 
         #endregion
 
-        //#region   Defect    
+        #region   Defect    
         private double GetDefectSequence(string qualityProcessMasterId)
         {
             DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM Defect Where QualityProcessMasterId='" + qualityProcessMasterId + "'");
@@ -1217,8 +1222,10 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
             }
         }
 
+        #endregion   Defect 
+
         #region ImageMaster
-      
+
         [HttpPost, Authorize]
         public ActionResult GetImageMasterList(string column, string value)
         {
@@ -1530,268 +1537,45 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
             }
         }
 
-
-        #endregion
-
-        #region InspectionType
-        public ActionResult ImageInspectionType()
-        {
-            return View();
-        }
-
         [HttpPost, Authorize]
-        public ActionResult GetInspectionTypeList(string column, string value)
-        {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM dbo.InspectionType ) AS TEMP WHERE " + strkey + " order by UserName";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost]
-        public JsonResult CreateImageInspectionType(Dictionary<string, object> data)
+        public ActionResult GetImageAreas(int masterId)
         {
             try
             {
-                DataSet dsMaster;
-                DataSet dsCheckUserName;
-                DataSet dsCheckStandardName;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-                con.OpenDataSetThroughAdapter("select * from dbo.InspectionType where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-                con.OpenDataSetThroughAdapter("select * from dbo.InspectionType where Id<>'" + data["Id"] + "' AND UserName='" + data["UserName"] + "'", out dsCheckUserName, false, "1");
-                con.OpenDataSetThroughAdapter("select * from dbo.InspectionType where Id<>'" + data["Id"] + "' AND StandardName='" + data["StandardName"] + "' ", out dsCheckStandardName, false, "1");
-
-                string _Id = "";
-                if (dsCheckUserName.Tables[0].Rows.Count > 0)
+                DataSet ds = null;
+                string sql = @"Select * from [dbo].[ProductArea]   WHERE ImageMasterId = " + masterId + "";
+                con.OpenDataSetThroughAdapter(sql, out ds, false, "1");
+                if (ds.Tables[0].Rows.Count == 0)
                 {
-                    throw new Exception("UserName  " + data["UserName"] + " already have exist.!!");
-                }
-                if (dsCheckStandardName.Tables[0].Rows.Count > 0)
-                {
-                    throw new Exception(" StandardName " + data["StandardName"] + " already have exist.!!");
-                }
-                #region data update
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("ImageMaster", out _Id);
-
-                    data["Id"] = _Id;
-                    AddNewRow(dsMaster.Tables[0], data);
+                    return Json(new { Success = false, Message = "No image found." }, JsonRequestBehavior.AllowGet);
                 }
                 else
                 {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                    // Assuming all defects share same image
+                    var firstRow = ds.Tables[0].Rows[0];
+                    string imageFile = Convert.ToString(firstRow["ImageName"]);
+
+                    var defects = ds.Tables[0].AsEnumerable().Select(r => new
+                    {
+                        Id = r["Id"],
+                        XAxis = r["XAxis"],
+                        YAxis = r["YAxis"],
+                        Code = r["Code"],
+                        ImageName = r["ImageName"],
+                        ImageID = r["ImageID"],
+                        AreaName = r["AreaName"],
+                        Zone = r["Zone"],
+                        Remarks = r["Remarks"]
+                    });
+                    return Json(new { Success = true, ImageFile = imageFile, ImageAreas = defects }, JsonRequestBehavior.AllowGet);
                 }
-                #endregion data update
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
-
             }
             catch (Exception ex)
             {
-
-                return Json(new { Error = true, Message = ex.Message });
-
+                return Json(new { Success = false, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-        [HttpPost]
-        public JsonResult CreateImageInspectionTypeEntity(Dictionary<string, object> data)
-        {
-            try
-            {
-                DataSet dsEntity;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-                con.OpenDataSetThroughAdapter("select * from InspectionEntity where InspectionTypeID='" + data["InspectionTypeID"] + "' AND EntityId='" + data["EntityId"] + "'", out dsEntity, false, "1");
-
-                string _Id = "";
-
-                #region data update
-                if (dsEntity.Tables[0].Rows.Count == 0)
-                {
-                    //bplib.clsGenID genid = new bplib.clsGenID();
-                    //genid.GenID("ImageMaster", out _Id);
-
-                    //data["Id"] = _Id;
-                    AddNewRow(dsEntity.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsEntity.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsEntity);
-
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
-
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message });
-
-            }
-        }
-        [HttpPost]
-        public JsonResult CreateImageInspectionTypeProcess(Dictionary<string, object> data)
-        {
-            try
-            {
-                DataSet dsEntity;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-                con.OpenDataSetThroughAdapter("select * from InspectionTypeProcess where InspectionTypeId='" + data["InspectionTypeId"] + "' AND ProcessId='" + data["ProcessId"] + "'", out dsEntity, false, "1");
-
-                string _Id = "";
-
-                #region data update
-                if (dsEntity.Tables[0].Rows.Count == 0)
-                {
-                    //bplib.clsGenID genid = new bplib.clsGenID();
-                    //genid.GenID("ImageMaster", out _Id);
-
-                    //data["Id"] = _Id;
-                    AddNewRow(dsEntity.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsEntity.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsEntity);
-
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
-
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message });
-
-            }
-        }
-        [HttpPost]
-        public JsonResult CreateImageInspectionTypeEntryLevel(Dictionary<string, object> data)
-        {
-            try
-            {
-                DataSet dsEntity;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-                con.OpenDataSetThroughAdapter("select * from InspectionTypeEnteryLevel where InspectionTypeId='" + data["InspectionTypeId"] + "' ", out dsEntity, false, "1");
-
-                string _Id = "";
-
-                #region data update
-                if (dsEntity.Tables[0].Rows.Count == 0)
-                {
-                    AddNewRow(dsEntity.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsEntity.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsEntity);
-
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
-
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message });
-
-            }
-        }
-        [HttpPost, Authorize]
-        public ActionResult GetInspectionTypeEntityList(string imageInspectionTypeId)
-        {
-            string sql = @"select IE.Id,E.UserName EntityName,IM.UserName ImageMaster,IE.ImageMasterId from [MST].[ImageEntity] IE 
-                        LEFT JOIN ORG.Entity E ON E.Id=IE.EntityId
-                        LEFT JOIN [MST].[ImageMaster] IM ON IM.Id=IE.ImageMasterId
-                        WHERE ImageMasterId='" + imageInspectionTypeId + @"'";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult GetInspectionTypeProcessList(string imageInspectionTypeId)
-        {
-            string sql = @"SELECT DISTINCT P.Id, ITP.InspectionTypeId, P.StandardName, P.UserName
-								, P.IsProductionProcess, P.IsProcessRouting, P.IsLocked
-								, P.IsAppApplicable, IsChecked, P.IsValueAdded
-								, P.MaterialTypeId, MT.[Description] AS MaterialType
-								, P.Remarks,TG.ProductionBookingLevel
-								, P.Active, P.Archive, Convert(bit,0) AS Flag,IsInventory= CAST(CASE	WHEN P.IsLast=1 THEN 1 WHEN M.Id IS NOT NULL THEN 1 ELSE 0 END AS BIT)
-							FROM [HKP].[Process] AS P
-							LEFT JOIN HKP.MaterialType AS MT ON P.MaterialTypeId=MT.Id
-							LEFT JOIN [HKP].[EntityProcessTag] TG ON TG.ProcessId=P.Id 
-							LEFT JOIN [dbo].[EntityConfig] M ON M.ConsumptionProcessId=P.Id 
-							JOIN InspectionTypeProcess ITP ON ITP.ProcessId=P.Id
-							WHERE ITP.InspectionTypeId='" + imageInspectionTypeId + @"'  AND P.IsProductionProcess=1 ";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult GetInspectionTypeEntryLevelList(string imageInspectionTypeId)
-        {
-            string sql = @"SELECT * FROM InspectionTypeEnteryLevel
-							WHERE  InspectionTypeId='" + imageInspectionTypeId + @"' ";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-
-        public JsonResult GetProductionProcessList(GridParameter parameters)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(GetProductionProcessList(parameters, identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
-        }
-        public GridModel GetProductionProcessList(GridParameter parameters, string companyGroupId, string CompanyId)
-        {
-            try
-            {
-                parameters.CmdText = @"SELECT DISTINCT P.Id, P.CompanyGroupId, P.Code
-								, P.[Sequence], P.ShortName, P.StandardName, P.UserName
-								, P.IsProductionProcess, P.IsProcessRouting, P.IsLocked
-								, P.IsAppApplicable, IsChecked, P.IsValueAdded
-								, P.MaterialTypeId, MT.[Description] AS MaterialType
-								, P.Remarks,TG.ProductionBookingLevel
-								, P.Active, P.Archive, Convert(bit,0) AS Flag,IsInventory= CAST(CASE	WHEN P.IsLast=1 THEN 1 WHEN M.Id IS NOT NULL THEN 1 ELSE 0 END AS BIT)
-							FROM [HKP].[Process] AS P
-							LEFT JOIN HKP.MaterialType AS MT ON P.MaterialTypeId=MT.Id
-							LEFT JOIN [HKP].[EntityProcessTag] TG ON TG.ProcessId=P.Id 
-							LEFT JOIN [dbo].[EntityConfig] M ON M.ConsumptionProcessId=P.Id 
-							WHERE P.CompanyGroupId='" + companyGroupId + @"' AND P.IsProductionProcess=1 AND P.Archive=0 ";
-                return _sqlRepository.GetGridData(parameters);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message, ex,
-                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name.ToString(), null,
-                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Process.ToString()));
-            }
-        }
-
-        
 
         #endregion
 

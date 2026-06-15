@@ -32,7 +32,7 @@
                             <div class="col-sm-8">
                                 <div class="select-style">
                                     <select class="form-control" ng-model="ModelNew.FavouriteMasterId" ng-change="GetChildData();"
-                                            ng-options="item.Id as item.UIName for item in modelList" id="Favourite Master"
+                                            ng-options="item.Id as item.UIName for item in FavouriteMasterlList" id="Favourite Master"
                                             name="FavouriteMaster" tabindex="1">
                                         <option></option>
                                     </select>
@@ -68,7 +68,7 @@
                     <div class="common-btn">
                         <ul class="list-inline text-right">
                             <li> <button ng-click="SaveFavouriteFilter();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                            @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
                             <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                         </ul>
                     </div>
@@ -89,8 +89,8 @@
                                         <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                                         <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
                                         <div e-column e-type="string" e-field="ColumnName" e-headertext="ColumnName" e-width="80"></div>
-                                        <div e-column e-headertext="FilterApply" e-template="#checkboxFilterApply" e-textalign="center" e-width="30"></div>
-                                        <div e-column e-headertext="MandatoryDisplay" e-template="#checkboxMandatoryDisplay" e-textalign="center" e-width="30"></div>
+                                        <div e-column e-headertext="IsView" e-template="#checkboxIsView" e-textalign="center" e-width="30"></div>
+                                        <div e-column e-headertext="IsReport" e-template="#checkboxIsReport" e-textalign="center" e-width="30"></div>
                                     </div>
                                     <script type="text/template" id="checkboxTemplate">
                                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
@@ -98,11 +98,11 @@
                                     <script type="text/x-jsrender" id="headerTemplate">
                                         <input type="checkbox" id="headchk" />
                                     </script>
-                                    <script type="text/template" id="checkboxFilterApply">
-                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.FilterApply" />
+                                    <script type="text/template" id="checkboxIsView">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsView" />
                                     </script>
-                                    <script type="text/template" id="checkboxMandatoryDisplay">
-                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.MandatoryDisplay" />
+                                    <script type="text/template" id="checkboxIsReport">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsReport" />
                                     </script>
                                 </div>
                                 <div class="common-btn">
@@ -125,9 +125,10 @@
              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
             <div e-columns>
                 <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
-                <div e-column e-type="string" e-field="Href" e-headertext="Href" e-width="80"></div>
-                <div e-column e-type="string" e-field="UIName" e-headertext="UIName" e-width="100"></div>
+                <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="80"></div>
                 <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="100"></div>
+                <div e-column e-type="string" e-field="UserId" e-headertext="UserId" e-width="100"></div>
+                <div e-column e-type="string" e-field="EmployeeId" e-headertext="EmployeeId" e-width="100"></div>
                 <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
             </div>
 

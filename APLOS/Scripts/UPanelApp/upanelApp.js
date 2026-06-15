@@ -1337,6 +1337,7 @@ upanelApp.controller("employeeAttdnTrendReportController", employeeAttdnTrendRep
 upanelApp.controller("favouriteReportController", favouriteReportController)
 upanelApp.controller("userfavouriteReportController", userfavouriteReportController)
 upanelApp.controller("ImageMasterController", ImageMasterController)
+upanelApp.controller("InspectionTransactionController", InspectionTransactionController)
 upanelApp.controller("ImageInspectionTypeController", ImageInspectionTypeController)
 
 upanelApp.config(AccessControllerConfig);

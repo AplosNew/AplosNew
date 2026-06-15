@@ -1,9 +1,10 @@
 ﻿'use strict';
-taskManagerDashboardController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller'];
-function taskManagerDashboardController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
+taskManagerDashboardController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller','$window'];
+function taskManagerDashboardController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, $window) {
     $rootScope.title = 'Taskmanager Dashboard';
     $scope.path = 'TaskManagement/TaskManagerDashboard/';
-
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
     $controller('taskDetailController', { $scope: $scope, $http: $http });
 
 
@@ -303,6 +304,24 @@ function taskManagerDashboardController(cboService, commonMessage, $scope, $root
 
 
     }
+
+    $scope.Print = function () {
+        var data = $scope.TaskDetail;
+        $scope.fileName = $filter("dateFiltering")(Date.now()) + "-Task List";
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrl,
+            data: { 'reportFileName': $scope.fileName,'data': data }
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure', 'dialogDetailTaskMain');
+            }
+            else {
+                window.location.href = $scope.downloadgriddataUrl + "?FileName=" + response.data.FileName;
+            }
+        });
+    };
+
 
     ////#region task detail 
     //$scope.TaskManagerMasterId = null;

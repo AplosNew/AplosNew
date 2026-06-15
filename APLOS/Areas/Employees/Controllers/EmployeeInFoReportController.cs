@@ -1941,15 +1941,36 @@ Where M.Active=1 ";
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetFavouriteMasterChild(string masterId)
+        public ActionResult GetUserFavouriteMaster()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var sql = @"Select UF.*,U.UserId [User],U.FullName,FM.StandardName FavouriteMaster from [dbo].[UserFavourite] UF
+LEFT JOIN SEC.[User] U ON U.Id=UF.UserId
+LEFT JOIN [dbo].[FavouriteMaster] FM ON Fm.Id=UF.FavouriteMasterId
+Where UF.UserId='"+ identity.UserId + "'";
+                JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetFavouriteMasterChild(string masterId, string fmasterId)
         {
             try
             {
                 var sql = @"SELECT ColumnName,Flag=CAST (CASE WHEN Id is null THEN 0 ELSE 1 END AS bit),IsView,IsReport,Id
-FROM [dbo].[UserFavouriteChild] Where UserFavouriteId=''
+FROM [dbo].[UserFavouriteChild] Where UserFavouriteId='"+ masterId + @"'
 union all
-Select ColumnName,Flag=CAST (0 AS bit),IsView=CAST (1 AS bit),IsReport=CAST (0 AS bit),null Id from [dbo].[FavouriteMasterChild] Where FavouriteMasterId='"+ masterId + @"'
-AND ColumnName not in(SELECT ColumnName FROM [dbo].[UserFavouriteChild] Where UserFavouriteId='')";
+Select ColumnName,Flag=CAST (0 AS bit),IsView=CAST (1 AS bit),IsReport=CAST (0 AS bit),null Id from [dbo].[FavouriteMasterChild] Where FavouriteMasterId='"+ fmasterId + @"'
+AND ColumnName not in(SELECT ColumnName FROM [dbo].[UserFavouriteChild] Where UserFavouriteId='" + masterId + @"')";
                 JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 json.MaxJsonLength = int.MaxValue;
                 return json;
@@ -2201,7 +2222,9 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
                 {
                 }
             }
-
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
             dr["UpdatedBy"] = identity.Name;
             dr["UpdatedDate"] = System.DateTime.Now.ToString();
             dr["UpdatedFromIP"] = identity.IPAddress;
@@ -2243,7 +2266,7 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
 
-                objCon.OpenDataSetThroughAdapter("select * from dbo.UserFavourite where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                objCon.OpenDataSetThroughAdapter("select * from dbo.UserFavourite where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "' AND  UserId='" + data["UserId"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same User Name already exists!!!");
 
@@ -2258,7 +2281,7 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
                     {
                        
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("FavouriteMaster", out _Id);
+                        genid.GenID("UserFavourite", out _Id);
 
                         data["Id"] = _Id;
                         AddNewRow(dsBC.Tables[0], data);
@@ -2272,7 +2295,7 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
                 #endregion
                 OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
                 obj.SaveDataSets(dsBC);
-                return Json(new { Error = false, Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data=data,Message = AplosMessage.Success });
             }
             catch (Exception ex)
             {
@@ -2291,7 +2314,7 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
             try
             {
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                string strSQL = "Delete FROM dbo.FavouriteMasterChild Where FavouriteMasterId='" + masterId + "'";
+                string strSQL = "Delete FROM dbo.UserFavouriteChild Where UserFavouriteId='" + masterId + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
@@ -2302,7 +2325,7 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
                 #region Entity 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.FavouriteMasterChild Where FavouriteMasterId='" + masterId + "'", out dsBC, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.UserFavouriteChild Where UserFavouriteId='" + masterId + "'", out dsBC, false, "1");
 
                 if (data != null)
                 {
@@ -2313,7 +2336,7 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
 
                         if (dv.Count == 0)
                         {
-                            item["FavouriteMasterId"] = masterId;
+                            item["UserFavouriteId"] = masterId;
                             AddNewRow(dsBC.Tables[0], item);
                         }
                         else
@@ -2508,7 +2531,7 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
                 xlsCol++;
 
                 int colLeave = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Leave";
+                sheet1.Range[xlsRow, xlsCol].Text = "Leave Yesterday";
                 IRange range1 = sheet1[xlsRow, xlsCol];
                 //ICommentShape shape1 = range1.AddComment();
                 //shape1.RichText.Append("Emp Due Task FP / Total Due Task FP", fontCaption);
@@ -2517,19 +2540,19 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
 
                 xlsCol++;
                 int colWeekoff = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Weekoff";
+                sheet1.Range[xlsRow, xlsCol].Text = "Weekoff Yesterday";
 
                 xlsCol++;
                 int colAbsent = xlsCol;
-                sheet1[xlsRow, xlsCol].Text = "Absent";
+                sheet1[xlsRow, xlsCol].Text = "Absent Yesterday";
 
                 xlsCol++;
                 int colAbsentper = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Absent %";
+                sheet1.Range[xlsRow, xlsCol].Text = "Absent % Yesterday";
 
                 xlsCol++;
                 int colND = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Net Deployed";
+                sheet1.Range[xlsRow, xlsCol].Text = "Net Deployed Yesterday";
 
                 xlsCol++;
                 int colSA = xlsCol;
@@ -2538,11 +2561,11 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
 
                 xlsCol++;
                 int colSC = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Scan Complete";
+                sheet1.Range[xlsRow, xlsCol].Text = "Scan Complete Yesterday";
 
                 xlsCol++;
                 int colSP = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Scan Pending";
+                sheet1.Range[xlsRow, xlsCol].Text = "Scan Pending Yesterday";
 
                 xlsCol++;
                 int colYI = xlsCol;
@@ -2555,23 +2578,23 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
 
                 xlsCol++;
                 int colVM = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Varification Missing";
+                sheet1.Range[xlsRow, xlsCol].Text = "Varification Missing Yesterday";
 
                 xlsCol++;
                 int colPD = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Production Data";
+                sheet1.Range[xlsRow, xlsCol].Text = "Production Data Yesterday";
 
                 xlsCol++;
                 int colZPD = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Prod Data Missing";
+                sheet1.Range[xlsRow, xlsCol].Text = "Prod Data Missing Yesterday";
 
                 xlsCol++;
                 int colIPM = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "In Punch Missing";
+                sheet1.Range[xlsRow, xlsCol].Text = "In Punch Missing Yesterday";
 
                 xlsCol++;
                 int colTR = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Trainee";
+                sheet1.Range[xlsRow, xlsCol].Text = "Trainee Yesterday";
 
                 xlsCol++;
                 int colLast30DOJ = xlsCol;
@@ -2582,7 +2605,6 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
                 sheet1.Range[xlsRow, xlsCol].Text = "Last 30 Days Left";
 
                 endXlsCol = xlsCol;
-
 
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
                 sheet1.Range[xlsRow, 6, xlsRow, endXlsCol].ColumnWidth = 12;
@@ -2600,7 +2622,6 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
                 xlsRow++;
                 startRow = xlsRow;
                 perStartRow = xlsRow;
-
 
                 for (int i = 0; i < dtTask.Rows.Count; i++)
                 {
@@ -2632,7 +2653,6 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
 
                     xlsRow++;
                 }
-
 
                 sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
                 #region ******************Report Header******************

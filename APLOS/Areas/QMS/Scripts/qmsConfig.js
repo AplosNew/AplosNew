@@ -212,6 +212,10 @@
             templateUrl: 'QMS/QualityProcess/ImageMaster',
             controller: 'ImageMasterController'
         })
+        .when('/inspection', {
+            templateUrl: 'QMS/QualityProcess/inspection',
+            controller: 'InspectionTransactionController'
+        })
         .when('/image-inspec-type', {
             templateUrl: 'QMS/QualityProcess/ImageInspectionType',
             controller: 'ImageInspectionTypeController'
