@@ -1800,6 +1800,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
 
 
 
+
         #endregion
 
         #region Inspection
@@ -1983,6 +1984,7 @@ LEFT JOIN dbo.EmployeeInformation ER ON ER.SystemId=ReportingOfficerId) AS TEMP 
         public string ImageMasterId { get; set; }
         public string ImageID { get; set; }
     }
+
 
 }
 
