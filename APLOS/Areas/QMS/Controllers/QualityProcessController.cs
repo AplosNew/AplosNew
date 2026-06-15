@@ -1802,6 +1802,107 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
 
         #endregion
 
+        #region Inspection
+
+        [HttpPost]
+        public ActionResult GetInspectionList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (SELECT I.*,E.UserName Entity,W.UserName WorkCenter,P.UserName Process,S.ShiftDefinationName,
+EmployeeName=EM.EmployeeCode+'-'+EM.EmployeeName,WCIncharge=WE.EmployeeCode+'-'+WE.EmployeeName
+,ReportingOfficer=ER.EmployeeCode+'-'+ER.EmployeeName
+FROM TRN.Inspection I
+LEFT JOIN ORG.Entity E ON E.Id=I.EntityId
+LEFT JOIN SCS.WorkCenterMaster W ON W.ID=I.WorkCenterMasterId
+LEFT JOIN HKP.Process P ON P.Id=I.ProcessId
+LEFT JOIN dbo.ShiftDefination S ON S.SystemID=I.ShiftId
+LEFT JOIN dbo.EmployeeInformation EM ON EM.SystemId=I.EmployeeId
+LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=I.WCInchargeId
+LEFT JOIN dbo.EmployeeInformation ER ON ER.SystemId=ReportingOfficerId) AS TEMP WHERE " + strkey + " Order by AddedDate DESC";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost]
+        public JsonResult CreateInspection(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from TRN.Inspection where InspectionUserName='" + data["InspectionUserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Inspection User Name already exists!!!");
+
+
+                con.OpenDataSetThroughAdapter("select * from TRN.Inspection where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("Inspection", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        public ActionResult DeleteInspection(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from TRN.Inspection where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+
+
+        #endregion
 
     }
     public class ImageDefect
