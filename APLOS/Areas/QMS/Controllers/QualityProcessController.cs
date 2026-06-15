@@ -1537,7 +1537,6 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
             }
         }
 
-
         #endregion
 
         #region InspectionType
