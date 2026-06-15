@@ -1533,7 +1533,6 @@ LEFT JOIN HKP.DefectType DT ON DT.Id=ID.DefectTypeId WHERE DefectMarkerMasterId 
             }
         }
 
-
         #endregion
 
         #region InspectionType
