@@ -1,13 +1,14 @@
 ﻿'use strict';
-ImageMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$timeout', 'fileReader', '$window'];
-function ImageMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $timeout, fileReader, $window) {
-    $rootScope.title = 'Image Master';
+ImageInspectionTypeController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$timeout', 'fileReader', '$window'];
+function ImageInspectionTypeController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $timeout, fileReader, $window) {
+    $rootScope.title = 'Image Inspection Type';
     $scope.Action = 'Save';
-    $scope.ImageMasterList = [];
+    $scope.ImageInspectionTypeList = [];
     $scope.path = 'QMS/QualityProcess/';
-    $scope.saveUrl = $scope.path + 'CreateImageMarkerMaster';
-    $scope.saveEntityUrl = $scope.path + 'CreateImageMarkerEntity';
-    $scope.saveProductUrl = $scope.path + 'CreateImageMarkerProduct';
+    $scope.saveUrl = $scope.path + 'CreateImageInspectionType';
+    $scope.saveEntityUrl = $scope.path + 'CreateImageInspectionTypeEntity';
+    $scope.saveProductUrl = $scope.path + 'CreateImageInspectionTypeProcess';
+    $scope.saveEntryLevelUrl = $scope.path + 'CreateImageInspectionTypeEntryLevel';
     $scope.deleteUrl = $scope.path + 'deletedefect/';
 
     $scope.searchBy = "Id"; $scope.search = "";
@@ -29,34 +30,55 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
     }
     $scope.EntityModelNew = {
         Id: null,
-        ImageMasterId: null,
+        InspectionTypeId: null,
         EntityId: null
     }
-    $scope.ProductModelNew = {
+    $scope.ProcessModelNew = {
         Id: null,
-        ImageMasterId: null,
-        ProductMasterId: null
+        InspectionTypeId: null,
+        ProcessId: null,
+        ProcessName: null
+    }
+    $scope.entryLevel = {
+        Id: null,
+        InspectionTypeId: null,
+        Grade: null,
+        UserName: null,
+        LineItem: null,
+        ProductCode: null,
+        ProductionOrder: null,
+        SalesOrder: null,
+        SKU1: null,
+        SKU2: null,
+        SKU3: null,
+        MaxQty: null,
+        Remarks: null,
+        Picture: null,
+        Operation: null,
+        Defect: null
     }
 
     $scope.getData = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "GetImageMasterList",
+            url: $scope.path + "GetInspectionTypeList",
             data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.ImageMasterList = response.data;
+            $scope.ImageInspectionTypeList = response.data;
         });
     }
     $scope.getData();
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
-        $scope.EntityModelNew.ImageMasterId = $scope.ModelNew.Id;
-        $scope.ProductModelNew.ImageMasterId = $scope.ModelNew.Id;
+        $scope.EntityModelNew.InspectionTypeId = $scope.ModelNew.Id;
+        $scope.ProcessModelNew.InspectionTypeId = $scope.ModelNew.Id;
+        $scope.entryLevel.InspectionTypeId = $scope.ModelNew.Id;
 
-        $scope.getProductData();
+        $scope.getInspectionTypeProcess();
         $scope.getImageEntityData();
+        $scope.getInspectionTypeEntryLevel();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -69,14 +91,14 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
     });
 
 
-    $scope.ImageProductMasterList = [];
-    $scope.getProductData = function () {
+    $scope.ImageProcessMasterList = [];
+    $scope.getInspectionTypeProcess = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "GetImageProductMasterList?ImageMasterId=" + $scope.ProductModelNew.ImageMasterId,
+            url: $scope.path + "GetInspectionTypeProcessList?imageInspectionTypeId=" + $scope.ProcessModelNew.InspectionTypeId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.ImageProductMasterList = response.data;
+            $scope.ImageProcessMasterList = response.data;
         });
     }
 
@@ -84,10 +106,21 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.getImageEntityData = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "GetImageEntityList?ImageMasterId=" + $scope.EntityModelNew.ImageMasterId,
+            url: $scope.path + "GetInspectionTypeEntityList?imageInspectionTypeId=" + $scope.EntityModelNew.ImageInspectionTypeId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ImageEntityList = response.data;
+        });
+    }
+
+    $scope.InspectionTypeEntryLevelList = [];
+    $scope.getInspectionTypeEntryLevel = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetInspectionTypeEntryLevelList?imageInspectionTypeId=" + $scope.entryLevel.InspectionTypeId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.InspectionTypeEntryLevelList = response.data;
         });
     }
 
@@ -111,6 +144,12 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
             });
     }
     $scope.GetDefectTypeCbo();
+
+    $scope.setEmpData = function (obj) {
+        $scope.ModelNew.ResponsiblePersonId = obj.data.SystemID;
+        $scope.ModelNew.ResponsiblePersonName = obj.data.EmployeeName;
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    };
 
     $scope.modelFilterByList = [
         { 'name': 'Prod. Order#', 'value': 'Id' },
@@ -246,8 +285,8 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
     }
 
     $scope.setEmpData = function (obj) {
-        $scope.productionSummaryNew.ResponsiblePersonId = obj.data.SystemID;
-        $scope.productionSummaryNew.ResponsiblePerson = obj.data.EmployeeCode + "-" + obj.data.EmployeeName;
+        $scope.ModelNew.ResponsiblePersonId = obj.data.SystemID;
+        $scope.ModelNew.ResponsiblePersonName = obj.data.EmployeeCode + "-" + obj.data.EmployeeName;
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     };
    
@@ -301,14 +340,14 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
 
         }
     };
-    $scope.ProductMasterSave = function () {
-        $scope.ProductModelNew.ImageMasterId = $scope.ModelNew.Id;
+    $scope.ProcessSave = function () {
+        $scope.ProcessModelNew.InspectionTypeId = $scope.ModelNew.Id;
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveProductUrl,
-                data: { 'data': $scope.ProductModelNew },
+                data: { 'data': $scope.ProcessModelNew },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -316,7 +355,7 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.getProductData();
+                    $scope.getInspectionTypeProcess();
 
                 }
             }), function errorCallBack(response) {
@@ -324,6 +363,29 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
             }
 
         }
+    };
+
+    $scope.EntryLevelSave = function () {
+        $scope.entryLevel.InspectionTypeId = $scope.ModelNew.Id;
+        $scope.$broadcast('show-errors-check-validity');
+            $http({
+                method: 'POST',
+                url: $scope.saveEntryLevelUrl,
+                data: { 'data': $scope.entryLevel },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                   // $scope.getInspectionTypeProcess();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
     };
 
     //// Trigger hidden input  
@@ -625,7 +687,68 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
         if ($scope.imageLoaded) $scope.prepareCanvas();
     });
 
+    $scope.processSearchList = [
+        {
+            'name': 'Sequence',
+            'value': 'Sequence'
+        },
+        {
+            'name': 'Code',
+            'value': 'Code'
+        },
+        {
+            'name': 'User Name',
+            'value': 'UserName'
+        },
+        {
+            'name': 'Local Name',
+            'value': 'LocalName'
+        },
+        {
+            'name': 'Alias',
+            'value': 'Alias'
+        }
+    ];
+    $scope.processPopUpParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'Sequence',
+        searchBy: "UserName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.processPopUpDataList = [];
+    $scope.processPopUp = function () {
+        if (baseService.isUndefinedOrNull($window.companyId))
+            return ShowResult('Please at first select company.', 'failure');
 
+        $scope.popUpProcessUrl = 'QMS/QualityProcess/GetProductionProcessList'
+        $scope.getProcessData = function (pageno) {
+            baseService.paginationBase($scope.popUpProcessUrl, pageno, $scope.processPopUpParameters)
+                .then(function (result) {
+                    $scope.processPopUpDataList = result.Rows;
+                    $scope.processPopUpParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure', 'processPopUp');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#processPopUp')).modal('show');
+        $scope.getProcessData();
+    };
+
+    $scope.closeProcessPopUp = function () {
+        angular.element(document.querySelector('#processPopUp')).modal('hide');
+    };
+
+    $scope.processAdd = function (data) {
+        $scope.ProcessModelNew.ProcessId = data.Id;
+        $scope.ProcessModelNew.ProcessName = data.StandardName;
+        angular.element(document.querySelector('#processPopUp')).modal('hide');
+    };
 
 
 

@@ -1,0 +1,703 @@
+﻿<togglable name="{{title}}"></togglable>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+
+    <input type="hidden" ng-model="ModelNew.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50" autocomplete="off">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50" autocomplete="off">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="ResponsiblePerson" ng-model="ModelNew.ResponsiblePersonName" required @*style="width:200px;"*@ class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button name="submit" ng-click="openPopupAngular('employeeNewPopUp')" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<br />
+<div class="clearfix"></div>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);" href="" aria-controls="entity" role="tab" data-toggle="tab">Entity</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" aria-controls="product" role="tab" data-toggle="tab">Process</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);" href="" aria-controls="area" role="tab" data-toggle="tab">Entry Level</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+
+                <div class="row">
+                    <div class="form-elements">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="EntitySave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> EntitySave</button></li>
+                            </ul>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Entity</label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="EntityModelNew.EntityId" ng-disabled="ModelNew.Id==null" name="Entity"
+                                                ng-options="item.Value as item.Text for item in entityList">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="modal-body">
+                                <div class="content-container-fluid" style="color:black;">
+                                    <div id="GridEdit" ej-grid e-datasource="ImageEntityList"
+                                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                        <div e-columns>
+                                            <div e-column e-field="Id" e-headertext="Id" e-width="3"></div>
+                                            <div e-column e-field="EntityName" e-headertext="EntityName"></div>
+                                            <div e-column e-field="ImageMaster" e-headertext="ImageMasterName"></div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="row">
+                    <div class="form-elements">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="ProcessSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Product Save</button></li>
+                            </ul>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="input-group">
+                                        <input type="text" name="ProcessName" ng-model="ProcessModelNew.ProcessName" required @*style="width:200px;"*@ class="form-control" readonly>
+                                        <span class="input-group-btn">
+                                            <button name="submit" ng-click="processPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                           
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="modal-body">
+                                <div class="content-container-fluid" style="color:black;">
+                                    <div id="GridEdit" ej-grid e-datasource="ImageProcessMasterList"
+                                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                        <div e-columns>
+                                            <div e-column e-field="Id" e-headertext="Id" e-width="3"></div>
+                                            <div e-column e-field="ImageMaster" e-headertext="ImageMasterName"></div>
+                                            <div e-column e-field="UserName" e-headertext="Process"></div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class="row">
+                    <div class="form-elements">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="EntryLevelSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            </ul>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Grade</label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="entryLevel.Grade" id="zone" name="Grade">
+                                            <option value="A">A</option>
+                                            <option value="B">B</option>
+                                            <option value="C">C</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">ProductCode<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="entryLevel.ProductCode" id="productCode" name="productCode">
+                                            <option value="Yes">Yes</option>
+                                            <option value="No">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">SKU1<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="entryLevel.SKU1" id="defects" name="Defects">
+                                            <option value="Yes">Yes</option>
+                                            <option value="No">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Picture<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="entryLevel.Picture" id="picture" name="Picture">
+                                            <option value="Yes">Yes</option>
+                                            <option value="No">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Max Qty<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" name="qty" ng-model="entryLevel.MaxQty" class="form-control" required tabindex="4" autocomplete="off">
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">UserName<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="entryLevel.UserName" id="userName" name="UserName">
+                                            <option value="Pass">Pass</option>
+                                            <option value="Alter">Alter</option>
+                                            <option value="ReCheck">ReCheck</option>
+                                            <option value="Reject">Reject</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">ProductionOrder<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="entryLevel.ProductionOrder" id="productionOrder" name="productionOrder">
+                                            <option value="Yes">Yes</option>
+                                            <option value="No">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">SKU2<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="entryLevel.SKU2" id="sKU2" name="sKU2">
+                                            <option value="Yes">Yes</option>
+                                            <option value="No">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Operation<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="entryLevel.Operation" id="Picture" name="Picture">
+                                            <option value="Yes">Yes</option>
+                                            <option value="No">No</option>
+                                            <option value="Yes/No">Yes/No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="entryLevel.Remarks" maxlength="250" tabindex="6"></textarea>
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Line Item<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="qty" ng-model="entryLevel.LineItem" class="form-control" required tabindex="4" autocomplete="off" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">SalesOrder<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="entryLevel.SalesOrder" id="salesOrder" name="salesOrder">
+                                            <option value="Yes">Yes</option>
+                                            <option value="No">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">SKU3<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="entryLevel.SKU3" id="sKU3" name="SKU3">
+                                            <option value="Yes">Yes</option>
+                                            <option value="No">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Defects<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="entryLevel.Defect" id="defects" name="Defects">
+                                            <option value="Yes">Yes</option>
+                                            <option value="No">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="modal-body">
+                                <div class="content-container-fluid" style="color:black;">
+                                    <div id="GridEdit" ej-grid e-datasource="InspectionTypeEntryLevelList"
+                                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                        <div e-columns>
+                                            <div e-column e-field="Id" e-headertext="Id" e-width="3"></div>
+                                            <div e-column e-field="Grade" e-headertext="Grade"></div>
+                                            <div e-column e-field="UserName" e-headertext="UserName"></div>
+                                            <div e-column e-field="LineItem" e-headertext="LineItem"></div>
+                                            <div e-column e-field="ProductCode" e-headertext="ProductCode"></div>
+                                            <div e-column e-field="ProductionOrder" e-headertext="ProductionOrder"></div>
+                                            <div e-column e-field="SalesOrder" e-headertext="SalesOrder"></div>
+                                            <div e-column e-field="ProductionOrder" e-headertext="ProductionOrder"></div>
+                                            <div e-column e-field="Picture" e-headertext="Picture"></div>
+                                            <div e-column e-field="Operation" e-headertext="Operation"></div>
+                                            <div e-column e-field="Defect" e-headertext="Defect"></div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="ImageInspectionTypeList" e-recorddoubleclick="Get"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="3"></div>
+            <div e-column e-field="UserName" e-headertext="ProductionShift" e-width="4"></div>
+            <div e-column e-field="StandardName" e-headertext="Color" e-width="2"></div>
+            <div e-column e-field="Remarks" e-headertext="Size" e-width="2"></div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+
+<div class="modal site-modal in" id="DefectMarkingPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Image Area
+                <button type="button" class="close" ng-click="CloseDefectMarkingpopUp()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-xs-12 col-sm-8 col-md-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Image Area</h2>
+                    <div class="preview-box relative">
+                        <img ng-if="imageSrc" ng-src="{{imageSrc}}" id="garmentImage" style="max-width:100%; max-height:100%;" />
+                        <canvas id="defectCanvas" ng-if="imageSrc" ng-click="onCanvasClick($event)" style="position:absolute; top:0; left:0; cursor:pointer;"></canvas>
+                        <p ng-if="!imageSrc">Click "Import Image" to load a garment image.</p>
+                    </div>
+                    <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="angular.element(this).scope().loadImage(this)" />
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="triggerImageUpload();" class="btn" tabindex="9"><i class="fa fa-paperclip"></i> Import Image</button></li>
+                            <li> <button ng-click="saveDefects();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            <li> <button ng-click="clearDefects();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <!-- Defect List -->
+                    <h3 class="mt-4 font-semibold text-gray-700">Image Area List:</h3>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>X</th>
+                                    <th>Y</th>
+                                    <th>Code</th>
+                                    <th>Area</th>
+                                    <th>Zone</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="defect in defects track by defect.id">
+                                    <td>{{defect.x | number:2}}</td>
+                                    <td>{{defect.y | number:2}}</td>
+                                    <td>{{defect.Code}}</td>
+                                    <td>{{defect.AreaName}}</td>
+                                    <td>{{defect.Zone}}</td>
+                                    <td class="text-right table-td">
+                                        <ul class="list-inline action-list">
+                                            <li>
+                                                <button ng-click="editDefect(defect, $event)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Edit"><i class="glyphicon glyphicon-pencil"></i></button>
+                                            </li>
+                                            <li>
+                                                <button ng-click="deleteDefect(defect.id)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-trash"></i></button>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h3 class="font-semibold text-gray-700 mb-2">Instructions:</h3>
+                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                        <li>1. Click "Import Image" to select a garment photo.</li>
+                        <li>2. Click anywhere on the image to mark a Image area.</li>
+                        <li>3. Click "Save ImageArea".</li>
+                    </ul>
+                </div>
+                <div class="common-btn mt-2">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="CloseDefectMarkingpopUp()" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Floating popup -->
+                <div ng-show="showDefectModal" style="position: absolute; background: white; border: 1px solid #ccc; border-radius: 8px; padding: 30px; z-index: 999; top: 200px; left: 600px;">
+
+                    <div class="form-elements form-horizontal">
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Code</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" ng-model="currentDefect.Code" name="AreaName" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">AreaName</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" ng-model="currentDefect.AreaName" name="AreaName" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Zone</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="currentDefect.Zone" id="zone" name="Zone">
+                                        <option value="A">A</option>
+                                        <option value="B">B</option>
+                                        <option value="C">C</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="2" maxlength="250" ng-model="currentDefect.Remarks" name="Remarks" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="saveDefect();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i></button></li>
+                            <li> <button ng-click="closeDefectModal();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i></button></li>
+                            <li> <button ng-click="deleteCurrentDefect();" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i></button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal site-modal in" id="_DefectMarkingPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Image Area<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <!-- Message Container for Non-Intrusive Notifications -->
+                <div id="messageContainer" class="fixed top-0 left-0 w-full p-4 z-50"></div>
+
+                <div class="w-full max-w-6xl bg-white rounded-xl shadow-2xl p-6 md:p-8 flex flex-col lg:flex-row gap-6">
+
+                    <!-- Image and Canvas Area -->
+                    <div class="lg:w-3/5">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Defect Marking Area</h2>
+                        <div class="relative bg-gray-200 border-2 border-dashed border-gray-400 rounded-lg overflow-hidden flex items-center justify-center" id="imageContainer" style="min-height: 400px;">
+                            <img id="garmentImage" class="max-w-full max-h-full object-contain" style="display: none;" src="" alt="Garment Image">
+                            <canvas id="defectCanvas" style="display: none;"></canvas>
+                            <p id="placeholderText" class="text-gray-500 font-medium p-4">Click "Import Image" to load a garment image.</p>
+                        </div>
+
+                        <!-- Controls -->
+
+
+                        <div class="mt-4 flex flex-wrap gap-3">
+                            <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="loadImage()">
+                            <button onclick="document.getElementById('imageInput').click()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150">
+                                Import Image
+                            </button>
+                            <button id="saveButton" onclick="saveDefects()" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150" disabled>
+                                Save Defects
+                            </button>
+                            <button id="clearButton" onclick="clearDefects()" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150" disabled>
+                                Clear All
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Defect List and Management -->
+                    <div class="lg:w-2/5">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Defect List</h2>
+                        <div class="h-80 overflow-y-auto defect-list p-2 bg-gray-50 rounded-lg border border-gray-200">
+                            <ul id="defectsList" class="space-y-2">
+                                <!-- Defect items will be added here -->
+                            </ul>
+                            <p id="emptyListText" class="text-gray-400 text-sm mt-2 text-center">No defects marked yet.</p>
+                        </div>
+
+                        <div class="mt-4">
+                            <h3 class="font-semibold text-gray-700 mb-2">Instructions:</h3>
+                            <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                                <li>1. Click "Import Image" to select a garment photo.</li>
+                                <li>2. Click anywhere on the image to mark a defect point.</li>
+                                <li>3. Click "Save Defects".</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseDefectMarkingpopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+
+                <!-- Popup Modal -->
+                <div id="popupBackdrop"></div>
+
+                <div id="defectModal" style="display:none; position:absolute; background:#fff; border:1px solid #ccc; padding:10px; z-index:999;">
+                    <input type="hidden" id="defectId" />
+
+                    <label>Defect Type:</label>
+                    <select id="defectType">
+                        <option value="Stain">Stain</option>
+                        <option value="Hole">Hole</option>
+                        <option value="Loose Thread">Loose Thread</option>
+                    </select><br /><br />
+
+                    <label>Notes:</label><br />
+                    <textarea id="defectNotes" style="width:200px; height:60px;"></textarea><br /><br />
+
+                    <button id="saveDefect" style="background: #3e445a none repeat scroll 0 0; border: 1px solid #3e445a; color: #fff; font-size: 15px; ">Save</button>
+                    <button id="deleteDefect" style="background: #3e445a none repeat scroll 0 0; border: 1px solid #3e445a; color: #fff; font-size: 15px; ">Delete</button>
+                    <button id="closeDefectModal" style="background: #3e445a none repeat scroll 0 0; border: 1px solid #3e445a; color: #fff; font-size: 15px; ">Close</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal site-modal" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closePopup('employeeNewPopUp');">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color: black;" id="Grid" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-type="string" e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- #region Process popUp -->
+<div class="modal fade site-modal in" id="processPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Process<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="">
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="processPopUpParameters.searchBy">
+                                                <option ng-repeat="option in processSearchList | orderBy:'name'" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="processPopUpParameters.search" ng-enter="getProcessData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="getProcessData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    @*<th>Select</th>*@
+                                    <th>Sequence</th>
+                                    <th>Code</th>
+                                    <th>Short Name</th>
+                                    <th>Standard Name</th>
+                                    <th>User Name</th>
+                                    <th>Production Process</th>
+                                    <th>Process Routing</th>
+                                    <th>Locked</th>
+                                    <th>Active</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in processPopUpDataList|itemsPerPage:processPopUpParameters.pageSize" ng-dblclick="processAdd(x);"
+                                    total-items="processPopUpParameters.total_count" pagination-id="metaData.name + 'processPopUpList'">
+                                    @*<td>
+                                            <div class="checkbox-site">
+                                                <label class="control-label">
+                                                    <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                            </div>
+                                        </td>*@
+                                    <td>{{x.Sequence}}</td>
+                                    <td>{{x.Code}}</td>
+                                    <td>{{x.ShortName}}</td>
+                                    <td>{{x.StandardName}}</td>
+                                    <td>{{x.UserName}}</td>
+                                    <td>{{x.IsProductionProcess?'Yes':'No'}}</td>
+                                    <td>{{x.IsProcessRouting?'Yes':'No'}}</td>
+                                    <td>{{x.IsLocked?'Yes':'No'}}</td>
+                                    <td>{{x.Active?'Yes':'No'}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <dir-pagination-controls max-size="10"
+                                                 pagination-id="metaData.name + 'processPopUpList'"
+                                                 direction-links="true"
+                                                 boundary-links="true"
+                                                 on-page-change="getProcessData(newPageNumber)">
+                        </dir-pagination-controls>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button type="button" class="btn btn-default" ng-click="closeProcessPopUp();">Cancel</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*<confirm-archive-generic modalid="confirmProcessPopUp" title="Confirmation" message={{processMessage}} data-ng-click-right-button="removeProcessRow()"></confirm-archive-generic>*@
+<!-- #endregion -->
