@@ -37,17 +37,27 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Employee Name<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Quality Incharge<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="input-group">
-                                    <input type="text" name="EmployeeName" ng-model="ModelNew.EmployeeName" class="form-control" readonly>
+                                    <input type="text" name="EmployeeName" ng-model="ModelNew.QualityIncharge" class="form-control" readonly>
                                     <span class="input-group-btn">
-                                        <button ng-click="getEmpPopUpData('EN');" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="getEmpPopUpData('QI');" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
                                     </span>
                                 </div>
                             </div>
                         </div>
-
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Production Incharge<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="ProductionIncharge" ng-model="ModelNew.ProductionIncharge" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="getEmpPopUpData('PI');" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Remarks</label>
@@ -78,9 +88,13 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Inspection User Name<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Inspection Type<sup>*</sup></label>
                             <div class="col-sm-8">
-                                <input type="text" name="Inspection User Name" ng-model="ModelNew.InspectionUserName" class="form-control">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="ModelNew.InspectionTypeId" name="Inspection Type" ng-options="item.Value as item.Text for item in inspectionTypeList" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -145,11 +159,12 @@
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>           
-            <div e-column e-field="InspectionUserName" e-headertext="Inspection User Name" e-width="5"></div>
+            <div e-column e-field="InspectionType" e-headertext="Inspection Type" e-width="5"></div>
             <div e-column e-field="Entity" e-headertext="Entity" e-width="5"></div>
             <div e-column e-field="Process" e-headertext="Process" e-width="5"></div>
             <div e-column e-field="ShiftDefinationName" e-headertext="Shift" e-width="5"></div>
-            <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="5"></div>
+            <div e-column e-field="QualityIncharge" e-headertext="QualityIncharge" e-width="5"></div>
+            <div e-column e-field="ProductionIncharge" e-headertext="ProductionIncharge" e-width="5"></div>
             <div e-column e-field="WCIncharge" e-headertext="WCIncharge" e-width="5"></div>
             <div e-column e-field="ReportingOfficer" e-headertext="ReportingOfficer" e-width="5"></div>
         </div>
