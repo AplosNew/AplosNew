@@ -690,6 +690,8 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(_employeeDocumentService.GetDocumentList(plantId, empType, budgetCode, givenDesignationId), JsonRequestBehavior.AllowGet);
         }
 
+       
+
         [HttpGet, Authorize]
         public JsonResult CreateNewDOcument(IEnumerable<EmployeeDocument> employeeDocument, string empId)
         {
@@ -1258,6 +1260,78 @@ namespace Aplos.Areas.Employees.Controllers
                 _employeeDocumentService.DeleteEmployeeDocument(id);
             }
             return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult SaveDocumetFile(IEnumerable<HttpPostedFileBase> UploadDefault, string UploadDefault_data)
+        {
+            try
+            {
+                UploadDefault_data = UploadDefault_data.Replace("\"", "");
+                if (string.IsNullOrEmpty(UploadDefault_data))
+                    throw new Exception("Save the Document first");
+
+
+
+
+                foreach (var file in UploadDefault)
+                {
+
+                    var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
+                    var destinationPath = Path.Combine(ResourcesPathReader.GetDocumentDestinationPath(), fileName);
+
+                    if (System.IO.Directory.Exists(ResourcesPathReader.GetDocumentDestinationPath()) == false)
+                    {
+                        try
+                        {
+                            System.IO.Directory.CreateDirectory(ResourcesPathReader.GetDocumentDestinationPath());
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                    }
+
+
+                    ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+                    string sql = "select* from dbo.EmployeeDocument where id='" + UploadDefault_data + "'";
+                    DataSet dsLocal = null;
+                    connection.BeginTransaction();
+                    connection.getDataSet(sql, out dsLocal);
+                    connection.CommitTransaction();
+
+                    if (dsLocal.Tables[0].Rows.Count > 0)
+                    {
+                        dsLocal.Tables[0].Rows[0].BeginEdit();
+
+                        dsLocal.Tables[0].Rows[0]["FileName"] = fileName;
+                        dsLocal.Tables[0].Rows[0]["FileId"] = UploadDefault_data;
+
+                        dsLocal.Tables[0].Rows[0].EndEdit();
+
+                        file.SaveAs(destinationPath);
+                        clsStaticInfo info = new clsStaticInfo();
+                        info.SaveDataSets(dsLocal);
+
+
+
+                    }
+                }
+                return Content("");
+            }
+            catch (Exception ex)
+            {
+                HttpResponse Response = System.Web.HttpContext.Current.Response;
+                Response.Clear();
+                Response.ContentType = "application/json; charset=utf-8";
+                Response.StatusCode = 204;
+                Response.Status = "204 No Content";
+                Response.StatusDescription = ex.Message;
+                Response.End();
+
+                return Content("");
+            }
+
         }
 
         [HttpPost, ChaildAction(ParentActionName = nameof(Create)), Authorize]

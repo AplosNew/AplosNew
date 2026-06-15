@@ -1,0 +1,206 @@
+﻿<togglable name="{{title}}"></togglable>
+<div class="form-horizontal form-elements" ng-form="modelForm">
+    <div class="tab-design">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Inspection</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="row" ng-form="ModelNewForm">
+                    <div class="col-xs-12 col-sm-6 col-sm-6 ">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="ModelNew.EntityId" ng-change="loadProcessList(ModelNew.EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">DateTime<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" name="DateTime" ng-model="ModelNew.DateTime" datepicker class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Work Center<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="ModelNew.WorkCenterMasterId" name="Work Center" ng-options="item.Value as item.Text for item in wcList" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Employee Name<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="EmployeeName" ng-model="ModelNew.EmployeeName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="getEmpPopUpData('EN');" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-sm-6 ">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="ModelNew.ProcessId" name="Process" ng-change="GetShiftList();" ng-options="item.Value as item.Text for item in processList" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="ModelNew.ShiftId" name="Shift" ng-change="loadWC(ModelNew.ProcessId,ModelNew.EntityId,ModelNew.ShiftId);" ng-options="item.Value as item.Text for item in shiftList" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Inspection User Name<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Inspection User Name" ng-model="ModelNew.InspectionUserName" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">WC Incharge<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="WCIncharge" ng-model="ModelNew.WCIncharge" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="getEmpPopUpData('WC');" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Reporting Officer<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="EmployeeName" ng-model="ModelNew.ReportingOfficer" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="getEmpPopUpData('RO');" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+
+                </div>
+                <div class="tab-design">
+                    <div class="site-tab">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1)" href="" aria-controls="general" role="tab" data-toggle="tab">ImageEntity</a></li>
+                        </ul>
+                    </div>
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
+                            <div class="row" ng-form="modelChildForm">
+                                
+                                @*<div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="SaveChild();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                                    </ul>
+                                </div>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>           
+            <div e-column e-field="InspectionUserName" e-headertext="Inspection User Name" e-width="5"></div>
+            <div e-column e-field="Entity" e-headertext="Entity" e-width="5"></div>
+            <div e-column e-field="Process" e-headertext="Process" e-width="5"></div>
+            <div e-column e-field="ShiftDefinationName" e-headertext="Shift" e-width="5"></div>
+            <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="5"></div>
+            <div e-column e-field="WCIncharge" e-headertext="WCIncharge" e-width="5"></div>
+            <div e-column e-field="ReportingOfficer" e-headertext="ReportingOfficer" e-width="5"></div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<div class="modal site-modal" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closePopup('employeeNewPopUp');">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="searchByEmp">
+                                        <option ng-repeat="option in searchEmpByList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="empearch" ng-enter="getEmpData()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="getEmpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="content-container-fluid" style="color:black;">
+                            <div style="color: black;" id="Grid" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-type="string" e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                    <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="Line" e-headertext="Line" e-width="80"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

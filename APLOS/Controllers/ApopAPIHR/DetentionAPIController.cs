@@ -2040,6 +2040,103 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
 
         #endregion Pratibha
 
+        #region Stich
+        public IHttpActionResult GetInspectionType()
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select 'EndLine' Value , 'EndLine' Name
+union all 
+Select 'Finishing' Value , 'Finishing' Name
+union all
+Select 'FinalOutput' Value , 'FinalOutput' Name
+"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetWorkcenter(string EntityId)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select Id Value , Code Name from scs.WorkCenterMaster where ProcessId = '20257' and EntityId = '" + EntityId + "' order by Code asc"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetPO(string EntityId)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select Id Value , Id Name from trn.ProductionOrder where ProductionStatusId = '20252' and EntityId = '" + EntityId + "'"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetSO(string POID)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select So.Id Value , SO.LineItemReference Name from [TRN].[ProductionOrderDetail] PO 
+left join Trn.SalesOrder so on So.id = po.SalesOrderId where PO.Id = '" + POID + "'"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        #endregion Stich
+
         #region Attendance tracker
 
         public IHttpActionResult GetEmployeeInformation(string Empcode, string PlantId)
