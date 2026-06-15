@@ -1905,6 +1905,7 @@ LEFT JOIN dbo.EmployeeInformation ER ON ER.SystemId=ReportingOfficerId) AS TEMP 
         #endregion
 
         //Hello Mizan
+        //Good aftenoon mizan
 
     }
     public class ImageDefect
