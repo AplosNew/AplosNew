@@ -1795,7 +1795,6 @@ LEFT JOIN HKP.DefectType DT ON DT.Id=ID.DefectTypeId WHERE DefectMarkerMasterId 
         }
 
 
-
         #endregion
 
         #region Inspection
@@ -1963,6 +1962,7 @@ LEFT JOIN dbo.EmployeeInformation ER ON ER.SystemId=ReportingOfficerId) AS TEMP 
         public ImageDimensions ImageDimensions { get; set; }
 
         public List<ImageArea> ImageAreas { get; set; }
+        public List<ImageArea> AreaDeleteData { get; set; }
     }
     public class ImageArea
     {
@@ -1978,6 +1978,7 @@ LEFT JOIN dbo.EmployeeInformation ER ON ER.SystemId=ReportingOfficerId) AS TEMP 
         public string ImageMasterId { get; set; }
         public string ImageID { get; set; }
     }
+
 
 }
 
