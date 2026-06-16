@@ -455,6 +455,7 @@ left join org.Line LL on LL.Id	= MB.LineId
 
                 con.OpenDataSetThroughAdapter("select * from dbo.AttdnProcessData where RowId='"+items[0].RowId+"'", out ManualOTData, false, "1");
 
+
                 if (ManualOTData.Tables[0].Rows.Count > 0)
                 {
                     ManualOTData.Tables[0].Rows[0].BeginEdit();
