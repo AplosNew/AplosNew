@@ -728,8 +728,7 @@ left join org.Line LL on LL.Id	= MB.LineId
                 join mst.DesignationMasterLegalDesignation dd on dd.LegalDesignationId =d.Id
                  join scs.DesignationMasterConfiguration dm on dm.DesignationMasterId=dd.DesignationMasterId
                 and dm.PlantId=emp.PlantId
-                where emp.EmployeeStatus = 'Active' and emp.GroupID='" + GpId + "'and dm.IsOTEntitled='1' and emp.CompanyId='" + CompId + "' and " +
-                "emp.PlantId='" + PlantId + "' and emp.DOJ<='" + Date + "' and (emp.dos is null or emp.dos>='" + Date + "')";
+                where emp.EmployeeStatus = 'Active'  and emp.DOJ<='" + Date + "' and (emp.dos is null or emp.dos>='" + Date + "')";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -864,8 +863,7 @@ left join org.Line LL on LL.Id	= MB.LineId
                 join org.SubSection ss on ss.Id=p.SubSectionId
                 join scs.DesignationMasterConfiguration dm on dm.DesignationMasterId=dd.DesignationMasterId
                 and dm.PlantId=emp.PlantId
-                where emp.EmployeeStatus = 'Active' and emp.GroupID='" + GpId+"'and dm.IsOTEntitled='1' and emp.CompanyId='"+CompId+"' and" +
-                " emp.PlantId='"+PlantId+"' and dp.Id='"+DepId+"' and s.Id='"+SId+"' and ss.Id='"+SsId+"'" +
+                where emp.EmployeeStatus = 'Active' and dp.Id='"+DepId+"' and s.Id='"+SId+"' and ss.Id='"+SsId+"'" +
                 " and emp.DOJ<='"+Date+"' and (emp.dos is null or emp.dos>='"+Date+"')";
                 
                 return _sqlRepository.GetDataCollection(sql, null);
