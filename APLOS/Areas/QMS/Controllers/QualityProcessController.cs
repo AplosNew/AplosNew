@@ -1798,7 +1798,11 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
         }
 
 
-
+        [Authorize, HttpGet]
+        public JsonResult GetInspectionTypeCbo()
+        {
+            return Json(_sqlRepository.GetDataCollection("Select Id as Value,UserName As Text from dbo.InspectionType"), JsonRequestBehavior.AllowGet);
+        }
 
         #endregion
 
@@ -1813,14 +1817,16 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select top 100 * from (SELECT I.*,E.UserName Entity,W.UserName WorkCenter,P.UserName Process,S.ShiftDefinationName,
-EmployeeName=EM.EmployeeCode+'-'+EM.EmployeeName,WCIncharge=WE.EmployeeCode+'-'+WE.EmployeeName
-,ReportingOfficer=ER.EmployeeCode+'-'+ER.EmployeeName
+QualityIncharge=EQ.EmployeeCode+'-'+EQ.EmployeeName,ProductionIncharge=EM.EmployeeCode+'-'+EM.EmployeeName,WCIncharge=WE.EmployeeCode+'-'+WE.EmployeeName
+,ReportingOfficer=ER.EmployeeCode+'-'+ER.EmployeeName,IT.UserName InspectionType
 FROM TRN.Inspection I
+LEFT JOIN [dbo].[InspectionType] IT ON IT.Id=I.InspectionTypeId
 LEFT JOIN ORG.Entity E ON E.Id=I.EntityId
 LEFT JOIN SCS.WorkCenterMaster W ON W.ID=I.WorkCenterMasterId
 LEFT JOIN HKP.Process P ON P.Id=I.ProcessId
 LEFT JOIN dbo.ShiftDefination S ON S.SystemID=I.ShiftId
-LEFT JOIN dbo.EmployeeInformation EM ON EM.SystemId=I.EmployeeId
+LEFT JOIN dbo.EmployeeInformation EQ ON EQ.SystemId=I.QualityInchargeId
+LEFT JOIN dbo.EmployeeInformation EM ON EM.SystemId=I.ProductionInchargeId
 LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=I.WCInchargeId
 LEFT JOIN dbo.EmployeeInformation ER ON ER.SystemId=ReportingOfficerId) AS TEMP WHERE " + strkey + " Order by AddedDate DESC";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);

@@ -1,6 +1,6 @@
 ﻿'use strict';
-InspectionTransactionController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter"];
-function InspectionTransactionController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+InspectionTransactionController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter","$window"];
+function InspectionTransactionController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = "Inspection";
 
     $scope.Action = 'Save';
@@ -65,9 +65,13 @@ function InspectionTransactionController(cboService, commonMessage, $scope, $roo
     }
 
     $scope.setEmpData = function (obj) {
-        if ($scope.tag == 'EN') {
-            $scope.ModelNew.EmployeeId = obj.data.SystemID;
-            $scope.ModelNew.EmployeeName = obj.data.EmployeeCode + "-" + obj.data.EmployeeName;
+        if ($scope.tag == 'QI') {
+            $scope.ModelNew.QualityInchargeId = obj.data.SystemID;
+            $scope.ModelNew.QualityIncharge = obj.data.EmployeeCode + "-" + obj.data.EmployeeName;
+        }
+        else if ($scope.tag == 'PI') {
+            $scope.ModelNew.ProductionInchargeId = obj.data.SystemID;
+            $scope.ModelNew.ProductionIncharge = obj.data.EmployeeCode + "-" + obj.data.EmployeeName;
         }
         else if ($scope.tag == 'WC') {
             $scope.ModelNew.WCInchargeId = obj.data.SystemID;
@@ -102,10 +106,12 @@ function InspectionTransactionController(cboService, commonMessage, $scope, $roo
         WorkCenterMasterId: null,
         DateTime: null,
         ShiftId: null,
-        EmployeeId: null,
+        EmployeeId: $window.employeeId,
         WCInchargeId: null,
         ReportingOfficerId: null,
-        InspectionUserName: null,
+        QualityInchargeId: null,
+        ProductionInchargeId: null,
+        InspectionTypeId: null,
         Remarks: null,
         AddedBy: null,
         AddedDate: null,
@@ -115,7 +121,7 @@ function InspectionTransactionController(cboService, commonMessage, $scope, $roo
         UpdatedFromIP: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-
+    console.log($scope.ModelNew);
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.loadProcessList($scope.ModelNew.EntityId);
@@ -125,6 +131,18 @@ function InspectionTransactionController(cboService, commonMessage, $scope, $roo
             $rootScope.toggle();
         }
     };
+
+    $scope.inspectionTypeList = [];
+    $scope.getInspectionType = function () {
+        $http({
+            method: 'Get',
+            url: "QMS/QualityProcess/GetInspectionTypeCbo"
+        }).then(function successCallback(response) {
+            $scope.inspectionTypeList = response.data;
+           
+        });
+    }
+    $scope.getInspectionType();
 
     $scope.entityList = [];
     $scope.getAllEntities = function () {
@@ -172,6 +190,7 @@ function InspectionTransactionController(cboService, commonMessage, $scope, $roo
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
+            $scope.ModelNew.EmployeeId= $window.employeeId;
             $http({
                 method: 'POST',
                 url: 'QMS/QualityProcess/CreateInspection',
