@@ -2051,12 +2051,7 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"Select 'EndLine' Value , 'EndLine' Name
-union all 
-Select 'Finishing' Value , 'Finishing' Name
-union all
-Select 'FinalOutput' Value , 'FinalOutput' Name
-"));
+                return Json(_sqlRepository.GetDataTable(@"Select Id Value , UserName Name from [dbo].[InspectionType]"));
 
             }
             catch (Exception ex)
@@ -2124,6 +2119,82 @@ Select 'FinalOutput' Value , 'FinalOutput' Name
             {
                 return Json(_sqlRepository.GetDataTable(@"Select So.Id Value , SO.LineItemReference Name from [TRN].[ProductionOrderDetail] PO 
 left join Trn.SalesOrder so on So.id = po.SalesOrderId where PO.Id = '" + POID + "'"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetPOSO(string Plantid)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select Distinct PO.Id PO , SO.Id SO, SO.LineItemReference LineItem from trn.ProductionOrder po
+left join [TRN].[ProductionOrderDetail] pod on pod.ProductionOrderId = po.id
+left join trn.SalesOrder so on so.id = pod.salesorderid 
+where PO.ProductionStatusId = '20252'  and PO.PlantId = '" + Plantid + "'"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetStitchShift(string Plantid)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select SystemID ShiftId ,CONCAT(UserName ,' ' , FORMAT(Intime,'HH:mm') , ' ' , FORMAT(OutTime,'HH:mm') ) ShiftName , FORMAT(Intime,'HH:mm') InTime 
+ ,FORMAT(OutTime,'HH:mm') OutTime from ShiftDefination where IsActive = 1 and  Plantid = '" + Plantid + "'"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetSizeColor(string SO)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select FC.Id SKU1Id , SC.Id SKU2Id , FC.SalesOrderId SO , Chv.UserName Color , Chvs.UserName Size , FC.Qty TotalQty , SC.Qty CSWiseQty , SC.ValueFreeText Dia   from TRN.FirstCharacteristics FC 
+left join TRN.SecondCharacteristics SC on SC.FirstCharacteristicsId = FC.Id
+left join [HKP].[Characteristics] Ch on Ch.Id = FC.CharacteristicsId 
+left join [HKP].[CharacteristicsValue]  Chv on Chv.Id = FC.CharacteristicsValueId
+left join [HKP].[Characteristics] Chs on Chs.Id = SC.CharacteristicsId 
+left join [HKP].[CharacteristicsValue]  Chvs on Chvs.Id = Sc.CharacteristicsValueId
+where FC.SalesOrderId = '" + SO + "'"));
 
             }
             catch (Exception ex)
