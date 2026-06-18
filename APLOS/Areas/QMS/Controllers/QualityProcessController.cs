@@ -1122,7 +1122,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
 
                 // Save defects in database
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                
+
                 DataSet dsMaster;
                 string tableName = "ImageDefects";
 
@@ -1172,9 +1172,9 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
 
                 clsStaticInfo info = new clsStaticInfo();
                 info.SaveDataSets(dsMaster);
-              
 
-                
+
+
 
                 return Json(new { Success = true, Message = "Image and defects saved successfully." });
             }
@@ -1841,9 +1841,9 @@ LEFT JOIN dbo.EmployeeInformation ER ON ER.SystemId=ReportingOfficerId) AS TEMP 
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from TRN.Inspection where InspectionUserName='" + data["InspectionUserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from TRN.Inspection where InspectionTypeId='" + data["InspectionTypeId"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Inspection User Name already exists!!!");
+                    throw new Exception("Same Inspection Type already exists!!!");
 
 
                 con.OpenDataSetThroughAdapter("select * from TRN.Inspection where Id='" + data["Id"] + "'", out dsMaster, false, "1");
@@ -1855,12 +1855,19 @@ LEFT JOIN dbo.EmployeeInformation ER ON ER.SystemId=ReportingOfficerId) AS TEMP 
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID("Inspection", out _Id);
-
+                    if (data["EmployeeId"].ToString() == "null")
+                    {
+                        data["EmployeeId"] = DBNull.Value;
+                    }
                     data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
+                    if (data["EmployeeId"].ToString() == "null")
+                    {
+                        data["EmployeeId"] = DBNull.Value;
+                    }
                     _Id = data["Id"].ToString();
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
