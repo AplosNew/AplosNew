@@ -14,7 +14,7 @@
                             <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="ModelNew.EntityId" ng-change="loadProcessList(ModelNew.EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
+                                    <select class="form-control" ng-model="ModelNew.EntityId" ng-change="loadProcessList()" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
                                         <option value=""></option>
                                     </select>
                                 </div>
@@ -81,7 +81,7 @@
                             <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="ModelNew.ShiftId" name="Shift" ng-change="loadWC(ModelNew.ProcessId,ModelNew.EntityId,ModelNew.ShiftId);" ng-options="item.Value as item.Text for item in shiftList" required>
+                                    <select class="form-control" ng-model="ModelNew.ShiftId" name="Shift" ng-change="loadWC();" ng-options="item.Value as item.Text for item in shiftList" required>
                                         <option value=""></option>
                                     </select>
                                 </div>
@@ -91,7 +91,7 @@
                             <label class="col-sm-4 control-label">Inspection Type<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="ModelNew.InspectionTypeId" name="Inspection Type" ng-options="item.Value as item.Text for item in inspectionTypeList" required>
+                                    <select class="form-control" ng-model="ModelNew.InspectionTypeId" name="Inspection Type" ng-change="getInspectionTypeEntryLevel();" ng-options="item.Value as item.Text for item in inspectionTypeList" required>
                                         <option value=""></option>
                                     </select>
                                 </div>
@@ -139,12 +139,88 @@
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
                             <div class="row" ng-form="modelChildForm">
-                                
-                                @*<div class="common-btn">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="modal-body">
+                                        <div class="content-container-fluid" style="color:black;">
+                                            <div id="GridEditISP" ej-grid e-datasource="InspectionTypeEntryLevelList"
+                                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                                <div e-columns>
+                                                    <div e-column e-field="UserName" e-headertext="UserName"></div>
+                                                    <div e-column e-template="#LineItem" e-headertext="LineItem" e-width="120"></div>
+                                                    <div e-column e-template="#ProductCode" e-headertext="ProductCode" e-width="120"></div>
+                                                    <div e-column e-template="#ProductionOrderId" e-headertext="ProductionOrder" e-width="120"></div>
+                                                    <div e-column e-template="#SalesOrder" e-headertext="SalesOrder" e-width="120"></div>
+                                                    <div e-column e-template="#SKU1" e-headertext="SKU1" e-width="120"></div>
+                                                    <div e-column e-template="#SKU2" e-headertext="SKU2" e-width="120"></div>
+                                                    <div e-column e-template="#SKU3" e-headertext="SKU3" e-width="120"></div>
+                                                </div>
+                                            </div>
+                                            <script type="text/template" id="LineItem">
+                                                <div class="col-sm-8" style="padding:0px;">
+                                                    <input type="text" name="LineItem" ng-model="data.LineItemId" ng-show="data.LineItem=='Yes'" ng-disabled="true" ng-click="" class="form-control" maxlength="200">
+                                                </div>
+                                                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                                    <button ng-click="$parent.getProductionOrderPopUp(this,'LI');" ng-show="data.LineItem=='Yes'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                                </div>
+                                            </script>
+                                            <script type="text/template" id="ProductionOrderId">
+                                                <div class="col-sm-8" style="padding:0px;">
+                                                    <input type="text" name="ProductionOrderId" ng-show="data.ProductionOrder=='Yes'" ng-model="data.ProductionOrderId" ng-disabled="true" ng-click="" class="form-control" maxlength="200">
+                                                </div>
+                                                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                                    <button ng-click="$parent.getProductionOrderPopUp(this,'PO');" ng-show="data.ProductionOrder=='Yes'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                                </div>
+                                            </script>
+                                            <script type="text/template" id="ProductCode">
+                                                <div class="col-sm-8" style="padding:0px;">
+                                                    <input type="text" name="ProductCode" ng-model="data.ProductCodeId" ng-show="data.ProductCode=='Yes'" ng-disabled="true" ng-click="" class="form-control" maxlength="200">
+                                                </div>
+                                                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                                    <button ng-click="$parent.getProductionOrderPopUp(this,'PC');" ng-show="data.ProductCode=='Yes'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                                </div>
+                                            </script>
+                                            <script type="text/template" id="SalesOrder">
+                                                <div class="col-sm-8" style="padding:0px;">
+                                                    <input type="text" name="SalesOrder" ng-model="data.SalesOrderId" ng-show="data.SalesOrder=='Yes'" ng-disabled="true" ng-click="" class="form-control" maxlength="200">
+                                                </div>
+                                                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                                    <button ng-click="$parent.getProductionOrderPopUp(this,'SO');" ng-show="data.SalesOrder=='Yes'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                                </div>
+                                            </script>
+                                            <script type="text/template" id="SKU1">
+                                                <div class="col-sm-8" style="padding:0px;">
+                                                    <input type="text" name="SKU1" ng-model="data.SKU1Id" ng-show="data.SKU1=='Yes'" ng-disabled="true" ng-click="" class="form-control" maxlength="200">
+                                                </div>
+                                                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                                    <button ng-click="$parent.getProductionOrderPopUp(this,'SKU1');" ng-show="data.SKU1=='Yes'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                                </div>
+                                            </script>
+                                            <script type="text/template" id="SKU2">
+                                                <div class="col-sm-8" style="padding:0px;">
+                                                    <input type="text" name="SKU2" ng-model="data.SKU2Id" ng-show="data.SKU2=='Yes'" ng-disabled="true" ng-click="" class="form-control" maxlength="200">
+                                                </div>
+                                                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                                    <button ng-click="$parent.getProductionOrderPopUp(this,'SKU2');" ng-show="data.SKU2=='Yes'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                                </div>
+                                            </script>
+                                            <script type="text/template" id="SKU3">
+                                                <div class="col-sm-8" style="padding:0px;">
+                                                    <input type="text" name="SKU3" ng-model="data.SKU3Id" ng-show="data.SKU3=='Yes'" ng-disabled="true" ng-click="" class="form-control" maxlength="200">
+                                                </div>
+                                                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                                    <button ng-click="$parent.getProductionOrderPopUp(this,'SKU3');" ng-show="data.SKU3=='Yes'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                                </div>
+                                            </script>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="common-btn">
                                     <ul class="list-inline text-right">
                                         <li> <button ng-click="SaveChild();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
                                     </ul>
-                                </div>*@
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -158,7 +234,7 @@
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>           
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
             <div e-column e-field="InspectionType" e-headertext="Inspection Type" e-width="5"></div>
             <div e-column e-field="Entity" e-headertext="Entity" e-width="5"></div>
             <div e-column e-field="Process" e-headertext="Process" e-width="5"></div>
@@ -214,6 +290,57 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal site-modal in" id="POItemPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Production Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div style="color:black;" id="GridPO" ej-grid e-datasource="ProductionOrderList" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="SetPrOData"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-template="#showSOList" e-headertext="" e-width="30"></div>
+                            <div e-column e-type="string" e-field="POId" e-headertext="PrO" e-width="80"></div>
+                            <div e-column e-type="string" e-field="LotPrefefined" e-headertext="Lot Predefined" e-width="80"></div>
+                            <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="200"></div>
+                            <div e-column e-type="string" e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
+                            <div e-column e-type="string" e-field="OwnOrder" e-headertext="Own Ord#" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.00}" e-field="Qty" e-headertext="Qty" e-width="80" e-textalign="right"></div>
+                            <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="LSD" e-headertext="LSD" e-width="80"></div>
+                            <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ProductionStatus" e-headertext="Production Status" e-width="80"></div>
+                            <div e-column e-type="string" e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
+                            <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Category" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
+                            <div e-column e-type="string" e-field="PONumber" e-headertext="PO Number" e-width="80"></div>
+                            <div e-column e-type="string" e-field="RequiredTimeUnit" e-headertext="Required Time Unit" e-width="80"></div>
+
+                        </div>
+                    </div>
+                    <script type="text/template" id="showSOList">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right small">
+
+                                <li>
+                                    <button ng-click="$parent.getSalesOrderOfProdOrderList(data.POId);" class="btn small" style="height: 20px;width: 20px;padding: 0px;margin: 0px;">
+                                        <i class="glyphicon glyphicon-th-list"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </script>
                 </div>
             </div>
         </div>

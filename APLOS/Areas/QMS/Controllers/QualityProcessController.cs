@@ -1122,7 +1122,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
 
                 // Save defects in database
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                
+
                 DataSet dsMaster;
                 string tableName = "ImageDefects";
 
@@ -1172,9 +1172,9 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
 
                 clsStaticInfo info = new clsStaticInfo();
                 info.SaveDataSets(dsMaster);
-              
 
-                
+
+
 
                 return Json(new { Success = true, Message = "Image and defects saved successfully." });
             }
@@ -1617,7 +1617,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                 DataSet dsEntity;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from InspectionEntity where InspectionTypeID='" + data["InspectionTypeID"] + "' AND EntityId='" + data["EntityId"] + "'", out dsEntity, false, "1");
+                con.OpenDataSetThroughAdapter("select * from InspectionEntity where InspectionTypeId='" + data["InspectionTypeId"] + "' AND EntityId='" + data["EntityId"] + "'", out dsEntity, false, "1");
 
                 string _Id = "";
 
@@ -1632,7 +1632,6 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                 }
                 else
                 {
-                    _Id = data["Id"].ToString();
                     EditRow(dsEntity.Tables[0].Rows[0], data);
                 }
                 #endregion data update
@@ -1669,6 +1668,104 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                     //genid.GenID("ImageMaster", out _Id);
 
                     //data["Id"] = _Id;
+                    AddNewRow(dsEntity.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsEntity.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsEntity);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+        [HttpPost]
+        public JsonResult CreateImageInspectionTypeUserApp(List<Dictionary<string, object>> datas)
+        {
+            try
+            {
+                DataSet dsEntity;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from InspectionUserApplicable where InspectionTypeId='" 
+                    + datas[0]["InspectionTypeId"] + "' ", out dsEntity, false, "1");
+
+                string _Id = "";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                #region data update
+                foreach (var d in datas)
+                {
+                    DataView dv = new DataView(dsEntity.Tables[0]);
+                   
+                        dv.RowFilter = "BudgetId=" + d["BudgetId"].ToString() + " AND InspectionTypeId='" + d["InspectionTypeId"].ToString() + "'";
+                    
+                    if (dv.Count == 0)
+                    {
+                        DataRow dr = dsEntity.Tables[0].NewRow();
+                        dr["BudgetId"] = d["BudgetId"];
+                        dr["InspectionTypeId"] = d["InspectionTypeId"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsEntity.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        DataRow dr = dv[0].Row;
+
+                        dr.BeginEdit();
+                        dr["BudgetId"] = d["BudgetId"];
+                        dr["InspectionTypeId"] = d["InspectionTypeId"];
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr.EndEdit();
+                    }
+                }
+
+                
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsEntity);
+
+                return Json(new { Error = false, Data = datas, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+        [HttpPost]
+        public JsonResult CreateImageInspectionTypeEmployee(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsEntity;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from InspectionEmployeeApplicable where InspectionTypeId='" + data["InspectionTypeId"] + "'", out dsEntity, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsEntity.Tables[0].Rows.Count == 0)
+                {
                     AddNewRow(dsEntity.Tables[0], data);
                 }
                 else
@@ -1731,10 +1828,10 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
         [HttpPost, Authorize]
         public ActionResult GetInspectionTypeEntityList(string imageInspectionTypeId)
         {
-            string sql = @"select IE.Id,E.UserName EntityName,IM.UserName ImageMaster,IE.ImageMasterId from [MST].[ImageEntity] IE 
+            string sql = @"select IE.Id,IE.EntityId,E.UserName EntityName,IM.UserName InspectionType,IE.InspectionTypeId from InspectionEntity IE 
                         LEFT JOIN ORG.Entity E ON E.Id=IE.EntityId
-                        LEFT JOIN [MST].[ImageMaster] IM ON IM.Id=IE.ImageMasterId
-                        WHERE ImageMasterId='" + imageInspectionTypeId + @"'";
+                        LEFT JOIN InspectionType IM ON IM.Id=IE.InspectionTypeId
+                        WHERE InspectionTypeId='" + imageInspectionTypeId + @"'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -1797,6 +1894,22 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetInspectionTypeUserAppList(string imageInspectionTypeId)
+        {
+            string sql = @"SELECT UA.*,MB.Code BudgetCode FROM InspectionUserApplicable UA 
+                        LEFT JOIN  mst.ManpowerBudget MB on MB.Id=UA.BudgetId
+                        WHERE UA.InspectionTypeId='" + imageInspectionTypeId + @"'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetInspectionTypeEmployeeList(string imageInspectionTypeId)
+        {
+            string sql = @"SELECT UA.*,EI.EmployeeCode,EI.EmployeeName  FROM InspectionEmployeeApplicable UA 
+                        LEFT JOIN  dbo.EmployeeInformation EI on EI.SystemId=UA.EmployeeId
+                        WHERE UA.InspectionTypeId='" + imageInspectionTypeId + @"'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
 
         [Authorize, HttpGet]
         public JsonResult GetInspectionTypeCbo()
@@ -1841,9 +1954,9 @@ LEFT JOIN dbo.EmployeeInformation ER ON ER.SystemId=ReportingOfficerId) AS TEMP 
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from TRN.Inspection where InspectionUserName='" + data["InspectionUserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from TRN.Inspection where InspectionTypeId='" + data["InspectionTypeId"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Inspection User Name already exists!!!");
+                    throw new Exception("Same Inspection Type already exists!!!");
 
 
                 con.OpenDataSetThroughAdapter("select * from TRN.Inspection where Id='" + data["Id"] + "'", out dsMaster, false, "1");
@@ -1855,12 +1968,19 @@ LEFT JOIN dbo.EmployeeInformation ER ON ER.SystemId=ReportingOfficerId) AS TEMP 
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID("Inspection", out _Id);
-
+                    if (data["EmployeeId"].ToString() == "null")
+                    {
+                        data["EmployeeId"] = DBNull.Value;
+                    }
                     data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
+                    if (data["EmployeeId"].ToString() == "null")
+                    {
+                        data["EmployeeId"] = DBNull.Value;
+                    }
                     _Id = data["Id"].ToString();
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
