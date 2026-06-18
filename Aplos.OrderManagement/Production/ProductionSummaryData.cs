@@ -138,7 +138,7 @@ namespace Library.OrderManagement.Production
 		                                ,s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description,S.OrderStatusId
 	                                FROM trn.SalesOrder AS s
 	                                INNER JOIN trn.MasterOrderItem AS moi ON moi.Id = s.MasterOrderItemId
-	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description,S.OrderStatusId
 	                                ) so ON POD.SalesOrderId = SO.Id
                                 LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
                                 LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
@@ -367,6 +367,9 @@ namespace Library.OrderManagement.Production
                 return _sqlRepository.GetDataCollection(CmdText);
             }
         }
+
+     
+
 
         public object GetItemsDataWC(string entityid, string workCenterMasterId, string productionLevel, string processId, string productionOrderId)
         {
