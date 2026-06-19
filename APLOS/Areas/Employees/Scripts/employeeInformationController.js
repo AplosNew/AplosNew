@@ -2341,8 +2341,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     $scope.SaveQualification = function () {
         try {
-            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
-                throw $scope.filedata.name + ' File size must be below 2 mb.';
+            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 3 * 1024 * 1024)
+                throw $scope.filedata.name + ' Maximum file size is 3 MB';
             var fileName = null;
             if (!baseService.isUndefinedOrNull($scope.filedata))
                 fileName = $scope.filedata.name;
@@ -2438,8 +2438,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     $scope.SaveTraining = function () {
         try {
-            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
-                throw $scope.filedata.name + ' File size must be below 2 mb';
+            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 3 * 1024 * 1024)
+                throw $scope.filedata.name + ' Maximum file size is 3 MB';
             var fileName = null;
             if (!baseService.isUndefinedOrNull($scope.filedata))
                 fileName = $scope.filedata.name;
@@ -2512,8 +2512,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     $scope.SaveExperience = function () {
         try {
-            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
-                throw $scope.filedata.name + ' File size must be below 2 mb';
+            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 3 * 1024 * 1024)
+                throw $scope.filedata.name + ' Maximum file size is 3 MB';
             var fileName = null;
             if (!baseService.isUndefinedOrNull($scope.filedata))
                 fileName = $scope.filedata.name;
@@ -3065,8 +3065,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     $scope.SaveQualific = function () {
         try {
-            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
-                throw $scope.filedata.name + ' File size must be below 2 mb';
+            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 3 * 1024 * 1024)
+                throw $scope.filedata.name + ' Maximum file size is 3 MB';
             var fileName = null;
             if (!baseService.isUndefinedOrNull($scope.filedata))
                 fileName = $scope.filedata.name;
@@ -3179,8 +3179,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     $scope.SaveTrain = function () {
         try {
-            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
-                throw $scope.filedata.name + ' File size must be below 2 mb';
+            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 3 * 1024 * 1024)
+                throw $scope.filedata.name + ' Maximum file size is 3 MB';
             var fileName = null;
             if (!baseService.isUndefinedOrNull($scope.filedata))
                 fileName = $scope.filedata.name;
@@ -3291,8 +3291,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     $scope.SaveExp = function () {
         try {
-            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
-                throw $scope.filedata.name + ' File size must be below 2 mb';
+            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 3 * 1024 * 1024)
+                throw $scope.filedata.name + ' Maximum file size is 3 MB';
             var fileName = null;
             if (!baseService.isUndefinedOrNull($scope.filedata))
                 fileName = $scope.filedata.name;
@@ -3541,8 +3541,9 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     $scope.SaveDocument = function () {
         try {
-            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
-                throw $scope.filedata.name + ' File size must be below 2 mb';
+
+            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 3 * 1024 * 1024)
+                throw $scope.filedata.name + ' Maximum file size is 3 MB';
             var fileName = null;
             if (!baseService.isUndefinedOrNull($scope.filedata))
                 fileName = $scope.filedata.name;

@@ -1438,7 +1438,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         #endregion DetailConsumptionMatrix
 
 
-        [HttpPost]
+        [HttpPost,Authorize]
         public JsonResult CreateCharacteristicsValue(CharacteristicsValue entity, string MaterialMasterId)
         {
             try
