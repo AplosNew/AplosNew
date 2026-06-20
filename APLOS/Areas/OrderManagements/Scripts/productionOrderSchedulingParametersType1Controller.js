@@ -553,6 +553,10 @@ function ProductionOrderSchedulingParametersType1Controller(cboService, commonMe
    // $scope.getAllEntities();
 
     $scope.GetPlanningTypeEntiy = function () {
+        
+        $scope.appointments = {};
+        $scope.FreezeDate = null;
+        $scope.ModelFilter = null;
         $http({
             method: 'POST',
             url: 'OrderManagements/productionOrderSchedulingParametersType1/GetAllEntityForPlanningType1Process?processId=' + $scope.PlanningTypeProcessId
