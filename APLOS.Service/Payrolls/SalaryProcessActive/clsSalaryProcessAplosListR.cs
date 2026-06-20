@@ -1469,7 +1469,9 @@ public class clsSalaryProcessAplosR
                                         {
                                             LvDay = LvDay - MLvDay;
                                         }
-                                        TotProcDay = PresDay + LateDay + AbsDay + LvDay + CALDay + WkOFDay + HDDay + WkOFHDDay;
+                                        //TotProcDay = PresDay + LateDay + AbsDay + LvDay + CALDay + WkOFDay + HDDay + WkOFHDDay;
+                                        TotProcDay = dicMMDSSI_Sub.TotalProcDate;
+
                                         EmpWorkinDayInMonthlySlr = PresDay + LateDay + AbsDay + LvDay + CALDay;
 
                                         #endregion Set Variable
