@@ -285,7 +285,6 @@ function ImageInspectionTypeController(cboService, commonMessage, $scope, $rootS
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ModelNewForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -304,9 +303,8 @@ function ImageInspectionTypeController(cboService, commonMessage, $scope, $rootS
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-
-        }
     };
+
     $scope.EntitySave = function () {
         $scope.EntityModelNew.InspectionTypeId = $scope.ModelNew.Id;
         $scope.$broadcast('show-errors-check-validity');
@@ -332,7 +330,6 @@ function ImageInspectionTypeController(cboService, commonMessage, $scope, $rootS
     $scope.ProcessSave = function () {
         $scope.ProcessModelNew.InspectionTypeId = $scope.ModelNew.Id;
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ModelNewForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveProductUrl,
@@ -351,7 +348,6 @@ function ImageInspectionTypeController(cboService, commonMessage, $scope, $rootS
                 ShowResult(response.data.Message, 'failure');
             }
 
-        }
     };
 
     $scope.EntryLevelSave = function () {
