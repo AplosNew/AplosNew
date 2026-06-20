@@ -1389,17 +1389,17 @@ prod_calc AS (
 		left JOIN AttdnProcessData NAPD 
             ON NAPD.EmpSystemID=x.EmployeeId AND NAPD.WorkDate= @fromDate
 	left JOIN AttdnProcessData NAPD2 
-            ON NAPD2.EmpSystemID=x.EmployeeId AND NAPD2.WorkDate= DATEADD(DAY,1,@fromDate)
+            ON NAPD2.EmpSystemID=x.EmployeeId AND NAPD2.WorkDate= DATEADD(DAY,1,@fromDate) and DATEADD(DAY,1,@fromDate)<=@toDate
 	left JOIN AttdnProcessData NAPD3 
-            ON NAPD3.EmpSystemID=x.EmployeeId AND NAPD3.WorkDate= DATEADD(DAY,2,@fromDate)
+            ON NAPD3.EmpSystemID=x.EmployeeId AND NAPD3.WorkDate= DATEADD(DAY,2,@fromDate) and DATEADD(DAY,2,@fromDate)<=@toDate
 	left JOIN AttdnProcessData NAPD4 
-            ON NAPD4.EmpSystemID=x.EmployeeId AND NAPD4.WorkDate= DATEADD(DAY,3,@fromDate)
+            ON NAPD4.EmpSystemID=x.EmployeeId AND NAPD4.WorkDate= DATEADD(DAY,3,@fromDate) and DATEADD(DAY,3,@fromDate)<=@toDate
 	left JOIN AttdnProcessData NAPD5 
-            ON NAPD5.EmpSystemID=x.EmployeeId AND NAPD5.WorkDate= DATEADD(DAY,4,@fromDate)
+            ON NAPD5.EmpSystemID=x.EmployeeId AND NAPD5.WorkDate= DATEADD(DAY,4,@fromDate) and DATEADD(DAY,4,@fromDate)<=@toDate
 	left JOIN AttdnProcessData NAPD6 
-            ON NAPD6.EmpSystemID=x.EmployeeId AND NAPD6.WorkDate= DATEADD(DAY,5,@fromDate)
+            ON NAPD6.EmpSystemID=x.EmployeeId AND NAPD6.WorkDate= DATEADD(DAY,5,@fromDate) and DATEADD(DAY,5,@fromDate)<=@toDate
 	left JOIN AttdnProcessData NAPD7 
-            ON NAPD7.EmpSystemID=x.EmployeeId AND NAPD7.WorkDate= DATEADD(DAY,6,@fromDate)
+            ON NAPD7.EmpSystemID=x.EmployeeId AND NAPD7.WorkDate= DATEADD(DAY,6,@fromDate) and DATEADD(DAY,6,@fromDate)<=@toDate
 )
 
 select z.* from (
@@ -1415,14 +1415,14 @@ select y.Entity,y.EmployeeCode,y.EmployeeName,ISNULL(y.AvailableMinute,0) Availa
 
 ,y.WorkingDays IncentiveDays,y.TotalProduceMinute--,y.produceMinuteTotal--,y.PresentDays EifficiencyDays
  ,
- (7-(
-     ISNULL(CASE WHEN NewDayStatus ='W' THEN 1 END,0)  +
-     ISNULL(CASE WHEN NewDayStatus2='W'  THEN  1 END,0) +
-     ISNULL(CASE WHEN NewDayStatus3='W'  THEN  1 END,0) +
-     ISNULL(CASE WHEN NewDayStatus4='W'  THEN  1 END,0) +
-     ISNULL(CASE WHEN NewDayStatus5='W'  THEN  1 END,0) +
-     ISNULL(CASE WHEN NewDayStatus6='W'  THEN  1 END,0) +
-     ISNULL(CASE WHEN NewDayStatus7='W'  THEN  1 END,0) )
+ (
+     ISNULL(CASE WHEN NewDayStatus<>'W' THEN 1 END,0)  +
+     ISNULL(CASE WHEN NewDayStatus2<>'W'  THEN  1 END,0) +
+     ISNULL(CASE WHEN NewDayStatus3<>'W'  THEN  1 END,0) +
+     ISNULL(CASE WHEN NewDayStatus4<>'W'  THEN  1 END,0) +
+     ISNULL(CASE WHEN NewDayStatus5<>'W'  THEN  1 END,0) +
+     ISNULL(CASE WHEN NewDayStatus6<>'W'  THEN  1 END,0) +
+     ISNULL(CASE WHEN NewDayStatus7<>'W'  THEN  1 END,0) 
 ) AS TotalWorkingDay,(
      ISNULL(CASE WHEN NewDayStatus  IN ('P','HDP','WP','L','A') THEN 1 END,0)  +
      ISNULL(CASE WHEN NewDayStatus2 IN ('P','HDP','WP','L','A')  THEN  1 END,0) +
