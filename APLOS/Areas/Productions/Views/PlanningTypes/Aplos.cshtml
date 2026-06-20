@@ -96,7 +96,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="x in planningTypeses">
+                        <tr dir-paginate="x in planningTypeses |itemsPerPage:$root.pageSize" total-items="$root.total_count">
+                        @*<tr ng-repeat="x in planningTypeses">*@
                             <td class="text-right table-td">
                                 <ul class="list-inline action-list">
                                     <li><button ng-click="Get(x.Id, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Edit"><i class="glyphicon glyphicon-pencil"></i></button></li>
@@ -117,6 +118,7 @@
                         </tr>
                     </tbody>
                 </table>
+                <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
             </div>
         </div>
     </div>

@@ -114,7 +114,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT p.* FROM PlanningTypes AS pt 
+            string sql = @"SELECT distinct p.* FROM PlanningTypes AS pt 
                                 INNER JOIN hkp.Process AS p ON p.Id=pt.BaseProcessId
                                 WHERE PT.PlanningType='" + ScreenPlanningType.ToString() + "' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "'  AND pt.PlantId='" + identity.PlantId + "'";
 
@@ -1273,6 +1273,29 @@ SELECT ept.EntityId FROM hkp.EntityProcessTag AS ept WHERE ept.ProcessId IN (SEL
 
 
                 throw new Exception("No entity configurations was found in the system for the current user");
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+        [HttpPost, Authorize]
+        public JsonResult GetAllEntityForPlanningType1Process(string processId)
+        {
+            try
+            {
+                string sql = @"";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                sql = @"SELECT e.* FROM PlanningTypes AS pt 
+INNER JOIN [ORG].[Entity] E on E.id=pt.EntityId
+WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='"+identity.CompanyGroupId+"'  AND pt.PlantId='"+identity.PlantId+"' And pt.BaseProcessId='"+processId+"'";
+
+
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
