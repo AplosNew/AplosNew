@@ -2030,9 +2030,9 @@ LEFT JOIN dbo.EmployeeInformation ER ON ER.SystemId=ReportingOfficerId) AS TEMP 
         [HttpPost, Authorize]
         public ActionResult GetInspectionTypeSettingList(string imageInspectionTypeId,string inspectionId)
         {
-            string sql = @"SELECT UserName,LineItem,ProductCode,ProductionOrder,SalesOrder,SKU1,SKU2,SKU3,MaxQty,Picture,Operation,Defect,E.*
+            string sql = @"SELECT UserName,LineItem,ProductCode,ProductionOrder,SalesOrder,SKU1,SKU2,SKU3,MaxQty,Picture,Operation,Defect,S.Id InspectionTypeEnteryLevelId,E.*
 FROM InspectionTypeEnteryLevel S
-LEFT JOIN [TRN].[InspectionTranChild] E ON E.InspectionTypeEnteryLevelId=S.Id AND E.InspectionId='"+ inspectionId + @"'
+LEFT JOIN [TRN].[InspectionTranChild] E ON E.InspectionTypeEnteryLevelId=S.Id AND E.InspectionId='" + inspectionId + @"'
 WHERE S.InspectionTypeId='"+ imageInspectionTypeId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }

@@ -370,9 +370,14 @@ namespace Library.OrderManagement.Production
 
         public IEnumerable<object> GetItemsDataList(string entityid, string workCenterMasterId, string productionLevel, string processId, string ProductionOrderId)
         {
+            string poid = null;
+            if (ProductionOrderId!="null")
+            {
+                poid = "AND PO.Id='" + ProductionOrderId + "'";
+            }
             if (productionLevel == "SalesOrder")
             {
-                string CmdText = @"SELECT DISTINCT mo.MasterOrderNo
+                string CmdText = @"SELECT DISTINCT mo.MasterOrderNo,so.MasterOrderItemId,MOI.ProductLibraryId,PL.Code ProductCode
 	                                ,ISNULL(so.Id,'') SOId
 	                                ,SO.CustomerPOId
 	                                ,CPO.PONumber
@@ -402,6 +407,7 @@ namespace Library.OrderManagement.Production
 	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description,S.OrderStatusId
 	                                ) so ON POD.SalesOrderId = SO.Id
                                 LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
+                                LEFT JOIN dbo.ProductLibrary PL ON PL.Id=MOI.ProductLibraryId
                                 LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
                                 LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.SalesOrderId,PS.ProcessId
 	                                FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.SalesOrderId,PS.ProcessId
@@ -423,7 +429,7 @@ namespace Library.OrderManagement.Production
                                 LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
                                 LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + workCenterMasterId + @"'
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
-                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'  AND SO.OrderStatusId='Active'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
+                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'  AND SO.OrderStatusId='Active'	AND POSP.ProcessId = '" + processId + "' "+poid+"";
 
                 return _sqlRepository.GetDataCollection(CmdText);
             }
@@ -480,7 +486,7 @@ namespace Library.OrderManagement.Production
                                 LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
                                 LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + workCenterMasterId + @"'
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
-                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
+                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' " + poid + "";
 
                 return _sqlRepository.GetDataCollection(CmdText);
             }
@@ -538,7 +544,7 @@ namespace Library.OrderManagement.Production
                                 LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
                                 LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + workCenterMasterId + @"'
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
-                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
+                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND MOI.ProductLibraryId<>'' " + poid + "";
 
                 return _sqlRepository.GetDataCollection(CmdText);
             }
@@ -623,7 +629,7 @@ namespace Library.OrderManagement.Production
 								   LEFT JOIN [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                    LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 								   ) PD ON PD.ProductionOrderId=PO.Id
-								   WHERE PO.EntityId='" + entityid + "' AND PS.UserName = 'Running'  AND PO.Id='" + ProductionOrderId + "'";
+								   WHERE PO.EntityId='" + entityid + "' AND PS.UserName = 'Running'";
 
                 return _sqlRepository.GetDataCollection(CmdText);
             }

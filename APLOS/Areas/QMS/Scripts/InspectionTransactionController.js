@@ -190,7 +190,7 @@ function InspectionTransactionController(cboService, commonMessage, $scope, $roo
     $scope.getInspectionTypeEntryLevel = function () {
         $http({
             method: 'POST',
-            url: "QMS/QualityProcess/GetInspectionTypeSettingList?imageInspectionTypeId=" + $scope.ModelNew.InspectionTypeId + '&inspectionId' + $scope.ModelNew.Id,
+            url: "QMS/QualityProcess/GetInspectionTypeSettingList?imageInspectionTypeId=" + $scope.ModelNew.InspectionTypeId + '&inspectionId=' + $scope.ModelNew.Id,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.InspectionTypeEntryLevelList = response.data;
@@ -307,11 +307,11 @@ function InspectionTransactionController(cboService, commonMessage, $scope, $roo
             $scope.NewObject.ProductionOrderId = $event.data.POId;
         }
         else if ($scope.fl === 'SO') {
-            angular.element(document.querySelector('#')).modal('show');
             $scope.NewObject.SalesOrderId = $event.data.SOId;
             $scope.NewObject.ProductionOrderId = $event.data.POId;
             $scope.NewObject.MasterOrderItemId = $event.data.MasterOrderItemId;
             $scope.NewObject.ProductLibraryId = $event.data.ProductLibraryId;
+            $scope.NewObject.ProdCode = $event.data.ProductCode;
         }
         else if ($scope.fl === 'LI') {
             $scope.NewObject.MasterOrderItemId = $event.data.MasterOrderItemId;
@@ -319,6 +319,7 @@ function InspectionTransactionController(cboService, commonMessage, $scope, $roo
         else {
             $scope.NewObject.MasterOrderItemId = $event.data.MasterOrderItemId;
             $scope.NewObject.ProductLibraryId = $event.data.ProductLibraryId;
+            $scope.NewObject.ProdCode = $event.data.ProductCode;
         }
        
         var gridObj = $("#GridEditISP").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -394,5 +395,61 @@ function InspectionTransactionController(cboService, commonMessage, $scope, $roo
             ShowResult(e, 'failure');
         }
     }
+
+    $scope.gradeList = [
+        {
+            'Value': 'A',
+            'Text': 'A'
+        },
+        {
+            'Value': 'B',
+            'Text': 'B'
+        },
+        {
+            'Value': 'C',
+            'Text': 'C'
+        }
+    ];
+
+    $scope.PeriodList = [];
+    $http({
+        method: 'GET',
+        url: 'Productions/EmployeeOperations/GetPeriod',
+    }).then(function succ(resp) {
+        $scope.PeriodList = resp.data.Data;
+    });
+
+
+    $scope.ShowResultCustom = function (message, type) {
+        $("#OperationPoUp").ejDialog("setTitle", "Operation");
+        var eDialog = $("#OperationPoUp").data("ejDialog");
+        eDialog.open();
+
+        var gridObj = $("#GridOperation").data("ejGrid");
+        gridObj.clearFiltering();  // clears all the filtering
+
+    };
+
+    $scope.searchdata = [];
+    $scope.GetOperationData = function () {
+        $scope.searchdata = [];
+        $http({
+            method: 'GET',
+            url: 'ie/bulletintemplate/getoperationdata?processId=' + $scope.ProcessId + '&bulletinTemplateId=' + $scope.bulletinTemplateNew.Id + '&productMasterId=' + $scope.bulletinTemplateNew.ProductMasterId
+        }).then(function successCallback(response) {
+            $scope.searchdata = response.data;
+        });
+    }
+
+    $scope.AddOperation = function () {
+       
+        $scope.GetOperationData();
+        $scope.ShowResultCustom();
+    }
+
+
+
+
+
 
 }
