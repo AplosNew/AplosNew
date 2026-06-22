@@ -14558,7 +14558,184 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
             }
         }
 
+        #region Stitch
 
+        public string CreateInspection(IEnumerable<InspectionModel> DataToSave)
+        {
+
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.Inspection";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<InspectionModel> items = DataToSave.ToList();
+
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                foreach (InspectionModel item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        clsGenID genid = new clsGenID();
+                        genid.GenID(TableName, out _Id);
+
+                        dr["Id"] = "MA" + _Id;
+                        dr["InspectionTypeId"] = item.InspectionTypeId;
+                        dr["EntityId"] = item.EntityId;
+                        dr["ProcessId"] = item.ProcessId;
+                        dr["WorkCenterMasterId"] = item.WorkCenterMasterId;
+                        dr["DateTime"] = item.DateTime;
+                        dr["ShiftId"] = item.ShiftId;
+                        dr["EmployeeId"] = item.EmployeeId;
+                        dr["WCInchargeId"] = item.WCInchargeId;
+                        dr["QualityInchargeId"] = item.QualityInchargeId;
+                        dr["ProductionInchargeId"] = item.ProductionInchargeId;
+                        dr["ReportingOfficerId"] = item.ReportingOfficerId;
+                        dr["Remarks"] = item.Remarks;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = DateTime.Now.ToString();
+                        dr["AddedFromIP"] = item.AddedFromIP;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return MasterId;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public string CreateInspectionTran(IEnumerable<InspectionTranModel> DataToSave)
+        {
+
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.InspectionTranChild";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<InspectionTranModel> items = DataToSave.ToList();
+
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                foreach (InspectionTranModel item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        clsGenID genid = new clsGenID();
+                        genid.GenID(TableName, out _Id);
+
+                        dr["Id"] =  _Id;
+                        dr["InspectionTypeEnteryLevelId"] = item.InspectionTypeEnteryLevelId;
+                        dr["InspectionId"] = item.InspectionId;
+                        dr["MasterOrderItemId"] = item.MasterOrderItemId;
+                        dr["ProductLibraryId"] = item.ProductLibraryId;
+                        dr["ProductionOrderId"] = item.ProductionOrderId;
+                        dr["SalesOrderId"] = item.SalesOrderId;
+                        dr["SKU1Id"] = item.SKU1Id;
+                        dr["SKU2Id"] = item.SKU2Id;
+                        dr["SKU3Id"] = item.SKU3Id;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = DateTime.Now.ToString();
+                        dr["AddedFromIP"] = item.AddedFromIP;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return MasterId;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public string CreateInspectionTranGrand(IEnumerable<InspectionTranGrandModel> DataToSave)
+        {
+
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.InspectionTranGrandChild";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<InspectionTranGrandModel> items = DataToSave.ToList();
+
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                foreach (InspectionTranGrandModel item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        clsGenID genid = new clsGenID();
+                        genid.GenID(TableName, out _Id);
+
+                        dr["Id"] = _Id;
+                        dr["InspectionTranChildId"] = item.InspectionTranChildId;
+                        dr["PeriodId"] = item.PeriodId;
+                        dr["Grade"] = item.Grade;
+                        dr["Qty"] = item.Qty;
+                        dr["PictureID"] = item.PictureID;
+                        dr["AreaCode"] = item.AreaCode;
+                        dr["OperationId"] = item.OperationId;
+                        dr["DefectId"] = item.DefectId;
+                        dr["Remarks"] = item.Remarks;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = DateTime.Now.ToString();
+                        dr["AddedFromIP"] = item.AddedFromIP;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return MasterId;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
+        #endregion 
 
     }
 
@@ -16558,6 +16735,72 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
         public string IsOTComfirm { get; set; }
         public string OTComfirmBy { get; set; }
         public string DateOTComfirm { get; set; }
+
+    }
+
+    public class InspectionModel
+    {
+        public string Id { get; set; }
+        public string InspectionTypeId { get; set; }
+        public string EntityId { get; set; }
+        public string ProcessId { get; set; }
+        public string WorkCenterMasterId { get; set; }
+        public string DateTime { get; set; }
+        public string ShiftId { get; set; }
+        public string EmployeeId { get; set; }
+        public string WCInchargeId { get; set; }
+        public string QualityInchargeId { get; set; }
+        public string ProductionInchargeId { get; set; }
+        public string ReportingOfficerId { get; set; }
+        public string Remarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+
+    }
+
+    public class InspectionTranModel
+    {
+        public string Id { get; set; }
+        public string InspectionTypeEnteryLevelId { get; set; }
+        public string InspectionId { get; set; }
+        public string MasterOrderItemId { get; set; }
+        public string ProductLibraryId { get; set; }
+        public string ProductionOrderId { get; set; }
+        public string SalesOrderId { get; set; }
+        public string SKU1Id { get; set; }
+        public string SKU2Id { get; set; }
+        public string SKU3Id { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+
+    }
+
+    public class InspectionTranGrandModel
+    {
+        public string Id { get; set; }
+        public string InspectionTranChildId { get; set; }
+        public string PeriodId { get; set; }
+        public string Grade { get; set; }
+        public string Qty { get; set; }
+        public string PictureID { get; set; }
+        public string AreaCode { get; set; }
+        public string OperationId { get; set; }
+        public string DefectId { get; set; }
+        public string Remarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
 
     }
 
