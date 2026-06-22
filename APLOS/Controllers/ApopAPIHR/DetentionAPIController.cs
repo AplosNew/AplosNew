@@ -2188,12 +2188,17 @@ where PO.ProductionStatusId = '20252'  and PO.PlantId = '" + Plantid + "'"));
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"Select FC.Id SKU1Id , SC.Id SKU2Id , FC.SalesOrderId SO , Chv.UserName Color , Chvs.UserName Size , FC.Qty TotalQty , SC.Qty CSWiseQty , SC.ValueFreeText Dia   from TRN.FirstCharacteristics FC 
+                return Json(_sqlRepository.GetDataTable(@"Select Distinct FC.Id SKU1Id , SC.Id SKU2Id , FC.SalesOrderId SO , Chv.UserName Color , Chvs.UserName Size , FC.Qty TotalQty , SC.Qty CSWiseQty , SC.ValueFreeText Dia   
+,ITE.UserName Button ,Concat(Convert(numeric(18) , Isnull(ITG.Qty,0)) , '/',Convert(numeric(18), SC.Qty) ) QTY 
+from TRN.FirstCharacteristics FC 
 left join TRN.SecondCharacteristics SC on SC.FirstCharacteristicsId = FC.Id
 left join [HKP].[Characteristics] Ch on Ch.Id = FC.CharacteristicsId 
 left join [HKP].[CharacteristicsValue]  Chv on Chv.Id = FC.CharacteristicsValueId
 left join [HKP].[Characteristics] Chs on Chs.Id = SC.CharacteristicsId 
 left join [HKP].[CharacteristicsValue]  Chvs on Chvs.Id = Sc.CharacteristicsValueId
+left join [TRN].[InspectionTranChild]  TRC on TRC.SalesOrderId = FC.SalesOrderId
+left join InspectionTypeEnteryLevel ITE on ITE.Id = TRC.InspectionTypeEnteryLevelId 
+left join [dbo].[InspectionTranGrandChild] ITG on ITG.InspectionTranChildId	 = TRC.Id 
 where FC.SalesOrderId = '" + SO + "'"));
 
             }
@@ -2206,6 +2211,127 @@ where FC.SalesOrderId = '" + SO + "'"));
                 throw new HttpResponseException(resp);
             }
 
+        }
+
+        public IHttpActionResult GetEmpbyuserid(string Userid)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"select EMP.SystemId   ,EMA.PIN MYAppPin , EMP.Employeecode ,EMP.EmployeeName, Employeestatus,EmployeeCurrentStatus,
+UN.Id EntityId,Un.Username as Entity, DP.StandardName as Department, SC.StandardName as Section, SBC.Id SubSectionId,SBC.StandardName as SubSection, 
+x.UserName as Category,LDSG.Id LegalDegId, LDSG.StandardName as LegalDesignation, GDSG.StandardName as GivenDesignation, 
+ MB.Code BudgetCode,POS.Id PositionId,POS.Code PositionCode  , PT.Username PLant , PT.Id PlantId
+,US.UserId AplosId  , SD.SystemId ShiftId , Dv.Username Division , MB.Active MBActive , emp.EmploymentType
+,MB.Id BudgetId , AG.StandardName AccountGroup , ln.Username Linename , ln.id Lineid, POS.Skilltype
+from EmployeeInformation emp
+LEFT JOIN MST.ManpowerBudget MB ON MB.Id = emp.BudgetCode 
+left join org.Position pos on pos.Id =  mb.PositionId
+left join org.division Dv on DV.Id = POS.Divisionid
+left join ORG.Entity UN on UN.Id =  MB.EntityId
+left join ORG.Department DP on DP.ID = POS.DepartmentId
+left join ORG.Section SC on SC.Id = POS.SectionId
+left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=EMP.DesignationGroupId
+LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+left join mst.DesignationMasterLegalDesignation dmld on dmld.LegalDesignationId = GDSG.Id
+left join mst.DesignationMaster dm on dm.Id = dmld.DesignationMasterId
+left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
+left join sec.[User] US on US.EmployeeId = emp.SystemId
+left join hkp.EmployeeMobileAppsAuthorization EMA on EMA.EmployeeId = emp.SystemId
+left join ShiftDefination SD on SD.SystemId = MB.ShiftDefinationid
+left join org.plant PT on PT.Id = emp.PlantId
+left join [dbo].[AccountsGroup] AG on AG.Id = MB.AccountsGroupId
+left join org.line ln on ln.id = mb.Lineid 
+where US.UserId = '" + Userid + "'"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetInspectionTypeDetail()
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select  IT.Id InspectionTypeId ,IT.UserName InspectionType , ITE.Id InspectionTypeEnteryLevelId, ITE.InspectionTypeId ITEITID , ITE.Grade Grade , ITE.UserName ITEUsername
+,ITE.LineItem , ITE.ProductCode , ITE.ProductionOrder , ITE.SalesOrder , ITE.SKU1 , ITE.SKU2 , ITE.SKU3 , ITE.MaxQty , ITE.Picture , ITE.Operation , ITE.Defect 
+,ITP.ProcessId , IE.EntityId , IEA.EmpId , IUA.BudgetId
+from InspectionType IT
+left join InspectionTypeEnteryLevel ITE on ITE.InspectionTypeId = IT.Id
+left join InspectionTypeProcess ITP  on ITP.InspectionTypeId = IT.Id
+left join InspectionEntity IE on IE.InspectionTypeId = IT.Id
+left join InspectionEmployeeApplicable IEA on IEA.InspectionTypeId = IT.Id
+left join InspectionUserApplicable IUA on IUA.InspectionTypeId = IT.Id"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+
+        [HttpPost]
+        public string SaveInspection([FromBody] IEnumerable<InspectionModel> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.CreateInspection(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        [HttpPost]
+        public string SaveInspectionTran([FromBody] IEnumerable<InspectionTranModel> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.CreateInspectionTran(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        [HttpPost]
+        public string SaveInspectionTranGrand([FromBody] IEnumerable<InspectionTranGrandModel> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.CreateInspectionTranGrand(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
         }
 
         #endregion Stich
@@ -2248,7 +2374,7 @@ left join hkp.EmployeeMobileAppsAuthorization EMA on EMA.EmployeeId = emp.System
 left join ShiftDefination SD on SD.SystemId = MB.ShiftDefinationid
 left join org.plant PT on PT.Id = emp.PlantId
 left join [dbo].[AccountsGroup] AG on AG.Id = MB.AccountsGroupId
-where  emp.plantid = '20252' and  emp.Employeecode = '" + Empcode + "' and PT.Id = '" + PlantId + "'"));
+where   emp.Employeecode = '" + Empcode + "' and PT.Id = '" + PlantId + "'"));
             }
             catch (Exception ex)
             {
@@ -2411,6 +2537,8 @@ where  EI.EmployeeCode='" + Empcode + "' and format(APd.WorkDate,'MMMM') = '" + 
                 return ex.ToString();
             }
         }
+
+
 
         #endregion Attendance tracker
     }
