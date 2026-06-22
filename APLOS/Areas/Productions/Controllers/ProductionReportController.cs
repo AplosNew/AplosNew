@@ -1306,7 +1306,8 @@ ORDER BY  p.EmployeeCode,p.[Date]   ";
             if (string.IsNullOrEmpty(workCenterId))
             { tempwcId = @" "; }
             else { tempwcId = @" AND owe.workCenterId= '" + workCenterId + @"' "; }
-            var cmdText = @"DECLARE @fromDate DATE = '" + fromDate + @"';
+            var cmdText = @"DECLARE @fromDate DATE = '" + fromDate + @"' 
+                            DECLARE @toDate DATE = '" + toDate + @"';
 WITH base_prod AS (
     SELECT 
 		ei.EmployeeCode,
