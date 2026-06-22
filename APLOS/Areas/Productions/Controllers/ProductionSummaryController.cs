@@ -849,6 +849,15 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetItemsDataList(string entityid, string workCenterMasterId, string productionLevel, string processId, string ProductionOrderId)
+        {
+            var jsondata = Json(_productionSummaryData.GetItemsDataList(entityid, workCenterMasterId, productionLevel, processId, ProductionOrderId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+
+        [HttpGet, Authorize]
         public ActionResult GetProductionOrderData(string entityid, string workCenterMasterId, string productionLevel, string processId, string status)
         {
             return Json(_productionSummaryData.GetProductionOrderData(entityid, workCenterMasterId, productionLevel, processId, status), JsonRequestBehavior.AllowGet);

@@ -7,7 +7,7 @@
 <div id="tarekcontainer">
 
 </div>
-<togglable name="Production Order Scheduling Parameters: Type-1({{baseProcess.UserName}})"></togglable>
+<togglable name="Production Order Scheduling Parameters: Type-1"></togglable>
 
 <div class="form-horizontal form-elements" ng-form="modelNewForm" id="entrycontainer">
     <div class="row">
@@ -31,21 +31,39 @@
 @*EDIT Search*@
 
 <div class="aplos-grid-toggle" id="maincontainer">
-    <div class="form-group">
-
-        <label class="col-sm-2 control-label">Entity<sup>*</sup></label>
-        <div class="col-sm-4 show-message text-left">
-            <div class="select-style">
-                <select name="EntityId" ng-model="EntityId" ng-change="getData();getSettingsData();" class="col-sm-3 form-control"
-                        ng-options="item.Id as item.UserName for item in entityList" tabindex="1" required>
-                    <option value=""></option>
-                </select>
+    <div class="col-md-12" style="color:blue;font-weight:bold;">
+        {{NotificationMessage}}
+    </div>
+    <div class="col-md-12">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Planning Type Process<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select name="Planning Type Process" ng-model="PlanningTypeProcessId" ng-change="GetPlanningTypeEntiy();" class="form-control"
+                                ng-options="item.Id as item.UserName for item in planningTypeProcessList" tabindex="2" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-md-12" style="color:blue;font-weight:bold;">
-            {{NotificationMessage}}
+        <div class="col-md-6">
+            <div class="form-group">
+
+                <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                <div class="col-sm-8 show-message text-left">
+                    <div class="select-style">
+                        <select name="EntityId" ng-model="EntityId" ng-change="getData();" class="col-sm-3 form-control"
+                                ng-options="item.Id as item.UserName for item in entityList" tabindex="1" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
     <div id="Tab" ej-tab e-itemactive="onactivetab" e-create="oncreatetab">
         <ul>
             <li><a href="#TabEdit">Production Orders</a></li>
@@ -347,21 +365,21 @@
         </div>
         <div id="TabPriorityUpdate" class="form-elements form-horizontal" ng-form name="HeaderForm">
             <div class="row">
-                
 
-                    <div class="col-md-10">
 
-                        <div class="inputBtnSection common-btn">
-                            <label class="fileUpload col-sm-4 " style="padding: 0 0 0 0 ; margin-right:8px;">
-                                <input id="uploadFile" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
-                            </label>
-                            <input type="button" style="margin-right: 8px;" value="Import Data" ng-disabled="enable" class="btn btn-success" ng-click="ImportData()" />
-                            <button ng-click="GetSample();" class="btn" style="margin-right: 8px;"><i class="glyphicon glyphicon-download"></i> Get Sample Report File </button>
+                <div class="col-md-10">
 
-                        </div>
+                    <div class="inputBtnSection common-btn">
+                        <label class="fileUpload col-sm-4 " style="padding: 0 0 0 0 ; margin-right:8px;">
+                            <input id="uploadFile" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                        </label>
+                        <input type="button" style="margin-right: 8px;" value="Import Data" ng-disabled="enable" class="btn btn-success" ng-click="ImportData()" />
+                        <button ng-click="GetSample();" class="btn" style="margin-right: 8px;"><i class="glyphicon glyphicon-download"></i> Get Sample Report File </button>
+
                     </div>
+                </div>
 
-                
+
 
             </div>
             <div class="common-btn" style="margin-top:10px;">
@@ -418,8 +436,8 @@
 
 
                 <div id="GridSearch" ng-init="chkinit()" ej-grid e-datasource="modelListNew" e-recorddoubleclick="Get" e-allowscrolling="true"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" 
-                     e-actioncomplete="syncfusiongriddatabound" 
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-actioncomplete="syncfusiongriddatabound"
                      e-allowselection="true" e-filtersettings-filterType="excel">
                     <div e-columns>
                         <div e-column e-template="#showSOList" e-headertext="" e-width="30"></div>
@@ -581,7 +599,7 @@
                         <div e-column e-field="LSD" e-headertext="LSD" e-width="3"></div>
                         <div e-column e-field="CommitmentDate" e-headertext="Comm. Dt" e-width="3"></div>
                         <div e-column e-type="number" e-field="DelayedProductionDaysOnCommitmentDate" e-headertext="Delay(On Comm. Dt)" e-width="2"></div>
-                        
+
                         <div e-column e-field="PlannedQuantity" e-headertext="Plan Qty" e-width="2"></div>
                         <div e-column e-template="#showGraph" e-headertext="" e-width="3"></div>
                     </div>
@@ -653,7 +671,7 @@
                 <div class="col-sm-12">
                     <div style="width:100%;">
 
-                        <div id="GridSameDayPlanning" ng-init="chkinit()" ej-grid e-datasource="SAMEDAYDATA" e-allowscrolling="true"  e-actioncomplete="syncfusiongriddatabound" 
+                        <div id="GridSameDayPlanning" ng-init="chkinit()" ej-grid e-datasource="SAMEDAYDATA" e-allowscrolling="true" e-actioncomplete="syncfusiongriddatabound"
                              e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-recorddoubleclick="EditProductionPlanningDataSameDay"
                              e-allowselection="true" e-filtersettings-filterType="excel">
                             <div e-columns>
@@ -1033,8 +1051,8 @@
 <ej-dialog id="dialogWorkCenterWisePlanning" title=" Planning" e-enablemodal="true" e-position-y="0" e-showoninit="false"
            e-target="#TabPlanningSchedule" e-minwidth="1000" e-open="enableBtn">
 
-    <div id="GridWorkCenterWisePlanning" ng-init="chkinit()" ej-grid e-datasource="WorkCenterPlanList" e-allowscrolling="true"  
-         e-actioncomplete="syncfusiongriddatabound" 
+    <div id="GridWorkCenterWisePlanning" ng-init="chkinit()" ej-grid e-datasource="WorkCenterPlanList" e-allowscrolling="true"
+         e-actioncomplete="syncfusiongriddatabound"
          e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-recorddoubleclick="EditProductionPlanningData"
          e-allowselection="false" e-filtersettings-filterType="excel">
         <div e-columns>
@@ -1104,7 +1122,7 @@
 
 
         <div id="GridSOItemsForProductionOrder" ng-init="chkinit()" ej-grid e-datasource="SalesOrderListForProductionOrderId"
-             e-allowscrolling="true" e-summaryrows="summaryRows"  e-actioncomplete="syncfusiongriddatabound" 
+             e-allowscrolling="true" e-summaryrows="summaryRows" e-actioncomplete="syncfusiongriddatabound"
              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
              e-showsummary="true"
              e-allowselection="true" e-filtersettings-filterType="excel">

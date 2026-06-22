@@ -114,7 +114,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT p.* FROM PlanningTypes AS pt 
+            string sql = @"SELECT distinct p.* FROM PlanningTypes AS pt 
                                 INNER JOIN hkp.Process AS p ON p.Id=pt.BaseProcessId
                                 WHERE PT.PlanningType='" + ScreenPlanningType.ToString() + "' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "'  AND pt.PlantId='" + identity.PlantId + "'";
 
@@ -1282,6 +1282,29 @@ SELECT ept.EntityId FROM hkp.EntityProcessTag AS ept WHERE ept.ProcessId IN (SEL
 
         }
         [HttpPost, Authorize]
+        public JsonResult GetAllEntityForPlanningType1Process(string processId)
+        {
+            try
+            {
+                string sql = @"";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                sql = @"SELECT e.* FROM PlanningTypes AS pt 
+INNER JOIN [ORG].[Entity] E on E.id=pt.EntityId
+WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='"+identity.CompanyGroupId+"'  AND pt.PlantId='"+identity.PlantId+"' And pt.BaseProcessId='"+processId+"'";
+
+
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+        [HttpPost, Authorize]
         public JsonResult GetSPTEfficiencySlab(string EntityId)
         {
             try
@@ -1923,7 +1946,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                                                     JOIN trn.ProductionOrder AS po ON po.Id=w.ProductionOrderId
                                                     join scs.WorkCenterMaster AS wcm ON wcm.Id=w.WorkCenterMasterId
                                                     INNER JOIN hkp.ProductionStatus AS ps ON ps.Id = po.ProductionStatusId
-                                                    WHERE  (po.EntityId='" + entityid + @"' OR WCM.EntityId='" + entityid + @"') 
+                                                    WHERE  (po.EntityId='" + entityid + @"' AND WCM.EntityId='" + entityid + @"') 
                                                 AND ps.UserName NOT IN ('" + PlanningStatus.CLOSED.ToString() + @"')
                     UNION
                     SELECT distinct po.EntityId FROM 
@@ -1931,14 +1954,14 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                     JOIN trn.ProductionOrder AS po ON W.ProductionOrderId=po.Id
                     JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=w.WorkCenterMasterId
                     INNER JOIN hkp.ProductionStatus AS ps ON ps.Id = po.ProductionStatusId
-                    WHERE WCM.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStatus.CLOSED.ToString() + @"')
+                    WHERE WCM.EntityId='" + entityid + @"' AND PO.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStatus.CLOSED.ToString() + @"')
                     UNION
                     SELECT distinct po.EntityId FROM 
                     trn.RunningOrderWorkCenter W
                     JOIN trn.ProductionOrder AS po ON W.ProductionOrderId=po.Id
                     JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=w.WorkCenterMasterId
                     INNER JOIN hkp.ProductionStatus AS ps ON ps.Id = po.ProductionStatusId
-                    WHERE WCM.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStatus.CLOSED.ToString() + @"')";
+                    WHERE WCM.EntityId='" + entityid + @"' AND PO.EntityId='" + entityid + @"'  AND ps.UserName NOT IN ('" + PlanningStatus.CLOSED.ToString() + @"')";
 
                     DataTable dt = _sqlRepository.GetDataTable(_sql);
                     for (int i = 0; i < dt.Rows.Count; i++)
@@ -2047,13 +2070,13 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
 			                                                INNER JOIN hkp.OrderStatus AS os ON os.Id=so.OrderStatusId
 			                                                WHERE os.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' AND pod.ProductionOrderId=po.Id)
 			                                                WHERE ISNULL(pod.Id,'')='' AND ps.StandardName<>'Closed'
-                                                )");
+                                                ) AND po.EntityId IN (" + ProcessingEntities + @")");
 
                 _sqlRepository.ExecuteSqlCommand(@"DELETE FROM ProductionPlanningType1 WHERE ProductionOrderID IN (
                                                 SELECT po.Id FROM trn.ProductionOrder AS po
                                                 INNER JOIN ProductionPlanningType1 AS ppt ON ppt.ProductionOrderID=po.Id
                                                 INNER JOIN hkp.ProductionStatus AS ps ON po.ProductionStatusId=ps.Id
-                                                WHERE ps.UserName='" + Library.Model.Enums.OrderStatusEnum.Closed.ToString() + @"'
+                                                WHERE ps.UserName='" + Library.Model.Enums.OrderStatusEnum.Closed.ToString() + @"' AND po.EntityId IN (" + ProcessingEntities + @")
                                                 )");
 
                 string runningsql = @"SELECT DISTINCT po.Id FROM trn.ProductionOrder AS po
