@@ -2271,7 +2271,7 @@ where US.UserId = '" + Userid + "'"));
             {
                 return Json(_sqlRepository.GetDataTable(@"Select  IT.Id InspectionTypeId ,IT.UserName InspectionType , ITE.Id InspectionTypeEnteryLevelId, ITE.InspectionTypeId ITEITID , ITE.Grade Grade , ITE.UserName ITEUsername
 ,ITE.LineItem , ITE.ProductCode , ITE.ProductionOrder , ITE.SalesOrder , ITE.SKU1 , ITE.SKU2 , ITE.SKU3 , ITE.MaxQty , ITE.Picture , ITE.Operation , ITE.Defect 
-,ITP.ProcessId , IE.EntityId , IEA.EmpId , IUA.BudgetId
+,ITP.ProcessId , IE.EntityId , IEA.EmployeeId , IUA.BudgetId
 from InspectionType IT
 left join InspectionTypeEnteryLevel ITE on ITE.InspectionTypeId = IT.Id
 left join InspectionTypeProcess ITP  on ITP.InspectionTypeId = IT.Id
