@@ -190,7 +190,7 @@ function InspectionTransactionController(cboService, commonMessage, $scope, $roo
     $scope.getInspectionTypeEntryLevel = function () {
         $http({
             method: 'POST',
-            url: "QMS/QualityProcess/GetInspectionTypeEntryLevelList?imageInspectionTypeId=" + $scope.ModelNew.InspectionTypeId,
+            url: "QMS/QualityProcess/GetInspectionTypeSettingList?imageInspectionTypeId=" + $scope.ModelNew.InspectionTypeId + '&inspectionId=' + $scope.ModelNew.Id,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.InspectionTypeEntryLevelList = response.data;
@@ -256,23 +256,24 @@ function InspectionTransactionController(cboService, commonMessage, $scope, $roo
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
-
+    $scope.fl = null;
     $scope.ProductionOrderList = [];
     $scope.getProductionOrderPopUp = function (data,name) {
-
+        $scope.fl = name;
+        $scope.NewObject = data.data;
         $scope.ProductionOrderList = [];
         var path = '';
         if (name=='PO') {
-            path = 'Productions/ProductionSummary/GetProductionOrderDataListWC?entityid=' + $scope.ModelNew.EntityId + '&workCenterMasterId=' + $scope.ModelNew.WorkCenterMasterId + '&productionLevel=' + 'ProductionOrder' + '&processId=' + $scope.ModelNew.ProcessId + '&ToCloseAllowed=' + true;
+            path = 'Productions/ProductionSummary/GetItemsDataList?entityid=' + $scope.ModelNew.EntityId + '&workCenterMasterId=' + $scope.ModelNew.WorkCenterMasterId + '&productionLevel=' + 'ProductionOrder' + '&processId=' + $scope.ModelNew.ProcessId + '&ProductionOrderId=' + $scope.NewObject.ProductionOrderId;
         }
        else if (name == 'PC') {
-            path = 'Productions/ProductionSummary/GetProductionOrderDataListWC?entityid=' + $scope.ModelNew.EntityId + '&workCenterMasterId=' + $scope.ModelNew.WorkCenterMasterId + '&productionLevel=' + 'ProductCode' + '&processId=' + $scope.ModelNew.ProcessId + '&ToCloseAllowed=' + true;
+            path = 'Productions/ProductionSummary/GetItemsDataList?entityid=' + $scope.ModelNew.EntityId + '&workCenterMasterId=' + $scope.ModelNew.WorkCenterMasterId + '&productionLevel=' + 'ProductCode' + '&processId=' + $scope.ModelNew.ProcessId + '&ProductionOrderId=' + $scope.NewObject.ProductionOrderId;
         }
         else if (name == 'LI') {
-            path = 'Productions/ProductionSummary/GetProductionOrderDataListWC?entityid=' + $scope.ModelNew.EntityId + '&workCenterMasterId=' + $scope.ModelNew.WorkCenterMasterId + '&productionLevel=' + 'LineItem' + '&processId=' + $scope.ModelNew.ProcessId + '&ToCloseAllowed=' + true;
+            path = 'Productions/ProductionSummary/GetItemsDataList?entityid=' + $scope.ModelNew.EntityId + '&workCenterMasterId=' + $scope.ModelNew.WorkCenterMasterId + '&productionLevel=' + 'MasterOrderItem' + '&processId=' + $scope.ModelNew.ProcessId + '&ProductionOrderId=' + $scope.NewObject.ProductionOrderId;
         }
         else if (name == 'SO') {
-            path = 'Productions/ProductionSummary/GetProductionOrderDataListWC?entityid=' + $scope.ModelNew.EntityId + '&workCenterMasterId=' + $scope.ModelNew.WorkCenterMasterId + '&productionLevel=' + 'SalesOrder' + '&processId=' + $scope.ModelNew.ProcessId + '&ToCloseAllowed=' + true;
+            path = 'Productions/ProductionSummary/GetItemsDataList?entityid=' + $scope.ModelNew.EntityId + '&workCenterMasterId=' + $scope.ModelNew.WorkCenterMasterId + '&productionLevel=' + 'SalesOrder' + '&processId=' + $scope.ModelNew.ProcessId + '&ProductionOrderId=' + $scope.NewObject.ProductionOrderId;
         }
         else {
                 
@@ -286,15 +287,46 @@ function InspectionTransactionController(cboService, commonMessage, $scope, $roo
                     ShowResult(response, 'failure');
                 });
 
-        angular.element(document.querySelector('#POItemPopup')).modal('show');
-
+        if ($scope.fl === 'PO') {
+            angular.element(document.querySelector('#POItemPopup')).modal('show');
+        }
+        else if ($scope.fl === 'SO') {
+            angular.element(document.querySelector('#SOItemPopup')).modal('show');
+        }
+        else if ($scope.fl === 'LI') {
+            angular.element(document.querySelector('#MasterOrderItemPopup')).modal('show');
+        }
+        else {
+            angular.element(document.querySelector('#ProductCodePopup')).modal('show');
+        }
     };
 
 
     $scope.SetPrOData = function ($event) {
-        $scope.NewObject.ProductionOrderId = $event.data.POId;
+        if ($scope.fl === 'PO') {
+            $scope.NewObject.ProductionOrderId = $event.data.POId;
+        }
+        else if ($scope.fl === 'SO') {
+            $scope.NewObject.SalesOrderId = $event.data.SOId;
+            $scope.NewObject.ProductionOrderId = $event.data.POId;
+            $scope.NewObject.MasterOrderItemId = $event.data.MasterOrderItemId;
+            $scope.NewObject.ProductLibraryId = $event.data.ProductLibraryId;
+            $scope.NewObject.ProdCode = $event.data.ProductCode;
+        }
+        else if ($scope.fl === 'LI') {
+            $scope.NewObject.MasterOrderItemId = $event.data.MasterOrderItemId;
+        }
+        else {
+            $scope.NewObject.MasterOrderItemId = $event.data.MasterOrderItemId;
+            $scope.NewObject.ProductLibraryId = $event.data.ProductLibraryId;
+            $scope.NewObject.ProdCode = $event.data.ProductCode;
+        }
+       
         var gridObj = $("#GridEditISP").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
+        angular.element(document.querySelector('#SOItemPopup')).modal('hide');
+        angular.element(document.querySelector('#MasterOrderItemPopup')).modal('hide');
+        angular.element(document.querySelector('#ProductCodePopup')).modal('hide');
 
     }
 
@@ -307,7 +339,7 @@ function InspectionTransactionController(cboService, commonMessage, $scope, $roo
             return ShowResult('Please Production Order.', 'failure');
         }
         $scope.SOItemList = [];
-        $http.get('Productions/ProductionSummary/GetItemsData?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.productionSummaryNew.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.productionSummaryNew.ProductionOrderId)
+        $http.get('Productions/ProductionSummary/GetItemsData?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.productionSummaryNew.WorkCenterMasterId + '&productionLevel=' + $scope.fl + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.productionSummaryNew.ProductionOrderId)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
@@ -317,13 +349,13 @@ function InspectionTransactionController(cboService, commonMessage, $scope, $roo
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
                 });
-        if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
+        if ($scope.fl === 'ProductionOrder') {
             angular.element(document.querySelector('#POItemPopup')).modal('show');
         }
-        else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
+        else if ($scope.fl === 'SalesOrder') {
             angular.element(document.querySelector('#SOItemPopup')).modal('show');
         }
-        else if ($scope.productionSummaryNew.ProductionBookingLevel === 'MasterOrderItem') {
+        else if ($scope.fl === 'MasterOrderItem') {
             angular.element(document.querySelector('#MasterOrderItemPopup')).modal('show');
         }
         else {
@@ -331,69 +363,91 @@ function InspectionTransactionController(cboService, commonMessage, $scope, $roo
         }
     };
 
-    $scope.selectSOItem = function ($event) {
+    $scope.getDetailPopUp = function () {
+        angular.element(document.querySelector('#detailpopUp')).modal('show');
+
+    }
+
+    $scope.closeDetailPopUp = function () {
+        angular.element(document.querySelector('#detailpopUp')).modal('hide');
+
+    }
+
+    $scope.SaveChild = function () {
         try {
-            var soitem = $event.data;
-            //if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
-            //    $scope.productionSummaryNew.ProductionOrderId = soitem.POId;
-            //}
-            //else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
-            //    $scope.productionSummaryNew.SalesOrderId = soitem.SOId;
-            //}
-            //else if ($scope.productionSummaryNew.ProductionBookingLevel === 'MasterOrderItem') {
-            //    $scope.productionSummaryNew.MasterOrderItemId = soitem.MasterOrderItemId;
-            //}
-            //else {
-            //    $scope.productionSummaryNew.ProductLibraryId = soitem.ProductLibraryId;
-            //}
-
-            $scope.productionSummaryNew.ProductLibraryId = soitem.ProductLibraryId;
-            $scope.productionSummaryNew.ProductCode = soitem.ProductCode;
-            $scope.productionSummaryNew.MasterOrderItemId = soitem.MasterOrderItemId;
-            $scope.productionSummaryNew.SalesOrderId = soitem.SOId;
-
-
-            $scope.productionSummaryNew.MaterialMasterId = soitem.MaterialMasterId;
-            $scope.productionSummaryNew.MaterialMaster = soitem.MaterialMaster;
-            $scope.productionSummaryNew.ArticleId = soitem.ArticleId;
-            $scope.productionSummaryNew.Article = soitem.Article;
-            $scope.productionSummaryNew.Customer = soitem.Customer;
-            $scope.productionSummaryNew.UOM = soitem.UOM;
-            $scope.productionSummaryNew.MOQty = soitem.MOQty;
-            $scope.productionSummaryNew.ExtraP = soitem.ExtraP;
-            $scope.productionSummaryNew.WastageP = soitem.WastageP;
-            $scope.productionSummaryNew.MasterOrderNo = soitem.MasterOrderNo;
-            $scope.productionSummaryNew.CharCount = soitem.CharCount;
-            $scope.productionSummaryNew.PONumber = soitem.PONumber;
-
-            $scope.productionSummaryNew.BuyerOrder = soitem.BuyerOrder;
-            $scope.productionSummaryNew.OwnOrder = soitem.OwnOrder;
-
-            $scope.productionSummaryNew.BuyerItem = soitem.BuyerItem;
-            $scope.productionSummaryNew.OwnItem = soitem.OwnItem;
-
-            if (!baseService.isUndefinedOrNull(soitem.RemainingQty)) {
-                $scope.RemainQty = parseFloat(soitem.RemainingQty.toFixed(2));
-            }
-            if (!baseService.isUndefinedOrNull(soitem.PlannedQty)) {
-                $scope.TotalSalesOrderQty = parseFloat(soitem.PlannedQty.toFixed(2));
-            }
-            if (!baseService.isUndefinedOrNull(soitem.TotalProductionQty)) {
-                $scope.TotalProductionBookingQty = parseFloat(soitem.TotalProductionQty.toFixed(2));
-            }
-
-
-            angular.element(document.querySelector('#SOItemPopup')).modal('hide');
-            angular.element(document.querySelector('#ProductCodePopup')).modal('hide');
-            angular.element(document.querySelector('#MasterOrderItemPopup')).modal('hide');
-
-
-            $scope.GetTotalProductionBookingQty();
-            $scope.getLotNumberCbo();
-        } catch (ex) {
-            ShowResult(ex, 'error');
+            $http({
+                method: 'POST',
+                url: "QMS/QualityProcess/SaveInspectionChild",
+                data: { 'data': $scope.InspectionTypeEntryLevelList, 'masterId': $scope.ModelNew.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getInspectionTypeEntryLevel();
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
     }
+
+    $scope.gradeList = [
+        {
+            'Value': 'A',
+            'Text': 'A'
+        },
+        {
+            'Value': 'B',
+            'Text': 'B'
+        },
+        {
+            'Value': 'C',
+            'Text': 'C'
+        }
+    ];
+
+    $scope.PeriodList = [];
+    $http({
+        method: 'GET',
+        url: 'Productions/EmployeeOperations/GetPeriod',
+    }).then(function succ(resp) {
+        $scope.PeriodList = resp.data.Data;
+    });
+
+
+    $scope.ShowResultCustom = function (message, type) {
+        $("#OperationPoUp").ejDialog("setTitle", "Operation");
+        var eDialog = $("#OperationPoUp").data("ejDialog");
+        eDialog.open();
+
+        var gridObj = $("#GridOperation").data("ejGrid");
+        gridObj.clearFiltering();  // clears all the filtering
+
+    };
+
+    $scope.searchdata = [];
+    $scope.GetOperationData = function () {
+        $scope.searchdata = [];
+        $http({
+            method: 'GET',
+            url: 'ie/bulletintemplate/getoperationdata?processId=' + $scope.ProcessId + '&bulletinTemplateId=' + $scope.bulletinTemplateNew.Id + '&productMasterId=' + $scope.bulletinTemplateNew.ProductMasterId
+        }).then(function successCallback(response) {
+            $scope.searchdata = response.data;
+        });
+    }
+
+    $scope.AddOperation = function () {
+       
+        $scope.GetOperationData();
+        $scope.ShowResultCustom();
+    }
+
+
 
 
 

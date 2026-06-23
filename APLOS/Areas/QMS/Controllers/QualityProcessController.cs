@@ -2027,11 +2027,68 @@ LEFT JOIN dbo.EmployeeInformation ER ON ER.SystemId=ReportingOfficerId) AS TEMP 
 
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetInspectionTypeSettingList(string imageInspectionTypeId,string inspectionId)
+        {
+            string sql = @"SELECT UserName,LineItem,ProductCode,ProductionOrder,SalesOrder,SKU1,SKU2,SKU3,MaxQty,Picture,Operation,Defect,S.Id InspectionTypeEnteryLevelId,E.*
+FROM InspectionTypeEnteryLevel S
+LEFT JOIN [TRN].[InspectionTranChild] E ON E.InspectionTypeEnteryLevelId=S.Id AND E.InspectionId='" + inspectionId + @"'
+WHERE S.InspectionTypeId='"+ imageInspectionTypeId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveInspectionChild(List<Dictionary<string, object>> data, string masterId)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsBC;
+            string _Id = string.Empty;
+            try
+            {
+                
+
+                #region Entity 
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[InspectionTranChild] Where InspectionId='" + masterId + "'", out dsBC, false, "1");
+
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["InspectionId"] = masterId;
+                            AddNewRow(dsBC.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+                }
+
+                #endregion
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
 
         #endregion
 
-        //Hello Mizan
-        //Good aftenoon mizan
+
 
     }
     public class ImageDefect
