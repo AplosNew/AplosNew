@@ -2189,7 +2189,7 @@ where PO.ProductionStatusId = '20252'  and PO.PlantId = '" + Plantid + "'"));
             try
             {
                 return Json(_sqlRepository.GetDataTable(@"Select Distinct FC.Id SKU1Id , SC.Id SKU2Id , FC.SalesOrderId SO , Chv.UserName Color , Chvs.UserName Size , FC.Qty TotalQty , SC.Qty CSWiseQty , SC.ValueFreeText Dia   
-,ITE.UserName Button ,Concat(Convert(numeric(18) , Isnull(ITG.Qty,0)) , '/',Convert(numeric(18), SC.Qty) ) QTY 
+--,ITE.UserName Button ,Concat(Convert(numeric(18) , Isnull(ITG.Qty,0)) , '/',Convert(numeric(18), SC.Qty) ) QTY 
 from TRN.FirstCharacteristics FC 
 left join TRN.SecondCharacteristics SC on SC.FirstCharacteristicsId = FC.Id
 left join [HKP].[Characteristics] Ch on Ch.Id = FC.CharacteristicsId 
@@ -2271,13 +2271,109 @@ where US.UserId = '" + Userid + "'"));
             {
                 return Json(_sqlRepository.GetDataTable(@"Select  IT.Id InspectionTypeId ,IT.UserName InspectionType , ITE.Id InspectionTypeEnteryLevelId, ITE.InspectionTypeId ITEITID , ITE.Grade Grade , ITE.UserName ITEUsername
 ,ITE.LineItem , ITE.ProductCode , ITE.ProductionOrder , ITE.SalesOrder , ITE.SKU1 , ITE.SKU2 , ITE.SKU3 , ITE.MaxQty , ITE.Picture , ITE.Operation , ITE.Defect 
-,ITP.ProcessId , IE.EntityId , IEA.EmpId , IUA.BudgetId
+,ITP.ProcessId , IE.EntityId , IEA.EmployeeId , IUA.BudgetId
 from InspectionType IT
 left join InspectionTypeEnteryLevel ITE on ITE.InspectionTypeId = IT.Id
 left join InspectionTypeProcess ITP  on ITP.InspectionTypeId = IT.Id
 left join InspectionEntity IE on IE.InspectionTypeId = IT.Id
 left join InspectionEmployeeApplicable IEA on IEA.InspectionTypeId = IT.Id
 left join InspectionUserApplicable IUA on IUA.InspectionTypeId = IT.Id"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetALLQTYBYSO(string SO , string SKU1 ,string SKU2 , string InspectionTypeId)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"SELECT TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id,ITY.Id InspectionTypeId,
+      Convert(numeric(18),SUM(ISNULL(ITG.Qty,0))) AS TotalQty,
+   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='PASS' THEN ISNULL(ITG.Qty,0) else 0 END )) AS PassedQty,
+   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='ALTER' THEN ISNULL(ITG.Qty,0) else 0 END)) AS AlteredQty,
+   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='RECHECK' THEN ISNULL(ITG.Qty,0) else 0 END)) AS RecheckQty,
+   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='REJECT' THEN ISNULL(ITG.Qty,0) else 0 END)) AS RejectedQty
+FROM dbo.InspectionTypeEnteryLevel ITEL
+JOIN TRN.InspectionTranChild TRN ON TRN.InspectionTypeEnteryLevelId = ITEL.Id
+LEFT JOIN dbo.InspectionTranGrandChild ITG ON ITG.InspectionTranChildId = TRN.Id
+left join [TRN].[Inspection] IT on IT.Id = trn.InspectionId
+left join [dbo].[InspectionType] ITY on ITY.Id = IT.InspectionTypeId
+left join TRN.FirstCharacteristics FC on FC.Id = TRN.SKU1Id and FC.SalesOrderId = TRN.SalesOrderId
+left join TRN.SecondCharacteristics SC on SC.Id = TRN.SKU2Id AND sc.SalesOrderId = TRN.SalesOrderId
+where TRN.SalesOrderId = '" + SO + "' and TRN.SKU1Id = '" + SKU1 + "' and TRN.SKU2Id = '" + SKU2 + "' and ITY.Id = '" + InspectionTypeId  + "' GROUP BY TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id , ITY.Id;"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetALLQTYBYSOUSER(string SO, string SKU1, string SKU2, string InspectionTypeId , string userid)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"SELECT TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id,ITY.Id InspectionTypeId,
+       Convert(numeric(18),SUM(ISNULL(ITG.Qty,0))) AS TotalQty,
+   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='PASS' THEN ISNULL(ITG.Qty,0) else 0 END )) AS PassedQty,
+   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName <> 'PASS' THEN ISNULL(ITG.Qty,0) else 0 END)) AS InspectedQty
+FROM dbo.InspectionTypeEnteryLevel ITEL
+JOIN TRN.InspectionTranChild TRN ON TRN.InspectionTypeEnteryLevelId = ITEL.Id
+LEFT JOIN dbo.InspectionTranGrandChild ITG ON ITG.InspectionTranChildId = TRN.Id
+left join [TRN].[Inspection] IT on IT.Id = trn.InspectionId
+left join [dbo].[InspectionType] ITY on ITY.Id = IT.InspectionTypeId
+left join TRN.FirstCharacteristics FC on FC.Id = TRN.SKU1Id and FC.SalesOrderId = TRN.SalesOrderId
+left join TRN.SecondCharacteristics SC on SC.Id = TRN.SKU2Id AND sc.SalesOrderId = TRN.SalesOrderId
+where TRN.SalesOrderId = '" + SO + "' and TRN.SKU1Id = '" + SKU1 + "' and TRN.SKU2Id = '" + SKU2 + "' and ITY.Id = '" + InspectionTypeId + "' and ITG.AddedBy = '" + userid + "' GROUP BY TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id , ITY.Id;"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetPOWiseImage(string productionorderid)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select PA.Id Id , PA.Code , PA.AreaName , PA.ImageName , PA.ImageID , PA.Zone , PA.XAxis ,PA.YAxis
+,ImageUrl  = CONCAT('http://4.187.191.18:8080/pratibhaPOP/POPResources/DefectPic/' , PA.ImageName )
+from [dbo].[ProductArea] PA
+left join [MST].[ImageMaster] IM on IM.Id = PA.ImageMasterId
+left join [MST].[ImageProduct] IMP on IMP.ImageMasterId = IM.Id
+left join TRN.ProductionBulletinTemplate PB on PB.ProductMasterId = IMP.ProductMasterId
+where PB.ProductionOrderId = '" + productionorderid + "'"));
 
             }
             catch (Exception ex)

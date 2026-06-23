@@ -14387,6 +14387,8 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
 
         #endregion Pratibha
 
+
+       
         public string CreateFeedback(IEnumerable<EmployeeFeedBackModel> DataToSave)
         {
 
@@ -14683,7 +14685,7 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
             try
             {
                 DataSet dsMaster;
-                string TableName = "TRN.InspectionTranGrandChild";
+                string TableName = "dbo.InspectionTranGrandChild";
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
@@ -16802,6 +16804,20 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
         public string UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
 
+    }
+
+    public class ProductAreaDto
+    {
+        public int Id { get; set; }
+        public int ImageMas { get; set; }
+        public string Code { get; set; }
+        public string AreaName { get; set; }
+        public string ImageName { get; set; }
+        public string ImageID { get; set; }
+        public string Zone { get; set; }
+        public double XAxis { get; set; }
+        public double YAxis { get; set; }
+        public string ImageUrl { get; set; }
     }
 
     #region TNA

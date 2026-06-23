@@ -138,7 +138,7 @@
                     </div>
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
-                            <div class="row" ng-form="modelChildForm">
+                            <div class="row" ng-form="modelChildForm" id="child">
                                 <div class="col-xs-12 col-sm-12 col-md-12">
                                     <div class="modal-body">
                                         <div class="content-container-fluid" style="color:black;">
@@ -147,7 +147,7 @@
                                                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                                 <div e-columns>
                                                     <div e-column e-template="#detail" e-headertext="Detail" e-width="40"></div>
-                                                    <div e-column e-field="UserName" e-headertext="UserName"></div>
+                                                    <div e-column e-field="UserName" e-headertext="UserName" e-width="120"></div>
                                                     <div e-column e-template="#LineItem" e-headertext="LineItem" e-width="120"></div>
                                                     <div e-column e-template="#ProductCode" e-headertext="ProductCode" e-width="120"></div>
                                                     <div e-column e-template="#ProductionOrderId" e-headertext="ProductionOrder" e-width="120"></div>
@@ -159,7 +159,7 @@
                                             </div>
                                             <script type="text/template" id="LineItem">
                                                 <div class="col-sm-8" style="padding:0px;">
-                                                    <input type="text" name="LineItem" ng-model="data.MasterOrderItemId" ng-show="data.LineItem=='Yes'"  ng-click="" class="form-control" maxlength="200">
+                                                    <input type="text" name="LineItem" ng-model="data.MasterOrderItemId" ng-show="data.LineItem=='Yes'" ng-click="" class="form-control" maxlength="200">
                                                 </div>
                                                 <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                                                     <button ng-click="$parent.getProductionOrderPopUp(this,'LI');" ng-show="data.LineItem=='Yes'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
@@ -175,7 +175,7 @@
                                             </script>
                                             <script type="text/template" id="ProductCode">
                                                 <div class="col-sm-8" style="padding:0px;">
-                                                    <input type="text" name="ProductCode" ng-model="data.ProductCodeId" ng-show="data.ProductCode=='Yes'" ng-disabled="true" ng-click="" class="form-control" maxlength="200">
+                                                    <input type="text" name="ProductCode" ng-model="data.ProdCode" ng-show="data.ProductCode=='Yes'" ng-disabled="true" ng-click="" class="form-control" maxlength="200">
                                                 </div>
                                                 <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                                                     <button ng-click="$parent.getProductionOrderPopUp(this,'PC');" ng-show="data.ProductCode=='Yes'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
@@ -194,7 +194,7 @@
                                                     <input type="text" name="SKU1" ng-model="data.SKU1Id" ng-show="data.SKU1=='Yes'" ng-disabled="true" ng-click="" class="form-control" maxlength="200">
                                                 </div>
                                                 <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                                                    <button ng-click="$parent.getProductionOrderPopUp(this,'SKU1');" ng-show="data.SKU1=='Yes'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="$parent.getSalesOrderColorSizeList(this,'SKU1');" ng-show="data.SKU1=='Yes'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                                 </div>
                                             </script>
                                             <script type="text/template" id="SKU2">
@@ -202,7 +202,7 @@
                                                     <input type="text" name="SKU2" ng-model="data.SKU2Id" ng-show="data.SKU2=='Yes'" ng-disabled="true" ng-click="" class="form-control" maxlength="200">
                                                 </div>
                                                 <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                                                    <button ng-click="$parent.getProductionOrderPopUp(this,'SKU2');" ng-show="data.SKU2=='Yes'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="$parent.getSalesOrderColorSizeList(this,'SKU2');" ng-show="data.SKU2=='Yes'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                                 </div>
                                             </script>
                                             <script type="text/template" id="SKU3">
@@ -214,7 +214,7 @@
                                                 </div>
                                             </script>
                                             <script type="text/template" id="detail">
-                                                <button ng-click="$parent.getDetailPopUp(this);"class="btn single-small-btn" ng-disabled="data.Id==null" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
+                                                <button ng-click="$parent.getDetailPopUp(this);" class="btn single-small-btn" ng-disabled="data.Id==null" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
                                             </script>
                                         </div>
                                     </div>
@@ -444,16 +444,155 @@
     </div>
 </div>
 
+<ej-dialog id="ColorPoUp" title="Color" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#child" e-close="onDialogClose" e-minwidth="240" e-minheight="200" e-open="enableBtn">
+    <div style="color:black;" id="GridColor" ej-grid e-datasource="colorList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+         e-allowResizing="true" e-recorddoubleclick="SetColorData" e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+        <div e-columns>
+            <div e-column e-field="ValueId" e-headertext="Id" e-width="80"></div>
+            <div e-column e-field="UserName" e-headertext="Color" e-width="80"></div>
+        </div>
+    </div>
+    <div class="common-btn" style="padding-right: 15px;">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="CloseColorPopup();" class="btn">Close</button></li>
+        </ul>
+    </div>
+</ej-dialog>
+
+<ej-dialog id="SizePoUp" title="Size" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#child" e-close="onDialogClose" e-minwidth="240" e-minheight="200" e-open="enableBtn">
+    <div style="color:black;" id="GridColor" ej-grid e-datasource="sizeList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+         e-allowResizing="true" e-recorddoubleclick="SetSizeData" e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+        <div e-columns>
+            <div e-column e-field="ValueId" e-headertext="Id" e-width="80"></div>
+            <div e-column e-field="UserName" e-headertext="Color" e-width="80"></div>
+        </div>
+    </div>
+    <div class="common-btn" style="padding-right: 15px;">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="CloseSizePopup();" class="btn">Close</button></li>
+        </ul>
+    </div>
+</ej-dialog>
 
 <div class="modal site-modal in" id="detailpopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
             <div class="modal-header">Detail Info<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body text-center">
-                <div class="row">
-                  
+                <div class="row" ng-form="modelgchildForm">
+                    <div class="form-horizontal form-elements">
+                        <div class="col-xs-12 col-sm-6 col-sm-6 ">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Period</label>
+                                <div class="col-sm-8 ">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="periodId" name="PeriodList"
+                                                ng-options="item.Value as item.Text for item in PeriodList">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Qty</label>
+                                <div class="col-sm-8 ">
+                                    <input type="text" class="form-control" n-decimals="2" placeholder="Quantity" ng-model="productionSummaryNew.Qty">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Operation</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <input type="text" name="OperationId" ng-model="ModelNew.OperationId" class="form-control" readonly>
+                                        <span class="input-group-btn">
+                                            <button ng-click="AddOperation();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-sm-6 ">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Grade</label>
+                                <div class="col-sm-8 ">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="Grade" name="grade"
+                                                ng-options="item.Value as item.Text for item in gradeList">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">PictureID</label>
+                                <div class="col-sm-8 ">
+                                    <input type="text" class="form-control" placeholder="PictureID" ng-model="productionSummaryNew.PictureID">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Area Code</label>
+                                <div class="col-sm-8 ">
+                                    <input type="text" class="form-control" placeholder="AreaCode" ng-model="productionSummaryNew.AreaCode">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="SaveGrandChild();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- #region Operation  e-allowtextwrap="true"-->
+<div class="row">
+    <div class="form-group">
+        <ej-dialog id="OperationPoUp" title="Operation" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#detailpopUp"
+                   e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn">
+            <div class="row">
+                <div id="GridOperation" ej-grid e-datasource="searchdata"
+                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="false"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-allowResizing="true">
+                    <div e-columns>
+
+                        <div e-column e-field="OperationVariationId" e-headertext="OperationVariationId" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false"></div>
+                        <div e-column e-field="OperationCode" e-headertext="Operation Code" e-width="40"></div>
+                        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                        <div e-column e-field="OperationVariation" e-headertext="Operation Variation" e-width="100"></div>
+                        <div e-column e-field="Article" e-headertext="Article" e-width="80"></div>
+                        <div e-column e-field="SkillName" e-headertext="SkillName" e-width="80"></div>
+                        <div e-column e-field="OperationCategory" e-headertext="Category" e-width="40"></div>
+                        <div e-column e-field="Frequency" e-headertext="Frequency" e-width="40"></div>
+                        <div e-column e-field="SubOperationSAM" e-headertext="SubOperation SAM" e-width="50"></div>
+                        <div e-column e-field="AdditionalSAM" e-headertext="Add.SAM" e-width="50"></div>
+                        <div e-column e-field="SPI" e-headertext="SPI" e-width="50"></div>
+                        <div e-column e-field="VASSAMSOURCE" e-headertext="SAM Source" e-width="50"></div>
+                        <div e-column e-field="TotalSAM" e-headertext="Total SAM" e-width="50"></div>
+                        <div e-column e-field="OperationLength" e-headertext="Operation Length" e-width="50"></div>
+                        <div e-column e-field="StitchCode" e-headertext="Stitch Code" e-width="50"></div>
+
+                    </div>
+                </div>
+
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseOperation();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </ej-dialog>
+    </div>
+</div>
+
+<!-- #endregion Operation-->
