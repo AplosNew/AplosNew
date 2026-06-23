@@ -557,6 +557,9 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             controller: 'userfavouriteReportController'
         })
 
-
+        .when('/attend-verification-report', {
+            templateUrl: 'Employees/EmployeeInFoReport/AttendVerificationStatus',
+            controller: 'AttendanceVerificationStatusController'
+        })
         ;
 } 

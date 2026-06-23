@@ -63,6 +63,11 @@ namespace Aplos.Areas.Employees.Controllers
             return View();
         }
 
+        public ActionResult AttendVerificationStatus()
+        {
+            return View();
+        }
+
         #endregion -- Pages
 
         #region -----------------------------------Excel Report--------------------------------------------------
@@ -3111,6 +3116,274 @@ ORDER BY B.EmpCategory,B.Division";
         }
 
 
+        [HttpGet, Authorize]
+        public ActionResult GetAttendanceVerificationStatusReport(ReportFormat reportFormat, DateTime fromDate, DateTime toDate, bool yesNo)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var workbook = AttendanceVerificationStatusReport(out string reportFileName, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, yesNo);
+                switch (reportFormat)
+                {
+                    case ReportFormat.Pdf:
+                        return RenderReportAsPdf(workbook, reportFileName);
+
+                    case ReportFormat.Excel:
+                        return RenderReportAsExcel(workbook, reportFileName);
+
+                    default:
+                        return View();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public IWorkbook AttendanceVerificationStatusReport(out string reportFileName, string companyId, string plantId, string plantName, DateTime fromDate, DateTime toDate, bool yesNo)
+        {
+            var reportUtility = new ReportUtility();
+            var excelEngine = new ExcelEngine();
+            var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2013;
+            var sheet = workbook.Worksheets[0];
+            sheet.Name = "Voucher";
+
+
+            reportFileName = "EmployeeWiseProduction" + toDate.ToString("dd-MMM-yyyy");
+
+            var dsLocal = GetAttendanceVerificationStatusSQL(fromDate, toDate, yesNo);
+
+
+            var row = 3;
+
+            var colLast = 1;
+
+            int xlsCol = 1;
+            int colMonth = 0;
+            int colIsCorrect = 0;
+            int colCreatedDate = 0;
+            int colSysId = 0;
+            int colCode = 0;
+            int colEmployeeName = 0;
+            int colDOB = 0;
+            int colDOJ = 0;
+            int colDOS = 0;
+            int colEmployeestatus = 0;
+            int colEmployeeCurrentStatus = 0;
+            int colGenderID = 0;
+            int colcellphnno = 0;
+            int colDepartment = 0;
+            int colSection = 0;
+            int colSubSection = 0;
+            int colLegalDesignation = 0;
+            int colGivenDesignation = 0;
+            int colBudgetCode = 0;
+            int colPositionCode = 0;
+            int colPLant = 0;
+            int colAplosId = 0;
+            int colDivision = 0;
+            int colMBActive = 0;
+            int colEmploymentType = 0;
+            int colAccountGroup = 0;
+            int colLinename = 0;
+            int colSkilltype = 0;
+
+
+
+            row++;
+
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Month", 8); colMonth = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "IsCorrect", 10); colIsCorrect = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "CreatedDate"); colCreatedDate = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "SysId", 8); colSysId = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Code", 8); colCode = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "EmployeeName", 8); colEmployeeName = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "DOB", 8); colDOB = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "DOJ", 8); colDOJ = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "DOS", 8); colDOS = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Employeestatus", 8); colEmployeestatus = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "EmployeeCurrentStatus", 8); colEmployeeCurrentStatus = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "GenderID", 8); colGenderID = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Cellphnno", 8); colcellphnno = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Department", 8); colDepartment = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Section", 8); colSection = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "SubSection", 12); colSubSection = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "LegalDesignation", 8); colLegalDesignation = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "GivenDesignation", 8); colGivenDesignation = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "BudgetCode", 15); colBudgetCode = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "PositionCode", 8); colPositionCode = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "PLant", 8); colPLant = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "AplosId", 8); colAplosId = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Division", 8); colDivision = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "MBActive", 8); colMBActive = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "EmploymentType", 8); colEmploymentType = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "AccountGroup", 8); colAccountGroup = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Linename", 8); colLinename = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Skilltype", 8); colSkilltype = xlsCol; xlsCol++;
+            colLast = xlsCol;
+
+            if (dsLocal.Rows.Count > 0)
+            {
+                double totalTranAmount = 0;
+                double totalBookCurrencyAmount = 0;
+                var xRow = row;
+                row++;
+                for (int i = 0; i < dsLocal.Rows.Count; i++)
+                {
+                    reportUtility.SetText(ref sheet, row, colMonth, dsLocal.Rows[i]["Month"].ToString());
+                    reportUtility.SetText(ref sheet, row, colIsCorrect, dsLocal.Rows[i]["IsCorrect"].ToString());
+                    reportUtility.SetText(ref sheet, row, colCreatedDate, dsLocal.Rows[i]["CreatedDate"].ToString());
+                    reportUtility.SetText(ref sheet, row, colSysId, dsLocal.Rows[i]["SysId"].ToString());
+                    //sheet.Range[row, colDate].Text = dsLocal.Rows[i]["Date"].ToString();
+                    reportUtility.SetText(ref sheet, row, colCode, dsLocal.Rows[i]["Code"].ToString());
+                    reportUtility.SetText(ref sheet, row, colEmployeeName, dsLocal.Rows[i]["EmployeeName"].ToString());
+                    reportUtility.SetText(ref sheet, row, colDOB, dsLocal.Rows[i]["DOB"].ToString());
+                    reportUtility.SetText(ref sheet, row, colDOJ, dsLocal.Rows[i]["DOJ"].ToString());
+                    reportUtility.SetText(ref sheet, row, colDOS, dsLocal.Rows[i]["DOS"].ToString());
+                    reportUtility.SetText(ref sheet, row, colEmployeestatus, dsLocal.Rows[i]["Employeestatus"].ToString());
+
+                    reportUtility.SetText(ref sheet, row, colEmployeeCurrentStatus, dsLocal.Rows[i]["EmployeeCurrentStatus"].ToString());
+                    reportUtility.SetText(ref sheet, row, colGenderID, dsLocal.Rows[i]["GenderID"].ToString());
+                    reportUtility.SetText(ref sheet, row, colcellphnno, dsLocal.Rows[i]["cellphnno"].ToString());
+                    reportUtility.SetText(ref sheet, row, colDepartment, dsLocal.Rows[i]["Department"].ToString());
+                    reportUtility.SetText(ref sheet, row, colSection, dsLocal.Rows[i]["Section"].ToString());//OTSBD.clsStaticInfo.dbl
+                    reportUtility.SetText(ref sheet, row, colSubSection, dsLocal.Rows[i]["SubSection"].ToString());
+                    reportUtility.SetText(ref sheet, row, colLegalDesignation, dsLocal.Rows[i]["LegalDesignation"].ToString());
+                    reportUtility.SetText(ref sheet, row, colGivenDesignation, dsLocal.Rows[i]["GivenDesignation"].ToString());
+                    reportUtility.SetText(ref sheet, row, colBudgetCode, dsLocal.Rows[i]["BudgetCode"].ToString());
+                    reportUtility.SetText(ref sheet, row, colPositionCode, dsLocal.Rows[i]["PositionCode"].ToString());
+                    reportUtility.SetText(ref sheet, row, colPLant, dsLocal.Rows[i]["PLant"].ToString());
+                    reportUtility.SetText(ref sheet, row, colAplosId, dsLocal.Rows[i]["AplosId"].ToString());
+                    reportUtility.SetText(ref sheet, row, colDivision, dsLocal.Rows[i]["Division"].ToString());
+                    reportUtility.SetText(ref sheet, row, colMBActive, dsLocal.Rows[i]["MBActive"].ToString());
+                    reportUtility.SetText(ref sheet, row, colEmploymentType, dsLocal.Rows[i]["EmploymentType"].ToString());
+                    reportUtility.SetText(ref sheet, row, colAccountGroup, dsLocal.Rows[i]["AccountGroup"].ToString());
+                    reportUtility.SetText(ref sheet, row, colLinename, dsLocal.Rows[i]["Linename"].ToString());
+                    reportUtility.SetText(ref sheet, row, colSkilltype, dsLocal.Rows[i]["Skilltype"].ToString());
+
+                    sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
+                    row++;
+
+                }
+
+
+
+                //sheet.UsedRange.AutofitColumns();
+                // sheet[1, 2].ColumnWidth = 40;
+                sheet.UsedRange.CellStyle.Font.Size = 8;
+                row += 4;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+                sheet.Range["A1"].RowHeight = 20;
+                sheet.Range["A1"].CellStyle.Font.Size = 14;
+                sheet.Range["A1" + ":" + GetColumnNameForXls(colLast) + "1"].Merge();
+                sheet.Range["A1" + ":" + GetColumnNameForXls(colLast) + "1"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range["A1" + ":" + GetColumnNameForXls(colLast) + "1"].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range["A1" + ":" + GetColumnNameForXls(colLast) + "1"].CellStyle.Font.Bold = true;
+                sheet.Range["A1"].Text = identity.CompanyName;
+                sheet.Range["A2"].RowHeight = 15;
+                sheet.Range["A2"].CellStyle.Font.Size = 10;
+                sheet.Range["A2" + ":" + GetColumnNameForXls(colLast) + "2"].Merge();
+                sheet.Range["A2" + ":" + GetColumnNameForXls(colLast) + "2"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range["A2" + ":" + GetColumnNameForXls(colLast) + "2"].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range["A2" + ":" + GetColumnNameForXls(colLast) + "2"].CellStyle.Font.Bold = true;
+                sheet.Range["A2"].Text = "Attendance Verification Status " + " On " + fromDate.ToString("dd-MMM-yyyy") + " To " + toDate.ToString("dd-MMM-yyyy");
+                //reportUtility.CompanyPlantHeader(ref sheet, colLast, "Transaction Report of " + " On " + toDate.ToString("dd-MMM-yyyy"), companyId, plantId, plantName, null);
+                reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
+            }
+
+            return workbook;
+        }
+        private string GetColumnNameForXls(int ColumnNo)
+        {
+            ColumnNo = ColumnNo - 1;
+            if (ColumnNo < 0)
+            {
+                return "";
+            }
+
+            var CharVelue1 = 0;
+            var CharVelue2 = 0;
+            char ch1, ch2;
+            string ColumnName;
+            int reminder, div;
+
+            reminder = ColumnNo % 26;
+            div = ColumnNo / 26;
+
+            if (div == 0)
+            {
+                CharVelue1 = 65;
+                CharVelue1 = CharVelue1 + reminder;
+            }
+            if (div > 0)
+            {
+                CharVelue1 = 65;
+                CharVelue2 = 65;
+                CharVelue1 = CharVelue1 + div;
+                CharVelue2 = CharVelue2 + reminder;
+            }
+
+            if (CharVelue2 == 0)
+            {
+                ch1 = (char)CharVelue1;
+                ColumnName = "" + ch1;
+            }
+            else
+            {
+                CharVelue1 = CharVelue1 - 1;
+                ch1 = (char)CharVelue1;
+                ch2 = (char)CharVelue2;
+                ColumnName = "" + ch1 + ch2;
+            }
+
+            return ColumnName;
+        }
+
+
+        private DataTable GetAttendanceVerificationStatusSQL(DateTime fromDate, DateTime toDate, bool yesNo)
+        {
+            
+            var cmdText = @"declare @fromDate varchar(20)='" + fromDate + "',@toDate varchar(20)='" + toDate + @"'
+Select AC.[Month] , AC.IsCorrect , AC.CreatedDate , 
+EMP.SystemId as SysId, EMP.Employeecode as Code,EMP.EmployeeName,DOB, DOJ, DOS, Employeestatus
+,EmployeeCurrentStatus, 
+		GenderID, cellphnno,Un.Username as Entity
+, DP.StandardName as Department, SC.StandardName as Section, SBC.Id SubSectionId,SBC.StandardName as SubSection, 
+x.UserName as Category,LDSG.Id LegalDegId, LDSG.StandardName as LegalDesignation, GDSG.StandardName as GivenDesignation, 
+MB.Code BudgetCode,POS.Code PositionCode  , PT.Username PLant
+,US.UserId AplosId  , SD.SystemId ShiftId , Dv.Username Division , MB.Active MBActive , emp.EmploymentType
+,MB.Id BudgetId , AG.StandardName AccountGroup , ln.Username Linename , ln.id Lineid, POS.Skilltype
+from AttendanceCorrect AC
+left join EmployeeInformation emp on emp.systemid = AC.Empsystemid
+LEFT JOIN MST.ManpowerBudget MB ON MB.Id = emp.BudgetCode 
+left join org.Position pos on pos.Id =  mb.PositionId
+left join org.division Dv on DV.Id = POS.Divisionid
+left join ORG.Entity UN on UN.Id =  MB.EntityId
+left join ORG.Department DP on DP.ID = POS.DepartmentId
+left join ORG.Section SC on SC.Id = POS.SectionId
+left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=EMP.DesignationGroupId
+LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+left join mst.DesignationMasterLegalDesignation dmld on dmld.LegalDesignationId = GDSG.Id
+left join mst.DesignationMaster dm on dm.Id = dmld.DesignationMasterId
+left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
+left join sec.[User] US on US.EmployeeId = emp.SystemId
+left join hkp.EmployeeMobileAppsAuthorization EMA on EMA.EmployeeId = emp.SystemId
+left join ShiftDefination SD on SD.SystemId = MB.ShiftDefinationid
+left join org.plant PT on PT.Id = emp.PlantId
+left join [dbo].[AccountsGroup] AG on AG.Id = MB.AccountsGroupId
+left join org.line ln on ln.id = mb.Lineid
+where AC.CreatedDate between DATEADD(dd, DATEDIFF(dd, 0, '" + fromDate + "'), 0) AND DATEADD(dd, DATEDIFF(dd, 0, '" + toDate + "'), 0)   ";
+            return _sqlRepository.GetDataTable(cmdText);
+        }
 
 
 
