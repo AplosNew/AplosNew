@@ -138,7 +138,7 @@
                     </div>
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
-                            <div class="row" ng-form="modelChildForm">
+                            <div class="row" ng-form="modelChildForm" id="child">
                                 <div class="col-xs-12 col-sm-12 col-md-12">
                                     <div class="modal-body">
                                         <div class="content-container-fluid" style="color:black;">
@@ -194,7 +194,7 @@
                                                     <input type="text" name="SKU1" ng-model="data.SKU1Id" ng-show="data.SKU1=='Yes'" ng-disabled="true" ng-click="" class="form-control" maxlength="200">
                                                 </div>
                                                 <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                                                    <button ng-click="$parent.getProductionOrderPopUp(this,'SKU1');" ng-show="data.SKU1=='Yes'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="$parent.getSalesOrderColorSizeList(this,'SKU1');" ng-show="data.SKU1=='Yes'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                                 </div>
                                             </script>
                                             <script type="text/template" id="SKU2">
@@ -202,7 +202,7 @@
                                                     <input type="text" name="SKU2" ng-model="data.SKU2Id" ng-show="data.SKU2=='Yes'" ng-disabled="true" ng-click="" class="form-control" maxlength="200">
                                                 </div>
                                                 <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                                                    <button ng-click="$parent.getProductionOrderPopUp(this,'SKU2');" ng-show="data.SKU2=='Yes'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="$parent.getSalesOrderColorSizeList(this,'SKU2');" ng-show="data.SKU2=='Yes'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                                 </div>
                                             </script>
                                             <script type="text/template" id="SKU3">
@@ -444,6 +444,35 @@
     </div>
 </div>
 
+<ej-dialog id="ColorPoUp" title="Color" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#child" e-close="onDialogClose" e-minwidth="240" e-minheight="200" e-open="enableBtn">
+    <div style="color:black;" id="GridColor" ej-grid e-datasource="colorList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+         e-allowResizing="true" e-recorddoubleclick="SetColorData" e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+        <div e-columns>
+            <div e-column e-field="ValueId" e-headertext="Id" e-width="80"></div>
+            <div e-column e-field="UserName" e-headertext="Color" e-width="80"></div>
+        </div>
+    </div>
+    <div class="common-btn" style="padding-right: 15px;">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="CloseColorPopup();" class="btn">Close</button></li>
+        </ul>
+    </div>
+</ej-dialog>
+
+<ej-dialog id="SizePoUp" title="Size" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#child" e-close="onDialogClose" e-minwidth="240" e-minheight="200" e-open="enableBtn">
+    <div style="color:black;" id="GridColor" ej-grid e-datasource="sizeList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+         e-allowResizing="true" e-recorddoubleclick="SetSizeData" e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+        <div e-columns>
+            <div e-column e-field="ValueId" e-headertext="Id" e-width="80"></div>
+            <div e-column e-field="UserName" e-headertext="Color" e-width="80"></div>
+        </div>
+    </div>
+    <div class="common-btn" style="padding-right: 15px;">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="CloseSizePopup();" class="btn">Close</button></li>
+        </ul>
+    </div>
+</ej-dialog>
 
 <div class="modal site-modal in" id="detailpopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
@@ -532,11 +561,11 @@
         <ej-dialog id="OperationPoUp" title="Operation" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#detailpopUp"
                    e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn">
             <div class="row">
-                <div id="GridOperation" ej-grid e-datasource="searchdata" 
+                <div id="GridOperation" ej-grid e-datasource="searchdata"
                      e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="false"
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-allowResizing="true">
                     <div e-columns>
-                        
+
                         <div e-column e-field="OperationVariationId" e-headertext="OperationVariationId" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false"></div>
                         <div e-column e-field="OperationCode" e-headertext="Operation Code" e-width="40"></div>
                         <div e-column e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
@@ -555,7 +584,7 @@
 
                     </div>
                 </div>
-               
+
                 <div class="common-btn" style="padding-right: 15px;">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="CloseOperation();" class="btn">Close</button></li>

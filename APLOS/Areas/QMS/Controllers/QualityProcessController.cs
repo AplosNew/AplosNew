@@ -93,7 +93,7 @@ namespace Aplos.Areas.QMS.Controllers
         [Authorize, HttpGet]
         public ActionResult GetColorSizeCbo(string soId)
         {
-            string sql = @"select  CV.Id ValueId,CV.UserName from TRN.FirstCharacteristics FS
+            string sql = @"select CV.Id ValueId,CV.UserName from TRN.FirstCharacteristics FS
 LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id=FS.CharacteristicsValueId 
  Where FS.SalesOrderId='" + soId + "'";
             var colorItem = _sqlRepository.GetDataCollection(sql);
