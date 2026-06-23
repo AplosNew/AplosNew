@@ -14683,7 +14683,7 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
             try
             {
                 DataSet dsMaster;
-                string TableName = "TRN.InspectionTranGrandChild";
+                string TableName = "dbo.InspectionTranGrandChild";
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
