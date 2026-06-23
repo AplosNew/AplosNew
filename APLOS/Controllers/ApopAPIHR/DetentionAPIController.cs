@@ -2189,7 +2189,7 @@ where PO.ProductionStatusId = '20252'  and PO.PlantId = '" + Plantid + "'"));
             try
             {
                 return Json(_sqlRepository.GetDataTable(@"Select Distinct FC.Id SKU1Id , SC.Id SKU2Id , FC.SalesOrderId SO , Chv.UserName Color , Chvs.UserName Size , FC.Qty TotalQty , SC.Qty CSWiseQty , SC.ValueFreeText Dia   
-,ITE.UserName Button ,Concat(Convert(numeric(18) , Isnull(ITG.Qty,0)) , '/',Convert(numeric(18), SC.Qty) ) QTY 
+--,ITE.UserName Button ,Concat(Convert(numeric(18) , Isnull(ITG.Qty,0)) , '/',Convert(numeric(18), SC.Qty) ) QTY 
 from TRN.FirstCharacteristics FC 
 left join TRN.SecondCharacteristics SC on SC.FirstCharacteristicsId = FC.Id
 left join [HKP].[Characteristics] Ch on Ch.Id = FC.CharacteristicsId 
@@ -2291,6 +2291,40 @@ left join InspectionUserApplicable IUA on IUA.InspectionTypeId = IT.Id"));
 
         }
 
+        public IHttpActionResult GetALLQTYBYSO(string SO , string SKU1 ,string SKU2 , string InspectionTypeId)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"SELECT TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id,ITY.Id InspectionTypeId,
+    Convert(numeric(18),SUM(ISNULL(ITG.Qty,0))) AS TotalQty,
+   Concat(Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='PASS' THEN ISNULL(ITG.Qty,0) else 0 END )) , '/' ,Convert(Numeric(18),Isnull(SC.Qty,0))) AS PassedQty,
+   Concat(Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='ALTER' THEN ISNULL(ITG.Qty,0) else 0 END)) , '/' ,Convert(Numeric(18),Isnull(SC.Qty,0))) AS AlteredQty,
+   Concat(Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='RECHECK' THEN ISNULL(ITG.Qty,0) else 0 END)) , '/' ,Convert(Numeric(18),Isnull(SC.Qty,0))) AS RecheckQty,
+   Concat(Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='REJECT' THEN ISNULL(ITG.Qty,0) else 0 END)) , '/' ,Convert(Numeric(18),Isnull(SC.Qty,0))) AS RejectedQty
+FROM dbo.InspectionTypeEnteryLevel ITEL
+JOIN TRN.InspectionTranChild TRN ON TRN.InspectionTypeEnteryLevelId = ITEL.Id
+LEFT JOIN dbo.InspectionTranGrandChild ITG ON ITG.InspectionTranChildId = TRN.Id
+left join [TRN].[Inspection] IT on IT.Id = trn.InspectionId
+left join [dbo].[InspectionType] ITY on ITY.Id = IT.InspectionTypeId
+left join TRN.FirstCharacteristics FC on FC.Id = TRN.SKU1Id and FC.SalesOrderId = TRN.SalesOrderId
+left join TRN.SecondCharacteristics SC on SC.Id = TRN.SKU2Id AND sc.SalesOrderId = TRN.SalesOrderId
+where TRN.SalesOrderId = '" + SO + "' and TRN.SKU1Id = '" + SKU1 + "' and TRN.SKU2Id = '" + SKU2 + "' and ITY.Id = '" + InspectionTypeId  + "' GROUP BY TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id , ITY.Id , SC.Qty;"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
 
         [HttpPost]
         public string SaveInspection([FromBody] IEnumerable<InspectionModel> DataToSave)
