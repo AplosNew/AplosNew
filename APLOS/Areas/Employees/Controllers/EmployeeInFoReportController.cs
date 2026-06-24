@@ -3153,7 +3153,7 @@ ORDER BY B.EmpCategory,B.Division";
             sheet.Name = "Voucher";
 
 
-            reportFileName = "EmployeeWiseProduction" + toDate.ToString("dd-MMM-yyyy");
+            reportFileName = "AttendanceVerificationStatus" + toDate.ToString("dd-MMM-yyyy");
 
             var dsLocal = GetAttendanceVerificationStatusSQL(fromDate, toDate, yesNo);
 
@@ -3207,8 +3207,8 @@ ORDER BY B.EmpCategory,B.Division";
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "DOS", 8); colDOS = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Employeestatus", 8); colEmployeestatus = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "EmployeeCurrentStatus", 8); colEmployeeCurrentStatus = xlsCol; xlsCol++;
-            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "GenderID", 8); colGenderID = xlsCol; xlsCol++;
-            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Cellphnno", 8); colcellphnno = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Gender", 8); colGenderID = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "CellPhone", 8); colcellphnno = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Department", 8); colDepartment = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Section", 8); colSection = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "SubSection", 12); colSubSection = xlsCol; xlsCol++;
@@ -3216,14 +3216,14 @@ ORDER BY B.EmpCategory,B.Division";
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "GivenDesignation", 8); colGivenDesignation = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "BudgetCode", 15); colBudgetCode = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "PositionCode", 8); colPositionCode = xlsCol; xlsCol++;
-            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "PLant", 8); colPLant = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Plant", 8); colPLant = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "AplosId", 8); colAplosId = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Division", 8); colDivision = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "MBActive", 8); colMBActive = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "EmploymentType", 8); colEmploymentType = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "AccountGroup", 8); colAccountGroup = xlsCol; xlsCol++;
-            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Linename", 8); colLinename = xlsCol; xlsCol++;
-            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Skilltype", 8); colSkilltype = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "LineName", 8); colLinename = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "SkillType", 8); colSkilltype = xlsCol; xlsCol++;
             colLast = xlsCol;
 
             if (dsLocal.Rows.Count > 0)
