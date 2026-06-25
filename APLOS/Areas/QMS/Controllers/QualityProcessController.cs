@@ -76,6 +76,11 @@ namespace Aplos.Areas.QMS.Controllers
         {
             return View();
         }
+
+        public ActionResult DefectMaster()
+        {
+            return View();
+        }
         #endregion Pages
 
         [AllowAnonymous]
@@ -2085,7 +2090,110 @@ WHERE S.InspectionTypeId='"+ imageInspectionTypeId + "'";
 
         #endregion
 
+        #region DefectMaster
 
+        [HttpPost]
+        public ActionResult GetDefectMasterList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (SELECT * FROM HKP.DefectMaster) AS TEMP WHERE " + strkey + " order by SrNo";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetDefectMasterAutoSequence()
+        {
+            return Json(GetDefectMasterSequence(), JsonRequestBehavior.AllowGet);
+        }
+        private double GetDefectMasterSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(SrNo),0) AS SrNo FROM HKP.DefectMaster");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["SrNo"].ToString()) + 1;
+
+            return 1;
+        }
+        [HttpPost]
+        public JsonResult CreateDefectMaster(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from HKP.DefectMaster where DefectCode='" + data["DefectCode"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Code already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from HKP.DefectMaster where DefectNames='" + data["DefectNames"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Defect Names already exists!!!");
+
+
+                con.OpenDataSetThroughAdapter("select * from HKP.DefectMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("DefectMaster", out _Id);
+
+                    data["Id"] = "DM" + _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Sequence = GetDefectMasterSequence(), Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        public ActionResult DeleteDefectMaster(string id)
+        {
+           
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from HKP.DefectMaster where id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Sequence = GetDefectMasterSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+        #endregion
 
     }
     public class ImageDefect

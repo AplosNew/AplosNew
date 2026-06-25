@@ -7,6 +7,7 @@ namespace Library.Model.IE
     {
         #region Scalar Properties
         public string Id { get; set; }
+        public string AreaCode { get; set; }
         public string ProductionBulletinTemplateMasterId { get; set; }
         public decimal Sequence { get; set; }
         public string OperationVariationId { get; set; }

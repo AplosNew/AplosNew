@@ -3883,9 +3883,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             $scope.calculatedBulletinModel.ProductionBulletinTemplateMasterId = $scope.BulletinTemplateMasterId;
 
             CheckSequence();
-            for (var i = 0; i < $scope.operationList.length; i++) {
-                $scope.operationList[i].ProductionBulletinTemplateMasterId = $scope.BulletinTemplateMasterId;
-            }
+           
             $http({
                 method: 'POST',
                 url: $scope.saveOperationUrl,
