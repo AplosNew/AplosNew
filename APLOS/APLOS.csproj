@@ -2046,6 +2046,7 @@
     <Content Include="Areas\Productions\Scripts\MasterPlanSetUpController.js" />
     <Content Include="Areas\Products\Scripts\IndependentServiceGRNController.js" />
     <Content Include="Areas\QMS\Scripts\DefectMarkerController.js" />
+    <Content Include="Areas\QMS\Scripts\DefectMasterController.js" />
     <Content Include="Areas\QMS\Scripts\ImageInspectionTypeController.js" />
     <Content Include="Areas\QMS\Scripts\ImageMasterController.js" />
     <Content Include="Areas\QMS\Scripts\LWQRUpdateController.js" />
@@ -5320,6 +5321,7 @@
     <Content Include="Areas\QMS\Views\QualityProcess\ImageMaster.cshtml" />
     <Content Include="Areas\QMS\Views\QualityProcess\Inspection.cshtml" />
     <Content Include="Areas\QMS\Views\QualityProcess\ImageInspectionType.cshtml" />
+    <Content Include="Areas\QMS\Views\QualityProcess\DefectMaster.cshtml" />
     <None Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>PayrollsDataSet.Designer.cs</LastGenOutput>
