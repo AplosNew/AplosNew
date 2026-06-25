@@ -14716,6 +14716,10 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
                         dr["AreaCode"] = item.AreaCode;
                         dr["OperationId"] = item.OperationId;
                         dr["DefectId"] = item.DefectId;
+                        dr["QRCODE"] = item.QRCODE;
+                        dr["ISResolve"] = item.ISResolve;
+                        dr["PassQty"] = item.PassQty;
+                        dr["RejectQty"] = item.RejectQty;
                         dr["Remarks"] = item.Remarks;
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = DateTime.Now.ToString();
@@ -16796,6 +16800,10 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
         public string AreaCode { get; set; }
         public string OperationId { get; set; }
         public string DefectId { get; set; }
+        public string QRCODE { get; set; }
+        public string ISResolve { get; set; }
+        public string PassQty { get; set; }
+        public string RejectQty { get; set; }
         public string Remarks { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
