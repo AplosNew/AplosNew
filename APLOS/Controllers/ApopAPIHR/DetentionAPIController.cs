@@ -2301,10 +2301,10 @@ left join InspectionUserApplicable IUA on IUA.InspectionTypeId = IT.Id"));
             {
                 return Json(_sqlRepository.GetDataTable(@"SELECT TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id,ITY.Id InspectionTypeId,
       Convert(numeric(18),SUM(ISNULL(ITG.Qty,0))) AS TotalQty,
-   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='PASS' THEN ISNULL(ITG.Qty,0) else 0 END )) AS PassedQty,
+   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='PASS' THEN ISNULL(ITG.Qty,0) when ITEL.UserName='ALTER' THEN ISNULL(ITG.PassQty,0) else 0 END )) AS PassedQty,
    Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='ALTER' THEN ISNULL(ITG.Qty,0) else 0 END)) AS AlteredQty,
    Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='RECHECK' THEN ISNULL(ITG.Qty,0) else 0 END)) AS RecheckQty,
-   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='REJECT' THEN ISNULL(ITG.Qty,0) else 0 END)) AS RejectedQty
+   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='REJECT' THEN ISNULL(ITG.Qty,0)  when ITEL.UserName='ALTER' THEN ISNULL(ITG.RejectQty,0) else 0 END)) AS RejectedQty
 FROM dbo.InspectionTypeEnteryLevel ITEL
 JOIN TRN.InspectionTranChild TRN ON TRN.InspectionTypeEnteryLevelId = ITEL.Id
 LEFT JOIN dbo.InspectionTranGrandChild ITG ON ITG.InspectionTranChildId = TRN.Id
@@ -2336,7 +2336,7 @@ where TRN.SalesOrderId = '" + SO + "' and TRN.SKU1Id = '" + SKU1 + "' and TRN.SK
             {
                 return Json(_sqlRepository.GetDataTable(@"SELECT TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id,ITY.Id InspectionTypeId,
        Convert(numeric(18),SUM(ISNULL(ITG.Qty,0))) AS TotalQty,
-   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='PASS' THEN ISNULL(ITG.Qty,0) else 0 END )) AS PassedQty,
+   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='PASS' THEN ISNULL(ITG.Qty,0)  when ITEL.UserName='ALTER' THEN ISNULL(ITG.PassQty,0) else 0 END )) AS PassedQty,
    Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName <> 'PASS' THEN ISNULL(ITG.Qty,0) else 0 END)) AS InspectedQty
 FROM dbo.InspectionTypeEnteryLevel ITEL
 JOIN TRN.InspectionTranChild TRN ON TRN.InspectionTypeEnteryLevelId = ITEL.Id
