@@ -2387,6 +2387,32 @@ where PB.ProductionOrderId = '" + productionorderid + "'"));
 
         }
 
+        public IHttpActionResult GetOperation(string POID, string AreaCode)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select PBT.OperationVariationId OperationId ,OV.UserName Operation , PBT.AreaCode  from [TRN].[ProductionBulletinTemplateDetail] PBT
+left join [TRN].[ProductionBulletinTemplateMaster] PBM on PBM.Id = PBT.ProductionBulletinTemplateMasterId
+Left join [TRN].[ProductionBulletinTemplate] PB on PB.Id = PBM.ProductionBulletinTemplateId
+left join [MST].[OperationVariation] OV on OV.Id = PBT.OperationVariationId
+where PB.ProductionOrderid = '" + POID + "' and PBT.AreaCode = '" + AreaCode + "'"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
 
         [HttpPost]
         public string SaveInspection([FromBody] IEnumerable<InspectionModel> DataToSave)
