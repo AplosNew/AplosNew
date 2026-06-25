@@ -2367,7 +2367,7 @@ where TRN.SalesOrderId = '" + SO + "' and TRN.SKU1Id = '" + SKU1 + "' and TRN.SK
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"Select PA.Id Id , PA.Code , PA.AreaName , PA.ImageName , PA.ImageID , PA.Zone , PA.XAxis ,PA.YAxis
+                return Json(_sqlRepository.GetDataTable(@"Select PA.Id Id , PA.Code , PA.AreaName , PA.ImageName , PA.Id ImageID , PA.Zone , PA.XAxis ,PA.YAxis
 ,ImageUrl  = CONCAT('http://4.187.191.18:8080/pratibhaPOP/POPResources/DefectPic/' , PA.ImageName )
 from [dbo].[ProductArea] PA
 left join [MST].[ImageMaster] IM on IM.Id = PA.ImageMasterId
@@ -2413,6 +2413,27 @@ where PB.ProductionOrderid = '" + POID + "' and PBT.AreaCode = '" + AreaCode + "
 
         }
 
+        public IHttpActionResult GetDefactMaster()
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select Id, SrNo,DefectCategory,DefectCode,Remarks,DefectNames,DefectsLocalName , ProcessId , QualityProcessId,TypesofDefects , Zone from [HKP].[DefectMaster]"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
 
         [HttpPost]
         public string SaveInspection([FromBody] IEnumerable<InspectionModel> DataToSave)
