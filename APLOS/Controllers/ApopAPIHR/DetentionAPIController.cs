@@ -2301,10 +2301,10 @@ left join InspectionUserApplicable IUA on IUA.InspectionTypeId = IT.Id"));
             {
                 return Json(_sqlRepository.GetDataTable(@"SELECT TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id,ITY.Id InspectionTypeId,
       Convert(numeric(18),SUM(ISNULL(ITG.Qty,0))) AS TotalQty,
-   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='PASS' THEN ISNULL(ITG.Qty,0) else 0 END )) AS PassedQty,
+   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='PASS' THEN ISNULL(ITG.Qty,0) when ITEL.UserName='ALTER' THEN ISNULL(ITG.PassQty,0) else 0 END )) AS PassedQty,
    Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='ALTER' THEN ISNULL(ITG.Qty,0) else 0 END)) AS AlteredQty,
    Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='RECHECK' THEN ISNULL(ITG.Qty,0) else 0 END)) AS RecheckQty,
-   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='REJECT' THEN ISNULL(ITG.Qty,0) else 0 END)) AS RejectedQty
+   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='REJECT' THEN ISNULL(ITG.Qty,0)  when ITEL.UserName='ALTER' THEN ISNULL(ITG.RejectQty,0) else 0 END)) AS RejectedQty
 FROM dbo.InspectionTypeEnteryLevel ITEL
 JOIN TRN.InspectionTranChild TRN ON TRN.InspectionTypeEnteryLevelId = ITEL.Id
 LEFT JOIN dbo.InspectionTranGrandChild ITG ON ITG.InspectionTranChildId = TRN.Id
@@ -2336,7 +2336,7 @@ where TRN.SalesOrderId = '" + SO + "' and TRN.SKU1Id = '" + SKU1 + "' and TRN.SK
             {
                 return Json(_sqlRepository.GetDataTable(@"SELECT TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id,ITY.Id InspectionTypeId,
        Convert(numeric(18),SUM(ISNULL(ITG.Qty,0))) AS TotalQty,
-   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='PASS' THEN ISNULL(ITG.Qty,0) else 0 END )) AS PassedQty,
+   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='PASS' THEN ISNULL(ITG.Qty,0)  when ITEL.UserName='ALTER' THEN ISNULL(ITG.PassQty,0) else 0 END )) AS PassedQty,
    Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName <> 'PASS' THEN ISNULL(ITG.Qty,0) else 0 END)) AS InspectedQty
 FROM dbo.InspectionTypeEnteryLevel ITEL
 JOIN TRN.InspectionTranChild TRN ON TRN.InspectionTypeEnteryLevelId = ITEL.Id
@@ -2367,7 +2367,7 @@ where TRN.SalesOrderId = '" + SO + "' and TRN.SKU1Id = '" + SKU1 + "' and TRN.SK
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"Select PA.Id Id , PA.Code , PA.AreaName , PA.ImageName , PA.ImageID , PA.Zone , PA.XAxis ,PA.YAxis
+                return Json(_sqlRepository.GetDataTable(@"Select PA.Id Id , PA.Code , PA.AreaName , PA.ImageName , PA.Id ImageID , PA.Zone , PA.XAxis ,PA.YAxis
 ,ImageUrl  = CONCAT('http://4.187.191.18:8080/pratibhaPOP/POPResources/DefectPic/' , PA.ImageName )
 from [dbo].[ProductArea] PA
 left join [MST].[ImageMaster] IM on IM.Id = PA.ImageMasterId
@@ -2387,6 +2387,53 @@ where PB.ProductionOrderId = '" + productionorderid + "'"));
 
         }
 
+        public IHttpActionResult GetOperation(string POID, string AreaCode)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select PBT.OperationVariationId OperationId ,OV.UserName Operation , PBT.AreaCode  from [TRN].[ProductionBulletinTemplateDetail] PBT
+left join [TRN].[ProductionBulletinTemplateMaster] PBM on PBM.Id = PBT.ProductionBulletinTemplateMasterId
+Left join [TRN].[ProductionBulletinTemplate] PB on PB.Id = PBM.ProductionBulletinTemplateId
+left join [MST].[OperationVariation] OV on OV.Id = PBT.OperationVariationId
+where PB.ProductionOrderid = '" + POID + "' and PBT.AreaCode = '" + AreaCode + "'"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetDefactMaster()
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select Id, SrNo,DefectCategory,DefectCode,Remarks,DefectNames,DefectsLocalName , ProcessId , QualityProcessId,TypesofDefects , Zone from [HKP].[DefectMaster]"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
 
         [HttpPost]
         public string SaveInspection([FromBody] IEnumerable<InspectionModel> DataToSave)
