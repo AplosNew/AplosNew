@@ -1339,6 +1339,7 @@ upanelApp.controller("userfavouriteReportController", userfavouriteReportControl
 upanelApp.controller("ImageMasterController", ImageMasterController)
 upanelApp.controller("InspectionTransactionController", InspectionTransactionController)
 upanelApp.controller("ImageInspectionTypeController", ImageInspectionTypeController)
+upanelApp.controller("AttendanceVerificationStatusController", AttendanceVerificationStatusController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

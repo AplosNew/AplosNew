@@ -392,8 +392,16 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
 
         const canvas = document.getElementById('defectCanvas');
         const rect = canvas.getBoundingClientRect();
-        const clickX = (event.clientX - rect.left) / rect.width;
-        const clickY = (event.clientY - rect.top) / rect.height;
+        //const clickX = (event.clientX - rect.left) / rect.width;
+        //const clickY = (event.clientY - rect.top) / rect.height;
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
+        const x = (event.clientX - rect.left) * scaleX;
+        const y = (event.clientY - rect.top) * scaleY;
+
+        const clickX = x / canvas.width;
+        const clickY = y / canvas.height;
 
         // detect if clicking an existing defect
         const clickedDefect = $scope.defects.find(d => {

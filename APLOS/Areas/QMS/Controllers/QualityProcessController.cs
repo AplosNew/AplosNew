@@ -1796,9 +1796,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                 DataSet dsEntity;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from InspectionTypeEnteryLevel where InspectionTypeId='" + data["InspectionTypeId"] + "' ", out dsEntity, false, "1");
-
-                string _Id = "";
+                con.OpenDataSetThroughAdapter("select * from InspectionTypeEnteryLevel where Id='"+data["Id"]+"' and InspectionTypeId='" + data["InspectionTypeId"] + "' ", out dsEntity, false, "1");
 
                 #region data update
                 if (dsEntity.Tables[0].Rows.Count == 0)
@@ -1807,7 +1805,6 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                 }
                 else
                 {
-                    _Id = data["Id"].ToString();
                     EditRow(dsEntity.Tables[0].Rows[0], data);
                 }
                 #endregion data update

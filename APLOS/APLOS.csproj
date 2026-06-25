@@ -1993,6 +1993,7 @@
     <Content Include="Areas\Employees\Scripts\EmployeeBulkUploadFNFController.js" />
     <Content Include="Areas\Employees\Scripts\CasteController.js" />
     <Content Include="Areas\Employees\Scripts\employeeAttdnTrendReportController.js" />
+    <Content Include="Areas\Employees\Scripts\AttendanceVerificationStatusController.js" />
     <Content Include="Areas\Employees\Scripts\userfavouriteReportController.js" />
     <Content Include="Areas\Employees\Scripts\favouriteReportController.js" />
     <Content Include="Areas\Employees\Scripts\userDefineReportController.js" />
@@ -5124,6 +5125,7 @@
     <Content Include="Areas\Employees\Views\EmployeeInFoReport\Trend.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeeInFoReport\Filter.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeeInFoReport\UserFilter.cshtml" />
+    <Content Include="Areas\Employees\Views\EmployeeInFoReport\AttendVerificationStatus.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
