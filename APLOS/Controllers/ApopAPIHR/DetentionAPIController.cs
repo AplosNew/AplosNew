@@ -2368,7 +2368,7 @@ where TRN.SalesOrderId = '" + SO + "' and TRN.SKU1Id = '" + SKU1 + "' and TRN.SK
             try
             {
                 return Json(_sqlRepository.GetDataTable(@"Select PA.Id Id , PA.Code , PA.AreaName , PA.ImageName , PA.Id ImageID , PA.Zone , PA.XAxis ,PA.YAxis
-,ImageUrl  = CONCAT('http://4.187.191.18:8080/pratibhaPOP/POPResources/DefectPic/' , PA.ImageName )
+,ImageUrl  = CONCAT('/POPResources/DefectPic/' , PA.ImageName )
 from [dbo].[ProductArea] PA
 left join [MST].[ImageMaster] IM on IM.Id = PA.ImageMasterId
 left join [MST].[ImageProduct] IMP on IMP.ImageMasterId = IM.Id
@@ -2475,6 +2475,45 @@ where PB.ProductionOrderid = '" + POID + "' and PBT.AreaCode = '" + AreaCode + "
             {
                 return ex.ToString();
             }
+        }
+
+        [HttpPost]
+        public string PostUpdateInspectionTranGrand([FromBody] IEnumerable<InspectionTranGrandModel> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostUpdateInspectionTranGrand(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        public IHttpActionResult GetQRCODEDetails(string QRCodeDet)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select ITGC.Id , ITGC.QRCODE , ITGC.ISResolve , ITGC.Qty from [dbo].[InspectionTranGrandChild] ITGC
+left join [TRN].[InspectionTranChild] ITC on ITC.Id = ITGC.InspectionTranChildId
+left join [TRN].[Inspection] IT on IT.Id = ITC.InspectionId
+where ITGC.QRCODE = '" + QRCodeDet + "'"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
         }
 
         #endregion Stich

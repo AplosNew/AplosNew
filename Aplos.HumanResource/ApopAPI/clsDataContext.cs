@@ -14740,7 +14740,55 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
             }
         }
 
+        public string PostUpdateInspectionTranGrand(IEnumerable<InspectionTranGrandModel> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<InspectionTranGrandModel> items = DataToSave.ToList();
 
+                var itemss = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from [dbo].[InspectionTranGrandChild] where Id='" + itemss[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (InspectionTranGrandModel item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                        // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["PassQty"] = item.PassQty;
+                        dr["RejectQty"] = item.RejectQty;
+                        dr["Qty"] = item.Qty;
+                        dr["ISResolve"] = item.ISResolve;
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
         #endregion 
 
     }
