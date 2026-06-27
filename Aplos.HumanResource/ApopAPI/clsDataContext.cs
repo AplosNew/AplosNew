@@ -14720,6 +14720,7 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
                         dr["ISResolve"] = item.ISResolve;
                         dr["PassQty"] = item.PassQty;
                         dr["RejectQty"] = item.RejectQty;
+                        dr["RecheckQty"] = item.RecheckQty;
                         dr["Remarks"] = item.Remarks;
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = DateTime.Now.ToString();
@@ -14765,6 +14766,7 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
 
                         dr["PassQty"] = item.PassQty;
                         dr["RejectQty"] = item.RejectQty;
+                        dr["RecheckQty"] = item.RecheckQty;
                         dr["Qty"] = item.Qty;
                         dr["ISResolve"] = item.ISResolve;
                         dr["UpdatedBy"] = item.UpdatedBy;
@@ -16852,6 +16854,7 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
         public string ISResolve { get; set; }
         public string PassQty { get; set; }
         public string RejectQty { get; set; }
+        public string RecheckQty { get; set; }
         public string Remarks { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
