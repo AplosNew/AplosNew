@@ -2522,6 +2522,67 @@ where ITGC.QRCODE = '" + QRCodeDet + "'"));
 
         }
 
+        public IHttpActionResult GetRecheckDetail(string SO, string SKU1, string SKU2)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"
+ SELECT
+    A.*,
+    D.DefectNames,
+    O.OperationNames
+FROM
+(
+    SELECT DISTINCT
+        ITGC.Id,
+        ITGC.QRCODE,
+        ITGC.ISResolve,
+        ITGC.Qty,
+        SO.LineItemReference,
+        ITY.UserName AS InspectionType,
+        ITGC.DefectId, ITGC.AreaCode,
+        ITGC.OperationId
+    FROM dbo.InspectionTranGrandChild ITGC
+    LEFT JOIN TRN.InspectionTranChild ITC
+        ON ITC.Id = ITGC.InspectionTranChildId
+    LEFT JOIN TRN.Inspection IT
+        ON IT.Id = ITC.InspectionId
+    LEFT JOIN TRN.SalesOrder SO
+        ON SO.Id = ITC.SalesOrderId
+    LEFT JOIN dbo.InspectionType ITY
+        ON ITY.Id = IT.InspectionTypeId
+		where ITC.Salesorderid = '" + SO + "' and ITC.SKU1Id = '" + SKU1 + "' and ITC.SKU2Id = '" + SKU2 + @"' and ITGC.RecheckQty > 0 ) A
+OUTER APPLY
+(
+    SELECT STRING_AGG(DM.DefectNames, ', ') AS DefectNames
+    FROM STRING_SPLIT(A.DefectId, ',') S
+    INNER JOIN HKP.DefectMaster DM
+        ON DM.Id = LTRIM(RTRIM(S.value))
+) D
+OUTER APPLY
+(
+    SELECT STRING_AGG(OV.UserName, ', ') AS OperationNames
+    FROM STRING_SPLIT(A.OperationId, ',') O
+    INNER JOIN MST.OperationVariation OV
+        ON OV.Id = LTRIM(RTRIM(O.value))
+) O; "));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
         #endregion Stich
 
         #region Attendance tracker
