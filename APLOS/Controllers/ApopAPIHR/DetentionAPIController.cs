@@ -2189,10 +2189,10 @@ where PO.ProductionStatusId = '20252'  and PO.PlantId = '" + Plantid + "'"));
             try
             {
                 return Json(_sqlRepository.GetDataTable(@"Select Distinct FC.Id SKU1Id , SC.Id SKU2Id , FC.SalesOrderId SO , Chv.UserName Color , Chvs.UserName Size , FC.Qty TotalQty , SC.Qty CSWiseQty , SC.ValueFreeText Dia   
-,FeedingQty =  (Select Sum(ITGC.Qty) FeedingQty from [TRN].[InspectionTranChild]  ITC
+,FeedingQty = isnull( (Select Sum(ITGC.Qty) FeedingQty from [TRN].[InspectionTranChild]  ITC
 				left join [dbo].[InspectionTranGrandChild] ITGC on ITGC.InspectionTranChildId = ITC.Id
 				where ITC.SalesOrderId = FC.SalesOrderId and ITC.SKU1Id = FC.Id and ITC.SKU2Id = SC.Id and ITC.InspectionTypeEnteryLevelId = '8'
-				group by ITC.SalesOrderId,ITC.SKU1Id,ITC.SKU2Id)
+				group by ITC.SalesOrderId,ITC.SKU1Id,ITC.SKU2Id),0)
 --,ITE.UserName Button ,Concat(Convert(numeric(18) , Isnull(ITG.Qty,0)) , '/',Convert(numeric(18), SC.Qty) ) QTY 
 from TRN.FirstCharacteristics FC 
 left join TRN.SecondCharacteristics SC on SC.FirstCharacteristicsId = FC.Id
@@ -2503,9 +2503,11 @@ where PB.ProductionOrderid = '" + POID + "' and PBT.AreaCode = '" + AreaCode + "
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"Select ITGC.Id , ITGC.QRCODE , ITGC.ISResolve , ITGC.Qty from [dbo].[InspectionTranGrandChild] ITGC
+                return Json(_sqlRepository.GetDataTable(@"Select Distinct ITGC.Id , ITGC.QRCODE , ITGC.ISResolve , ITGC.Qty , so.LineItemReference , ITY.UserName InspectionType    from [dbo].[InspectionTranGrandChild] ITGC
 left join [TRN].[InspectionTranChild] ITC on ITC.Id = ITGC.InspectionTranChildId
 left join [TRN].[Inspection] IT on IT.Id = ITC.InspectionId
+left join trn.SalesOrder so on so.Id = ITC.SalesOrderId
+left join [dbo].[InspectionType] ITY on ITY.Id = IT.InspectionTypeId
 where ITGC.QRCODE = '" + QRCodeDet + "'"));
 
             }
