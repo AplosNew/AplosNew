@@ -21,6 +21,9 @@ using System.Net.Http;
 using Library.MaterialManagement.Material;
 using HttpPostAttribute = System.Web.Http.HttpPostAttribute;
 using static HRService.clsDataContext;
+using System.Threading.Tasks;
+using System.Linq;
+using System.IO;
 
 namespace Aplos.Controllers.ApopAPIHR
 {
@@ -2688,9 +2691,9 @@ SELECT
 
         // photo upload
 
-      /*  [HttpPost]
+        [HttpPost]
 
-        public async  IHttpActionResult UploadPhoto()
+        public async  Task<IHttpActionResult> PostUploadPhoto()
         {
             try
             {
@@ -2733,7 +2736,7 @@ SELECT
             {
                 return InternalServerError(ex);
             }
-        }*/
+        }
 
         #endregion Stich
 
