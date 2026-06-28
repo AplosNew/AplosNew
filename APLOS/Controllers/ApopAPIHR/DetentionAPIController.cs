@@ -21,6 +21,9 @@ using System.Net.Http;
 using Library.MaterialManagement.Material;
 using HttpPostAttribute = System.Web.Http.HttpPostAttribute;
 using static HRService.clsDataContext;
+using System.Threading.Tasks;
+using System.Linq;
+using System.IO;
 
 namespace Aplos.Controllers.ApopAPIHR
 {
@@ -2581,6 +2584,158 @@ OUTER APPLY
                 throw new HttpResponseException(resp);
             }
 
+        }
+
+
+        public IHttpActionResult GetValidateData(string SO, string SKU1, string SKU2 ,string  WorkCenterMasterId , string InspectionType)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"DECLARE @SalesOrderId VARCHAR(50)='" + SO + @"';
+DECLARE @SKU1Id VARCHAR(50)='" + SKU1 + @"';
+DECLARE @SKU2Id VARCHAR(50)='" + SKU2 + @"';
+DECLARE @WorkCenterMasterId VARCHAR(50)='" + WorkCenterMasterId  + @"';
+DECLARE @InspectionType VARCHAR(50)='" + InspectionType + @"';   -- EOL / Finished / Final Output
+
+DECLARE @Today DATE = CAST(GETDATE() AS DATE);
+
+WITH Qty AS
+(
+    SELECT
+        ITY.Id AS InspectionType,
+        CAST(ITGC.AddedDate AS DATE) AS TranDate,
+        SUM(ISNULL((ITGC.Qty + ITGC.PassQty + ITGC.RecheckQty + ITGC.RejectQty),0)) AS Qty
+    FROM TRN.InspectionTranChild ITC
+    INNER JOIN dbo.InspectionTranGrandChild ITGC
+        ON ITGC.InspectionTranChildId = ITC.Id
+    INNER JOIN TRN.Inspection IT
+        ON IT.Id = ITC.InspectionId
+    INNER JOIN dbo.InspectionType ITY
+        ON ITY.Id = IT.InspectionTypeId
+    WHERE ITC.SalesOrderId = @SalesOrderId
+      AND ITC.SKU1Id = @SKU1Id
+      AND ITC.SKU2Id = @SKU2Id and IT.WorkCenterMasterId = @WorkCenterMasterId
+    GROUP BY
+        ITY.Id,
+        CAST(ITGC.AddedDate AS DATE)
+),
+Summary AS
+(
+    SELECT
+        SUM(CASE WHEN InspectionType='24' AND TranDate<@Today THEN Qty ELSE 0 END) AS PrevLF,
+        SUM(CASE WHEN InspectionType='1'          AND TranDate<@Today THEN Qty ELSE 0 END) AS PrevEOL,
+        SUM(CASE WHEN InspectionType='21'     AND TranDate<@Today THEN Qty ELSE 0 END) AS PrevFinished,
+        SUM(CASE WHEN InspectionType='22' AND TranDate<@Today THEN Qty ELSE 0 END) AS PrevFinal,
+
+        SUM(CASE WHEN InspectionType='24' AND TranDate=@Today THEN Qty ELSE 0 END) AS TodayLF,
+        SUM(CASE WHEN InspectionType='1'          AND TranDate=@Today THEN Qty ELSE 0 END) AS TodayEOL,
+        SUM(CASE WHEN InspectionType='21'     AND TranDate=@Today THEN Qty ELSE 0 END) AS TodayFinished,
+        SUM(CASE WHEN InspectionType='22' AND TranDate=@Today THEN Qty ELSE 0 END) AS TodayFinal
+    FROM Qty
+)
+
+
+SELECT
+    AllowedQty =
+    CASE
+        WHEN @InspectionType='1'
+            THEN ISNULL(TodayLF,0) + (ISNULL(PrevLF,0) - ISNULL(PrevEOL,0))
+
+        WHEN @InspectionType='21'
+            THEN ISNULL(TodayEOL,0) + (ISNULL(PrevEOL,0) - ISNULL(PrevFinished,0))
+
+        WHEN @InspectionType='22'
+            THEN ISNULL(TodayFinished,0) + (ISNULL(PrevFinished,0) - ISNULL(PrevFinal,0))
+    END,
+
+    AlreadyEnteredToday =
+    CASE
+        WHEN @InspectionType='1'
+            THEN ISNULL(TodayEOL,0)
+
+        WHEN @InspectionType='21'
+            THEN ISNULL(TodayFinished,0)
+
+        WHEN @InspectionType='22'
+            THEN ISNULL(TodayFinal,0)
+    END,
+
+    PreviousWIP =
+    CASE
+        WHEN @InspectionType='1'
+            THEN ISNULL(PrevLF,0) - ISNULL(PrevEOL,0)
+
+        WHEN @InspectionType='21'
+            THEN ISNULL(PrevEOL,0) - ISNULL(PrevFinished,0)
+
+        WHEN @InspectionType='22'
+            THEN ISNULL(PrevFinished,0) - ISNULL(PrevFinal,0)
+    END 
+	from Summary"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        // photo upload
+
+        [HttpPost]
+
+        public async  Task<IHttpActionResult> PostUploadPhoto()
+        {
+            try
+            {
+                if (!Request.Content.IsMimeMultipartContent())
+                    return BadRequest();
+
+                var provider = new MultipartMemoryStreamProvider();
+                await Request.Content.ReadAsMultipartAsync(provider);
+
+                // Get Id
+                int id = Convert.ToInt32(await provider.Contents
+                    .First(x => x.Headers.ContentDisposition.Name.Trim('"') == "Id")
+                    .ReadAsStringAsync());
+
+                // Get Photo
+                var file = provider.Contents
+                    .First(x => x.Headers.ContentDisposition.FileName != null);
+
+                byte[] bytes = await file.ReadAsByteArrayAsync();
+
+                // Save as 123.jpg
+                string fileName = id + ".jpg";
+
+                string folderPath = @"F:\aPOP\Pratibha\IIS\POPResources\RejectPic\";
+
+                if (!Directory.Exists(folderPath))
+                    Directory.CreateDirectory(folderPath);
+
+                string fullPath = Path.Combine(folderPath, fileName);
+
+                File.WriteAllBytes(fullPath, bytes);
+
+                return Ok(new
+                {
+                    Success = true,
+                    FileName = fileName
+                });
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
 
         #endregion Stich
