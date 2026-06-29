@@ -2046,7 +2046,7 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
         #region Stich
 
 
-        public IHttpActionResult GetInspectionType()
+        public IHttpActionResult GetInspectionType(string Userid)
         {
             /* clsDataContext clsData = new clsDataContext();
              clsData.GetTNAReport(out List<TNAGetSet> activelists);
@@ -2054,7 +2054,10 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"Select Id Value , UserName Name from [dbo].[InspectionType]"));
+                return Json(_sqlRepository.GetDataTable(@"Select IT.Id Value , IT.UserName Name from [dbo].[InspectionType] IT 
+left join [dbo].[InspectionEmployeeApplicable]  ITE on ITE.InspectionTypeID = IT.Id
+left join sec.[user] SU on SU.EmployeeId = ITE.EmployeeId
+where SU.UserId = '" + Userid + "'"));
 
             }
             catch (Exception ex)
