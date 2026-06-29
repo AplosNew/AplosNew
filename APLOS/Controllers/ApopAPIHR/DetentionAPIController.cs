@@ -2344,6 +2344,7 @@ where TRN.SalesOrderId = '" + SO + "' and TRN.SKU1Id = '" + SKU1 + "' and TRN.SK
                 return Json(_sqlRepository.GetDataTable(@"SELECT TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id,ITY.Id InspectionTypeId,
        Convert(numeric(18),SUM(ISNULL(ITG.Qty,0))) AS TotalQty,
    Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='PASS' THEN ISNULL(ITG.Qty,0)  when ITEL.UserName='ALTER' THEN ISNULL(ITG.PassQty,0) else 0 END )) AS PassedQty,
+   convert(numeric(18),sum(Case when ITEL.UserName='ALTER' THEN ISNULL(ITG.RecheckQty,0) else 0 END )) RecheckQty,
    Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName <> 'PASS' THEN ISNULL((ITG.Qty + ITG.RejectQty + ITG.RecheckQty),0) else 0 END)) AS InspectedQty
 FROM dbo.InspectionTypeEnteryLevel ITEL
 JOIN TRN.InspectionTranChild TRN ON TRN.InspectionTypeEnteryLevelId = ITEL.Id
@@ -2608,7 +2609,7 @@ WITH Qty AS
     SELECT
         ITY.Id AS InspectionType,
         CAST(ITGC.AddedDate AS DATE) AS TranDate,
-        SUM(ISNULL((ITGC.Qty + ITGC.PassQty + ITGC.RecheckQty + ITGC.RejectQty),0)) AS Qty
+        SUM(ISNULL((Case when IEL.UserName = 'PASS' then  ITGC.Qty when IEL.UserName = 'ALTER' then ITGC.PassQty else 0 end),0)) AS Qty
     FROM TRN.InspectionTranChild ITC
     INNER JOIN dbo.InspectionTranGrandChild ITGC
         ON ITGC.InspectionTranChildId = ITC.Id
@@ -2616,6 +2617,7 @@ WITH Qty AS
         ON IT.Id = ITC.InspectionId
     INNER JOIN dbo.InspectionType ITY
         ON ITY.Id = IT.InspectionTypeId
+		inner join InspectionTypeEnteryLevel IEL on IEL.Id = ITC.InspectionTypeEnteryLevelId
     WHERE ITC.SalesOrderId = @SalesOrderId
       AND ITC.SKU1Id = @SKU1Id
       AND ITC.SKU2Id = @SKU2Id and IT.WorkCenterMasterId = @WorkCenterMasterId
