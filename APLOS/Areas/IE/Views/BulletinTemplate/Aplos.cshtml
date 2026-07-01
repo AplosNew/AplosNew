@@ -78,11 +78,11 @@
                     <input type="text" name="Bulletin Name" ng-model="bulletinTemplateNew.BulletinName" class="form-control" required tabindex="1" maxlength="50">
                 </div>
             </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Size Group<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Size Group</label>
+                <div class="col-sm-8">
                     <div class="select-style">
-                        <select name="Size Group" class="form-control" ng-model="bulletinTemplateNew.SizeGroupId" ng-options="item.Value as item.Text for item in sizeGroupList" tabindex="5" required>
+                        <select name="Size Group" class="form-control" ng-model="bulletinTemplateNew.SizeGroupId" ng-options="item.Value as item.Text for item in sizeGroupList" tabindex="5">
                             <option value="">--Select--</option>
                         </select>
                         @*<input ej-dropdownlist e-enablefiltersearch="true" allow-paging="true" allow-Adding="true" allow-Editing="true"

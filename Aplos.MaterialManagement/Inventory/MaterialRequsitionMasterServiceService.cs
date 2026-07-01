@@ -59,7 +59,7 @@ namespace Library.MaterialManagement.Inventory
 
         public MaterialRequsitionMasterServiceService(
             IRepositoryAsync<MaterialRequsitionMaster> materialRequsitionMaster
-             ,IRepositoryAsync<NotificationSetting> notificationSetting
+             , IRepositoryAsync<NotificationSetting> notificationSetting
             , IPKGeneratorService pkGeneratorService
             , IUnitOfWork unitOfWork
             , ISqlRepository sqlRepository
@@ -69,7 +69,7 @@ namespace Library.MaterialManagement.Inventory
             , IRepositoryAsync<Company> companyRepository
             , ISMTPConfigurationService smtpConfigurationService
             , IRepositoryAsync<MailLog> mailLogRepository
-            ,IRepositoryAsync<MailReceiverDetail> mailReceiverDetailRepository
+            , IRepositoryAsync<MailReceiverDetail> mailReceiverDetailRepository
             , IRepositoryAsync<EmployeeInformation> employeeInformationRepository
 
             ) : base(materialRequsitionMaster, unitOfWork, pkGeneratorService)
@@ -106,30 +106,31 @@ namespace Library.MaterialManagement.Inventory
             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(MaterialRequsitionMaster), out sID);
             return sID;
         }
-        
+
         public void InsertRequsition(MaterialRequsitionMaster entity)
         {
             try
             {
-                
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var plantId = _materialRequsitionRepository.SqlQuery<string>($"SELECT FilePrefix from org.plant WHERE Id ='{identity.PlantId}'").FirstOrDefault();
-                if (plantId == null)
-                {
-                    throw new CustomException("No Prefix Available for this Plant");
-                }
-                
-                
+                //var plantId = _materialRequsitionRepository.SqlQuery<string>($"SELECT FilePrefix from org.plant WHERE Id ='{identity.PlantId}'").FirstOrDefault();
+                //if (plantId == null)
+                //{
+                //    throw new CustomException("No Prefix Available for this Plant");
+                //}
+
+
                 var id = GetPK();
-                entity.Id = plantId + id;
-         
+                //entity.Id = plantId + id;
+                entity.Id = id;
+
                 AuditService.AddedLog(entity);
                 entity.ModelState = ModelState.Added;
                 _materialRequsitionMaster.Insert(entity);
                 var DailySendMailRequisition = _notificationSetting.SqlQuery<bool>(@"Select NotificationAfterCreation  from NotificationSetting Where BusinessFlow = 'MaterialRequistion'").FirstOrDefault();
                 if (DailySendMailRequisition == true)
                 {
-                   
+
                     DailySendMailRequisitionCheck(entity.CheckedBy, entity.AddedFromIP, "", entity.Id, entity.RequirmentType, entity.RequisitionType, entity.AddedBy);
                 }
 
@@ -137,7 +138,7 @@ namespace Library.MaterialManagement.Inventory
                 {
 
                 }
-                
+
                 _unitOfWork.SaveChanges();
             }
             catch (Exception ex)
@@ -153,7 +154,7 @@ namespace Library.MaterialManagement.Inventory
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                
+
                 entity.CompanyGroupId = identity.CompanyGroupId;
                 base.Update(entity);
                 DailySendMailRequisitionCheck(entity.CheckedBy, entity.AddedFromIP, "", entity.Id, entity.RequirmentType, entity.RequisitionType, entity.ReqEmpId);
@@ -401,7 +402,7 @@ namespace Library.MaterialManagement.Inventory
 
         public IEnumerable<object> GetListForPOApproval1UnApproved(string plantId)
         {
-             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             try
             {
@@ -467,7 +468,7 @@ namespace Library.MaterialManagement.Inventory
 
         public IEnumerable<object> GetListForPOApproval1Auth(string plantId)
         {
-             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             try
             {
@@ -960,10 +961,10 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-        
+
         public void PaymentHold(IEnumerable<PurchaseOrder> entities)
         {
-            
+
         }
 
         public IEnumerable<object> GetListByParty(string CompanyId, string AccountType)
@@ -1049,10 +1050,10 @@ namespace Library.MaterialManagement.Inventory
 
 
         #region Taufik RequisitionReport 
-        public void RequisitionReportby(string CompanyGroupId, string PlantId, string RequisitionId, string startDate, string endDate,string empId)
+        public void RequisitionReportby(string CompanyGroupId, string PlantId, string RequisitionId, string startDate, string endDate, string empId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            if (PlantId == null || PlantId == "undefined" || PlantId =="")
+            if (PlantId == null || PlantId == "undefined" || PlantId == "")
                 PlantId = identity.PlantId;
             ReportUtility ru = new ReportUtility();
 
@@ -1061,7 +1062,7 @@ namespace Library.MaterialManagement.Inventory
 
             var File = "";
 
-          
+
 
             fileName = "Requisition" + PlantId + ".docx";
             strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
@@ -1082,7 +1083,7 @@ namespace Library.MaterialManagement.Inventory
 
                 DataTable dsOrderMaster, dsServiceItems, dsTotalEmpWise;
                 dsOrderMaster = loadOrderReqqusitionMaster(RequisitionId);//sql
-                dsTotalEmpWise = LoadRequisitionMasterTotalEmpWise(RequisitionId, startDate,  endDate,  empId);
+                dsTotalEmpWise = LoadRequisitionMasterTotalEmpWise(RequisitionId, startDate, endDate, empId);
                 Dictionary<string, string> columns = new Dictionary<string, string>();
                 var poApprovedStatus = "";
 
@@ -1091,19 +1092,19 @@ namespace Library.MaterialManagement.Inventory
                 document.Replace("{AddedBy}", dsOrderMaster.Rows[0]["AddedBy"].ToString(), false, false);
                 document.Replace("{CheckedByName}", dsOrderMaster.Rows[0]["CheckedByName"].ToString(), false, false);
                 document.Replace("{AuthorizedByName}", dsOrderMaster.Rows[0]["AuthorizedByName"].ToString(), false, false);
-                
+
 
                 foreach (DataColumn item in dsOrderMaster.Columns)
                     columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
                 //dsServiceItems = loadServicerMasterItems(RequisitionId);
                 DataTable dsMaterialItems = requistionMaterialDetail(RequisitionId);
-                DataTable dsRequisitionForMonth = requistionForCurrentMonth(RequisitionId,startDate,endDate,empId);       
+                DataTable dsRequisitionForMonth = requistionForCurrentMonth(RequisitionId, startDate, endDate, empId);
 
                 var materialTotal = makeMaterialDetailsTable(document, dsMaterialItems, RequisitionId);//Material Details 
                 var materialTotal1 = makeRequisitionTotalTable(document, dsTotalEmpWise, RequisitionId);//Material Details 
                 var RequisitionForMonth = makeMonthlyRequisitionTable(document, dsRequisitionForMonth, RequisitionId);//Material Details 
 
-              
+
                 document.Replace("{GrandTotal}", (materialTotal).ToString("#,##0.00") + " " + dsMaterialItems.Rows[0]["CurrencyName"].ToString(), true, true);
                 document.Replace("{TotalInWords}", ru.InWord((materialTotal), dsMaterialItems.Rows[0]["CurrencyId"].ToString()), true, true);
 
@@ -1145,7 +1146,7 @@ namespace Library.MaterialManagement.Inventory
 
                 }
 
-                
+
                 //Region that is for Pdf.Document
                 DocToPDFConverter converter = new DocToPDFConverter();
 
@@ -1173,15 +1174,15 @@ namespace Library.MaterialManagement.Inventory
 
             }
             document.Close();
-             
+
         }
 
-		private object AppendText(double v)
-		{
-			throw new NotImplementedException();
-		}
+        private object AppendText(double v)
+        {
+            throw new NotImplementedException();
+        }
 
-		public DataTable loadOrderMasterItems(string OrderMasterID)
+        public DataTable loadOrderMasterItems(string OrderMasterID)
         {
             string strSQL;
             //clsConnection objCon;
@@ -1291,9 +1292,9 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-        public DataTable LoadRequisitionMasterTotalEmpWise(string MaterialMasterId,string startDate, string endDate,string empId) 
+        public DataTable LoadRequisitionMasterTotalEmpWise(string MaterialMasterId, string startDate, string endDate, string empId)
         {
-            
+
             string strSQL;
             //clsConnection objCon;
             try
@@ -1388,7 +1389,7 @@ namespace Library.MaterialManagement.Inventory
 
             int LasColumnIndex = 17;
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
-           
+
 
 
             WTable wTable = new WTable(document);
@@ -1667,7 +1668,7 @@ namespace Library.MaterialManagement.Inventory
 
             //tax codes merging (horizontal)
             ROW = 0;
-          
+
             ROW++;
             //for (int i = 0; i <= colTotalTaxableAmount; i++)
             //    wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
@@ -1691,7 +1692,7 @@ namespace Library.MaterialManagement.Inventory
         {
             string replaceString = "{materialRequsitionTotalDetail}";
             ReportUtility ru = new ReportUtility();
-            DataTable dsTax;      
+            DataTable dsTax;
             int LasColumnIndex = 4;
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
             WTable wTable = new WTable(document);
@@ -1709,7 +1710,7 @@ namespace Library.MaterialManagement.Inventory
             int colRo = COL; COL++;
             wTable.Rows[ROW].Cells[colRo].Width = 35;
 
-            
+
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total Requisition");
             range.ApplyCharacterFormat(FontBold);
@@ -1727,17 +1728,17 @@ namespace Library.MaterialManagement.Inventory
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total PO Amount");
             range.ApplyCharacterFormat(FontBold);
-            int colTotalPOAmount = COL; 
+            int colTotalPOAmount = COL;
             #endregion column headers
-            var NormalOverBudgetNew = "";    
+            var NormalOverBudgetNew = "";
             double totalValue = 0;
             int startRow = ROW;
             int sl = 0;
             for (int i = 0; i < dsTotalEmpWise.Rows.Count; i++)
             {
-                sl++;            
+                sl++;
                 wTable.AddRow();
-                WTableRow TROW = wTable.LastRow;      
+                WTableRow TROW = wTable.LastRow;
                 for (int CE = 0; CE < TROW.Cells.Count; CE++)
                 {
                     foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
@@ -1745,14 +1746,14 @@ namespace Library.MaterialManagement.Inventory
                         item.Text = "";
                     }
                 }
-                
+
 
                 TROW.Cells[colRo].AddParagraph().AppendText(sl.ToString());
 
-                TROW.Cells[colTotalRequisition].AddParagraph().AppendText(dsTotalEmpWise.Rows[i]["RequisitionId"].ToString());                
+                TROW.Cells[colTotalRequisition].AddParagraph().AppendText(dsTotalEmpWise.Rows[i]["RequisitionId"].ToString());
                 TROW.Cells[colCurrency].AddParagraph().AppendText(dsTotalEmpWise.Rows[i]["Code"].ToString());
                 TROW.Cells[colTotalRequisitionAmount].AddParagraph().AppendText(dsTotalEmpWise.Rows[i]["ReqTotalAmount"].ToString());
-                TROW.Cells[colTotalPOAmount].AddParagraph().AppendText(dsTotalEmpWise.Rows[i]["POTotalAmount"].ToString());           
+                TROW.Cells[colTotalPOAmount].AddParagraph().AppendText(dsTotalEmpWise.Rows[i]["POTotalAmount"].ToString());
 
 
                 ROW++;
@@ -1792,13 +1793,13 @@ namespace Library.MaterialManagement.Inventory
             #region Sub Total            
 
             double total = 0;//clsStdLib.dbl(dsTotalEmpWise.Compute("SUM(1)", "").ToString());
-            
+
             #endregion Total
 
 
             ROW++;
             #region Total Payable
-            
+
             #endregion Total Payable
 
 
@@ -1816,7 +1817,7 @@ namespace Library.MaterialManagement.Inventory
             for (int R = 0; R < wTable.Rows.Count; R++)
             {
                 WTableRow TROW = wTable.Rows[R];
-                
+
                 for (int CE = 0; CE < TROW.Cells.Count; CE++)
                 {
                     foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
@@ -1835,10 +1836,10 @@ namespace Library.MaterialManagement.Inventory
 
             //tax codes merging (horizontal)
             ROW = 0;
-            
+
             //primary cells merging (veritcal)
             ROW++;
-            
+
             IWParagraphStyle style3 = document.AddParagraphStyle("SubTotalStyle3");
             style3.CharacterFormat.Bold = true;
             style3.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Left;
@@ -2138,7 +2139,7 @@ namespace Library.MaterialManagement.Inventory
                     }
                 }
                 IParagraphItem p = TROW.Cells[colServiceName].AddParagraph().AppendText(dsServiceItems.Rows[i]["Service"].ToString());
-               
+
                 TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsServiceItems.Rows[i]["Amount"].ToString()).ToString("#,##0.00"));
 
                 totalValue += clsStdLib.dbl(dsServiceItems.Rows[i]["Amount"].ToString());
@@ -2592,12 +2593,12 @@ namespace Library.MaterialManagement.Inventory
                     return dateValue.ToString();
                 }
             }// End of function
-             ///<summary>
-             ///return day difference in integer. 
-             ///    Example 1: firstDate[Less Than]lastDate returns positive value
-             ///    Example 2: firstDate>lastDate returns negative value
-             ///    Example 3: firstDate=lastDate returns 0 [zero]**/
-             /// </summary>
+            ///<summary>
+            ///return day difference in integer. 
+            ///    Example 1: firstDate[Less Than]lastDate returns positive value
+            ///    Example 2: firstDate>lastDate returns negative value
+            ///    Example 3: firstDate=lastDate returns 0 [zero]**/
+            /// </summary>
             public static int dateDiff(string firstDate, string lastDate)
             {
 
@@ -3454,7 +3455,7 @@ WHERE IM.MaterialReqqusitionMasterId=inventoryReceiveId ";
 
                 PoValue = "0";
                 var Id = GetPK();
-               
+
                 var Status = "UnApproved";
                 var UpdatedBy = "";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -3596,7 +3597,7 @@ WHERE IM.MaterialReqqusitionMasterId=inventoryReceiveId ";
                 var CompanyGroupId = identity.CompanyGroupId;
                 var CompanyId = identity.CompanyId;
                 var PlantId = identity.PlantId;
-              
+
                 string _sql = "Update TRN.PurchaseOrder set IsApproved='0' where id='" + PoId + "'";
                 _sqlRepository.ExecuteSqlCommand(_sql);
                 string _sql1 = "Insert into TRN.PurchaseOrderApprovalLog(Id," +
@@ -3655,7 +3656,7 @@ WHERE IM.MaterialReqqusitionMasterId=inventoryReceiveId ";
                 var CompanyGroupId = identity.CompanyGroupId;
                 var CompanyId = identity.CompanyId;
                 var PlantId = identity.PlantId;
-               
+
                 string _sql = "Update TRN.PurchaseOrder set IsApproved='0' where id='" + PoId + "'";
                 _sqlRepository.ExecuteSqlCommand(_sql);
                 string _sql1 = "Insert into TRN.PurchaseOrderApprovalLog(Id," +
@@ -4371,7 +4372,7 @@ ORDER BY IR.ID DESC";
         {
             try
             {
-               
+
                 var sql = @"SELECT    MOI.Id
                                     , MOI.MasterOrderId
                                     , MOI.InquiryItemId
@@ -4467,7 +4468,7 @@ ORDER BY IR.ID DESC";
         }
 
 
-        public IEnumerable<object> GetCheckedByAndApprovedBY(string CheckedBy, string ApprovedBy) 
+        public IEnumerable<object> GetCheckedByAndApprovedBY(string CheckedBy, string ApprovedBy)
         {
 
             var sql = "";
@@ -4476,7 +4477,7 @@ ORDER BY IR.ID DESC";
                 //var DailySendMailRequisition = _notificationSetting.SqlQuery<bool>(@"Select NotificationAfterCreation  from NotificationSetting Where BusinessFlow = 'MaterialRequistion'").FirstOrDefault();
                 //if (DailySendMailRequisition == true)
                 //{
-                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (CheckedBy == "true" && ApprovedBy == "true")
                 {
                     sql = @"select E.SystemId As Value, (E.EmployeeCode+'-'+E.EmployeeName) As Text from dbo.AuthorizationConfig A 
@@ -4491,7 +4492,7 @@ ORDER BY IR.ID DESC";
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "false")
                 {
-                    
+
                 }
                 return _sqlRepository.GetDataCollection(sql);
 
@@ -4953,7 +4954,7 @@ ORDER BY IR.ID DESC";
                 }
                 else
                 {
-                    
+
                     sql = @"select x.Id
 	                                ,REPLACE(CONVERT(CHAR(11), x.RequisitionDate, 106),' ','-') AS RequisitionDate ,REPLACE(CONVERT(CHAR(11), x.RequisitionDate, 106),' ','-') AS RequisitionDate1 
 	                                ,x.RequisitionType
@@ -5309,7 +5310,7 @@ ORDER BY IR.ID DESC";
         {
             try
             {
-                
+
 
                 if (entity.IsNotNull())
                 {
@@ -5321,12 +5322,12 @@ ORDER BY IR.ID DESC";
                         var updatedDate = Convert.ToDateTime(DateTime.Now).ToString();
                         var UpdatedBy = identity.Name;
                         var ReqDetailId = item1.Id;
-                        
+
                         var _sql = "UPDATE [TRN].[MaterialRequsitionDetails]   SET [MaterialDetail] = '" + item1.MaterialDetail + "',[TransactionQty] =  '" + Convert.ToDecimal(item1.TransactionQty) + "',[EstimatedRate] = '" + Convert.ToDecimal(item1.EstimatedRate) + "',[TotalAmount] = '" + Convert.ToDecimal(item1.TotalAmount) + "',[UpdatedBy] = '" + identity.UserId + "',[UpdatedDate] = '" + Convert.ToDateTime(DateTime.Now) + "',[UpdatedFromIP] = '" + identity.IPAddress + "' where id = '" + ReqDetailId + "'";
                         _sqlRepository.ExecuteSqlCommand(_sql);
                     }
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -5341,12 +5342,12 @@ ORDER BY IR.ID DESC";
         {
             try
             {
-               
+
                 var data = _materialRequsitionDetailsRepository.Find(id);
                 if (data.IsNull()) throw new CustomException(ServiceResources.RecordNoLonger);
                 _materialRequsitionDetailsRepository.Delete(data.Id);
                 _unitOfWork.SaveChanges();
-                
+
             }
             catch (Exception ex)
             {
@@ -5380,7 +5381,7 @@ ORDER BY IR.ID DESC";
         #endregion
 
         #region MailSend Function
-        public void DailySendMailRequisitionCheck(string CheckedBy, string ip, string appVersion,string requisitionNo,string RequirmentType,string RequisitionType, string AddedBy) 
+        public void DailySendMailRequisitionCheck(string CheckedBy, string ip, string appVersion, string requisitionNo, string RequirmentType, string RequisitionType, string AddedBy)
         {
             var log = new MailLog
             {
@@ -5451,8 +5452,8 @@ ORDER BY IR.ID DESC";
                                              //"<b>Dear Sir, " + employee.EmployeeName + ".</b><br><br> Wishing you a wonderful year of<br> good health, happiness and success!<br><br> From <br>" + companyGroup.UserName + " Family");
                                              "<b>Dear Sir,</b><br><br>" +
                                              "You have a Checked request of purchase requisition from Mr. " + AddedByName[0].EmployeeName.ToString() + ".Please go to the portal for checking. Please see the following requisition information.<br><br> Requisition No:" + requisitionNo +
-                                             "<br> Requisition Type:" + RequisitionType  +
-                                             "<br> Requirment Type:" + RequirmentType+
+                                             "<br> Requisition Type:" + RequisitionType +
+                                             "<br> Requirment Type:" + RequirmentType +
                                               "<br><br> Thanking you,<br><br> " + smtpConfigurationCG.SenderSystemName + ".<br><br><br><a href=" + MyAppLogin + ">Please Login Here</a>");
 
                                         //"<b>Please Checked This Requisition No:" + requisitionNo);
@@ -5498,7 +5499,7 @@ ORDER BY IR.ID DESC";
             }
         }
 
-        public void DailySendMailRequisitionApproved(string addedBy, string ip, string appVersion, string RequisitionType, string RequirmentType, string CheckedBy, string ApprovedBy, string PoId,string PreparedBY)
+        public void DailySendMailRequisitionApproved(string addedBy, string ip, string appVersion, string RequisitionType, string RequirmentType, string CheckedBy, string ApprovedBy, string PoId, string PreparedBY)
         {
             var log = new MailLog
             {
@@ -5526,7 +5527,7 @@ ORDER BY IR.ID DESC";
                 foreach (var companyGroup in companyGroupList)
                 {
                     log.CompanyGroupId = companyGroup.Id;
-                    var MyAppLogin = _materialRequsitionDetailsRepository.SqlQuery<string>("SELECT MyAppURL from ORG.CompanyGroup where id='"+ companyGroup.Id + "'").First();
+                    var MyAppLogin = _materialRequsitionDetailsRepository.SqlQuery<string>("SELECT MyAppURL from ORG.CompanyGroup where id='" + companyGroup.Id + "'").First();
 
                     var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
                     var email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
@@ -5565,7 +5566,7 @@ ORDER BY IR.ID DESC";
                                 {
                                     try
                                     {
-                                        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;                                      
+                                        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                                         var message = email.PrepareMessage(log.SenderName + "<" + log.SenderEmail + ">",
                                         employee.EmployeeName + "<" + employee.EmailId + ">", ccList, bccList, "Requisition To be Approved",
                                             //"<b>Dear Sir, " + employee.EmployeeName + ".</b><br><br> Wishing you a wonderful year of<br> good health, happiness and success!<br><br> From <br>" + companyGroup.UserName + " Family");
@@ -5573,7 +5574,7 @@ ORDER BY IR.ID DESC";
                                             "You have an Approval request of purchase requisition from Mr. " + PreparedBY + " Which is Checked By Mr. " + AddedByName[0].EmployeeName.ToString() + ".Please go to the portal for Approving. Please see the following requisition information.<br><br> Requisition No:" + PoId +
                                             "<br> Requisition Type:" + RequisitionType +
                                             "<br> Requirment Type:" + RequirmentType +
-                                            "<br><br> Thanking you,<br><br> "+ smtpConfigurationCG.SenderSystemName + ".<br><br><br><a href="+MyAppLogin+">Please Login Here</a>");
+                                            "<br><br> Thanking you,<br><br> " + smtpConfigurationCG.SenderSystemName + ".<br><br><br><a href=" + MyAppLogin + ">Please Login Here</a>");
 
                                         //"<b>Please Checked This Requisition No:" + requisitionNo);
                                         //,string RequirmentType,string RequisitionType,string Requisitiondate
@@ -5692,7 +5693,7 @@ ORDER BY IR.ID DESC";
                                             //"<b>Dear Sir, " + employee.EmployeeName + ".</b><br><br> Wishing you a wonderful year of<br> good health, happiness and success!<br><br> From <br>" + companyGroup.UserName + " Family");
                                             "<b>Dear Sir,</b><br><br>" +
                                             //"You have an Approval request of purchase requisition from Mr. " + PreparedBY + " Which is Checked By Mr. " + AddedByName[0].EmployeeName.ToString() + ".Please go to the portal for Approving. Please see the following requisition information.<br><br> Requisition No:" + PoId +
-                                            "Your requisition has been  approved" +                                          
+                                            "Your requisition has been  approved" +
                                             "<br> Requisition No:" + PoId +
                                             "<br> Requisition Type:" + RequisitionType +
                                             "<br> Requirment Type:" + RequirmentType +
