@@ -272,6 +272,7 @@
                                 <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" ng-disabled="data.MachineName==null" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.openMachinePopup($event);" style="margin: -6px;"></i></button>
                             </div>
                             <div e-column e-field="MachineName" e-headertext="Machine Name" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#AreaCode" e-headertext="AreaCode" e-width="80" style="height: 20px;"></div>
                             <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OperationSPT" e-headertext="Operation SPT" e-width="50" style="height: 20px;"></div>
                             <div e-column e-field="VASSAMSOURCE" e-headertext="SAM Source" e-width="50"></div>
                             <div e-column e-template="#AddSPT" e-headertext="Add.SPT" e-width="80" style="height: 20px;"></div>
@@ -298,9 +299,9 @@
                             <div e-column e-template="#Quality" e-headertext="Quality Level" e-width="40" style="height: 20px;"></div>
 
                             @*<div e-column e-template="#SPI" e-headertext="SPI" e-width="50" style="height: 20px;"></div>
-                                <div e-column e-template="#NoOfStitch" e-headertext="No Of Rows" e-width="50" style="height: 20px;"></div>
-                                <div e-column e-template="#OperationLength" e-headertext="Operation Length-cm" e-width="50" style="height: 20px;"></div>
-                                <div e-column e-template="#FabWdth" e-headertext="Fabric Width-inch" e-width="50" style="height: 20px;"></div>*@
+                <div e-column e-template="#NoOfStitch" e-headertext="No Of Rows" e-width="50" style="height: 20px;"></div>
+                <div e-column e-template="#OperationLength" e-headertext="Operation Length-cm" e-width="50" style="height: 20px;"></div>
+                <div e-column e-template="#FabWdth" e-headertext="Fabric Width-inch" e-width="50" style="height: 20px;"></div>*@
                             @*<div e-column e-template="#StitchCode" e-headertext="Stitch Code" e-width="80" style="height: 20px;"></div>*@
                             <div e-column e-template="#Frequency" e-headertext="Frequency" e-width="40" style="height: 20px;"></div>
 
@@ -331,8 +332,8 @@
                     </script>
                     <script type="text/template" id="OperationCategory">
                         @*<div class="col-sm-10" style="padding:0px; width:90px;margin:-12px;">
-                                <input ej-dropdownlist e-datasource="$parent.OperationCategoryList" e-value="data.OperationCategoryId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
-                            </div>*@
+                <input ej-dropdownlist e-datasource="$parent.OperationCategoryList" e-value="data.OperationCategoryId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+            </div>*@
                         <div class="select-style">
                             <select class="form-control" ng-model="data.OperationCategoryId" name="Operation Category">
                                 <option value="">--Select--</option>
@@ -354,6 +355,11 @@
                                 <option value="">--Select--</option>
                                 <option ng-repeat="option in $parent.FGComponentList" value="{{option.Value}}">{{option.Text}}</option>
                             </select>
+                        </div>
+                    </script>
+                    <script type="text/template" id="AreaCode">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            <input type="text" ng-model="data.AreaCode" ng-maxlength="50" style="color:black;" class="form-control" />
                         </div>
                     </script>
                     <script type="text/template" id="AddSPT">

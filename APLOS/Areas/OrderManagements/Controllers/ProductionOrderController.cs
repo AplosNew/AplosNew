@@ -1169,7 +1169,7 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' ORDER BY  TEMP
                             ,OCT.Id OperationCategoryId
 							,OCT.UserName OperationCategory
 							,OM.Id SkillMasterId, OM.UserName SkillName
-                            ,SC.Id StitchCodeId ,SC.UserName StitchCode,O.OperationLength
+                            ,SC.Id StitchCodeId ,SC.UserName StitchCode,O.OperationLength,OV.AreaCode
                            FROM [MST].[OperationVariation] OV
                            LEFT JOIN [MST].[MaterialMasterArticle] A ON A.Id = OV.ArticleId
 						   LEFT JOIN MST.OperationMaster AS OM ON OM.Id=OV.OperationMasterId
