@@ -2322,7 +2322,7 @@ left join [TRN].[Inspection] IT on IT.Id = trn.InspectionId
 left join [dbo].[InspectionType] ITY on ITY.Id = IT.InspectionTypeId
 left join TRN.FirstCharacteristics FC on FC.Id = TRN.SKU1Id and FC.SalesOrderId = TRN.SalesOrderId
 left join TRN.SecondCharacteristics SC on SC.Id = TRN.SKU2Id AND sc.SalesOrderId = TRN.SalesOrderId
-where TRN.SalesOrderId = '" + SO + "' and TRN.SKU1Id = '" + SKU1 + "' and TRN.SKU2Id = '" + SKU2 + "' and ITY.Id = '" + InspectionTypeId  + "' GROUP BY TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id , ITY.Id;"));
+where Convert(Date,ITG.AddedDate) = CONVERT(Date,Getdate())  and TRN.SalesOrderId = '" + SO + "' and TRN.SKU1Id = '" + SKU1 + "' and TRN.SKU2Id = '" + SKU2 + "' and ITY.Id = '" + InspectionTypeId  + "' GROUP BY TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id , ITY.Id;"));
 
             }
             catch (Exception ex)
@@ -2356,7 +2356,7 @@ left join [TRN].[Inspection] IT on IT.Id = trn.InspectionId
 left join [dbo].[InspectionType] ITY on ITY.Id = IT.InspectionTypeId
 left join TRN.FirstCharacteristics FC on FC.Id = TRN.SKU1Id and FC.SalesOrderId = TRN.SalesOrderId
 left join TRN.SecondCharacteristics SC on SC.Id = TRN.SKU2Id AND sc.SalesOrderId = TRN.SalesOrderId
-where TRN.SalesOrderId = '" + SO + "' and TRN.SKU1Id = '" + SKU1 + "' and TRN.SKU2Id = '" + SKU2 + "' and ITY.Id = '" + InspectionTypeId + "' and ITG.AddedBy = '" + userid + "' GROUP BY TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id , ITY.Id;"));
+where Convert(Date,ITG.AddedDate) = CONVERT(Date,Getdate())  and TRN.SalesOrderId = '" + SO + "' and TRN.SKU1Id = '" + SKU1 + "' and TRN.SKU2Id = '" + SKU2 + "' and ITY.Id = '" + InspectionTypeId + "' and ITG.AddedBy = '" + userid + "' GROUP BY TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id , ITY.Id;"));
 
             }
             catch (Exception ex)
