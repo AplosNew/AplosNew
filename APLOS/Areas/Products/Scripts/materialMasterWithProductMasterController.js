@@ -64,7 +64,7 @@ function materialMasterWithProductMasterController(cboService, commonMessage, $s
     };
 
     $scope.productMasterList = [];
-    cboService.getProductMasterCbo(function (result) {
+    cboService.getPMCbo(function (result) {
         $scope.productMasterList = result.Rows;
     });
 
@@ -94,6 +94,9 @@ function materialMasterWithProductMasterController(cboService, commonMessage, $s
                     if (baseService.arrayLength(response.data) > 0) {
                         $scope.searchdata = response.data;
                     }
+                    cboService.getPMCbo(function (result) {
+                        $scope.productMasterList = result.Rows;
+                    });
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');

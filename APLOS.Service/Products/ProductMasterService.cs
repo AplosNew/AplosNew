@@ -430,6 +430,23 @@ namespace Library.Service.Products
             }
         }
 
+        public GridModel GetPMCbo()
+        {
+            try
+            {
+                var sql = @"SELECT PM.Id AS Value, PM.UserName AS Text,PM.BaseUOMId
+                            FROM MST.ProductMaster AS PM
+                            Where PM.Id NOT IN(SELECT ProductMasterId FROM TRN.ProductDefinition) AND Active=1";
+
+                return _sqlRepository.GetGridData(new GridParameter { CmdText = sql });
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null, ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Machine.ToString()));
+            }
+        }
+
         public GridModel Query(GridParameter parameters)
         {
             try

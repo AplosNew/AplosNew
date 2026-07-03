@@ -52,6 +52,12 @@ namespace Aplos.Areas.Products.Controllers
             return Json(_productMasterService.GetCbo(identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize]
+        public JsonResult GetPMCbo()
+        {
+            return Json(_productMasterService.GetPMCbo(), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
         {

@@ -42,6 +42,7 @@ namespace Library.Model.Machines
 
         public string Remarks { get; set; }
         public string Color { get; set; } = "";
+        public string AreaCode { get; set; } = "";
         #endregion Scalar Properties
 
         #region Audit Properties

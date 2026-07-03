@@ -32,8 +32,17 @@
         </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Types Of Defects<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
+            @*<div class="col-sm-8 show-message">
                 <input type="text" name="TypesOfDefects" ng-model="ModelNew.TypesOfDefects" class="form-control" required tabindex="4" maxlength="50">
+            </div>*@
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="ModelNew.TypesOfDefects" name="TypesOfDefects" required>
+                        <option value="">--Select--</option>
+                        <option value="Operation">Operation</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
             </div>
         </div>
     </div>
