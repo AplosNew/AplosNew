@@ -2634,12 +2634,12 @@ Summary AS
         SUM(CASE WHEN InspectionType='24' AND TranDate<@Today THEN Qty ELSE 0 END) AS PrevLF,
         SUM(CASE WHEN InspectionType='1'          AND TranDate<@Today THEN Qty ELSE 0 END) AS PrevEOL,
         SUM(CASE WHEN InspectionType='21'     AND TranDate<@Today THEN Qty ELSE 0 END) AS PrevFinished,
-        SUM(CASE WHEN InspectionType='22' AND TranDate<@Today THEN Qty ELSE 0 END) AS PrevFinal,
+       -- SUM(CASE WHEN InspectionType='22' AND TranDate<@Today THEN Qty ELSE 0 END) AS PrevFinal,
 
         SUM(CASE WHEN InspectionType='24' AND TranDate=@Today THEN Qty ELSE 0 END) AS TodayLF,
         SUM(CASE WHEN InspectionType='1'          AND TranDate=@Today THEN Qty ELSE 0 END) AS TodayEOL,
-        SUM(CASE WHEN InspectionType='21'     AND TranDate=@Today THEN Qty ELSE 0 END) AS TodayFinished,
-        SUM(CASE WHEN InspectionType='22' AND TranDate=@Today THEN Qty ELSE 0 END) AS TodayFinal
+        SUM(CASE WHEN InspectionType='21'     AND TranDate=@Today THEN Qty ELSE 0 END) AS TodayFinished
+       -- ,SUM(CASE WHEN InspectionType='22' AND TranDate=@Today THEN Qty ELSE 0 END) AS TodayFinal
     FROM Qty
 )
 
@@ -2653,8 +2653,8 @@ SELECT
         WHEN @InspectionType='21'
             THEN ISNULL(TodayEOL,0) + (ISNULL(PrevEOL,0) - ISNULL(PrevFinished,0))
 
-        WHEN @InspectionType='22'
-            THEN ISNULL(TodayFinished,0) + (ISNULL(PrevFinished,0) - ISNULL(PrevFinal,0))
+       -- WHEN @InspectionType='22'
+         --   THEN ISNULL(TodayFinished,0) + (ISNULL(PrevFinished,0) - ISNULL(PrevFinal,0))
     END,
 
     AlreadyEnteredToday =
@@ -2665,8 +2665,8 @@ SELECT
         WHEN @InspectionType='21'
             THEN ISNULL(TodayFinished,0)
 
-        WHEN @InspectionType='22'
-            THEN ISNULL(TodayFinal,0)
+       -- WHEN @InspectionType='22'
+       --     THEN ISNULL(TodayFinal,0)
     END,
 
     PreviousWIP =
@@ -2677,8 +2677,8 @@ SELECT
         WHEN @InspectionType='21'
             THEN ISNULL(PrevEOL,0) - ISNULL(PrevFinished,0)
 
-        WHEN @InspectionType='22'
-            THEN ISNULL(PrevFinished,0) - ISNULL(PrevFinal,0)
+       -- WHEN @InspectionType='22'
+        --    THEN ISNULL(PrevFinished,0) - ISNULL(PrevFinal,0)
     END 
 	from Summary"));
 
