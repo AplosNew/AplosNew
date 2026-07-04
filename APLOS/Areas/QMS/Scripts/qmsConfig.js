@@ -221,7 +221,7 @@
             controller: 'ImageInspectionTypeController'
         })
         .when('/defect-master', {
-            templateUrl: 'QMS/QualityProcess/DefectMaster',
+            templateUrl: 'QMS/QualityProcess/Defects',
             controller: 'DefectMasterController'
         })
 

@@ -81,6 +81,14 @@ namespace Aplos.Areas.QMS.Controllers
         {
             return View();
         }
+        public ActionResult Defects()
+        {
+            return View();
+        }
+        public ActionResult DefectPoint()
+        {
+            return View();
+        }
         #endregion Pages
 
         [AllowAnonymous]
