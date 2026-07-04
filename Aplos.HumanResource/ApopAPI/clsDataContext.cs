@@ -14834,6 +14834,7 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
                         dr["ProductionInchargeId"] = item.ProductionInchargeId;
                         dr["ReportingOfficerId"] = item.ReportingOfficerId;
                         dr["AQLLevel"] = item.AQLLevel;
+                        dr["AQLLevelValue"] = item.AQLLevelValue;
                         dr["LotSize"] = item.LotSize;
                         dr["SampleSize"] = item.SampleSize;
                         dr["AcceptPoint"] = item.AcceptPoint;
@@ -17080,6 +17081,7 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
         public string ProductionInchargeId { get; set; }
         public string ReportingOfficerId { get; set; }
         public string AQLLevel { get; set; }
+        public string AQLLevelValue { get; set; }
         public string LotSize { get; set; }
         public string SampleSize { get; set; }
         public string AcceptPoint { get; set; }
