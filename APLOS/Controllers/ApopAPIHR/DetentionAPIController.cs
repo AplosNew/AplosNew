@@ -2819,6 +2819,28 @@ where AQT.SalesOrderid = '" + SO + "' and AQT.SKU1Id = '" + SKU1 + "' and AQT.SK
 
         }
 
+        public IHttpActionResult GetAQLLevelValue()
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select Distinct AQLLevel  Value , AQLLevel Name from [HKP].[AQLMaster]"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
         [HttpPost]
         public string SaveAQL([FromBody] IEnumerable<AQLModel> DataToSave)
         {
