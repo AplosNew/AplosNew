@@ -2,6 +2,7 @@
 DefectMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function DefectMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Defect Master';
+    $rootScope.titleDP = 'Defect Point';
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'QMS/QualityProcess/';
@@ -11,6 +12,15 @@ function DefectMasterController(cboService, commonMessage, $scope, $rootScope, b
     baseService.init($scope.getListUrl);
     $scope.searchBy = "DefectNames"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'DefectCode', name: "DefectCode" }, { value: 'DefectNames', name: "DefectNames" }, { value: 'Remarks', name: "Remarks" }];
+
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
 
 
     $scope.getData = function () {

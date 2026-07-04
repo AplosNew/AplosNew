@@ -5322,6 +5322,8 @@
     <Content Include="Areas\QMS\Views\QualityProcess\Inspection.cshtml" />
     <Content Include="Areas\QMS\Views\QualityProcess\ImageInspectionType.cshtml" />
     <Content Include="Areas\QMS\Views\QualityProcess\DefectMaster.cshtml" />
+    <Content Include="Areas\QMS\Views\QualityProcess\Defects.cshtml" />
+    <Content Include="Areas\QMS\Views\QualityProcess\DefectPoint.cshtml" />
     <None Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>PayrollsDataSet.Designer.cs</LastGenOutput>
