@@ -2743,6 +2743,127 @@ SELECT
             }
         }
 
+
+        // AQL  Audit
+
+        public IHttpActionResult GetAQLLevel()
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select 'InLIne' Value , 'InLIne' Name
+Union All
+Select 'PreFinal' Value , 'PreFinal' Name
+Union all
+Select 'EndLine' Value , 'EndLine' Name"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetAQLDetail(string SO, string SKU1, string SKU2)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select AQT.Id ,Sum(AQTC.Qty + AQTC.RejectQty) Qty, AQT.AuditSampleQty  from [TRN].[AQLTranChild] AQT
+left join [dbo].[AQLTranGrandChild] AQTC on AQTC.AQLTranChildId = AQT.Id
+where AQT.SalesOrderid = '" + SO + "' and AQT.SKU1Id = '" + SKU1 + "' and AQT.SKU2Id = '" + SKU2 + @"'  and (Select Top 1 AQTC.ISResolve from [dbo].[AQLTranGrandChild] AQTC
+ where AQTC.AQLTranChildId = AQT.Id ) = 0 group by AQT.Id, AQT.AuditSampleQty"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetAQLMaster()
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select Id , FromLotSize , ToLotSize,SampleSize , AQLLevel,Accept,Reject from [HKP].[AQLMaster]"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        [HttpPost]
+        public string SaveAQL([FromBody] IEnumerable<AQLModel> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.CreateAQL(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        [HttpPost]
+        public string SaveAQLTran([FromBody] IEnumerable<AQLTranModel> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.CreateAQLTran(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        [HttpPost]
+        public string SaveAQLTranGrand([FromBody] IEnumerable<AQLTranGrandModel> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.CreateAQLTranGrand(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+       
+
+
         #endregion Stich
 
         #region Attendance tracker
