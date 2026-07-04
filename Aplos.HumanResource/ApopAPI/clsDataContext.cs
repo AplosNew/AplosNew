@@ -14791,6 +14791,191 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
                 return ex.ToString();
             }
         }
+
+
+        public string CreateAQL(IEnumerable<AQLModel> DataToSave)
+        {
+
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.AQLTransection";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<AQLModel> items = DataToSave.ToList();
+
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                foreach (AQLModel item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        clsGenID genid = new clsGenID();
+                        genid.GenID(TableName, out _Id);
+
+                        dr["Id"] = "AQL" + _Id;
+                        dr["InspectionTypeId"] = item.InspectionTypeId;
+                        dr["EntityId"] = item.EntityId;
+                        dr["ProcessId"] = item.ProcessId;
+                        dr["WorkCenterMasterId"] = item.WorkCenterMasterId;
+                        dr["DateTime"] = item.DateTime;
+                        dr["ShiftId"] = item.ShiftId;
+                        dr["EmployeeId"] = item.EmployeeId;
+                        dr["WCInchargeId"] = item.WCInchargeId;
+                        dr["QualityInchargeId"] = item.QualityInchargeId;
+                        dr["ProductionInchargeId"] = item.ProductionInchargeId;
+                        dr["ReportingOfficerId"] = item.ReportingOfficerId;
+                        dr["AQLLevel"] = item.AQLLevel;
+                        dr["LotSize"] = item.LotSize;
+                        dr["SampleSize"] = item.SampleSize;
+                        dr["AcceptPoint"] = item.AcceptPoint;
+                        dr["Remarks"] = item.Remarks;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = DateTime.Now.ToString();
+                        dr["AddedFromIP"] = item.AddedFromIP;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return "AQL" + _Id;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public string CreateAQLTran(IEnumerable<AQLTranModel> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.AQLTranChild";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                if (DataToSave == null || !DataToSave.Any())
+                    return "";
+
+                con.OpenDataSetThroughAdapter(
+                    "SELECT * FROM " + TableName + " WHERE 1=2",
+                    out dsMaster,
+                    false,
+                    "1");
+
+                string lastId = "";
+
+                foreach (AQLTranModel item in DataToSave)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out lastId);
+
+                    dr["Id"] = lastId;
+                    dr["AQLTransectionId"] = item.AQLTransectionId;
+                    dr["MasterOrderItemId"] = item.MasterOrderItemId;
+                    dr["ProductLibraryId"] = item.ProductLibraryId;
+                    dr["ProductionOrderId"] = item.ProductionOrderId;
+                    dr["SalesOrderId"] = item.SalesOrderId;
+                    dr["SKU1Id"] = item.SKU1Id;
+                    dr["SKU2Id"] = item.SKU2Id;
+                    dr["SKU3Id"] = item.SKU3Id;
+                    dr["AuditSampleQty"] = item.AuditSampleQty;
+                    dr["AddedBy"] = item.AddedBy;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = item.AddedFromIP;
+
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+
+                clsStaticInfo info = new clsStaticInfo();
+                info.SaveDataSets(dsMaster);
+
+                return lastId;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public string CreateAQLTranGrand(IEnumerable<AQLTranGrandModel> DataToSave)
+        {
+
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.AQLTranGrandChild";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<AQLTranGrandModel> items = DataToSave.ToList();
+
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                foreach (AQLTranGrandModel item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        clsGenID genid = new clsGenID();
+                        genid.GenID(TableName, out _Id);
+
+                        dr["Id"] = _Id;
+                        dr["AQLTranChildId"] = item.AQLTranChildId;
+                        dr["PeriodId"] = item.PeriodId;
+                        dr["Grade"] = item.Grade;
+                        dr["Qty"] = item.Qty;
+                        dr["PictureID"] = item.PictureID;
+                        dr["AreaCode"] = item.AreaCode;
+                        dr["OperationId"] = item.OperationId;
+                        dr["DefectId"] = item.DefectId;
+                        dr["QRCODE"] = item.QRCODE;
+                        dr["ISResolve"] = item.ISResolve;
+                        dr["PassQty"] = item.PassQty;
+                        dr["RejectQty"] = item.RejectQty;
+                        dr["RecheckQty"] = item.RecheckQty;
+                        dr["Remarks"] = item.Remarks;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = DateTime.Now.ToString();
+                        dr["AddedFromIP"] = item.AddedFromIP;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return _Id;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+       
+
         #endregion 
 
     }
@@ -16877,6 +17062,82 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
         public double XAxis { get; set; }
         public double YAxis { get; set; }
         public string ImageUrl { get; set; }
+    }
+
+
+    public class AQLModel
+    {
+        public string Id { get; set; }
+        public string InspectionTypeId { get; set; }
+        public string EntityId { get; set; }
+        public string ProcessId { get; set; }
+        public string WorkCenterMasterId { get; set; }
+        public string DateTime { get; set; }
+        public string ShiftId { get; set; }
+        public string EmployeeId { get; set; }
+        public string WCInchargeId { get; set; }
+        public string QualityInchargeId { get; set; }
+        public string ProductionInchargeId { get; set; }
+        public string ReportingOfficerId { get; set; }
+        public string AQLLevel { get; set; }
+        public string LotSize { get; set; }
+        public string SampleSize { get; set; }
+        public string AcceptPoint { get; set; }
+        public string Remarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+
+    }
+
+    public class AQLTranModel
+    {
+        public string Id { get; set; }
+        public string AQLTransectionId { get; set; }
+        public string MasterOrderItemId { get; set; }
+        public string ProductLibraryId { get; set; }
+        public string ProductionOrderId { get; set; }
+        public string SalesOrderId { get; set; }
+        public string SKU1Id { get; set; }
+        public string SKU2Id { get; set; }
+        public string SKU3Id { get; set; }
+        public string AuditSampleQty { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+
+    }
+
+    public class AQLTranGrandModel
+    {
+        public string Id { get; set; }
+        public string AQLTranChildId { get; set; }
+        public string PeriodId { get; set; }
+        public string Grade { get; set; }
+        public string Qty { get; set; }
+        public string PictureID { get; set; }
+        public string AreaCode { get; set; }
+        public string OperationId { get; set; }
+        public string DefectId { get; set; }
+        public string QRCODE { get; set; }
+        public string ISResolve { get; set; }
+        public string PassQty { get; set; }
+        public string RejectQty { get; set; }
+        public string RecheckQty { get; set; }
+        public string Remarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+
     }
 
     #region TNA
