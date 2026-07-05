@@ -2834,8 +2834,7 @@ Select 'EndLine' Value , 'EndLine' Name"));
 								left join [TRN].[AQLTransection] ATSs on ATSs.Id = ATCs.AQLTransectionId
 								where ATSs.Id = ATS.Id
 								group by ATSs.Id),0)
-, TotalAuditSampleQty = Isnull((Select SUM( ATCn.AuditSampleQty) TotalAuditSampleQty from dbo.[AQLTranGrandChild] ATGn
-								left join [TRN].[AQLTranChild] ATCn on ATGn.AQLTranChildId = ATCn.Id
+, TotalAuditSampleQty = Isnull((Select SUM( ATCn.AuditSampleQty) TotalAuditSampleQty from  [TRN].[AQLTranChild] ATCn 
 								left join [TRN].[AQLTransection] ATSn on ATSn.Id = ATCn.AQLTransectionId
 								where ATSn.Id = ATS.Id
 								group by ATSn.Id),0)
