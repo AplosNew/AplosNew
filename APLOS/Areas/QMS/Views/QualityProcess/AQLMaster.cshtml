@@ -1,0 +1,92 @@
+﻿<togglable name="{{titleAQL}}"></togglable>
+<div class="form-elements form-horizontal" ng-form name="ModelNewAQLForm">
+    <input type="hidden" ng-model="ModelNewAQL.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">From LotSize<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="From LotSize" n-decimals="2" ng-model="ModelNewAQL.FromLotSize" class="form-control" maxlength="15" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Sample Size<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Sample Size" n-decimals="2" ng-model="ModelNewAQL.SampleSize" class="form-control" maxlength="15" required tabindex="3">
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Accept</label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Accept" n-decimals="2" ng-model="ModelNewAQL.Accept" class="form-control" required tabindex="4" maxlength="50">
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">To LotSize<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="ToLotSize" n-decimals="2" ng-model="ModelNewAQL.ToLotSize" class="form-control" required tabindex="5" maxlength="50">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Level<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Level" n-decimals="2" ng-model="ModelNewAQL.AQLLevel" class="form-control" required tabindex="4" maxlength="50">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Reject</label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Reject" n-decimals="2" ng-model="ModelNewAQL.Reject" class="form-control" required tabindex="4" maxlength="50">
+            </div>
+        </div>
+
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="SaveAQL();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{AQLAction}}</button></li>
+            <li> <button ng-click="removeAQL();" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="ClearAQL();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchByAQL">
+                            <option ng-repeat="option in searchByAQLList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="searchAQL" ng-enter="getAQLData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getAQLData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="AQLModelList" e-recorddoubleclick="GetAQL" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
+            <div e-column e-field="FromLotSize" e-headertext="FromLotSize" e-width="2"></div>
+            <div e-column e-field="ToLotSize" e-headertext="ToLotSize" e-width="3"></div>
+            <div e-column e-field="SampleSize" e-headertext="SampleSize" e-width="5"></div>
+            <div e-column e-field="AQLLevel" e-headertext="Level" e-width="5"></div>
+            <div e-column e-field="Accept" e-headertext="Accept" e-width="5"></div>
+            <div e-column e-field="Reject" e-headertext="Reject" e-width="5"></div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmDelAQLPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteAQL();"></confirm-archive-generic>

@@ -11,29 +11,29 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">ZoneA<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Defect Category" ng-model="ModelNewDP.ZoneA" class="form-control" maxlength="15" required tabindex="3">
+                <input type="text" name="ZoneA" ng-model="ModelNewDP.ZoneA" class="form-control" maxlength="15" required tabindex="3">
             </div>
         </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">ZoneC<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Defect Category" ng-model="ModelNewDP.ZoneC" class="form-control" maxlength="15" required tabindex="3">
+                <input type="text" name="ZoneC" ng-model="ModelNewDP.ZoneC" class="form-control" maxlength="15" required tabindex="3">
             </div>
         </div>
        
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
 
-        <div class="form-group">
-            <label class="col-sm-4 control-label"></label>
-            <div class="col-sm-8">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="User Name" ng-model="ModelNewDP.UserName" class="form-control" required tabindex="5" maxlength="50">
             </div>
         </div>
-        <br />
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">ZoneB<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Zone" ng-model="ModelNewDP.ZoneB" class="form-control" required tabindex="4" maxlength="50">
+                <input type="text" name="ZoneB" ng-model="ModelNewDP.ZoneB" class="form-control" required tabindex="4" maxlength="50">
             </div>
         </div>
         <div class="form-group">
@@ -46,9 +46,9 @@
     </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            <li> <button ng-click="SaveDP();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{DPAction}}</button></li>
+            <li> <button ng-click="removeDP();" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="ClearDP();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
 </div>
@@ -58,34 +58,33 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-3 col-md-3">
                     <div class="select-style">
-                        <select ng-model="searchBy">
-                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        <select ng-model="searchByDP">
+                            <option ng-repeat="option in searchByDPList" value="{{option.value}}">{{option.name}}</option>
                         </select>
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="searchDP" ng-enter="getDPData()">
                 </div>
                 <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    <button type="button" ng-click="getDPData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 <div class="table-responsive aplos-grid-toggle">
-    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+    <div id="GridEdit" ej-grid e-datasource="DPModelList" e-recorddoubleclick="GetDP" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
             <div e-column e-field="SrNo" e-headertext="SrNo" e-width="2"></div>
-            <div e-column e-field="DefectCode" e-headertext="DefectCode" e-width="3"></div>
-            <div e-column e-field="DefectCategory" e-headertext="DefectCategory" e-width="5"></div>
-            <div e-column e-field="DefectNames" e-headertext="DefectNames" e-width="5"></div>
-            <div e-column e-field="TypesOfDefects" e-headertext="TypesOfDefects" e-width="5"></div>
-            <div e-column e-field="Zone" e-headertext="Zone" e-width="2"></div>
+            <div e-column e-field="UserName" e-headertext="UserName" e-width="3"></div>
+            <div e-column e-field="ZoneA" e-headertext="ZoneA" e-width="5"></div>
+            <div e-column e-field="ZoneB" e-headertext="ZoneB" e-width="5"></div>
+            <div e-column e-field="ZoneC" e-headertext="ZoneC" e-width="5"></div>
         </div>
     </div>
 </div>
-<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmDelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteDP();"></confirm-archive-generic>
