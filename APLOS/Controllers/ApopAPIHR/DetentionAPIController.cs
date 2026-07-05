@@ -2839,6 +2839,11 @@ Select 'EndLine' Value , 'EndLine' Name"));
 								left join [TRN].[AQLTransection] ATSn on ATSn.Id = ATCn.AQLTransectionId
 								where ATSn.Id = ATS.Id
 								group by ATSn.Id),0)
+,AuditRejectQty = Isnull((Select SUM(ATGs.RejectQty) TotalAQLAudtitDone from dbo.[AQLTranGrandChild] ATGs
+								left join [TRN].[AQLTranChild] ATCs on ATGs.AQLTranChildId = ATCs.Id
+								left join [TRN].[AQLTransection] ATSs on ATSs.Id = ATCs.AQLTransectionId
+								where ATSs.Id = ATS.Id
+								group by ATSs.Id),0)
 --,TotalAuitQty = ISNULL( Select  ,0)
 from [TRN].[AQLTranChild] ATC
 left join [TRN].[AQLTransection] ATS on ATS.Id = ATC.AQLTransectionId
