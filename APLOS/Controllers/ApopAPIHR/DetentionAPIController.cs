@@ -2772,30 +2772,7 @@ Select 'EndLine' Value , 'EndLine' Name"));
 
         }
 
-        public IHttpActionResult GetAQLDetail(string SO, string SKU1, string SKU2)
-        {
-            /* clsDataContext clsData = new clsDataContext();
-             clsData.GetTNAReport(out List<TNAGetSet> activelists);
-             return activelists;*/
-
-            try
-            {
-                return Json(_sqlRepository.GetDataTable(@"Select AQT.Id ,Sum(AQTC.Qty + AQTC.RejectQty) Qty, AQT.AuditSampleQty  from [TRN].[AQLTranChild] AQT
-left join [dbo].[AQLTranGrandChild] AQTC on AQTC.AQLTranChildId = AQT.Id
-where AQT.SalesOrderid = '" + SO + "' and AQT.SKU1Id = '" + SKU1 + "' and AQT.SKU2Id = '" + SKU2 + @"'  and (Select Top 1 AQTC.ISResolve from [dbo].[AQLTranGrandChild] AQTC
- where AQTC.AQLTranChildId = AQT.Id ) = 0 group by AQT.Id, AQT.AuditSampleQty"));
-
-            }
-            catch (Exception ex)
-            {
-                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(resp);
-            }
-
-        }
+       
 
         public IHttpActionResult GetAQLMaster()
         {
@@ -2828,6 +2805,35 @@ where AQT.SalesOrderid = '" + SO + "' and AQT.SKU1Id = '" + SKU1 + "' and AQT.SK
             try
             {
                 return Json(_sqlRepository.GetDataTable(@"Select Distinct AQLLevel  Value , AQLLevel Name from [HKP].[AQLMaster]"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetAQLAuditData(string SO, string SKU1, string SKU2)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select Top 1 ATC.Id , ATC.SalesOrderId , ATC.SKU1Id , ATC.SKU2Id, ATC.AuditSampleQty , ATS.Id AQLId , ATS.AQLLevel 
+,ATS.LotSize , ATS.SampleSize , ATS.AQLLevelValue , ATS.AcceptPoint
+,AuditDoneQty = Isnull((Select Sum(QTY + RejectQty) from [dbo].[AQLTranGrandChild]  where AQLTranChildId = ATC.Id group by AQLTranChildId),0)
+--,TotalAuitQty = ISNULL( Select  ,0)
+from [TRN].[AQLTranChild] ATC
+left join [TRN].[AQLTransection] ATS on ATS.Id = ATC.AQLTransectionId
+where ATC.SalesOrderId  = '" + SO + "' and ATC.SKU1Id = '" + SKU1 + "' and  ATC.SKU2Id = '" + SKU2 + @"'
+order by ATC.AddedDate desc"));
 
             }
             catch (Exception ex)
