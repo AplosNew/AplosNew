@@ -2829,6 +2829,21 @@ Select 'EndLine' Value , 'EndLine' Name"));
                 return Json(_sqlRepository.GetDataTable(@"Select Top 1 ATC.Id , ATC.SalesOrderId , ATC.SKU1Id , ATC.SKU2Id, ATC.AuditSampleQty , ATS.Id AQLId , ATS.AQLLevel 
 ,ATS.LotSize , ATS.SampleSize , ATS.AQLLevelValue , ATS.AcceptPoint
 ,AuditDoneQty = Isnull((Select Sum(QTY + RejectQty) from [dbo].[AQLTranGrandChild]  where AQLTranChildId = ATC.Id group by AQLTranChildId),0)
+, TotalAQLAudtitDone = Isnull((Select SUM(ATGs.Qty + ATGs.RejectQty) TotalAQLAudtitDone from dbo.[AQLTranGrandChild] ATGs
+								left join [TRN].[AQLTranChild] ATCs on ATGs.AQLTranChildId = ATCs.Id
+								left join [TRN].[AQLTransection] ATSs on ATSs.Id = ATCs.AQLTransectionId
+								where ATSs.Id = ATS.Id
+								group by ATSs.Id),0)
+, TotalAuditSampleQty = Isnull((Select SUM( ATCn.AuditSampleQty) TotalAuditSampleQty from dbo.[AQLTranGrandChild] ATGn
+								left join [TRN].[AQLTranChild] ATCn on ATGn.AQLTranChildId = ATCn.Id
+								left join [TRN].[AQLTransection] ATSn on ATSn.Id = ATCn.AQLTransectionId
+								where ATSn.Id = ATS.Id
+								group by ATSn.Id),0)
+,AuditRejectQty = Isnull((Select SUM(ATGs.RejectQty) TotalAQLAudtitDone from dbo.[AQLTranGrandChild] ATGs
+								left join [TRN].[AQLTranChild] ATCs on ATGs.AQLTranChildId = ATCs.Id
+								left join [TRN].[AQLTransection] ATSs on ATSs.Id = ATCs.AQLTransectionId
+								where ATSs.Id = ATS.Id
+								group by ATSs.Id),0)
 --,TotalAuitQty = ISNULL( Select  ,0)
 from [TRN].[AQLTranChild] ATC
 left join [TRN].[AQLTransection] ATS on ATS.Id = ATC.AQLTransectionId
