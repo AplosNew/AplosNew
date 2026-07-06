@@ -14895,6 +14895,7 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
                     dr["SKU2Id"] = item.SKU2Id;
                     dr["SKU3Id"] = item.SKU3Id;
                     dr["AuditSampleQty"] = item.AuditSampleQty;
+                    dr["AuditQty"] = item.AuditQty;
                     dr["AddedBy"] = item.AddedBy;
                     dr["AddedDate"] = DateTime.Now;
                     dr["AddedFromIP"] = item.AddedFromIP;
@@ -17107,6 +17108,7 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
         public string SKU2Id { get; set; }
         public string SKU3Id { get; set; }
         public string AuditSampleQty { get; set; }
+        public string AuditQty { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
         public string AddedFromIP { get; set; }
