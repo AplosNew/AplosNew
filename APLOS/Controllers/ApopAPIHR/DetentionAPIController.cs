@@ -2818,7 +2818,7 @@ Select 'EndLine' Value , 'EndLine' Name"));
 
         }
 
-        public IHttpActionResult GetAQLAuditData(string SO, string SKU1, string SKU2)
+        public IHttpActionResult GetAQLAuditData(string SO, string SKU1, string SKU2, string ATCID)
         {
             /* clsDataContext clsData = new clsDataContext();
              clsData.GetTNAReport(out List<TNAGetSet> activelists);
@@ -2846,7 +2846,7 @@ Select 'EndLine' Value , 'EndLine' Name"));
 --,TotalAuitQty = ISNULL( Select  ,0)
 from [TRN].[AQLTranChild] ATC
 left join [TRN].[AQLTransection] ATS on ATS.Id = ATC.AQLTransectionId
-where ATC.SalesOrderId  = '" + SO + "' and ATC.SKU1Id = '" + SKU1 + "' and  ATC.SKU2Id = '" + SKU2 + @"'
+where ATC.SalesOrderId  = '" + SO + "' and ATC.SKU1Id = '" + SKU1 + "' and  ATC.SKU2Id = '" + SKU2 + "'  and ATC.Id = '" + ATCID + @"'
 order by ATC.AddedDate desc"));
 
             }

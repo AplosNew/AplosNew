@@ -275,7 +275,7 @@ namespace Aplos.Areas.Parties.Controllers
 										LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
 										WHERE CPGL.PartyGLType='" + PartyGLType.SuspenseGL + @"'
                                     ) AS SGL ON SGL.CompanyPartyId=CP.Id
-                                    WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND P.PartyType IN ('" + PartyType.Party + "', '" + PartyType.Company + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + "' and p.Id='2022419'";
+                                    WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND P.PartyType IN ('" + PartyType.Party + "', '" + PartyType.Company + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + "'";
                 // If this params null will return all customer and vendor list either specific.
                 if (!string.IsNullOrEmpty(customerVendor))
                     parameters.CmdText += " AND CP.PartyType='" + customerVendor + "'";
