@@ -54,7 +54,21 @@ namespace Aplos.Areas.Accounts.Controllers
         [Authorize]
         public JsonResult GetVoucherTypeCbo()
         {
-            return Json(_voucherTypeService.GetCbo(), JsonRequestBehavior.AllowGet);
+            return Json(GetCbo(), JsonRequestBehavior.AllowGet);
+        }
+        public List<Dictionary<string, object>> GetCbo()
+        {
+            try
+            {
+                var cmdText = @"SELECT UserName [Text],Id Value FROM [SCS].[VoucherType] where Active=1";
+                return _sqlRepository.GetDataCollection(cmdText);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
         }
 
         [HttpGet]

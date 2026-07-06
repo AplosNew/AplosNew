@@ -33,7 +33,7 @@ function investmentTakenOpeningBalanceController(cboService, commonMessage, $sco
             $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
         }
         else if ($scope.partyType === 'Director') {
-            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
         }
         else if ($scope.partyType === 'Other') {
             $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
