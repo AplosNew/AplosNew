@@ -192,7 +192,7 @@ function ProductionOrderSchedulingParametersType2Controller(cboService, commonMe
         $scope.openPopup('dialogSOItemsForProductionOrder');
         $http({
             method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetProductionType2RecipeMaterialList?productionOrderId=' + prodOrdId
+            url: 'OrderManagements/productionOrderSchedulingParametersType1/GetProductionType2RecipeMaterialList?productionOrderId=' + prodOrdId
         }).then(function successCallback(response) {
             $scope.SalesOrderListForProductionOrderId = response.data;
 
@@ -453,7 +453,9 @@ function ProductionOrderSchedulingParametersType2Controller(cboService, commonMe
     function getProductionRecipeMaterialList() {
         $http({
             method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetProductionType2RecipeMaterialList?productionOrderId=' + + $scope.productionOrderModel.Id
+            //url: 'OrderManagements/ProductionOrder/GetProductionRecipeMaterialList?productionOrderId=' + $scope.productionOrderModel.Id
+
+            url: 'OrderManagements/productionOrderSchedulingParametersType1/GetProductionType2RecipeMaterialList?productionOrderId=' +  $scope.productionOrderModel.Id
         }).then(function successCallback(response) {
             $scope.recipeMaterialListSelected = response.data;
         });
