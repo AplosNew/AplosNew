@@ -3292,6 +3292,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                     ob.OperationVariation = $scope.searchdata[i].OperationVariation;
                     ob.OperationCode = $scope.searchdata[i].OperationCode;
                     ob.OperationId = $scope.searchdata[i].OperationId;
+                    ob.AreaCode = $scope.searchdata[i].AreaCode;
                     ob.OperationCategoryId = $scope.searchdata[i].OperationCategoryId;
                     ob.QualityLevel = null;
                     ob.SPI = $scope.searchdata[i].SPI;
@@ -3883,9 +3884,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             $scope.calculatedBulletinModel.ProductionBulletinTemplateMasterId = $scope.BulletinTemplateMasterId;
 
             CheckSequence();
-            for (var i = 0; i < $scope.operationList.length; i++) {
-                $scope.operationList[i].ProductionBulletinTemplateMasterId = $scope.BulletinTemplateMasterId;
-            }
+           
             $http({
                 method: 'POST',
                 url: $scope.saveOperationUrl,

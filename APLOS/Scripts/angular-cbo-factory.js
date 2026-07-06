@@ -365,6 +365,7 @@ function cboService($http, $window, $rootScope, baseService) {
         , getDisciplinaryCategotyCbo: getDisciplinaryCategotyCbo
         , getCommitmentCbo: getCommitmentCbo
         , getProductMasterCbo: getProductMasterCbo
+        , getPMCbo: getPMCbo
         , getLegalDesignationCbobyGivenDesignation: getLegalDesignationCbobyGivenDesignation
         , getCboOperationMasterByCompanyGroup: getCboOperationMasterByCompanyGroup
         , getSectionCboByDepartment: getSectionCboByDepartment
@@ -605,6 +606,9 @@ function cboService($http, $window, $rootScope, baseService) {
 
     function getProductMasterCbo(callback) {
         base('Products/ProductMaster/getcbo', callback);
+    }
+    function getPMCbo(callback) {
+        base('Products/ProductMaster/getpmcbo', callback);
     }
     function getCommitmentCbo(callback) {
         base('OrderManagements/Commitment/getcbo', callback);

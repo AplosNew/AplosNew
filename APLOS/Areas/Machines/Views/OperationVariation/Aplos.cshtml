@@ -72,7 +72,7 @@
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Is Special Operation</label>
-                            <div class="col-sm-8">
+                            <div class="col-sm-2">
                                 <div class="checkbox-site">
                                     <label class="control-label">
                                         <input type="checkbox" ng-model="operationVariationNew.isSpecialOperation">
@@ -80,9 +80,14 @@
                                     </label>
                                 </div>
                             </div>
+                            <label class="col-sm-4 control-label">Display Color<sup>*</sup></label>
+                            <div class="col-sm-2 text-left">
+                                <input ej-colorpicker e-value="operationVariationNew.Color" e-modeltype="palette" />
+                            </div>
+
                         </div>
 
-                        
+
 
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -99,16 +104,16 @@
                             </div>
                         </div>
                         @*<div class="form-group">
-                            <label class="col-sm-4 control-label">Skill (Operation Master)</label>
-                            <div class="col-sm-8">
-                                <div class="input-group">
-                                    <input type="text" name="Operation Master" ng-model="operationVariationNew.OperationMasterCode" class="form-control" readonly>
-                                    <span class="input-group-btn">
-                                        <button ng-click="showOperationPopUp();" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>*@
+            <label class="col-sm-4 control-label">Skill (Operation Master)</label>
+            <div class="col-sm-8">
+                <div class="input-group">
+                    <input type="text" name="Operation Master" ng-model="operationVariationNew.OperationMasterCode" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="showOperationPopUp();" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>*@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Description</label>
                             <div class="col-sm-8">
@@ -116,11 +121,9 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Display Color<sup>*</sup></label>
-                            <div class="col-sm-8 text-left">
-
-                                <input ej-colorpicker e-value="operationVariationNew.Color" e-modeltype="palette" />
-
+                            <label class="col-sm-4 control-label">Area Code</label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="AreaCode" ng-model="operationVariationNew.AreaCode" class="form-control" maxlength="50" tabindex="5">
                             </div>
                         </div>
                         <div class="form-group">
@@ -229,7 +232,7 @@
                                 <input type="text" n-decimals="4" name="Standard SPT" ng-model="operationVariationNew.StandardSPT" class="form-control text-right" tabindex="25">
                             </div>
                         </div>
-                       
+
                     </div>
                     <div class="col-xs-12 col-sm-4 col-md-4 pdl3">
                         <div class="form-group" show-errors>

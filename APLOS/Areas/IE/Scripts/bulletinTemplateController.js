@@ -797,6 +797,7 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
                     ob.OperationCode = $scope.searchdata[i].OperationCode;
                     ob.OperationId = $scope.searchdata[i].OperationId;
                     ob.OperationCategoryId = $scope.searchdata[i].OperationCategoryId;
+                    ob.AreaCode = $scope.searchdata[i].AreaCode;
                     ob.QualityLevel = null;
                     ob.SPI = $scope.searchdata[i].SPI;
                     ob.StitchCodeId = $scope.searchdata[i].StitchCodeId;

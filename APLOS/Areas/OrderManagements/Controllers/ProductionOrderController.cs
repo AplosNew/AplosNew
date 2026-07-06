@@ -1027,7 +1027,7 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' ORDER BY  TEMP
                              GF.UserName GaugeFolder, OC.UserName OperationConsumption, OT.UserName OperationType, OV.OperationId, MMA.StandardName MachineName
                             ,0 AvgAllotedTime, OperationSPT=BTD.TotalSPT-BTD.AdditionalSPT, MM.UserName MaterialMaster, 0 IsMaxAllottedTime 
                             , OM.UserName AS SkillName,OPP.BasicProcessTime,OPP.AssociateProcessTime,OPP.PersonalAllowance,OV.MachineAllowance,OPP.Frequency,OPP.SPI OperationSPI,OV.TotalSAM, OV.AdditionalSAMSymbol,OV.SubOperationSAM,OV.AdditionalSAM
-                            ,BTD.SPI,BTD.NoOfStitch,BTD.OperationLength,BTD.StitchCodeId,BTD.FabricWidth,OV.AdditionalAllowance,ISNULL(OV.VASSAMSOURCE,'') VASSAMSOURCE,0 DelFlag,CONVERT(NUMERIC(10,2),BTD.AdditionalWorkstation) AdditionalWorkstation, CONVERT(NUMERIC(10,2),BTD.AdditionalManpower) AdditionalManpower
+                            ,BTD.SPI,BTD.NoOfStitch,BTD.OperationLength,BTD.StitchCodeId,BTD.FabricWidth,OV.AdditionalAllowance,ISNULL(OV.VASSAMSOURCE,'') VASSAMSOURCE,0 DelFlag,CONVERT(NUMERIC(10,2),BTD.AdditionalWorkstation) AdditionalWorkstation, CONVERT(NUMERIC(10,2),BTD.AdditionalManpower) AdditionalManpower,BTD.AreaCode
                              FROM [TRN].[ProductionBulletinTemplateDetail] BTD
                              LEFT JOIN [MST].[OperationVariation] OV ON OV.Id=BTD.OperationVariationId
                              LEFT JOIN (SELECT OP.Id,ISNULL(OP.BasicProcessTime, 0) AS BasicProcessTime, ISNULL(OP.AssociateProcessTime, 0) AS AssociateProcessTime
@@ -1169,7 +1169,7 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' ORDER BY  TEMP
                             ,OCT.Id OperationCategoryId
 							,OCT.UserName OperationCategory
 							,OM.Id SkillMasterId, OM.UserName SkillName
-                            ,SC.Id StitchCodeId ,SC.UserName StitchCode,O.OperationLength
+                            ,SC.Id StitchCodeId ,SC.UserName StitchCode,O.OperationLength,OV.AreaCode
                            FROM [MST].[OperationVariation] OV
                            LEFT JOIN [MST].[MaterialMasterArticle] A ON A.Id = OV.ArticleId
 						   LEFT JOIN MST.OperationMaster AS OM ON OM.Id=OV.OperationMasterId
@@ -1613,8 +1613,9 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' ORDER BY  TEMP
 
                             dr["Id"] = "PD" + GetOperationPK();
 
-                            dr["ProductionBulletinTemplateMasterId"] = item.ProductionBulletinTemplateMasterId;
+                            dr["ProductionBulletinTemplateMasterId"] = productionBulletinTemplateMasterId;
                             dr["Sequence"] = seq;
+                            dr["AreaCode"] = item.AreaCode;
                             dr["OperationVariationId"] = item.OperationVariationId;
                             dr["OperationGroup"] = item.OperationGroup;
                             dr["SkillMasterId"] = item.SkillMasterId;
@@ -1686,9 +1687,10 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' ORDER BY  TEMP
 
                             dr.BeginEdit();
 
-                            dr["ProductionBulletinTemplateMasterId"] = item.ProductionBulletinTemplateMasterId;
+                            dr["ProductionBulletinTemplateMasterId"] = productionBulletinTemplateMasterId;
                             dr["Sequence"] = item.Sequence;
                             dr["OperationVariationId"] = item.OperationVariationId;
+                            dr["AreaCode"] = item.AreaCode;
                             dr["OperationGroup"] = item.OperationGroup;
                             dr["SkillMasterId"] = item.SkillMasterId;
                             dr["MachineVarientId"] = item.MachineVarientId;

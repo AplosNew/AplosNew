@@ -698,7 +698,7 @@ namespace Library.Service.IEnumerable
                             ,BTD.BobbinDescription,BTD.BobbinMaterialMasterId,BTD.BobbinArticleId
                             ,BTD.LooperDescription,BTD.LooperMaterialMasterId,BTD.LooperArticleId	
                             ,BTD.SPIConsumption,BTD.NeedleConsumption,BTD.BobbinConsumption,BTD.LooperConsumption,BTD.Consumption,0 DelFlag
-                            ,CONVERT(NUMERIC(10,2),BTD.AdditionalWorkstation) AdditionalWorkstation, CONVERT(NUMERIC(10,2),BTD.AdditionalManpower) AdditionalManpower
+                            ,CONVERT(NUMERIC(10,2),BTD.AdditionalWorkstation) AdditionalWorkstation, CONVERT(NUMERIC(10,2),BTD.AdditionalManpower) AdditionalManpower,BTD.AreaCode
                              FROM [MST].[BulletinTemplateDetail] BTD
                              LEFT JOIN [MST].[OperationVariation] OV ON OV.Id=BTD.OperationVariationId
                              LEFT JOIN (SELECT OP.Id,ISNULL(OP.BasicProcessTime, 0) AS BasicProcessTime, ISNULL(OP.AssociateProcessTime, 0) AS AssociateProcessTime
@@ -749,7 +749,7 @@ namespace Library.Service.IEnumerable
                             ,OV.OperationId
                             ,OCT.Id OperationCategoryId
 							,OCT.UserName OperationCategory
-                            ,SC.Id StitchCodeId ,SC.UserName StitchCode,OperationLength=ISNULL(O.OperationLength,0)* 2.54
+                            ,SC.Id StitchCodeId ,SC.UserName StitchCode,OperationLength=ISNULL(O.OperationLength,0)* 2.54,OV.AreaCode
                            FROM [MST].[OperationVariation] OV
                            LEFT JOIN [MST].[MaterialMasterArticle] A ON A.Id = OV.ArticleId
                            --LEFT JOIN [HKP].[Skill] S ON S.Id = OV.SkillId

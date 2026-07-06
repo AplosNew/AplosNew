@@ -9,6 +9,7 @@ namespace Library.Model.IE
         public string Id { get; set; }
         public string BulletinTemplateMasterId { get; set; }
         public decimal Sequence { get; set; }
+        public string AreaCode { get; set; } = "";
         public string OperationVariationId { get; set; }
         public string OperationCode { get; set; }
         public string OperationGroup { get; set; }
