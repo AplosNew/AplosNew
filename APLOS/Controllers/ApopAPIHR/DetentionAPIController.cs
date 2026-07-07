@@ -2861,6 +2861,141 @@ order by ATC.AddedDate desc"));
 
         }
 
+        public IHttpActionResult GetAQLReportDataFirst(string AQLId)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select Distinct
+ATS.Id ReportNumber, Format(ATS.DateTime,'yyyy-mm-dd') ReportDate , ATS.LotSize , ATS.SampleSize , ATS.AcceptPoint, RejectPoint = (ATS.AcceptPoint + 1)
+,ATS.AQLLevelValue , ATS.AQLLevel , SD.ShiftType , EI.EmployeeName  , wcm.UserName [Line] 
+,SO.Id Salesorder , SO.LineItemReference LineItem , PO.Id PO 
+ ,Chv.UserName Color,SizeData.Size AS Size
+ ,PB.BulletinName [Description] , pt.UserName Customer  
+ ,SUM(ISNULL(DefectCount.OperationDefect,0)) AS OperationDefect
+,SUM(ISNULL(DefectCount.OtherDefect,0)) AS OtherDefect
+,SUM(ISNULL(DefectCategoryCount.MinorDefect,0)) AS MinorDefect
+,SUM(ISNULL(DefectCategoryCount.MajorDefect,0)) AS MajorDefect
+, TotalMajorDefect = ((case when SUM(ISNULL(DefectCategoryCount.MinorDefect,0)) = 0 then 0 else FLOOR(SUM(ISNULL(DefectCategoryCount.MinorDefect,0))/3) end ) + SUM(ISNULL(DefectCategoryCount.MajorDefect,0)))
+,sum(ATGC.Rejectqty) Rejectqty
+from [TRN].[AQLTransection]  ATS
+left join ShiftDefination SD on SD.SystemID = ATS.ShiftId
+left join sec.[User] US on US.UserId = ATS.AddedBy 
+left join EmployeeInformation EI on EI.SystemId = US.EmployeeId 
+left join scs.WorkCenterMaster wcm on wcm.id = ATS.WorkCenterMasterId
+left join [TRN].[AQLTranChild] ATC on ATC.AQLTransectionId = ATS.Id
+left join trn.salesorder so on so.id = ATC.Salesorderid 
+left join [TRN].[ProductionOrderDetail] pod on  so.id = pod.salesorderid 
+left join trn.ProductionOrder po on po.id = pod.ProductionOrderId
+left join TRN.FirstCharacteristics FC  on FC.Id = ATC.SKU1Id 
+left join TRN.SecondCharacteristics SC on SC.Id = ATC.SKU2Id
+left join [HKP].[Characteristics] Ch on Ch.Id = FC.CharacteristicsId 
+left join [HKP].[CharacteristicsValue]  Chv on Chv.Id = FC.CharacteristicsValueId
+left join [HKP].[Characteristics] Chs on Chs.Id = SC.CharacteristicsId 
+left join [HKP].[CharacteristicsValue]  Chvs on Chvs.Id = Sc.CharacteristicsValueId
+left join TRN.ProductionBulletinTemplate PB on PB.Productionorderid = PO.Id
+left join trn.masterorderitem moi on moi.Id = so.MasterOrderItemId
+left join trn.MasterOrder mo on mo.id = moi.MasterOrderId 
+left join hkp.Party pt on pt.id = mo.PartyId 
+left join AQLTranGrandChild ATGC on ATGC.AQLTranChildId = ATC.Id
+OUTER APPLY
+(
+    SELECT
+        SUM(CASE WHEN DM.TypesOfDefects = 'Operation' THEN 1 ELSE 0 END) AS OperationDefect,
+        SUM(CASE WHEN DM.TypesOfDefects = 'Other' THEN 1 ELSE 0 END) AS OtherDefect
+    FROM STRING_SPLIT(ATGC.DefectId, ',') S
+    INNER JOIN HKP.DefectMaster DM
+        ON DM.Id = TRY_CAST(S.value as varchar(max))
+) DefectCount
+OUTER APPLY
+(
+    SELECT
+        SUM(CASE WHEN DM.DefectCategory = 'Major' THEN 1 when DM.DefectCategory = 'Critical' then 1 ELSE 0 END) AS MajorDefect,
+        SUM(CASE WHEN DM.DefectCategory = 'Minor' THEN 1 ELSE 0 END) AS MinorDefect
+       -- SUM(CASE WHEN DM.DefectCategory = 'Critical' THEN 1 ELSE 0 END) AS CriticalDefect
+    FROM STRING_SPLIT(ATGC.DefectId, ',') S
+    INNER JOIN HKP.DefectMaster DM
+        ON DM.Id = TRY_CAST(S.value as varchar(max))
+) DefectCategoryCount
+OUTER APPLY
+(
+    SELECT STRING_AGG(CONCAT(T.Size, ': ', T.AuditQty), ', ') AS Size
+    FROM
+    (
+        SELECT DISTINCT
+            Chvs2.UserName AS Size,
+            ATC2.AuditQty
+        FROM TRN.AQLTranChild ATC2
+        LEFT JOIN TRN.SecondCharacteristics SC2
+            ON SC2.Id = ATC2.SKU2Id
+        LEFT JOIN HKP.CharacteristicsValue Chvs2
+            ON Chvs2.Id = SC2.CharacteristicsValueId
+        WHERE ATC2.AQLTransectionId = ATS.Id
+          AND ATC2.SalesOrderId = SO.Id
+          AND ATC2.SKU1Id = ATC.SKU1Id
+    ) T
+) SizeData
+where ATS.Id = '" + AQLId + @"'
+group by ATS.Id , Format(ATS.DateTime,'yyyy-mm-dd')  , ATS.LotSize , ATS.SampleSize , ATS.AcceptPoint 
+,ATS.AQLLevelValue , ATS.AQLLevel , SD.ShiftType , EI.EmployeeName  , wcm.UserName
+,SO.Id  , SO.LineItemReference  , PO.Id ,Chv.UserName,PB.BulletinName, pt.UserName ,
+SizeData.Size"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetAQLReportDataSecond(string AQLId)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"SELECT
+    DM.DefectNames,
+    DM.DefectCategory,
+    COUNT(*) AS DefectCount
+FROM TRN.AQLTransection ATS
+LEFT JOIN TRN.AQLTranChild ATC
+    ON ATC.AQLTransectionId = ATS.Id
+LEFT JOIN AQLTranGrandChild ATGC
+    ON ATGC.AQLTranChildId = ATC.Id
+CROSS APPLY STRING_SPLIT(ATGC.DefectId, ',') S
+INNER JOIN HKP.DefectMaster DM
+    ON DM.Id = TRY_CAST(S.value AS varchar(max))
+WHERE ATS.Id = '" + AQLId + @"'
+GROUP BY
+    DM.DefectNames,
+    DM.DefectCategory
+ORDER BY
+    DM.DefectCategory,
+    DM.DefectNames;"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
         [HttpPost]
         public string SaveAQL([FromBody] IEnumerable<AQLModel> DataToSave)
         {
