@@ -2881,6 +2881,9 @@ ATS.Id ReportNumber, Format(ATS.DateTime,'yyyy-mm-dd') ReportDate , ATS.LotSize 
 ,SUM(ISNULL(DefectCategoryCount.MajorDefect,0)) AS MajorDefect
 , TotalMajorDefect = ((case when SUM(ISNULL(DefectCategoryCount.MinorDefect,0)) = 0 then 0 else FLOOR(SUM(ISNULL(DefectCategoryCount.MinorDefect,0))/3) end ) + SUM(ISNULL(DefectCategoryCount.MajorDefect,0)))
 ,sum(ATGC.Rejectqty) Rejectqty
+,FC.Qty OrderQty
+,OperationMajorDefect = ((case when SUM(ISNULL(OPOTDefectCount.OperationMinorDefect,0)) = 0 then 0 else FLOOR(SUM(ISNULL(OPOTDefectCount.OperationMinorDefect,0))/3) end ) + SUM(ISNULL(OPOTDefectCount.OperationMajorDefect,0)))
+,OtherMajorDefect = ((case when SUM(ISNULL(OPOTDefectCount.OtherMinorDefect,0)) = 0 then 0 else FLOOR(SUM(ISNULL(OPOTDefectCount.OtherMinorDefect,0))/3) end ) + SUM(ISNULL(OPOTDefectCount.OtherMajorDefect,0)))
 from [TRN].[AQLTransection]  ATS
 left join ShiftDefination SD on SD.SystemID = ATS.ShiftId
 left join sec.[User] US on US.UserId = ATS.AddedBy 
@@ -2913,6 +2916,17 @@ OUTER APPLY
 OUTER APPLY
 (
     SELECT
+        SUM(CASE WHEN DM.TypesOfDefects = 'Operation' and (DM.DefectCategory = 'Major' or DM.DefectCategory = 'Critical')  THEN 1 ELSE 0 END) AS OperationMajorDefect,
+        SUM(CASE WHEN DM.TypesOfDefects = 'Operation' and (DM.DefectCategory = 'Minor')  THEN 1 ELSE 0 END) AS OperationMinorDefect,
+        SUM(CASE WHEN DM.TypesOfDefects = 'Other'  and (DM.DefectCategory = 'Major' or DM.DefectCategory = 'Critical') THEN 1 ELSE 0 END) AS OtherMajorDefect,
+        SUM(CASE WHEN DM.TypesOfDefects = 'Other'  and (DM.DefectCategory = 'Minor') THEN 1 ELSE 0 END) AS OtherMinorDefect
+    FROM STRING_SPLIT(ATGC.DefectId, ',') S
+    INNER JOIN HKP.DefectMaster DM
+        ON DM.Id = TRY_CAST(S.value as varchar(max))
+) OPOTDefectCount
+OUTER APPLY
+(
+    SELECT
         SUM(CASE WHEN DM.DefectCategory = 'Major' THEN 1 when DM.DefectCategory = 'Critical' then 1 ELSE 0 END) AS MajorDefect,
         SUM(CASE WHEN DM.DefectCategory = 'Minor' THEN 1 ELSE 0 END) AS MinorDefect
        -- SUM(CASE WHEN DM.DefectCategory = 'Critical' THEN 1 ELSE 0 END) AS CriticalDefect
@@ -2942,7 +2956,7 @@ where ATS.Id = '" + AQLId + @"'
 group by ATS.Id , Format(ATS.DateTime,'yyyy-mm-dd')  , ATS.LotSize , ATS.SampleSize , ATS.AcceptPoint 
 ,ATS.AQLLevelValue , ATS.AQLLevel , SD.ShiftType , EI.EmployeeName  , wcm.UserName
 ,SO.Id  , SO.LineItemReference  , PO.Id ,Chv.UserName,PB.BulletinName, pt.UserName ,
-SizeData.Size"));
+SizeData.Size,FC.Qty"));
 
             }
             catch (Exception ex)
@@ -2983,6 +2997,31 @@ GROUP BY
 ORDER BY
     DM.DefectCategory,
     DM.DefectNames;"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetAQLImagedata(string AQLId)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select ATGC.Id Value ,CONCAT('/POPResources/AQLAuditPic/' , ATGC.Id , '.jpg' ) Name from [TRN].[AQLTransection]  ATS
+left join [TRN].[AQLTranChild] ATC on ATC.AQLTransectionId = ATS.Id
+left join AQLTranGrandChild ATGC on ATGC.AQLTranChildId = ATC.Id
+where ATS.Id = '" + AQLId + @"' and DefectId <> ''"));
 
             }
             catch (Exception ex)
@@ -3038,7 +3077,52 @@ ORDER BY
             }
         }
 
-       
+        [HttpPost]
+
+        public async Task<IHttpActionResult> PostAQLUploadPhoto()
+        {
+            try
+            {
+                if (!Request.Content.IsMimeMultipartContent())
+                    return BadRequest();
+
+                var provider = new MultipartMemoryStreamProvider();
+                await Request.Content.ReadAsMultipartAsync(provider);
+
+                // Get Id
+                int id = Convert.ToInt32(await provider.Contents
+                    .First(x => x.Headers.ContentDisposition.Name.Trim('"') == "Id")
+                    .ReadAsStringAsync());
+
+                // Get Photo
+                var file = provider.Contents
+                    .First(x => x.Headers.ContentDisposition.FileName != null);
+
+                byte[] bytes = await file.ReadAsByteArrayAsync();
+
+                // Save as 123.jpg
+                string fileName = id + ".jpg";
+
+                string folderPath = @"F:\aPOP\Pratibha\IIS\POPResources\AQLAuditPic\";
+
+                if (!Directory.Exists(folderPath))
+                    Directory.CreateDirectory(folderPath);
+
+                string fullPath = Path.Combine(folderPath, fileName);
+
+                File.WriteAllBytes(fullPath, bytes);
+
+                return Ok(new
+                {
+                    Success = true,
+                    FileName = fileName
+                });
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
 
 
         #endregion Stich
