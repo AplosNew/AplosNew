@@ -625,7 +625,7 @@ namespace Library.Service.OrderManagements
                         LEFT JOIN HKP.Party AS PRT ON MOI.PartyId=PRT.Id
                         LEFT JOIN dbo.ProductLibrary PL ON PL.Id=MOI.ProductLibraryId
                         LEFT JOIN dbo.OrderCostingMasterTemplate OCT ON OCT.Id=MOI.OrderCostingMasterTemplateId
-                        WHERE MOI.MasterOrderId='" + masterOrderId + "'";
+                        WHERE MOI.MasterOrderId='" + masterOrderId + "' order by CAST(MOI.Id as int)";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1745,8 +1745,8 @@ Where MO.Id='"+entity.Id+"'";
                     var thirdCharDbList = _thirdCharacteristicsRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
                     var SOCostingConfirmationDbList = _SOCostingConfirmationRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
 
-                    //var count = _itemRepository.SqlQuery<int>($"SELECT count(Id)Id FROM [TRN].[MasterOrderItem] WHERE MasterOrderId='{masterId}'").First();
-                    var count = _itemRepository.SqlQuery<int>($"SELECT CAST((RIGHT(ISNULL(MAX(CAST(Id AS INT)), 0),2)) AS INT) Id FROM [TRN].[MasterOrderItem] WHERE MasterOrderId='{masterId}'").First();
+                    var count = _itemRepository.SqlQuery<int>($"SELECT count(Id)Id FROM [TRN].[MasterOrderItem] WHERE MasterOrderId='{masterId}'").First();
+                    //var count = _itemRepository.SqlQuery<int>($"SELECT CAST((RIGHT(ISNULL(MAX(CAST(Id AS INT)), 0),2)) AS INT) Id FROM [TRN].[MasterOrderItem] WHERE MasterOrderId='{masterId}'").First();
                     foreach (var item in itemList)
                     {
                         if (item.TotalQty == 0) throw new CustomException("Add Qty");
