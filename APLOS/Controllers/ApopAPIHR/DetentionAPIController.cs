@@ -2846,7 +2846,7 @@ Select 'EndLine' Value , 'EndLine' Name"));
 --,TotalAuitQty = ISNULL( Select  ,0)
 from [TRN].[AQLTranChild] ATC
 left join [TRN].[AQLTransection] ATS on ATS.Id = ATC.AQLTransectionId
-where ATC.SalesOrderId  = '" + SO + "' and ATC.SKU1Id = '" + SKU1 + "' and  ATC.SKU2Id = '" + SKU2 + "'  and ATC.Id = '" + ATCID + @"'
+where ATC.SalesOrderId  = '" + SO + "' and ATC.SKU1Id = '" + SKU1 + "' and  ATC.SKU2Id = '" + SKU2 + "'  and ATS.Id = '" + ATCID + @"'
 order by ATC.AddedDate desc"));
 
             }
