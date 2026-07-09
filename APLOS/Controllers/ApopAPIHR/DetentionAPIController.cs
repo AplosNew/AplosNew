@@ -3125,6 +3125,28 @@ where ATS.Id = '" + AQLId + @"' and DefectId <> ''"));
         }
 
 
+        public IHttpActionResult GetAplosPlayStoreAppVersion()
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"select '1.0.4' as Version from org.CompanyGroup"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
         #endregion Stich
 
         #region Attendance tracker
