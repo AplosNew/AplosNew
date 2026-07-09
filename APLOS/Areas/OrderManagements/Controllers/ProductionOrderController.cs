@@ -119,6 +119,17 @@ WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='" + identity.Compan
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetMasterOrderEntityCbo()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT distinct E.Id,E.UserName FROM TRN.MasterOrder M
+JOIN ORG.Entity E ON E.Id=M.EntityId
+Where M.OrderStatusId='Active' AND M.PlantId='" + identity.PlantId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetPlanningType2ProcessCbo()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -176,13 +187,17 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
             return null;
         }
         [Authorize, HttpGet]
-        public ActionResult GetSalesOrderListSearch(string column, string value, string productionorderid, string EntityId, string ProcessId)
+        public ActionResult GetSalesOrderListSearch(string column, string value, string productionorderid, string EntityId, string ProcessId, List<string> moentity)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = " temp." + column + " like '%" + value + "%'";
-
+            string moentityId = "''";
+            for (int i = 0; i < moentity.Count; i++)
+            {
+                moentityId += ",'" + moentity[i].ToString() + "'";
+            }
 
             string activeStatus = "";
             string plantSql = @"select * from scs.PlantConfig where plantid='" + identity.PlantId + "'";
@@ -367,7 +382,7 @@ Where PT.EntityId='" + EntityId + @"' AND PT.BaseProcessId='" + ProcessId + @"'
 							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
 							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
 
-WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
+WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId IN(" + moentityId + @") ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }

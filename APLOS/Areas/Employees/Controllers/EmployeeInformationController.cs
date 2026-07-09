@@ -23,6 +23,7 @@ using bplib;
 using Library.Model.HumanResources;
 using Library.Model.Enums;
 using System.Linq;
+using Library.Service.HumanResources.Profile;
 
 namespace Aplos.Areas.Employees.Controllers
 {
@@ -2288,7 +2289,10 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=TT.ResponsiblePersonId) AS TEM
                 IWorksheet sheetSource = null;
                 sheetSource = workbook.Worksheets[1];
                 xlsRow = 1;
-
+                int maxRow = 5001; 
+                clsTemplateDownloadProfile clsTemp = new clsTemplateDownloadProfile();
+                string[] _UDC = { "A", "B","C","D" };
+                clsTemp.CreateSource(_UDC, 12, "UserDefineCategory", ref sheetSource); int colUDC = 0;
                 #region ------------------Column Header------------------
 
 
@@ -2303,6 +2307,8 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=TT.ResponsiblePersonId) AS TEM
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 17; int colES= xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCurrentStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 22; int colECS= xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeUserStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colEUS= xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserDefineCategory"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20;  colUDC= xlsCol; 
+                ru.SetList(ref sheet1, xlsRow, maxRow, xlsCol, sheetSource, colUDC, _UDC.Length); xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remark"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colRemark= xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ToUpdate"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colToUpdate = xlsCol; 
                 endXlsCol = xlsCol;
@@ -2335,6 +2341,7 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=TT.ResponsiblePersonId) AS TEM
                     sheet1[xlsRow, colES].Text = dtData.Rows[i]["EmployeeStatus"].ToString();
                     sheet1[xlsRow, colECS].Text = dtData.Rows[i]["EmployeeCurrentStatus"].ToString();
                     sheet1[xlsRow, colEUS].Text = dtData.Rows[i]["EmployeeUserStatus"].ToString();
+                    sheet1[xlsRow, colUDC].Text = dtData.Rows[i]["UserDefineCategory"].ToString();
                     sheet1[xlsRow, colRemark].Text = dtData.Rows[i]["Remark"].ToString();
                     sheet1[xlsRow, colToUpdate].Text = dtData.Rows[i]["ToUpdate"].ToString();
                     xlsRow++;
@@ -2380,7 +2387,7 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=TT.ResponsiblePersonId) AS TEM
         public DataTable GetEmployeeData()
         {
             var cmdText = @"Select E.EmployeeCode,E.SystemId,E.EmployeeName,FORMAT(E.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(E.DOS,'dd-MMM-yyyy') DOS
-,En.UserName Entity,C.UserName Company,P.UserName Plant,E.EmployeeStatus,E.EmployeeCurrentStatus,E.EmployeeUserStatus,E.Remark,''ToUpdate
+,En.UserName Entity,C.UserName Company,P.UserName Plant,E.EmployeeStatus,E.EmployeeCurrentStatus,E.EmployeeUserStatus,E.UserDefineCategory,E.Remark,''ToUpdate
 From dbo.EmployeeInformation E
 Left Join MST.ManpowerBudget M ON M.Id=E.BudgetCode
 Left Join ORG.Entity En ON En.Id=M.EntityId
@@ -2472,6 +2479,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                                 vm.EmployeeStatus = dsExcel.Tables[0].Rows[i][8].ToString().Trim();
                                 vm.EmployeeCurrentStatus = dsExcel.Tables[0].Rows[i][9].ToString().Trim();
                                 vm.EmployeeUserStatus = dsExcel.Tables[0].Rows[i][10].ToString().Trim();
+                                vm.UserDefineCategory = dsExcel.Tables[0].Rows[i][11].ToString().Trim();
                                 vm.Remark = dsExcel.Tables[0].Rows[i][11].ToString().Trim();
 
                                 data.Add(vm);
@@ -2594,6 +2602,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
             public string EmployeeStatus { get; set; }
             public string EmployeeCurrentStatus { get; set; }
             public string EmployeeUserStatus { get; set; }
+            public string UserDefineCategory { get; set; }
             public string Remark { get; set; }
             public string ToUpdate { get; set; }
 

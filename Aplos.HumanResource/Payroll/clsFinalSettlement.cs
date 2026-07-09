@@ -170,7 +170,9 @@ namespace OTSBD
 
                     DateTime _DOS = Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"].ToString());
                     int years = new DateTime(_DOS.Subtract(Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOJ"].ToString())).Ticks).Year - 1;
-                    DateTime PastYearDate = (Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOJ"].ToString())).AddYears(years);
+                    //DateTime emdoj = Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOJ"]);
+                    //decimal years = Math.Round((decimal)(_DOS - emdoj).TotalDays / 365.25m, 2);
+                    DateTime PastYearDate = (Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOJ"].ToString())).AddYears(Convert.ToInt32(years));
                     int month = 0;
                     for (int i = 1; i <= 12; i++)
                     {
@@ -235,7 +237,9 @@ namespace OTSBD
                             else
                             {
                                 NumberOfYears = years;
+
                                 NumberOfDays = Convert.ToInt32(dvSeparationTypeDetails[0]["DayNo"]);
+
                             }
                         }
                         else
@@ -269,20 +273,20 @@ namespace OTSBD
                             {
                                 if (month > 6)
                                 {
-                                    GratuityNumberOfYears = years + 1;
+                                    GratuityNumberOfYears =Convert.ToInt32(years) + 1;
                                 }
                                 else if (month == 6 && days > 0)
                                 {
-                                    GratuityNumberOfYears = years + 1;
+                                    GratuityNumberOfYears = Convert.ToInt32(years) + 1;
                                 }
                                 else
                                 {
-                                    GratuityNumberOfYears = years;
+                                    GratuityNumberOfYears = Convert.ToInt32(years);
                                 }
                             }
                             else
                             {
-                                GratuityNumberOfYears = years;
+                                GratuityNumberOfYears = Convert.ToInt32(years);
                             }
 
                             DataView dvGratuityPolicyTemp = new DataView(dsGratuityPolicy.Tables[0]);
@@ -1162,7 +1166,7 @@ namespace OTSBD
             }
         }//End Function
 
-        public void GetExtraDaysforServicePeriod(string EmployeeId, string fromDate,string toDate, out System.Data.DataSet dsRef)
+        public void GetExtraDaysforServicePeriod(string EmployeeId, string fromDate, string toDate, out System.Data.DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
@@ -1181,8 +1185,8 @@ namespace OTSBD
 									ELSE 0 END) END
 									from dbo.AttdnProcessData A
 									LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=A.EmpSystemID
-									Where A.EmpSystemID="+ EmployeeId + @" AND A.DayStatus !='A' 
-									AND A.WorkDate between '"+ fromDate + @"' AND '"+ toDate + @"'
+									Where A.EmpSystemID=" + EmployeeId + @" AND A.DayStatus !='A' 
+									AND A.WorkDate between '" + fromDate + @"' AND '" + toDate + @"'
 									GROUP BY E.DOJ,E.DOS";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
