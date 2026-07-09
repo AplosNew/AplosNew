@@ -467,6 +467,9 @@
                                                     <button ng-click="AddDescription(x)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Description"><i class="glyphicon glyphicon-th-list"></i></button>
                                                 </li>
                                                 <li>
+                                                    <button ng-click="getItemSku();" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SKU" ng-disabled="x.Id==null">SKU</button>
+                                                </li>
+                                                <li>
                                                     <button ng-click="getSalesOrder(x,x.Id, x.MaterialMasterId, x.MaterialMasterName, x.ArticleName,x.HSNCodeId,x.BuyerReferenceNo);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SO" ng-disabled="x.Id==null">SO</button>
                                                 </li>
                                                 <li>
@@ -2063,7 +2066,7 @@
 <!-- #endregion Third Characteristics -->
 <!-- #region fourth Characteristics -->
 <div class="modal fade site-modal in" id="fourthPopup" role="dialog" data-backdrop="static" style="overflow-x: auto !important; overflow-y: auto !important;">
-    <div class="modal-dialog modal-lg modellgModifyNew">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 SKU

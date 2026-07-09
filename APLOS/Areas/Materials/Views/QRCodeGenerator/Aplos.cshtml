@@ -1,124 +1,280 @@
-﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>QR Code Generator</h3>
-<div class="form-elements form-horizontal row" ng-form name="ModelNewForm">
-    <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.EntityId" name="Entity" ng-change="loadProcessList(ModelNew.EntityId)" required tabindex="2">
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in EntityList" value="{{option.Id}}">{{option.UserName}}</option>
-                    </select>
+﻿@*<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>QR Code Generator</h3>
+    <div class="form-elements form-horizontal row" ng-form name="ModelNewForm">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.EntityId" name="Entity" ng-change="loadProcessList(ModelNew.EntityId)" required tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in EntityList" value="{{option.Id}}">{{option.UserName}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Purpose<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Purpose" ng-model="ModelNew.Purpose" class="form-control" maxlength="100" autocomplete="off" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li> <button ng-click="GetProductionOrderPopUp();" ng-disabled="ModelNew.Id" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search">Production Order</i></button></li>
+                    </ul>
                 </div>
             </div>
         </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Purpose<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Purpose" ng-model="ModelNew.Purpose" class="form-control" maxlength="100" autocomplete="off" required>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.ProcessId" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <input type="text" name="By Whom" ng-model="ModelNew.ByWhomName" class="form-control" readonly required>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="GetByWhomPopupData()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="form-group">
+        <div class="col-xs-12">
+            <div class="content-container-fluid" style="color:black;">
+                <div style="color:black;" id="GridSPO" ej-grid e-datasource="selectedProductionOrder" e-allowscrolling="true"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="Get"
+                     e-allowselection="true" e-filtersettings-filterType="excel">
+
+                    <div e-columns>
+                        <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
+                        <div e-column e-type="string" e-field="StyleNo" e-headertext="BuyerRef#" e-width="50"></div>
+                        <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Ref#" e-width="50"></div>
+                        <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="80"></div>
+                        <div e-column e-type="string" e-field="POId" e-headertext="PO No" e-width="80"></div>
+                        <div e-column e-type="string" e-field="POStatus" e-headertext="PO Status" e-width="80"></div>
+                        <div e-column e-type="string" e-field="SONo" e-headertext="SONo" e-width="80"></div>
+                        <div e-column e-type="string" e-field="SOStatus" e-headertext="SO Status" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.00}" e-field="SOQty" e-headertext="SOQty" e-width="80" e-textalign="right"></div>
+                        <div e-column e-type="string" e-field="LineItemId" e-headertext="LineItemId" e-width="80"></div>
+                        <div e-column e-headertext=" Action " e-template="#DeleteTemplate" e-width="120"></div>
+
+                    </div>
+                    <script id="DeleteTemplate" type="text/template">
+                        <div class="common-btn" ng-disabled="productNew.Id">
+                            <ul class="common-btn list-inline text-center">
+                                <li>
+                                    <button ng-click="$parent.removeSelectedPO(data,$index);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
+                                        <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
+                                    </button>
+
+                                </li>
+                            </ul>
+                        </div>
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade site-modal in" id="EmpPopUp" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Employee Information
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="GridPopUp" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-recorddoubleclick="selectdblClick" e-allowselection="true" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                <div e-column e-headertext="Pic" e-template="#empimage" e-textalign="center" e-width="40"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
+                                <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                                <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                                <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/x-jsrender" id="empimage">
+            <img src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
+        </script>
+    </div>
+    <div class="modal site-modal in" id="POItemPopup" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">Production Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="modal-body text-center">
+                    <div class="row">
+                        <div style="color:black;" id="GridPO" ej-grid e-datasource="ProductionOrderList" e-allowscrolling="true"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="SetPrOData"
+                             e-allowselection="true" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
+                                <div e-column e-type="string" e-field="StyleNo" e-headertext="BuyerRef#" e-width="50"></div>
+                                <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Ref#" e-width="50"></div>
+                                <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="80"></div>
+                                <div e-column e-type="string" e-field="POId" e-headertext="PO No" e-width="80"></div>
+                                <div e-column e-type="string" e-field="POStatus" e-headertext="PO Status" e-width="80"></div>
+                                <div e-column e-type="string" e-field="SONo" e-headertext="SONo" e-width="80"></div>
+                                <div e-column e-type="string" e-field="SOStatus" e-headertext="SO Status" e-width="80"></div>
+                                <div e-column e-type="number" e-format="{0:0.00}" e-field="SOQty" e-headertext="SOQty" e-width="80" e-textalign="right"></div>
+                                <div e-column e-type="string" e-field="LineItemId" e-headertext="LineItemId" e-width="80"></div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+
+<script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+<div>
+    <h4><span></span>QR Code Generator</h4>
+    <hr />
+</div>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    @*<input type="hidden" ng-model="QRCodeGenerateModel.Id">*@
+    <div class="row">
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            @*<div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Port No.</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="ModelNew.Portno" name="PO"
+                                    tabindex="2">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in PortNoList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>*@
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Customer</label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <span class="input-group-addon">{{ModelNew.PartyCode}}</span>
+                        <input type="text" name="Vendor" ng-model="ModelNew.PartyName" class="form-control" required readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="showPartyPopUpNew()" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            <button name="submit" ng-click="ClearPO()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <span class="input-group-addon">{{ProcessManagementNew.ResponsiblePersonCode}}</span>
+                        <input type="text" name="Responsible Person" ng-model="ProcessManagementNew.EmployeeName" class="form-control" readonly required>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="LoadResponsiblePopupData()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
             <div class="common-btn">
-                <ul class="list-inline text-left">
-                    <li> <button ng-click="GetProductionOrderPopUp();" ng-disabled="ModelNew.Id" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search">Production Order</i></button></li>
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="LoadGrid();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Load Grid</button></li>
+                    @*<li> <button ng-click="ConnectPortConnection();" class="btn" tabindex="9"><i class="glyphicon"></i> Make Connection</button></li>*@
+
                 </ul>
             </div>
         </div>
-    </div>
-    <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Process<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.ProcessId" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
-                        <option value=""></option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="input-group">
-                    <input type="text" name="By Whom" ng-model="ModelNew.ByWhomName" class="form-control" readonly required>
-                    <span class="input-group-btn">
-                        <button name="submit" ng-click="GetByWhomPopupData()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xs-12">
-        <div class="content-container-fluid" style="color:black;">
-            <div style="color:black;" id="GridSPO" ej-grid e-datasource="selectedProductionOrder" e-allowscrolling="true"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel">
-
-                <div e-columns>
-                    <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
-                    <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
-                    <div e-column e-type="string" e-field="StyleNo" e-headertext="BuyerRef#" e-width="50"></div>
-                    <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Ref#" e-width="50"></div>
-                    <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="80"></div>
-                    <div e-column e-type="string" e-field="POId" e-headertext="PO No" e-width="80"></div>
-                    <div e-column e-type="string" e-field="POStatus" e-headertext="PO Status" e-width="80"></div>
-                    <div e-column e-type="string" e-field="SONo" e-headertext="SONo" e-width="80"></div>
-                    <div e-column e-type="string" e-field="SOStatus" e-headertext="SO Status" e-width="80"></div>
-                    <div e-column e-type="number" e-format="{0:0.00}" e-field="SOQty" e-headertext="SOQty" e-width="80" e-textalign="right"></div>
-                    <div e-column e-type="string" e-field="LineItemId" e-headertext="LineItemId" e-width="80"></div>
-                    <div e-column e-headertext=" Action " e-template="#DeleteTemplate" e-width="120"></div>
-
-                </div>
-                <script id="DeleteTemplate" type="text/template">
-                    <div class="common-btn" ng-disabled="productNew.Id">
-                        <ul class="common-btn list-inline text-center">
-                            <li>
-                                <button ng-click="$parent.removeSelectedPO(data,$index);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
-                                    <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
-                                </button>
-
-                            </li>
-                        </ul>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Entity</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.EntityId" name="PO"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in EntityList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
                     </div>
-                </script>
+                </div>
             </div>
+
+
+            @*<div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">G.Weight</label>
+                    <div class="col-sm-8 show-message">
+
+                        <input type="text" name="Short Name" ng-model="ModelNew.GrossWeight" class="form-control" maxlength="15" required tabindex="3">
+
+                    </div>
+                </div>*@
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">PO</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.PO" name="PO" ng-change="LoadGrid();"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in POList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
-</div>
-<div class="modal fade site-modal in" id="EmpPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                Employee Information
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+    <div class="row">
+        <div class="tab-design">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Budget Code</a></li>
+
+                </ul>
             </div>
-            <div class="modal-body">
-                <div class="content-container-fluid" style="color:black;">
-                    <div style="color:black;" id="GridPopUp" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-recorddoubleclick="selectdblClick" e-allowselection="true" e-filtersettings-filterType="excel">
-                        <div e-columns>
-                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-                            <div e-column e-headertext="Pic" e-template="#empimage" e-textalign="center" e-width="40"></div>
-                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-                            <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
-                            <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
-                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
-                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
-                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
-                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="table-responsive">
+                        <div id="bgtCodeGridId" ej-grid e-datasource="DataList" e-load="loadGridEdit" e-recorddoubleclick="Get"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="PO" e-headertext="PO" e-width="70"></div>
+                                <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
+                                <div e-column e-field="ProductCode" e-headertext="Product Code" e-width="70"></div>
+                                <div e-column e-field="Shade" e-headertext="Shade" e-width="100"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <script type="text/x-jsrender" id="empimage">
-        <img src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
-    </script>
 </div>
+
 <div class="modal site-modal in" id="POItemPopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -129,23 +285,43 @@
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="SetPrOData"
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
-                            <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
-                            <div e-column e-type="string" e-field="StyleNo" e-headertext="BuyerRef#" e-width="50"></div>
-                            <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Ref#" e-width="50"></div>
+                            <div e-column e-template="#showSOList" e-headertext="" e-width="30"></div>
+                            <div e-column e-type="string" e-field="POId" e-headertext="PrO" e-width="80"></div>
+                            <div e-column e-type="string" e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
+                            <div e-column e-type="string" e-field="OwnOrder" e-headertext="Own Ord#" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.00}" e-field="Qty" e-headertext="Qty" e-width="80" e-textalign="right"></div>
+                            <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="LSD" e-headertext="LSD" e-width="80"></div>
+                            <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ProductionStatus" e-headertext="Production Status" e-width="80"></div>
+                            <div e-column e-type="string" e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
+                            <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Category" e-width="80"></div>
                             <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="80"></div>
-                            <div e-column e-type="string" e-field="POId" e-headertext="PO No" e-width="80"></div>
-                            <div e-column e-type="string" e-field="POStatus" e-headertext="PO Status" e-width="80"></div>
-                            <div e-column e-type="string" e-field="SONo" e-headertext="SONo" e-width="80"></div>
-                            <div e-column e-type="string" e-field="SOStatus" e-headertext="SO Status" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="SOQty" e-headertext="SOQty" e-width="80" e-textalign="right"></div>
-                            <div e-column e-type="string" e-field="LineItemId" e-headertext="LineItemId" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
+                            <div e-column e-type="string" e-field="PONumber" e-headertext="PO Number" e-width="80"></div>
+                            <div e-column e-type="string" e-field="RequiredTimeUnit" e-headertext="Required Time Unit" e-width="80"></div>
 
                         </div>
                     </div>
+                    <script type="text/template" id="showSOList">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right small">
 
+                                <li>
+                                    <button ng-click="$parent.getSalesOrderOfProdOrderList(this);" class="btn small" style="height: 20px;width: 20px;padding: 0px;margin: 0px;">
+                                        <i class="glyphicon glyphicon-th-list"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </script>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+@Html.Partial("~/Areas/Materials/Views/QRCodeGenerator/_WeighingScaleMachinePopUp.cshtml")

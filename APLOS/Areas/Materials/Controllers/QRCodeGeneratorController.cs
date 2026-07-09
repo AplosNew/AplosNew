@@ -198,10 +198,10 @@ namespace Aplos.Areas.Materials.Controllers
                 //    throw new Exception(NetWeightText + " must be match with define min and max weight");
                 //}
 
-                if (!String.IsNullOrEmpty(data["ProductCode"].ToString()))
-                {
-                    ProductCode = data["ProductCode"].ToString();
-                }
+                //if (!String.IsNullOrEmpty(data["ProductCode"].ToString()))
+                //{
+                //    ProductCode = data["ProductCode"].ToString();
+                //}
 
                 if (!String.IsNullOrEmpty(data["PO"].ToString()))
                 {
@@ -224,10 +224,10 @@ namespace Aplos.Areas.Materials.Controllers
                 {
                     GrossWeight = data["GrossWeight"].ToString();
                 }
-                if (!String.IsNullOrEmpty(data["Shade"].ToString()))
-                {
-                    Shade = data["Shade"].ToString();
-                }
+                //if (!String.IsNullOrEmpty(data["Shade"].ToString()))
+                //{
+                //    Shade = data["Shade"].ToString();
+                //}
                 if (!String.IsNullOrEmpty(data["Article"].ToString()))
                 {
                     Article = data["Article"].ToString();
