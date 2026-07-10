@@ -1843,7 +1843,7 @@ Where MO.Id='"+entity.Id+"'";
                             }
                             _itemRepository.Delete(item);
                             DeleteMOIDocumntFromFolder(item.Id);
-                            DeleteArticleAlias(item.Id);
+                           
                         }
                     }
                     else
@@ -1902,7 +1902,7 @@ Where MO.Id='"+entity.Id+"'";
 
                                 _itemRepository.Delete(item);
                                 DeleteMOIDocumntFromFolder(item.Id);
-                                DeleteArticleAlias(item.Id);
+                              
                             }
                         }
                     }
@@ -2012,9 +2012,13 @@ Where MO.Id='"+entity.Id+"'";
             var path = Path.Combine(directory);
             ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
             string sql = "SELECT * FROM TRN.MasterOrderItem WHERE Id='" + id + "'";
+            string sqlaa = " delete FROM ArticleAlias WHERE MasterOrderItemId='" + id + "'";
+            string sqltm = " delete FROM TNAMaster WHERE MasterOrderItemId='" + id + "'";
             DataSet dsLocal = null;
             connection.BeginTransaction();
             connection.getDataSet(sql, out dsLocal);
+            connection.executeQuery(sqlaa);
+            connection.executeQuery(sqltm);
             connection.CommitTransaction();
             var FN = dsLocal.Tables[0].Rows[0]["FileName"].ToString();
 
@@ -2023,15 +2027,6 @@ Where MO.Id='"+entity.Id+"'";
 
         }
 
-        public void DeleteArticleAlias(string id)
-        {
-            ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
-            string sql = " delete FROM ArticleAlias WHERE MasterOrderItemId='" + id + "'";
-            connection.BeginTransaction();
-            connection.executeQuery(sql);
-            connection.CommitTransaction();
-
-        }
 
         public void InsertOrUpdateGraph(string masterItemId, IEnumerable<MasterOrderAttributeValue> attributeValueList)
         {

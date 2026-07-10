@@ -628,7 +628,7 @@ WHERE  spc.EmpInfoSystemID= '" + EmpSystemId + @"' AND PayableVoucherId<>'' AND 
             {
                 if (Convert.ToDateTime(FinalSettlementData.EmpDOS) > Convert.ToDateTime(FinalSettlementData.FinalSettlementDate))
                 {
-                    throw new Exception("Final Settlement Date cannot be less thab DOS");
+                    throw new Exception("Final Settlement Date cannot be less than DOS");
                 }
 
                 if (EarningData != null)

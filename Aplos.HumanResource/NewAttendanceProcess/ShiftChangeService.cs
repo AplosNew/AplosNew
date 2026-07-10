@@ -592,10 +592,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                             dr["UpdatedBy"] = item.AddedBy;
                             dr["UpdatedDate"] = DateTime.Now.ToString();
                             dr["WorkDate"] = item.WorkDate;
-                            dr["ShiftId"] = item.ShiftId;
-                            dr["Lineno"] = item.Lineno;
-                            dr["SupervisorId"] = item.SupervisorId;
-                            dr["EntityId"] = item.EntityId;
 
                             dr.EndEdit();
 
@@ -736,10 +732,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr["UpdatedBy"] = item.AddedBy;
                                     dr["UpdatedDate"] = DateTime.Now;
                                     dr["UpdatedFromIP"] = item.AddedFromIP;
-                                    dr["ShiftId"] = item.ShiftId;
-                                    dr["Lineno"] = item.Lineno;
-                                    dr["SupervisorId"] = item.SupervisorId;
-                                    dr["EntityId"] = item.EntityId;
 
                                     i++;
                                 }
@@ -755,10 +747,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr["UpdatedBy"] = item.AddedBy;
                                     dr["UpdatedDate"] = DateTime.Now;
                                     dr["UpdatedFromIP"] = item.AddedFromIP;
-                                    dr["ShiftId"] = item.ShiftId;
-                                    dr["Lineno"] = item.Lineno;
-                                    dr["SupervisorId"] = item.SupervisorId;
-                                    dr["EntityId"] = item.EntityId;
 
                                     i++;
                                 }

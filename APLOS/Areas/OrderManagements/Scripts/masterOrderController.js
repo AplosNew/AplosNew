@@ -2991,8 +2991,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.char3 = {};
     };
 
-    $scope.getItemSku = function () {
-        
+    $scope.getItemSku = function (data) {
+        $scope.materialMasterId = data;
+        var hasFirst = 0;
         $scope.rowName = null;
         $scope.columnName = null;
         $scope.rowNo = null;
