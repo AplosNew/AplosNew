@@ -236,9 +236,19 @@ namespace OTSBD
                             }
                             else
                             {
+                                int NOY = years;
+                                int MonthNo =int.Parse(obj.TenureMonthNo.ToString());
+                                decimal tenure = NOY + (MonthNo / 12m);
                                 NumberOfYears = years;
+                                if (tenure > 9)
+                                {
+                                    NumberOfDays = 30;
+                                }
+                                else
+                                {
 
-                                NumberOfDays = Convert.ToInt32(dvSeparationTypeDetails[0]["DayNo"]);
+                                    NumberOfDays = Convert.ToInt32(dvSeparationTypeDetails[0]["DayNo"]);
+                                }
 
                             }
                         }
@@ -273,7 +283,7 @@ namespace OTSBD
                             {
                                 if (month > 6)
                                 {
-                                    GratuityNumberOfYears =Convert.ToInt32(years) + 1;
+                                    GratuityNumberOfYears = Convert.ToInt32(years) + 1;
                                 }
                                 else if (month == 6 && days > 0)
                                 {

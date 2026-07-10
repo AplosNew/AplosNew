@@ -317,5 +317,9 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/masterOrder/Upload',
             controller: 'masterOrderUploadController'
         })
+        .when('/production-calendar-type2', {
+            templateUrl: 'OrderManagements/ProductionCalendar/Type2',
+            controller: 'productionCalendarType2Controller'
+        })
         ;
 }
