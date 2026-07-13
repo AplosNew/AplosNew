@@ -732,7 +732,7 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName,  
 							, sectionu.UserName as SSec , subsectionu.UserName as SSubSec
                             , DATEDIFF(MINUTE, apd.InTime, pv.InTime) as InDuration, DATEDIFF(MINUTE, apd.OutTime, pv.OutTime) as OutDuration, pv.OThour
                              ,TG.UserName Transport,RG.UserName Residence,ei.EntryLevel EntryType,ei.CellPhnNo MobileNo
-                             ,mb.ROBudgetCode,mb.PRBudgetCode,EC.userName EmployeeCategory,L.UserName Line,pos.PositionCategory,SkillApplicable= CASE WHEN pos.SkillApplicable=1 then 'Yes' ELSE 'No' END,PhysicalVarification=CASE WHEN  pos.PhysicalVarification=1 then 'Yes' ELSE 'No' END,ei.EmploymentType,OP.UserName SkillName
+                             ,mb.ROBudgetCode,mb.PRBudgetCode,EC.userName EmployeeCategory,L.UserName Line,pos.PositionCategory,SkillApplicable= CASE WHEN pos.SkillApplicable=1 then 'Yes' ELSE 'No' END,PhysicalVarification=CASE WHEN  pos.PhysicalVarification=1 then 'Yes' ELSE 'No' END,ei.EmploymentType,OP.UserName SkillName,IsMachine=CASE WHEN  pos.IsMachine=1 then 'Yes' ELSE 'No' END,POS.MachineName
                               from dbo.AttdnProcessData apd
                              left join org.Plant plant on plant.Id = apd.PlantID
                             left join org.Company company on company.Id = plant.CompanyId

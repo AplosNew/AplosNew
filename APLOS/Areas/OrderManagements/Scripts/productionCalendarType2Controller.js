@@ -9,6 +9,76 @@ function productionCalendarType2Controller(cboService, commonMessage, $scope, $r
         return angular.isUndefined(val) || val === null || val === ""
     }
 
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+
+    $scope.GetCompanyCboList = function () {
+        try {
+
+            $http({
+                method: 'Get',
+                url: 'OrderManagements/masterorder/GetCompanyCboList'
+            }).then(function successCallback(response) {
+                $scope.companyList = response.data;
+            }
+            )
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    $scope.GetCompanyCboList();
+    $scope.plantList = [];
+    $scope.getPlantCbo = function () {
+        cboService.getCboPlantByCompany($scope.fileNew.CompanyId, function (response) {
+            $scope.plantList = response;
+        });
+    };
+
+
+    $scope.getPlantData = function () {
+        $scope.PlantID = $scope.fileNew.PlantID;
+        
+        $http({
+            method: 'POST',
+            url: "HumanResource/PlantWiseHRMSSetting/GetPlantList",
+            data: { PlantID: $scope.fileNew.PlantID },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.fileNew = response.data[0];
+
+        });
+    }
+
+    $scope.SaveWeekOff = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.modelWEOForm.$valid) {
+            $http({
+                method: 'POST',
+                url: 'HumanResource/PlantWiseHRMSSetting/Create',
+                data: { 'data': $scope.fileNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getPlantData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
     $scope.path = 'OrderManagements/ProductionCalendar/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
@@ -53,8 +123,8 @@ function productionCalendarType2Controller(cboService, commonMessage, $scope, $r
                 $scope.HolidayCategorycbo = response.data;
             }
         }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
+            ShowResult(response.data.Message, 'failure');
+        }
     }
     $scope.loadHolidayCategory();
     $scope.workigHours = 0;
@@ -77,8 +147,8 @@ function productionCalendarType2Controller(cboService, commonMessage, $scope, $r
                 else
                     $scope.navigation(null);
             }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
+                ShowResult(response.data.Message, 'failure');
+            }
     }
     $scope.WeekoffAssign = function () {
 
@@ -92,8 +162,8 @@ function productionCalendarType2Controller(cboService, commonMessage, $scope, $r
             ShowResult(response.data.Message, 'success');
             $scope.navigation($scope.navigationargs);
         }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
+            ShowResult(response.data.Message, 'failure');
+        }
     }
     $scope.HolidayAssign = function () {
         var fromdate = $scope.contextmenuargs.targetInfo.ProductionDate;
@@ -125,8 +195,8 @@ function productionCalendarType2Controller(cboService, commonMessage, $scope, $r
                 $scope.navigation($scope.navigationargs);
                 ShowResult(response.data.Message, 'success');
             }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
+                ShowResult(response.data.Message, 'failure');
+            }
 
             var eDialog = $("#setholiday").data("ejDialog");
             eDialog.close();
@@ -171,8 +241,8 @@ function productionCalendarType2Controller(cboService, commonMessage, $scope, $r
                 ShowResult(response.data.Message, 'success');
 
             }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
+                ShowResult(response.data.Message, 'failure');
+            }
 
 
             var eDialog = $("#setworkingday").data("ejDialog");
@@ -202,7 +272,7 @@ function productionCalendarType2Controller(cboService, commonMessage, $scope, $r
 
         }), function errorCallBack(response) {
 
-            }
+        }
     }
 
     ///////////////////////////////SCHEDULE////////////////////////////////
