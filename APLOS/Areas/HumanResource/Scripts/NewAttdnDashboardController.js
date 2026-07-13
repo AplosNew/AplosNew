@@ -422,7 +422,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
 
     // On Downloading the Excel
     $scope.downloadgriddataUrl = 'GridReports/Download';
-    $scope.printReport = function () {
+    $scope._printReport = function () {
         //var dataList = [];
         //var g = $("#getClickDetail").data("ejGrid");
         //dataList = g.getFilteredRecords();
@@ -433,6 +433,14 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
         //if (dataList.length == 0) {
         //    throw "First click on View button.";
         //}
+
+        var dataList = [];
+        var g = $("#getClickDetail").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.ClickDetail;
+        }
 
         //$scope.fileName = "Daily Production Report.xlsx";
         $http({
@@ -447,7 +455,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                 'stat': $scope.Stat,
                 'EmpCat': $scope.EmpCat,
                 'EmpStat': $scope.EmpStat,
-                'EmpShift': $scope.EmpShift,
+                'EmpShift': $scope.EmpShift, 'dataList': dataList
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -460,6 +468,49 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
         });
+    }
+
+    $scope.printReport = function () {
+        try {
+            var dataList = [];
+            var g = $("#getClickDetail").data("ejGrid");
+            dataList = g.getFilteredRecords();
+
+            if (dataList.length == 0) {
+                dataList = $scope.ClickDetail;
+            }
+           
+
+            $http({
+                method: 'POST',
+                url: 'NewAttdnDashboard/GetPrintReport',
+                data: {
+                    'ChartColumnList': $scope.ColList,
+                    'seq': $scope.index,
+                    'date': $scope.Date,
+                    'Column': $scope.RptColumn,
+                    'data': $scope.RptData,
+                    'stat': $scope.Stat,
+                    'EmpCat': $scope.EmpCat,
+                    'EmpStat': $scope.EmpStat,
+                    'EmpShift': $scope.EmpShift,
+                     'dataList': dataList
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    //$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
 

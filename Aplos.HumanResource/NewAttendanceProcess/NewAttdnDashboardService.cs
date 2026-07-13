@@ -724,13 +724,16 @@ ORDER BY c.UserName";
                     str = @"select x.*,y.ROEmployeeName,y.RODOJ RO1Date,z.PREmployeeName,z.PRDOJ PO1Date from (
 Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName,  
                             FORMAT(CAST(apd.InTime AS DATETIME),'hh:mm tt') as InTime , FORMAT(CAST(apd.OutTime AS DATETIME),'hh:mm tt') as OutTime
-                            , apd.DayStatus,desg.UserName as Designation ,ei.EmployeeCurrentStatus, plant.username as Plant , mb.Code as BudgetCode, shift.Username as Shift,
+                            , apd.DayStatus,apd.InStatus ,desg.UserName as Designation ,ei.EmployeeCurrentStatus, plant.username as Plant , mb.Code as BudgetCode, shift.Username as Shift,
                             subsection.Username as SubSection , section.UserName as Section , department.Username as Department, e.UserName as Entity,
+                            unit.UserName as Unit , dess.UserName as LDesignation,
                             FORMAT(CAST(pv.InTime AS DATETIME),'hh:mm tt') as PVIn ,FORMAT(CAST(pv.OutTime AS DATETIME),'hh:mm tt') as PVOut 
-                            , DATEDIFF(MINUTE, apd.InTime, pv.InTime) as InDuration --, DATEDIFF(MINUTE, apd.OutTime, pv.OutTime) as OutDuration
+, Pv.AddedBy as ScannedBy , uu.FullName as ScanName  , departmentu.UserName as SDept
+							, sectionu.UserName as SSec , subsectionu.UserName as SSubSec
+                            , DATEDIFF(MINUTE, apd.InTime, pv.InTime) as InDuration, DATEDIFF(MINUTE, apd.OutTime, pv.OutTime) as OutDuration, pv.OThour
                              ,TG.UserName Transport,RG.UserName Residence,ei.EntryLevel EntryType,ei.CellPhnNo MobileNo
-                             ,mb.ROBudgetCode,mb.PRBudgetCode,EC.userName EmployeeCategory,L.UserName Line
-                            from dbo.AttdnProcessData apd
+                             ,mb.ROBudgetCode,mb.PRBudgetCode,EC.userName EmployeeCategory,L.UserName Line,pos.PositionCategory,SkillApplicable= CASE WHEN pos.SkillApplicable=1 then 'Yes' ELSE 'No' END,PhysicalVarification=CASE WHEN  pos.PhysicalVarification=1 then 'Yes' ELSE 'No' END,ei.EmploymentType,OP.UserName SkillName
+                              from dbo.AttdnProcessData apd
                              left join org.Plant plant on plant.Id = apd.PlantID
                             left join org.Company company on company.Id = plant.CompanyId
                             left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
@@ -739,17 +742,25 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName,  
                             left join org.Division division on division.Id = pos.DivisionId
                             left join org.SubDivision subdivision on subdivision.id = pos.SubDivisionId
                             left join dbo.EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
+left join dbo.EmployeeOperation EO ON EO.EmpSystemId=EI.SystemId AND EO.Id=(Select top 1 Id from dbo.EmployeeOperation Where EmpSystemId=EO.EmpSystemId AND Sequence=1)
+left join MST.OperationMaster OP ON OP.Id=EO.OperationMasterId 
+                            left join hkp.LegalDesignation dess on dess.Id = ei.LegalDesignationId
                             left join org.Entity e on e.Id = mb.EntityId
                             left join org.Unit unit on unit.Id = e.UnitId
                             left join org.CompanyGroup cg on cg.Id = company.CompanyGroupId
                             left join org.Department department on department.Id = pos.DepartmentId
                             left join org.Section section on section.Id = pos.SectionId
                             left join org.SubSection subsection on subsection.id = pos.SubSectionId
-                            left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
+                            left join mst.DesignationMaster dm on dm.DesignationId = ei.GivenDesignationId
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
-                            left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = '" + date + @"'
+                            left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = '" + date+@"'
+left join SEC.[User] uu on uu.AuthToken = pv.AddedBy
+left join dbo.EmployeeInformation eui on eui.SystemId = uu.EmployeeId
+							left join org.Department departmentu on departmentu.Id = eui.DepartmentId
+                            left join org.Section sectionu on sectionu.Id = eui.SectionId
+                            left join org.SubSection subsectionu on subsectionu.id = eui.SubSectionId
                             left join dbo.ResidenceGroup RG on RG.Id=ei.ResidenceGroupId
                             left join dbo.TransportGroup TG on TG.Id=ei.TransportGroupId
                             left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -775,7 +786,7 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.ROBudgetCode
                             left join org.Department department on department.Id = pos.DepartmentId
                             left join org.Section section on section.Id = pos.SectionId
                             left join org.SubSection subsection on subsection.id = pos.SubSectionId
-                            left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
+                            left join mst.DesignationMaster dm on dm.DesignationId = ei.GivenDesignationId
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
@@ -803,7 +814,7 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
                             left join org.Department department on department.Id = pos.DepartmentId
                             left join org.Section section on section.Id = pos.SectionId
                             left join org.SubSection subsection on subsection.id = pos.SubSectionId
-                            left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
+                            left join mst.DesignationMaster dm on dm.DesignationId = ei.GivenDesignationId
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
@@ -1027,7 +1038,7 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
                             left join org.Department department on department.Id = pos.DepartmentId
                             left join org.Section section on section.Id = pos.SectionId
                             left join org.SubSection subsection on subsection.id = pos.SubSectionId
-                            left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
+                            left join mst.DesignationMaster dm on dm.DesignationId = ei.GivenDesignationId
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
@@ -1063,7 +1074,7 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.ROBudgetCode
                             left join org.Department department on department.Id = pos.DepartmentId
                             left join org.Section section on section.Id = pos.SectionId
                             left join org.SubSection subsection on subsection.id = pos.SubSectionId
-                            left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
+                            left join mst.DesignationMaster dm on dm.DesignationId = ei.GivenDesignationId
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
@@ -1091,7 +1102,7 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
                             left join org.Department department on department.Id = pos.DepartmentId
                             left join org.Section section on section.Id = pos.SectionId
                             left join org.SubSection subsection on subsection.id = pos.SubSectionId
-                            left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
+                            left join mst.DesignationMaster dm on dm.DesignationId = ei.GivenDesignationId
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId

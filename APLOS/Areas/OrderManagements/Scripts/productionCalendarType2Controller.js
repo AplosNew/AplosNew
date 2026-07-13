@@ -20,7 +20,7 @@ function productionCalendarType2Controller(cboService, commonMessage, $scope, $r
     $scope.getProcessData = function () {
         $http({
             method: 'GET',
-            url: $scope.path + "GetProcessForPlanning?entityid=" + $scope.EntityId
+            url: $scope.path + "GetPlanningType2ProcessCbo?entityid=" + $scope.EntityId
         }).then(function successCallback(response) {
             $scope.prdProcessSetList = response.data;
 

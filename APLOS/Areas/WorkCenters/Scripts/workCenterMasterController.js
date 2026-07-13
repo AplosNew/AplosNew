@@ -1028,6 +1028,9 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
         $scope.budgetCodeList = [];
         $scope.productPriorityList = [];
         $scope.shiftList = [];
+        $scope.WCSList = [];
+        $scope.SBList = [];
+        $scope.WCGList = [];
         $scope.budgetCodeModel = {
             Id: null
             , WorkCenterMasterId: null
@@ -1039,6 +1042,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
             , Position: null
             , NoOfResource: null
         };
+        $scope.ModelNewWCG = Object.assign({}, $scope.ModelWCGTemp);
         $http.get($scope.path + 'GetDetalsData?masterId=' + $scope.masterId)
             .then(function (response) {
                 $scope.effectiveDateList = response.data.eDate;
@@ -1651,6 +1655,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
 
     $scope.WCSList = [];
     $scope.GetWCSList = function () {
+        $scope.WCSList = [];
         $http({
             method: 'GET',
             url: 'WorkCenters/WorkCenterMaster/GetWCSkill?WorkCenterMasterId=' + $scope.masterId
@@ -1845,6 +1850,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
 
     $scope.SBList = [];
     $scope.GetSBList = function () {
+        $scope.SBList = [];
         $http({
             method: 'GET',
             url: 'WorkCenters/WorkCenterMaster/GetWCSkillBudget?WorkCenterMasterId=' + $scope.masterId
@@ -1901,6 +1907,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
 
     $scope.WCGList = [];
     $scope.GetWCGList = function () {
+        $scope.WCGList = [];
         $http({
             method: 'GET',
             url: 'WorkCenters/WorkCenterMaster/GetWCGroup?WorkCenterMasterId=' + $scope.masterId
