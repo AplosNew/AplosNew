@@ -423,6 +423,13 @@
             templateUrl: 'payrolls/EmployeeSalaryRuleSetup/SpecialAllowance',
             controller: 'SalaryRuleSpecialAllowanceController'
         })
+        .when('/el-report', {
+            templateUrl: 'payrolls/Encashment/ELReport',
+            controller: 'ELReportController'
+        })
+
+
+
         ;
 
 

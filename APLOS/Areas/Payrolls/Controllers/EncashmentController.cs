@@ -46,6 +46,10 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             return View();
         }
+        public ActionResult ELReport()
+        {
+            return View();
+        }
         #endregion -- Pages
 
         #region -- Operations

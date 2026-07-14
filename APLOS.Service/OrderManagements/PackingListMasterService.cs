@@ -424,6 +424,7 @@ namespace Library.Service.OrderManagements
                     var count = _unitMasterRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[DispatchUnitMaster] WHERE PackingListMasterId='{dispatch.PackingListMasterId}'").First();
                     count++;
                     dispatch.Id = MakePK(dispatch.PackingListMasterId, count, 2);
+                    dispatch.QtyBaseUoMId = dispatch.QtyUOMId;
                     AuditService.AddedLog(dispatch);
                     _unitMasterRepository.Insert(dispatch);
 
@@ -443,6 +444,7 @@ namespace Library.Service.OrderManagements
                         count2++;
                         item.Id = MakePK(dispatch.Id, count2, 2);
                         item.DispatchUnitMasterId = dispatch.Id;
+                        item.QtyBaseUoMId = item.QtyUOMId;
                         AuditService.AddedLog(item);
                         _unitArticleRepository.Insert(item);
                     }

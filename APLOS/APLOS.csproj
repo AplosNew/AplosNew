@@ -2016,6 +2016,7 @@
     <Content Include="Areas\MIS\Scripts\misConfig.js" />
     <Content Include="Areas\OrderManagements\Scripts\DispatchPlanController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderUploadController.js" />
+    <Content Include="Areas\OrderManagements\Scripts\productionCalendarType2Controller.js" />
     <Content Include="Areas\OrderManagements\Scripts\salesOrderRevisedateController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderApproveByController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderCheckByController.js" />
@@ -2028,6 +2029,7 @@
     <Content Include="Areas\Payrolls\Scripts\EmployeeSalaryStructureController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeSalaryRuleSetupController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeSeperationSetupController.js" />
+    <Content Include="Areas\Payrolls\Scripts\ELReportController.js" />
     <Content Include="Areas\Payrolls\Scripts\fullandfinalSettlementPaymentController.js" />
     <Content Include="Areas\Payrolls\Scripts\fullandfinalSettlementApproveController.js" />
     <Content Include="Areas\Payrolls\Scripts\fullandfinalSettlementController.js" />
@@ -5127,6 +5129,11 @@
     <Content Include="Areas\Employees\Views\EmployeeInFoReport\Filter.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeeInFoReport\UserFilter.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeeInFoReport\AttendVerificationStatus.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\ProductionCalendar\Type2.cshtml" />
+    <Content Include="Areas\Payrolls\Views\Encashment\ELReport.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\ProductionOrder\PO.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\ProductionOrder\SubPO.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\ProductionOrder\Schedulle.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

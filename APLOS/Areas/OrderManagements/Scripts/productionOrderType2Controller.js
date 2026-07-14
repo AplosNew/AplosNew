@@ -128,6 +128,14 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     };
     $scope.getData();
 
+    $scope.moentityList = [];
+    $http({
+        method: 'GET',
+        url: 'OrderManagements/ProductionOrder/GetMasterOrderEntityCbo'
+    }).then(function successCallback(response) {
+        $scope.moentityList = response.data;
+    });
+
     $scope.GetPlanningTypeEntiy = function () {
         $http({
             method: 'GET',
@@ -858,9 +866,11 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
     }];
     $scope.serachSoMaterial = function serachSoMaterial() {
+        var moEntityObj = $("#moentityDropdown").data("ejDropDownList");
+        $scope.moEntityString = moEntityObj.getSelectedValue().split(",");
         $http({
             method: 'GET',
-            url: $scope.path + 'GetSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&productionorderid=" + $scope.model.Id + "&EntityId=" + $scope.model.EntityId + "&ProcessId=" + $scope.model.PlanningTypeProcessId
+            url: $scope.path + 'GetType2SalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&productionorderid=" + $scope.model.Id + "&EntityId=" + $scope.model.EntityId + "&ProcessId=" + $scope.model.PlanningTypeProcessId + "&moentity=" + $scope.moEntityString
         }).then(function successCallback(response) {
 
             for (var i = 0; i < response.data.length; i++) {
@@ -2081,7 +2091,22 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         }
     };
 
-
+    $scope.POItemList = [];
+    $scope.getMaterialMasterbyTypePopUp = function () {
+        $scope.POItemList = [];
+        $http.get('Productions/ProductionSummary/GetItemsData?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.productionSummaryNew.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.productionSummaryNew.ProductionOrderId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.POItemList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+            angular.element(document.querySelector('#POItemPopup')).modal('show');
+        
+    };
 
 
 

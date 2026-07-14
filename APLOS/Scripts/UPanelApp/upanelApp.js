@@ -1341,6 +1341,8 @@ upanelApp.controller("InspectionTransactionController", InspectionTransactionCon
 upanelApp.controller("ImageInspectionTypeController", ImageInspectionTypeController)
 upanelApp.controller("AttendanceVerificationStatusController", AttendanceVerificationStatusController)
 upanelApp.controller("DefectMasterController", DefectMasterController)
+upanelApp.controller("productionCalendarType2Controller", productionCalendarType2Controller)
+upanelApp.controller("ELReportController", ELReportController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

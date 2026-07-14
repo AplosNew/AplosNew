@@ -65,12 +65,12 @@
             <div>
                 <label class="col-sm-12 control-label"></label>
             </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Sub Process<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Sub Process</label>
+                <div class="col-sm-8">
                     <div class="select-style">
                         <select submit-="true" ng-model="planningTypesNew.SubProcessId" class="form-control" name="Sub Process"
-                                ng-options="item.Value as item.Text for item in subprocessList" tabindex="10" required>
+                                ng-options="item.Value as item.Text for item in subprocessList" tabindex="10">
                             <option value=""></option>
                         </select>
                     </div>
@@ -587,7 +587,7 @@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label" id="fDate">To Date<sup>*</sup></label>
                             <div class="col-sm-8  show-message">
-                                <input type="text" name="From Date" ng-model="modelDateNew.ToDate" datepicker class="form-control" placeholder="dd-MM-yyyy" required tabindex="2">
+                                <input type="text" name="To Date" ng-model="modelDateNew.ToDate" datepicker class="form-control" placeholder="dd-MM-yyyy" required tabindex="2">
                             </div>
                         </div>
                     </div>
@@ -683,7 +683,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="x in planningTypeses">
+                <tr dir-paginate="x in planningTypeses |itemsPerPage:$root.pageSize" total-items="$root.total_count">
                     <td class="text-right table-td">
                         <ul class="list-inline action-list">
                             <li><button ng-click="Get(x.Id, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Edit"><i class="glyphicon glyphicon-pencil"></i></button></li>
@@ -703,6 +703,7 @@
                 </tr>
             </tbody>
         </table>
+        <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
     </div>
 </div>
 <div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">

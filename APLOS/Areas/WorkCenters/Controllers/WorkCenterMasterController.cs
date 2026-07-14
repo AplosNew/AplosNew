@@ -455,6 +455,79 @@ LEFT JOIN MST.OperationMaster A on A.Id=w.SkillMasterId Where w.WorkCenterMaster
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost,Authorize]
+        public JsonResult CreateWCGroup(Dictionary<string, object> data, string WorkCenterMasterId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[WorkCenterGroup] where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "' AND WorkCenterMasterId='" + WorkCenterMasterId + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Code already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from [HKP].[WorkCenterGroup] where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "' AND WorkCenterMasterId='" + WorkCenterMasterId + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+
+                con.OpenDataSetThroughAdapter("select * from [HKP].[WorkCenterGroup] where Id='" + data["Id"] + "' AND WorkCenterMasterId='" + WorkCenterMasterId + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("WorkCenterGroup", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Sequence = GetWCGSequence(WorkCenterMasterId), Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetWCGAutoSequence(string WorkCenterMasterId)
+        {
+            return Json(GetWCGSequence(WorkCenterMasterId), JsonRequestBehavior.AllowGet);
+        }
+
+        private double GetWCGSequence(string WorkCenterMasterId)
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM [HKP].[WorkCenterGroup] Where WorkCenterMasterId='" + WorkCenterMasterId + "'");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetWCGroup(string WorkCenterMasterId)
+        {
+            string sql = @"select w.* from [HKP].[WorkCenterGroup] W Where w.WorkCenterMasterId='" + WorkCenterMasterId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+
 
         #endregion -- Operations
     }

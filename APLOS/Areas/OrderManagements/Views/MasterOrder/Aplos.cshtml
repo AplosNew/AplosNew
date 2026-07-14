@@ -466,6 +466,9 @@
                                                 <li>
                                                     <button ng-click="AddDescription(x)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Description"><i class="glyphicon glyphicon-th-list"></i></button>
                                                 </li>
+                                                @*<li>
+                                                    <button ng-click="getItemSku(x.MaterialMasterId);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SKU" ng-disabled="x.Id==null">SKU</button>
+                                                </li>*@
                                                 <li>
                                                     <button ng-click="getSalesOrder(x,x.Id, x.MaterialMasterId, x.MaterialMasterName, x.ArticleName,x.HSNCodeId,x.BuyerReferenceNo);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SO" ng-disabled="x.Id==null">SO</button>
                                                 </li>
@@ -680,7 +683,10 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td colspan="4"></td>
+                                        <td class="text-center">
+                                            <button ng-click="addNewItem();" ng-disabled="fileNew.Id===null" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add Line Item</button>
+                                        </td>
+                                        <td colspan="3"></td>
                                         <td class="text-right">
                                             <label ng-class="{'control-label redClr text-right':x.SOQty != x.TotalQty, 'control-label text-right': x.SOQty == x.TotalQty}">
                                                 {{itemList | sumByKey : 'TotalQty'|number:2}}
@@ -698,9 +704,7 @@
                                             </label>
                                         </td>
                                         <td colspan="27"></td>
-                                        <td class="text-center">
-                                            <button ng-click="addNewItem();" ng-disabled="fileNew.Id===null" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add Line Item</button>
-                                        </td>
+
                                     </tr>
                                 </tbody>
                             </table>
@@ -2063,7 +2067,7 @@
 <!-- #endregion Third Characteristics -->
 <!-- #region fourth Characteristics -->
 <div class="modal fade site-modal in" id="fourthPopup" role="dialog" data-backdrop="static" style="overflow-x: auto !important; overflow-y: auto !important;">
-    <div class="modal-dialog modal-lg modellgModifyNew">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 SKU

@@ -146,6 +146,14 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     //{
     //    $scope.entityList = result;
     //});
+    $scope.moentityList = [];
+    $http({
+        method: 'GET',
+        url: 'OrderManagements/ProductionOrder/GetMasterOrderEntityCbo'
+    }).then(function successCallback(response) {
+        $scope.moentityList = response.data;
+    });
+
 
     $scope.GetPlanningTypeEntiy = function () {
         $http({
@@ -918,9 +926,11 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
     }];
     $scope.serachSoMaterial = function serachSoMaterial() {
+        var moEntityObj = $("#moentityDropdown").data("ejDropDownList");
+        $scope.moEntityString = moEntityObj.getSelectedValue().split(",");
         $http({
             method: 'GET',
-            url: $scope.path + 'GetSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&productionorderid=" + $scope.model.Id + "&EntityId=" + $scope.model.EntityId + "&ProcessId=" + $scope.model.PlanningTypeProcessId
+            url: $scope.path + 'GetSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&productionorderid=" + $scope.model.Id + "&EntityId=" + $scope.model.EntityId + "&ProcessId=" + $scope.model.PlanningTypeProcessId + "&moentity=" + $scope.moEntityString
         }).then(function successCallback(response) {
 
             for (var i = 0; i < response.data.length; i++) {
@@ -3884,7 +3894,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             $scope.calculatedBulletinModel.ProductionBulletinTemplateMasterId = $scope.BulletinTemplateMasterId;
 
             CheckSequence();
-           
+
             $http({
                 method: 'POST',
                 url: $scope.saveOperationUrl,
