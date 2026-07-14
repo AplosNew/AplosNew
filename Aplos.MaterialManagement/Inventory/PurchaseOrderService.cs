@@ -5493,144 +5493,7 @@ namespace Library.MaterialManagement.Inventory
             string strSQL;
             try
             {
-                //           strSQL = @"SELECT PO.Id PONumber
-                //               ,HSNC.Code HSNCode
-                //             ,CNO.ContractNo
-                //             ,CNO.Id ContractId
-                //               ,mo.BuyerReferenceNo 
-                //,PLC.LCRef LCNumber 
-                //               ,PLC.BenificiaryBank BeneficiaryBank
-                //               ,PLC.BenificiaryBank OpeningBank
-                //--,B.UserName BeneficiaryBank
-                //--,B.UserName OpeningBank
-                //               ,PO.CompanyGroupId
-                //               ,PO.CompanyId
-                //               ,Plant.GSTIN
-                //            ,REPLACE(Convert(VARCHAR(11), PLC.LCDate, 106), ' ', '-') AS LCODate
-                //               ,REPLACE(Convert(VARCHAR(11), PO.PODate, 106), ' ', '-') AS PODate
-                //               ,POType=CASE WHEN PO.POType='PO' then 'PO Without Requisition' ELSE 'PO With Requisition' END
-                //               ,REPLACE(Convert(VARCHAR(11), PO.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate
-                //               ,REPLACE(Convert(VARCHAR(11), PO.MatureDate, 106), ' ', '-') AS MatureDate
-                //               ,PO.InvoicingPartyPlantId
-                //               ,INVPARTYPL.UserName InvoicingPartyName
-                //               ,INVPARTYPL.AddressMasterId InvoicePartyAddressMasterId
-                //               ,INVPARTYPL.GSTIN InvoicingPartyGSTIN
-                //               ,ISNULL(PO.InvoicingByAddress,'') InvoicingByAddress
-                //               ,PO.DeliveryByAddress
-                //               ,DPARTYPL.UserName DeliveryParty
-                //               ,PO.DeliveryPartyPlantId
-                //               ,POD.InventoryMaterialId MaterialMasterId
-                //               ,PO.DocRefNo
-                //               ,REPLACE(Convert(VARCHAR(11), PO.DocDate, 106), ' ', '-') AS DocDate
-                //               ,CheckedBy=CASE WHEN PO.CheckedByStatus='Checked' Then eI.EmployeeName else '' END
-                //               ,AuthorizedBy=CASE When PO.AuthorizedByStatus='Approved'then eI1.EmployeeName else '' END
-                //               ,AddedBy=CASE When PO.CheckedByStatus='pending' OR PO.CheckedByStatus='Hold' OR PO.CheckedByStatus='Reject' OR PO.CheckedByStatus='Checked'then eI3.EmployeeName else PO.AddedBy  END 
-                //               ,PO.AddedDate
-                //               ,PO.UpdatedBy
-                //               ,PO.UpdatedDate
-                //               ,PO.IsApproved
-                //               ,PO.PartyType
-                //               ,PO.PartyId
-                //               ,POD.RefferenceNo
-                //               ,isnull(PO.DiscountAmount,0) DiscountAmount
-                //               ,ISNULL(PO.DeliveryInstruction,'') DeliveryInstruction
-                //               ,ISNULL(PO.SpecialInstruction,'') SpecialInstruction
-                //               ,Party.UserName VendorName
-                //               ,Party.AddressMasterId VendorAddressMasterId
-                //               ,Party.TINNO VendorGSTIN
-                //               ,Case When PO.IsNonCreditable = 1 then 'NonCreditable' when Po.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
-                //               ,PO.CurrencyId
-                //               ,CRNC.Code AS CurrencyName
-                //               ,PO.ToCurrencyRate
-                //               ,BASECRNC.Code AS BaseCurrencyName
-                //               ,PayTerm.UserName PaymentTerm
-                //               ,MM.UserName MaterialMaster
-                //               ,MM.MaterialGroupMasterId
-                //               ,MGM.UserName MaterialGroupMaster
-                //               ,POD.ArticleId
-                //               ,MMA.StandardName Article
-                //               ,FC.Id FirstCharId
-                //               ,FC.UserName FirstChar
-                //               ,POD.FirstCharacteristicsValueId
-                //               ,FCV.UserName AS FirstCharacteristicsValue
-                //               ,POD.SecondCharacteristicsValueId
-                //               ,SCV.UserName AS SecondCharacteristicsValue
-                //               ,POD.ThirdCharacteristicsValueId
-                //               ,TCV.UserName AS ThirdCharacteristicsValue
-                //               ,SC.Id SecondCharId
-                //               ,SC.UserName SecondChar
-                //               ,TC.Id ThirdCharId
-                //               ,TC.UserName ThirdChar
-                //               ,ROUND(POD.TransactionQty, 2) POTransactionQty
-                //               ,ROUND(POD.TransactionRate, 4) TransactionRate
-                //               ,ROUND((POD.TransactionQty * POD.TransactionRate), 2) AS TrnAmount
-                //               ,POD.BaseAmount
-                //               ,POD.TotalTaxAmount AS BaseTaxAmount
-                //               ,REPLACE(Convert(VARCHAR(11), POD.DeliveryDate, 106), ' ', '-') AS DeliveryDate
-                //               ,TaxAmount = (
-                //               SELECT SUM(TaxAmount)
-                //               FROM [TRN].[PurchaseOrderTax]
-                //               WHERE InventoryReceiveDetailId = POD.Id
-                //               )
-                //               ,ServiceTaxAmount = (
-                //               SELECT SUM(TotalTaxAmount)
-                //               FROM [TRN].[POService]
-                //               WHERE InventoryReceiveId = POD.InventoryReceiveId
-                //               )
-                //               ,POD.Description
-                //               ,POD.ChargesAmount
-                //               ,POD.CountryId
-                //               ,POCountry.UserName CountryOfOrigin
-                //               ,POD.Id PurchaseOrderDetailId
-                //               ,POD.TransactionUoMId
-                //                ,TUoM.ShortName AS TransactionUoM
-                //               ,MRMD.MaterialDetail MaterialDetail
-                //               ,CheckStatus= CASE when PO.CheckedByStatus='pending' Then 'To be checked'
-                //               when PO.CheckedByStatus='Hold' Then 'Hold'
-                //               when PO.CheckedByStatus='Reject' Then 'Reject'
-                //               when PO.CheckedByStatus='Checked' Then 'Checked'
-                //               else ''
-                //               END
-                //               ,ApproveStatus= CASE
-                //               when PO.AuthorizedByStatus='Reject' Then 'Reject For Approved'
-                //               when PO.AuthorizedByStatus='Hold' Then 'Hold For Approved'
-                //               when PO.AuthorizedByStatus='For Approval' Then 'To be Approval'
-                //               when PO.AuthorizedByStatus='Approved' Then 'Approved'
-                //               else ''
-                //               END
-                //               FROM TRN.PurchaseOrder PO
-                //               LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = PO.CompanyGroupId
-                //               LEFT JOIN ORG.Company Cmp ON Cmp.Id = PO.CompanyId
-                //               LEFT JOIN ORG.Plant Plant ON Plant.Id = PO.PlantId
-                //               LEFT JOIN SCS.Currency CRNC ON CRNC.Id = PO.CurrencyId
-                //               LEFT JOIN SCS.Currency BASECRNC ON BASECRNC.Id = PO.BaseCurrencyId
-                //               LEFT JOIN MST.PaymentTerm PayTerm ON PayTerm.Id = PO.PaymentTermId
-                //               LEFT JOIN HKP.PartyPlant INVPARTYPL ON INVPARTYPL.Id = PO.InvoicingPartyPlantId
-                //               LEFT JOIN HKP.PartyPlant DPARTYPL ON DPARTYPL.Id = PO.DeliveryPartyPlantId
-                //               LEFT JOIN TRN.PurchaseOrderDetail POD ON PO.Id = POD.InventoryReceiveId
-                //LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = PO.ContractId
-                //               LEFT JOIN trn.MasterOrderItem AS mo ON mo.ContractId=cno.Id
-                //LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id = PO.PurchaseLCId
-                //           -- LEFT JOIN [HKP].[Bank] B ON B.Id = PLC.BenificiaryBankId
-                //               LEFT JOIN SCS.Country POCountry ON POD.CountryId = POCountry.Id
-                //               LEFT JOIN HKP.Party Party ON Party.Id = PO.PartyId
-                //               LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = POD.InventoryMaterialId
-                //            LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
-                //               LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
-                //               LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = POD.ArticleId
-                //               LEFT JOIN HKP.Characteristics AS FC ON POD.FirstCharacteristicsId = FC.Id
-                //               LEFT JOIN HKP.Characteristics AS SC ON POD.SecondCharacteristicsId = SC.Id
-                //               LEFT JOIN HKP.Characteristics AS TC ON POD.ThirdCharacteristicsId = TC.Id
-                //               LEFT JOIN HKP.CharacteristicsValue AS FCV ON POD.FirstCharacteristicsValueId = FCV.Id
-                //               LEFT JOIN HKP.CharacteristicsValue AS SCV ON POD.SecondCharacteristicsValueId = SCV.Id
-                //               LEFT JOIN HKP.CharacteristicsValue AS TCV ON POD.ThirdCharacteristicsValueId = TCV.Id
-                //               LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON POD.TransactionUoMId = TUoM.Id
-                //               LEFT JOIN TRN.MaterialRequsitionDetails AS MRMD ON MRMD.Id=POD.RequisitionDetailId
-                //               LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=PO.CheckedBy
-                //               LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=PO.AuthorizedBy
-                //               left join [SEC].[User] U on U.UserId=PO.AddedBy
-                //               LEFT JOIN dbo.EmployeeInformation eI3 ON eI3.SystemId=U.EmployeeId
-
+                
                 strSQL = @"SELECT PO.Id PONumber
                     , HSNC.Code HSNCode
                       , CNO.ContractNo
@@ -5668,15 +5531,10 @@ namespace Library.MaterialManagement.Inventory
                     ,POD.InventoryMaterialId MaterialMasterId
                     , PO.DocRefNo
                     ,REPLACE(Convert(VARCHAR(11), PO.DocDate, 106), ' ', '-') AS DocDate
-                    , CheckedBy = CASE WHEN PO.CheckedByStatus = 'Checked' Then eI.EmployeeName else '' END
-                    ,AuthorizedBy = CASE When PO.AuthorizedByStatus = 'Approved'then eI1.EmployeeName else '' END
+                    , CheckedBy =  eI.EmployeeName ,AuthorizedBy =  eI1.EmployeeName
                     ,AddedBy = CASE When PO.CheckedByStatus = 'pending' OR PO.CheckedByStatus = 'Hold' OR PO.CheckedByStatus = 'Reject' OR PO.CheckedByStatus = 'Checked'then eI3.EmployeeName else PO.AddedBy END
                               , PO.AddedDate
-                    ,PO.UpdatedBy
-                    ,PO.UpdatedDate
-                    ,PO.IsApproved
-                    ,PO.PartyType
-                    ,PO.PartyId
+                    ,PO.UpdatedBy ,PO.UpdatedDate ,PO.IsApproved  ,PO.PartyType ,PO.PartyId
                     ,BuyerReferenceNo = STUFF((SELECT DISTINCT ',' + moi.BuyerReferenceNo from
                                             trn.MasterOrderItem moi
 											LEFT JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=moi.Id
