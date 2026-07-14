@@ -733,17 +733,21 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName,  
                             , DATEDIFF(MINUTE, apd.InTime, pv.InTime) as InDuration, DATEDIFF(MINUTE, apd.OutTime, pv.OutTime) as OutDuration, pv.OThour
                              ,TG.UserName Transport,RG.UserName Residence,ei.EntryLevel EntryType,ei.CellPhnNo MobileNo
                              ,mb.ROBudgetCode,mb.PRBudgetCode,EC.userName EmployeeCategory,L.UserName Line,pos.PositionCategory,SkillApplicable= CASE WHEN pos.SkillApplicable=1 then 'Yes' ELSE 'No' END,PhysicalVarification=CASE WHEN  pos.PhysicalVarification=1 then 'Yes' ELSE 'No' END,ei.EmploymentType,OP.UserName SkillName,IsMachine=CASE WHEN  pos.IsMachine=1 then 'Yes' ELSE 'No' END,POS.MachineName
+,pos.SkillType,SG.UserName SkillGroup,PP.UserName PositionProcess,OPP.UserName SkillProcess
                               from dbo.AttdnProcessData apd
                              left join org.Plant plant on plant.Id = apd.PlantID
                             left join org.Company company on company.Id = plant.CompanyId
                             left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
                             left join org.Position pos on pos.Id = mb.PositionId
+                            left join hkp.Process PP ON PP.id=pos.ProcessId
 							LEFT JOIN ORG.Line L ON L.Id=MB.LineId
                             left join org.Division division on division.Id = pos.DivisionId
                             left join org.SubDivision subdivision on subdivision.id = pos.SubDivisionId
                             left join dbo.EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
 left join dbo.EmployeeOperation EO ON EO.EmpSystemId=EI.SystemId AND EO.Id=(Select top 1 Id from dbo.EmployeeOperation Where EmpSystemId=EO.EmpSystemId AND Sequence=1)
 left join MST.OperationMaster OP ON OP.Id=EO.OperationMasterId 
+left join SCS.SkillGrouping SG ON SG.Id=OP.SkillGroupId
+left join hkp.Process OPP ON OPP.id=OP.ProcessId
                             left join hkp.LegalDesignation dess on dess.Id = ei.LegalDesignationId
                             left join org.Entity e on e.Id = mb.EntityId
                             left join org.Unit unit on unit.Id = e.UnitId

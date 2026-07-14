@@ -466,7 +466,7 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
                                 OR 
                        	    (ISNULL(moi.JobWorkType,'')<>'' AND EOUT.PlantId='" + identity.PlantId + @"' )
                        )
-                       AND (OS.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' " + activeStatus + @" and  SO.Id not IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail])) AND SO.Id not IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderType2Detail])) AND MOI.ArticleId<>'' AND OC.UserName<>'Projected'
+                       AND (OS.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' " + activeStatus + @" and  SO.Id not IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail])) AND SO.Id not IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderType2Detail]) AND MOI.ArticleId<>'' AND OC.UserName<>'Projected'
                         
 						UNION
 						

@@ -165,6 +165,10 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColEmployeeCategory = COL;
             COL++;
 
+             report.SetHeaderText(ref sheet, ROW, COL, "Position Category", 13, ExcelHAlign.HAlignCenter);
+            int ColPositionCategory = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Day Status", 13, ExcelHAlign.HAlignCenter);
             int ColDStat = COL;
             COL++;
@@ -254,9 +258,33 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColSkillApplicable = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Skill Type", 13, ExcelHAlign.HAlignCenter);
+            int ColSkillType = COL;
+            COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Skill Name", 13, ExcelHAlign.HAlignCenter);
             int ColSkillName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Skill Group", 13, ExcelHAlign.HAlignCenter);
+            int ColSkillGroup = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Skill Process", 13, ExcelHAlign.HAlignCenter);
+            int ColSkillProcess = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Position Process", 13, ExcelHAlign.HAlignCenter);
+            int ColPositionProcess = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Machine Applicable", 13, ExcelHAlign.HAlignCenter);
+            int ColMachineApplicable = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Machine Name", 13, ExcelHAlign.HAlignCenter);
+            int ColMachineName = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Scanned By", 13, ExcelHAlign.HAlignCenter);
@@ -339,7 +367,14 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColLine].Text = dtData.Rows[i]["Line"].ToString();
                 sheet[ROW, ColPlant].Text = dtData.Rows[i]["Plant"].ToString();
                 sheet[ROW, ColSkillApplicable].Text = dtData.Rows[i]["SkillApplicable"].ToString();
+                sheet[ROW, ColSkillGroup].Text = dtData.Rows[i]["SkillGroup"].ToString();
                 sheet[ROW, ColSkillName].Text = dtData.Rows[i]["SkillName"].ToString();
+                sheet[ROW, ColSkillType].Text = dtData.Rows[i]["SkillType"].ToString();
+                sheet[ROW, ColPositionCategory].Text = dtData.Rows[i]["PositionCategory"].ToString();
+                sheet[ROW, ColPositionProcess].Text = dtData.Rows[i]["PositionProcess"].ToString();
+                sheet[ROW, ColSkillProcess].Text = dtData.Rows[i]["SkillProcess"].ToString();
+                sheet[ROW, ColMachineApplicable].Text = dtData.Rows[i]["IsMachine"].ToString();
+                sheet[ROW, ColMachineName].Text = dtData.Rows[i]["MachineName"].ToString();
                 sheet[ROW, ColScan].Text = dtData.Rows[i]["ScanName"].ToString();
                 sheet[ROW, ColSDept].Text = dtData.Rows[i]["SDept"].ToString();
                 sheet[ROW, ColSSec].Text = dtData.Rows[i]["SSec"].ToString();
