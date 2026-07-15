@@ -204,17 +204,13 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
             return null;
         }
         [Authorize, HttpGet]
-        public ActionResult GetSalesOrderListSearch(string column, string value, string productionorderid, string EntityId, string ProcessId, List<string> moentity)
+        public ActionResult GetSalesOrderListSearch(string column, string value, string productionorderid, string EntityId, string ProcessId, string moentity)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = " temp." + column + " like '%" + value + "%'";
-            string moentityId = "''";
-            for (int i = 0; i < moentity.Count; i++)
-            {
-                moentityId += ",'" + moentity[i].ToString() + "'";
-            }
+            string Entity = "'" + moentity.Replace(",", "','") + "'";//replaced with ""
 
             string activeStatus = "";
             string plantSql = @"select * from scs.PlantConfig where plantid='" + identity.PlantId + "'";
@@ -399,23 +395,19 @@ Where PT.EntityId='" + EntityId + @"' AND PT.BaseProcessId='" + ProcessId + @"'
 							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
 							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
 
-WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId IN(" + moentityId + @") ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
+WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId IN(" + Entity + @") ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetType2SalesOrderListSearch(string column, string value, string productionorderid, string EntityId, string ProcessId, List<string> moentity)
+        public ActionResult GetType2SalesOrderListSearch(string column, string value, string productionorderid, string EntityId, string ProcessId, string moentity)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = " temp." + column + " like '%" + value + "%'";
-            string moentityId = "''";
-            for (int i = 0; i < moentity.Count; i++)
-            {
-                moentityId += ",'" + moentity[i].ToString() + "'";
-            }
+            string Entity = "'" + moentity.Replace(",", "','") + "'";//replaced with ""
 
             string activeStatus = "";
             string plantSql = @"select * from scs.PlantConfig where plantid='" + identity.PlantId + "'";
@@ -600,7 +592,7 @@ Where PT.EntityId='" + EntityId + @"' AND PT.BaseProcessId='" + ProcessId + @"'
 							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
 							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
 
-WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId IN(" + moentityId + @") ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
+WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId IN(" + Entity + @") ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -3404,8 +3396,25 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
 
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetProductionOredrList(string id)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetPOData(id), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
 
+        [HttpPost, Authorize]
+        public ActionResult GetSKUData(string soId,bool SKU1, bool SKU2, bool Both)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetSKUData(soId,SKU1,SKU2,Both), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
 
+       
         #endregion
     }
 

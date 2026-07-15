@@ -5198,14 +5198,12 @@
     <Content Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
     <Content Include="POPResources\Templates\InOutGatePass20171.docx" />
     <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />
-    <Content Include="POPResources\Templates\PurchaseOrder202034.docx" />
     <Content Include="POPResources\Templates\InventoryScrapReport202026.docx" />
     <Content Include="POPResources\Templates\GratuityInsuranceAgreement.docx" />
     <Content Include="POPResources\Templates\TaxInvoice202034.docx" />
     <Content Include="POPResources\Templates\ServiceRequisition202034.docx" />
     <Content Include="POPResources\Templates\ServicePurchaseOrder202034.docx" />
     <Content Include="POPResources\Templates\ServiceAcknowledgement202034.docx" />
-    <Content Include="POPResources\Templates\Requisition202034.docx" />
     <Content Include="POPResources\Templates\PurchaseReturnRpt202034.docx" />
     <Content Include="POPResources\Templates\TaxInvoice20181.docx" />
     <Content Include="POPResources\Templates\PI No F.docx" />
