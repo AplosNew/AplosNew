@@ -3161,6 +3161,7 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
                 }
                 else
                 {
+                    _Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                     data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                     EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
                 }
@@ -3302,7 +3303,7 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsDetail, dsProcDetail, dsWCDetail, dsFPWCDetail);
-                return Json(new { Error = false, Message = AplosMessage.Insert });
+                return Json(new { Error = false,DATA = _Id, Message = AplosMessage.Success });
             }
             catch (Exception ex)
             {

@@ -759,12 +759,14 @@ left join hkp.Process OPP ON OPP.id=OP.ProcessId
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
-                            left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = '" + date+@"'
-left join SEC.[User] uu on uu.AuthToken = pv.AddedBy
+                            left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = @workdate
+left join SEC.[User] uu on uu.UserId = pv.AddedBy
 left join dbo.EmployeeInformation eui on eui.SystemId = uu.EmployeeId
-							left join org.Department departmentu on departmentu.Id = eui.DepartmentId
-                            left join org.Section sectionu on sectionu.Id = eui.SectionId
-                            left join org.SubSection subsectionu on subsectionu.id = eui.SubSectionId
+ left join mst.ManpowerBudget uumb on uumb.Id = eui.BudgetCode
+                            left join org.Position uupos on uupos.Id = uumb.PositionId
+							left join org.Department departmentu on departmentu.Id = uupos.DepartmentId
+                            left join org.Section sectionu on sectionu.Id = uupos.SectionId
+                            left join org.SubSection subsectionu on subsectionu.id = uupos.SubSectionId
                             left join dbo.ResidenceGroup RG on RG.Id=ei.ResidenceGroupId
                             left join dbo.TransportGroup TG on TG.Id=ei.TransportGroupId
                             left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
