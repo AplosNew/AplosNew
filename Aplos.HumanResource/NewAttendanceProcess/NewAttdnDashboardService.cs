@@ -733,17 +733,21 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName,  
                             , DATEDIFF(MINUTE, apd.InTime, pv.InTime) as InDuration, DATEDIFF(MINUTE, apd.OutTime, pv.OutTime) as OutDuration, pv.OThour
                              ,TG.UserName Transport,RG.UserName Residence,ei.EntryLevel EntryType,ei.CellPhnNo MobileNo
                              ,mb.ROBudgetCode,mb.PRBudgetCode,EC.userName EmployeeCategory,L.UserName Line,pos.PositionCategory,SkillApplicable= CASE WHEN pos.SkillApplicable=1 then 'Yes' ELSE 'No' END,PhysicalVarification=CASE WHEN  pos.PhysicalVarification=1 then 'Yes' ELSE 'No' END,ei.EmploymentType,OP.UserName SkillName,IsMachine=CASE WHEN  pos.IsMachine=1 then 'Yes' ELSE 'No' END,POS.MachineName
+,pos.SkillType,SG.UserName SkillGroup,PP.UserName PositionProcess,OPP.UserName SkillProcess
                               from dbo.AttdnProcessData apd
                              left join org.Plant plant on plant.Id = apd.PlantID
                             left join org.Company company on company.Id = plant.CompanyId
                             left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
                             left join org.Position pos on pos.Id = mb.PositionId
+                            left join hkp.Process PP ON PP.id=pos.ProcessId
 							LEFT JOIN ORG.Line L ON L.Id=MB.LineId
                             left join org.Division division on division.Id = pos.DivisionId
                             left join org.SubDivision subdivision on subdivision.id = pos.SubDivisionId
                             left join dbo.EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
 left join dbo.EmployeeOperation EO ON EO.EmpSystemId=EI.SystemId AND EO.Id=(Select top 1 Id from dbo.EmployeeOperation Where EmpSystemId=EO.EmpSystemId AND Sequence=1)
 left join MST.OperationMaster OP ON OP.Id=EO.OperationMasterId 
+left join SCS.SkillGrouping SG ON SG.Id=OP.SkillGroupId
+left join hkp.Process OPP ON OPP.id=OP.ProcessId
                             left join hkp.LegalDesignation dess on dess.Id = ei.LegalDesignationId
                             left join org.Entity e on e.Id = mb.EntityId
                             left join org.Unit unit on unit.Id = e.UnitId
@@ -755,12 +759,14 @@ left join MST.OperationMaster OP ON OP.Id=EO.OperationMasterId
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
-                            left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = '" + date+@"'
-left join SEC.[User] uu on uu.AuthToken = pv.AddedBy
+                            left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = @workdate
+left join SEC.[User] uu on uu.UserId = pv.AddedBy
 left join dbo.EmployeeInformation eui on eui.SystemId = uu.EmployeeId
-							left join org.Department departmentu on departmentu.Id = eui.DepartmentId
-                            left join org.Section sectionu on sectionu.Id = eui.SectionId
-                            left join org.SubSection subsectionu on subsectionu.id = eui.SubSectionId
+ left join mst.ManpowerBudget uumb on uumb.Id = eui.BudgetCode
+                            left join org.Position uupos on uupos.Id = uumb.PositionId
+							left join org.Department departmentu on departmentu.Id = uupos.DepartmentId
+                            left join org.Section sectionu on sectionu.Id = uupos.SectionId
+                            left join org.SubSection subsectionu on subsectionu.id = uupos.SubSectionId
                             left join dbo.ResidenceGroup RG on RG.Id=ei.ResidenceGroupId
                             left join dbo.TransportGroup TG on TG.Id=ei.TransportGroupId
                             left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode

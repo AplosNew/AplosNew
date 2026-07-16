@@ -865,7 +865,7 @@ FROM [dbo].[ProductionOrderLotControl] L
 LEFT JOIN HKP.Process P ON P.Id=L.ProcessId
 LEFT JOIN TRN.[MasterOrderItem] MOI ON L.MasterOrderItemId=moi.Id
 LEFT JOIN MST.MaterialMasterArticle A ON A.Id=MOI.ArticleId
-Where L.ProductionOrderId='" + PoId + "' AND L.EntityId='"+entityId+ "' Order By P.UserName";
+Where L.ProductionOrderId='" + PoId + "' AND L.EntityId='" + entityId + "' Order By P.UserName";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1004,6 +1004,130 @@ Where P.Id IS NOT NULL";
                 throw ex;
             }
         }
+
+        public IEnumerable<object> GetPOData(string poId)
+        {
+            try
+            {
+
+                var sql = @"select * from (SELECT distinct so.SONo,so.Customer,so.Article,so.ArticleId,so.StyleNo, so.OwnStyleNo, so.Product,
+                            PO.Id POId,s.UserName AS POStatus,SO.SOQuantity SOQty,ISNULL(PO.Qty,0) AS POQuantity, So.LineItemId,SO.SOStatus
+                            FROM [TRN].[ProductionOrderType2] AS PO  JOIN TRN.ProductionOrderType2ProcessSet POP ON POP.ProductionOrderId=PO.Id                          
+                            LEFT OUTER  JOIN (select pod.ProductionOrderId, sum(so.Qty) AS SOQuantity,
+                                                    LineItemId=STUFF((select distinct ','+XMOI.Id from 
+								                            trn.MasterOrderItem XMOI 	 
+								                            INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                            INNER JOIN trn.ProductionOrderType2Detail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                            where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+													StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderType2Detail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+	                                                
+                                                    OwnStyleNo=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderType2Detail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+                                                    SONo=STUFF((select distinct ','+sox.Id from 
+								                                trn.MasterOrderItem XMOI 	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                                INNER JOIN trn.ProductionOrderType2Detail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+													SOStatus=STUFF((select distinct ','+OS.UserName from 
+								                                 HKP.OrderStatus OS 
+								                                INNER JOIN trn.SalesOrder AS sox on OS.Id=SOX.OrderStatusId
+								                                INNER JOIN trn.ProductionOrderType2Detail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                                   
+                                                    Customer=STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderType2Detail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													
+                                                     ,Article=STUFF((select distinct ', '+mm.StandardName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderType2Detail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join mst.MaterialMasterarticle mm on mm.id=XMOI.ArticleId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                                    ,ArticleId=STUFF((select distinct ', '+mm.Id from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderType2Detail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join mst.MaterialMasterarticle mm on mm.id=XMOI.ArticleId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													,Product=STUFF((select distinct ', '+Pm.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderType2Detail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join mst.MaterialMaster mm on mm.id=XMOI.MaterialMasterId
+															left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+                                                    left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													
+                            from trn.ProductionOrderType2Detail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderId=so.Id group by pod.ProductionOrderId
+                            ) AS SO ON so.ProductionOrderId=po.Id
+                            LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
+                            WHERE PO.Id='" + poId + @"'
+							) AS TEMP";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public IEnumerable<object> GetSKUData(string poId, bool SKU1, bool SKU2, bool Both)
+        {
+            try
+            {
+                string sql = "";
+                if (SKU1)
+                {
+                    sql = @"Select ''Id,D.ProductionOrderId,FC.CharacteristicsValueId SKU1Id,CV.UserName Color,SUM(Qty)Qty From [TRN].[FirstCharacteristics] FC 
+LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id=FC.CharacteristicsValueId
+left join TRN.ProductionOrderType2Detail D ON D.SalesOrderId=FC.SalesOrderId
+Where D.ProductionOrderId='" + poId + @"'
+Group By  D.ProductionOrderId,FC.CharacteristicsValueId,CV.UserName";
+
+                }
+                if (SKU2)
+                {
+                    sql = @"Select ''Id,D.ProductionOrderId,SC.CharacteristicsValueId SKU2Id,SCV.UserName Size,SUM(Qty)Qty From TRN.[SecondCharacteristics] SC
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id=SC.CharacteristicsValueId
+left join TRN.ProductionOrderType2Detail D ON D.SalesOrderId=SC.SalesOrderId
+Where D.ProductionOrderId='" + poId + @"'
+Group By  D.ProductionOrderId,SC.CharacteristicsValueId,SCV.UserName";
+                }
+                if (SKU1 == true && SKU2 == true || Both == true)
+                {
+                    sql = @"Select ''Id,D.ProductionOrderId,FC.CharacteristicsValueId SKU1Id,SC.CharacteristicsValueId SKU2Id,FCV.UserName Color,SCV.UserName Size,SUM(SC.Qty)Qty 
+From TRN.[SecondCharacteristics] SC
+LEFT JOIN [TRN].[FirstCharacteristics] FC ON FC.Id=SC.FirstCharacteristicsId
+LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id=FC.CharacteristicsValueId
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id=SC.CharacteristicsValueId
+left join TRN.ProductionOrderType2Detail D ON D.SalesOrderId=SC.SalesOrderId
+Where D.ProductionOrderId='" + poId + @"'
+Group By  D.ProductionOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName ,SCV.UserName";
+                }
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
 
     }
 

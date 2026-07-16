@@ -44,7 +44,8 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
                     { field: 'ShiftName', width: 20, headerText: "Shift Name", type: "string" },
                     { field: 'PositionCategory', width: 20, headerText: "Position Category", type: "string" },
                     { field: 'EntityName', width: 20, headerText: "Entity Name", type: "string" },
-                    { field: 'Section', width: 20, headerText: "Section", type: "string" }
+                    { field: 'Section', width: 20, headerText: "Section", type: "string" },
+                    { field: 'EmploymentType', width: 20, headerText: "EmploymentType", type: "string" }
 
                 ];
                 $("#filters").ejGrid({
@@ -82,7 +83,8 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
                     { field: 'ShiftName', width: 20, headerText: "Shift Name", type: "string" },
                     { field: 'PositionCategory', width: 20, headerText: "Position Category", type: "string" },
                     { field: 'EntityName', width: 20, headerText: "Entity Name", type: "string" },
-                    { field: 'Section', width: 20, headerText: "Section", type: "string" }
+                    { field: 'Section', width: 20, headerText: "Section", type: "string" },
+                    { field: 'EmploymentType', width: 20, headerText: "EmploymentType", type: "string" }
 
                 ];
                 $("#filters").ejGrid({
@@ -193,6 +195,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
         parameters.push({ "Key": "PositionCategory", "Value": getString(fl, "PositionCategory") });
         parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
         parameters.push({ "Key": "SectionId", "Value": getString(fl, "SectionId") })
+        parameters.push({ "Key": "EmploymentType", "Value": getString(fl, "EmploymentType") })
 
         $scope.parameters = parameters;
     }

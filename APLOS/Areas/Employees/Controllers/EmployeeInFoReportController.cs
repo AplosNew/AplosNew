@@ -1800,12 +1800,15 @@ LEFT JOIN (SELECT R.EmpSystemID,B.EmployeeCode RefEmpCode,R.Ref1Name,R.Ref1CellP
         {
             try
             {
-                var sql = @"SELECT SD.SystemID ShiftId,SD.UserName ShiftName,P.Id PositionId,P.PositionCategory
-,EN.Id EntityId, EN.UserName EntityName,S.Id SectionId,S.UserName Section FROM  MST.ManpowerBudget M 
+                var sql = @"SELECT distinct M.Id, SD.SystemID ShiftId,SD.UserName ShiftName,P.Id PositionId,P.PositionCategory
+,EN.Id EntityId, EN.UserName EntityName,S.Id SectionId,S.UserName Section,E.EmploymentType 
+FROM  MST.ManpowerBudget M 
 LEFT JOIN ORG.Position P ON P.Id=M.PositionId
 LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
 LEFT JOIN ORG.Section S ON S.Id=P.SectionId
-LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftDefinationId";
+LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftDefinationId
+LEFT JOIN dbo.EmployeeInformation E ON E.BudgetCode=M.Id AND E.EmployeeStatus='Active' AND E.EmpType<>'Guest'
+Where M.Active=1 ";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -2830,6 +2833,7 @@ DECLARE @ProductionDate date = '" + date + @"'
             AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @") 
             AND MB.EntityId IN(" + parameters["EntityId"] + @")
             AND PR.SectionId IN(" + parameters["SectionId"] + @")
+            AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
 ),
 
 ---------------------------------------------------------
@@ -2851,6 +2855,7 @@ AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @")
 AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @") 
 AND MB.EntityId IN(" + parameters["EntityId"] + @")
 AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
     GROUP BY D.Id,EmpC.Id
 ),
 
@@ -2915,6 +2920,7 @@ AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @")
 AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
 AND MB.EntityId IN(" + parameters["EntityId"] + @")
 AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
     GROUP BY D.Id,EmpC.Id
 ),
 
@@ -2938,6 +2944,7 @@ AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @")
 AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
 AND MB.EntityId IN(" + parameters["EntityId"] + @")
 AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
     GROUP BY D.Id,EmpC.Id
 ),
 
@@ -2965,6 +2972,7 @@ AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @")
 AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
 AND MB.EntityId IN(" + parameters["EntityId"] + @")
 AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
     GROUP BY D.Id,EmpC.Id
 ),
 ---------------------------------------------------------
@@ -2991,6 +2999,7 @@ AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @")
 AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
 AND MB.EntityId IN(" + parameters["EntityId"] + @")
 AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
     GROUP BY D.Id,EmpC.Id
 ),
 
@@ -3023,6 +3032,7 @@ AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @")
 AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
 AND MB.EntityId IN(" + parameters["EntityId"] + @")
 AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
     GROUP BY D.Id,EmpC.Id
 ),
 
@@ -3046,6 +3056,7 @@ AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @")
 AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
 AND MB.EntityId IN(" + parameters["EntityId"] + @")
 AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
     GROUP BY D.Id,EmpC.Id
 ),
 
@@ -3068,6 +3079,7 @@ AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @")
 AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
 AND MB.EntityId IN(" + parameters["EntityId"] + @")
 AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
     GROUP BY D.Id,EmpC.Id
 )
 

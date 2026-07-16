@@ -925,12 +925,24 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         showCaptionSummary: true
 
     }];
+    $scope.moentityList = [];
     $scope.serachSoMaterial = function serachSoMaterial() {
-        var moEntityObj = $("#moentityDropdown").data("ejDropDownList");
-        $scope.moEntityString = moEntityObj.getSelectedValue().split(",");
+        var DropDownEntityListObj = $("#moentityDropdown").data("ejDropDownList");
+        $scope.MOEntityId = DropDownEntityListObj.getSelectedValue();
+
+        if (angular.isUndefinedOrNull($scope.MOEntityId)) {
+            for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
+                if (angular.isUndefinedOrNull($scope.MOEntityId)) {
+                    $scope.MOEntityId = + DropDownEntityListObj.popupListItems[i].Id;
+                } else {
+                    $scope.MOEntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
+                }
+            }
+        }
+
         $http({
             method: 'GET',
-            url: $scope.path + 'GetSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&productionorderid=" + $scope.model.Id + "&EntityId=" + $scope.model.EntityId + "&ProcessId=" + $scope.model.PlanningTypeProcessId + "&moentity=" + $scope.moEntityString
+            url: $scope.path + 'GetSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&productionorderid=" + $scope.model.Id + "&EntityId=" + $scope.model.EntityId + "&ProcessId=" + $scope.model.PlanningTypeProcessId + "&moentity=" + $scope.MOEntityId
         }).then(function successCallback(response) {
 
             for (var i = 0; i < response.data.length; i++) {

@@ -859,7 +859,7 @@ Where SO.CheckByStatus = 'Checked' AND ApprovedStatus = 'To Be Approve' AND SO.A
                     LEFT JOIN [MST].[Destination] D ON D.Id=SO.DestinationId
                     LEFT JOIN HKP.PackingType PT ON PT.Id=SO.PackingTypeId
                     LEFT JOIN dbo.Contract C ON C.Id=SO.ContractId
-                    WHERE SO.MasterOrderItemId='" + masterItemId + "' ORDER BY SO.DeliveryDate";
+                    WHERE SO.MasterOrderItemId='" + masterItemId + "' ORDER BY SO.DeliveryDate,SO.AddedDate";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

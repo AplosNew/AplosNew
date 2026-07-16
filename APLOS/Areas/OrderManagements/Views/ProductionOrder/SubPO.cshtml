@@ -1,9 +1,9 @@
 ﻿
-
+<togglable name="Sub Production Order"></togglable>
 <div class="row">
     <div class="form-horizontal form-elements" ng-form="modelNewSPOForm">
 
-        <div class="form-group">
+        @*<div class="form-group">
             <label class="col-sm-4 control-label">Production Order</label>
             <div class="input-group">
                 <div class="input-group col-sm-8">
@@ -14,6 +14,111 @@
                 </div>
 
             </div>
+        </div>*@
+        <div class="col-xs-12">
+            <div style="color:black;" id="GridSPO" ej-grid e-datasource="ProductionOrderList" e-allowscrolling="true"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" @*e-recorddoubleclick="SetPrOData"*@
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                    <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
+                    <div e-column e-type="string" e-field="StyleNo" e-headertext="BuyerRef#" e-width="50"></div>
+                    <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Ref#" e-width="50"></div>
+                    <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="80"></div>
+                    <div e-column e-type="string" e-field="POId" e-headertext="PO No" e-width="80"></div>
+                    <div e-column e-type="string" e-field="POStatus" e-headertext="PO Status" e-width="80"></div>
+                    <div e-column e-type="string" e-field="SONo" e-headertext="SONo" e-width="80"></div>
+                    <div e-column e-type="string" e-field="SOStatus" e-headertext="SO Status" e-width="80"></div>
+                    <div e-column e-type="number" e-format="{0:0.00}" e-field="SOQty" e-headertext="SOQty" e-width="80" e-textalign="right"></div>
+                    <div e-column e-type="string" e-field="LineItemId" e-headertext="LineItemId" e-width="80"></div>
+
+                </div>
+            </div>
         </div>
+        <div class="col-xs-12">
+
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">SKU1</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="employeeGroupNew.SKU1" ng-change="SetCheckbox('sku1');">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">SKU2</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="employeeGroupNew.SKU2"ng-change="SetCheckbox('sku2');">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Both</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="employeeGroupNew.Both"ng-change="SetCheckbox('both');">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li> <button ng-click="GetSKUData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Go </button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12" ng-show="sku1List.length>0">
+            <div style="color:black;" id="GridSKU1" ej-grid e-datasource="sku1List" e-allowscrolling="true"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" @*e-recorddoubleclick="SetPrOData"*@
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-type="string" e-field="Color" e-headertext="Color" e-width="80"></div>
+                    <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="80"></div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12" ng-show="sku2List.length>0">
+            <div style="color:black;" id="GridSKU2" ej-grid e-datasource="sku2List" e-allowscrolling="true"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" @*e-recorddoubleclick="SetPrOData"*@
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-type="string" e-field="Size" e-headertext="Size" e-width="80"></div>
+                    <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="80"></div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12" ng-show="sku1sku2List.length>0">
+            <div style="color:black;" id="GridSKU12" ej-grid e-datasource="sku1sku2List" e-allowscrolling="true"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" @*e-recorddoubleclick="SetPrOData"*@
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-type="string" e-field="Color" e-headertext="Color" e-width="80"></div>
+                    <div e-column e-type="string" e-field="Size" e-headertext="Size" e-width="80"></div>
+                    <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="80"></div>
+
+                </div>
+            </div>
+        </div>
+
+
     </div>
 </div>

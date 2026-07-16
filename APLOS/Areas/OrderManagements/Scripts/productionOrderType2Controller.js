@@ -442,7 +442,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
         //$scope.GetBulletinTamplate2ndIndexReport(Row.data.Id);
 
-        $scope.bulletintab = false;
+        $scope.GetProductionOrderPopUp();
         if ($scope.model.UsedInPB) {
             $scope.pbookingmessage = "Lot generation is not possible as Production is booked with this Production Order.";
         }
@@ -866,11 +866,21 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
     }];
     $scope.serachSoMaterial = function serachSoMaterial() {
-        var moEntityObj = $("#moentityDropdown").data("ejDropDownList");
-        $scope.moEntityString = moEntityObj.getSelectedValue().split(",");
+        var DropDownEntityListObj = $("#moentityDropdown").data("ejDropDownList");
+        $scope.MOEntityId = DropDownEntityListObj.getSelectedValue();
+
+        if (angular.isUndefinedOrNull($scope.MOEntityId)) {
+            for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
+                if (angular.isUndefinedOrNull($scope.MOEntityId)) {
+                    $scope.MOEntityId = + DropDownEntityListObj.popupListItems[i].Id;
+                } else {
+                    $scope.MOEntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
+                }
+            }
+        }
         $http({
             method: 'GET',
-            url: $scope.path + 'GetType2SalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&productionorderid=" + $scope.model.Id + "&EntityId=" + $scope.model.EntityId + "&ProcessId=" + $scope.model.PlanningTypeProcessId + "&moentity=" + $scope.moEntityString
+            url: $scope.path + 'GetType2SalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&productionorderid=" + $scope.model.Id + "&EntityId=" + $scope.model.EntityId + "&ProcessId=" + $scope.model.PlanningTypeProcessId + "&moentity=" + $scope.MOEntityId
         }).then(function successCallback(response) {
 
             for (var i = 0; i < response.data.length; i++) {
@@ -2104,11 +2114,74 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
                 });
-            angular.element(document.querySelector('#POItemPopup')).modal('show');
-        
+        angular.element(document.querySelector('#POItemPopup')).modal('show');
+
     };
 
+    $scope.SONo = null;
+    $scope.ProductionOrderList = [];
+    $scope.GetProductionOrderPopUp = function () {
+        $http({
+            method: 'POST',
+            data: {
+                'id': $scope.model.Id
+            },
+            url: 'OrderManagements/ProductionOrder/GetProductionOredrList'
+        }).then(function successCallback(response) {
+            $scope.ProductionOrderList = response.data;
+            $scope.SONo = response.data[0].SONo;
+        });
 
+    };
+
+    $scope.employeeGroupNew = {
+        SKU1: false, SKU2: false, Both: false
+    }
+
+    $scope.SetCheckbox = function (name) {
+        if (name === 'sku1') {
+            $scope.employeeGroupNew.SKU1 = true;
+            $scope.employeeGroupNew.SKU2 = false;
+            $scope.employeeGroupNew.Both = false;
+        }
+        if (name === 'sku2') {
+            $scope.employeeGroupNew.SKU2 = true;
+            $scope.employeeGroupNew.SKU1 = false;
+            $scope.employeeGroupNew.Both = false;
+        }
+        if (name === 'both') {
+            $scope.employeeGroupNew.Both = true;
+            $scope.employeeGroupNew.SKU1 = false;
+            $scope.employeeGroupNew.SKU2 = false;
+        }
+    }
+
+    $scope.sku1List = [];
+    $scope.sku2List = [];
+    $scope.sku1sku2List = [];
+    $scope.GetSKUData = function () {
+        $scope.sku1List = [];
+        $scope.sku2List = [];
+        $scope.sku1sku2List = [];
+        $http({
+            method: 'POST',
+            data: {
+                'soId': $scope.SONo, 'SKU1': $scope.employeeGroupNew.SKU1, 'SKU2': $scope.employeeGroupNew.SKU2, 'Both': $scope.employeeGroupNew.Both
+            },
+            url: 'OrderManagements/ProductionOrder/GetSKUData'
+        }).then(function successCallback(response) {
+            if ($scope.employeeGroupNew.SKU1 == true) {
+                $scope.sku1List = response.data;
+            }
+            if ($scope.employeeGroupNew.SKU2 == true) {
+                $scope.sku2List = response.data;
+            }
+            if ($scope.employeeGroupNew.SKU1 == true && $scope.employeeGroupNew.SKU2 == true || $scope.employeeGroupNew.Both == true) {
+                $scope.sku1sku2List = response.data;
+            }
+        });
+
+    };
 
 
 

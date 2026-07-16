@@ -28,7 +28,9 @@ function ImageInspectionTypeController(cboService, commonMessage, $scope, $rootS
         Id: null,
         StandardName: null,
         UserName: null,
-        Remarks: null
+        Remarks: null,
+        RefreshTime: 0,
+        ScrollingTime:0
     }
     $scope.EntityModelNew = {
         Id: null,
@@ -173,10 +175,12 @@ function ImageInspectionTypeController(cboService, commonMessage, $scope, $rootS
         $scope.employee = [];
         $scope.popUpEmpDataList = [];
         $http({
-            method: 'POST',
-            url: 'QMS/QualityProcess/getemployeelist',
-            data: { column: $scope.searchByEmp, value: $scope.empearch, plantId: $window.plantId },
-            dataType: 'JSON'
+            //method: 'POST',
+            //url: 'QMS/QualityProcess/getemployeelist',
+            method: 'GET',
+            url: 'employees/authorizationconfig/getallemployeedata'
+           // data: { column: $scope.searchByEmp, value: $scope.empearch, plantId: $window.plantId },
+            //dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.employee = response.data;
         });
@@ -184,7 +188,7 @@ function ImageInspectionTypeController(cboService, commonMessage, $scope, $rootS
     }
 
     $scope.setEmpData = function (obj) {
-        $scope.EmployeeModelNew.EmployeeId = obj.data.SystemID;
+        $scope.EmployeeModelNew.EmployeeId = obj.data.SystemId;
         $scope.EmployeeModelNew.EmployeeName = obj.data.EmployeeName;
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     };
