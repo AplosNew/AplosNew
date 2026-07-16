@@ -1,78 +1,142 @@
-﻿<togglable name="Production Calendar Type2" id="mainContainer"></togglable>
-@*<div class="form-horizontal form-elements" ng-form="modelNewForm">
-
-    </div>*@
-<div>
-    <div class="row">
-        <div class="form-group">
-            <label class="col-sm-2 control-label">Entity<sup class="redFont"> *</sup></label>
-            <div class="col-sm-4 text-left">
-                <div class="select-style">
-                    <select name="EntityId" ng-model="EntityId" ng-change="getProcessData();Create()" class="col-sm-3 form-control"
-                            ng-options="item.Id as item.UserName for item in entityList" tabindex="1">
-                        @*<option value=""></option>*@
-                    </select>
-                </div>
-            </div>
-            <label class="col-sm-2 control-label">Process<sup class="redFont"> *</sup></label>
-            <div class="col-sm-4 text-left">
-                <div class="select-style">
-                    <select name="EntityId" ng-model="ProcessID" ng-change="Create()" class="col-sm-3 form-control"
-                            ng-options="item.Id as item.UserName for item in prdProcessSetList" tabindex="1">
-                        @*<option value=""></option>*@
-                    </select>
-                </div>
-            </div>
+﻿
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Production Calendar Type2</h3>
+<div class="form-horizontal form-elements" ng-form="modelForm">
+    <div class="tab-design">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Calendar</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Config</a></li>
+            </ul>
         </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="row">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Entity<sup class="redFont"> *</sup></label>
+                        <div class="col-sm-4 text-left">
+                            <div class="select-style">
+                                <select name="EntityId" ng-model="EntityId" ng-change="getProcessData();Create()" class="col-sm-3 form-control"
+                                        ng-options="item.Id as item.UserName for item in entityList" tabindex="1">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <label class="col-sm-2 control-label">Process<sup class="redFont"> *</sup></label>
+                        <div class="col-sm-4 text-left">
+                            <div class="select-style">
+                                <select name="ProcessID" ng-model="ProcessID" ng-change="Create()" class="col-sm-3 form-control"
+                                        ng-options="item.Id as item.UserName for item in prdProcessSetList" tabindex="1">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
-        <div class="form-element-ctrl form-horizontal">
+                    <div class="form-element-ctrl form-horizontal">
 
-            @*<div class="col-xs-12 col-sm-12 col-md-12">
-                <ul class="common-btn list-inline text-left">
-                    <li><button ng-click="OpenSimulatedData();" class="btn"><i class="glyphicon glyphicon-open-file"></i> Load Previous Simulation</button></li>
-                    <li><button ng-click="getSelectedDates();" class="btn"><i class="glyphicon glyphicon-save"></i> Get Data</button></li>
-                </ul>
-            </div>*@
+                        @*<div class="col-xs-12 col-sm-12 col-md-12">
+                        <ul class="common-btn list-inline text-left">
+                            <li><button ng-click="OpenSimulatedData();" class="btn"><i class="glyphicon glyphicon-open-file"></i> Load Previous Simulation</button></li>
+                            <li><button ng-click="getSelectedDates();" class="btn"><i class="glyphicon glyphicon-save"></i> Get Data</button></li>
+                        </ul>
+                    </div>*@
 
-            @*<ej-schedule id="ResourceGroupSchedule" e-appointmentsettings-datasource="appointments" e-allowdelete="false"
-                             e-enableappointmentresize="false"
-                             e-appointmentsettings-id="Id" e-appointmentsettings-subject="Subject" e-readonly="true" e-showquickwindow="false"
-                             e-appointmentsettings-starttime="StartTime" e-views="viewtype" e-workweek="workweek"
-                             e-appointmentsettings-endtime="EndTime" e-appointmentsettings-description="Description"
-                             e-appointmentsettings-allday="true" e-contextmenusettings-enable="true" e-contextmenusettings-menuitems="contextMenu"
-                             e-menuitemclick="menuitemclick" e-navigation="navigation"
-                             e-actioncomplete="clickonschedule" e-allowkeyboardnavigation="false"
-                             e-querycellinfo="plancolorchange" e-appointmentclick="OpenSchedule"
-                             e-cellclick="clickonschedule" e-celldoubleclick="clickonschedule" e-appointmenthover="clickonschedule"
-                             e-firstdayofweek="Saturday" 
-                             e-width="100%" e-height="400px"
-                             e-orientation="vertical" e-currentdate="setDate"
-                             e-currentview="Month">
-                 <e-resources>  </e-resources>
-                </ej-schedule>*@
+                        @*<ej-schedule id="ResourceGroupSchedule" e-appointmentsettings-datasource="appointments" e-allowdelete="false"
+                                 e-enableappointmentresize="false"
+                                 e-appointmentsettings-id="Id" e-appointmentsettings-subject="Subject" e-readonly="true" e-showquickwindow="false"
+                                 e-appointmentsettings-starttime="StartTime" e-views="viewtype" e-workweek="workweek"
+                                 e-appointmentsettings-endtime="EndTime" e-appointmentsettings-description="Description"
+                                 e-appointmentsettings-allday="true" e-contextmenusettings-enable="true" e-contextmenusettings-menuitems="contextMenu"
+                                 e-menuitemclick="menuitemclick" e-navigation="navigation"
+                                 e-actioncomplete="clickonschedule" e-allowkeyboardnavigation="false"
+                                 e-querycellinfo="plancolorchange" e-appointmentclick="OpenSchedule"
+                                 e-cellclick="clickonschedule" e-celldoubleclick="clickonschedule" e-appointmenthover="clickonschedule"
+                                 e-firstdayofweek="Saturday"
+                                 e-width="100%" e-height="400px"
+                                 e-orientation="vertical" e-currentdate="setDate"
+                                 e-currentview="Month">
+                     <e-resources>  </e-resources>
+                    </ej-schedule>*@
 
-            <ej-schedule id="ResourceGroupSchedule" e-appointmentsettings-datasource="appointments" e-allowdelete="false" e-enableappointmentresize="false"
-                         e-appointmentsettings-id="Id" e-appointmentsettings-subject="Subject" e-readonly="true" e-showquickwindow="false"
-                         e-appointmentsettings-starttime="StartTime" e-views="viewtype" e-workweek="workweek"
-                         e-appointmentsettings-endtime="EndTime" e-appointmentsettings-description="Description"
-                         e-appointmentsettings-allday="true" 
-                          e-contextmenusettings-enable="true" e-contextmenusettings-menuitems="contextMenu"
-                         @*e-appointmentsettings-resourcefields="WorkCenterMasterId"*@ e-navigation="navigation" e-menuitemclick="menuitemclick"
-                         e-querycellinfo="plancolorchange" e-appointmentclick="clickonschedule" e-appointmentwindowopen="clickonschedule" 
-                         e-cellclick="clickonschedule" e-celldoubleclick="clickonscheduledouble" e-appointmenthover="clickonschedule"
-                     e-beforecontextmenuopen="beforecontextmenuopen"
-                         e-firstdayofweek="Saturday"
-                        
-                         e-width="100%" e-height="500px" 
-                         e-orientation="vertical" e-currentdate="setDate"
-                         e-currentview="Month">
-                <e-resources>
-                        </e-resources>
-            </ej-schedule>
+                        <ej-schedule id="ResourceGroupSchedule" e-appointmentsettings-datasource="appointments" e-allowdelete="false" e-enableappointmentresize="false"
+                                     e-appointmentsettings-id="Id" e-appointmentsettings-subject="Subject" e-readonly="true" e-showquickwindow="false"
+                                     e-appointmentsettings-starttime="StartTime" e-views="viewtype" e-workweek="workweek"
+                                     e-appointmentsettings-endtime="EndTime" e-appointmentsettings-description="Description"
+                                     e-appointmentsettings-allday="true"
+                                     e-contextmenusettings-enable="true" e-contextmenusettings-menuitems="contextMenu"
+                                     @*e-appointmentsettings-resourcefields="WorkCenterMasterId"*@ e-navigation="navigation" e-menuitemclick="menuitemclick"
+                                     e-querycellinfo="plancolorchange" e-appointmentclick="clickonschedule" e-appointmentwindowopen="clickonschedule"
+                                     e-cellclick="clickonschedule" e-celldoubleclick="clickonscheduledouble" e-appointmenthover="clickonschedule"
+                                     e-beforecontextmenuopen="beforecontextmenuopen"
+                                     e-firstdayofweek="Saturday"
+                                     e-width="100%" e-height="500px"
+                                     e-orientation="vertical" e-currentdate="setDate"
+                                     e-currentview="Month">
+                            <e-resources>
+                            </e-resources>
+                        </ej-schedule>
 
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div ng-form="modelWEOForm">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="Company" class="form-control" ng-model="fileNew.CompanyId" ng-change="getPlantCbo();" ng-options="item.Value as item.Text for item in companyList" required>
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Week Off</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select id="PlanningType2WeekOff" class="form-control" ng-model="fileNew.PlanningType2WeekOff" name="PlanningType2WeekOff" tabindex="1">
+                                        <option value=""></option>
+                                        <option Value="Saturday">Saturday</option>
+                                        <option Value="Sunday">Sunday</option>
+                                        <option Value="Monday">Monday</option>
+                                        <option Value="Tuesday">Tuesday</option>
+                                        <option Value="Wednesday">Wednesday</option>
+                                        <option Value="Thursday">Thursday</option>
+                                        <option Value="Friday">Friday</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="Plant" class="form-control" ng-model="fileNew.PlantID" ng-change="getPlantData();" ng-options="item.Value as item.Text for item in plantList" required>
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="SaveWeekOff();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+
+
 
 <ej-dialog id="setholiday" title=" Assign Holiday" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-width="500" e-target="#mainContainer" e-open="enableBtn">
 
@@ -99,7 +163,7 @@
     <div class="form-group">
         <label class="col-sm-4 control-label">Working Hours<sup>*</sup></label>
         <div class="col-sm-8">
-            <input type="number" class="form-control" placeholder="Search"  ng-model="workigHours">
+            <input type="number" class="form-control" placeholder="Search" ng-model="workigHours">
         </div>
     </div>
     <div class="form-group">

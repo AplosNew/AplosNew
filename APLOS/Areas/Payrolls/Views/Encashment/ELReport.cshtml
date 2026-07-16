@@ -1,0 +1,51 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Earn Leave Report</h3>
+<div class="form-horizontal form-elements">
+    <div class="row">
+        <label class="col-sm-12 " style="color:blue; font-weight:normal;">Latest leave information before the selected date will appear<sup></sup></label>
+        <div class="col-sm-12">
+            <div class="col-xs-12 col-sm-3 col-md-3 ">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" required e-dateformat="dd-MMM-yyyy" ng-model="FromDate" datepicker class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-3 col-md-3 ">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" required e-dateformat="dd-MMM-yyyy" ng-model="ToDate" datepicker class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-3 col-sm-2 col-md-2">
+                <div class="form-group">
+                    <label class="col-sm-6 " style="font-weight:normal; text-align:right">Regular<sup></sup></label>
+                    <div class="col-sm-6">
+                        <input type="checkbox" ej-checkbox class="nodetext" e-value="isActive" e-checked="isActive" e-model="isActive" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-3 col-sm-2 col-md-2 text-left">
+                <div class="form-group">
+                    <label class="col-sm-8" style="font-weight:normal; text-align:right">Seperated<sup></sup></label>
+                    <div class="col-sm-4" style="text-align:left">
+                        <input type="checkbox" ej-checkbox class="nodetext" e-value="isSeperated" e-checked="isSeperated" e-model="isSeperated" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-3 col-sm-3 col-md-3 text-left">
+                <div class="form-group">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right" style="padding:0px !important">
+                            <li><button ng-click="GetEarnLeaveReport();" class="btn"><i class="glyphicon glyphicon-download"></i> Detail</button></li>
+                            <li><button ng-click="GetEarnLeaveReportSummary();" class="btn"><i class="glyphicon glyphicon-download"></i> Summary </button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

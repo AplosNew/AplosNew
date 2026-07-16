@@ -2029,6 +2029,7 @@
     <Content Include="Areas\Payrolls\Scripts\EmployeeSalaryStructureController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeSalaryRuleSetupController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeSeperationSetupController.js" />
+    <Content Include="Areas\Payrolls\Scripts\ELReportController.js" />
     <Content Include="Areas\Payrolls\Scripts\fullandfinalSettlementPaymentController.js" />
     <Content Include="Areas\Payrolls\Scripts\fullandfinalSettlementApproveController.js" />
     <Content Include="Areas\Payrolls\Scripts\fullandfinalSettlementController.js" />
@@ -5129,6 +5130,10 @@
     <Content Include="Areas\Employees\Views\EmployeeInFoReport\UserFilter.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeeInFoReport\AttendVerificationStatus.cshtml" />
     <Content Include="Areas\OrderManagements\Views\ProductionCalendar\Type2.cshtml" />
+    <Content Include="Areas\Payrolls\Views\Encashment\ELReport.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\ProductionOrder\PO.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\ProductionOrder\SubPO.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\ProductionOrder\Schedulle.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -5193,14 +5198,12 @@
     <Content Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
     <Content Include="POPResources\Templates\InOutGatePass20171.docx" />
     <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />
-    <Content Include="POPResources\Templates\PurchaseOrder202034.docx" />
     <Content Include="POPResources\Templates\InventoryScrapReport202026.docx" />
     <Content Include="POPResources\Templates\GratuityInsuranceAgreement.docx" />
     <Content Include="POPResources\Templates\TaxInvoice202034.docx" />
     <Content Include="POPResources\Templates\ServiceRequisition202034.docx" />
     <Content Include="POPResources\Templates\ServicePurchaseOrder202034.docx" />
     <Content Include="POPResources\Templates\ServiceAcknowledgement202034.docx" />
-    <Content Include="POPResources\Templates\Requisition202034.docx" />
     <Content Include="POPResources\Templates\PurchaseReturnRpt202034.docx" />
     <Content Include="POPResources\Templates\TaxInvoice20181.docx" />
     <Content Include="POPResources\Templates\PI No F.docx" />

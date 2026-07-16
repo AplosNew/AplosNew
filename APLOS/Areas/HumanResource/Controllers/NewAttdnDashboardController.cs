@@ -74,12 +74,12 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetPrintReport(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat,string EmpShift)
+        public ActionResult GetPrintReport(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat,string EmpShift, List<Dictionary<string, object>> dataList)
         {
 
             try
             {
-                var workbook = GetFilterData(ChartColumnList, seq, date, Column, data, stat, EmpCat, EmpStat, EmpShift);
+                var workbook = GetFilterData(ChartColumnList, seq, date, Column, data, stat, EmpCat, EmpStat, EmpShift,dataList);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + "-" + Column + "-" + "EmpReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -108,7 +108,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        private IWorkbook GetFilterData(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat,string EmpShift)
+        private IWorkbook GetFilterData(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat,string EmpShift, List<Dictionary<string, object>> dataList)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -122,8 +122,30 @@ namespace Aplos.Areas.HumanResource.Controllers
             int endCol = 1;
             int COL = 1;
 
-            DataTable dtData = na.ReportDownloadSvc(ChartColumnList, seq, date, identity.CompanyGroupId, Column, data, stat, EmpCat, EmpStat, EmpShift);
+            //DataTable dtData = na.ReportDownloadSvc(ChartColumnList, seq, date, identity.CompanyGroupId, Column, data, stat, EmpCat, EmpStat, EmpShift);
+            DataTable dtData = new DataTable("DD");
+            foreach (string item in dataList[0].Keys)
+            {
+                if ( item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                    continue;
 
+                dtData.Columns.Add(item);
+            }
+
+
+            for (int i = 0; i < dataList.Count; i++)
+            {
+                DataRow dr = dtData.NewRow();
+                foreach (string item in dataList[i].Keys)
+                {
+                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+
+                    dr[item] = dataList[i][item];
+                }
+
+                dtData.Rows.Add(dr);
+            }
 
             #region Grid Headers
 
@@ -135,8 +157,16 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColName = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "EmploymentType", 13, ExcelHAlign.HAlignCenter);
+            int ColEmploymentType = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Employee Category", 13, ExcelHAlign.HAlignCenter);
             int ColEmployeeCategory = COL;
+            COL++;
+
+             report.SetHeaderText(ref sheet, ROW, COL, "Position Category", 13, ExcelHAlign.HAlignCenter);
+            int ColPositionCategory = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Day Status", 13, ExcelHAlign.HAlignCenter);
@@ -153,6 +183,10 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Out Time", 13, ExcelHAlign.HAlignCenter);
             int ColOTime = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Physical Varification", 13, ExcelHAlign.HAlignCenter);
+            int ColPhysicalVarification = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Physical In Time", 13, ExcelHAlign.HAlignCenter);
@@ -219,6 +253,40 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColPlant = COL;
             COL++;
 
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Skill Applicable", 13, ExcelHAlign.HAlignCenter);
+            int ColSkillApplicable = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Skill Type", 13, ExcelHAlign.HAlignCenter);
+            int ColSkillType = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Skill Name", 13, ExcelHAlign.HAlignCenter);
+            int ColSkillName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Skill Group", 13, ExcelHAlign.HAlignCenter);
+            int ColSkillGroup = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Skill Process", 13, ExcelHAlign.HAlignCenter);
+            int ColSkillProcess = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Position Process", 13, ExcelHAlign.HAlignCenter);
+            int ColPositionProcess = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Machine Applicable", 13, ExcelHAlign.HAlignCenter);
+            int ColMachineApplicable = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Machine Name", 13, ExcelHAlign.HAlignCenter);
+            int ColMachineName = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Scanned By", 13, ExcelHAlign.HAlignCenter);
             int ColScan = COL;
             COL++;
@@ -276,11 +344,13 @@ namespace Aplos.Areas.HumanResource.Controllers
             {
                 sheet[ROW, ColCode].Text = dtData.Rows[i]["EmployeeCode"].ToString();
                 sheet[ROW, ColName].Text = dtData.Rows[i]["EmployeeName"].ToString();
+                sheet[ROW, ColEmploymentType].Text = dtData.Rows[i]["EmploymentType"].ToString();
                 sheet[ROW, ColEmployeeCategory].Text = dtData.Rows[i]["EmployeeCategory"].ToString();
                 sheet[ROW, ColDStat].Text = dtData.Rows[i]["DayStatus"].ToString();
                 sheet[ROW, ColInStat].Text = dtData.Rows[i]["InStatus"].ToString();
                 sheet[ROW, ColITime].Text = dtData.Rows[i]["InTime"].ToString();
                 sheet[ROW, ColOTime].Text = dtData.Rows[i]["OutTime"].ToString();
+                sheet[ROW, ColPhysicalVarification].Text = dtData.Rows[i]["PhysicalVarification"].ToString();
                 sheet[ROW, ColPOTime].Text = dtData.Rows[i]["PVOut"].ToString();
                 sheet[ROW, ColPITime].Text = dtData.Rows[i]["PVIn"].ToString();
                 sheet[ROW, ColInD].Text = dtData.Rows[i]["InDuration"].ToString();
@@ -296,6 +366,15 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColUnit].Text = dtData.Rows[i]["Unit"].ToString();
                 sheet[ROW, ColLine].Text = dtData.Rows[i]["Line"].ToString();
                 sheet[ROW, ColPlant].Text = dtData.Rows[i]["Plant"].ToString();
+                sheet[ROW, ColSkillApplicable].Text = dtData.Rows[i]["SkillApplicable"].ToString();
+                sheet[ROW, ColSkillGroup].Text = dtData.Rows[i]["SkillGroup"].ToString();
+                sheet[ROW, ColSkillName].Text = dtData.Rows[i]["SkillName"].ToString();
+                sheet[ROW, ColSkillType].Text = dtData.Rows[i]["SkillType"].ToString();
+                sheet[ROW, ColPositionCategory].Text = dtData.Rows[i]["PositionCategory"].ToString();
+                sheet[ROW, ColPositionProcess].Text = dtData.Rows[i]["PositionProcess"].ToString();
+                sheet[ROW, ColSkillProcess].Text = dtData.Rows[i]["SkillProcess"].ToString();
+                sheet[ROW, ColMachineApplicable].Text = dtData.Rows[i]["IsMachine"].ToString();
+                sheet[ROW, ColMachineName].Text = dtData.Rows[i]["MachineName"].ToString();
                 sheet[ROW, ColScan].Text = dtData.Rows[i]["ScanName"].ToString();
                 sheet[ROW, ColSDept].Text = dtData.Rows[i]["SDept"].ToString();
                 sheet[ROW, ColSSec].Text = dtData.Rows[i]["SSec"].ToString();

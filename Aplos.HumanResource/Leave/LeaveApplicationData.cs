@@ -2205,6 +2205,64 @@ select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
             }
         }
 
+       
+        public void SaveELData()
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsBC;
+            string _Id = string.Empty;
+            try
+            {
+
+
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //string strSQL = "";
+
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenConnection("1");
+                //objCon.BeginTransaction();
+                //objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                //objCon.CommitTransaction();
+
+                //#region Entity 
+
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.FavouriteMasterChild Where FavouriteMasterId='" + masterId + "'", out dsBC, false, "1");
+
+                //if (data != null)
+                //{
+                //    foreach (var item in data)
+                //    {
+                //        DataView dv = new DataView(dsBC.Tables[0]);
+                //        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
+
+                //        if (dv.Count == 0)
+                //        {
+                //            item["FavouriteMasterId"] = masterId;
+                //            AddNewRow(dsBC.Tables[0], item);
+                //        }
+                //        else
+                //        {
+                //            DataRow drmo = dv[0].Row;
+                //            EditRow(drmo, item);
+                //        }
+                //    }
+
+
+                //}
+
+                //#endregion
+                //OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                //obj.SaveDataSets(dsBC);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         static DataTable ToDataTable(List<Dictionary<string, object>> list)
         {
             DataTable result = new DataTable();

@@ -180,7 +180,7 @@
 									</div>
 								</div>*@
 							<div class="col-md-1">
-								<button style="margin-top: 17%;" type="button" ng-click="dFunction(dateRange.fromDate,dateRange.toDate)" class="btn single-btn"><i class="glyphicon glyphicon-arrow-down"></i> Generate </button>
+								<button style="margin-top: 17%;" type="button" ng-click="GetCompanyGroupData()" class="btn single-btn"><i class="glyphicon glyphicon-arrow-down"></i> Generate </button>
 							</div>
 						</div>
 						@*</div>*@
@@ -501,125 +501,125 @@
 
 <div id="DetailModal" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
 	<div class="modal-dialog" style="width:1000px;">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h4 class="modal-title" id="myModalLabel">{{headerstatus}}</h4>
-			</div>
-			
-			
-			<div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Pending Requisition For Approval'">
-				<div style="color:black;" id="PendingReqForPO" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-					 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-					 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-					 e-detailstemplate="detailTemp"
-					 e-detailsdatabound="detailgrid"
-					 e-rowdatabound="onrowdataboundColor">
-					<div e-columns>
-						<div e-column e-headertext="Actions" e-width="100">
-							<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Inactive" class="btn" ng-click="$parent.valuePassInDelModal('PendingReqForPO');">Inactive</button>
-							<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('PendingReqForPO');" style="margin: -6px;"></i></button>
-						</div>
-						<div e-column e-field="RequisitionNo" e-headertext="Requisition No" e-width="120"></div>
-						<div e-column e-field="CompanyGroup" e-headertext="Company Group" e-width="100"></div>
-						<div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
-
-						<div e-column e-field="RequisitionType" e-headertext="Requisition Type" e-width="150"></div>
-						<div e-column e-field="RequirmentType" e-headertext="Requirment Type" e-width="150"></div>
-						
-
-						<div e-column e-field="PlantName" e-headertext="Plant Name" e-width="200"></div>
-						<div e-column e-field="RequisitionDate" e-headertext="Requisition Date" e-width="200"></div>
-						<div e-column e-field="RequirmentType" e-headertext="Requirment Type" e-width="200"></div>
-						<div e-column e-field="RequisitionType" e-headertext="Requisition Type" e-width="200"></div>
-						<div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
-						@*<div e-column e-field="PendingStatus" e-headertext="PendingStatus" e-width="200"></div>*@
-						<div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
-						<div e-column e-field="AvarageRate" e-headertext="Avarage Rate" e-width="100"></div>
-						<div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="200"></div>
-						<div e-column e-field="DaysCount" e-headertext="Days" e-width="200"></div>
-						<div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="200"></div>
-						<div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="200"></div>
-						<div e-column e-field="AuthorizedBy" e-headertext="To be Approved By" e-width="200"></div>
-						<div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="200"></div>
-
-					</div>
-
-				</div>
-
-			</div>			
-			<script id="tabGridContents" type="text/x-jsrender">
-				<div class="tabcontrol" id="Test">
-					<ul>
-						<li><a href="#gridTab{{:RequisitionNo}}">Requisition Details</a></li>						
-					</ul>
-					<div id="gridTab{{:RequisitionNo}}">
-						<div id="detailGrid"></div>
-					</div>
-
-					
-				</div>
-			</script>
-
-			<div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Pending Requisition For PO'">
-				<div style="color:black;" id="PendingRequisitionForApproval" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-					 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-					 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-					 e-detailstemplate="detailTemp"
-					 e-detailsdatabound="detailgrid"
-					 e-rowdatabound="onrowdataboundColor">
-					<div e-columns>
-						<div e-column e-headertext="Actions" e-width="100">
-							<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Inactive" class="btn" ng-click="$parent.valuePassInDelModal('PendingRequisitionForApproval');">Inactive</button>
-							<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('PendingRequisitionForApproval');" style="margin: -6px;"></i></button>
-						</div>
-						<div e-column e-field="RequisitionNo" e-headertext="Requisition No" e-width="120"></div>
-						<div e-column e-field="CompanyGroup" e-headertext="Company Group" e-width="150"></div>
-						<div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
-						<div e-column e-field="RequisitionType" e-headertext="Requisition Type" e-width="150"></div>
-						<div e-column e-field="RequirmentType" e-headertext="Requirment Type" e-width="150"></div>
-						<div e-column e-field="PlantName" e-headertext="Plant Name" e-width="200"></div>
-						<div e-column e-field="RequisitionDate" e-headertext="Requisition Date" e-width="200"></div>
-						<div e-column e-field="RequirmentType" e-headertext="Requirment Type" e-width="200"></div>
-						<div e-column e-field="RequisitionType" e-headertext="Requisition Type" e-width="200"></div>
-						<div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
-						<div e-column e-field="PendingStatus" e-headertext="Pending Status" e-width="120"></div>
-						<div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
-						<div e-column e-field="AvarageRate" e-headertext="Avg Rate" e-width="100"></div>
-						<div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="200"></div>
-						<div e-column e-field="DaysCount" e-headertext="Days" e-width="200"></div>
-						<div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="200"></div>
-						<div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="200"></div>
-						<div e-column e-field="AuthorizedBy" e-headertext="To be Approved By" e-width="200"></div>
-						<div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="200"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">{{headerstatus}}</h4>
+            </div>
 
 
-					</div>
+            <div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Pending Requisition For Approval'">
+                <div style="color:black;" id="PendingReqForPO" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                     e-detailstemplate="detailTemp"
+                     e-detailsdatabound="detailgrid"
+                     e-rowdatabound="onrowdataboundColor">
+                    <div e-columns>
+                        <div e-column e-headertext="Actions" e-width="100">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Inactive" class="btn" ng-click="$parent.valuePassInDelModal('PendingReqForPO');">Inactive</button>
+                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('PendingReqForPO');" style="margin: -6px;"></i></button>
+                        </div>
+                        <div e-column e-field="RequisitionNo" e-headertext="Requisition No" e-width="120"></div>
+                        <div e-column e-field="CompanyGroup" e-headertext="Company Group" e-width="100"></div>
+                        <div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
 
-				</div>
-			</div>			
-			<script id="tabGridContents" type="text/x-jsrender">
-				<div class="tabcontrol" id="Test">
-					<ul>
-						<li><a href="#gridTab{{:RequisitionNo}}">Requisition Details</a></li>
-						
-					</ul>
-					<div id="gridTab{{:RequisitionNo}}">
-						<div id="detailGrid"></div>
-					</div>					
-				</div>
-			</script>
-			
+                        <div e-column e-field="RequisitionType" e-headertext="Requisition Type" e-width="150"></div>
+                        <div e-column e-field="RequirmentType" e-headertext="Requirment Type" e-width="150"></div>
 
 
-			
-			<div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='PO Pending For Approval'" id="POPendingForGRNScroll">
-				<div style="color:black;" id="POPendingForApproval" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-					 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-					 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-					 e-detailstemplate="detailTempPO"
-					 e-detailsdatabound="detailgridPO"
-					 e-rowdatabound="onrowdataboundColor">
+                        <div e-column e-field="PlantName" e-headertext="Plant Name" e-width="200"></div>
+                        <div e-column e-field="RequisitionDate" e-headertext="Requisition Date" e-width="200"></div>
+                        <div e-column e-field="RequirmentType" e-headertext="Requirment Type" e-width="200"></div>
+                        <div e-column e-field="RequisitionType" e-headertext="Requisition Type" e-width="200"></div>
+                        <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                        @*<div e-column e-field="PendingStatus" e-headertext="PendingStatus" e-width="200"></div>*@
+                        <div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
+                        <div e-column e-field="AvarageRate" e-headertext="Avarage Rate" e-width="100"></div>
+                        <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="200"></div>
+                        <div e-column e-field="DaysCount" e-headertext="Days" e-width="200"></div>
+                        <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="200"></div>
+                        <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="200"></div>
+                        <div e-column e-field="AuthorizedBy" e-headertext="To be Approved By" e-width="200"></div>
+                        <div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="200"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            <script id="tabGridContents" type="text/x-jsrender">
+                <div class="tabcontrol" id="Test">
+                    <ul>
+                        <li><a href="#gridTab{{:RequisitionNo}}">Requisition Details</a></li>
+                    </ul>
+                    <div id="gridTab{{:RequisitionNo}}">
+                        <div id="detailGrid"></div>
+                    </div>
+
+
+                </div>
+            </script>
+
+            <div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Pending Requisition For PO'">
+                <div style="color:black;" id="PendingRequisitionForApproval" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                     e-detailstemplate="detailTemp"
+                     e-detailsdatabound="detailgrid"
+                     e-rowdatabound="onrowdataboundColor">
+                    <div e-columns>
+                        <div e-column e-headertext="Actions" e-width="100">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Inactive" class="btn" ng-click="$parent.valuePassInDelModal('PendingRequisitionForApproval');">Inactive</button>
+                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('PendingRequisitionForApproval');" style="margin: -6px;"></i></button>
+                        </div>
+                        <div e-column e-field="RequisitionNo" e-headertext="Requisition No" e-width="120"></div>
+                        <div e-column e-field="CompanyGroup" e-headertext="Company Group" e-width="150"></div>
+                        <div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
+                        <div e-column e-field="RequisitionType" e-headertext="Requisition Type" e-width="150"></div>
+                        <div e-column e-field="RequirmentType" e-headertext="Requirment Type" e-width="150"></div>
+                        <div e-column e-field="PlantName" e-headertext="Plant Name" e-width="200"></div>
+                        <div e-column e-field="RequisitionDate" e-headertext="Requisition Date" e-width="200"></div>
+                        <div e-column e-field="RequirmentType" e-headertext="Requirment Type" e-width="200"></div>
+                        <div e-column e-field="RequisitionType" e-headertext="Requisition Type" e-width="200"></div>
+                        <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                        <div e-column e-field="PendingStatus" e-headertext="Pending Status" e-width="120"></div>
+                        <div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
+                        <div e-column e-field="AvarageRate" e-headertext="Avg Rate" e-width="100"></div>
+                        <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="200"></div>
+                        <div e-column e-field="DaysCount" e-headertext="Days" e-width="200"></div>
+                        <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="200"></div>
+                        <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="200"></div>
+                        <div e-column e-field="AuthorizedBy" e-headertext="To be Approved By" e-width="200"></div>
+                        <div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="200"></div>
+
+
+                    </div>
+
+                </div>
+            </div>
+            <script id="tabGridContents" type="text/x-jsrender">
+                <div class="tabcontrol" id="Test">
+                    <ul>
+                        <li><a href="#gridTab{{:RequisitionNo}}">Requisition Details</a></li>
+
+                    </ul>
+                    <div id="gridTab{{:RequisitionNo}}">
+                        <div id="detailGrid"></div>
+                    </div>
+                </div>
+            </script>
+
+
+
+
+            <div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='PO Pending For Approval'" id="POPendingForGRNScroll">
+                <div style="color:black;" id="POPendingForApproval" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                     e-detailstemplate="detailTempPO"
+                     e-detailsdatabound="detailgridPO"
+                     e-rowdatabound="onrowdataboundColor">
                     <div e-columns>
                         <div e-column e-headertext="Actions" e-width="100">
                             <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Inactive" class="btn" ng-click="$parent.valuePassInDelModal1('POPendingForApproval');">Close</button>
@@ -646,435 +646,470 @@
 
                     </div>
 
-				</div>
+                </div>
 
-			</div>
-			
-		    <script id="tabGridContentsPO" type="text/x-jsrender">
-			<div class="tabcontrol" id="Test">
-				<ul>
-					<li><a href="#gridTab{{:PONo}}">PO Details</a></li>
-				</ul>
-				<div id="gridTab{{:PONo}}">
-					<div id="detailGridPO"></div>
-				</div>
+            </div>
 
-			</div>
-		</script>
+            <script id="tabGridContentsPO" type="text/x-jsrender">
+                <div class="tabcontrol" id="Test">
+                    <ul>
+                        <li><a href="#gridTab{{:PONo}}">PO Details</a></li>
+                    </ul>
+                    <div id="gridTab{{:PONo}}">
+                        <div id="detailGridPO"></div>
+                    </div>
 
-
-			
-			<div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='PO Pending For Purchase'" id="POPendingForGRNScroll">
-				<div style="color:black;" id="POPendingForPurchase" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-					 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-					 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-					 e-detailstemplate="detailTempPO"
-					 e-detailsdatabound="detailgridPO"
-					 e-rowdatabound="onrowdataboundColor">
-					<div e-columns>
-						<div e-column e-headertext="Actions" e-width="100">
-							<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Inactive" class="btn" ng-click="$parent.valuePassInDelModal1('POPendingForPurchase');">Close</button>
-							<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPOPrint('POPendingForPurchase');" style="margin: -6px;"></i></button>
-						</div>
-						<div e-column e-field="PONo" e-headertext="PO No" e-width="150"></div>
-						<div e-column e-field="CompanyGroup" e-headertext="CompanyGroup" e-width="150"></div>
-						<div e-column e-field="Company" e-headertext="Company" e-width="150"></div>
-						<div e-column e-field="PlantName" e-headertext="PlantName" e-width="150"></div>
-						<div e-column e-field="PODate" e-headertext="PO Date" e-width="150"></div>
-						<div e-column e-field="DaysCount" e-headertext="Days" e-width="150"></div>
-						<div e-column e-field="DocRefNo" e-headertext="DocRefNo" e-width="150"></div>
-						<div e-column e-field="DocDate" e-headertext="DocDate" e-width="150"></div>
-						<div e-column e-field="PartyName" e-headertext="PartyName" e-width="150"></div>
-						<div e-column e-field="Qty" e-headertext="Qty" e-width="150"></div>
-						<div e-column e-field="Amount" e-headertext="Amount" e-width="150"></div>
-						<div e-column e-field="AvarageRate" e-headertext="AvarageRate" e-width="150"></div>
-						<div e-column e-field="PendingStatus" e-headertext="Pending Status" e-width="150"></div>
-						<div e-column e-field="PreparedBy" e-headertext="PreparedBy" e-width="150"></div>
-						<div e-column e-field="CheckedBy" e-headertext="CheckedBy" e-width="150"></div>
-						<div e-column e-field="CheckedByStatus" e-headertext="CheckedByStatus" e-width="150"></div>
-						<div e-column e-field="AuthorizedBy" e-headertext="To be Approved" e-width="150"></div>
-						<div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="150"></div>
-						<div e-column e-field="RequisitionNo" e-headertext="Requisition No" e-width="150"></div>
+                </div>
+            </script>
 
 
 
-					</div>
-
-				</div>
-
-			</div>
-			<script id="tabGridContentsPO" type="text/x-jsrender">
-				<div class="tabcontrol" id="Test">
-					<ul>
-						<li><a href="#gridTab{{:PONo}}">PO Details</a></li>
-					</ul>
-					<div id="gridTab{{:PONo}}">
-						<div id="detailGridPO"></div>
-					</div>
-
-				</div>
-			</script>
-
-			
-			<div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='PO Pending For LC Taging'" id="POPendingForLCTaging1">
-				<div style="color:black;" id="POPendingForLCTaging" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-					 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-					 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-					 e-rowdatabound="onrowdataboundColor"
-					 e-detailstemplate="detailTempPO"
-					 e-detailsdatabound="detailgridPO">
-					<div e-columns>
-						<div e-column e-headertext="Actions" e-width="100">
-							<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Inactive" class="btn" ng-click="$parent.valuePassInDelModal1('POPendingForLCTaging');">Close</button>
-							<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPOPrint('POPendingForLCTaging');" style="margin: -6px;"></i></button>
-						</div>
-						<div e-column e-field="PONo" e-headertext="PO No" e-width="100"></div>
-						<div e-column e-field="CompanyGroup" e-headertext="Company Group" e-width="100"></div>
-						<div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
-						<div e-column e-field="PlantName" e-headertext="Plant Name" e-width="120"></div>
-						<div e-column e-field="PODate" e-headertext="PO Date" e-width="100"></div>
-						<div e-column e-field="DocRefNo" e-headertext="Doc Re fNo" e-width="100"></div>
-						<div e-column e-field="DocDate" e-headertext="Doc Date" e-width="100"></div>
-						<div e-column e-field="DaysCount" e-headertext="Days" e-width="50"></div>
-						<div e-column e-field="ContractId" e-headertext="Contract No" e-width="100"></div>
-						<div e-column e-field="PurchaseLCId" e-headertext="Purchase LC No" e-width="100"></div>
-						@*<div e-column e-field="PaymentMode" e-headertext="PaymentMode" e-width="100"></div>*@
-						<div e-column e-field="PartyName" e-headertext="Party Name" e-width="100"></div>
-						<div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="200"></div>
-						<div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="200"></div>
-						<div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="100"></div>
-						<div e-column e-field="AuthorizedBy" e-headertext="To be Approved" e-width="200"></div>
-						<div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="100"></div>
-						<div e-column e-field="Qty" e-headertext="Qty" e-width="50"></div>
-						<div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
-						<div e-column e-field="Rate" e-headertext="AvarageRate" e-width="100"></div>
-
-					</div>
-
-				</div>
-
-			</div>
-			<script id="tabGridContentsPO" type="text/x-jsrender">
-				<div class="tabcontrol" id="Test">
-					<ul>
-						<li><a href="#gridTab{{:PONo}}">PO Details</a></li>
-					</ul>
-					<div id="gridTab{{:PONo}}">
-						<div id="detailGridPO"></div>
-					</div>
-
-				</div>
-			</script>
-
-			<div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Pending For GRN'" id="UnTagGateEntry1">
-				<div style="color:black;" id="UnTagGateEntry" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-					 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-					 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-					 e-rowdatabound="onrowdataboundColor">
-					<div e-columns>
-
-						<div e-column e-field="GateEntryNo" e-headertext="GateEntyNo" e-width="100"></div>
-						<div e-column e-field="CompanyGroup" e-headertext="Company Group" e-width="100"></div>
-						<div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
-						<div e-column e-field="PlantName" e-headertext="Plant Name" e-width="100"></div>
-						<div e-column e-field="EntryDate" e-headertext="Entry Date" e-width="100"></div>
-						<div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="150"></div>
-						<div e-column e-field="UserName" e-headertext="Party Name" e-width="120"></div>
-						<div e-column e-field="PackageQty" e-headertext="Package Qty" e-width="150"></div>
-						<div e-column e-field="DaysCount" e-headertext="Days" e-width="50"></div>
-						<div e-column e-field="ModeofTransport" e-headertext="Mode of Transport" e-width="150"></div>
-						<div e-column e-field="Bill" e-headertext="Bill" e-width="80"></div>
-						<div e-column e-field="PersonName" e-headertext="PersonName" e-width="100"></div>
-						<div e-column e-field="GateEntryType" e-headertext="GateEntryType" e-width="80"></div>
+            <div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='PO Pending For Purchase'" id="POPendingForGRNScroll">
+                <div style="color:black;" id="POPendingForPurchase" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                     e-detailstemplate="detailTempPO"
+                     e-detailsdatabound="detailgridPO"
+                     e-rowdatabound="onrowdataboundColor">
+                    <div e-columns>
+                        <div e-column e-headertext="Actions" e-width="100">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Inactive" class="btn" ng-click="$parent.valuePassInDelModal1('POPendingForPurchase');">Close</button>
+                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPOPrint('POPendingForPurchase');" style="margin: -6px;"></i></button>
+                        </div>
+                        <div e-column e-field="PONo" e-headertext="PO No" e-width="150"></div>
+                        <div e-column e-field="CompanyGroup" e-headertext="CompanyGroup" e-width="150"></div>
+                        <div e-column e-field="Company" e-headertext="Company" e-width="150"></div>
+                        <div e-column e-field="PlantName" e-headertext="PlantName" e-width="150"></div>
+                        <div e-column e-field="PODate" e-headertext="PO Date" e-width="150"></div>
+                        <div e-column e-field="DaysCount" e-headertext="Days" e-width="150"></div>
+                        <div e-column e-field="DocRefNo" e-headertext="DocRefNo" e-width="150"></div>
+                        <div e-column e-field="DocDate" e-headertext="DocDate" e-width="150"></div>
+                        <div e-column e-field="PartyName" e-headertext="PartyName" e-width="150"></div>
+                        <div e-column e-field="Qty" e-headertext="Qty" e-width="150"></div>
+                        <div e-column e-field="Amount" e-headertext="Amount" e-width="150"></div>
+                        <div e-column e-field="AvarageRate" e-headertext="AvarageRate" e-width="150"></div>
+                        <div e-column e-field="PendingStatus" e-headertext="Pending Status" e-width="150"></div>
+                        <div e-column e-field="PreparedBy" e-headertext="PreparedBy" e-width="150"></div>
+                        <div e-column e-field="CheckedBy" e-headertext="CheckedBy" e-width="150"></div>
+                        <div e-column e-field="CheckedByStatus" e-headertext="CheckedByStatus" e-width="150"></div>
+                        <div e-column e-field="AuthorizedBy" e-headertext="To be Approved" e-width="150"></div>
+                        <div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="150"></div>
+                        <div e-column e-field="RequisitionNo" e-headertext="Requisition No" e-width="150"></div>
 
 
-					</div>
 
-				</div>
+                    </div>
 
-			</div>
-			
-			<div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Pending GRN For Approval'" id="UnTagGateEntry1">
-				<div style="color:black;" id="PendingGRNForApproval" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-					 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-					 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-					 e-rowdatabound="onrowdataboundColor"
-					  e-detailstemplate="detailTempGRN"
-					 e-detailsdatabound="detailgridGRN">
-					<div e-columns>
+                </div>
 
-						<div e-column e-field="GRNNo" e-headertext="GRN No" e-width="100"></div>
-						@*<div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="100"></div>
-						<div e-column e-field="PartyName" e-headertext="Party Name" e-width="150"></div>*@
-						<div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="120"></div>
-						<div e-column e-field="Company Group" e-headertext="CompanyGroup" e-width="100"></div>
-						<div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
-						<div e-column e-field="PlantName" e-headertext="Plant Name" e-width="100"></div>
-						<div e-column e-field="EntryDate" e-headertext="Entry Date" e-width="100"></div>
-						<div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
-						<div e-column e-field="UserName" e-headertext="Party Name" e-width="100"></div>
-						<div e-column e-field="PackageQty" e-headertext="Package Qty" e-width="120"></div>
-						<div e-column e-field="DaysCount" e-headertext="Days" e-width="50"></div>
-						<div e-column e-field="ModeofTransport" e-headertext="Mode of Transport" e-width="150"></div>
-						<div e-column e-field="Bill" e-headertext="Bill" e-width="80"></div>
-						<div e-column e-field="PersonName" e-headertext="PersonName" e-width="100"></div>
-						<div e-column e-field="GateEntryType" e-headertext="Gate Entry Type" e-width="150"></div>
-						<div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
-						<div e-column e-field="Rate" e-headertext="Rate" e-width="80"></div>
-						<div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>
-						<div e-column e-field="ApproveBy" e-headertext="Approve By Responsible Person" e-width="300"></div>
-					</div>
-				</div>
-			</div>
-			<script id="tabGridContentsGRN" type="text/x-jsrender">
-					<div class="tabcontrol" id="GRN">
-						<ul>
-							<li><a href="#gridTab{{:GRNNo}}">GRN Details</a></li>
-						</ul>
-						<div id="gridTab{{:GRNNo}}">
-							<div id="detailGridGRN"></div>
-						</div>
+            </div>
+            <script id="tabGridContentsPO" type="text/x-jsrender">
+                <div class="tabcontrol" id="Test">
+                    <ul>
+                        <li><a href="#gridTab{{:PONo}}">PO Details</a></li>
+                    </ul>
+                    <div id="gridTab{{:PONo}}">
+                        <div id="detailGridPO"></div>
+                    </div>
 
-					</div>
-				</script>
-		
-
-			<div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='PO Pending For Acceptance'" id="POPendingForAcceptance1">
-				<div style="color:black;" id="POPendingForAcceptance" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-					 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-					 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-					 e-rowdatabound="onrowdataboundColor"
-					 e-detailstemplate="detailTempPO"
-					 e-detailsdatabound="detailgridPO">
-					<div e-columns>
-						<div e-column e-headertext="Actions" e-width="80">
-							<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Inactive" class="btn" ng-click="$parent.valuePassInDelModal1('POPendingForAcceptance');">Close</button>
-							<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPOPrint('POPendingForAcceptance');" style="margin: -6px;"></i></button>
-						</div>
-						<div e-column e-field="PONo" e-headertext="PO No" e-width="100"></div>
-						<div e-column e-field="CompanyGroup" e-headertext="CompanyGroup" e-width="100"></div>
-						<div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
-						<div e-column e-field="PlantName" e-headertext="PlantName" e-width="100"></div>
-						<div e-column e-field="PODate" e-headertext="PO Date" e-width="100"></div>
-						<div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
-						<div e-column e-field="DocDate" e-headertext="DocDate" e-width="100"></div>
-						<div e-column e-field="DaysCount" e-headertext="Days" e-width="50"></div>
-						<div e-column e-field="ContractId" e-headertext="Contract No" e-width="100"></div>
-						<div e-column e-field="PurchaseLCId" e-headertext="Purchase LC No" e-width="100"></div>
-						@*<div e-column e-field="PaymentMode" e-headertext="PaymentMode" e-width="100"></div>*@
-						<div e-column e-field="PartyName" e-headertext="Party Name" e-width="200"></div>
-						<div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="200"></div>
-						<div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="200"></div>
-						<div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="100"></div>
-						<div e-column e-field="AuthorizedBy" e-headertext="To be Approved" e-width="200"></div>
-						<div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="100"></div>
-						<div e-column e-field="Qty" e-headertext="Qty" e-width="100"></div>
-						<div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
-						<div e-column e-field="AvarageRate" e-headertext="Avg Rate" e-width="100"></div>
-
-					</div>
-
-				</div>
-
-			</div>
-			<script id="tabGridContents" type="text/x-jsrender">
-				<div class="tabcontrol" id="Test">
-					<ul>
-						<li><a href="#gridTab{{:Id}}">PO Details</a></li>
-					</ul>
-					<div id="gridTab{{:Id}}">
-						<div id="detailGrid"></div>
-					</div>
-
-				</div>
-			</script>
+                </div>
+            </script>
 
 
-			<div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Acceptance Pending For GRN'" id="AcceptancePendingForGRN1">
-				<div style="color:black;" id="AcceptancePendingForGRN" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-					 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-					 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-					 e-rowdatabound="onrowdataboundColor"
-					 e-detailstemplate="detailTempPO"
-					 e-detailsdatabound="detailgridPO">
-					<div e-columns>
-						@*<div e-column e-field="Id" e-headertext="Acc.Id" e-width="70"></div>*@
-						<div e-column e-field="CompanyGroup" e-headertext="Company Group" e-width="100"></div>
-						<div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
-						<div e-column e-field="PlantName" e-headertext="PlantName" e-width="120"></div>
-						<div e-column e-field="DaysCount" e-headertext="Days" e-width="50"></div>
-						<div e-column e-field="AcceptanceDate" e-headertext="AcceptanceDate" e-width="100"></div>
-						<div e-column e-field="AcceptanceNo" e-headertext="AcceptanceNo" e-width="100"></div>
-						<div e-column e-field="AcceptanceRate" e-headertext="AcceptanceRate" e-width="100"></div>
-						<div e-column e-field="PurchaseLCId" e-headertext="PurchaseLCId" e-width="100"></div>
-						<div e-column e-field="PrePurchaseInvoiceId" e-headertext="PrePurchaseInvoiceId" e-width="100"></div>
-						<div e-column e-field="Qty" e-headertext="Qty" e-width="100"></div>
-						<div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
-						<div e-column e-field="Rate" e-headertext="AvarageRate" e-width="100"></div>
+            <div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='PO Pending For LC Taging'" id="POPendingForLCTaging1">
+                <div style="color:black;" id="POPendingForLCTaging" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                     e-rowdatabound="onrowdataboundColor"
+                     e-detailstemplate="detailTempPO"
+                     e-detailsdatabound="detailgridPO">
+                    <div e-columns>
+                        <div e-column e-headertext="Actions" e-width="100">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Inactive" class="btn" ng-click="$parent.valuePassInDelModal1('POPendingForLCTaging');">Close</button>
+                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPOPrint('POPendingForLCTaging');" style="margin: -6px;"></i></button>
+                        </div>
+                        <div e-column e-field="PONo" e-headertext="PO No" e-width="100"></div>
+                        <div e-column e-field="CompanyGroup" e-headertext="Company Group" e-width="100"></div>
+                        <div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
+                        <div e-column e-field="PlantName" e-headertext="Plant Name" e-width="120"></div>
+                        <div e-column e-field="PODate" e-headertext="PO Date" e-width="100"></div>
+                        <div e-column e-field="DocRefNo" e-headertext="Doc Re fNo" e-width="100"></div>
+                        <div e-column e-field="DocDate" e-headertext="Doc Date" e-width="100"></div>
+                        <div e-column e-field="DaysCount" e-headertext="Days" e-width="50"></div>
+                        <div e-column e-field="ContractId" e-headertext="Contract No" e-width="100"></div>
+                        <div e-column e-field="PurchaseLCId" e-headertext="Purchase LC No" e-width="100"></div>
+                        @*<div e-column e-field="PaymentMode" e-headertext="PaymentMode" e-width="100"></div>*@
+                        <div e-column e-field="PartyName" e-headertext="Party Name" e-width="100"></div>
+                        <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="200"></div>
+                        <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="200"></div>
+                        <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="100"></div>
+                        <div e-column e-field="AuthorizedBy" e-headertext="To be Approved" e-width="200"></div>
+                        <div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="100"></div>
+                        <div e-column e-field="Qty" e-headertext="Qty" e-width="50"></div>
+                        <div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
+                        <div e-column e-field="Rate" e-headertext="AvarageRate" e-width="100"></div>
 
-					</div>
+                    </div>
 
-				</div>
+                </div>
 
-			</div>
-			<script id="tabGridContents" type="text/x-jsrender">
-				<div class="tabcontrol" id="Test">
-					<ul>
-						<li><a href="#gridTab{{:Id}}">PO Details</a></li>
-					</ul>
-					<div id="gridTab{{:Id}}">
-						<div id="detailGrid"></div>
-					</div>
+            </div>
+            <script id="tabGridContentsPO" type="text/x-jsrender">
+                <div class="tabcontrol" id="Test">
+                    <ul>
+                        <li><a href="#gridTab{{:PONo}}">PO Details</a></li>
+                    </ul>
+                    <div id="gridTab{{:PONo}}">
+                        <div id="detailGridPO"></div>
+                    </div>
 
-				</div>
-			</script>
+                </div>
+            </script>
 
+            <div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Pending For GRN'" id="UnTagGateEntry1">
+                <div style="color:black;" id="UnTagGateEntry" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                     e-rowdatabound="onrowdataboundColor">
+                    <div e-columns>
 
-			
-			<div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Pending GRN Posting'" id="PendingGRNPosting1">
-				<div style="color:black;" id="PendingGRNPosting" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-					 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-					 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-					 e-rowdatabound="onrowdataboundColor"
-					 e-detailstemplate="detailTempGRN"
-					 e-detailsdatabound="detailgridGRN">
-					<div e-columns>
-
-						<div e-column e-field="GRNNo" e-headertext="GRN No" e-width="100"></div>
-						<div e-column e-field="GRNDate" e-headertext="GRNDate" e-width="100"></div>
-						<div e-column e-field="PartyName" e-headertext="PartyName" e-width="150"></div>
-						<div e-column e-field="CompanyGroup" e-headertext="CompanyGroup" e-width="100"></div>
-						<div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
-						<div e-column e-field="PlantName" e-headertext="PlantName" e-width="100"></div>
-						<div e-column e-field="DaysCount" e-headertext="Days" e-width="50"></div>
-						<div e-column e-field="DocDate" e-headertext="Doc Date" e-width="100"></div>
-						<div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="120"></div>
-						<div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="200"></div>
-						<div e-column e-field="CheckedByStatus" e-headertext="CheckedByStatus" e-width="80"></div>
-						<div e-column e-field="AuthorizedBy" e-headertext="Approved By" e-width="200"></div>
-						<div e-column e-field="Qty" e-headertext="Qty" e-width="100"></div>
-						<div e-column e-field="Rate" e-headertext="Rate" e-width="100"></div>
-						<div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
-
-					</div>
-
-				</div>
-
-			</div>
-			<script id="tabGridContentsGRN" type="text/x-jsrender">
-				<div class="tabcontrol" id="GRN">
-					<ul>
-						<li><a href="#gridTab{{:GRNNo}}">GRN Details</a></li>
-					</ul>
-					<div id="gridTab{{:GRNNo}}">
-						<div id="detailGridGRN"></div>
-					</div>
-
-				</div>
-			</script>
+                        <div e-column e-field="GateEntryNo" e-headertext="GateEntyNo" e-width="100"></div>
+                        <div e-column e-field="CompanyGroup" e-headertext="Company Group" e-width="100"></div>
+                        <div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
+                        <div e-column e-field="PlantName" e-headertext="Plant Name" e-width="100"></div>
+                        <div e-column e-field="EntryDate" e-headertext="Entry Date" e-width="100"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="150"></div>
+                        <div e-column e-field="UserName" e-headertext="Party Name" e-width="120"></div>
+                        <div e-column e-field="PackageQty" e-headertext="Package Qty" e-width="150"></div>
+                        <div e-column e-field="DaysCount" e-headertext="Days" e-width="50"></div>
+                        <div e-column e-field="ModeofTransport" e-headertext="Mode of Transport" e-width="150"></div>
+                        <div e-column e-field="Bill" e-headertext="Bill" e-width="80"></div>
+                        <div e-column e-field="PersonName" e-headertext="PersonName" e-width="100"></div>
+                        <div e-column e-field="GateEntryType" e-headertext="GateEntryType" e-width="80"></div>
 
 
-			
-			<div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Pending  Issue Request  For Approval'" id="PendingInventoryIssue1">
-				<div style="color:black;" id="PendingInventoryIssue" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-					 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-					 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-					 e-rowdatabound="rowDataBound">
-					<div e-columns>
-						<div e-column e-field="IssueRequestNo" e-headertext="Issue Request Id" e-width="150"></div>
-						<div e-column e-field="IssueRequestDate" e-headertext="Request Date" e-width="150"></div>
-						<div e-column e-field="CompanyGroup" e-headertext="CompanyGroup" e-width="100"></div>
-						<div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
-						<div e-column e-field="PlantName" e-headertext="PlantName" e-width="100"></div>
-						<div e-column e-field="DaysCount" e-headertext="Days" e-width="100"></div>
-						<div e-column e-field="PreparedBy" e-headertext="PreparedBy" e-width="200"></div>
-						<div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
-					</div>
+                    </div>
 
-				</div>
+                </div>
 
-			</div>
-			@*<script id="tabGridContents" type="text/x-jsrender">
-					<div class="tabcontrol" id="Test">
-						<ul>
-							<li><a href="#gridTab{{:Id}}">PO Details</a></li>
-						</ul>
-						<div id="gridTab{{:Id}}">
-							<div id="detailGrid"></div>
-						</div>
+            </div>
 
-					</div>
-				</script>*@
-			
-			<div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Pending Inventory Issue Posting'" id="PendingExpenseBooking1">
-				<div style="color:black;" id="PendingExpenseBooking" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-					 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-					 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-					 e-rowdatabound="rowDataBound"
-					 e-detailstemplate="detailTempEXPBooking"
-					 e-detailsdatabound="detailgridEXPBooking">
-					<div e-columns>
-						<div e-column e-field="IssueNo" e-headertext="Issue No" e-width="100"></div>
-						<div e-column e-field="IssueDate" e-headertext="Issue Date" e-width="100"></div>
-						<div e-column e-field="CompanyGroup" e-headertext="CompanyGroup" e-width="100"></div>
-						<div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
-						<div e-column e-field="PlantName" e-headertext="PlantName" e-width="100"></div>
-						<div e-column e-field="DaysCount" e-headertext="Days" e-width="100"></div>
-						<div e-column e-field="AddedBy" e-headertext="Issued By" e-width="120"></div>
-						<div e-column e-field="Qty" e-headertext="Qty" e-width="100"></div>
-						<div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
-						<div e-column e-field="Rate" e-headertext="Rate" e-width="100"></div>
-					</div>
+            <div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Pending GRN For Approval'" id="UnTagGateEntry1">
+                <div style="color:black;" id="PendingGRNForApproval" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                     e-rowdatabound="onrowdataboundColor"
+                     e-detailstemplate="detailTempGRN"
+                     e-detailsdatabound="detailgridGRN">
+                    <div e-columns>
 
-				</div>
+                        <div e-column e-field="GRNNo" e-headertext="GRN No" e-width="100"></div>
+                        @*<div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="100"></div>
+                    <div e-column e-field="PartyName" e-headertext="Party Name" e-width="150"></div>*@
+                        <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="120"></div>
+                        <div e-column e-field="Company Group" e-headertext="CompanyGroup" e-width="100"></div>
+                        <div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
+                        <div e-column e-field="PlantName" e-headertext="Plant Name" e-width="100"></div>
+                        <div e-column e-field="EntryDate" e-headertext="Entry Date" e-width="100"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                        <div e-column e-field="UserName" e-headertext="Party Name" e-width="100"></div>
+                        <div e-column e-field="PackageQty" e-headertext="Package Qty" e-width="120"></div>
+                        <div e-column e-field="DaysCount" e-headertext="Days" e-width="50"></div>
+                        <div e-column e-field="ModeofTransport" e-headertext="Mode of Transport" e-width="150"></div>
+                        <div e-column e-field="Bill" e-headertext="Bill" e-width="80"></div>
+                        <div e-column e-field="PersonName" e-headertext="PersonName" e-width="100"></div>
+                        <div e-column e-field="GateEntryType" e-headertext="Gate Entry Type" e-width="150"></div>
+                        <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                        <div e-column e-field="Rate" e-headertext="Rate" e-width="80"></div>
+                        <div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>
+                        <div e-column e-field="ApproveBy" e-headertext="Approve By Responsible Person" e-width="300"></div>
+                    </div>
+                </div>
+            </div>
+            <script id="tabGridContentsGRN" type="text/x-jsrender">
+                <div class="tabcontrol" id="GRN">
+                    <ul>
+                        <li><a href="#gridTab{{:GRNNo}}">GRN Details</a></li>
+                    </ul>
+                    <div id="gridTab{{:GRNNo}}">
+                        <div id="detailGridGRN"></div>
+                    </div>
 
-			</div>
-			<script id="tabGridContentsEXPBooking" type="text/x-jsrender">
-					<div class="tabcontrol" id="Test">
-						<ul>
-							<li><a href="#gridTab{{:IssueNo}}">Material Details</a></li>
-						</ul>
-						<div id="gridTab{{:IssueNo}}">
-							<div id="detailGridEXPBooking"></div>
-						</div>
-
-					</div>
-				</script>
+                </div>
+            </script>
 
 
-			
-			<div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Invoice Pending For Acceptance'" id="InvoicePendingForAcceptanceScroll">
-				<div style="color:black;" id="InvoicePendingForAcceptance" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-					 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-					 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-					 e-rowdatabound="onrowdataboundColor"
-					 e-detailstemplate="detailTempPO"
-					 e-detailsdatabound="detailgridPO">
-					<div e-columns>
-						@*<div e-column e-headertext="Actions" e-width="100">
-								<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Inactive" class="btn" ng-click="$parent.valuePassInDelModal('InvoicePendingForAcceptance');">Inactive</button>
-								<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('InvoicePendingForAcceptance');" style="margin: -6px;"></i></button>
-							</div>*@
-						<div e-column e-field="PDANo" e-headertext="Acc.Id" e-width="70"></div>
-						<div e-column e-field="CompanyGroup" e-headertext="CompanyGroup" e-width="100"></div>
-						<div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
-						<div e-column e-field="PlantName" e-headertext="PlantName" e-width="120"></div>
-						<div e-column e-field="DaysCount" e-headertext="Days" e-width="50"></div>
-						<div e-column e-field="AcceptanceDate" e-headertext="AcceptanceDate" e-width="100"></div>
-						<div e-column e-field="AcceptanceNo" e-headertext="AcceptanceNo" e-width="100"></div>
-						<div e-column e-field="AcceptanceRate" e-headertext="AcceptanceRate" e-width="100"></div>
-						<div e-column e-field="PurchaseLCId" e-headertext="PurchaseLCId" e-width="100"></div>
-						<div e-column e-field="PrePurchaseInvoiceId" e-headertext="PrePurchaseInvoiceId" e-width="100"></div>
-						<div e-column e-field="Qty" e-headertext="Qty" e-width="60"></div>
-						<div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
-						<div e-column e-field="Rate" e-headertext="AvarageRate" e-width="100"></div>
+            <div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Pending GRN For Checking'" id="UnTagGateEntry1">
+                <div style="color:black;" id="PendingGRNForChecking" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                     e-rowdatabound="onrowdataboundColor"
+                     e-detailstemplate="detailTempGRN"
+                     e-detailsdatabound="detailgridGRN">
+                    <div e-columns>
 
-					</div>
+                        <div e-column e-field="PlantName" e-headertext="Plant Name" e-width="100"></div>
+                        <div e-column e-field="GRNNo" e-headertext="GRN No" e-width="100"></div>
+                        <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="100"></div>
+                        <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="120"></div>
+                        <div e-column e-field="EntryDate" e-headertext="Entry Date" e-width="100"></div>
+                        <div e-column e-field="CheckedBy" e-headertext="CheckedBy" e-width="120"></div>
+                        <div e-column e-field="PartyName" e-headertext="Party Name" e-width="100"></div>
+                        <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                        <div e-column e-field="Rate" e-headertext="Rate" e-width="80"></div>
+                        <div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>
+                    </div>
+                </div>
+            </div>
+            <script id="tabGridContentsGRN" type="text/x-jsrender">
+                <div class="tabcontrol" id="GRN">
+                    <ul>
+                        <li><a href="#gridTab{{:GRNNo}}">GRN Details</a></li>
+                    </ul>
+                    <div id="gridTab{{:GRNNo}}">
+                        <div id="detailGridGRN"></div>
+                    </div>
 
-				</div>
+                </div>
+            </script>
 
-			</div>
-			<div>
+
+            <div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='PO Pending For Acceptance'" id="POPendingForAcceptance1">
+                <div style="color:black;" id="POPendingForAcceptance" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                     e-rowdatabound="onrowdataboundColor"
+                     e-detailstemplate="detailTempPO"
+                     e-detailsdatabound="detailgridPO">
+                    <div e-columns>
+                        <div e-column e-headertext="Actions" e-width="80">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Inactive" class="btn" ng-click="$parent.valuePassInDelModal1('POPendingForAcceptance');">Close</button>
+                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPOPrint('POPendingForAcceptance');" style="margin: -6px;"></i></button>
+                        </div>
+                        <div e-column e-field="PONo" e-headertext="PO No" e-width="100"></div>
+                        <div e-column e-field="CompanyGroup" e-headertext="CompanyGroup" e-width="100"></div>
+                        <div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
+                        <div e-column e-field="PlantName" e-headertext="PlantName" e-width="100"></div>
+                        <div e-column e-field="PODate" e-headertext="PO Date" e-width="100"></div>
+                        <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
+                        <div e-column e-field="DocDate" e-headertext="DocDate" e-width="100"></div>
+                        <div e-column e-field="DaysCount" e-headertext="Days" e-width="50"></div>
+                        <div e-column e-field="ContractId" e-headertext="Contract No" e-width="100"></div>
+                        <div e-column e-field="PurchaseLCId" e-headertext="Purchase LC No" e-width="100"></div>
+                        @*<div e-column e-field="PaymentMode" e-headertext="PaymentMode" e-width="100"></div>*@
+                        <div e-column e-field="PartyName" e-headertext="Party Name" e-width="200"></div>
+                        <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="200"></div>
+                        <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="200"></div>
+                        <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="100"></div>
+                        <div e-column e-field="AuthorizedBy" e-headertext="To be Approved" e-width="200"></div>
+                        <div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="100"></div>
+                        <div e-column e-field="Qty" e-headertext="Qty" e-width="100"></div>
+                        <div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
+                        <div e-column e-field="AvarageRate" e-headertext="Avg Rate" e-width="100"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            <script id="tabGridContents" type="text/x-jsrender">
+                <div class="tabcontrol" id="Test">
+                    <ul>
+                        <li><a href="#gridTab{{:Id}}">PO Details</a></li>
+                    </ul>
+                    <div id="gridTab{{:Id}}">
+                        <div id="detailGrid"></div>
+                    </div>
+
+                </div>
+            </script>
+
+
+            <div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Acceptance Pending For GRN'" id="AcceptancePendingForGRN1">
+                <div style="color:black;" id="AcceptancePendingForGRN" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                     e-rowdatabound="onrowdataboundColor"
+                     e-detailstemplate="detailTempPO"
+                     e-detailsdatabound="detailgridPO">
+                    <div e-columns>
+                        @*<div e-column e-field="Id" e-headertext="Acc.Id" e-width="70"></div>*@
+                        <div e-column e-field="CompanyGroup" e-headertext="Company Group" e-width="100"></div>
+                        <div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
+                        <div e-column e-field="PlantName" e-headertext="PlantName" e-width="120"></div>
+                        <div e-column e-field="DaysCount" e-headertext="Days" e-width="50"></div>
+                        <div e-column e-field="AcceptanceDate" e-headertext="AcceptanceDate" e-width="100"></div>
+                        <div e-column e-field="AcceptanceNo" e-headertext="AcceptanceNo" e-width="100"></div>
+                        <div e-column e-field="AcceptanceRate" e-headertext="AcceptanceRate" e-width="100"></div>
+                        <div e-column e-field="PurchaseLCId" e-headertext="PurchaseLCId" e-width="100"></div>
+                        <div e-column e-field="PrePurchaseInvoiceId" e-headertext="PrePurchaseInvoiceId" e-width="100"></div>
+                        <div e-column e-field="Qty" e-headertext="Qty" e-width="100"></div>
+                        <div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
+                        <div e-column e-field="Rate" e-headertext="AvarageRate" e-width="100"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            <script id="tabGridContents" type="text/x-jsrender">
+                <div class="tabcontrol" id="Test">
+                    <ul>
+                        <li><a href="#gridTab{{:Id}}">PO Details</a></li>
+                    </ul>
+                    <div id="gridTab{{:Id}}">
+                        <div id="detailGrid"></div>
+                    </div>
+
+                </div>
+            </script>
+
+
+
+            <div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Pending GRN Posting'" id="PendingGRNPosting1">
+                <div style="color:black;" id="PendingGRNPosting" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                     e-rowdatabound="onrowdataboundColor"
+                     e-detailstemplate="detailTempGRN"
+                     e-detailsdatabound="detailgridGRN">
+                    <div e-columns>
+
+                        <div e-column e-field="GRNNo" e-headertext="GRN No" e-width="100"></div>
+                        <div e-column e-field="GRNDate" e-headertext="GRNDate" e-width="100"></div>
+                        <div e-column e-field="PartyName" e-headertext="PartyName" e-width="150"></div>
+                        <div e-column e-field="CompanyGroup" e-headertext="CompanyGroup" e-width="100"></div>
+                        <div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
+                        <div e-column e-field="PlantName" e-headertext="PlantName" e-width="100"></div>
+                        <div e-column e-field="DaysCount" e-headertext="Days" e-width="50"></div>
+                        <div e-column e-field="DocDate" e-headertext="Doc Date" e-width="100"></div>
+                        <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="120"></div>
+                        <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="200"></div>
+                        <div e-column e-field="CheckedByStatus" e-headertext="CheckedByStatus" e-width="80"></div>
+                        <div e-column e-field="AuthorizedBy" e-headertext="Approved By" e-width="200"></div>
+                        <div e-column e-field="Qty" e-headertext="Qty" e-width="100"></div>
+                        <div e-column e-field="Rate" e-headertext="Rate" e-width="100"></div>
+                        <div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            <script id="tabGridContentsGRN" type="text/x-jsrender">
+                <div class="tabcontrol" id="GRN">
+                    <ul>
+                        <li><a href="#gridTab{{:GRNNo}}">GRN Details</a></li>
+                    </ul>
+                    <div id="gridTab{{:GRNNo}}">
+                        <div id="detailGridGRN"></div>
+                    </div>
+
+                </div>
+            </script>
+
+
+
+            <div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Pending  Issue Request  For Approval'" id="PendingInventoryIssue1">
+                <div style="color:black;" id="PendingInventoryIssue" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                     e-rowdatabound="rowDataBound">
+                    <div e-columns>
+                        <div e-column e-field="IssueRequestNo" e-headertext="Issue Request Id" e-width="150"></div>
+                        <div e-column e-field="IssueRequestDate" e-headertext="Request Date" e-width="150"></div>
+                        <div e-column e-field="CompanyGroup" e-headertext="CompanyGroup" e-width="100"></div>
+                        <div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
+                        <div e-column e-field="PlantName" e-headertext="PlantName" e-width="100"></div>
+                        <div e-column e-field="DaysCount" e-headertext="Days" e-width="100"></div>
+                        <div e-column e-field="PreparedBy" e-headertext="PreparedBy" e-width="200"></div>
+                        <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                    </div>
+
+                </div>
+
+            </div>
+            @*<script id="tabGridContents" type="text/x-jsrender">
+            <div class="tabcontrol" id="Test">
+                <ul>
+                    <li><a href="#gridTab{{:Id}}">PO Details</a></li>
+                </ul>
+                <div id="gridTab{{:Id}}">
+                    <div id="detailGrid"></div>
+                </div>
+
+            </div>
+        </script>*@
+
+            <div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Pending Inventory Issue Posting'" id="PendingExpenseBooking1">
+                <div style="color:black;" id="PendingExpenseBooking" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                     e-rowdatabound="rowDataBound"
+                     e-detailstemplate="detailTempEXPBooking"
+                     e-detailsdatabound="detailgridEXPBooking">
+                    <div e-columns>
+                        <div e-column e-field="IssueNo" e-headertext="Issue No" e-width="100"></div>
+                        <div e-column e-field="IssueDate" e-headertext="Issue Date" e-width="100"></div>
+                        <div e-column e-field="CompanyGroup" e-headertext="CompanyGroup" e-width="100"></div>
+                        <div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
+                        <div e-column e-field="PlantName" e-headertext="PlantName" e-width="100"></div>
+                        <div e-column e-field="DaysCount" e-headertext="Days" e-width="100"></div>
+                        <div e-column e-field="AddedBy" e-headertext="Issued By" e-width="120"></div>
+                        <div e-column e-field="Qty" e-headertext="Qty" e-width="100"></div>
+                        <div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
+                        <div e-column e-field="Rate" e-headertext="Rate" e-width="100"></div>
+                    </div>
+
+                </div>
+
+            </div>
+            <script id="tabGridContentsEXPBooking" type="text/x-jsrender">
+                <div class="tabcontrol" id="Test">
+                    <ul>
+                        <li><a href="#gridTab{{:IssueNo}}">Material Details</a></li>
+                    </ul>
+                    <div id="gridTab{{:IssueNo}}">
+                        <div id="detailGridEXPBooking"></div>
+                    </div>
+
+                </div>
+            </script>
+
+
+
+            <div class="content-container-fluid" style="color:black;overflow:scroll" ng-show="headerstatus==='Invoice Pending For Acceptance'" id="InvoicePendingForAcceptanceScroll">
+                <div style="color:black;" id="InvoicePendingForAcceptance" ng-init="chkinit()" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                     e-rowdatabound="onrowdataboundColor"
+                     e-detailstemplate="detailTempPO"
+                     e-detailsdatabound="detailgridPO">
+                    <div e-columns>
+                        @*<div e-column e-headertext="Actions" e-width="100">
+                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Inactive" class="btn" ng-click="$parent.valuePassInDelModal('InvoicePendingForAcceptance');">Inactive</button>
+                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('InvoicePendingForAcceptance');" style="margin: -6px;"></i></button>
+                    </div>*@
+                        <div e-column e-field="PDANo" e-headertext="Acc.Id" e-width="70"></div>
+                        <div e-column e-field="CompanyGroup" e-headertext="CompanyGroup" e-width="100"></div>
+                        <div e-column e-field="Company" e-headertext="Company" e-width="200"></div>
+                        <div e-column e-field="PlantName" e-headertext="PlantName" e-width="120"></div>
+                        <div e-column e-field="DaysCount" e-headertext="Days" e-width="50"></div>
+                        <div e-column e-field="AcceptanceDate" e-headertext="AcceptanceDate" e-width="100"></div>
+                        <div e-column e-field="AcceptanceNo" e-headertext="AcceptanceNo" e-width="100"></div>
+                        <div e-column e-field="AcceptanceRate" e-headertext="AcceptanceRate" e-width="100"></div>
+                        <div e-column e-field="PurchaseLCId" e-headertext="PurchaseLCId" e-width="100"></div>
+                        <div e-column e-field="PrePurchaseInvoiceId" e-headertext="PrePurchaseInvoiceId" e-width="100"></div>
+                        <div e-column e-field="Qty" e-headertext="Qty" e-width="60"></div>
+                        <div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
+                        <div e-column e-field="Rate" e-headertext="AvarageRate" e-width="100"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            <div>
                 <ul class="common-btn list-inline text-left">
                     <li style="text-align:left;"> <button id="" class="btn" ng-click="PrintRequisition1();" ng-show="headerstatus==='Pending Requisition For Approval'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
                     <li style="text-align:left;"> <button id="" class="btn" ng-click="PrintRequisition();" ng-show="headerstatus==='Pending Requisition For PO'"><i class="glyphicon glyphicon-download"></i>Summary</button></li>
@@ -1094,8 +1129,8 @@
                     <li> <button id="" class="btn" ng-click="PrintPO81();" ng-show="headerstatus==='Pending GRN For Approval'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
 
                 </ul>
-			</div>
-		</div>
+            </div>
+        </div>
 	</div>
 </div>
 

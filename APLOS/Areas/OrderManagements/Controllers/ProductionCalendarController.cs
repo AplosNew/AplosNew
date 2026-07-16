@@ -75,6 +75,18 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize, HttpGet]
+        public JsonResult GetPlanningType2ProcessCbo()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT DISTINCT P.Id,P.UserName FROM PlanningTypes AS pt 
+INNER JOIN HKP.Process P ON P.id=pt.BaseProcessId
+WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetList(string baseprocessid, string entityid, string column, string value)
         {
@@ -469,7 +481,7 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
             {
                 DataSet dsMaster = null;
                 DataSet dsConfig = null;
-                string defaultWeekOff = "Sunday";
+                string defaultWeekOff = "";
                 double defaultWorkingHours = 8;
 
 
@@ -489,15 +501,15 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
                 objCon.OpenDataSetThroughAdapter(sql, out dsConfig, false, "1");
                 if (dsConfig.Tables[0].Rows.Count > 0)
                 {
-                    if (dsConfig.Tables[0].Rows[0]["DefaultWeekOff"].ToString() != "")
-                        defaultWeekOff = dsConfig.Tables[0].Rows[0]["DefaultWeekOff"].ToString();
-                    else
-                        throw new Exception("Please set Default Week Off in Plant Wise HRMS Setting");
+                    
+                        defaultWeekOff = dsConfig.Tables[0].Rows[0]["PlanningType2WeekOff"].ToString();
+                    //else
+                    //    throw new Exception("Please set Default Week Off in Plant Wise HRMS Setting");
                 }
-                else
-                {
-                    throw new Exception("Please set Default Week Off in Plant Wise HRMS Setting");
-                }
+                //else
+                //{
+                //    throw new Exception("Please set Default Week Off in Plant Wise HRMS Setting");
+                //}
                 #endregion default weekoff
 
 
@@ -531,12 +543,9 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
-
-
                         dr["EntityID"] = entityid;
                         dr["ProcessID"] = processid;
                         dr["WorkingDate"] = date;
-
                         dr["WorkingHours"] = defaultWorkingHours;
 
                         if (Convert.ToDateTime(date).ToString("dddd").ToUpper() == defaultWeekOff.ToUpper())
@@ -545,7 +554,6 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
                             dr["DayType"] = "W";
                             dr["OTHours"] = 0;
                         }
-
 
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -557,6 +565,14 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
 
                         dsMaster.Tables[0].Rows.Add(dr);
 
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["DayType"] = defaultWeekOff;
+                        dr["WorkingHours"] = defaultWorkingHours;
+                        dr.EndEdit();
                     }
                 }
 
@@ -573,6 +589,31 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
             }
 
         }
+
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+
         [HttpPost, Authorize]
         public JsonResult WeekoffAssignType2(string entityid, string processid, string wdate)
         {

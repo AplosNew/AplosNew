@@ -173,3500 +173,666 @@ namespace Library.Service.Expenses
                 if (groupName == "groupName" && queryString == null)
                 {
 
-                    sql = @"select						
-							--CompanyGroupId
-							--,GroupName
-							--,CompanyId
-							--,isnull((case when row_number() over (partition by ColumnName  order by (select NULL)) = 1 then ColumnName end),'') as ColumnName
-							--,PlantId											
-							--,isnull((case when row_number() over (partition by PlantName  order by (select NULL)) = 1 then PlantName end),'') as PlantName
-							Category
-							,NULLIF(ThreeDaysCount,0) ThreeDaysCount,CAST(NULLIF(Total3Value,0) AS decimal(38,0)) Total3Value
-							,NULLIF(FiveDaysCount,0) FiveDaysCount,CAST(NULLIF(Total5Value,0) AS decimal(38,0)) Total5Value
-							,NULLIF(TenDaysCount,0) TenDaysCount,CAST(NULLIF(Total10Value,0) AS decimal(38,0)) Total10Value
-							,NULLIF(FifteenDaysCount,0) FifteenDaysCount,CAST(NULLIF(Total15Value,0) AS decimal(38,0)) Total15Value
-							,NULLIF(TweentyDaysCount,0) TweentyDaysCount,CAST(NULLIF(Total20Value,0) AS decimal(38,0)) Total20Value
-							,NULLIF(TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,CAST(NULLIF(Total25Value,0) AS decimal(38,0)) Total25Value
-							,NULLIF(ThirtyDaysCount,0) ThirtyDaysCount,CAST(NULLIF(Total30Value,0) AS decimal(38,0)) Total30Value
-							,NULLIF(GraterThirtyDaysCount,0) GraterThirtyDaysCount,CAST(NULLIF(Total31Value,0) AS decimal(38,0)) Total31Value	
-							,NULLIF(AllCount,0) AllCount,CAST(NULLIF(Total32Value,0) AS decimal(38,0)) Total32Value	
-						FROM(
+                    sql = @"SELECT
+						Category
+						,NULLIF(ThreeDaysCount,0) ThreeDaysCount,CAST(NULLIF(Total3Value,0) AS decimal(38,0)) Total3Value
+						,NULLIF(FiveDaysCount,0) FiveDaysCount,CAST(NULLIF(Total5Value,0) AS decimal(38,0)) Total5Value
+						,NULLIF(TenDaysCount,0) TenDaysCount,CAST(NULLIF(Total10Value,0) AS decimal(38,0)) Total10Value
+						,NULLIF(FifteenDaysCount,0) FifteenDaysCount,CAST(NULLIF(Total15Value,0) AS decimal(38,0)) Total15Value
+						,NULLIF(TweentyDaysCount,0) TweentyDaysCount,CAST(NULLIF(Total20Value,0) AS decimal(38,0)) Total20Value
+						,NULLIF(TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,CAST(NULLIF(Total25Value,0) AS decimal(38,0)) Total25Value
+						,NULLIF(ThirtyDaysCount,0) ThirtyDaysCount,CAST(NULLIF(Total30Value,0) AS decimal(38,0)) Total30Value
+						,NULLIF(GraterThirtyDaysCount,0) GraterThirtyDaysCount,CAST(NULLIF(Total31Value,0) AS decimal(38,0)) Total31Value
+						,NULLIF(AllCount,0) AllCount,CAST(NULLIF(Total32Value,0) AS decimal(38,0)) Total32Value
+					FROM(
 						SELECT
-							--CMPGR.Id AS CompanyGroupId
-							--, CMPGR.UserName AS GroupName
-							--, cmp.Id AS CompanyId
-							--, CMP.UserName AS ColumnName	
-							--,P.Id PlantId
-							--,P.UserName PlantName
-							'Pending Requisition For Approval' Category, 1 SI
-							,isnull(Res3.ThreeDaysCount,0) ThreeDaysCount,isnull(Res3.Total3Value,0) Total3Value
-							,isnull(Res5.FiveDaysCount,0) FiveDaysCount,isnull(Res5.Total5Value,0) Total5Value
-							,isnull(Res10.TenDaysCount,0) TenDaysCount,isnull(Res10.Total10Value,0) Total10Value
-							,isnull(Res15.FifteenDaysCount,0) FifteenDaysCount,isnull(Res15.Total15Value,0) Total15Value
-							,isnull(Res20.TweentyDaysCount,0) TweentyDaysCount,isnull(Res20.Total20Value,0) Total20Value
-							,isnull(Res25.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Res25.Total25Value,0) Total25Value
-							,isnull(Res30.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Res30.Total30Value,0) Total30Value
-							,isnull(Res31.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Res31.Total31Value,0) Total31Value	
-							,isnull(Res32.AllCount,0) AllCount,isnull(Res32.Total32Value,0) Total32Value
-				
+						'Pending Requisition For Approval' Category, 1 SI
+						,isnull(Agg.ThreeDaysCount,0) ThreeDaysCount,isnull(Agg.Total3Value,0) Total3Value
+						,isnull(Agg.FiveDaysCount,0) FiveDaysCount,isnull(Agg.Total5Value,0) Total5Value
+						,isnull(Agg.TenDaysCount,0) TenDaysCount,isnull(Agg.Total10Value,0) Total10Value
+						,isnull(Agg.FifteenDaysCount,0) FifteenDaysCount,isnull(Agg.Total15Value,0) Total15Value
+						,isnull(Agg.TweentyDaysCount,0) TweentyDaysCount,isnull(Agg.Total20Value,0) Total20Value
+						,isnull(Agg.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Agg.Total25Value,0) Total25Value
+						,isnull(Agg.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Agg.Total30Value,0) Total30Value
+						,isnull(Agg.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Agg.Total31Value,0) Total31Value
+						,isnull(Agg.AllCount,0) AllCount,isnull(Agg.Total32Value,0) Total32Value
 						FROM ORG.CompanyGroup CMPGR
-						--left join  org.company CMP ON CMP.CompanyGroupId = CMPGR.Id 
-						--left join ORG.plant p ON p.CompanyId=cmp.id
-
-						LEFT JOIN
-						( SELECT 'Pending Requisition For Approval' Category
-								--,Count(distinct distinct MRM.Id) ThreeDaysCount
-								,Count(MRM.Id) ThreeDaysCount
-								,MRM.CompanyGroupId	
-								,0 AS FiveDaysCount
-								,0 AS TenDaysCount
-								,0 AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(MRD.TransactionQty) Qty
-								,sum(MRD.EstimatedRate) Rate
-								,sum(MRD.TotalAmount) Total3Value
-								FROM trn.MaterialRequsitionMaster MRM
-								LEFT JOIN (	SELECT MRD1.MaterialReqqusitionMasterId,POQtyStatus,sum(MRD1.TransactionQty) TransactionQty, sum(MRD1.EstimatedRate) EstimatedRate ,sum(MRD1.TotalAmount) TotalAmount 
-										FROM trn.MaterialRequsitionDetails MRD1 
-										GROUP By MRD1.MaterialReqqusitionMasterId,POQtyStatus
-								)MRD ON MRD.MaterialReqqusitionMasterId=MRM.id	
-								WHERE DATEDIFF(day,MRM.RequisitionDate,getdate()) Between 0 and 3				
-								AND (MRM.CheckedByStatus ='Checked' OR MRM.CheckedByStatus ='Hold')
-								AND (isnull(MRM.AuthorizedByStatus,'') ='For Approval' OR MRM.AuthorizedByStatus IS NULL)
-								AND MRM.InActive=0 
-								AND MRD.POQtyStatus=0
-								Group BY MRM.CompanyGroupId
-		
-						)Res3 ON Res3.CompanyGroupId=CMPGR.Id --ANd Res3.PlantId=p.Id	
-						LEFT JOIN(
-								SELECT 'Pending Requisition For Approval' Category
-								,Count( distinct MRM.Id) FiveDaysCount
-								,MRM.CompanyGroupId	
-								,0 AS ThreeDaysCount
-								,0 TenDaysCount
-								,0 FifteenDaysCount
-								,0 TweentyDaysCount
-								,0 TwentyFiveyDaysCount
-								,0 ThirtyDaysCount
-								,0 GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(MRD.TransactionQty) Qty
-								,sum(MRD.EstimatedRate) Rate
-								,sum(MRD.TotalAmount) Total5Value
-								FROM trn.MaterialRequsitionMaster MRM
-								LEFT JOIN (	SELECT MRD1.MaterialReqqusitionMasterId,POQtyStatus,sum(MRD1.TransactionQty) TransactionQty, sum(MRD1.EstimatedRate) EstimatedRate ,sum(MRD1.TotalAmount) TotalAmount 
-										FROM trn.MaterialRequsitionDetails MRD1 
-										GROUP By MRD1.MaterialReqqusitionMasterId,POQtyStatus
-								)MRD ON MRD.MaterialReqqusitionMasterId=MRM.id	
-								WHERE DATEDIFF(day,MRM.RequisitionDate,getdate()) Between 4 and 5				
-								AND (MRM.CheckedByStatus ='Checked' OR MRM.CheckedByStatus ='Hold')
-								AND (isnull(MRM.AuthorizedByStatus,'') ='For Approval' OR MRM.AuthorizedByStatus IS NULL)
-								AND MRM.InActive=0 
-								AND MRD.POQtyStatus=0
-								Group BY MRM.CompanyGroupId
-						)Res5 ON Res5.CompanyGroupId=CMPGR.Id --ANd Res3.PlantId=p.Id	
-						LEFT JOIN(
-								select 'Pending Requisition For Approval' Category
-								,Count(distinct MRM.Id) TenDaysCount
-								,MRM.CompanyGroupId	
-								,0 AS ThreeDaysCount
-								,0 AS FiveDaysCount
-								,0 AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(MRD.TransactionQty) Qty
-								,sum(MRD.EstimatedRate) Rate
-								,sum(MRD.TotalAmount) Total10Value
-								FROM trn.MaterialRequsitionMaster MRM
-								LEFT JOIN (	SELECT MRD1.MaterialReqqusitionMasterId,POQtyStatus,sum(MRD1.TransactionQty) TransactionQty, sum(MRD1.EstimatedRate) EstimatedRate ,sum(MRD1.TotalAmount) TotalAmount 
-										FROM trn.MaterialRequsitionDetails MRD1 
-										GROUP By MRD1.MaterialReqqusitionMasterId,POQtyStatus
-								)MRD ON MRD.MaterialReqqusitionMasterId=MRM.id	
-								WHERE DATEDIFF(day,MRM.RequisitionDate,getdate()) Between 6 and 10				
-								AND (MRM.CheckedByStatus ='Checked' OR MRM.CheckedByStatus ='Hold')
-								AND (isnull(MRM.AuthorizedByStatus,'') ='For Approval' OR MRM.AuthorizedByStatus IS NULL)
-								AND MRM.InActive=0 
-								AND MRD.POQtyStatus=0
-								Group BY MRM.CompanyGroupId
-						)Res10 ON Res10.CompanyGroupId=CMPGR.Id --ANd Res3.PlantId=p.Id	
-						LEFT JOIN(
-							SELECT 'Pending Requisition For Approval' Category
-								,Count(distinct MRM.Id) FifteenDaysCount
-								,MRM.CompanyGroupId	
-								,0 AS ThreeDaysCount
-								,0 AS FiveDaysCount
-								,0 AS TenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(MRD.TransactionQty) Qty
-								,sum(MRD.EstimatedRate) Rate
-								,sum(MRD.TotalAmount) Total15Value
-								FROM trn.MaterialRequsitionMaster MRM
-								LEFT JOIN (	SELECT MRD1.MaterialReqqusitionMasterId,POQtyStatus,sum(MRD1.TransactionQty) TransactionQty, sum(MRD1.EstimatedRate) EstimatedRate ,sum(MRD1.TotalAmount) TotalAmount 
-										FROM trn.MaterialRequsitionDetails MRD1 
-										GROUP By MRD1.MaterialReqqusitionMasterId,POQtyStatus
-								)MRD ON MRD.MaterialReqqusitionMasterId=MRM.id	
-								WHERE DATEDIFF(day,MRM.RequisitionDate,getdate()) Between 11 and 15				
-								AND (MRM.CheckedByStatus ='Checked' OR MRM.CheckedByStatus ='Hold')
-								AND (isnull(MRM.AuthorizedByStatus,'') ='For Approval' OR MRM.AuthorizedByStatus IS NULL)
-								AND MRM.InActive=0 
-								AND MRD.POQtyStatus=0
-								Group BY MRM.CompanyGroupId
-						)Res15 On Res15.CompanyGroupId=CMPGR.Id --ANd Res3.PlantId=p.Id	
-						LEFT JOIN(
-							select 'Pending Requisition For Approval' Category
-									,Count(distinct MRM.Id) TweentyDaysCount
-									,MRM.CompanyGroupId	
-									,0 AS ThreeDaysCount
-									,0 AS FiveDaysCount
-									,0 AS TenDaysCount
-									,0 FifteenDaysCount
-									,0 TwentyFiveyDaysCount
-									,0 AS ThirtyDaysCount
-									,0 AS GraterThirtyDaysCount
-									,0 AS AllCount
-									,sum(MRD.TransactionQty) Qty
-									,sum(MRD.EstimatedRate) Rate
-									,sum(MRD.TotalAmount) Total20Value
-									FROM trn.MaterialRequsitionMaster MRM
-									LEFT JOIN (	SELECT MRD1.MaterialReqqusitionMasterId,POQtyStatus,sum(MRD1.TransactionQty) TransactionQty, sum(MRD1.EstimatedRate) EstimatedRate ,sum(MRD1.TotalAmount) TotalAmount 
-											FROM trn.MaterialRequsitionDetails MRD1 
-											GROUP By MRD1.MaterialReqqusitionMasterId,POQtyStatus
-									)MRD ON MRD.MaterialReqqusitionMasterId=MRM.id	
-									WHERE DATEDIFF(day,MRM.RequisitionDate,getdate()) Between 16 and 20				
-									AND (MRM.CheckedByStatus ='Checked' OR MRM.CheckedByStatus ='Hold')
-									AND (isnull(MRM.AuthorizedByStatus,'') ='For Approval' OR MRM.AuthorizedByStatus IS NULL)
-									AND MRM.InActive=0 
-									AND MRD.POQtyStatus=0
-									Group BY MRM.CompanyGroupId
-						)Res20 ON Res20.CompanyGroupId=CMPGR.Id --ANd Res3.PlantId=p.Id	
-						LEFT JOIN(
-								select 'Pending Requisition For Approval' Category
-										,Count(distinct MRM.Id) TwentyFiveyDaysCount
-										,MRM.CompanyGroupId	
-										,0 AS ThreeDaysCount
-										,0 AS FiveDaysCount
-										,0 AS TenDaysCount
-										,0 AS FifteenDaysCount
-										,0 AS TweentyDaysCount
-										,0 AS ThirtyDaysCount
-										,0 AS GraterThirtyDaysCount
-										,0 AS AllCount
-										,sum(MRD.TransactionQty) Qty
-										,sum(MRD.EstimatedRate) Rate
-										,sum(MRD.TotalAmount) Total25Value
-										FROM trn.MaterialRequsitionMaster MRM
-										LEFT JOIN (	SELECT MRD1.MaterialReqqusitionMasterId,POQtyStatus,sum(MRD1.TransactionQty) TransactionQty, sum(MRD1.EstimatedRate) EstimatedRate ,sum(MRD1.TotalAmount) TotalAmount 
-												FROM trn.MaterialRequsitionDetails MRD1 
-												GROUP By MRD1.MaterialReqqusitionMasterId,POQtyStatus
-										)MRD ON MRD.MaterialReqqusitionMasterId=MRM.id	
-										WHERE DATEDIFF(day,MRM.RequisitionDate,getdate()) Between 21 and 25				
-										AND (MRM.CheckedByStatus ='Checked' OR MRM.CheckedByStatus ='Hold')
-										AND (isnull(MRM.AuthorizedByStatus,'') ='For Approval' OR MRM.AuthorizedByStatus IS NULL)
-										AND MRM.InActive=0 
-										AND MRD.POQtyStatus=0
-										Group BY MRM.CompanyGroupId
-						)Res25 On Res25.CompanyGroupId=CMPGR.Id --ANd Res3.PlantId=p.Id	
-						LEFT JOIN(
-								select 'Pending Requisition For Approval' Category
-										,Count(distinct MRM.Id) ThirtyDaysCount
-										,MRM.CompanyGroupId	
-										,0 AS ThreeDaysCount
-										,0 AS FiveDaysCount
-										,0 AS TenDaysCount
-										,0 AS FifteenDaysCount
-										,0 AS TweentyDaysCount
-										,0 AS TwentyFiveyDaysCount
-										,0 AS GraterThirtyDaysCount
-										,0 AS AllCount
-										,sum(MRD.TransactionQty) Qty
-										,sum(MRD.EstimatedRate) Rate
-										,sum(MRD.TotalAmount) Total30Value
-										FROM trn.MaterialRequsitionMaster MRM
-										LEFT JOIN (	SELECT MRD1.MaterialReqqusitionMasterId,POQtyStatus,sum(MRD1.TransactionQty) TransactionQty, sum(MRD1.EstimatedRate) EstimatedRate ,sum(MRD1.TotalAmount) TotalAmount 
-												FROM trn.MaterialRequsitionDetails MRD1 
-												GROUP By MRD1.MaterialReqqusitionMasterId,POQtyStatus
-										)MRD ON MRD.MaterialReqqusitionMasterId=MRM.id	
-										WHERE DATEDIFF(day,MRM.RequisitionDate,getdate()) Between 26 and 30				
-										AND (MRM.CheckedByStatus ='Checked' OR MRM.CheckedByStatus ='Hold')
-										AND (isnull(MRM.AuthorizedByStatus,'') ='For Approval' OR MRM.AuthorizedByStatus IS NULL)
-										AND MRM.InActive=0 
-										AND MRD.POQtyStatus=0
-										Group BY MRM.CompanyGroupId
-						)Res30 ON Res30.CompanyGroupId=CMPGR.Id --ANd Res3.PlantId=p.Id	
-						LEFT JOIN(
-							select 'Pending Requisition For Approval' Category 
-									,Count(distinct MRM.Id) GraterThirtyDaysCount
-									,MRM.CompanyGroupId	
-									,0 AS ThreeDaysCount
-									,0 AS FiveDaysCount
-									,0 AS TenDaysCount
-									,0 AS FifteenDaysCount
-									,0 AS TweentyDaysCount
-									,0 AS TwentyFiveyDaysCount
-									,0 AS ThirtyDaysCount
-									,0 AS AllCount
-									,sum(MRD.TransactionQty) Qty
-									,sum(MRD.EstimatedRate) Rate
-									,sum(MRD.TotalAmount) Total31Value
-									FROM trn.MaterialRequsitionMaster MRM
-									LEFT JOIN (	SELECT MRD1.MaterialReqqusitionMasterId,POQtyStatus,sum(MRD1.TransactionQty) TransactionQty, sum(MRD1.EstimatedRate) EstimatedRate ,sum(MRD1.TotalAmount) TotalAmount 
-											FROM trn.MaterialRequsitionDetails MRD1 
-											GROUP By MRD1.MaterialReqqusitionMasterId,POQtyStatus
-									)MRD ON MRD.MaterialReqqusitionMasterId=MRM.id	
-									WHERE DATEDIFF(day,MRM.RequisitionDate,getdate()) Between 31 and 9000000				
-									AND (MRM.CheckedByStatus ='Checked' OR MRM.CheckedByStatus ='Hold')
-									AND (isnull(MRM.AuthorizedByStatus,'') ='For Approval' OR MRM.AuthorizedByStatus IS NULL)
-									AND MRM.InActive=0 
-									AND MRD.POQtyStatus=0
-									Group BY MRM.CompanyGroupId
-					
-						)Res31 On Res31.CompanyGroupId=CMPGR.Id --ANd Res3.PlantId=p.Id	
-						LEFT JOIN(
-								SELECT 'Pending Requisition For Approval' Category 													
-									,MRM.CompanyGroupId	
-									,0 AS ThreeDaysCount
-									,0 AS FiveDaysCount
-									,0 AS TenDaysCount
-									,0 AS FifteenDaysCount
-									,0 AS TweentyDaysCount
-									,0 AS TwentyFiveyDaysCount
-									,0 AS ThirtyDaysCount
-									,0 AS GraterThirtyDaysCount
-									,Count(distinct MRM.Id) AllCount
-									,sum(MRD.TransactionQty) Qty
-									,sum(MRD.EstimatedRate) Rate
-									,sum(MRD.TotalAmount) Total32Value
-									FROM trn.MaterialRequsitionMaster MRM
-									LEFT JOIN (	SELECT MRD1.MaterialReqqusitionMasterId,POQtyStatus,sum(MRD1.TransactionQty) TransactionQty, sum(MRD1.EstimatedRate) EstimatedRate ,sum(MRD1.TotalAmount) TotalAmount 
-											FROM trn.MaterialRequsitionDetails MRD1 
-											GROUP By MRD1.MaterialReqqusitionMasterId,POQtyStatus
-									)MRD ON MRD.MaterialReqqusitionMasterId=MRM.id	
-									WHERE DATEDIFF(day,MRM.RequisitionDate,getdate()) Between 0 and 900000				
-									AND (MRM.CheckedByStatus ='Checked' OR MRM.CheckedByStatus ='Hold')
-									AND (isnull(MRM.AuthorizedByStatus,'') ='For Approval' OR MRM.AuthorizedByStatus IS NULL)
-									AND MRM.InActive=0 
-									AND MRD.POQtyStatus=0
-								Group BY MRM.CompanyGroupId
-									)Res32 ON Res32.CompanyGroupId=CMPGR.Id --ANd Res3.PlantId=p.Id								
-									where CMPGR.Active =1 
-
-						UNION ALL
-
-						SELECT
-							--CMPGR.Id AS CompanyGroupId
-							--, CMPGR.UserName AS GroupName
-							--, cmp.Id AS CompanyId
-							--, CMP.UserName AS ColumnName	
-							--,P.Id PlantId
-							--,P.UserName PlantName
-							'Pending Requisition For PO' Category, 2 SI
-							,isnull(Res3.ThreeDaysCount,0) ThreeDaysCount,isnull(Res3.Total3Value,0) Total3Value
-							,isnull(Res5.FiveDaysCount,0) FiveDaysCount,isnull(Res5.Total5Value,0) Total5Value
-							,isnull(Res10.TenDaysCount,0) TenDaysCount,isnull(Res10.Total10Value,0) Total10Value
-							,isnull(Res15.FifteenDaysCount,0) FifteenDaysCount,isnull(Res15.Total15Value,0) Total15Value
-							,isnull(Res20.TweentyDaysCount,0) TweentyDaysCount,isnull(Res20.Total20Value,0) Total20Value
-							,isnull(Res25.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Res25.Total25Value,0) Total25Value
-							,isnull(Res30.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Res30.Total30Value,0) Total30Value
-							,isnull(Res31.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Res31.Total31Value,0) Total31Value	
-							,isnull(Res32.AllCount,0) AllCount,isnull(Res32.Total32Value,0) Total32Value
-				
-						FROM ORG.CompanyGroup CMPGR
-						--left join  org.company CMP ON CMP.CompanyGroupId = CMPGR.Id 
-						--left join ORG.plant p ON p.CompanyId=cmp.id
-
-						LEFT JOIN
-						( SELECT 'Pending Requisition For PO' Category
-								--,Count(distinct distinct MRM.Id) ThreeDaysCount
-								,Count(MRM.Id) ThreeDaysCount
-								,MRM.CompanyGroupId	
-								,0 AS FiveDaysCount
-								,0 AS TenDaysCount
-								,0 AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(MRD.TransactionQty) Qty
-								,sum(MRD.EstimatedRate) Rate
-								,sum(MRD.TotalAmount) Total3Value
-								FROM trn.MaterialRequsitionMaster MRM
-								LEFT JOIN (	SELECT MRD1.MaterialReqqusitionMasterId,POQtyStatus,sum(MRD1.TransactionQty) TransactionQty, sum(MRD1.EstimatedRate) EstimatedRate ,sum(MRD1.TotalAmount) TotalAmount 
-										FROM trn.MaterialRequsitionDetails MRD1 
-										GROUP By MRD1.MaterialReqqusitionMasterId,POQtyStatus
-								)MRD ON MRD.MaterialReqqusitionMasterId=MRM.id	
-								WHERE DATEDIFF(day,MRM.RequisitionDate,getdate()) Between 0 and 3				
-								AND MRM.CheckedByStatus ='Checked' 				
-								AND isnull(MRM.AuthorizedByStatus,'') ='Approved'	
-								AND MRM.InActive=0 
-								AND MRD.POQtyStatus=0
-								--AND MRM.Id not in(Select distinct count(RequisitionId)  from trn.PurchaseOrderDetail where RequisitionId is not null)				 
-								Group BY MRM.CompanyGroupId
-						)Res3 ON Res3.CompanyGroupId=CMPGR.Id --ANd Res3.PlantId=p.Id	
-						LEFT JOIN(
-								SELECT 'Pending Requisition For PO' Category
-								,Count( distinct MRM.Id) FiveDaysCount
-								,MRM.CompanyGroupId	
-								,0 AS ThreeDaysCount
-								,0 TenDaysCount
-								,0 FifteenDaysCount
-								,0 TweentyDaysCount
-								,0 TwentyFiveyDaysCount
-								,0 ThirtyDaysCount
-								,0 GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(MRD.TransactionQty) Qty
-								,sum(MRD.EstimatedRate) Rate
-								,sum(MRD.TotalAmount) Total5Value
-								FROM trn.MaterialRequsitionMaster MRM
-								LEFT JOIN (	SELECT MRD1.MaterialReqqusitionMasterId,POQtyStatus,sum(MRD1.TransactionQty) TransactionQty, sum(MRD1.EstimatedRate) EstimatedRate ,sum(MRD1.TotalAmount) TotalAmount 
-										FROM trn.MaterialRequsitionDetails MRD1 
-										GROUP By MRD1.MaterialReqqusitionMasterId,POQtyStatus
-								)MRD ON MRD.MaterialReqqusitionMasterId=MRM.id	
-								WHERE DATEDIFF(day,MRM.RequisitionDate,getdate()) Between 4 and 5				
-								AND MRM.CheckedByStatus ='Checked' 				
-								AND isnull(MRM.AuthorizedByStatus,'') ='Approved'	
-								AND MRM.InActive=0 
-								AND MRD.POQtyStatus=0
-								--AND MRM.Id not in(Select distinct count(RequisitionId)  from trn.PurchaseOrderDetail where RequisitionId is not null)				 
-								Group BY MRM.CompanyGroupId
-						)Res5 ON Res5.CompanyGroupId=CMPGR.Id --ANd Res3.PlantId=p.Id	
-						LEFT JOIN(
-								select 'Pending Requisition For PO' Category
-								,Count(distinct MRM.Id) TenDaysCount
-								,MRM.CompanyGroupId	
-								,0 AS ThreeDaysCount
-								,0 AS FiveDaysCount
-								,0 AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(MRD.TransactionQty) Qty
-								,sum(MRD.EstimatedRate) Rate
-								,sum(MRD.TotalAmount) Total10Value
-								FROM trn.MaterialRequsitionMaster MRM
-								LEFT JOIN (	SELECT MRD1.MaterialReqqusitionMasterId,POQtyStatus,sum(MRD1.TransactionQty) TransactionQty, sum(MRD1.EstimatedRate) EstimatedRate ,sum(MRD1.TotalAmount) TotalAmount 
-										FROM trn.MaterialRequsitionDetails MRD1 
-										GROUP By MRD1.MaterialReqqusitionMasterId,POQtyStatus
-								)MRD ON MRD.MaterialReqqusitionMasterId=MRM.id	
-								WHERE DATEDIFF(day,MRM.RequisitionDate,getdate()) Between 6 and 10				
-								AND MRM.CheckedByStatus ='Checked' 				
-								AND isnull(MRM.AuthorizedByStatus,'') ='Approved'	
-								AND MRM.InActive=0 
-								AND MRD.POQtyStatus=0
-								--AND MRM.Id not in(Select distinct count(RequisitionId)  from trn.PurchaseOrderDetail where RequisitionId is not null)				 
-								Group BY MRM.CompanyGroupId
-						)Res10 ON Res10.CompanyGroupId=CMPGR.Id --ANd Res3.PlantId=p.Id	
-						LEFT JOIN(
-							SELECT 'Pending Requisition For PO' Category
-								,Count(distinct MRM.Id) FifteenDaysCount
-								,MRM.CompanyGroupId	
-								,0 AS ThreeDaysCount
-								,0 AS FiveDaysCount
-								,0 AS TenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(MRD.TransactionQty) Qty
-								,sum(MRD.EstimatedRate) Rate
-								,sum(MRD.TotalAmount) Total15Value
-								FROM trn.MaterialRequsitionMaster MRM
-								LEFT JOIN (	SELECT MRD1.MaterialReqqusitionMasterId,POQtyStatus,sum(MRD1.TransactionQty) TransactionQty, sum(MRD1.EstimatedRate) EstimatedRate ,sum(MRD1.TotalAmount) TotalAmount 
-										FROM trn.MaterialRequsitionDetails MRD1 
-										GROUP By MRD1.MaterialReqqusitionMasterId,POQtyStatus
-								)MRD ON MRD.MaterialReqqusitionMasterId=MRM.id	
-								WHERE DATEDIFF(day,MRM.RequisitionDate,getdate()) Between 11 and 15				
-								AND MRM.CheckedByStatus ='Checked' 				
-								AND isnull(MRM.AuthorizedByStatus,'') ='Approved'	
-								AND MRM.InActive=0 
-								AND MRD.POQtyStatus=0
-								--AND MRM.Id not in(Select distinct count(RequisitionId)  from trn.PurchaseOrderDetail where RequisitionId is not null)				 
-								Group BY MRM.CompanyGroupId
-						)Res15 On Res15.CompanyGroupId=CMPGR.Id --ANd Res3.PlantId=p.Id	
-						LEFT JOIN(
-							select 'Pending Requisition For PO' Category
-									,Count(distinct MRM.Id) TweentyDaysCount
-									,MRM.CompanyGroupId	
-									,0 AS ThreeDaysCount
-									,0 AS FiveDaysCount
-									,0 AS TenDaysCount
-									,0 FifteenDaysCount
-									,0 TwentyFiveyDaysCount
-									,0 AS ThirtyDaysCount
-									,0 AS GraterThirtyDaysCount
-									,0 AS AllCount
-									,sum(MRD.TransactionQty) Qty
-									,sum(MRD.EstimatedRate) Rate
-									,sum(MRD.TotalAmount) Total20Value
-									FROM trn.MaterialRequsitionMaster MRM
-									LEFT JOIN (	SELECT MRD1.MaterialReqqusitionMasterId,POQtyStatus,sum(MRD1.TransactionQty) TransactionQty, sum(MRD1.EstimatedRate) EstimatedRate ,sum(MRD1.TotalAmount) TotalAmount 
-											FROM trn.MaterialRequsitionDetails MRD1 
-											GROUP By MRD1.MaterialReqqusitionMasterId,POQtyStatus
-									)MRD ON MRD.MaterialReqqusitionMasterId=MRM.id	
-									WHERE DATEDIFF(day,MRM.RequisitionDate,getdate()) Between 16 and 20				
-									AND MRM.CheckedByStatus ='Checked' 				
-									AND isnull(MRM.AuthorizedByStatus,'') ='Approved'	
-									AND MRM.InActive=0 
-									AND MRD.POQtyStatus=0
-									--AND MRM.Id not in(Select distinct count(RequisitionId)  from trn.PurchaseOrderDetail where RequisitionId is not null)				 
-									Group BY MRM.CompanyGroupId
-						)Res20 ON Res20.CompanyGroupId=CMPGR.Id --ANd Res3.PlantId=p.Id	
-						LEFT JOIN(
-								select 'Pending Requisition For PO' Category
-										,Count(distinct MRM.Id) TwentyFiveyDaysCount
-										,MRM.CompanyGroupId	
-										,0 AS ThreeDaysCount
-										,0 AS FiveDaysCount
-										,0 AS TenDaysCount
-										,0 AS FifteenDaysCount
-										,0 AS TweentyDaysCount
-										,0 AS ThirtyDaysCount
-										,0 AS GraterThirtyDaysCount
-										,0 AS AllCount
-										,sum(MRD.TransactionQty) Qty
-										,sum(MRD.EstimatedRate) Rate
-										,sum(MRD.TotalAmount) Total25Value
-										FROM trn.MaterialRequsitionMaster MRM
-										LEFT JOIN (	SELECT MRD1.MaterialReqqusitionMasterId,POQtyStatus,sum(MRD1.TransactionQty) TransactionQty, sum(MRD1.EstimatedRate) EstimatedRate ,sum(MRD1.TotalAmount) TotalAmount 
-												FROM trn.MaterialRequsitionDetails MRD1 
-												GROUP By MRD1.MaterialReqqusitionMasterId,POQtyStatus
-										)MRD ON MRD.MaterialReqqusitionMasterId=MRM.id	
-										WHERE DATEDIFF(day,MRM.RequisitionDate,getdate()) Between 21 and 25				
-										AND MRM.CheckedByStatus ='Checked' 				
-										AND isnull(MRM.AuthorizedByStatus,'') ='Approved'	
-										AND MRM.InActive=0 
-										AND MRD.POQtyStatus=0
-										--AND MRM.Id not in(Select distinct count(RequisitionId)  from trn.PurchaseOrderDetail where RequisitionId is not null)				 
-										Group BY MRM.CompanyGroupId
-						)Res25 On Res25.CompanyGroupId=CMPGR.Id --ANd Res3.PlantId=p.Id	
-						LEFT JOIN(
-								select 'Pending Requisition For PO' Category
-										,Count(distinct MRM.Id) ThirtyDaysCount
-										,MRM.CompanyGroupId	
-										,0 AS ThreeDaysCount
-										,0 AS FiveDaysCount
-										,0 AS TenDaysCount
-										,0 AS FifteenDaysCount
-										,0 AS TweentyDaysCount
-										,0 AS TwentyFiveyDaysCount
-										,0 AS GraterThirtyDaysCount
-										,0 AS AllCount
-										,sum(MRD.TransactionQty) Qty
-										,sum(MRD.EstimatedRate) Rate
-										,sum(MRD.TotalAmount) Total30Value
-										FROM trn.MaterialRequsitionMaster MRM
-										LEFT JOIN (	SELECT MRD1.MaterialReqqusitionMasterId,POQtyStatus,sum(MRD1.TransactionQty) TransactionQty, sum(MRD1.EstimatedRate) EstimatedRate ,sum(MRD1.TotalAmount) TotalAmount 
-												FROM trn.MaterialRequsitionDetails MRD1 
-												GROUP By MRD1.MaterialReqqusitionMasterId,POQtyStatus
-										)MRD ON MRD.MaterialReqqusitionMasterId=MRM.id	
-										WHERE DATEDIFF(day,MRM.RequisitionDate,getdate()) Between 26 and 30				
-										AND MRM.CheckedByStatus ='Checked' 				
-										AND isnull(MRM.AuthorizedByStatus,'') ='Approved'	
-										AND MRM.InActive=0 
-										AND MRD.POQtyStatus=0
-										--AND MRM.Id not in(Select distinct count(RequisitionId)  from trn.PurchaseOrderDetail where RequisitionId is not null)				 
-										Group BY MRM.CompanyGroupId
-						)Res30 ON Res30.CompanyGroupId=CMPGR.Id --ANd Res3.PlantId=p.Id	
-						LEFT JOIN(
-							select 'Pending Requisition For PO' Category 
-									,Count(distinct MRM.Id) GraterThirtyDaysCount
-									,MRM.CompanyGroupId	
-									,0 AS ThreeDaysCount
-									,0 AS FiveDaysCount
-									,0 AS TenDaysCount
-									,0 AS FifteenDaysCount
-									,0 AS TweentyDaysCount
-									,0 AS TwentyFiveyDaysCount
-									,0 AS ThirtyDaysCount
-									,0 AS AllCount
-									,sum(MRD.TransactionQty) Qty
-									,sum(MRD.EstimatedRate) Rate
-									,sum(MRD.TotalAmount) Total31Value
-									FROM trn.MaterialRequsitionMaster MRM
-									LEFT JOIN (	SELECT MRD1.MaterialReqqusitionMasterId,POQtyStatus,sum(MRD1.TransactionQty) TransactionQty, sum(MRD1.EstimatedRate) EstimatedRate ,sum(MRD1.TotalAmount) TotalAmount 
-											FROM trn.MaterialRequsitionDetails MRD1 
-											GROUP By MRD1.MaterialReqqusitionMasterId,POQtyStatus
-									)MRD ON MRD.MaterialReqqusitionMasterId=MRM.id	
-									WHERE DATEDIFF(day,MRM.RequisitionDate,getdate()) Between 31 and 9000000				
-									AND MRM.CheckedByStatus ='Checked' 				
-									AND isnull(MRM.AuthorizedByStatus,'') ='Approved'	
-									AND MRM.InActive=0 
-									AND MRD.POQtyStatus=0
-									--AND MRM.Id not in(Select distinct count(RequisitionId)  from trn.PurchaseOrderDetail where RequisitionId is not null)				 
-									Group BY MRM.CompanyGroupId
-					
-						)Res31 On Res31.CompanyGroupId=CMPGR.Id --ANd Res3.PlantId=p.Id	
-						LEFT JOIN(
-								SELECT 'Pending Requisition' Category 													
-									,MRM.CompanyGroupId	
-									,0 AS ThreeDaysCount
-									,0 AS FiveDaysCount
-									,0 AS TenDaysCount
-									,0 AS FifteenDaysCount
-									,0 AS TweentyDaysCount
-									,0 AS TwentyFiveyDaysCount
-									,0 AS ThirtyDaysCount
-									,0 AS GraterThirtyDaysCount
-									,Count(distinct MRM.Id) AllCount
-									,sum(MRD.TransactionQty) Qty
-									,sum(MRD.EstimatedRate) Rate
-									,sum(MRD.TotalAmount) Total32Value
-									FROM trn.MaterialRequsitionMaster MRM
-									LEFT JOIN (	SELECT MRD1.MaterialReqqusitionMasterId,POQtyStatus,sum(MRD1.TransactionQty) TransactionQty, sum(MRD1.EstimatedRate) EstimatedRate ,sum(MRD1.TotalAmount) TotalAmount 
-											FROM trn.MaterialRequsitionDetails MRD1 
-											GROUP By MRD1.MaterialReqqusitionMasterId,POQtyStatus
-									)MRD ON MRD.MaterialReqqusitionMasterId=MRM.id	
-									WHERE DATEDIFF(day,MRM.RequisitionDate,getdate()) Between 0 and 900000				
-									AND MRM.CheckedByStatus ='Checked' 				
-									AND isnull(MRM.AuthorizedByStatus,'') ='Approved'	
-									AND MRM.InActive=0 
-									AND MRD.POQtyStatus=0
-									--AND MRM.Id not in(Select distinct count(RequisitionId)  from trn.PurchaseOrderDetail where RequisitionId is not null)				 
-									Group BY MRM.CompanyGroupId
-									)Res32 ON Res32.CompanyGroupId=CMPGR.Id --ANd Res3.PlantId=p.Id								
-									where CMPGR.Active =1 
+						LEFT JOIN (
+							SELECT MRM.CompanyGroupId AS CompanyGroupId
+							,COUNT(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 0 AND 3 THEN MRM.Id END) AS ThreeDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 0 AND 3 THEN MRD.TotalAmount END) AS Total3Value
+							,COUNT(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 4 AND 5 THEN MRM.Id END) AS FiveDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 4 AND 5 THEN MRD.TotalAmount END) AS Total5Value
+							,COUNT(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 6 AND 10 THEN MRM.Id END) AS TenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 6 AND 10 THEN MRD.TotalAmount END) AS Total10Value
+							,COUNT(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 11 AND 15 THEN MRM.Id END) AS FifteenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 11 AND 15 THEN MRD.TotalAmount END) AS Total15Value
+							,COUNT(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 16 AND 20 THEN MRM.Id END) AS TweentyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 16 AND 20 THEN MRD.TotalAmount END) AS Total20Value
+							,COUNT(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 21 AND 25 THEN MRM.Id END) AS TwentyFiveyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 21 AND 25 THEN MRD.TotalAmount END) AS Total25Value
+							,COUNT(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 26 AND 30 THEN MRM.Id END) AS ThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 26 AND 30 THEN MRD.TotalAmount END) AS Total30Value
+							,COUNT(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) >= 31 THEN MRM.Id END) AS GraterThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) >= 31 THEN MRD.TotalAmount END) AS Total31Value
+							,COUNT(CASE WHEN 1=1 THEN MRM.Id END) AS AllCount
+							,SUM(CASE WHEN 1=1 THEN MRD.TotalAmount END) AS Total32Value
+							FROM trn.MaterialRequsitionMaster MRM
+							LEFT JOIN (
+								SELECT MaterialReqqusitionMasterId, POQtyStatus,
+									SUM(TransactionQty) TransactionQty, SUM(EstimatedRate) EstimatedRate, SUM(TotalAmount) TotalAmount
+								FROM trn.MaterialRequsitionDetails
+								GROUP BY MaterialReqqusitionMasterId, POQtyStatus
+							) MRD ON MRD.MaterialReqqusitionMasterId = MRM.Id
+							WHERE (MRM.CheckedByStatus ='Checked' OR MRM.CheckedByStatus ='Hold')
+							AND (isnull(MRM.AuthorizedByStatus,'') ='For Approval' OR MRM.AuthorizedByStatus IS NULL)
+							AND MRM.InActive=0
+							AND MRD.POQtyStatus=0
+							GROUP BY MRM.CompanyGroupId
+						) Agg ON Agg.CompanyGroupId = CMPGR.Id
+						WHERE CMPGR.Active = 1
 						UNION ALL
 						SELECT
-							--CMPGR.Id AS CompanyGroupId
-							--, CMPGR.UserName AS GroupName
-							--, cmp.Id AS CompanyId
-							--, CMP.UserName AS ColumnName	
-							--,P.id Plant
-							--,P.UserName PlantName
-							'PO Pending For Approval' Category, 3 SI
-							,isnull(Res3.ThreeDaysCount,0) ThreeDaysCount,isnull(Res3.Total3Value,0) Total3Value
-							,isnull(Res5.FiveDaysCount,0) FiveDaysCount,isnull(Res5.Total5Value,0) Total5Value
-							,isnull(Res10.TenDaysCount,0) TenDaysCount,isnull(Res10.Total10Value,0) Total10Value
-							,isnull(Res15.FifteenDaysCount,0) FifteenDaysCount,isnull(Res15.Total15Value,0) Total15Value
-							,isnull(Res20.TweentyDaysCount,0) TweentyDaysCount,isnull(Res20.Total20Value,0) Total20Value
-							,isnull(Res25.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Res25.Total25Value,0) Total25Value
-							,isnull(Res30.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Res30.Total30Value,0) Total30Value
-							,isnull(Res31.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Res31.Total31Value,0) Total31Value		
-							,isnull(Res32.AllCount,0) AllCount,isnull(Res32.Total32Value,0) Total32Value		
+						'Pending Requisition For PO' Category, 2 SI
+						,isnull(Agg.ThreeDaysCount,0) ThreeDaysCount,isnull(Agg.Total3Value,0) Total3Value
+						,isnull(Agg.FiveDaysCount,0) FiveDaysCount,isnull(Agg.Total5Value,0) Total5Value
+						,isnull(Agg.TenDaysCount,0) TenDaysCount,isnull(Agg.Total10Value,0) Total10Value
+						,isnull(Agg.FifteenDaysCount,0) FifteenDaysCount,isnull(Agg.Total15Value,0) Total15Value
+						,isnull(Agg.TweentyDaysCount,0) TweentyDaysCount,isnull(Agg.Total20Value,0) Total20Value
+						,isnull(Agg.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Agg.Total25Value,0) Total25Value
+						,isnull(Agg.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Agg.Total30Value,0) Total30Value
+						,isnull(Agg.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Agg.Total31Value,0) Total31Value
+						,isnull(Agg.AllCount,0) AllCount,isnull(Agg.Total32Value,0) Total32Value
 						FROM ORG.CompanyGroup CMPGR
-						--left join  org.company CMP ON CMP.CompanyGroupId = CMPGR.Id 
-						--left join ORG.plant p ON p.CompanyId=cmp.id
-						LEFT JOIN
-						( 
-						select 'PO Pending for approval' Category	
-								,PO.CompanyGroupId--,PO.PlantId				
-								,Count( PO.Id) ThreeDaysCount
-								,0 AS FiveDaysCount
-								,0 AS TenDaysCount
-								,0 AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(POD.Qty) Qty
-								,sum(POD.Rate) Rate
-								,Sum(POD.Total3Value) Total3Value
-								--FROM trn.PurchaseOrder PO
-								--LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total3Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-								--where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-								--AND DATEDIFF(day,PO.PODate,getdate()) Between 0 and 3
-								--AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0
-								--AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL
-								--GROUp BY PO.CompanyGroupId--,PO.PlantId
-								FROM trn.PurchaseOrder PO
-								LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total3Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-								LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId
-								where DATEDIFF(day,PO.PODate,getdate()) Between 0 and 3
-								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
-								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
-								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
-								GROUP BY PO.CompanyGroupId
-						)Res3 ON Res3.CompanyGroupId=CMPGR.Id --AND Res3.PlantId=P.Id
-						Left JOIN(
-
-						select 'PO Pending for approval' Category	
-								,PO.CompanyGroupId--	,PO.PlantId					
-								,0 ThreeDaysCount
-								,Count( PO.Id) AS FiveDaysCount
-								,0 AS TenDaysCount
-								,0 AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(POD.Qty) Qty
-								,sum(POD.Rate) Rate
-								,Sum(POD.Total5Value) Total5Value
-								FROM trn.PurchaseOrder PO
-								LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total5Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-								LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId
-								where DATEDIFF(day,PO.PODate,getdate()) Between 4 and 5
-								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
-								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
-								AND PO.IsClosed=0 AND POD.QtyStatus=0
-							    AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
-								GROUP BY PO.CompanyGroupId	
-						)Res5 ON Res5.CompanyGroupId=cmpGR.Id --AND Res5.PlantId=P.Id
-						LEFT JOIN(
-			
-						select 'PO Pending for approval' Category	
-								,PO.CompanyGroupId--	,PO.PlantId					
-								,0 ThreeDaysCount
-								,0 AS FiveDaysCount
-								,Count( PO.Id) AS TenDaysCount
-								,0 AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(POD.Qty) Qty
-								,sum(POD.Rate) Rate
-								,Sum(POD.Total10Value) Total10Value
-								FROM trn.PurchaseOrder PO
-								LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total10Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-								LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId
-								where DATEDIFF(day,PO.PODate,getdate()) Between 6 and 10
-								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
-								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
-								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
-								GROUP BY PO.CompanyGroupId	
-						)Res10 ON Res10.CompanyGroupId=cmpGR.Id --AND Res10.PlantId=P.Id
-						LEFT JOIN(
-				
-				
-						select 'PO Pending for approval' Category	
-								,PO.CompanyGroupId--	,PO.PlantId					
-								,0 ThreeDaysCount
-								,0 AS FiveDaysCount
-								,0 AS TenDaysCount
-								,Count( PO.Id)  AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(POD.Qty) Qty
-								,sum(POD.Rate) Rate
-								,Sum(POD.Total15Value) Total15Value
-								FROM trn.PurchaseOrder PO
-								LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total15Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-								LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId
-								where DATEDIFF(day,PO.PODate,getdate()) Between 11 and 15
-								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
-								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
-								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
-								GROUP BY PO.CompanyGroupId
-						)Res15 ON Res15.CompanyGroupId=cmpGR.Id --AND Res15.PlantId=P.Id
-						LEFT JOIN(
-								select 'PO Pending for approval' Category	
-								,PO.CompanyGroupId--	,PO.PlantId					
-								,0 ThreeDaysCount
-								,0 AS FiveDaysCount
-								,0 AS TenDaysCount
-								,0  AS FifteenDaysCount
-								,Count( PO.Id) AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(POD.Qty) Qty
-								,sum(POD.Rate) Rate
-								,Sum(POD.Total20Value) Total20Value
-								FROM trn.PurchaseOrder PO
-								LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total20Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-								LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId
-								where DATEDIFF(day,PO.PODate,getdate()) Between 16 and 20
-								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
-								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
-								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
-								GROUP BY PO.CompanyGroupId	
-						)Res20 ON Res20.CompanyGroupId=cmpGR.Id  --AND Res20.PlantId=P.Id
-						LEFT JOIN(
-								select 'PO Pending for approval' Category	
-								,PO.CompanyGroupId--	,PO.PlantId					
-								,0 ThreeDaysCount
-								,0 AS FiveDaysCount
-								,0 AS TenDaysCount
-								,0  AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,Count( PO.Id) AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(POD.Qty) Qty
-								,sum(POD.Rate) Rate
-								,Sum(POD.Total25Value) Total25Value
-								FROM trn.PurchaseOrder PO
-								LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total25Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-								LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId
-								where DATEDIFF(day,PO.PODate,getdate()) Between 21 and 25
-								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
-								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
-								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
-								GROUP BY PO.CompanyGroupId
-						)Res25 ON Res25.CompanyGroupId=cmpGR.Id --AND Res25.PlantId=P.Id
-						LEFT JOIN(
-						select 'PO Pending for approval' Category	
-								,PO.CompanyGroupId--	,PO.PlantId					
-								,0 ThreeDaysCount
-								,0 AS FiveDaysCount
-								,0 AS TenDaysCount
-								,0  AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,Count(PO.Id) AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(POD.Qty) Qty
-								,sum(POD.Rate) Rate
-								,Sum(POD.Total30Value) Total30Value
-								FROM trn.PurchaseOrder PO
-								LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total30Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-								LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId
-								where DATEDIFF(day,PO.PODate,getdate()) Between 26 and 30
-								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
-								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
-								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
-								GROUP BY PO.CompanyGroupId
-												
-						)Res30 ON Res30.CompanyGroupId=cmpGR.Id --AND Res30.PlantId=P.Id
-						LEFT JOIN(
-								select 'PO Pending for approval' Category	
-								,PO.CompanyGroupId--,PO.PlantId						
-								,0 ThreeDaysCount
-								,0 AS FiveDaysCount
-								,0 AS TenDaysCount
-								,0  AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,Count(PO.Id) AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(POD.Qty) Qty
-								,sum(POD.Rate) Rate
-								,Sum(POD.Total31Value) Total31Value
-								FROM trn.PurchaseOrder PO
-								LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total31Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-								LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId
-								where DATEDIFF(day,PO.PODate,getdate()) Between 31 and 90000
-								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
-								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
-								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
-								GROUP BY PO.CompanyGroupId	
-						)Res31 ON Res31.CompanyGroupId=cmpGR.Id --AND Res31.PlantId=P.Id
-						LEFT JOIN(
-						select 'PO Pending for approval' Category	
-								,PO.CompanyGroupId--	,PO.PlantId					
-								,0 ThreeDaysCount
-								,0 AS FiveDaysCount
-								,0 AS TenDaysCount
-								,0  AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,Count(PO.Id) AS AllCount
-								,sum(POD.Qty) Qty
-								,sum(POD.Rate) Rate
-								,Sum(POD.Total32Value) Total32Value
-								FROM trn.PurchaseOrder PO
-								LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total32Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-								LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId
-								where DATEDIFF(day,PO.PODate,getdate()) Between 0 and 90000
-								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
-								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
-								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND ISNULL(PT.PaymentMode,'') <> 'LC'
-								GROUP BY PO.CompanyGroupId
-						)Res32 ON Res32.CompanyGroupId=cmpGR.Id --AND Res32.PlantId=P.Id
-						where CMPGR.Active = 1 --AND cmp.Id='C20171'
-						----------
+						LEFT JOIN (
+							SELECT MRM.CompanyGroupId AS CompanyGroupId
+							,COUNT(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 0 AND 3 THEN MRM.Id END) AS ThreeDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 0 AND 3 THEN MRD.TotalAmount END) AS Total3Value
+							,COUNT(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 4 AND 5 THEN MRM.Id END) AS FiveDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 4 AND 5 THEN MRD.TotalAmount END) AS Total5Value
+							,COUNT(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 6 AND 10 THEN MRM.Id END) AS TenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 6 AND 10 THEN MRD.TotalAmount END) AS Total10Value
+							,COUNT(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 11 AND 15 THEN MRM.Id END) AS FifteenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 11 AND 15 THEN MRD.TotalAmount END) AS Total15Value
+							,COUNT(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 16 AND 20 THEN MRM.Id END) AS TweentyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 16 AND 20 THEN MRD.TotalAmount END) AS Total20Value
+							,COUNT(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 21 AND 25 THEN MRM.Id END) AS TwentyFiveyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 21 AND 25 THEN MRD.TotalAmount END) AS Total25Value
+							,COUNT(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 26 AND 30 THEN MRM.Id END) AS ThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) BETWEEN 26 AND 30 THEN MRD.TotalAmount END) AS Total30Value
+							,COUNT(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) >= 31 THEN MRM.Id END) AS GraterThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,MRM.RequisitionDate,GETDATE()) >= 31 THEN MRD.TotalAmount END) AS Total31Value
+							,COUNT(CASE WHEN 1=1 THEN MRM.Id END) AS AllCount
+							,SUM(CASE WHEN 1=1 THEN MRD.TotalAmount END) AS Total32Value
+							FROM trn.MaterialRequsitionMaster MRM
+							LEFT JOIN (
+								SELECT MaterialReqqusitionMasterId, POQtyStatus,
+									SUM(TransactionQty) TransactionQty, SUM(EstimatedRate) EstimatedRate, SUM(TotalAmount) TotalAmount
+								FROM trn.MaterialRequsitionDetails
+								GROUP BY MaterialReqqusitionMasterId, POQtyStatus
+							) MRD ON MRD.MaterialReqqusitionMasterId = MRM.Id
+							WHERE MRM.CheckedByStatus ='Checked'
+							AND isnull(MRM.AuthorizedByStatus,'') ='Approved'
+							AND MRM.InActive=0
+							AND MRD.POQtyStatus=0
+							GROUP BY MRM.CompanyGroupId
+						) Agg ON Agg.CompanyGroupId = CMPGR.Id
+						WHERE CMPGR.Active = 1
 						UNION ALL
-
 						SELECT
-						--CMPGR.Id AS CompanyGroupId
-						--, CMPGR.UserName AS GroupName
-						--, cmp.Id AS CompanyId
-						--, CMP.UserName AS ColumnName	
-						--,P.id Plant
-						--,P.UserName PlantName
-						'PO Pending For Purchase' Category, 4 SI
-						,isnull(Res3.ThreeDaysCount,0) ThreeDaysCount,isnull(Res3.Total3Value,0) Total3Value
-						,isnull(Res5.FiveDaysCount,0) FiveDaysCount,isnull(Res5.Total5Value,0) Total5Value
-						,isnull(Res10.TenDaysCount,0) TenDaysCount,isnull(Res10.Total10Value,0) Total10Value
-						,isnull(Res15.FifteenDaysCount,0) FifteenDaysCount,isnull(Res15.Total15Value,0) Total15Value
-						,isnull(Res20.TweentyDaysCount,0) TweentyDaysCount,isnull(Res20.Total20Value,0) Total20Value
-						,isnull(Res25.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Res25.Total25Value,0) Total25Value
-						,isnull(Res30.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Res30.Total30Value,0) Total30Value
-						,isnull(Res31.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Res31.Total31Value,0) Total31Value		
-						,isnull(Res32.AllCount,0) AllCount,isnull(Res32.Total32Value,0) Total32Value		
-						from ORG.CompanyGroup CMPGR
-						--left join  org.company CMP ON CMP.CompanyGroupId = CMPGR.Id 
-						--left join ORG.plant p ON p.CompanyId=cmp.id
-						LEFT JOIN
-						( 
-						select 'PO Pending For Purchase' Category	
-								,PO.CompanyGroupId--,PO.PlantId				
-								,Count( PO.Id) ThreeDaysCount
-								,0 AS FiveDaysCount
-								,0 AS TenDaysCount
-								,0 AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(POD.Qty) Qty
-								,sum(POD.Rate) Rate
-								,Sum(POD.Total3Value) Total3Value
-								--FROM trn.PurchaseOrder PO
-								--LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total3Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-								--where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-								--AND DATEDIFF(day,PO.PODate,getdate()) Between 0 and 3
-								--AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0
-								--AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL
-								--GROUp BY PO.CompanyGroupId--,PO.PlantId
-								FROM trn.PurchaseOrder PO
-								LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total3Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-								LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
-								where DATEDIFF(day,PO.PODate,getdate()) Between 0 and 3
-								AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
-								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
-								--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
-								GROUP BY PO.CompanyGroupId--,PO.PlantId	
-						)Res3 ON Res3.CompanyGroupId=CMPGR.Id --AND Res3.PlantId=P.Id
-						Left JOIN(
-
-						select 'PO Pending for Purchase' Category	
-								,PO.CompanyGroupId--	,PO.PlantId					
-								,0 ThreeDaysCount
-								,Count( PO.Id) AS FiveDaysCount
-								,0 AS TenDaysCount
-								,0 AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(POD.Qty) Qty
-								,sum(POD.Rate) Rate
-								,Sum(POD.Total5Value) Total5Value
-								FROM trn.PurchaseOrder PO
-								LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total5Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-								LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId
-								where DATEDIFF(day,PO.PODate,getdate()) Between 4 and 5
-								AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
-								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								 AND PO.PurchaseLCId IS NULL AND  ISNULL(PT.PaymentMode,'') <> 'LC'
-								--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
-								GROUP BY PO.CompanyGroupId--,PO.PlantId				
-						)Res5 ON Res5.CompanyGroupId=cmpGR.Id --AND Res5.PlantId=P.Id
-						LEFT JOIN(
-			
-						select 'PO Pending for Purchase' Category	
-							,PO.CompanyGroupId--	,PO.PlantId					
-							,0 ThreeDaysCount
-							,0 AS FiveDaysCount
-							,Count( PO.Id) AS TenDaysCount
-							,0 AS FifteenDaysCount
-							,0 AS TweentyDaysCount
-							,0 AS TwentyFiveyDaysCount
-							,0 AS ThirtyDaysCount
-							,0 AS GraterThirtyDaysCount
-							,0 AS AllCount
-							,sum(POD.Qty) Qty
-							,sum(POD.Rate) Rate
-							,Sum(POD.Total10Value) Total10Value
+						'PO Pending For Approval' Category, 3 SI
+						,isnull(Agg.ThreeDaysCount,0) ThreeDaysCount,isnull(Agg.Total3Value,0) Total3Value
+						,isnull(Agg.FiveDaysCount,0) FiveDaysCount,isnull(Agg.Total5Value,0) Total5Value
+						,isnull(Agg.TenDaysCount,0) TenDaysCount,isnull(Agg.Total10Value,0) Total10Value
+						,isnull(Agg.FifteenDaysCount,0) FifteenDaysCount,isnull(Agg.Total15Value,0) Total15Value
+						,isnull(Agg.TweentyDaysCount,0) TweentyDaysCount,isnull(Agg.Total20Value,0) Total20Value
+						,isnull(Agg.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Agg.Total25Value,0) Total25Value
+						,isnull(Agg.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Agg.Total30Value,0) Total30Value
+						,isnull(Agg.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Agg.Total31Value,0) Total31Value
+						,isnull(Agg.AllCount,0) AllCount,isnull(Agg.Total32Value,0) Total32Value
+						FROM ORG.CompanyGroup CMPGR
+						LEFT JOIN (
+							SELECT PO.CompanyGroupId AS CompanyGroupId
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 0 AND 3 THEN PO.Id END) AS ThreeDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 0 AND 3 THEN POD.BaseAmount END) AS Total3Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 4 AND 5 THEN PO.Id END) AS FiveDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 4 AND 5 THEN POD.BaseAmount END) AS Total5Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 6 AND 10 THEN PO.Id END) AS TenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 6 AND 10 THEN POD.BaseAmount END) AS Total10Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 11 AND 15 THEN PO.Id END) AS FifteenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 11 AND 15 THEN POD.BaseAmount END) AS Total15Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 16 AND 20 THEN PO.Id END) AS TweentyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 16 AND 20 THEN POD.BaseAmount END) AS Total20Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 21 AND 25 THEN PO.Id END) AS TwentyFiveyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 21 AND 25 THEN POD.BaseAmount END) AS Total25Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 26 AND 30 THEN PO.Id END) AS ThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 26 AND 30 THEN POD.BaseAmount END) AS Total30Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) >= 31 THEN PO.Id END) AS GraterThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) >= 31 THEN POD.BaseAmount END) AS Total31Value
+							,COUNT(CASE WHEN 1=1 THEN PO.Id END) AS AllCount
+							,SUM(CASE WHEN 1=1 THEN POD.BaseAmount END) AS Total32Value
 							FROM trn.PurchaseOrder PO
-							LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total10Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-							LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
-							where DATEDIFF(day,PO.PODate,getdate()) Between 6 and 10
-							AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
+							LEFT JOIN (
+								SELECT InventoryReceiveId, QtyStatus, SUM(BaseAmount) BaseAmount
+								FROM TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus
+							) POD ON POD.InventoryReceiveId=PO.Id
+							LEFT JOIN [MST].[PaymentTerm] PT ON PT.Id=PO.PaymentTermId
+							WHERE (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
+							AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 							AND PO.IsClosed=0 AND POD.QtyStatus=0
 							AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
-							--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
-							GROUP BY PO.CompanyGroupId--,PO.PlantId		
-						)Res10 ON Res10.CompanyGroupId=cmpGR.Id --AND Res10.PlantId=P.Id
-						LEFT JOIN(
-				
-				
-						select 'PO Pending for Purchase' Category	
-								,PO.CompanyGroupId--	,PO.PlantId					
-								,0 ThreeDaysCount
-								,0 AS FiveDaysCount
-								,0 AS TenDaysCount
-								,Count( PO.Id)  AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(POD.Qty) Qty
-								,sum(POD.Rate) Rate
-								,Sum(POD.Total15Value) Total15Value
-								FROM trn.PurchaseOrder PO
-								LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total15Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-								LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId
-								where DATEDIFF(day,PO.PODate,getdate()) Between 11 and 15
-								AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
-								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
-								--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
-								GROUP BY PO.CompanyGroupId--,PO.PlantId	
-						)Res15 ON Res15.CompanyGroupId=cmpGR.Id --AND Res15.PlantId=P.Id
-						LEFT JOIN(
-						select 'PO Pending for Purchase' Category	
-								,PO.CompanyGroupId--	,PO.PlantId					
-								,0 ThreeDaysCount
-								,0 AS FiveDaysCount
-								,0 AS TenDaysCount
-								,0  AS FifteenDaysCount
-								,Count( PO.Id) AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(POD.Qty) Qty
-								,sum(POD.Rate) Rate
-								,Sum(POD.Total20Value) Total20Value
-								FROM trn.PurchaseOrder PO
-								LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total20Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-								LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId
-                                where DATEDIFF(day,PO.PODate,getdate()) Between 16 and 20
-								AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
-								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.PurchaseLCId IS NULL AND  ISNULL(PT.PaymentMode,'') <> 'LC'
-								--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
-								GROUP BY PO.CompanyGroupId--,PO.PlantId	
-						)Res20 ON Res20.CompanyGroupId=cmpGR.Id  --AND Res20.PlantId=P.Id
-						LEFT JOIN(
-						select 'PO Pending for Purchase' Category	
-								,PO.CompanyGroupId--	,PO.PlantId					
-								,0 ThreeDaysCount
-								,0 AS FiveDaysCount
-								,0 AS TenDaysCount
-								,0  AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,Count( PO.Id) AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(POD.Qty) Qty
-								,sum(POD.Rate) Rate
-								,Sum(POD.Total25Value) Total25Value
-								FROM trn.PurchaseOrder PO
-								LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total25Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-								LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId
-								where DATEDIFF(day,PO.PODate,getdate()) Between 21 and 25
-								AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
-								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
-								--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
-								GROUP BY PO.CompanyGroupId--,PO.PlantId	
-						)Res25 ON Res25.CompanyGroupId=cmpGR.Id --AND Res25.PlantId=P.Id
-						LEFT JOIN(
-						select 'PO Pending for Purchase' Category	
-								,PO.CompanyGroupId--	,PO.PlantId					
-								,0 ThreeDaysCount
-								,0 AS FiveDaysCount
-								,0 AS TenDaysCount
-								,0  AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,Count(PO.Id) AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(POD.Qty) Qty
-								,sum(POD.Rate) Rate
-								,Sum(POD.Total30Value) Total30Value
-								FROM trn.PurchaseOrder PO
-								LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total30Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-								LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
-								where DATEDIFF(day,PO.PODate,getdate()) Between 26 and 30
-								AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
-								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
-								--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
-								GROUP BY PO.CompanyGroupId--,PO.PlantId	
-												
-						)Res30 ON Res30.CompanyGroupId=cmpGR.Id --AND Res30.PlantId=P.Id
-						LEFT JOIN(
-						select 'PO Pending for Purchase' Category	
-								,PO.CompanyGroupId--,PO.PlantId						
-								,0 ThreeDaysCount
-								,0 AS FiveDaysCount
-								,0 AS TenDaysCount
-								,0  AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,Count(PO.Id) AS GraterThirtyDaysCount
-								,0 AS AllCount
-								,sum(POD.Qty) Qty
-								,sum(POD.Rate) Rate
-								,Sum(POD.Total31Value) Total31Value
-								FROM trn.PurchaseOrder PO
-								LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total31Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-								LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
-								where DATEDIFF(day,PO.PODate,getdate()) Between 31 and 90000
-								AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
-								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
-								--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
-								GROUP BY PO.CompanyGroupId--,PO.PlantId		
-						)Res31 ON Res31.CompanyGroupId=cmpGR.Id --AND Res31.PlantId=P.Id
-						LEFT JOIN(
-						select 'PO Pending for Purchase' Category	
-								,PO.CompanyGroupId--	,PO.PlantId					
-								,0 ThreeDaysCount
-								,0 AS FiveDaysCount
-								,0 AS TenDaysCount
-								,0  AS FifteenDaysCount
-								,0 AS TweentyDaysCount
-								,0 AS TwentyFiveyDaysCount
-								,0 AS ThirtyDaysCount
-								,0 AS GraterThirtyDaysCount
-								,Count(PO.Id) AS AllCount
-								,sum(POD.Qty) Qty
-								,sum(POD.Rate) Rate
-								,Sum(POD.Total32Value) Total32Value
-								FROM trn.PurchaseOrder PO
-								LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total32Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-								LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
-								where DATEDIFF(day,PO.PODate,getdate()) Between 0 and 90000
-								AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
-								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
-								--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
-								GROUP BY PO.CompanyGroupId--,PO.PlantId	
-						)Res32 ON Res32.CompanyGroupId=cmpGR.Id --AND Res32.PlantId=P.Id
-						where CMPGR.Active = 1 --AND cmp.Id='C20171'
-	
+							GROUP BY PO.CompanyGroupId
+						) Agg ON Agg.CompanyGroupId = CMPGR.Id
+						WHERE CMPGR.Active = 1
 						UNION ALL
-
 						SELECT
-						--CMPGR.Id AS CompanyGroupId
-						--, CMPGR.UserName AS GroupName
-						--, cmp.Id AS CompanyId
-						--, CMP.UserName AS ColumnName	
-						--,P.Id PlantId
-						--,P.UserName PlantName
+						'PO Pending For Purchase' Category, 4 SI
+						,isnull(Agg.ThreeDaysCount,0) ThreeDaysCount,isnull(Agg.Total3Value,0) Total3Value
+						,isnull(Agg.FiveDaysCount,0) FiveDaysCount,isnull(Agg.Total5Value,0) Total5Value
+						,isnull(Agg.TenDaysCount,0) TenDaysCount,isnull(Agg.Total10Value,0) Total10Value
+						,isnull(Agg.FifteenDaysCount,0) FifteenDaysCount,isnull(Agg.Total15Value,0) Total15Value
+						,isnull(Agg.TweentyDaysCount,0) TweentyDaysCount,isnull(Agg.Total20Value,0) Total20Value
+						,isnull(Agg.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Agg.Total25Value,0) Total25Value
+						,isnull(Agg.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Agg.Total30Value,0) Total30Value
+						,isnull(Agg.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Agg.Total31Value,0) Total31Value
+						,isnull(Agg.AllCount,0) AllCount,isnull(Agg.Total32Value,0) Total32Value
+						FROM ORG.CompanyGroup CMPGR
+						LEFT JOIN (
+							SELECT PO.CompanyGroupId AS CompanyGroupId
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 0 AND 3 THEN PO.Id END) AS ThreeDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 0 AND 3 THEN POD.BaseAmount END) AS Total3Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 4 AND 5 THEN PO.Id END) AS FiveDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 4 AND 5 THEN POD.BaseAmount END) AS Total5Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 6 AND 10 THEN PO.Id END) AS TenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 6 AND 10 THEN POD.BaseAmount END) AS Total10Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 11 AND 15 THEN PO.Id END) AS FifteenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 11 AND 15 THEN POD.BaseAmount END) AS Total15Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 16 AND 20 THEN PO.Id END) AS TweentyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 16 AND 20 THEN POD.BaseAmount END) AS Total20Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 21 AND 25 THEN PO.Id END) AS TwentyFiveyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 21 AND 25 THEN POD.BaseAmount END) AS Total25Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 26 AND 30 THEN PO.Id END) AS ThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 26 AND 30 THEN POD.BaseAmount END) AS Total30Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) >= 31 THEN PO.Id END) AS GraterThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) >= 31 THEN POD.BaseAmount END) AS Total31Value
+							,COUNT(CASE WHEN 1=1 THEN PO.Id END) AS AllCount
+							,SUM(CASE WHEN 1=1 THEN POD.BaseAmount END) AS Total32Value
+							FROM trn.PurchaseOrder PO
+							LEFT JOIN (
+								SELECT InventoryReceiveId, QtyStatus, SUM(BaseAmount) BaseAmount
+								FROM TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus
+							) POD ON POD.InventoryReceiveId=PO.Id
+							LEFT JOIN [MST].[PaymentTerm] PT ON PT.Id=PO.PaymentTermId
+							WHERE PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved'
+							AND PO.IsClosed=0 AND POD.QtyStatus=0
+							AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
+							GROUP BY PO.CompanyGroupId
+						) Agg ON Agg.CompanyGroupId = CMPGR.Id
+						WHERE CMPGR.Active = 1
+						UNION ALL
+						SELECT
 						'PO Pending For LC Taging' Category, 5 SI
-						,isnull(Res3.ThreeDaysCount,0) ThreeDaysCount,isnull(Res3.Total3Value,0) Total3Value
-						,isnull(Res5.FiveDaysCount,0) FiveDaysCount,isnull(Res5.Total5Value,0) Total5Value
-						,isnull(Res10.TenDaysCount,0) TenDaysCount,isnull(Res10.Total10Value,0) Total10Value
-						,isnull(Res15.FifteenDaysCount,0) FifteenDaysCount,isnull(Res15.Total15Value,0) Total15Value
-						,isnull(Res20.TweentyDaysCount,0) TweentyDaysCount,isnull(Res20.Total20Value,0) Total20Value
-						,isnull(Res25.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Res25.Total25Value,0) Total25Value
-						,isnull(Res30.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Res30.Total30Value,0) Total30Value
-						,isnull(Res31.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Res31.Total31Value,0) Total31Value		
-						,isnull(Res32.AllCount,0) AllCount,isnull(Res32.Total32Value,0) Total32Value		
-						from ORG.CompanyGroup CMPGR
-						--left join  org.company CMP ON CMP.CompanyGroupId = CMPGR.Id 
-						--left join ORG.plant p ON p.CompanyId=cmp.id
-						LEFT JOIN
-						( 
-						select 'PO Pending For LC Taging' Category	
-						,PO.CompanyGroupId--,PO.PlantId					
-						,Count( PO.Id) ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(POD.Qty) Qty
-						,sum(POD.Rate) Rate
-						,Sum(POD.Total3Value) Total3Value
-						FROM trn.PurchaseOrder PO
-						LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total3Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-						LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
-						where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-						AND DATEDIFF(day,PO.PODate,getdate()) Between 0 and 3
-						AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0
-						AND PO.POType='PO' AND PT.PaymentMode = 'LC' AND PO.PurchaseLCId IS NULL --AND PO.ContractId IS NULL
-						GROUp BY PO.CompanyGroupId--,PO.PlantId	
-						)Res3 ON Res3.CompanyGroupId=cmpGR.Id --AND Res3.PlantId=P.Id
-						Left JOIN(
-
-						select 'PO Pending For LC Taging' Category	
-						,PO.CompanyGroupId--,PO.PlantId					
-						,0 ThreeDaysCount
-						,Count( PO.Id) AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(POD.Qty) Qty
-						,sum(POD.Rate) Rate
-						,Sum(POD.Total5Value) Total5Value
-						FROM trn.PurchaseOrder PO
-						LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total5Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-						LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
-						where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-						AND DATEDIFF(day,PO.PODate,getdate()) Between 4 and 5
-						AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0
-						AND PO.POType='PO' AND PT.PaymentMode = 'LC' AND PO.PurchaseLCId IS NULL --AND PO.ContractId IS NULL
-						GROUp BY PO.CompanyGroupId--,PO.PlantId	
-						)Res5 ON Res5.CompanyGroupId=cmpGR.Id --AND Res5.PlantId=P.Id
-						LEFT JOIN(
-			
-						select 'PO Pending For LC Taging' Category	
-						,PO.CompanyGroupId--	,PO.PlantId				
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,Count( PO.Id) AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(POD.Qty) Qty
-						,sum(POD.Rate) Rate
-						,Sum(POD.Total10Value) Total10Value
-						FROM trn.PurchaseOrder PO
-						LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total10Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-						LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
-						where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-						AND DATEDIFF(day,PO.PODate,getdate()) Between 6 and 10
-						AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0
-						AND PO.POType='PO' AND PT.PaymentMode = 'LC' AND PO.PurchaseLCId IS NULL --AND PO.ContractId IS NULL
-						GROUp BY PO.CompanyGroupId--,PO.PlantId	
-						)Res10 ON Res10.CompanyGroupId=cmpGR.Id --AND Res10.PlantId=P.Id
-						LEFT JOIN(
-				
-				
-						select 'PO Pending For LC Taging' Category	
-						,PO.CompanyGroupId--	,PO.PlantId				
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,Count( PO.Id)  AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(POD.Qty) Qty
-						,sum(POD.Rate) Rate
-						,Sum(POD.Total15Value) Total15Value
-						FROM trn.PurchaseOrder PO
-						LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total15Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-						LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
-						where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-						AND DATEDIFF(day,PO.PODate,getdate()) Between 11 and 15
-						AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0
-						AND PO.POType='PO' AND PT.PaymentMode = 'LC' AND PO.PurchaseLCId IS NULL --AND PO.ContractId IS NULL
-						GROUp BY PO.CompanyGroupId--,PO.PlantId	
-						)Res15 ON Res15.CompanyGroupId=cmpGR.Id --AND Res15.PlantId=P.Id
-						LEFT JOIN(
-						select 'PO Pending For LC Taging' Category	
-						,PO.CompanyGroupId--	,PO.PlantId				
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0  AS FifteenDaysCount
-						,Count( PO.Id) AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(POD.Qty) Qty
-						,sum(POD.Rate) Rate
-						,Sum(POD.Total20Value) Total20Value
-						FROM trn.PurchaseOrder PO
-						LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total20Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-						LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
-						where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-						AND DATEDIFF(day,PO.PODate,getdate()) Between 16 and 20
-						AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0
-						AND PO.POType='PO' AND PT.PaymentMode = 'LC' AND PO.PurchaseLCId IS NULL --AND PO.ContractId IS NULL
-						GROUp BY PO.CompanyGroupId--,PO.PlantId	
-						)Res20 ON Res20.CompanyGroupId=cmpGR.Id --AND Res20.PlantId=P.Id
-						LEFT JOIN(
-						select 'PO Pending For LC Taging' Category	
-						,PO.CompanyGroupId--	,PO.PlantId				
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0  AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,Count( PO.Id) AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(POD.Qty) Qty
-						,sum(POD.Rate) Rate
-						,Sum(POD.Total25Value) Total25Value
-						FROM trn.PurchaseOrder PO
-						LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total25Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-						LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
-						where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-						AND DATEDIFF(day,PO.PODate,getdate()) Between 21 and 25
-						AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0
-						AND PO.POType='PO' AND PT.PaymentMode = 'LC' AND PO.PurchaseLCId IS NULL --AND PO.ContractId IS NULL
-						GROUp BY PO.CompanyGroupId--,PO.PlantId	
-						)Res25 ON Res25.CompanyGroupId=cmpGR.Id --AND Res25.PlantId=P.Id
-						LEFT JOIN(
-						select 'PO Pending For LC Taging' Category	
-						,PO.CompanyGroupId--,PO.PlantId					
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0  AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,Count(PO.Id) AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(POD.Qty) Qty
-						,sum(POD.Rate) Rate
-						,Sum(POD.Total30Value) Total30Value
-						FROM trn.PurchaseOrder PO
-						LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total30Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-						LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
-						where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-						AND DATEDIFF(day,PO.PODate,getdate()) Between 26 and 30
-						AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0
-						AND PO.POType='PO' AND PT.PaymentMode = 'LC' AND PO.PurchaseLCId IS NULL --AND PO.ContractId IS NULL
-						GROUp BY PO.CompanyGroupId--,PO.PlantId	
-												
-						)Res30 ON Res30.CompanyGroupId=cmpGR.Id -- AND Res30.PlantId=P.Id
-						LEFT JOIN(
-						select 'PO Pending For LC Taging' Category	
-						,PO.CompanyGroupId--,PO.PlantId					
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0  AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,Count(PO.Id) AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(POD.Qty) Qty
-						,sum(POD.Rate) Rate
-						,Sum(POD.Total31Value) Total31Value
-						FROM trn.PurchaseOrder PO
-						LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total31Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-						LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
-						where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-						AND DATEDIFF(day,PO.PODate,getdate()) Between 31 and 900000
-						AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0
-						AND PO.POType='PO' AND PT.PaymentMode = 'LC' AND PO.PurchaseLCId IS NULL --AND PO.ContractId IS NULL
-						GROUp BY PO.CompanyGroupId--,PO.PlantId	
-						)Res31 ON Res31.CompanyGroupId=cmpGR.Id --AND Res31.PlantId=P.Id
-						LEFT JOIN(
-						select 'PO Pending For LC Taging' Category	
-						,PO.CompanyGroupId--,PO.PlantId					
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0  AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,Count(PO.Id) AS AllCount
-						,sum(POD.Qty) Qty
-						,sum(POD.Rate) Rate
-						,Sum(POD.Total32Value) Total32Value
-						FROM trn.PurchaseOrder PO
-						LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total32Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-						LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
-						where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-						AND DATEDIFF(day,PO.PODate,getdate()) Between 0 and 900000
-						AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0
-						AND PO.POType='PO' AND PT.PaymentMode = 'LC' AND PO.PurchaseLCId IS NULL --AND PO.ContractId IS NULL
-						GROUp BY PO.CompanyGroupId--,PO.PlantId	
-						)Res32 ON Res32.CompanyGroupId=cmpGR.Id --AND Res32.PlantId=P.Id
-						where cmpGR.Active =1 --and CMPGR.Active = 1 --AND cmp.Id='C20171'
+						,isnull(Agg.ThreeDaysCount,0) ThreeDaysCount,isnull(Agg.Total3Value,0) Total3Value
+						,isnull(Agg.FiveDaysCount,0) FiveDaysCount,isnull(Agg.Total5Value,0) Total5Value
+						,isnull(Agg.TenDaysCount,0) TenDaysCount,isnull(Agg.Total10Value,0) Total10Value
+						,isnull(Agg.FifteenDaysCount,0) FifteenDaysCount,isnull(Agg.Total15Value,0) Total15Value
+						,isnull(Agg.TweentyDaysCount,0) TweentyDaysCount,isnull(Agg.Total20Value,0) Total20Value
+						,isnull(Agg.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Agg.Total25Value,0) Total25Value
+						,isnull(Agg.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Agg.Total30Value,0) Total30Value
+						,isnull(Agg.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Agg.Total31Value,0) Total31Value
+						,isnull(Agg.AllCount,0) AllCount,isnull(Agg.Total32Value,0) Total32Value
+						FROM ORG.CompanyGroup CMPGR
+						LEFT JOIN (
+							SELECT PO.CompanyGroupId AS CompanyGroupId
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 0 AND 3 THEN PO.Id END) AS ThreeDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 0 AND 3 THEN POD.BaseAmount END) AS Total3Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 4 AND 5 THEN PO.Id END) AS FiveDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 4 AND 5 THEN POD.BaseAmount END) AS Total5Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 6 AND 10 THEN PO.Id END) AS TenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 6 AND 10 THEN POD.BaseAmount END) AS Total10Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 11 AND 15 THEN PO.Id END) AS FifteenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 11 AND 15 THEN POD.BaseAmount END) AS Total15Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 16 AND 20 THEN PO.Id END) AS TweentyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 16 AND 20 THEN POD.BaseAmount END) AS Total20Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 21 AND 25 THEN PO.Id END) AS TwentyFiveyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 21 AND 25 THEN POD.BaseAmount END) AS Total25Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 26 AND 30 THEN PO.Id END) AS ThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 26 AND 30 THEN POD.BaseAmount END) AS Total30Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) >= 31 THEN PO.Id END) AS GraterThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) >= 31 THEN POD.BaseAmount END) AS Total31Value
+							,COUNT(CASE WHEN 1=1 THEN PO.Id END) AS AllCount
+							,SUM(CASE WHEN 1=1 THEN POD.BaseAmount END) AS Total32Value
+							FROM trn.PurchaseOrder PO
+							LEFT JOIN (
+								SELECT InventoryReceiveId, SUM(BaseAmount) BaseAmount
+								FROM TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId
+							) POD ON POD.InventoryReceiveId=PO.Id
+							LEFT JOIN [MST].[PaymentTerm] PT ON PT.Id=PO.PaymentTermId
+							WHERE PO.Id NOT IN (SELECT DISTINCT POId FROM trn.InventoryReceiveDetail WHERE POId IS NOT NULL)
+							AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0
+							AND PO.POType='PO' AND PT.PaymentMode = 'LC' AND PO.PurchaseLCId IS NULL
+							GROUP BY PO.CompanyGroupId
+						) Agg ON Agg.CompanyGroupId = CMPGR.Id
+						WHERE CMPGR.Active = 1
 						UNION ALL
-
-						----------------------------------------Invoice pending for acceptance--------------------------
 						SELECT
-						--CMPGR.Id AS CompanyGroupId
-						--, CMPGR.UserName AS GroupName
-						--, cmp.Id AS CompanyId
-						--, CMP.UserName AS ColumnName		
-						--,P.Id PlantId
-						--,P.UserName PlantName
 						'Invoice Pending For Acceptance' Category, 6 SI
-						,isnull(Res3.ThreeDaysCount,0) ThreeDaysCount,isnull(Res3.Total3Value,0) Total3Value
-						,isnull(Res5.FiveDaysCount,0) FiveDaysCount,isnull(Res5.Total5Value,0) Total5Value
-						,isnull(Res10.TenDaysCount,0) TenDaysCount,isnull(Res10.Total10Value,0) Total10Value
-						,isnull(Res15.FifteenDaysCount,0) FifteenDaysCount,isnull(Res15.Total15Value,0) Total15Value
-						,isnull(Res20.TweentyDaysCount,0) TweentyDaysCount,isnull(Res20.Total20Value,0) Total20Value
-						,isnull(Res25.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Res25.Total25Value,0) Total25Value
-						,isnull(Res30.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Res30.Total30Value,0) Total30Value
-						,isnull(Res31.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Res31.Total31Value,0) Total31Value			
-						,isnull(Res32.AllCount,0) AllCount,isnull(Res32.Total32Value,0) Total32Value			
-				                    
-						from ORG.CompanyGroup CMPGR
-						--left join  org.company CMP ON CMP.CompanyGroupId =CMPGR.Id 
-						--left join ORG.plant p ON p.CompanyId=cmp.id
-						LEFT JOIN
-						( 	
-						SELECT 'Invoice Pending For Acceptance' Category
-						,PDA.CompanyGroupId--,PDA.PlantId		
-						,Count(Distinct PDA.Id) ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(PDAD.Qty) Qty
-						,sum(PDAD.Qty) Rate
-						,sum(PDAD.Total3Value) Total3Value
-
-						FROM trn.PurchaseDocAcceptance PDA
-						LEFT JOIN (Select PurchaseDocAcceptanceId ,Sum(TransactionQty) Qty,Sum(MaterialTranAmount) Total3Value from TRN.PurchaseDocAcceptanceDetail GROUp bY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
-						LEFT JOIN [dbo].[PrePurchaseInvoice] PPI ON PPI.Id=PDA.PrePurchaseInvoiceId
-						WHERE PDA.PrePurchaseInvoiceId is null
-						AND DATEDIFF(day,PDA.EntryDate,getdate()) Between 0 and 3
-						GROUP BY PDA.CompanyGroupId--  ,PDA.PlantId			
-						)Res3 ON Res3.CompanyGroupId=cmpGR.Id-- AND Res3.PlantId=P.Id									
-						Left JOIN(		
-			
-						SELECT 'Invoice Pending For Acceptance' Category
-						,PDA.CompanyGroupId--,PDA.PlantId		
-						,0 ThreeDaysCount
-						,Count(Distinct PDA.Id) AS FiveDaysCount 
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(PDAD.Qty) Qty
-						,sum(PDAD.Qty) Rate
-						,sum(PDAD.Total3Value) Total5Value
-
-						FROM trn.PurchaseDocAcceptance PDA
-						LEFT JOIN (Select PurchaseDocAcceptanceId ,Sum(TransactionQty) Qty,Sum(MaterialTranAmount) Total3Value from TRN.PurchaseDocAcceptanceDetail GROUp bY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
-						LEFT JOIN [dbo].[PrePurchaseInvoice] PPI ON PPI.Id=PDA.PrePurchaseInvoiceId
-						WHERE PDA.PrePurchaseInvoiceId is null
-						AND DATEDIFF(day,PDA.EntryDate,getdate()) Between 4 and 5
-						GROUP BY PDA.CompanyGroupId--  ,PDA.PlantId	 	
-						)Res5 ON Res5.CompanyGroupId=cmpGR.Id 	--AND Res5.PlantId=P.Id							
-						Left JOIN(
-						SELECT 'Invoice Pending For Acceptance' Category
-						,PDA.CompanyGroupId--,PDA.PlantId		
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,Count(Distinct PDA.Id) AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(PDAD.Qty) Qty
-						,sum(PDAD.Qty) Rate
-						,sum(PDAD.Total3Value) Total10Value
-
-						FROM trn.PurchaseDocAcceptance PDA
-						LEFT JOIN (Select PurchaseDocAcceptanceId ,Sum(TransactionQty) Qty,Sum(MaterialTranAmount) Total3Value from TRN.PurchaseDocAcceptanceDetail GROUp bY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
-						LEFT JOIN [dbo].[PrePurchaseInvoice] PPI ON PPI.Id=PDA.PrePurchaseInvoiceId
-						WHERE PDA.PrePurchaseInvoiceId is null
-						AND DATEDIFF(day,PDA.EntryDate,getdate()) Between 6 and 10
-						GROUP BY PDA.CompanyGroupId--  ,PDA.PlantId	 	  
-						)Res10 ON Res10.CompanyGroupId=cmpGR.Id 		--AND Res10.PlantId=P.Id					
-						Left JOIN(
-						SELECT 'Invoice Pending For Acceptance' Category
-						,PDA.CompanyGroupId--,PDA.PlantId		
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,Count(Distinct PDA.Id) AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(PDAD.Qty) Qty
-						,sum(PDAD.Qty) Rate
-						,sum(PDAD.Total3Value) Total15Value
-
-						FROM trn.PurchaseDocAcceptance PDA
-						LEFT JOIN (Select PurchaseDocAcceptanceId ,Sum(TransactionQty) Qty,Sum(MaterialTranAmount) Total3Value from TRN.PurchaseDocAcceptanceDetail GROUp bY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
-						LEFT JOIN [dbo].[PrePurchaseInvoice] PPI ON PPI.Id=PDA.PrePurchaseInvoiceId
-						WHERE PDA.PrePurchaseInvoiceId is null
-						AND DATEDIFF(day,PDA.EntryDate,getdate()) Between 11 and 15
-						GROUP BY PDA.CompanyGroupId--  ,PDA.PlantId		   	   
-						)Res15 ON Res15.CompanyGroupId=cmpGR.Id 		--AND Res15.PlantId=P.Id						
-						Left JOIN(
-						SELECT 'Invoice Pending For Acceptance' Category
-						,PDA.CompanyGroupId--,PDA.PlantId		
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,Count(Distinct PDA.Id) AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(PDAD.Qty) Qty
-						,sum(PDAD.Qty) Rate
-						,sum(PDAD.Total3Value) Total20Value
-
-						FROM trn.PurchaseDocAcceptance PDA
-						LEFT JOIN (Select PurchaseDocAcceptanceId ,Sum(TransactionQty) Qty,Sum(MaterialTranAmount) Total3Value from TRN.PurchaseDocAcceptanceDetail GROUp bY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
-						LEFT JOIN [dbo].[PrePurchaseInvoice] PPI ON PPI.Id=PDA.PrePurchaseInvoiceId
-						WHERE PDA.PrePurchaseInvoiceId is null
-						AND DATEDIFF(day,PDA.EntryDate,getdate()) Between 16 and 20
-						GROUP BY PDA.CompanyGroupId--  ,PDA.PlantId	
-						)Res20 ON Res20.CompanyGroupId=cmpGR.Id 	--AND Res20.PlantId=P.Id						
-						Left JOIN(
-						SELECT 'Invoice Pending For Acceptance' Category
-						,PDA.CompanyGroupId--,PDA.PlantId		
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,Count(Distinct PDA.Id) AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(PDAD.Qty) Qty
-						,sum(PDAD.Qty) Rate
-						,sum(PDAD.Total3Value) Total25Value
-
-						FROM trn.PurchaseDocAcceptance PDA
-						LEFT JOIN (Select PurchaseDocAcceptanceId ,Sum(TransactionQty) Qty,Sum(MaterialTranAmount) Total3Value from TRN.PurchaseDocAcceptanceDetail GROUp bY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
-						LEFT JOIN [dbo].[PrePurchaseInvoice] PPI ON PPI.Id=PDA.PrePurchaseInvoiceId
-						WHERE PDA.PrePurchaseInvoiceId is null
-						AND DATEDIFF(day,PDA.EntryDate,getdate()) Between 21 and 25
-						GROUP BY PDA.CompanyGroupId--  ,PDA.PlantId	
-						)Res25 ON Res25.CompanyGroupId=cmpGR.Id 	--AND Res25.PlantId=P.Id								
-						Left JOIN(
-						SELECT 'Invoice Pending For Acceptance' Category
-						,PDA.CompanyGroupId--,PDA.PlantId		
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,Count(Distinct PDA.Id) AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(PDAD.Qty) Qty
-						,sum(PDAD.Qty) Rate
-						,sum(PDAD.Total3Value) Total30Value
-
-						FROM trn.PurchaseDocAcceptance PDA
-						LEFT JOIN (Select PurchaseDocAcceptanceId ,Sum(TransactionQty) Qty,Sum(MaterialTranAmount) Total3Value from TRN.PurchaseDocAcceptanceDetail GROUp bY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
-						LEFT JOIN [dbo].[PrePurchaseInvoice] PPI ON PPI.Id=PDA.PrePurchaseInvoiceId
-						WHERE PDA.PrePurchaseInvoiceId is null
-						AND DATEDIFF(day,PDA.EntryDate,getdate()) Between 26 and 30
-						GROUP BY PDA.CompanyGroupId--  ,PDA.PlantId	
-						)Res30 ON Res30.CompanyGroupId=cmpGR.Id --AND Res30.PlantId=P.Id							
-						Left JOIN(
-						SELECT 'Invoice Pending For Acceptance' Category
-						,PDA.CompanyGroupId--,PDA.PlantId		
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,Count(Distinct PDA.Id) AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(PDAD.Qty) Qty
-						,sum(PDAD.Qty) Rate
-						,sum(PDAD.Total3Value) Total31Value
-
-						FROM trn.PurchaseDocAcceptance PDA
-						LEFT JOIN (Select PurchaseDocAcceptanceId ,Sum(TransactionQty) Qty,Sum(MaterialTranAmount) Total3Value from TRN.PurchaseDocAcceptanceDetail GROUp bY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
-						LEFT JOIN [dbo].[PrePurchaseInvoice] PPI ON PPI.Id=PDA.PrePurchaseInvoiceId
-						WHERE PDA.PrePurchaseInvoiceId is null
-						AND DATEDIFF(day,PDA.EntryDate,getdate()) Between 31 and 900000
-						GROUP BY PDA.CompanyGroupId--  ,PDA.PlantId	
-						)Res31 ON Res31.CompanyGroupId=cmpGR.Id 	--AND Res31.PlantId=P.Id	
-						Left JOIN(
-						SELECT 'Invoice Pending For Acceptance' Category
-						,PDA.CompanyGroupId--,PDA.PlantId		
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,Count(Distinct PDA.Id)  AS ALLCount
-						,sum(PDAD.Qty) Qty
-						,sum(PDAD.Qty) Rate
-						,sum(PDAD.Total3Value) Total32Value
-
-						FROM trn.PurchaseDocAcceptance PDA
-						LEFT JOIN (Select PurchaseDocAcceptanceId ,Sum(TransactionQty) Qty,Sum(MaterialTranAmount) Total3Value from TRN.PurchaseDocAcceptanceDetail GROUp bY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
-						LEFT JOIN [dbo].[PrePurchaseInvoice] PPI ON PPI.Id=PDA.PrePurchaseInvoiceId
-						WHERE PDA.PrePurchaseInvoiceId is null
-						AND DATEDIFF(day,PDA.EntryDate,getdate()) Between 0 and 900000
-						GROUP BY PDA.CompanyGroupId--  ,PDA.PlantId		 	 
-						)Res32 ON Res32.CompanyGroupId=cmpGR.Id --AND Res32.PlantId=P.Id	
-						where CMPGR.Active = 1 --AND cmp.Id='C20171'	
-
-
+						,isnull(Agg.ThreeDaysCount,0) ThreeDaysCount,isnull(Agg.Total3Value,0) Total3Value
+						,isnull(Agg.FiveDaysCount,0) FiveDaysCount,isnull(Agg.Total5Value,0) Total5Value
+						,isnull(Agg.TenDaysCount,0) TenDaysCount,isnull(Agg.Total10Value,0) Total10Value
+						,isnull(Agg.FifteenDaysCount,0) FifteenDaysCount,isnull(Agg.Total15Value,0) Total15Value
+						,isnull(Agg.TweentyDaysCount,0) TweentyDaysCount,isnull(Agg.Total20Value,0) Total20Value
+						,isnull(Agg.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Agg.Total25Value,0) Total25Value
+						,isnull(Agg.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Agg.Total30Value,0) Total30Value
+						,isnull(Agg.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Agg.Total31Value,0) Total31Value
+						,isnull(Agg.AllCount,0) AllCount,isnull(Agg.Total32Value,0) Total32Value
+						FROM ORG.CompanyGroup CMPGR
+						LEFT JOIN (
+							SELECT PDA.CompanyGroupId AS CompanyGroupId
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 0 AND 3 THEN PDA.Id END) AS ThreeDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 0 AND 3 THEN PDAD.MaterialTranAmount END) AS Total3Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 4 AND 5 THEN PDA.Id END) AS FiveDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 4 AND 5 THEN PDAD.MaterialTranAmount END) AS Total5Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 6 AND 10 THEN PDA.Id END) AS TenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 6 AND 10 THEN PDAD.MaterialTranAmount END) AS Total10Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 11 AND 15 THEN PDA.Id END) AS FifteenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 11 AND 15 THEN PDAD.MaterialTranAmount END) AS Total15Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 16 AND 20 THEN PDA.Id END) AS TweentyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 16 AND 20 THEN PDAD.MaterialTranAmount END) AS Total20Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 21 AND 25 THEN PDA.Id END) AS TwentyFiveyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 21 AND 25 THEN PDAD.MaterialTranAmount END) AS Total25Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 26 AND 30 THEN PDA.Id END) AS ThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 26 AND 30 THEN PDAD.MaterialTranAmount END) AS Total30Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) >= 31 THEN PDA.Id END) AS GraterThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) >= 31 THEN PDAD.MaterialTranAmount END) AS Total31Value
+							,COUNT(DISTINCT CASE WHEN 1=1 THEN PDA.Id END) AS AllCount
+							,SUM(CASE WHEN 1=1 THEN PDAD.MaterialTranAmount END) AS Total32Value
+							FROM trn.PurchaseDocAcceptance PDA
+							LEFT JOIN (
+								SELECT PurchaseDocAcceptanceId, SUM(TransactionQty) TransactionQty, SUM(MaterialTranAmount) MaterialTranAmount
+								FROM TRN.PurchaseDocAcceptanceDetail GROUP BY PurchaseDocAcceptanceId
+							) PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
+							LEFT JOIN [dbo].[PrePurchaseInvoice] PPI ON PPI.Id=PDA.PrePurchaseInvoiceId
+							WHERE PDA.PrePurchaseInvoiceId IS NULL
+							GROUP BY PDA.CompanyGroupId
+						) Agg ON Agg.CompanyGroupId = CMPGR.Id
+						WHERE CMPGR.Active = 1
 						UNION ALL
 						SELECT
-						--CMPGR.Id AS CompanyGroupId
-						--, CMPGR.UserName AS GroupName
-						--, cmp.Id AS CompanyId
-						--, CMP.UserName AS ColumnName
-						--,P.Id PlantId
-						--,P.UserName PlantName
 						'PO Pending For Acceptance' Category, 7 SI
-						,isnull(Res3.ThreeDaysCount,0) ThreeDaysCount,isnull(Res3.Total3Value,0) Total3Value
-						,isnull(Res5.FiveDaysCount,0) FiveDaysCount,isnull(Res5.Total5Value,0) Total5Value
-						,isnull(Res10.TenDaysCount,0) TenDaysCount,isnull(Res10.Total10Value,0) Total10Value
-						,isnull(Res15.FifteenDaysCount,0) FifteenDaysCount,isnull(Res15.Total15Value,0) Total15Value
-						,isnull(Res20.TweentyDaysCount,0) TweentyDaysCount,isnull(Res20.Total20Value,0) Total20Value
-						,isnull(Res25.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Res25.Total25Value,0) Total25Value
-						,isnull(Res30.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Res30.Total30Value,0) Total30Value
-						,isnull(Res31.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Res31.Total31Value,0) Total31Value		
-						,isnull(Res32.AllCount,0) AllCount,isnull(Res32.Total32Value,0) Total32Value		
-						from ORG.CompanyGroup CMPGR
-						--left join  org.company CMP ON CMP.CompanyGroupId = CMPGR.Id 
-						--left join ORG.plant p ON p.CompanyId=cmp.id
-						LEFT JOIN
-						( 
-						select 'PO Pending For Acceptance' Category	
-						,PO.CompanyGroupId--,PO.PlantId			
-						,Count( PO.Id) ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(POD.Qty) Qty
-						,sum(POD.Rate) Rate
-						,Sum(POD.Total3Value) Total3Value
-						FROM trn.PurchaseOrder PO	
-						LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total3Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-						LEFT JOIN dbo.PurchaseLC PLC  ON PO.PurchaseLCId=PLC.Id
-						where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-						AND DATEDIFF(day,PO.PODate,getdate()) Between 0 and 3
-						AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0 AND PLC.Status='Active'		
-						GROUp BY PO.CompanyGroupId--,PO.PlantId
-												
-						)Res3 ON Res3.CompanyGroupId=cmpGR.Id --ANd Res3.PlantId=p.Id 
-						Left JOIN(
-
-						select 'PO Pending For Acceptance' Category	
-						,PO.CompanyGroupId--,PO.PlantId				
-						,0 ThreeDaysCount
-						,Count( PO.Id) AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(POD.Qty) Qty
-						,sum(POD.Rate) Rate
-						,Sum(POD.Total5Value) Total5Value
-						FROM trn.PurchaseOrder PO	
-						LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total5Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-						LEFT JOIN dbo.PurchaseLC PLC  ON PO.PurchaseLCId=PLC.Id
-						where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-						AND DATEDIFF(day,PO.PODate,getdate()) Between 4 and 5
-						AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0 AND PLC.Status='Active'		
-						GROUp BY PO.CompanyGroupId--,PO.PlantId
-						)Res5 ON Res5.CompanyGroupId=cmpGR.Id -- ANd Res5.PlantId=p.Id 
-						LEFT JOIN(
-			
-						select 'PO Pending For Acceptance' Category	
-						,PO.CompanyGroupId-- ,PO.PlantId			
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,Count( PO.Id) AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(POD.Qty) Qty
-						,sum(POD.Rate) Rate
-						,Sum(POD.Total10Value) Total10Value
-						FROM trn.PurchaseOrder PO	
-						LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total10Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-						LEFT JOIN dbo.PurchaseLC PLC  ON PO.PurchaseLCId=PLC.Id
-						where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-						AND DATEDIFF(day,PO.PODate,getdate()) Between 6 and 10
-						AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0 AND PLC.Status='Active'		
-						GROUp BY PO.CompanyGroupId---,PO.PlantId
-						)Res10 ON Res10.CompanyGroupId=cmpGR.Id  --ANd Res10.PlantId=p.Id 
-						LEFT JOIN(
-				
-				
-						select 'PO Pending For Acceptance' Category	
-						,PO.CompanyGroupId--		,PO.PlantId		
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,Count( PO.Id)  AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(POD.Qty) Qty
-						,sum(POD.Rate) Rate
-						,Sum(POD.Total15Value) Total15Value
-						FROM trn.PurchaseOrder PO	
-						LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total15Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-						LEFT JOIN dbo.PurchaseLC PLC  ON PO.PurchaseLCId=PLC.Id
-						where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-						AND DATEDIFF(day,PO.PODate,getdate()) Between 11 and 15
-						AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0 AND PLC.Status='Active'		
-						GROUp BY PO.CompanyGroupId--,PO.PlantId
-						)Res15 ON Res15.CompanyGroupId=cmpGR.Id --ANd Res15.PlantId=p.Id 
-						LEFT JOIN(
-						select 'PO Pending For Acceptance' Category	
-						,PO.CompanyGroupId--	,PO.PlantId			
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0  AS FifteenDaysCount
-						,Count( PO.Id) AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(POD.Qty) Qty
-						,sum(POD.Rate) Rate
-						,Sum(POD.Total20Value) Total20Value
-						FROM trn.PurchaseOrder PO	
-						LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total20Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-						LEFT JOIN dbo.PurchaseLC PLC  ON PO.PurchaseLCId=PLC.Id
-						where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-						AND DATEDIFF(day,PO.PODate,getdate()) Between 16 and 20
-						AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0 AND PLC.Status='Active'		
-						GROUp BY PO.CompanyGroupId--,PO.PlantId
-						)Res20 ON Res20.CompanyGroupId=cmpGR.Id --ANd Res20.PlantId=p.Id 
-						LEFT JOIN(
-						select 'PO Pending For Acceptance' Category	
-						,PO.CompanyGroupId--	,PO.PlantId			
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0  AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,Count( PO.Id) AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(POD.Qty) Qty
-						,sum(POD.Rate) Rate
-						,Sum(POD.Total25Value) Total25Value
-						FROM trn.PurchaseOrder PO	
-						LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total25Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-						LEFT JOIN dbo.PurchaseLC PLC  ON PO.PurchaseLCId=PLC.Id
-						where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-						AND DATEDIFF(day,PO.PODate,getdate()) Between 21 and 25
-						AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0 AND PLC.Status='Active'		
-						GROUp BY PO.CompanyGroupId--,PO.PlantId
-						)Res25 ON Res25.CompanyGroupId=cmpGR.Id -- ANd Res25.PlantId=p.Id 
-						LEFT JOIN(
-						select 'PO Pending For Acceptance' Category	
-						,PO.CompanyGroupId--	,PO.PlantId			
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0  AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,Count(PO.Id) AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(POD.Qty) Qty
-						,sum(POD.Rate) Rate
-						,Sum(POD.Total30Value) Total30Value
-						FROM trn.PurchaseOrder PO	
-						LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total30Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-						LEFT JOIN dbo.PurchaseLC PLC  ON PO.PurchaseLCId=PLC.Id
-						where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-						AND DATEDIFF(day,PO.PODate,getdate()) Between 26 and 30
-						AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0 AND PLC.Status='Active'		
-						GROUp BY PO.CompanyGroupId--,PO.PlantId
-												
-						)Res30 ON Res30.CompanyGroupId=cmpGR.Id --ANd Res30.PlantId=p.Id 
-						LEFT JOIN(
-						select 'PO Pending For Acceptance' Category	
-						,PO.CompanyGroupId--	,PO.PlantId			
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0  AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,Count(PO.Id) AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(POD.Qty) Qty
-						,sum(POD.Rate) Rate
-						,Sum(POD.Total31Value) Total31Value
-						FROM trn.PurchaseOrder PO	
-						LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total31Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-						LEFT JOIN dbo.PurchaseLC PLC  ON PO.PurchaseLCId=PLC.Id
-						where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-						AND DATEDIFF(day,PO.PODate,getdate()) Between 31 and 900000
-						AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0 AND PLC.Status='Active'		
-						GROUp BY PO.CompanyGroupId--,PO.PlantId
-						)Res31 ON Res31.CompanyGroupId=cmpGR.Id --ANd Res31.PlantId=p.Id 
-						LEFT JOIN(
-						select 'PO Pending For Acceptance' Category	
-						,PO.CompanyGroupId--,PO.PlantId				
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0  AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,Count(PO.Id) AS AllCount
-						,sum(POD.Qty) Qty
-						,sum(POD.Rate) Rate
-						,Sum(POD.Total32Value) Total32Value
-						FROM trn.PurchaseOrder PO	
-						LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total32Value from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.id 
-						LEFT JOIN dbo.PurchaseLC PLC  ON PO.PurchaseLCId=PLC.Id
-						where PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)				
-						AND DATEDIFF(day,PO.PODate,getdate()) Between 0 and 900000 
-						AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0 AND PLC.Status='Active'		
-						GROUp BY PO.CompanyGroupId--,PO.PlantId
-						)Res32 ON Res32.CompanyGroupId=cmpGR.Id --ANd Res32.PlantId=p.Id 
-						where  CMPGR.Active = 1 --AND cmp.Id='C20171'
+						,isnull(Agg.ThreeDaysCount,0) ThreeDaysCount,isnull(Agg.Total3Value,0) Total3Value
+						,isnull(Agg.FiveDaysCount,0) FiveDaysCount,isnull(Agg.Total5Value,0) Total5Value
+						,isnull(Agg.TenDaysCount,0) TenDaysCount,isnull(Agg.Total10Value,0) Total10Value
+						,isnull(Agg.FifteenDaysCount,0) FifteenDaysCount,isnull(Agg.Total15Value,0) Total15Value
+						,isnull(Agg.TweentyDaysCount,0) TweentyDaysCount,isnull(Agg.Total20Value,0) Total20Value
+						,isnull(Agg.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Agg.Total25Value,0) Total25Value
+						,isnull(Agg.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Agg.Total30Value,0) Total30Value
+						,isnull(Agg.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Agg.Total31Value,0) Total31Value
+						,isnull(Agg.AllCount,0) AllCount,isnull(Agg.Total32Value,0) Total32Value
+						FROM ORG.CompanyGroup CMPGR
+						LEFT JOIN (
+							SELECT PO.CompanyGroupId AS CompanyGroupId
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 0 AND 3 THEN PO.Id END) AS ThreeDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 0 AND 3 THEN POD.BaseAmount END) AS Total3Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 4 AND 5 THEN PO.Id END) AS FiveDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 4 AND 5 THEN POD.BaseAmount END) AS Total5Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 6 AND 10 THEN PO.Id END) AS TenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 6 AND 10 THEN POD.BaseAmount END) AS Total10Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 11 AND 15 THEN PO.Id END) AS FifteenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 11 AND 15 THEN POD.BaseAmount END) AS Total15Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 16 AND 20 THEN PO.Id END) AS TweentyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 16 AND 20 THEN POD.BaseAmount END) AS Total20Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 21 AND 25 THEN PO.Id END) AS TwentyFiveyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 21 AND 25 THEN POD.BaseAmount END) AS Total25Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 26 AND 30 THEN PO.Id END) AS ThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) BETWEEN 26 AND 30 THEN POD.BaseAmount END) AS Total30Value
+							,COUNT(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) >= 31 THEN PO.Id END) AS GraterThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PO.PODate,GETDATE()) >= 31 THEN POD.BaseAmount END) AS Total31Value
+							,COUNT(CASE WHEN 1=1 THEN PO.Id END) AS AllCount
+							,SUM(CASE WHEN 1=1 THEN POD.BaseAmount END) AS Total32Value
+							FROM trn.PurchaseOrder PO
+							LEFT JOIN (
+								SELECT InventoryReceiveId, SUM(BaseAmount) BaseAmount
+								FROM TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId
+							) POD ON POD.InventoryReceiveId=PO.Id
+							LEFT JOIN dbo.PurchaseLC PLC ON PO.PurchaseLCId=PLC.Id
+							WHERE PO.Id NOT IN (SELECT DISTINCT POId FROM trn.InventoryReceiveDetail WHERE POId IS NOT NULL)
+							AND PO.CheckedByStatus !='Reject' AND PO.IsClosed=0 AND PLC.Status='Active'
+							GROUP BY PO.CompanyGroupId
+						) Agg ON Agg.CompanyGroupId = CMPGR.Id
+						WHERE CMPGR.Active = 1
 						UNION ALL
-						----------------------------------------Acceptance Pending For GRN--------------------------
 						SELECT
-						--CMPGR.Id AS CompanyGroupId
-						--, CMPGR.UserName AS GroupName
-						--, cmp.Id AS CompanyId
-						--, CMP.UserName AS ColumnName		
-						--,P.Id PlantId
-						--,P.UserName PlantName
 						'Acceptance Pending For GRN' Category, 8 SI
-						,isnull(Res3.ThreeDaysCount,0) ThreeDaysCount,isnull(Res3.Total3Value,0) Total3Value
-						,isnull(Res5.FiveDaysCount,0) FiveDaysCount,isnull(Res5.Total5Value,0) Total5Value
-						,isnull(Res10.TenDaysCount,0) TenDaysCount,isnull(Res10.Total10Value,0) Total10Value
-						,isnull(Res15.FifteenDaysCount,0) FifteenDaysCount,isnull(Res15.Total15Value,0) Total15Value
-						,isnull(Res20.TweentyDaysCount,0) TweentyDaysCount,isnull(Res20.Total20Value,0) Total20Value
-						,isnull(Res25.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Res25.Total25Value,0) Total25Value
-						,isnull(Res30.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Res30.Total30Value,0) Total30Value
-						,isnull(Res31.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Res31.Total31Value,0) Total31Value			
-						,isnull(Res32.AllCount,0) AllCount,isnull(Res32.Total32Value,0) Total32Value			
-				                    
-						from ORG.CompanyGroup CMPGR
-						--left join  org.company CMP ON CMP.CompanyGroupId =CMPGR.Id 
-						--left join ORG.plant p ON p.CompanyId=cmp.id
-						LEFT JOIN
-						( 	
-						SELECT 'Acceptance Pending For GRN' Category
-						,PDA.CompanyGroupId--,PDA.PlantId		
-						,Count(Distinct PDA.Id) ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(PDAD.Qty) Qty
-						,sum(PDAD.Qty) Rate
-						,sum(PDAD.Total3Value) Total3Value
-
-						FROM trn.PurchaseDocAcceptance PDA
-						LEFT JOIN (Select PurchaseDocAcceptanceId ,Sum(TransactionQty) Qty,Sum(MaterialTranAmount) Total3Value from TRN.PurchaseDocAcceptanceDetail GROUp bY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
-						WHERE PDA.Id not in (select PurchaseDocAcceptanceId from trn.InventoryReceive where PurchaseDocAcceptanceId is not null)	
-						AND DATEDIFF(day,PDA.EntryDate,getdate()) Between 0 and 3 
-						GROUP BY PDA.CompanyGroupId--  ,PDA.PlantId				
-						)Res3 ON Res3.CompanyGroupId=cmpGR.Id-- AND Res3.PlantId=P.Id									
-						Left JOIN(		
-			
-						SELECT 'Acceptance Pending For GRN' Category
-						,PDA.CompanyGroupId--	,PDA.PlantId			
-						,0 ThreeDaysCount
-						,Count(Distinct PDA.Id) AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(PDAD.Qty) Qty
-						,sum(PDAD.Qty) Rate
-						,sum(PDAD.Total5Value) Total5Value
-
-						FROM trn.PurchaseDocAcceptance PDA
-						LEFT JOIN (Select PurchaseDocAcceptanceId ,Sum(TransactionQty) Qty,Sum(MaterialTranAmount) Total5Value from TRN.PurchaseDocAcceptanceDetail GROUp bY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
-						WHERE PDA.Id not in (select PurchaseDocAcceptanceId from trn.InventoryReceive where PurchaseDocAcceptanceId is not null)	
-						AND DATEDIFF(day,PDA.EntryDate,getdate()) Between 4 and 5
-						GROUP BY PDA.CompanyGroupId--   ,PDA.PlantId	 	
-						)Res5 ON Res5.CompanyGroupId=cmpGR.Id 	--AND Res5.PlantId=P.Id							
-						Left JOIN(
-						SELECT 'Acceptance Pending For GRN' Category
-						,PDA.CompanyGroupId--	,PDA.PlantId			
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,Count(Distinct PDA.Id) AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(PDAD.Qty) Qty
-						,sum(PDAD.Qty) Rate
-						,sum(PDAD.Total10Value) Total10Value
-
-						FROM trn.PurchaseDocAcceptance PDA
-						LEFT JOIN (Select PurchaseDocAcceptanceId ,Sum(TransactionQty) Qty,Sum(MaterialTranAmount) Total10Value from TRN.PurchaseDocAcceptanceDetail GROUp bY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
-						WHERE PDA.Id not in (select PurchaseDocAcceptanceId from trn.InventoryReceive where PurchaseDocAcceptanceId is not null)	
-						AND DATEDIFF(day,PDA.EntryDate,getdate()) Between 6 and 10
-						GROUP BY PDA.CompanyGroupId--   ,PDA.PlantId	 	  
-						)Res10 ON Res10.CompanyGroupId=cmpGR.Id 		--AND Res10.PlantId=P.Id					
-						Left JOIN(
-						SELECT 'Acceptance Pending For GRN' Category
-						,PDA.CompanyGroupId--	,PDA.PlantId			
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,Count(Distinct PDA.Id) AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(PDAD.Qty) Qty
-						,sum(PDAD.Qty) Rate
-						,sum(PDAD.Total15Value) Total15Value
-
-						FROM trn.PurchaseDocAcceptance PDA
-						LEFT JOIN (Select PurchaseDocAcceptanceId ,Sum(TransactionQty) Qty,Sum(MaterialTranAmount) Total15Value from TRN.PurchaseDocAcceptanceDetail GROUp bY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
-						WHERE PDA.Id not in (select PurchaseDocAcceptanceId from trn.InventoryReceive where PurchaseDocAcceptanceId is not null)	
-						AND DATEDIFF(day,PDA.EntryDate,getdate()) Between 11 and 15
-						GROUP BY PDA.CompanyGroupId-- ,PDA.PlantId	   	   
-						)Res15 ON Res15.CompanyGroupId=cmpGR.Id 		--AND Res15.PlantId=P.Id						
-						Left JOIN(
-						SELECT 'Acceptance Pending For GRN' Category
-						,PDA.CompanyGroupId--	,PDA.PlantId			
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,Count(Distinct PDA.Id) AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(PDAD.Qty) Qty
-						,sum(PDAD.Qty) Rate
-						,sum(PDAD.Total20Value) Total20Value
-
-						FROM trn.PurchaseDocAcceptance PDA
-						LEFT JOIN (Select PurchaseDocAcceptanceId ,Sum(TransactionQty) Qty,Sum(MaterialTranAmount) Total20Value from TRN.PurchaseDocAcceptanceDetail GROUp bY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
-						WHERE PDA.Id not in (select PurchaseDocAcceptanceId from trn.InventoryReceive where PurchaseDocAcceptanceId is not null)	
-						AND DATEDIFF(day,PDA.EntryDate,getdate()) Between 16 and 20
-						GROUP BY PDA.CompanyGroupId--  ,PDA.PlantId	  	
-						)Res20 ON Res20.CompanyGroupId=cmpGR.Id 	--AND Res20.PlantId=P.Id						
-						Left JOIN(
-						SELECT 'Acceptance Pending For GRN' Category
-						,PDA.CompanyGroupId--	,PDA.PlantId			
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,Count(Distinct PDA.Id) AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(PDAD.Qty) Qty
-						,sum(PDAD.Qty) Rate
-						,sum(PDAD.Total25Value) Total25Value
-
-						FROM trn.PurchaseDocAcceptance PDA
-						LEFT JOIN (Select PurchaseDocAcceptanceId ,Sum(TransactionQty) Qty,Sum(MaterialTranAmount) Total25Value from TRN.PurchaseDocAcceptanceDetail GROUp bY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
-						WHERE PDA.Id not in (select PurchaseDocAcceptanceId from trn.InventoryReceive where PurchaseDocAcceptanceId is not null)	
-						AND DATEDIFF(day,PDA.EntryDate,getdate()) Between 21 and 25
-						GROUP BY PDA.CompanyGroupId   --,PDA.PlantId	 	
-						)Res25 ON Res25.CompanyGroupId=cmpGR.Id 	--AND Res25.PlantId=P.Id								
-						Left JOIN(
-						SELECT 'Acceptance Pending For GRN' Category
-						,PDA.CompanyGroupId--	,PDA.PlantId			
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,Count(Distinct PDA.Id) AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(PDAD.Qty) Qty
-						,sum(PDAD.Qty) Rate
-						,sum(PDAD.Total30Value) Total30Value
-
-						FROM trn.PurchaseDocAcceptance PDA
-						LEFT JOIN (Select PurchaseDocAcceptanceId ,Sum(TransactionQty) Qty,Sum(MaterialTranAmount) Total30Value from TRN.PurchaseDocAcceptanceDetail GROUp bY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
-						WHERE PDA.Id not in (select PurchaseDocAcceptanceId from trn.InventoryReceive where PurchaseDocAcceptanceId is not null)	
-						AND DATEDIFF(day,PDA.EntryDate,getdate()) Between 26 and 30
-						GROUP BY PDA.CompanyGroupId-- ,PDA.PlantId	   	
-						)Res30 ON Res30.CompanyGroupId=cmpGR.Id --AND Res30.PlantId=P.Id							
-						Left JOIN(
-						SELECT 'Acceptance Pending For GRN' Category
-						,PDA.CompanyGroupId--	,PDA.PlantId			
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,Count(Distinct PDA.Id) AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(PDAD.Qty) Qty
-						,sum(PDAD.Qty) Rate
-						,sum(PDAD.Total31Value) Total31Value
-
-						FROM trn.PurchaseDocAcceptance PDA
-						LEFT JOIN (Select PurchaseDocAcceptanceId ,Sum(TransactionQty) Qty,Sum(MaterialTranAmount) Total31Value from TRN.PurchaseDocAcceptanceDetail GROUp bY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
-						WHERE PDA.Id not in (select PurchaseDocAcceptanceId from trn.InventoryReceive where PurchaseDocAcceptanceId is not null)	
-						AND DATEDIFF(day,PDA.EntryDate,getdate()) Between 31 and 90000000
-						GROUP BY PDA.CompanyGroupId--  ,PDA.PlantId	  	 
-						)Res31 ON Res31.CompanyGroupId=cmpGR.Id 	--AND Res31.PlantId=P.Id	
-						Left JOIN(
-						SELECT 'Acceptance Pending For GRN' Category
-						,PDA.CompanyGroupId--,PDA.PlantId				
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,Count(Distinct PDA.Id) AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(PDAD.Qty) Qty
-						,sum(PDAD.Qty) Rate
-						,sum(PDAD.Total32Value) Total32Value
-
-						FROM trn.PurchaseDocAcceptance PDA
-						LEFT JOIN (Select PurchaseDocAcceptanceId ,Sum(TransactionQty) Qty,Sum(MaterialTranAmount) Total32Value from TRN.PurchaseDocAcceptanceDetail GROUp bY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
-						WHERE PDA.Id not in (select PurchaseDocAcceptanceId from trn.InventoryReceive where PurchaseDocAcceptanceId is not null)	
-						AND DATEDIFF(day,PDA.EntryDate,getdate()) Between 0 and 90000000
-						GROUP BY PDA.CompanyGroupId--   ,PDA.PlantId	 	 
-						)Res32 ON Res32.CompanyGroupId=cmpGR.Id --AND Res32.PlantId=P.Id	
-						where CMPGR.Active = 1 --AND cmp.Id='C20171'	
+						,isnull(Agg.ThreeDaysCount,0) ThreeDaysCount,isnull(Agg.Total3Value,0) Total3Value
+						,isnull(Agg.FiveDaysCount,0) FiveDaysCount,isnull(Agg.Total5Value,0) Total5Value
+						,isnull(Agg.TenDaysCount,0) TenDaysCount,isnull(Agg.Total10Value,0) Total10Value
+						,isnull(Agg.FifteenDaysCount,0) FifteenDaysCount,isnull(Agg.Total15Value,0) Total15Value
+						,isnull(Agg.TweentyDaysCount,0) TweentyDaysCount,isnull(Agg.Total20Value,0) Total20Value
+						,isnull(Agg.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Agg.Total25Value,0) Total25Value
+						,isnull(Agg.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Agg.Total30Value,0) Total30Value
+						,isnull(Agg.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Agg.Total31Value,0) Total31Value
+						,isnull(Agg.AllCount,0) AllCount,isnull(Agg.Total32Value,0) Total32Value
+						FROM ORG.CompanyGroup CMPGR
+						LEFT JOIN (
+							SELECT PDA.CompanyGroupId AS CompanyGroupId
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 0 AND 3 THEN PDA.Id END) AS ThreeDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 0 AND 3 THEN PDAD.MaterialTranAmount END) AS Total3Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 4 AND 5 THEN PDA.Id END) AS FiveDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 4 AND 5 THEN PDAD.MaterialTranAmount END) AS Total5Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 6 AND 10 THEN PDA.Id END) AS TenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 6 AND 10 THEN PDAD.MaterialTranAmount END) AS Total10Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 11 AND 15 THEN PDA.Id END) AS FifteenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 11 AND 15 THEN PDAD.MaterialTranAmount END) AS Total15Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 16 AND 20 THEN PDA.Id END) AS TweentyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 16 AND 20 THEN PDAD.MaterialTranAmount END) AS Total20Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 21 AND 25 THEN PDA.Id END) AS TwentyFiveyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 21 AND 25 THEN PDAD.MaterialTranAmount END) AS Total25Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 26 AND 30 THEN PDA.Id END) AS ThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) BETWEEN 26 AND 30 THEN PDAD.MaterialTranAmount END) AS Total30Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) >= 31 THEN PDA.Id END) AS GraterThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,PDA.EntryDate,GETDATE()) >= 31 THEN PDAD.MaterialTranAmount END) AS Total31Value
+							,COUNT(DISTINCT CASE WHEN 1=1 THEN PDA.Id END) AS AllCount
+							,SUM(CASE WHEN 1=1 THEN PDAD.MaterialTranAmount END) AS Total32Value
+							FROM trn.PurchaseDocAcceptance PDA
+							LEFT JOIN (
+								SELECT PurchaseDocAcceptanceId, SUM(TransactionQty) TransactionQty, SUM(MaterialTranAmount) MaterialTranAmount
+								FROM TRN.PurchaseDocAcceptanceDetail GROUP BY PurchaseDocAcceptanceId
+							) PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
+							WHERE PDA.Id NOT IN (SELECT PurchaseDocAcceptanceId FROM trn.InventoryReceive WHERE PurchaseDocAcceptanceId IS NOT NULL)
+							GROUP BY PDA.CompanyGroupId
+						) Agg ON Agg.CompanyGroupId = CMPGR.Id
+						WHERE CMPGR.Active = 1
 						UNION ALL
-						----------------------------------------Un tag Gate Entry--------------------------
 						SELECT
-						--CMPGR.Id AS CompanyGroupId
-						--, CMPGR.UserName AS GroupName
-						--, cmp.Id AS CompanyId
-						--, CMP.UserName AS ColumnName	
-						--,P.Id PlantId
-						--,P.UserName PlantName
 						'Pending For GRN' Category, 9 SI
-						,isnull(Res3.ThreeDaysCount,0) ThreeDaysCount,isnull(Res3.Total3Value,0) Total3Value
-						,isnull(Res5.FiveDaysCount,0) FiveDaysCount,isnull(Res5.Total5Value,0) Total5Value
-						,isnull(Res10.TenDaysCount,0) TenDaysCount,isnull(Res10.Total10Value,0) Total10Value
-						,isnull(Res15.FifteenDaysCount,0) FifteenDaysCount,isnull(Res15.Total15Value,0) Total15Value
-						,isnull(Res20.TweentyDaysCount,0) TweentyDaysCount,isnull(Res20.Total20Value,0) Total20Value
-						,isnull(Res25.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Res25.Total25Value,0) Total25Value
-						,isnull(Res30.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Res30.Total30Value,0) Total30Value
-						,isnull(Res31.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Res31.Total31Value,0) Total31Value			
-						,isnull(Res32.AllCount,0) AllCount,isnull(Res32.Total32Value,0) Total32Value			
-				                    
-						from ORG.CompanyGroup CMPGR
-						--left join  org.company CMP ON CMP.CompanyGroupId =CMPGR.Id 
-						--left join ORG.plant p ON p.CompanyId=cmp.id
-						LEFT JOIN
-						( 	
-						SELECT 'Pending For GRN' Category
-						,G.CompanyGroupId--,G.PlantId		
-						,Count(Distinct G.Id) ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.TransactionQty) Qty
-						,sum(IRD.MaterialTranRate) Rate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) Total3Value
-						FROM TRN.[GateEntry] G
-						LEFT Join hkp.Party p ON P.Id= G.PartyId
-						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-						LEFT Join ORG.Company C ON C.Id= G.CompanyId
-						LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId
-						Left join trn.InventoryReceive IR ON IR.GateEntryNo=G.Id
-						LEFT JOIN trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-						Where G.FlagStatus!='Cancel' 
-						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
-						AND G.Id not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
-						--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
-						AND DATEDIFF(day,G.EntryDate,getdate()) Between 0 and 3
-						GROUP BY
-						G.CompanyGroupId--  ,G.PlantId		  			
-						)Res3 ON Res3.CompanyGroupId=cmpGR.Id 		--ANd Res3.PlantId=P.Id					
-						Left JOIN(		
-			
-						SELECT 'Pending For GRN' Category
-						,G.CompanyGroupId--	,G.PlantId				
-						,0 ThreeDaysCount
-						,Count(Distinct G.Id) AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.TransactionQty) Qty
-						,sum(IRD.MaterialTranRate) Rate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) Total5Value
-						FROM TRN.[GateEntry] G
-						LEFT Join hkp.Party p ON P.Id= G.PartyId
-						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-						LEFT Join ORG.Company C ON C.Id= G.CompanyId
-						LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId
-						Left join trn.InventoryReceive IR ON IR.GateEntryNo=G.Id
-						LEFT JOIN trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-						Where G.FlagStatus!='Cancel' 
-						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
-						AND G.Id not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
-						--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
-						AND DATEDIFF(day,G.EntryDate,getdate()) Between 4 and 5
-						GROUP BY
-						G.CompanyGroupId--  ,G.PlantId		  	
-						)Res5 ON Res5.CompanyGroupId=cmpGR.Id --		ANd Res5.PlantId=P.Id						
-						Left JOIN(
-						SELECT 'Pending For GRN' Category
-						,G.CompanyGroupId--	,G.PlantId				
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,Count(Distinct G.Id) AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.TransactionQty) Qty
-						,sum(IRD.MaterialTranRate) Rate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) Total10Value
-						FROM TRN.[GateEntry] G
-						LEFT Join hkp.Party p ON P.Id= G.PartyId
-						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-						LEFT Join ORG.Company C ON C.Id= G.CompanyId
-						LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId
-						Left join trn.InventoryReceive IR ON IR.GateEntryNo=G.Id
-						LEFT JOIN trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-						Where G.FlagStatus!='Cancel' 
-						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
-						AND G.Id not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
-						--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
-						AND DATEDIFF(day,G.EntryDate,getdate()) Between 6 and 10
-						GROUP BY
-						G.CompanyGroupId--   ,G.PlantId		 
-						)Res10 ON Res10.CompanyGroupId=cmpGR.Id 	--ANd Res10.PlantId=P.Id					
-						Left JOIN(
-						SELECT 'Pending For GRN' Category
-						,G.CompanyGroupId--,G.PlantId					
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						, 0 AS TenDaysCount
-						,Count(Distinct G.Id) AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.TransactionQty) Qty
-						,sum(IRD.MaterialTranRate) Rate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) Total15Value
-						FROM TRN.[GateEntry] G
-						LEFT Join hkp.Party p ON P.Id= G.PartyId
-						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-						LEFT Join ORG.Company C ON C.Id= G.CompanyId
-						LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId
-						Left join trn.InventoryReceive IR ON IR.GateEntryNo=G.Id
-						LEFT JOIN trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-						Where G.FlagStatus!='Cancel' 
-						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
-						AND G.Id not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
-						--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
-						AND DATEDIFF(day,G.EntryDate,getdate()) Between 11 and 15
-						GROUP BY
-						G.CompanyGroupId-- ,G.PlantId		 
-						)Res15 ON Res15.CompanyGroupId=cmpGR.Id -- ANd Res15.PlantId=P.Id								
-						Left JOIN(
-						SELECT 'Pending For GRN' Category
-						,G.CompanyGroupId--,G.PlantId					
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						, 0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,Count(Distinct G.Id) AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.TransactionQty) Qty
-						,sum(IRD.MaterialTranRate) Rate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) Total20Value
-						FROM TRN.[GateEntry] G
-						LEFT Join hkp.Party p ON P.Id= G.PartyId
-						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-						LEFT Join ORG.Company C ON C.Id= G.CompanyId
-						LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId
-						Left join trn.InventoryReceive IR ON IR.GateEntryNo=G.Id
-						LEFT JOIN trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-						Where G.FlagStatus!='Cancel' 
-						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
-						AND G.Id not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
-						--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
-						AND DATEDIFF(day,G.EntryDate,getdate()) Between 16 and 20
-						GROUP BY
-						G.CompanyGroupId-- ,G.PlantId		 
-						)Res20 ON Res20.CompanyGroupId=cmpGR.Id --ANd Res20.PlantId=P.Id								
-						Left JOIN(
-						SELECT 'Pending For GRN' Category
-						,G.CompanyGroupId--	,G.PlantId				
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						, 0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,Count(Distinct G.Id) AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.TransactionQty) Qty
-						,sum(IRD.MaterialTranRate) Rate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) Total25Value
-						FROM TRN.[GateEntry] G
-						LEFT Join hkp.Party p ON P.Id= G.PartyId
-						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-						LEFT Join ORG.Company C ON C.Id= G.CompanyId
-						LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId
-						Left join trn.InventoryReceive IR ON IR.GateEntryNo=G.Id
-						LEFT JOIN trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-						Where G.FlagStatus!='Cancel' 
-						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
-						AND G.Id not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
-						--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
-						AND DATEDIFF(day,G.EntryDate,getdate()) Between 21 and 25
-						GROUP BY G.CompanyGroupId--   ,G.PlantId		
-						)Res25 ON Res25.CompanyGroupId=cmpGR.Id 	--	ANd Res25.PlantId=P.Id						
-						Left JOIN(
-						SELECT 'Pending For GRN' Category
-						,G.CompanyGroupId--	,G.PlantId				
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						, 0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,Count(Distinct G.Id) AS ThirtyDaysCount
-													
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.TransactionQty) Qty
-						,sum(IRD.MaterialTranRate) Rate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) Total30Value
-						FROM TRN.[GateEntry] G
-						LEFT Join hkp.Party p ON P.Id= G.PartyId
-						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-						LEFT Join ORG.Company C ON C.Id= G.CompanyId
-						LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId
-						Left join trn.InventoryReceive IR ON IR.GateEntryNo=G.Id
-						LEFT JOIN trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-						Where G.FlagStatus!='Cancel' 
-						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
-						AND G.Id not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
-						--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
-						AND DATEDIFF(day,G.EntryDate,getdate()) Between 26 and 30
-						GROUP BY G.CompanyGroupId--   ,G.PlantId		
-						)Res30 ON Res30.CompanyGroupId=cmpGR.Id 	--ANd Res30.PlantId=P.Id						
-						Left JOIN(
-						SELECT 'Pending For GRN' Category
-						,G.CompanyGroupId--,G.PlantId					
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						, 0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,Count(Distinct G.Id)  AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.TransactionQty) Qty
-						,sum(IRD.MaterialTranRate) Rate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) Total31Value
-						FROM TRN.[GateEntry] G
-						LEFT Join hkp.Party p ON P.Id= G.PartyId
-						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-						LEFT Join ORG.Company C ON C.Id= G.CompanyId
-						LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId
-						Left join trn.InventoryReceive IR ON IR.GateEntryNo=G.Id
-						LEFT JOIN trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-						Where G.FlagStatus!='Cancel' 
-						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
-						AND G.Id not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
-						--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
-						AND DATEDIFF(day,G.EntryDate,getdate()) Between 31 and 9000000
-						GROUP BY G.CompanyGroupId-- ,G.PlantId		 
-						)Res31 ON Res31.CompanyGroupId=cmpGR.Id 	--ANd Res31.PlantId=P.Id	
-						Left JOIN(
-						SELECT 'Pending For GRN' Category
-						,G.CompanyGroupId--		,G.PlantId			
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						, 0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,Count(Distinct G.Id)  AS ALLCount
-						,sum(IRD.TransactionQty) Qty
-						,sum(IRD.MaterialTranRate) Rate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) Total32Value
-						FROM TRN.[GateEntry] G
-						LEFT Join hkp.Party p ON P.Id= G.PartyId
-						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-						LEFT Join ORG.Company C ON C.Id= G.CompanyId
-						LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId
-						Left join trn.InventoryReceive IR ON IR.GateEntryNo=G.Id
-						LEFT JOIN trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-						Where G.FlagStatus!='Cancel' 
-						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
-						AND G.Id not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
-						--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
-						AND DATEDIFF(day,G.EntryDate,getdate()) Between 0 and 9000000
-						GROUP BY G.CompanyGroupId-- ,G.PlantId		 
-						)Res32 ON Res32.CompanyGroupId=cmpGR.Id --ANd Res32.PlantId=P.Id	
-						where  CMPGR.Active = 1 --AND cmp.Id='C20171'	
+						,isnull(Agg.ThreeDaysCount,0) ThreeDaysCount,isnull(Agg.Total3Value,0) Total3Value
+						,isnull(Agg.FiveDaysCount,0) FiveDaysCount,isnull(Agg.Total5Value,0) Total5Value
+						,isnull(Agg.TenDaysCount,0) TenDaysCount,isnull(Agg.Total10Value,0) Total10Value
+						,isnull(Agg.FifteenDaysCount,0) FifteenDaysCount,isnull(Agg.Total15Value,0) Total15Value
+						,isnull(Agg.TweentyDaysCount,0) TweentyDaysCount,isnull(Agg.Total20Value,0) Total20Value
+						,isnull(Agg.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Agg.Total25Value,0) Total25Value
+						,isnull(Agg.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Agg.Total30Value,0) Total30Value
+						,isnull(Agg.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Agg.Total31Value,0) Total31Value
+						,isnull(Agg.AllCount,0) AllCount,isnull(Agg.Total32Value,0) Total32Value
+						FROM ORG.CompanyGroup CMPGR
+						LEFT JOIN (
+							SELECT G.CompanyGroupId AS CompanyGroupId
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 0 AND 3 THEN G.Id END) AS ThreeDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 0 AND 3 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total3Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 4 AND 5 THEN G.Id END) AS FiveDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 4 AND 5 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total5Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 6 AND 10 THEN G.Id END) AS TenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 6 AND 10 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total10Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 11 AND 15 THEN G.Id END) AS FifteenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 11 AND 15 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total15Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 16 AND 20 THEN G.Id END) AS TweentyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 16 AND 20 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total20Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 21 AND 25 THEN G.Id END) AS TwentyFiveyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 21 AND 25 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total25Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 26 AND 30 THEN G.Id END) AS ThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 26 AND 30 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total30Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) >= 31 THEN G.Id END) AS GraterThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) >= 31 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total31Value
+							,COUNT(DISTINCT CASE WHEN 1=1 THEN G.Id END) AS AllCount
+							,SUM(CASE WHEN 1=1 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total32Value
+							FROM TRN.[GateEntry] G
+							LEFT JOIN hkp.Party p ON P.Id= G.PartyId
+							LEFT JOIN ORG.CompanyGroup CG ON CG.Id= G.CompanyGroupId
+							LEFT JOIN ORG.Company C ON C.Id= G.CompanyId
+							LEFT JOIN ORG.Plant Pl ON Pl.Id= G.PlantId
+							LEFT JOIN trn.InventoryReceive IR ON IR.GateEntryNo=G.Id
+							LEFT JOIN trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId=IR.Id
+							LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=G.EmployeeId
+							LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=G.EmployeeIdForGateEntry
+							LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
+							LEFT JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
+							WHERE G.FlagStatus!='Cancel'
+							AND G.Id NOT IN (SELECT GateEntryNo FROM trn.InventoryReceive WHERE GateEntryNo IS NOT NULL)
+							AND G.Id NOT IN (SELECT GateEntryNo FROM [TRN].[ServiceAcknowledgementMaster] WHERE GateEntryNo IS NOT NULL)
+							GROUP BY G.CompanyGroupId
+						) Agg ON Agg.CompanyGroupId = CMPGR.Id
+						WHERE CMPGR.Active = 1
 						UNION ALL
-						----------------------------------------Pending GRN For Approval--------------------------
 						SELECT
-						--CMPGR.Id AS CompanyGroupId
-						--, CMPGR.UserName AS GroupName
-						--, cmp.Id AS CompanyId
-						--, CMP.UserName AS ColumnName	
-						--,P.Id PlantId
-						--,P.UserName PlantName
 						'Pending GRN For Approval' Category, 10 SI
-						,isnull(Res3.ThreeDaysCount,0) ThreeDaysCount,isnull(Res3.Total3Value,0) Total3Value
-						,isnull(Res5.FiveDaysCount,0) FiveDaysCount,isnull(Res5.Total5Value,0) Total5Value
-						,isnull(Res10.TenDaysCount,0) TenDaysCount,isnull(Res10.Total10Value,0) Total10Value
-						,isnull(Res15.FifteenDaysCount,0) FifteenDaysCount,isnull(Res15.Total15Value,0) Total15Value
-						,isnull(Res20.TweentyDaysCount,0) TweentyDaysCount,isnull(Res20.Total20Value,0) Total20Value
-						,isnull(Res25.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Res25.Total25Value,0) Total25Value
-						,isnull(Res30.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Res30.Total30Value,0) Total30Value
-						,isnull(Res31.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Res31.Total31Value,0) Total31Value			
-						,isnull(Res32.AllCount,0) AllCount,isnull(Res32.Total32Value,0) Total32Value			
-				                    
-						from ORG.CompanyGroup CMPGR
-						--left join  org.company CMP ON CMP.CompanyGroupId =CMPGR.Id 
-						--left join ORG.plant p ON p.CompanyId=cmp.id
-						LEFT JOIN
-						( 	
-						SELECT 'Pending GRN For Approval' Category
-						,G.CompanyGroupId--,G.PlantId		
-						,Count(Distinct G.Id) ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.Qty) Qty
-						,sum(IRD.Rate) Rate
-						,sum(IRD.Total3Value) Total3Value
-						FROM trn.InventoryReceive IR 
-						left JOIN TRN.[GateEntry] G ON IR.GateEntryNo=G.Id
-						LEFT Join hkp.Party p ON P.Id= G.PartyId
-						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-						LEFT Join ORG.Company C ON C.Id= G.CompanyId
-						LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId				
-						LEFT JOIN (select InventoryReceiveId,sum(TransactionQty) Qty
-											,sum(MaterialTranRate) Rate
-											,sum(TotalMaterialBooksCurrencyAmount) Total3Value 
-										from  trn.InventoryReceiveDetail
-									Group By InventoryReceiveId)IRD ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-						Where AuthorizedByStatus='For Approval'						
-						AND DATEDIFF(day,G.EntryDate,getdate()) Between 0 and 3
-						GROUP BY G.CompanyGroupId	  			
-						)Res3 ON Res3.CompanyGroupId=cmpGR.Id 		--ANd Res3.PlantId=P.Id					
-						Left JOIN(		
-			
-						SELECT 'Pending GRN For Approval' Category
-						,G.CompanyGroupId--	,G.PlantId				
-						,0 ThreeDaysCount
-						,Count(Distinct G.Id) AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.Qty) Qty
-						,sum(IRD.Rate) Rate
-						,sum(IRD.Total5Value) Total5Value
-						FROM trn.InventoryReceive IR 
-						left JOIN TRN.[GateEntry] G ON IR.GateEntryNo=G.Id
-						LEFT Join hkp.Party p ON P.Id= G.PartyId
-						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-						LEFT Join ORG.Company C ON C.Id= G.CompanyId
-						LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId				
-						LEFT JOIN (select InventoryReceiveId,sum(TransactionQty) Qty
-											,sum(MaterialTranRate) Rate
-											,sum(TotalMaterialBooksCurrencyAmount) Total5Value 
-										from  trn.InventoryReceiveDetail
-									Group By InventoryReceiveId)IRD ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-						Where AuthorizedByStatus='For Approval'
-						--Where  Isnull(IR.AuthorizedByStatus,'') != 'Approved' AND (Isnull(IR.CheckedByStatus,'') != 'Reject' OR  IR.AuthorizedByStatus='Reject')
-						AND DATEDIFF(day,G.EntryDate,getdate()) Between 4 and 5
-						GROUP BY G.CompanyGroupId						
-						)Res5 ON Res5.CompanyGroupId=cmpGR.Id --		ANd Res5.PlantId=P.Id						
-						Left JOIN(
-						SELECT 'Pending GRN For Approval' Category
-						,G.CompanyGroupId--	,G.PlantId				
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						,Count(Distinct G.Id) AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.Qty) Qty
-						,sum(IRD.Rate) Rate
-						,sum(IRD.Total10Value) Total10Value
-						FROM trn.InventoryReceive IR 
-						left JOIN TRN.[GateEntry] G ON IR.GateEntryNo=G.Id
-						LEFT Join hkp.Party p ON P.Id= G.PartyId
-						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-						LEFT Join ORG.Company C ON C.Id= G.CompanyId
-						LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId				
-						LEFT JOIN (select InventoryReceiveId,sum(TransactionQty) Qty
-											,sum(MaterialTranRate) Rate
-											,sum(TotalMaterialBooksCurrencyAmount) Total10Value 
-										from  trn.InventoryReceiveDetail
-									Group By InventoryReceiveId)IRD ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-						Where AuthorizedByStatus='For Approval'
-						--Where  Isnull(IR.AuthorizedByStatus,'') != 'Approved' AND (Isnull(IR.CheckedByStatus,'') != 'Reject' OR  IR.AuthorizedByStatus='Reject')
-						AND DATEDIFF(day,G.EntryDate,getdate()) Between 6 and 10
-						GROUP BY G.CompanyGroupId
-						)Res10 ON Res10.CompanyGroupId=cmpGR.Id 	--ANd Res10.PlantId=P.Id					
-						Left JOIN(
-						SELECT 'Pending GRN For Approval' Category
-						,G.CompanyGroupId--,G.PlantId					
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						, 0 AS TenDaysCount
-						,Count(Distinct G.Id) AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.Qty) Qty
-						,sum(IRD.Rate) Rate
-						,sum(IRD.Total15Value) Total15Value
-						FROM trn.InventoryReceive IR 
-						left JOIN TRN.[GateEntry] G ON IR.GateEntryNo=G.Id
-						LEFT Join hkp.Party p ON P.Id= G.PartyId
-						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-						LEFT Join ORG.Company C ON C.Id= G.CompanyId
-						LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId				
-						LEFT JOIN (select InventoryReceiveId,sum(TransactionQty) Qty
-											,sum(MaterialTranRate) Rate
-											,sum(TotalMaterialBooksCurrencyAmount) Total15Value 
-										from  trn.InventoryReceiveDetail
-									Group By InventoryReceiveId)IRD ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-						Where AuthorizedByStatus='For Approval'
-						--Where  Isnull(IR.AuthorizedByStatus,'') != 'Approved' AND (Isnull(IR.CheckedByStatus,'') != 'Reject' OR  IR.AuthorizedByStatus='Reject')
-						AND DATEDIFF(day,G.EntryDate,getdate()) Between 11 and 15
-						GROUP BY G.CompanyGroupId	 
-						)Res15 ON Res15.CompanyGroupId=cmpGR.Id -- ANd Res15.PlantId=P.Id								
-						Left JOIN(
-						SELECT 'Pending GRN For Approval' Category
-						,G.CompanyGroupId--,G.PlantId					
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						, 0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,Count(Distinct G.Id) AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.Qty) Qty
-						,sum(IRD.Rate) Rate
-						,sum(IRD.Total20Value) Total20Value
-						FROM trn.InventoryReceive IR 
-						left JOIN TRN.[GateEntry] G ON IR.GateEntryNo=G.Id
-						LEFT Join hkp.Party p ON P.Id= G.PartyId
-						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-						LEFT Join ORG.Company C ON C.Id= G.CompanyId
-						LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId				
-						LEFT JOIN (select InventoryReceiveId,sum(TransactionQty) Qty
-											,sum(MaterialTranRate) Rate
-											,sum(TotalMaterialBooksCurrencyAmount) Total20Value 
-										from  trn.InventoryReceiveDetail
-									Group By InventoryReceiveId)IRD ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-						Where AuthorizedByStatus='For Approval'
-						--Where  Isnull(IR.AuthorizedByStatus,'') != 'Approved' AND (Isnull(IR.CheckedByStatus,'') != 'Reject' OR  IR.AuthorizedByStatus='Reject')
-						AND DATEDIFF(day,G.EntryDate,getdate()) Between 16 and 20
-						GROUP BY G.CompanyGroupId	 
-						)Res20 ON Res20.CompanyGroupId=cmpGR.Id --ANd Res20.PlantId=P.Id								
-						Left JOIN(
-						SELECT 'Pending GRN For Approval' Category
-						,G.CompanyGroupId--	,G.PlantId				
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						, 0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,Count(Distinct G.Id) AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.Qty) Qty
-						,sum(IRD.Rate) Rate
-						,sum(IRD.Total25Value) Total25Value
-						FROM trn.InventoryReceive IR 
-						left JOIN TRN.[GateEntry] G ON IR.GateEntryNo=G.Id
-						LEFT Join hkp.Party p ON P.Id= G.PartyId
-						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-						LEFT Join ORG.Company C ON C.Id= G.CompanyId
-						LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId				
-						LEFT JOIN (select InventoryReceiveId,sum(TransactionQty) Qty
-											,sum(MaterialTranRate) Rate
-											,sum(TotalMaterialBooksCurrencyAmount) Total25Value 
-										from  trn.InventoryReceiveDetail
-									Group By InventoryReceiveId)IRD ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-						Where AuthorizedByStatus='For Approval'
-						--Where  Isnull(IR.AuthorizedByStatus,'') != 'Approved' AND (Isnull(IR.CheckedByStatus,'') != 'Reject' OR  IR.AuthorizedByStatus='Reject')
-						AND DATEDIFF(day,G.EntryDate,getdate()) Between 21 and 25
-						GROUP BY G.CompanyGroupId		
-						)Res25 ON Res25.CompanyGroupId=cmpGR.Id 	--	ANd Res25.PlantId=P.Id						
-						Left JOIN(
-						SELECT 'Pending GRN For Approval' Category
-						,G.CompanyGroupId--	,G.PlantId				
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						, 0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,Count(Distinct G.Id) AS ThirtyDaysCount
-													
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.Qty) Qty
-						,sum(IRD.Rate) Rate
-						,sum(IRD.Total30Value) Total30Value
-						FROM trn.InventoryReceive IR 
-						left JOIN TRN.[GateEntry] G ON IR.GateEntryNo=G.Id
-						LEFT Join hkp.Party p ON P.Id= G.PartyId
-						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-						LEFT Join ORG.Company C ON C.Id= G.CompanyId
-						LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId				
-						LEFT JOIN (select InventoryReceiveId,sum(TransactionQty) Qty
-											,sum(MaterialTranRate) Rate
-											,sum(TotalMaterialBooksCurrencyAmount) Total30Value 
-										from  trn.InventoryReceiveDetail
-									Group By InventoryReceiveId)IRD ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-						Where AuthorizedByStatus='For Approval'
-						--Where  Isnull(IR.AuthorizedByStatus,'') != 'Approved' AND (Isnull(IR.CheckedByStatus,'') != 'Reject' OR  IR.AuthorizedByStatus='Reject')
-						AND DATEDIFF(day,G.EntryDate,getdate()) Between 26 and 30
-						GROUP BY G.CompanyGroupId	
-						)Res30 ON Res30.CompanyGroupId=cmpGR.Id 	--ANd Res30.PlantId=P.Id						
-						Left JOIN(
-						SELECT 'Pending GRN For Approval' Category
-						,G.CompanyGroupId--,G.PlantId					
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						, 0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,Count(Distinct G.Id)  AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.Qty) Qty
-						,sum(IRD.Rate) Rate
-						,sum(IRD.Total31Value) Total31Value
-						FROM trn.InventoryReceive IR 
-						left JOIN TRN.[GateEntry] G ON IR.GateEntryNo=G.Id
-						LEFT Join hkp.Party p ON P.Id= G.PartyId
-						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-						LEFT Join ORG.Company C ON C.Id= G.CompanyId
-						LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId				
-						LEFT JOIN (select InventoryReceiveId,sum(TransactionQty) Qty
-											,sum(MaterialTranRate) Rate
-											,sum(TotalMaterialBooksCurrencyAmount) Total31Value 
-										from  trn.InventoryReceiveDetail
-									Group By InventoryReceiveId)IRD ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-						Where IR.AuthorizedByStatus='For Approval'
-						AND DATEDIFF(day,G.EntryDate,getdate()) Between 31 and 9000000
-						GROUP BY G.CompanyGroupId
-						)Res31 ON Res31.CompanyGroupId=cmpGR.Id 	--ANd Res31.PlantId=P.Id	
-						Left JOIN(
-						SELECT 'Pending GRN For Approval' Category
-						,G.CompanyGroupId--		,G.PlantId			
-						,0 ThreeDaysCount
-						,0 AS FiveDaysCount
-						, 0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,Count(Distinct G.Id)  AS ALLCount
-						,sum(IRD.Qty) Qty
-						,sum(IRD.Rate) Rate
-						,sum(IRD.Total32Value) Total32Value
-						FROM trn.InventoryReceive IR 
-						left JOIN TRN.[GateEntry] G ON IR.GateEntryNo=G.Id
-						LEFT Join hkp.Party p ON P.Id= G.PartyId
-						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-						LEFT Join ORG.Company C ON C.Id= G.CompanyId
-						LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId				
-						LEFT JOIN (select InventoryReceiveId,sum(TransactionQty) Qty
-											,sum(MaterialTranRate) Rate
-											,sum(TotalMaterialBooksCurrencyAmount) Total32Value 
-										from  trn.InventoryReceiveDetail
-									Group By InventoryReceiveId)IRD ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-						Where AuthorizedByStatus='For Approval'
-						--Where  Isnull(IR.AuthorizedByStatus,'') != 'Approved' AND (Isnull(IR.CheckedByStatus,'') != 'Reject' OR  IR.AuthorizedByStatus='Reject')
-						AND DATEDIFF(day,G.EntryDate,getdate()) Between 0 and 90000000
-						GROUP BY G.CompanyGroupId	 
-						)Res32 ON Res32.CompanyGroupId=cmpGR.Id --ANd Res32.PlantId=P.Id	
-						where  CMPGR.Active = 1 --AND cmp.Id='C20171'				
+						,isnull(Agg.ThreeDaysCount,0) ThreeDaysCount,isnull(Agg.Total3Value,0) Total3Value
+						,isnull(Agg.FiveDaysCount,0) FiveDaysCount,isnull(Agg.Total5Value,0) Total5Value
+						,isnull(Agg.TenDaysCount,0) TenDaysCount,isnull(Agg.Total10Value,0) Total10Value
+						,isnull(Agg.FifteenDaysCount,0) FifteenDaysCount,isnull(Agg.Total15Value,0) Total15Value
+						,isnull(Agg.TweentyDaysCount,0) TweentyDaysCount,isnull(Agg.Total20Value,0) Total20Value
+						,isnull(Agg.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Agg.Total25Value,0) Total25Value
+						,isnull(Agg.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Agg.Total30Value,0) Total30Value
+						,isnull(Agg.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Agg.Total31Value,0) Total31Value
+						,isnull(Agg.AllCount,0) AllCount,isnull(Agg.Total32Value,0) Total32Value
+						FROM ORG.CompanyGroup CMPGR
+						LEFT JOIN (
+							SELECT G.CompanyGroupId AS CompanyGroupId
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 0 AND 3 THEN G.Id END) AS ThreeDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 0 AND 3 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total3Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 4 AND 5 THEN G.Id END) AS FiveDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 4 AND 5 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total5Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 6 AND 10 THEN G.Id END) AS TenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 6 AND 10 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total10Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 11 AND 15 THEN G.Id END) AS FifteenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 11 AND 15 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total15Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 16 AND 20 THEN G.Id END) AS TweentyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 16 AND 20 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total20Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 21 AND 25 THEN G.Id END) AS TwentyFiveyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 21 AND 25 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total25Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 26 AND 30 THEN G.Id END) AS ThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 26 AND 30 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total30Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) >= 31 THEN G.Id END) AS GraterThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) >= 31 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total31Value
+							,COUNT(DISTINCT CASE WHEN 1=1 THEN G.Id END) AS AllCount
+							,SUM(CASE WHEN 1=1 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total32Value
+							FROM trn.InventoryReceive IR
+							LEFT JOIN TRN.[GateEntry] G ON IR.GateEntryNo=G.Id
+							LEFT JOIN hkp.Party p ON P.Id= G.PartyId
+							LEFT JOIN ORG.CompanyGroup CG ON CG.Id= G.CompanyGroupId
+							LEFT JOIN ORG.Company C ON C.Id= G.CompanyId
+							LEFT JOIN ORG.Plant Pl ON Pl.Id= G.PlantId
+							LEFT JOIN (
+								SELECT InventoryReceiveId, SUM(TransactionQty) TransactionQty, SUM(MaterialTranRate) MaterialTranRate,
+									SUM(TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+								FROM trn.InventoryReceiveDetail GROUP BY InventoryReceiveId
+							) IRD ON IRD.InventoryReceiveId=IR.Id
+							LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=G.EmployeeId
+							LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=G.EmployeeIdForGateEntry
+							LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
+							LEFT JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
+							WHERE IR.AuthorizedByStatus='For Approval'
+							GROUP BY G.CompanyGroupId
+						) Agg ON Agg.CompanyGroupId = CMPGR.Id
+						WHERE CMPGR.Active = 1
 						UNION ALL
-						----------------------------------------Pending GRN Posting--------------------------
 						SELECT
-						--CMPGR.Id AS CompanyGroupId
-						--, CMPGR.UserName AS GroupName
-						--, cmp.Id AS CompanyId
-						--, CMP.UserName AS ColumnName	
-						--,P.Id PlantId
-						--,P.UserName PlantName
+						'Pending GRN For Checking' Category, 10 SI
+						,isnull(Agg.ThreeDaysCount,0) ThreeDaysCount,isnull(Agg.Total3Value,0) Total3Value
+						,isnull(Agg.FiveDaysCount,0) FiveDaysCount,isnull(Agg.Total5Value,0) Total5Value
+						,isnull(Agg.TenDaysCount,0) TenDaysCount,isnull(Agg.Total10Value,0) Total10Value
+						,isnull(Agg.FifteenDaysCount,0) FifteenDaysCount,isnull(Agg.Total15Value,0) Total15Value
+						,isnull(Agg.TweentyDaysCount,0) TweentyDaysCount,isnull(Agg.Total20Value,0) Total20Value
+						,isnull(Agg.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Agg.Total25Value,0) Total25Value
+						,isnull(Agg.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Agg.Total30Value,0) Total30Value
+						,isnull(Agg.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Agg.Total31Value,0) Total31Value
+						,isnull(Agg.AllCount,0) AllCount,isnull(Agg.Total32Value,0) Total32Value
+						FROM ORG.CompanyGroup CMPGR
+						LEFT JOIN (
+							SELECT G.CompanyGroupId AS CompanyGroupId
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 0 AND 3 THEN G.Id END) AS ThreeDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 0 AND 3 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total3Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 4 AND 5 THEN G.Id END) AS FiveDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 4 AND 5 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total5Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 6 AND 10 THEN G.Id END) AS TenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 6 AND 10 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total10Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 11 AND 15 THEN G.Id END) AS FifteenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 11 AND 15 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total15Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 16 AND 20 THEN G.Id END) AS TweentyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 16 AND 20 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total20Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 21 AND 25 THEN G.Id END) AS TwentyFiveyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 21 AND 25 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total25Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 26 AND 30 THEN G.Id END) AS ThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 26 AND 30 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total30Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) >= 31 THEN G.Id END) AS GraterThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) >= 31 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total31Value
+							,COUNT(DISTINCT CASE WHEN 1=1 THEN G.Id END) AS AllCount
+							,SUM(CASE WHEN 1=1 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total32Value
+							FROM trn.InventoryReceive IR
+							LEFT JOIN TRN.[GateEntry] G ON IR.GateEntryNo=G.Id
+							LEFT JOIN hkp.Party p ON P.Id= G.PartyId
+							LEFT JOIN ORG.CompanyGroup CG ON CG.Id= G.CompanyGroupId
+							LEFT JOIN ORG.Company C ON C.Id= G.CompanyId
+							LEFT JOIN ORG.Plant Pl ON Pl.Id= G.PlantId
+							LEFT JOIN (
+								SELECT InventoryReceiveId, SUM(TransactionQty) TransactionQty, SUM(MaterialTranRate) MaterialTranRate,
+									SUM(TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+								FROM trn.InventoryReceiveDetail GROUP BY InventoryReceiveId
+							) IRD ON IRD.InventoryReceiveId=IR.Id
+							LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=G.EmployeeId
+							LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=G.EmployeeIdForGateEntry
+							LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
+							LEFT JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
+							WHERE IR.CheckedByStatus='ForChecked'
+							GROUP BY G.CompanyGroupId
+						) Agg ON Agg.CompanyGroupId = CMPGR.Id
+						WHERE CMPGR.Active = 1
+						UNION ALL
+						SELECT
 						'Pending GRN Posting' Category, 11 SI
-						,isnull(Res3.ThreeDaysCount,0) ThreeDaysCount,isnull(Res3.Total3Value,0) Total3Value
-						,isnull(Res5.FiveDaysCount,0) FiveDaysCount,isnull(Res5.Total5Value,0) Total5Value
-						,isnull(Res10.TenDaysCount,0) TenDaysCount,isnull(Res10.Total10Value,0) Total10Value
-						,isnull(Res15.FifteenDaysCount,0) FifteenDaysCount,isnull(Res15.Total15Value,0) Total15Value
-						,isnull(Res20.TweentyDaysCount,0) TweentyDaysCount,isnull(Res20.Total20Value,0) Total20Value
-						,isnull(Res25.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Res25.Total25Value,0) Total25Value
-						,isnull(Res30.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Res30.Total30Value,0) Total30Value
-						,isnull(Res31.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Res31.Total31Value,0) Total31Value	
-						,isnull(Res32.AllCount,0) AllCount,isnull(Res32.Total32Value,0) Total32Value			
-				
-						from ORG.CompanyGroup CMPGR
-						--left join  org.company CMP ON CMP.CompanyGroupId = CMPGR.Id 
-						--left join ORG.plant p ON p.CompanyId=cmp.id
-						LEFT JOIN
-						( 
-						SELECT 'Pending GRN Posting' Category
-						,IR.CompanyGroupId--,IR.PlantId
-						,Count(IR.Id) ThreeDaysCount 
-						--,0 AS ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.TransactionQty) Qty
-						,sum(IRD.MaterialTranRate) Rate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) Total3Value
-						FROM trn.InventoryReceive IR 
-						LEFT JOIN ( select IRD.InventoryReceiveId,sum(IRD.TransactionQty) TransactionQty
-						,sum(IRD.MaterialTranRate) MaterialTranRate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
-						from trn.InventoryReceiveDetail IRD group by IRD.InventoryReceiveId) IRD ON IRD.InventoryReceiveId=IR.Id    
-						Where DATEDIFF(day,IR.GRNDate,getdate()) Between 0 and 3	
-						ANd (IR.CheckedByStatus='Checked' OR IR.CheckedByStatus IS NULL)
-						And (IR.AuthorizedByStatus='Approved' OR IR.AuthorizedByStatus IS NuLL)									
-						AND IR.CheckedByStatus !='Reject'
-						AND IR.AuthorizedByStatus !='Reject'
-						AND IR.Status IS NULL		 
-						GROUP BY IR.CompanyGroupId--,IR.PlantId
-						)Res3 ON Res3.CompanyGroupId=cmpGR.Id 	--AND Res3.PlantId=P.Id
-						LEFT JOIN(
-						SELECT 'Pending GRN Posting' Category
-						,IR.CompanyGroupId--,IR.PlantId
-						,0 ThreeDaysCount 
-						--,0 AS ThreeDaysCount
-						,Count(IR.Id) AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.TransactionQty) Qty
-						,sum(IRD.MaterialTranRate) Rate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) Total5Value
-						FROM trn.InventoryReceive IR 
-						LEFT JOIN ( select IRD.InventoryReceiveId,sum(IRD.TransactionQty) TransactionQty
-						,sum(IRD.MaterialTranRate) MaterialTranRate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
-						from trn.InventoryReceiveDetail IRD group by IRD.InventoryReceiveId) IRD ON IRD.InventoryReceiveId=IR.Id    
-						Where DATEDIFF(day,IR.GRNDate,getdate()) Between 4 and 5	
-						ANd (IR.CheckedByStatus='Checked' OR IR.CheckedByStatus IS NULL)
-						And (IR.AuthorizedByStatus='Approved' OR IR.AuthorizedByStatus IS NuLL)									
-						AND IR.CheckedByStatus !='Reject'
-						AND IR.AuthorizedByStatus !='Reject'
-						AND IR.Status IS NULL	
-						AND DATEDIFF(day,IR.GRNDate,getdate()) Between 4 and 5			 
-						GROUP BY IR.CompanyGroupId--,IR.PlantId
-						)Res5 ON Res5.CompanyGroupId=cmpGR.Id 	--	AND Res5.PlantId=P.Id
-						LEFT JOIN(
-						SELECT 'Pending GRN Posting' Category
-						,IR.CompanyGroupId--,IR.PlantId
-						,0 ThreeDaysCount 
-						--,0 AS ThreeDaysCount
-						,0 AS FiveDaysCount
-						,Count(IR.Id) AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.TransactionQty) Qty
-						,sum(IRD.MaterialTranRate) Rate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) Total10Value
-						FROM trn.InventoryReceive IR 
-						LEFT JOIN ( select IRD.InventoryReceiveId,sum(IRD.TransactionQty) TransactionQty
-						,sum(IRD.MaterialTranRate) MaterialTranRate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
-						from trn.InventoryReceiveDetail IRD group by IRD.InventoryReceiveId) IRD ON IRD.InventoryReceiveId=IR.Id    
-						Where DATEDIFF(day,IR.GRNDate,getdate()) Between 6 and 10	
-						ANd (IR.CheckedByStatus='Checked' OR IR.CheckedByStatus IS NULL)
-						And (IR.AuthorizedByStatus='Approved' OR IR.AuthorizedByStatus IS NuLL)									
-						AND IR.CheckedByStatus !='Reject'
-						AND IR.AuthorizedByStatus !='Reject'
-						AND IR.Status IS NULL			 
-						GROUP BY IR.CompanyGroupId--,IR.PlantId
-						)Res10 ON Res10.CompanyGroupId=cmpGR.Id 	--AND Res10.PlantId=P.Id
-						LEFT JOIN(
-						SELECT 'Pending GRN Posting' Category
-						,IR.CompanyGroupId--,IR.PlantId
-						,0 ThreeDaysCount 
-						--,0 AS ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,Count(IR.Id)  AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.TransactionQty) Qty
-						,sum(IRD.MaterialTranRate) Rate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) Total15Value
-						FROM trn.InventoryReceive IR 
-						LEFT JOIN ( select IRD.InventoryReceiveId,sum(IRD.TransactionQty) TransactionQty
-						,sum(IRD.MaterialTranRate) MaterialTranRate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
-						from trn.InventoryReceiveDetail IRD group by IRD.InventoryReceiveId) IRD ON IRD.InventoryReceiveId=IR.Id    
-						Where DATEDIFF(day,IR.GRNDate,getdate()) Between 11 and 15	
-						ANd (IR.CheckedByStatus='Checked' OR IR.CheckedByStatus IS NULL)
-						And (IR.AuthorizedByStatus='Approved' OR IR.AuthorizedByStatus IS NuLL)									
-						AND IR.CheckedByStatus !='Reject'
-						AND IR.AuthorizedByStatus !='Reject'
-						AND IR.Status IS NULL				 
-						GROUP BY IR.CompanyGroupId--,IR.PlantId
-						)Res15 ON Res15.CompanyGroupId=cmpGR.Id 	--AND Res15.PlantId=P.Id
-						LEFT JOIN(
-						SELECT 'Pending GRN Posting' Category
-						,IR.CompanyGroupId--,IR.PlantId
-						,0 ThreeDaysCount 
-						--,0 AS ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,Count(IR.Id)   AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.TransactionQty) Qty
-						,sum(IRD.MaterialTranRate) Rate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) Total20Value
-						FROM trn.InventoryReceive IR 
-						LEFT JOIN ( select IRD.InventoryReceiveId,sum(IRD.TransactionQty) TransactionQty
-						,sum(IRD.MaterialTranRate) MaterialTranRate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
-						from trn.InventoryReceiveDetail IRD group by IRD.InventoryReceiveId) IRD ON IRD.InventoryReceiveId=IR.Id    
-						Where DATEDIFF(day,IR.GRNDate,getdate()) Between 16 and 20	
-						ANd (IR.CheckedByStatus='Checked' OR IR.CheckedByStatus IS NULL)
-						And (IR.AuthorizedByStatus='Approved' OR IR.AuthorizedByStatus IS NuLL)									
-						AND IR.CheckedByStatus !='Reject'
-						AND IR.AuthorizedByStatus !='Reject'
-						AND IR.Status IS NULL			 
-						GROUP BY IR.CompanyGroupId--,IR.PlantId
-
-						)Res20 ON Res20.CompanyGroupId=cmpGR.Id --AND Res20.PlantId=P.Id
-						LEFT JOIN(
-						SELECT 'Pending GRN Posting' Category
-						,IR.CompanyGroupId--,IR.PlantId
-						,0 ThreeDaysCount 
-						--,0 AS ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,Count(IR.Id)    AS TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.TransactionQty) Qty
-						,sum(IRD.MaterialTranRate) Rate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) Total25Value
-						FROM trn.InventoryReceive IR 
-						LEFT JOIN ( select IRD.InventoryReceiveId,sum(IRD.TransactionQty) TransactionQty
-						,sum(IRD.MaterialTranRate) MaterialTranRate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
-						from trn.InventoryReceiveDetail IRD group by IRD.InventoryReceiveId) IRD ON IRD.InventoryReceiveId=IR.Id    
-						Where DATEDIFF(day,IR.GRNDate,getdate()) Between 21 and 25	
-						ANd (IR.CheckedByStatus='Checked' OR IR.CheckedByStatus IS NULL)
-						And (IR.AuthorizedByStatus='Approved' OR IR.AuthorizedByStatus IS NuLL)									
-						AND IR.CheckedByStatus !='Reject'
-						AND IR.AuthorizedByStatus !='Reject'
-						AND IR.Status IS NULL			 
-						GROUP BY IR.CompanyGroupId--,IR.PlantId
-						)Res25 ON Res25.CompanyGroupId=cmpGR.Id --	AND Res25.PlantId=P.Id
-						LEFT JOIN(
-						SELECT 'Pending GRN Posting' Category
-						,IR.CompanyGroupId--,IR.PlantId
-						,0 ThreeDaysCount 
-						--,0 AS ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,Count(IR.Id)    AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.TransactionQty) Qty
-						,sum(IRD.MaterialTranRate) Rate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) Total30Value
-						FROM trn.InventoryReceive IR 
-						LEFT JOIN ( select IRD.InventoryReceiveId,sum(IRD.TransactionQty) TransactionQty
-						,sum(IRD.MaterialTranRate) MaterialTranRate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
-						from trn.InventoryReceiveDetail IRD group by IRD.InventoryReceiveId) IRD ON IRD.InventoryReceiveId=IR.Id    
-						Where DATEDIFF(day,IR.GRNDate,getdate()) Between 26 and 30	
-						ANd (IR.CheckedByStatus='Checked' OR IR.CheckedByStatus IS NULL)
-						And (IR.AuthorizedByStatus='Approved' OR IR.AuthorizedByStatus IS NuLL)									
-						AND IR.CheckedByStatus !='Reject'
-						AND IR.AuthorizedByStatus !='Reject'
-						AND IR.Status IS NULL				 
-						GROUP BY IR.CompanyGroupId--,IR.PlantId
-						)Res30 ON Res30.CompanyGroupId=cmpGR.Id 	--AND Res30.PlantId=P.Id
-						LEFT JOIN(
-						SELECT 'Pending GRN Posting' Category
-						,IR.CompanyGroupId--,IR.PlantId
-						,0 ThreeDaysCount 
-						--,0 AS ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0  AS ThirtyDaysCount
-						,Count(IR.Id)   AS GraterThirtyDaysCount
-						,0  AS ALLCount
-						,sum(IRD.TransactionQty) Qty
-						,sum(IRD.MaterialTranRate) Rate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) Total31Value
-						FROM trn.InventoryReceive IR 
-						LEFT JOIN ( select IRD.InventoryReceiveId,sum(IRD.TransactionQty) TransactionQty
-						,sum(IRD.MaterialTranRate) MaterialTranRate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
-						from trn.InventoryReceiveDetail IRD group by IRD.InventoryReceiveId) IRD ON IRD.InventoryReceiveId=IR.Id    
-						Where DATEDIFF(day,IR.GRNDate,getdate()) Between 31 and 900000	
-						ANd (IR.CheckedByStatus='Checked' OR IR.CheckedByStatus IS NULL)
-						And (IR.AuthorizedByStatus='Approved' OR IR.AuthorizedByStatus IS NuLL)									
-						AND IR.CheckedByStatus !='Reject'
-						AND IR.AuthorizedByStatus !='Reject'
-						AND IR.Status IS NULL				 
-						GROUP BY IR.CompanyGroupId--,IR.PlantId
-						)Res31 ON Res31.CompanyGroupId=cmpGR.Id 	
-						LEFT JOIN(
-						SELECT 'Pending GRN Posting' Category
-						,IR.CompanyGroupId--,IR.PlantId
-						,0 ThreeDaysCount 
-						--,0 AS ThreeDaysCount
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 AS FifteenDaysCount
-						,0 AS TweentyDaysCount
-						,0 AS TwentyFiveyDaysCount
-						,0  AS ThirtyDaysCount
-						,0 GraterThirtyDaysCount
-						,Count(IR.Id) AS ALLCount
-						,sum(IRD.TransactionQty) Qty
-						,sum(IRD.MaterialTranRate) Rate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) Total32Value
-						FROM trn.InventoryReceive IR 
-						LEFT JOIN ( select IRD.InventoryReceiveId,sum(IRD.TransactionQty) TransactionQty
-						,sum(IRD.MaterialTranRate) MaterialTranRate
-						,sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
-						from trn.InventoryReceiveDetail IRD group by IRD.InventoryReceiveId) IRD ON IRD.InventoryReceiveId=IR.Id    
-						Where DATEDIFF(day,IR.GRNDate,getdate()) Between 0 and 9000000	
-						ANd (IR.CheckedByStatus='Checked' OR IR.CheckedByStatus IS NULL)
-						And (IR.AuthorizedByStatus='Approved' OR IR.AuthorizedByStatus IS NuLL)									
-						AND IR.CheckedByStatus !='Reject'
-						AND IR.AuthorizedByStatus !='Reject'
-						AND IR.Status IS NULL		 
-						GROUP BY IR.CompanyGroupId--,IR.PlantId
-						)Res32 ON Res32.CompanyGroupId=cmpGR.Id --AND Res32.PlantId=P.Id
-						where CMPGR.Active = 1 --AND cmp.Id='C20171'	
-
+						,isnull(Agg.ThreeDaysCount,0) ThreeDaysCount,isnull(Agg.Total3Value,0) Total3Value
+						,isnull(Agg.FiveDaysCount,0) FiveDaysCount,isnull(Agg.Total5Value,0) Total5Value
+						,isnull(Agg.TenDaysCount,0) TenDaysCount,isnull(Agg.Total10Value,0) Total10Value
+						,isnull(Agg.FifteenDaysCount,0) FifteenDaysCount,isnull(Agg.Total15Value,0) Total15Value
+						,isnull(Agg.TweentyDaysCount,0) TweentyDaysCount,isnull(Agg.Total20Value,0) Total20Value
+						,isnull(Agg.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Agg.Total25Value,0) Total25Value
+						,isnull(Agg.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Agg.Total30Value,0) Total30Value
+						,isnull(Agg.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Agg.Total31Value,0) Total31Value
+						,isnull(Agg.AllCount,0) AllCount,isnull(Agg.Total32Value,0) Total32Value
+						FROM ORG.CompanyGroup CMPGR
+						LEFT JOIN (
+							SELECT IR.CompanyGroupId AS CompanyGroupId
+							,COUNT(CASE WHEN DATEDIFF(day,IR.GRNDate,GETDATE()) BETWEEN 0 AND 3 THEN IR.Id END) AS ThreeDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,IR.GRNDate,GETDATE()) BETWEEN 0 AND 3 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total3Value
+							,COUNT(CASE WHEN DATEDIFF(day,IR.GRNDate,GETDATE()) BETWEEN 4 AND 5 THEN IR.Id END) AS FiveDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,IR.GRNDate,GETDATE()) BETWEEN 4 AND 5 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total5Value
+							,COUNT(CASE WHEN DATEDIFF(day,IR.GRNDate,GETDATE()) BETWEEN 6 AND 10 THEN IR.Id END) AS TenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,IR.GRNDate,GETDATE()) BETWEEN 6 AND 10 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total10Value
+							,COUNT(CASE WHEN DATEDIFF(day,IR.GRNDate,GETDATE()) BETWEEN 11 AND 15 THEN IR.Id END) AS FifteenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,IR.GRNDate,GETDATE()) BETWEEN 11 AND 15 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total15Value
+							,COUNT(CASE WHEN DATEDIFF(day,IR.GRNDate,GETDATE()) BETWEEN 16 AND 20 THEN IR.Id END) AS TweentyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,IR.GRNDate,GETDATE()) BETWEEN 16 AND 20 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total20Value
+							,COUNT(CASE WHEN DATEDIFF(day,IR.GRNDate,GETDATE()) BETWEEN 21 AND 25 THEN IR.Id END) AS TwentyFiveyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,IR.GRNDate,GETDATE()) BETWEEN 21 AND 25 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total25Value
+							,COUNT(CASE WHEN DATEDIFF(day,IR.GRNDate,GETDATE()) BETWEEN 26 AND 30 THEN IR.Id END) AS ThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,IR.GRNDate,GETDATE()) BETWEEN 26 AND 30 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total30Value
+							,COUNT(CASE WHEN DATEDIFF(day,IR.GRNDate,GETDATE()) >= 31 THEN IR.Id END) AS GraterThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,IR.GRNDate,GETDATE()) >= 31 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total31Value
+							,COUNT(CASE WHEN 1=1 THEN IR.Id END) AS AllCount
+							,SUM(CASE WHEN 1=1 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total32Value
+							FROM trn.InventoryReceive IR
+							LEFT JOIN (
+								SELECT InventoryReceiveId, SUM(TransactionQty) TransactionQty, SUM(MaterialTranRate) MaterialTranRate,
+									SUM(TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+								FROM trn.InventoryReceiveDetail GROUP BY InventoryReceiveId
+							) IRD ON IRD.InventoryReceiveId=IR.Id
+							WHERE (IR.CheckedByStatus='Checked' OR IR.CheckedByStatus IS NULL)
+							AND (IR.AuthorizedByStatus='Approved' OR IR.AuthorizedByStatus IS NULL)
+							AND IR.CheckedByStatus !='Reject'
+							AND IR.AuthorizedByStatus !='Reject'
+							AND IR.Status IS NULL
+							GROUP BY IR.CompanyGroupId
+						) Agg ON Agg.CompanyGroupId = CMPGR.Id
+						WHERE CMPGR.Active = 1
 						UNION ALL
-						----------------------------------------Pending  Issue Request  For Approval--------------------------
 						SELECT
-						--	CMPGR.Id AS CompanyGroupId
-						--, CMPGR.UserName AS GroupName
-						--, cmp.Id AS CompanyId
-						--, CMP.UserName AS ColumnName
-						--,P.Id PlantId
-						--,P.UserName PlantName
 						'Pending  Issue Request  For Approval' Category, 12 SI
-						,isnull(Res3.ThreeDaysCount,0) ThreeDaysCount,isnull(Res3.Total3Value,0) Total3Value
-						,isnull(Res5.FiveDaysCount,0) FiveDaysCount,isnull(Res5.Total5Value,0) Total5Value
-						,isnull(Res10.TenDaysCount,0) TenDaysCount,isnull(Res10.Total10Value,0) Total10Value
-						,isnull(Res15.FifteenDaysCount,0) FifteenDaysCount,isnull(Res15.Total15Value,0) Total15Value
-						,isnull(Res20.TweentyDaysCount,0) TweentyDaysCount,isnull(Res20.Total20Value,0) Total20Value
-						,isnull(Res25.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Res25.Total25Value,0) Total25Value
-						,isnull(Res30.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Res30.Total30Value,0) Total30Value
-						,isnull(Res31.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Res31.Total31Value,0) Total31Value		
-						,isnull(Res32.AllCount,0) AllCount,isnull(Res32.Total32Value,0) Total32Value		
-				
-						from ORG.CompanyGroup CMPGR
-						--left join  org.company CMP ON CMP.CompanyGroupId = CMPGR.Id 
-						--left join ORG.plant p ON p.CompanyId=cmp.id
-						LEFT JOIN
-						( 
-			
-						SELECT 'Pending  Issue Request  For Approval' Category		
-						,IRM.CompanyGroupId--,IRM.PlantId
-						,Count(IRM.Id) ThreeDaysCount			
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 FifteenDaysCount		
-						,0 TweentyDaysCount
-						,0 TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(isnull(IR.RequestedQty,0)) Qty
-						,sum(isnull(0,0)) Rate
-						,sum(isnull(0,0)) Total3Value
-						FROM trn.IssueRequestMaster IRM
-						LEFT JOIN(select IssueRequestMasterId,sum(isnull(RequestedQty,0)) RequestedQty from  trn.IssueRequest
-						Group by IssueRequestMasterId
-						) IR ON IRM.Id=IR.IssueRequestMasterId    
-						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 0 and 3  
-						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
-						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId		
-						)Res3 ON Res3.CompanyGroupId=cmpGR.Id --ANd Res3.PlantId=P.Id
-						left JOIN(
-						SELECT 'Pending  Issue Request  For Approval' Category		
-						,IRM.CompanyGroupId--,IRM.PlantId
-						,0 ThreeDaysCount			
-						,Count(IRM.Id) AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 FifteenDaysCount		
-						,0 TweentyDaysCount
-						,0 TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(isnull(IR.RequestedQty,0)) Qty
-						,sum(isnull(0,0)) Rate
-						,sum(isnull(0,0)) Total5Value
-						FROM trn.IssueRequestMaster IRM
-					LEFT JOIN(select IssueRequestMasterId,sum(isnull(RequestedQty,0)) RequestedQty from  trn.IssueRequest
-						Group by IssueRequestMasterId
-						) IR ON IRM.Id=IR.IssueRequestMasterId    
-						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 4 and 5
-						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
-						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId		
-						)Res5 ON Res5.CompanyGroupId=cmpGR.Id --ANd Res5.PlantId=P.Id
-						left JOIN(
-						SELECT 'Pending  Issue Request  For Approval' Category		
-						,IRM.CompanyGroupId--,IRM.PlantId
-						,0 ThreeDaysCount			
-						,0 AS FiveDaysCount
-						,Count(IRM.Id) AS TenDaysCount
-						,0 FifteenDaysCount		
-						,0 TweentyDaysCount
-						,0 TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(isnull(IR.RequestedQty,0)) Qty
-						,sum(isnull(0,0)) Rate
-						,sum(isnull(0,0)) Total10Value
-						FROM trn.IssueRequestMaster IRM
-					LEFT JOIN(select IssueRequestMasterId,sum(isnull(RequestedQty,0)) RequestedQty from  trn.IssueRequest
-						Group by IssueRequestMasterId
-						) IR ON IRM.Id=IR.IssueRequestMasterId    
-						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 6 and 10
-						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
-						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
-						)Res10 ON Res10.CompanyGroupId=cmpGR.Id --ANd Res10.PlantId=P.Id
-						left JOIN(
-						SELECT 'Pending Inventory Issue  For Approval' Category		
-						,IRM.CompanyGroupId--,IRM.PlantId
-						,0 ThreeDaysCount			
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,Count(IRM.Id) FifteenDaysCount		
-						,0 TweentyDaysCount
-						,0 TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(isnull(IR.RequestedQty,0)) Qty
-						,sum(isnull(0,0)) Rate
-						,sum(isnull(0,0)) Total15Value
-						FROM trn.IssueRequestMaster IRM
-						LEFT JOIN(select IssueRequestMasterId,sum(isnull(RequestedQty,0)) RequestedQty from  trn.IssueRequest
-						Group by IssueRequestMasterId
-						) IR ON IRM.Id=IR.IssueRequestMasterId    
-						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 11 and 15
-						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
-						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
-						)Res15 ON Res15.CompanyGroupId=cmpGR.Id --ANd Res15.PlantId=P.Id
-						left JOIN(
-						SELECT 'Pending  Issue Request  For Approval' Category		
-						,IRM.CompanyGroupId--,IRM.PlantId
-						,0 ThreeDaysCount			
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 FifteenDaysCount		
-						,Count(IRM.Id) TweentyDaysCount
-						,0 TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(isnull(IR.RequestedQty,0)) Qty
-						,sum(isnull(0,0)) Rate
-						,sum(isnull(0,0)) Total20Value
-						FROM trn.IssueRequestMaster IRM
-					LEFT JOIN(select IssueRequestMasterId,sum(isnull(RequestedQty,0)) RequestedQty from  trn.IssueRequest
-						Group by IssueRequestMasterId
-						) IR ON IRM.Id=IR.IssueRequestMasterId    
-						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 16 and 20
-						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
-						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
-						)Res20 ON Res20.CompanyGroupId=cmpGR.Id --ANd Res20.PlantId=P.Id
-						left JOIN(
-						SELECT 'Pending  Issue Request  For Approval' Category		
-						,IRM.CompanyGroupId--,IRM.PlantId
-						,0 ThreeDaysCount			
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 FifteenDaysCount		
-						,0 TweentyDaysCount
-						,Count(IRM.Id) TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(isnull(IR.RequestedQty,0)) Qty
-						,sum(isnull(0,0)) Rate
-						,sum(isnull(0,0)) Total25Value
-						FROM trn.IssueRequestMaster IRM
-					LEFT JOIN(select IssueRequestMasterId,sum(isnull(RequestedQty,0)) RequestedQty from  trn.IssueRequest
-						Group by IssueRequestMasterId
-						) IR ON IRM.Id=IR.IssueRequestMasterId    
-						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 21 and 25
-						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
-						GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
-						)Res25 ON Res25.CompanyGroupId=cmpGR.Id -- ANd Res25.PlantId=P.Id
-						left JOIN(
-						SELECT 'Pending  Issue Request  For Approval' Category		
-						,IRM.CompanyGroupId--,IRM.PlantId
-						,0 ThreeDaysCount			
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 FifteenDaysCount		
-						,0 TweentyDaysCount
-						,0 TwentyFiveyDaysCount
-						,Count(IRM.Id) AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(isnull(IR.RequestedQty,0)) Qty
-						,sum(isnull(0,0)) Rate
-						,sum(isnull(0,0)) Total30Value
-						FROM trn.IssueRequestMaster IRM
-					LEFT JOIN(select IssueRequestMasterId,sum(isnull(RequestedQty,0)) RequestedQty from  trn.IssueRequest
-						Group by IssueRequestMasterId
-						) IR ON IRM.Id=IR.IssueRequestMasterId    
-						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 26 and 30
-						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
-						GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
-						)Res30 ON Res30.CompanyGroupId=cmpGR.Id --ANd Res30.PlantId=P.Id
-						left JOIN(
-						SELECT 'Pending  Issue Request  For Approval' Category		
-						,IRM.CompanyGroupId--,IRM.PlantId
-						,0 ThreeDaysCount			
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 FifteenDaysCount		
-						,0 TweentyDaysCount
-						,0 TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,Count(IRM.Id) AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(isnull(IR.RequestedQty,0)) Qty
-						,sum(isnull(0,0)) Rate
-						,sum(isnull(0,0)) Total31Value
-						FROM trn.IssueRequestMaster IRM
-					LEFT JOIN(select IssueRequestMasterId,sum(isnull(RequestedQty,0)) RequestedQty from  trn.IssueRequest
-						Group by IssueRequestMasterId
-						) IR ON IRM.Id=IR.IssueRequestMasterId    
-						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 31 and 900000
-						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
-						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
-						)Res31 ON Res31.CompanyGroupId=cmpGR.Id --ANd Res31.PlantId=P.Id
-						left JOIN(
-						SELECT 'Pending  Issue Request  For Approval' Category		
-						,IRM.CompanyGroupId--,IRM.PlantId
-						,0 ThreeDaysCount			
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 FifteenDaysCount		
-						,0 TweentyDaysCount
-						,0 TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,Count(IRM.Id) AS AllCount
-						,sum(isnull(IR.RequestedQty,0)) Qty
-						,sum(isnull(0,0)) Rate
-						,sum(isnull(0,0)) Total32Value
-						FROM trn.IssueRequestMaster IRM
-					LEFT JOIN(select IssueRequestMasterId,sum(isnull(RequestedQty,0)) RequestedQty from  trn.IssueRequest
-						Group by IssueRequestMasterId
-						) IR ON IRM.Id=IR.IssueRequestMasterId    
-						Where DATEDIFF(day,IRM.AddedDate,getdate())  Between 0 and 900000
-						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
-						GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
-						)Res32 ON Res32.CompanyGroupId=cmpGR.Id --ANd res32.PlantId=P.Id
-						where CMPGR.Active = 1 --AND cmp.Id='C20171'	
-
+						,isnull(Agg.ThreeDaysCount,0) ThreeDaysCount,isnull(Agg.Total3Value,0) Total3Value
+						,isnull(Agg.FiveDaysCount,0) FiveDaysCount,isnull(Agg.Total5Value,0) Total5Value
+						,isnull(Agg.TenDaysCount,0) TenDaysCount,isnull(Agg.Total10Value,0) Total10Value
+						,isnull(Agg.FifteenDaysCount,0) FifteenDaysCount,isnull(Agg.Total15Value,0) Total15Value
+						,isnull(Agg.TweentyDaysCount,0) TweentyDaysCount,isnull(Agg.Total20Value,0) Total20Value
+						,isnull(Agg.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Agg.Total25Value,0) Total25Value
+						,isnull(Agg.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Agg.Total30Value,0) Total30Value
+						,isnull(Agg.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Agg.Total31Value,0) Total31Value
+						,isnull(Agg.AllCount,0) AllCount,isnull(Agg.Total32Value,0) Total32Value
+						FROM ORG.CompanyGroup CMPGR
+						LEFT JOIN (
+							SELECT IRM.CompanyGroupId AS CompanyGroupId
+							,COUNT(CASE WHEN DATEDIFF(day,IRM.AddedDate,GETDATE()) BETWEEN 0 AND 3 THEN IRM.Id END) AS ThreeDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,IRM.AddedDate,GETDATE()) BETWEEN 0 AND 3 THEN 0 END) AS Total3Value
+							,COUNT(CASE WHEN DATEDIFF(day,IRM.AddedDate,GETDATE()) BETWEEN 4 AND 5 THEN IRM.Id END) AS FiveDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,IRM.AddedDate,GETDATE()) BETWEEN 4 AND 5 THEN 0 END) AS Total5Value
+							,COUNT(CASE WHEN DATEDIFF(day,IRM.AddedDate,GETDATE()) BETWEEN 6 AND 10 THEN IRM.Id END) AS TenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,IRM.AddedDate,GETDATE()) BETWEEN 6 AND 10 THEN 0 END) AS Total10Value
+							,COUNT(CASE WHEN DATEDIFF(day,IRM.AddedDate,GETDATE()) BETWEEN 11 AND 15 THEN IRM.Id END) AS FifteenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,IRM.AddedDate,GETDATE()) BETWEEN 11 AND 15 THEN 0 END) AS Total15Value
+							,COUNT(CASE WHEN DATEDIFF(day,IRM.AddedDate,GETDATE()) BETWEEN 16 AND 20 THEN IRM.Id END) AS TweentyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,IRM.AddedDate,GETDATE()) BETWEEN 16 AND 20 THEN 0 END) AS Total20Value
+							,COUNT(CASE WHEN DATEDIFF(day,IRM.AddedDate,GETDATE()) BETWEEN 21 AND 25 THEN IRM.Id END) AS TwentyFiveyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,IRM.AddedDate,GETDATE()) BETWEEN 21 AND 25 THEN 0 END) AS Total25Value
+							,COUNT(CASE WHEN DATEDIFF(day,IRM.AddedDate,GETDATE()) BETWEEN 26 AND 30 THEN IRM.Id END) AS ThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,IRM.AddedDate,GETDATE()) BETWEEN 26 AND 30 THEN 0 END) AS Total30Value
+							,COUNT(CASE WHEN DATEDIFF(day,IRM.AddedDate,GETDATE()) >= 31 THEN IRM.Id END) AS GraterThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,IRM.AddedDate,GETDATE()) >= 31 THEN 0 END) AS Total31Value
+							,COUNT(CASE WHEN 1=1 THEN IRM.Id END) AS AllCount
+							,SUM(CASE WHEN 1=1 THEN 0 END) AS Total32Value
+							FROM trn.IssueRequestMaster IRM
+							LEFT JOIN (
+								SELECT IssueRequestMasterId, SUM(ISNULL(RequestedQty,0)) RequestedQty
+								FROM trn.IssueRequest GROUP BY IssueRequestMasterId
+							) IR ON IRM.Id=IR.IssueRequestMasterId
+							WHERE IRM.Id NOT IN (SELECT IssueRequestMasterId FROM trn.InventoryIssue WHERE IssueRequestMasterId IS NOT NULL)
+							AND (IRM.CheckedByStatus !='Reject' AND IRM.CheckedByStatus !='ForChecked')
+							AND (IRM.AuthorizedByStatus!='Approved' AND IRM.AuthorizedByStatus!='Reject')
+							GROUP BY IRM.CompanyGroupId
+						) Agg ON Agg.CompanyGroupId = CMPGR.Id
+						WHERE CMPGR.Active = 1
 						UNION ALL
-						----------------------------------------Pending Inventory Issue Posting--------------------------
 						SELECT
-						--CMPGR.Id AS CompanyGroupId
-						--, CMPGR.UserName AS GroupName
-						--, cmp.Id AS CompanyId
-						--, CMP.UserName AS ColumnName	
-						--,P.Id PlantId
-						--,P.UserName PlantName
 						'Pending Inventory Issue Posting' Category, 13 SI
-						,isnull(Res3.ThreeDaysCount,0) ThreeDaysCount,isnull(Res3.Total3Value,0) Total3Value
-						,isnull(Res5.FiveDaysCount,0) FiveDaysCount,isnull(Res5.Total5Value,0) Total5Value
-						,isnull(Res10.TenDaysCount,0) TenDaysCount,isnull(Res10.Total10Value,0) Total10Value
-						,isnull(Res15.FifteenDaysCount,0) FifteenDaysCount,isnull(Res15.Total15Value,0) Total15Value
-						,isnull(Res20.TweentyDaysCount,0) TweentyDaysCount,isnull(Res20.Total20Value,0) Total20Value
-						,isnull(Res25.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Res25.Total25Value,0) Total25Value
-						,isnull(Res30.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Res30.Total30Value,0) Total30Value
-						,isnull(Res31.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Res31.Total31Value,0) Total31Value	
-						,isnull(Res32.AllCount,0) AllCount,isnull(Res32.Total32Value,0) Total32Value		
-									
-						from ORG.CompanyGroup CMPGR
-						--left join  org.company CMP ON CMP.CompanyGroupId = CMPGR.Id 
-						--left join ORG.plant p ON p.CompanyId=cmp.id
-						LEFT JOIN
-						( 
-						SELECT 'Pending Inventory Issue Posting' Category			
-						, II.CompanyGroupId	
-						--,II.PlantId
-						,Count(II.Id) ThreeDaysCount   
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 FifteenDaysCount
-						,0 as TweentyDaysCount
-						,0 TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(isnull(IID.Qty,0)) Qty
-						,sum(isnull(IID.Rate,0)) Rate
-						,SUM(ISNULL(IID.Total3Value,0)) Total3Value
-						FROM trn.InventoryIssue II
-						 JOIN (Select InventoryIssueId,
-						sum(isnull(TransactionQty,0)) Qty
-						,sum(isnull(PolicyRate,0)) Rate
-						,sum(isnull(PolicyAmount,0)) Total3Value 
-						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id
-						Where DATEDIFF(day,II.IssueDate,getdate()) Between 0 and 3
-						AND II.VoucherId IS null AND II.IsPostingRequired=1 AND ii.IssueType='Revenue'
-						GROUP BY II.CompanyGroupId-- ,II.PlantId	  
-		
-
-						)Res3 ON Res3.CompanyGroupId=cmpGR.Id --AND Res3.PlantId=p.Id
-						Left JOIN(
-						SELECT 'Pending Inventory Issue Posting' Category			
-						, II.CompanyGroupId--	,II.PlantId		
-						,0 ThreeDaysCount   
-						,Count(II.Id) AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 FifteenDaysCount
-						,0 as TweentyDaysCount
-						,0 TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(isnull(IID.Qty,0)) Qty
-						,sum(isnull(IID.Rate,0)) Rate
-						,SUM(ISNULL(IID.Total5Value,0)) Total5Value
-						FROM trn.InventoryIssue II
-						 JOIN (Select InventoryIssueId,
-						sum(isnull(TransactionQty,0)) Qty
-						,sum(isnull(PolicyRate,0)) Rate
-						,sum(isnull(PolicyAmount,0)) Total5Value 
-						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id
-						Where DATEDIFF(day,II.IssueDate,getdate()) Between 4 and 5   
-						AND II.VoucherId IS null AND II.IsPostingRequired=1 AND ii.IssueType='Revenue'
-						GROUP BY II.CompanyGroupId-- ,II.PlantId	  
-						)Res5 ON Res5.CompanyGroupId=cmpGR.Id --AND Res5.PlantId=p.Id
-						Left JOIN(
-						SELECT 'Pending Inventory Issue Posting' Category			
-						, II.CompanyGroupId--	,II.PlantId
-			
-						,0 ThreeDaysCount   
-						,0 AS FiveDaysCount
-						,Count(II.Id) AS TenDaysCount
-						,0 FifteenDaysCount
-						,0 as TweentyDaysCount
-						,0 TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(isnull(IID.Qty,0)) Qty
-						,sum(isnull(IID.Rate,0)) Rate
-						,SUM(ISNULL(IID.Total10Value,0)) Total10Value
-						FROM trn.InventoryIssue II
-						 JOIN (Select InventoryIssueId,
-						sum(isnull(TransactionQty,0)) Qty
-						,sum(isnull(PolicyRate,0)) Rate
-						,sum(isnull(PolicyAmount,0)) Total10Value 
-						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
-						Where DATEDIFF(day,II.IssueDate,getdate()) Between 6 and 10 
-						AND II.VoucherId IS null AND II.IsPostingRequired=1 AND ii.IssueType='Revenue'
-						GROUP BY II.CompanyGroupId-- ,II.PlantId	   
-						)Res10 ON Res10.CompanyGroupId=cmpGR.Id  --AND Res10.PlantId=p.Id
-						Left JOIN(
-						SELECT 'Pending Inventory Issue Posting' Category			
-						, II.CompanyGroupId--,II.PlantId			
-						,0 ThreeDaysCount   
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,Count(II.Id) FifteenDaysCount
-						,0 as TweentyDaysCount
-						,0 TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(isnull(IID.Qty,0)) Qty
-						,sum(isnull(IID.Rate,0)) Rate
-						,SUM(ISNULL(IID.Total15Value,0)) Total15Value
-						FROM trn.InventoryIssue II
-						 JOIN (Select InventoryIssueId,
-						sum(isnull(TransactionQty,0)) Qty
-						,sum(isnull(PolicyRate,0)) Rate
-						,sum(isnull(PolicyAmount,0)) Total15Value 
-						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
-						Where  DATEDIFF(day,II.IssueDate,getdate()) Between 11 and 15   
-						AND II.VoucherId IS null AND II.IsPostingRequired=1 AND ii.IssueType='Revenue'
-						GROUP BY II.CompanyGroupId-- ,II.PlantId	   
-
-						)Res15 ON Res15.CompanyGroupId=cmpGR.Id --AND Res15.PlantId=p.Id
-						Left JOIN(
-						SELECT 'Pending Inventory Issue Posting' Category			
-						, II.CompanyGroupId--,II.PlantId		
-						,0 ThreeDaysCount   
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 FifteenDaysCount
-						,Count(II.Id) as TweentyDaysCount
-						,0 TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(isnull(IID.Qty,0)) Qty
-						,sum(isnull(IID.Rate,0)) Rate
-						,SUM(ISNULL(IID.Total20Value,0)) Total20Value
-						FROM trn.InventoryIssue II
-						 JOIN (Select InventoryIssueId,
-						sum(isnull(TransactionQty,0)) Qty
-						,sum(isnull(PolicyRate,0)) Rate
-						,sum(isnull(PolicyAmount,0)) Total20Value 
-						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
-						Where  DATEDIFF(day,II.IssueDate,getdate()) Between 16 and 20 
-						AND II.VoucherId IS null AND II.IsPostingRequired=1 AND ii.IssueType='Revenue'
-						GROUP BY II.CompanyGroupId-- ,II.PlantId	      
-
-						)Res20 ON Res20.CompanyGroupId=cmpGR.Id --AND Res20.PlantId=p.Id
-						Left JOIN(
-						SELECT 'Pending Inventory Issue Posting' Category			
-						, II.CompanyGroupId--	,II.PlantId		
-						,0 ThreeDaysCount   
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 FifteenDaysCount
-						,0 as TweentyDaysCount
-						,Count(II.Id) TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(isnull(IID.Qty,0)) Qty
-						,sum(isnull(IID.Rate,0)) Rate
-						,SUM(ISNULL(IID.Total25Value,0)) Total25Value
-						FROM trn.InventoryIssue II
-						 JOIN (Select InventoryIssueId,
-						sum(isnull(TransactionQty,0)) Qty
-						,sum(isnull(PolicyRate,0)) Rate
-						,sum(isnull(PolicyAmount,0)) Total25Value 
-						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
-						Where DATEDIFF(day,II.IssueDate,getdate()) Between 21 and 25
-						AND II.VoucherId IS null AND II.IsPostingRequired=1 AND ii.IssueType='Revenue'
-						GROUP BY II.CompanyGroupId-- ,II.PlantId	  
-						)Res25 ON Res25.CompanyGroupId=cmpGR.Id --AND Res25.PlantId=p.Id
-						Left JOIN(
-						SELECT 'Pending Inventory Issue Posting' Category			
-						, II.CompanyGroupId--,II.PlantId			
-						,0 ThreeDaysCount   
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 FifteenDaysCount
-						,0 as TweentyDaysCount
-						,0 TwentyFiveyDaysCount
-						,Count(II.Id)  AS ThirtyDaysCount
-						,0 AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(isnull(IID.Qty,0)) Qty
-						,sum(isnull(IID.Rate,0)) Rate
-						,SUM(ISNULL(IID.Total30Value,0)) Total30Value
-						FROM trn.InventoryIssue II
-						 JOIN (Select InventoryIssueId,
-						sum(isnull(TransactionQty,0)) Qty
-						,sum(isnull(PolicyRate,0)) Rate
-						,sum(isnull(PolicyAmount,0)) Total30Value 
-						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id		
-						Where DATEDIFF(day,II.IssueDate,getdate()) Between 26 and 30
-						AND II.VoucherId IS null AND II.IsPostingRequired=1 AND ii.IssueType='Revenue'
-						GROUP BY II.CompanyGroupId-- ,II.PlantId	  
-						)Res30 ON Res30.CompanyGroupId=cmpGR.Id --AND Res30.PlantId=p.Id
-						Left JOIN(
-						SELECT 'Pending Inventory Issue Posting' Category			
-						, II.CompanyGroupId--,II.PlantId			
-						,0 ThreeDaysCount   
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 FifteenDaysCount
-						,0 as TweentyDaysCount
-						,0 TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,Count(II.Id)  AS GraterThirtyDaysCount
-						,0 AS AllCount
-						,sum(isnull(IID.Qty,0)) Qty
-						,sum(isnull(IID.Rate,0)) Rate
-						,SUM(ISNULL(IID.Total31Value,0)) Total31Value
-						FROM trn.InventoryIssue II
-						 JOIN (Select InventoryIssueId,
-						sum(isnull(TransactionQty,0)) Qty
-						,sum(isnull(PolicyRate,0)) Rate
-						,sum(isnull(PolicyAmount,0)) Total31Value 
-						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id		
-						Where DATEDIFF(day,II.IssueDate,getdate()) Between 31 and 900000
-
-						AND II.VoucherId IS null AND II.IsPostingRequired=1 AND ii.IssueType='Revenue'
-						GROUP BY II.CompanyGroupId-- ,II.PlantId	     
-						)Res31 ON Res31.CompanyGroupId=cmpGR.Id --AND Res31.PlantId=p.Id
-
-						Left JOIN(
-						SELECT 'Pending Inventory Issue Posting' Category			
-						, II.CompanyGroupId--	,II.PlantId		
-						,0 ThreeDaysCount   
-						,0 AS FiveDaysCount
-						,0 AS TenDaysCount
-						,0 FifteenDaysCount
-						,0 as TweentyDaysCount
-						,0 TwentyFiveyDaysCount
-						,0 AS ThirtyDaysCount
-						,0  AS GraterThirtyDaysCount
-						,Count(II.Id) AS AllCount
-						,sum(isnull(IID.Qty,0)) Qty
-						,sum(isnull(IID.Rate,0)) Rate
-						,SUM(ISNULL(IID.Total32Value,0)) Total32Value
-						FROM trn.InventoryIssue II
-						 JOIN (Select InventoryIssueId,
-						sum(isnull(TransactionQty,0)) Qty
-						,sum(isnull(PolicyRate,0)) Rate
-						,sum(isnull(PolicyAmount,0)) Total32Value 
-						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id		
-						Where DATEDIFF(day,II.IssueDate,getdate()) Between 0 and 9000000
-
-						AND II.VoucherId IS null AND II.IsPostingRequired=1 AND ii.IssueType='Revenue'
-						GROUP BY II.CompanyGroupId-- ,II.PlantId	  
-						)Res32 ON Res32.CompanyGroupId=cmpGR.Id  --AND Res32.PlantId=p.Id
-						where CMPGR.Active = 1 --AND cmp.Id='C20171'
-						)as t  
-						--where isnull(CompanyId,'') in('','C20171') AND isnull(PlantId,'') in('','20171') 
-						order by SI ASC";
+						,isnull(Agg.ThreeDaysCount,0) ThreeDaysCount,isnull(Agg.Total3Value,0) Total3Value
+						,isnull(Agg.FiveDaysCount,0) FiveDaysCount,isnull(Agg.Total5Value,0) Total5Value
+						,isnull(Agg.TenDaysCount,0) TenDaysCount,isnull(Agg.Total10Value,0) Total10Value
+						,isnull(Agg.FifteenDaysCount,0) FifteenDaysCount,isnull(Agg.Total15Value,0) Total15Value
+						,isnull(Agg.TweentyDaysCount,0) TweentyDaysCount,isnull(Agg.Total20Value,0) Total20Value
+						,isnull(Agg.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Agg.Total25Value,0) Total25Value
+						,isnull(Agg.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Agg.Total30Value,0) Total30Value
+						,isnull(Agg.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Agg.Total31Value,0) Total31Value
+						,isnull(Agg.AllCount,0) AllCount,isnull(Agg.Total32Value,0) Total32Value
+						FROM ORG.CompanyGroup CMPGR
+						LEFT JOIN (
+							SELECT II.CompanyGroupId AS CompanyGroupId
+							,COUNT(CASE WHEN DATEDIFF(day,II.IssueDate,GETDATE()) BETWEEN 0 AND 3 THEN II.Id END) AS ThreeDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,II.IssueDate,GETDATE()) BETWEEN 0 AND 3 THEN IID.PolicyAmount END) AS Total3Value
+							,COUNT(CASE WHEN DATEDIFF(day,II.IssueDate,GETDATE()) BETWEEN 4 AND 5 THEN II.Id END) AS FiveDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,II.IssueDate,GETDATE()) BETWEEN 4 AND 5 THEN IID.PolicyAmount END) AS Total5Value
+							,COUNT(CASE WHEN DATEDIFF(day,II.IssueDate,GETDATE()) BETWEEN 6 AND 10 THEN II.Id END) AS TenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,II.IssueDate,GETDATE()) BETWEEN 6 AND 10 THEN IID.PolicyAmount END) AS Total10Value
+							,COUNT(CASE WHEN DATEDIFF(day,II.IssueDate,GETDATE()) BETWEEN 11 AND 15 THEN II.Id END) AS FifteenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,II.IssueDate,GETDATE()) BETWEEN 11 AND 15 THEN IID.PolicyAmount END) AS Total15Value
+							,COUNT(CASE WHEN DATEDIFF(day,II.IssueDate,GETDATE()) BETWEEN 16 AND 20 THEN II.Id END) AS TweentyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,II.IssueDate,GETDATE()) BETWEEN 16 AND 20 THEN IID.PolicyAmount END) AS Total20Value
+							,COUNT(CASE WHEN DATEDIFF(day,II.IssueDate,GETDATE()) BETWEEN 21 AND 25 THEN II.Id END) AS TwentyFiveyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,II.IssueDate,GETDATE()) BETWEEN 21 AND 25 THEN IID.PolicyAmount END) AS Total25Value
+							,COUNT(CASE WHEN DATEDIFF(day,II.IssueDate,GETDATE()) BETWEEN 26 AND 30 THEN II.Id END) AS ThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,II.IssueDate,GETDATE()) BETWEEN 26 AND 30 THEN IID.PolicyAmount END) AS Total30Value
+							,COUNT(CASE WHEN DATEDIFF(day,II.IssueDate,GETDATE()) >= 31 THEN II.Id END) AS GraterThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,II.IssueDate,GETDATE()) >= 31 THEN IID.PolicyAmount END) AS Total31Value
+							,COUNT(CASE WHEN 1=1 THEN II.Id END) AS AllCount
+							,SUM(CASE WHEN 1=1 THEN IID.PolicyAmount END) AS Total32Value
+							FROM trn.InventoryIssue II
+							JOIN (
+								SELECT InventoryIssueId, SUM(ISNULL(TransactionQty,0)) TransactionQty,
+									SUM(ISNULL(PolicyRate,0)) PolicyRate, SUM(ISNULL(PolicyAmount,0)) PolicyAmount
+								FROM trn.InventoryIssueDetail GROUP BY InventoryIssueId
+							) IID ON IID.InventoryIssueId=II.Id
+							WHERE II.VoucherId IS NULL AND II.IsPostingRequired=1 AND II.IssueType='Revenue'
+							GROUP BY II.CompanyGroupId
+						) Agg ON Agg.CompanyGroupId = CMPGR.Id
+						WHERE CMPGR.Active = 1
+					)as t
+					order by SI ASC";
                 }
                 else
                 {
@@ -21446,9 +18612,52 @@ UNION ALL
 
                     }
 
-                    #endregion
-                    #region Pending GRN Posting
-                    if (Category == "Pending GRN Posting" && days == RequestDay)
+					#endregion
+					#region Pending GRN For Checking
+					if (Category == "Pending GRN For Checking" && days == RequestDay)
+					{
+						sql = @"SELECT 'Pending GRN For Checking' Category
+							,G.CompanyId,G.Id GateEntryNo,G.PlantId,G.EntryDate,isnull(P1.UserName,'') UserName,G.PackageQty,G.ModeofTransport,G.Bill,G.PersonName,G.MobileNo,G.GateEntryType	
+							,CG.UserName CompanyGroup
+							,C.UserName Company
+							,P2.UserName PlantName
+							,DaysCount=CASE WHEN DATEDIFF(day,G.EntryDate,getdate()) >0  THEN DATEDIFF(day,G.EntryDate,getdate()) ELSE 0 END
+							,isnull(ei2.EmployeeName,'') EmployeeName
+							,sum(IRD.TransactionQty) Qty
+							,sum(IRD.MaterialTranRate) Rate
+							,FORMAT(sum(IRD.TotalMaterialBooksCurrencyAmount),'#,#') Amount,IR.Id GRNNo
+						FROM trn.InventoryReceive IR 
+						LEFT JOIN TRN.[GateEntry] G ON IR.GateEntryNo=G.Id
+						LEFT Join hkp.Party p ON P.Id= G.PartyId
+						LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
+						LEFT Join ORG.Company C ON C.Id= G.CompanyId
+						LEFT Join ORG.Plant P2 ON P2.Id= G.PlantId
+							
+						LEFT JOIN (select InventoryReceiveId,sum(TransactionQty) TransactionQty
+										,sum(MaterialTranRate) MaterialTranRate
+										,sum(TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount 
+										from  trn.InventoryReceiveDetail
+									Group By InventoryReceiveId
+									)IRD ON IRD.InventoryReceiveId=IR.Id
+						LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
+						LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
+						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
+						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
+						LEFT JOIN hkp.Party p1 ON p1.Code=G.PartyId
+						LEFT JOIn employeeinformation ei2 on ei2.systemid=G.EmployeeIdForGateEntry
+						--Where IR.CheckedByStatus='ForChecked' 	
+						Where  Isnull(IR.AuthorizedByStatus,'') != 'Approved' AND (Isnull(IR.CheckedByStatus,'') != 'Reject' OR  IR.AuthorizedByStatus='Reject')
+						AND DATEDIFF(day,G.EntryDate,getdate())  Between '" + fromDate + @"' and '" + toDate + @"'
+						GROUP BY G.CompanyId, G.Id,G.PlantId,G.EntryDate,G.PartyId,G.PackageQty
+						,G.ModeofTransport,G.Bill,G.PersonName,G.MobileNo,G.GateEntryType,P1.UserName
+						,CG.UserName,C.UserName,P2.UserName,ei2.EmployeeName,IR.Id
+							";
+
+					}
+
+					#endregion
+					#region Pending GRN Posting
+					if (Category == "Pending GRN Posting" && days == RequestDay)
                     {
                         sql = @"SELECT 'Pending GRN Posting' Category
 							,IR.CompanyId
@@ -21721,9 +18930,64 @@ UNION ALL
 
                     }
 
-                    #endregion
-                    #region Pending PO For Purchase
-                    if (Category == "PO Pending For Purchase" && days == RequestDay)
+					#endregion
+					#region Pending PO for Approval
+					if (Category == "PO Pending For Approval" && days == RequestDay)
+					{
+						sql = @"select 'PO Pending For Approval' Category	
+								,PO.CompanyId		
+								,CG.UserName CompanyGroup
+								,C.UserName Company
+								,P1.UserName PlantName
+								,DaysCount=CASE WHEN DATEDIFF(day,PO.PODate,getdate()) >0 AND DATEDIFF(day,PO.PODate,getdate())<=3 THEN DATEDIFF(day,PO.PODate,getdate())
+								 ELSE 0	END
+								,PO.Id AS PONo, REPLACE(CONVERT(CHAR(11), po.PODate, 106),' ','-') AS PODate
+								,PO.DocRefNo
+								,PO.DocDate
+								,p.UserName PartyName
+								,PO.AddedBy PreparedBy
+								,EI.EmployeeName CheckedBy
+								,PO.CheckedByStatus
+								,EI1.EmployeeName AuthorizedBy
+								--,AuthorizedByStatus=CASE WHEN PO.AuthorizedByStatus='Approval' 
+										--THEN 'Approved' 
+										--WHEN PO.CheckedByStatus='Pending'OR  PO.CheckedByStatus='Hold'OR PO.CheckedByStatus='' THEN ''   
+										--ELSE 'For Approving' END
+                                 ,AuthorizedByStatus=CASE WHEN PO.AuthorizedByStatus='Approval'  THEN 'Approved' 
+								  WHEN PO.CheckedByStatus='Checked'  ANd  PO.AuthorizedByStatus is null THEN 'To be approved'  
+								  WHEN PO.CheckedByStatus='Checked'  ANd  isnull(PO.AuthorizedByStatus,'')='' THEN 'To be approved'  
+								  WHEN PO.CheckedByStatus='Checked'  ANd  PO.AuthorizedByStatus='Hold' THEN 'Hold' 
+								  WHEN PO.CheckedByStatus='Hold'  THEN 'To be Checked' 
+								  WHEN PO.CheckedByStatus='Pending'  THEN 'To be Checked' else '' END
+								,FORMAT(CONVERT(NUMERIC(10,2),sum(POD.BaseAmount)),'#,#') Amount
+								,CONVERT(NUMERIC(10,2),sum(POD.TransactionQty)) Qty
+								,CONVERT(NUMERIC(10,2),(sum(POD.BaseAmount)/sum(POD.TransactionQty))) AvarageRate
+								,RequisitionNo=	STUFF((select distinct ','+XVD.Id from trn.MaterialRequsitionMaster XVD 
+														 join TRN.PurchaseOrderDetail xPOD on  xPOD.RequisitionId=XVD.Id and xPOD.InventoryReceiveId=PO.Id
+														  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								FROM trn.PurchaseOrder PO
+								LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.InventoryReceiveId=PO.id 
+                                LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 	
+								LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=PO.CheckedBy
+								LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=PO.AuthorizedBy
+								LEFT JOIN hkp.Party p ON p.id=PO.PartyId
+								LEFT JOIN ORG.CompanyGroup CG ON CG.Id=PO.CompanyGroupId
+								LEFT JOIN ORG.Company C ON C.Id=PO.CompanyId
+								LEFT JOIN ORG.Plant P1 ON p1.Id=PO.PlantId
+								WHERE DATEDIFF(day,PO.PODate,getdate()) Between '" + fromDate + @"' And '" + toDate + @"'	
+								--AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
+								AND (PO.CheckedByStatus='ForChecked')
+								AND PO.IsClosed=0 AND POD.QtyStatus=0
+							    AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
+								AND PO.CompanyId='" + companyId + @"' AND PO.PlantId='" + PlantId + @"'  
+								GROUp BY PO.CompanyId,PO.Id	,PO.AddedBy,EI.EmployeeName,EI1.EmployeeName,p.UserName,DATEDIFF(day,PO.PODate,getdate())
+								,PO.DocRefNo,PO.DocDate,PO.CheckedByStatus,PO.AuthorizedByStatus,CG.UserName,C.UserName,P1.UserName,po.PODate";
+
+					}
+
+					#endregion
+					#region Pending PO For Purchase
+					if (Category == "PO Pending For Purchase" && days == RequestDay)
                     {
                         sql = @"select 'PO Pending For Purchase' Category	
 								,PO.CompanyId		
@@ -22041,10 +19305,51 @@ UNION ALL
 
                     }
 
-                    #endregion
+					#endregion
+					#region Pending GRN Posting
+					if (Category == "Pending GRN For Checking" && days == RequestDay)
+					{
+						sql = @"SELECT 'Pending GRN For Checking' Category
+							,IR.CompanyId
+							,CG.UserName CompanyGroup
+							,C.UserName Company
+							,P2.UserName PlantName
+							,DaysCount=CASE WHEN DATEDIFF(day,IR.GRNDate,getdate()) Between 0 and 3 THEN DATEDIFF(day,IR.GRNDate,getdate()) ELSE 0 END
+							,IR.Id GRNNo
+							,IR.DocDate
+							,IR.DocRefNo
+							,EI.EmployeeName  CheckedBy
+							,IR.CheckedByStatus
+							,EI1.EmployeeName AuthorizedBy
+							,IR.AuthorizedByStatus
+							,sum(IRD.TransactionQty) Qty
+							,sum(IRD.MaterialTranRate) Rate
+							,FORMAT(sum(IRD.TotalMaterialBooksCurrencyAmount),'#,#') Amount
+							,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate
+							,p3.UserName PartyName,IR.GateEntryNo
+							FROM trn.InventoryReceive IR 
+							LEFT JOIN ( select IRD.InventoryReceiveId,sum(IRD.TransactionQty) TransactionQty
+														,sum(IRD.MaterialTranRate) MaterialTranRate
+														,sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+														from trn.InventoryReceiveDetail IRD group by IRD.InventoryReceiveId) IRD ON IRD.InventoryReceiveId=IR.Id   
+							LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IR.CheckedBy
+							LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=IR.AuthorizedBy
+							LEFT JOIN ORG.CompanyGroup CG ON CG.Id=IR.CompanyGroupId
+							LEFT JOIN ORG.Company C ON C.Id=IR.CompanyId
+							LEFT JOIN ORG.Plant P2 ON p2.Id=IR.PlantId
+							LEFT JOIN HKP.Party P3 ON p3.Id=IR.PartyId
+							Where IR.CheckedByStatus='ForChecked'
+											ANd IR.CheckedBy is not null
+											AND IR.Status is null 
+											AND DATEDIFF(day,IR.GRNDate,getdate()) Between '" + fromDate + @"' ANd '" + toDate + @"'
+							AND IR.CompanyId='" + companyId + @"' AND IR.PlantId='" + PlantId + @"' 						
+							 GROUP BY IR.CompanyId,IR.Id,IR.DocDate,IR.DocRefNo,EI.EmployeeName,IR.CheckedByStatus,IR.GateEntryNo	,EI1.EmployeeName ,IR.AuthorizedByStatus,DATEDIFF(day,IR.GRNDate,getdate()),CG.UserName,C.UserName,P2.UserName,IR.GRNDate,p3.UserName";
 
-                    #region Pending GRN Posting
-                    if (Category == "Pending GRN Posting" && days == RequestDay)
+					}
+
+					#endregion
+					#region Pending GRN Posting
+					if (Category == "Pending GRN Posting" && days == RequestDay)
                     {
                         sql = @"SELECT 'Pending GRN Posting' Category
 							,IR.CompanyId

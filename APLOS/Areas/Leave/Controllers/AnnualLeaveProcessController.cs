@@ -442,6 +442,21 @@ namespace Aplos.Areas.Leave.Controllers
 
         }
 
+        [HttpPost, Authorize]
+        public ActionResult ProcessELData()
+        {
+            try
+            {
+                alp.SaveELData();
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.ToString() }, JsonRequestBehavior.AllowGet);
+
+            }
+            return Json(new { Error = false, Message = "EL Leave Process Ran Successfully..." }, JsonRequestBehavior.AllowGet);
+
+        }
 
         #endregion
 
