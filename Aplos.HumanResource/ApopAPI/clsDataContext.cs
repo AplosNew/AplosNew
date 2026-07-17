@@ -13095,7 +13095,7 @@ left join (Select pol.Id,pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotN
             try
             {
                 strSQL = @"select EmployeeStatus Value , EmployeeName Name from EmployeeInformation 
-where SystemId = '" + EmpSysId + "'";
+                            where SystemId = '" + EmpSysId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
