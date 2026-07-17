@@ -1086,32 +1086,38 @@ Where P.Id IS NOT NULL";
         }
 
 
-        public IEnumerable<object> GetSKUData(string soId, bool SKU1, bool SKU2, bool Both)
+        public IEnumerable<object> GetSKUData(string poId, bool SKU1, bool SKU2, bool Both)
         {
             try
             {
                 string sql = "";
                 if (SKU1)
                 {
-                    sql = @"Select ''Id,FC.SalesOrderId,FC.CharacteristicsValueId SKU1Id,CV.UserName Color,SUM(Qty)Qty From [TRN].[FirstCharacteristics] FC 
+                    sql = @"Select ''Id,D.ProductionOrderId,FC.CharacteristicsValueId SKU1Id,CV.UserName Color,SUM(Qty)Qty From [TRN].[FirstCharacteristics] FC 
 LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id=FC.CharacteristicsValueId
-Where FC.SalesOrderId='" + soId + @"'
-Group By  FC.SalesOrderId,FC.CharacteristicsValueId,CV.UserName";
+left join TRN.ProductionOrderType2Detail D ON D.SalesOrderId=FC.SalesOrderId
+Where D.ProductionOrderId='" + poId + @"'
+Group By  D.ProductionOrderId,FC.CharacteristicsValueId,CV.UserName";
 
                 }
                 if (SKU2)
                 {
-                    sql = @"Select ''Id,SC.SalesOrderId,SC.CharacteristicsValueId SKU2Id,SCV.UserName Size,SC.Qty From TRN.[SecondCharacteristics] SC
+                    sql = @"Select ''Id,D.ProductionOrderId,SC.CharacteristicsValueId SKU2Id,SCV.UserName Size,SUM(Qty)Qty From TRN.[SecondCharacteristics] SC
 LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id=SC.CharacteristicsValueId
-Where SC.SalesOrderId='" + soId + "'";
+left join TRN.ProductionOrderType2Detail D ON D.SalesOrderId=SC.SalesOrderId
+Where D.ProductionOrderId='" + poId + @"'
+Group By  D.ProductionOrderId,SC.CharacteristicsValueId,SCV.UserName";
                 }
                 if (SKU1 == true && SKU2 == true || Both == true)
                 {
-                    sql = @"Select ''Id,FC.SalesOrderId,FC.CharacteristicsValueId SKU1Id,SC.CharacteristicsValueId SKU2Id,FCV.UserName Color,SCV.UserName Size,SC.Qty From TRN.[SecondCharacteristics] SC
+                    sql = @"Select ''Id,D.ProductionOrderId,FC.CharacteristicsValueId SKU1Id,SC.CharacteristicsValueId SKU2Id,FCV.UserName Color,SCV.UserName Size,SUM(SC.Qty)Qty 
+From TRN.[SecondCharacteristics] SC
 LEFT JOIN [TRN].[FirstCharacteristics] FC ON FC.Id=SC.FirstCharacteristicsId
 LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id=FC.CharacteristicsValueId
 LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id=SC.CharacteristicsValueId
-Where SC.SalesOrderId='" + soId + "'";
+left join TRN.ProductionOrderType2Detail D ON D.SalesOrderId=SC.SalesOrderId
+Where D.ProductionOrderId='" + poId + @"'
+Group By  D.ProductionOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName ,SCV.UserName";
                 }
                 return _sqlRepository.GetDataCollection(sql);
             }

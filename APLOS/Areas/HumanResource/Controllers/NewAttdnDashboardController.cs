@@ -226,7 +226,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             COL++;
 
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Seub Section", 13, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Sub Section", 13, ExcelHAlign.HAlignCenter);
             int ColSubSection = COL;
             COL++;
 

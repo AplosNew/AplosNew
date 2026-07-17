@@ -10,6 +10,13 @@
                 <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50" autocomplete="off">
             </div>
         </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Refresh Time<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <input type="text" name="Refresh Time" ng-model="ModelNew.RefreshTime" class="form-control" only-numbers required tabindex="4" maxlength="50" autocomplete="off">
+            </div>
+            <label class="col-sm-2 control-label">(Min)</label>
+        </div>
         <div class="form-group">
             <label class="col-sm-4 control-label">Remarks</label>
             <div class="col-sm-8">
@@ -24,6 +31,13 @@
             <div class="col-sm-8 show-message">
                 <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50" autocomplete="off">
             </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Scrolling Time<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <input type="text" name="Scrolling Time" ng-model="ModelNew.ScrollingTime" class="form-control" only-numbers required tabindex="4" maxlength="50" autocomplete="off">
+            </div>
+            <label class="col-sm-2 control-label">(Min)</label>
         </div>
         <div class="form-group">
             <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>

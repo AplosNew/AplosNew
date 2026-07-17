@@ -28,7 +28,9 @@ function ImageInspectionTypeController(cboService, commonMessage, $scope, $rootS
         Id: null,
         StandardName: null,
         UserName: null,
-        Remarks: null
+        Remarks: null,
+        RefreshTime: 0,
+        ScrollingTime:0
     }
     $scope.EntityModelNew = {
         Id: null,
