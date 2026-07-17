@@ -2129,7 +2129,6 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             url: 'OrderManagements/ProductionOrder/GetProductionOredrList'
         }).then(function successCallback(response) {
             $scope.ProductionOrderList = response.data;
-            $scope.SONo = response.data[0].SONo;
         });
 
     };
@@ -2166,7 +2165,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         $http({
             method: 'POST',
             data: {
-                'soId': $scope.SONo, 'SKU1': $scope.employeeGroupNew.SKU1, 'SKU2': $scope.employeeGroupNew.SKU2, 'Both': $scope.employeeGroupNew.Both
+                'poId': $scope.model.Id, 'SKU1': $scope.employeeGroupNew.SKU1, 'SKU2': $scope.employeeGroupNew.SKU2, 'Both': $scope.employeeGroupNew.Both
             },
             url: 'OrderManagements/ProductionOrder/GetSKUData'
         }).then(function successCallback(response) {
