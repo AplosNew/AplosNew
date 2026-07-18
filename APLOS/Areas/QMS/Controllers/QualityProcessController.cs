@@ -1776,7 +1776,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                 DataSet dsEntity;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from InspectionEmployeeApplicable where InspectionTypeId='" + data["InspectionTypeId"] + "'", out dsEntity, false, "1");
+                con.OpenDataSetThroughAdapter("select * from InspectionEmployeeApplicable where Id='" + data["Id"] + "'", out dsEntity, false, "1");
 
                 string _Id = "";
 
@@ -1919,9 +1919,26 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
         [HttpPost, Authorize]
         public ActionResult GetInspectionTypeEmployeeList(string imageInspectionTypeId)
         {
-            string sql = @"SELECT UA.*,EI.EmployeeCode,EI.EmployeeName  FROM InspectionEmployeeApplicable UA 
-                        LEFT JOIN  dbo.EmployeeInformation EI on EI.SystemId=UA.EmployeeId
-                        WHERE UA.InspectionTypeId='" + imageInspectionTypeId + @"'";
+            string sql = @"SELECT UA.*,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,PR.SectionId,SS.UserName SubSection
+                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
+                                        EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
+                                        FROM InspectionEmployeeApplicable UA 
+                                         LEFT JOIN  dbo.EmployeeInformation EMP on EMP.SystemId=UA.EmployeeId
+                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
+                                        LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
+                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                                        LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
+                                        LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
+                                        LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EMP.GivenDesignationId
+										LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+                                        LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
+                                        WHERE UA.InspectionTypeId='" + imageInspectionTypeId + @"'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

@@ -1125,7 +1125,9 @@ FORMAT(dateadd(day,Convert(int,
 										case when isnull(cg.Id, '') = '' THEN isnull(E.EmployeeNameLocal, E.EmployeeName) ELSE EmployeeName END AS EmployeeName
                                         ,case when isnull(cg.Id, '') = '' THEN isnull(E.FatherNameLocal, E.FatherName) ELSE FatherName END AS FatherName
                                         ,case when isnull(cg.Id, '') = '' THEN isnull(E.MotherNameLocal, E.MotherName) ELSE MotherName END AS MotherName
-                                        ,case when isnull(cg.Id, '') = '' THEN isnull(E.ParmanentAddress1Local, E.ParmanentAddress1) ELSE ParmanentAddress1 END AS ParmanentAddress
+--                                        ,case when isnull(cg.Id, '') = '' THEN isnull(E.ParmanentAddress1Local, E.ParmanentAddress1) ELSE ParmanentAddress1 END AS ParmanentAddress
+,ParmanentAddress=E.ParmanentAddress1+' '+ISNULL(E.ParmanentAddress2,'')+' '+ISNULL(E.ParmanentArea,'')+' '+ISNULL(ParPO.UserName,'')+' '+ISNULL(ParPS.UserName,'')
++' '+ISNULL(ParC.UserName,'')+' '+ISNULL(ParST.UserName,'')+' '+ISNULL(ParCN.UserName,'')+' '+ISNULL(E.ParmZipCode,'')
                                         ,case when isnull(cg.Id, '') = '' THEN isnull(E.PresentAddress1Local, E.PresentAddress1) ELSE PresentAddress1 END AS PresentAddress
 
 
@@ -1157,6 +1159,13 @@ FORMAT(dateadd(day,Convert(int,
                                     LEFT JOIN[SCS].[PlantSetting] P ON P.PlantId = E.PlantId
                                     LEFT JOIN ORG.Department DP ON DP.Id = PS.DepartmentId
                                     LEFT JOIN org.Section SE ON SE.Id = PS.SectionId
+
+LEFT JOIN SCS.PoliceStation ParPS ON ParPS.Id=E.ParmThanaID
+LEFT JOIN SCS.PostOffice ParPO ON ParPO.Id=E.ParmPostOfficeID
+LEFT JOIN SCS.District ParD ON ParD.Id=E.ParmDistrictID
+LEFT JOIN SCS.City ParC ON ParC.Id=E.ParmCityID
+LEFT JOIN SCS.Country ParCN ON ParCN.Id=E.ParmCountryID
+LEFT JOIN SCS.State ParST ON ParST.Id=E.ParmStateId
 
                                     LEFT JOIN ORG.Plant PL ON PL.Id = E.PlantId
                                     left Join MST.PayrollGroupMaster PGM on PGM.EmployeeId = E.EmployeeId

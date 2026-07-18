@@ -188,9 +188,11 @@ function ImageInspectionTypeController(cboService, commonMessage, $scope, $rootS
     }
 
     $scope.setEmpData = function (obj) {
+        $scope.EmployeeModelNew.Id = null;
         $scope.EmployeeModelNew.EmployeeId = obj.data.SystemId;
         $scope.EmployeeModelNew.EmployeeName = obj.data.EmployeeName;
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+        $scope.EmployeeSave();
     };
 
     function removeDuplicates(myArr, prop) {
