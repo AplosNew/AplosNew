@@ -5532,7 +5532,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
             {
 
                 string sql = @"SELECT TOP 1 EmployeeCode,  
-                           TAB3.EmployeeName,TAB3.FatherName,TAB3.MotherName,TAB3.ParmanentAddress, TAB3.PresentAddress,
+                           EmployeeName=(TAB3.Salutation+''+ TAB3.EmployeeName),TAB3.FatherName,TAB3.MotherName,TAB3.ParmanentAddress, TAB3.PresentAddress,
                             ISNULL(LocalCompanyName,CompanyName) CompanyName,
                             ISNULL(CompanyAddress,CompanyAddress) CompanyAddress,
                             ISNULL(UtilityName,UtilityName) UtilityName,
@@ -5602,7 +5602,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
 										,case when isnull(cg.Id,'')='' THEN isnull(E.MotherNameLocal,E.MotherName) ELSE E.MotherName END AS MotherName
 										,case when isnull(cg.Id,'')='' THEN isnull(E.ParmanentAddress1Local+''+CASE WHEN ISNULL(E.ParmanentAddress2Local,'')<>'' THEN ','+E.ParmanentAddress2Local ELSE '' END										
 										,E.ParmanentAddress1+''+CASE WHEN ISNULL(E.ParmanentAddress2,'')<>'' THEN ', '+E.ParmanentAddress2 ELSE '' END) ELSE E.ParmanentAddress1+''+CASE WHEN ISNULL(E.ParmanentAddress2,'')<>'' THEN ', '+E.ParmanentAddress2 ELSE '' END END AS ParmanentAddress
-										,case when isnull(cg.Id,'')='' THEN isnull(E.PresentAddress1Local,E.PresentAddress1) ELSE E.PresentAddress1 END AS PresentAddress
+										,PresentAddress= E.PresentAddress1 +' '+ CASE WHEN E.PresentAddress2<>'' THEN E.PresentAddress2 ELSE '' END
 
 
                                        ,case when isnull(cg.Id,'')='' THEN isnull(Case When E.GenderID ='Male' then  LMM.Name else LMF.Name end,E.GenderID) ELSE E.GenderID END AS Gender

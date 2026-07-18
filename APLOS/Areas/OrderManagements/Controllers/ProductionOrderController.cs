@@ -3407,10 +3407,10 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetSKUData(string soId,bool SKU1, bool SKU2, bool Both)
+        public ActionResult GetSKUData(string poId,bool SKU1, bool SKU2, bool Both)
         {
             Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
-            var jsondata = Json(order.GetSKUData(soId,SKU1,SKU2,Both), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(order.GetSKUData(poId,SKU1,SKU2,Both), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }

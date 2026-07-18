@@ -2820,11 +2820,11 @@ SELECT
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"Select 'InLIne' Value , 'InLIne' Name
+                return Json(_sqlRepository.GetDataTable(@"Select 'First 50PCS Review' Value , 'First 50 PCS Review' Name
 Union All
-Select 'PreFinal' Value , 'PreFinal' Name
+Select 'Pre-Final' Value , 'Pre-Final' Name
 Union all
-Select 'EndLine' Value , 'EndLine' Name"));
+Select 'AQL-LotAudit' Value , 'AQL-LotAudit' Name"));
 
             }
             catch (Exception ex)
