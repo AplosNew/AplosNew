@@ -2309,20 +2309,86 @@ left join InspectionUserApplicable IUA on IUA.InspectionTypeId = IT.Id"));
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"SELECT TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id,ITY.Id InspectionTypeId,
-      Convert(numeric(18),SUM(ISNULL(ITG.Qty,0))) AS TotalQty,
-   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='PASS' THEN ISNULL(ITG.Qty,0) when ITEL.UserName='ALTER' THEN ISNULL(ITG.PassQty,0) else 0 END )) AS PassedQty,
-   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='ALTER' THEN ISNULL(ITG.Qty,0) else 0 END)) AS AlteredQty,
-   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='RECHECK' THEN ISNULL(ITG.Qty,0) when ITEL.UserName='ALTER' THEN ISNULL(ITG.RecheckQty,0) else 0 END)) AS RecheckQty,
-   Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='REJECT' THEN ISNULL(ITG.Qty,0)  when ITEL.UserName='ALTER' THEN ISNULL(ITG.RejectQty,0) else 0 END)) AS RejectedQty
+                return Json(_sqlRepository.GetDataTable(@"Declare  @SO varchar(100) = '" + SO + "' , @SKU1 varchar(100) = '" + SKU1 + "',@SKU2  varchar(100) = '" + SKU2 +" ' , @InspectionTypeId varchar(100) = '" + InspectionTypeId + @"';
+
+SELECT
+    TRN.SalesOrderId,
+    TRN.SKU1Id,
+    TRN.SKU2Id,
+    ITY.Id AS InspectionTypeId,
+
+    CONVERT(NUMERIC(18), SUM(ISNULL(ITG.Qty+ITG.PassQty + ITG.RecheckQty + ITG.RejectQty,0))) AS TotalQty,
+
+    CONVERT(NUMERIC(18),
+        SUM(CASE
+                WHEN ITEL.UserName='PASS' THEN ISNULL(ITG.Qty,0)
+                WHEN ITEL.UserName='ALTER' THEN ISNULL(ITG.PassQty,0)
+                ELSE 0
+            END)) AS PassedQty,
+
+    CONVERT(NUMERIC(18),
+        SUM(CASE
+                WHEN ITEL.UserName='ALTER' THEN ISNULL(ITG.Qty,0)
+                ELSE 0
+            END)) AS AlteredQty,
+
+    (
+        SELECT SUM(
+                CASE
+                    WHEN ITEL2.UserName='RECHECK' THEN ISNULL(ITG2.Qty,0)
+                    WHEN ITEL2.UserName='ALTER' THEN ISNULL(ITG2.RecheckQty,0)
+                    ELSE 0
+                END)
+        FROM TRN.InspectionTranChild TRN2
+        JOIN dbo.InspectionTypeEnteryLevel ITEL2
+            ON ITEL2.Id = TRN2.InspectionTypeEnteryLevelId
+        JOIN dbo.InspectionTranGrandChild ITG2
+            ON ITG2.InspectionTranChildId = TRN2.Id
+        WHERE CONVERT(date, ITG2.AddedDate) = CONVERT(date, GETDATE())
+          AND TRN2.SalesOrderId = TRN.SalesOrderId
+          AND TRN2.SKU1Id = TRN.SKU1Id
+          AND TRN2.SKU2Id = TRN.SKU2Id
+    ) AS RecheckQty,
+
+    (
+        SELECT SUM(
+                CASE
+                    WHEN ITEL2.UserName='REJECT' THEN ISNULL(ITG2.Qty,0)
+                    WHEN ITEL2.UserName='ALTER' THEN ISNULL(ITG2.RejectQty,0)
+                    ELSE 0
+                END)
+        FROM TRN.InspectionTranChild TRN2
+        JOIN dbo.InspectionTypeEnteryLevel ITEL2
+            ON ITEL2.Id = TRN2.InspectionTypeEnteryLevelId
+        JOIN dbo.InspectionTranGrandChild ITG2
+            ON ITG2.InspectionTranChildId = TRN2.Id
+        WHERE CONVERT(date, ITG2.AddedDate) = CONVERT(date, GETDATE())
+          AND TRN2.SalesOrderId = TRN.SalesOrderId
+          AND TRN2.SKU1Id = TRN.SKU1Id
+          AND TRN2.SKU2Id = TRN.SKU2Id
+    ) AS RejectedQty
+
 FROM dbo.InspectionTypeEnteryLevel ITEL
-JOIN TRN.InspectionTranChild TRN ON TRN.InspectionTypeEnteryLevelId = ITEL.Id
-LEFT JOIN dbo.InspectionTranGrandChild ITG ON ITG.InspectionTranChildId = TRN.Id
-left join [TRN].[Inspection] IT on IT.Id = trn.InspectionId
-left join [dbo].[InspectionType] ITY on ITY.Id = IT.InspectionTypeId
-left join TRN.FirstCharacteristics FC on FC.Id = TRN.SKU1Id and FC.SalesOrderId = TRN.SalesOrderId
-left join TRN.SecondCharacteristics SC on SC.Id = TRN.SKU2Id AND sc.SalesOrderId = TRN.SalesOrderId
-where Convert(Date,ITG.AddedDate) = CONVERT(Date,Getdate())  and TRN.SalesOrderId = '" + SO + "' and TRN.SKU1Id = '" + SKU1 + "' and TRN.SKU2Id = '" + SKU2 + "' and ITY.Id = '" + InspectionTypeId  + "' GROUP BY TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id , ITY.Id;"));
+JOIN TRN.InspectionTranChild TRN
+    ON TRN.InspectionTypeEnteryLevelId = ITEL.Id
+LEFT JOIN dbo.InspectionTranGrandChild ITG
+    ON ITG.InspectionTranChildId = TRN.Id
+LEFT JOIN TRN.Inspection IT
+    ON IT.Id = TRN.InspectionId
+LEFT JOIN dbo.InspectionType ITY
+    ON ITY.Id = IT.InspectionTypeId
+
+WHERE CONVERT(date, ITG.AddedDate) = CONVERT(date, GETDATE())
+  AND TRN.SalesOrderId = @SO
+  AND TRN.SKU1Id = @SKU1
+  AND TRN.SKU2Id = @SKU2
+  AND ITY.Id = @InspectionTypeId
+
+GROUP BY
+    TRN.SalesOrderId,
+    TRN.SKU1Id,
+    TRN.SKU2Id,
+    ITY.Id;"));
 
             }
             catch (Exception ex)
@@ -2754,11 +2820,11 @@ SELECT
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"Select 'InLIne' Value , 'InLIne' Name
+                return Json(_sqlRepository.GetDataTable(@"Select 'First 50PCS Review' Value , 'First 50 PCS Review' Name
 Union All
-Select 'PreFinal' Value , 'PreFinal' Name
+Select 'Pre-Final' Value , 'Pre-Final' Name
 Union all
-Select 'EndLine' Value , 'EndLine' Name"));
+Select 'AQL-LotAudit' Value , 'AQL-LotAudit' Name"));
 
             }
             catch (Exception ex)

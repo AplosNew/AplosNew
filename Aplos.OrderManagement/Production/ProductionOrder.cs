@@ -1010,7 +1010,7 @@ Where P.Id IS NOT NULL";
             try
             {
 
-                var sql = @"select * from (SELECT distinct so.SONo,so.Customer,so.Article,so.ArticleId,so.StyleNo, so.OwnStyleNo, so.Product,
+                var sql = @"select * from (SELECT distinct so.SONos,so.Customer,so.Article,so.ArticleId,so.StyleNo, so.OwnStyleNo, so.Product,
                             PO.Id POId,s.UserName AS POStatus,SO.SOQuantity SOQty,ISNULL(PO.Qty,0) AS POQuantity, So.LineItemId,SO.SOStatus
                             FROM [TRN].[ProductionOrderType2] AS PO  JOIN TRN.ProductionOrderType2ProcessSet POP ON POP.ProductionOrderId=PO.Id                          
                             LEFT OUTER  JOIN (select pod.ProductionOrderId, sum(so.Qty) AS SOQuantity,
@@ -1032,7 +1032,7 @@ Where P.Id IS NOT NULL";
 								                                INNER JOIN trn.ProductionOrderType2Detail AS podx ON podx.SalesOrderId=sox.Id                                                
 							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
 
-                                                    SONo=STUFF((select distinct ','+sox.Id from 
+                                                    SONos=STUFF((select distinct ','+sox.Id from 
 								                                trn.MasterOrderItem XMOI 	 
 								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
 								                                INNER JOIN trn.ProductionOrderType2Detail AS podx ON podx.SalesOrderId=sox.Id                                                

@@ -759,7 +759,7 @@ left join hkp.Process OPP ON OPP.id=OP.ProcessId
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
-                            left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = @workdate
+                            left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate ='" + date + @"'
 left join SEC.[User] uu on uu.UserId = pv.AddedBy
 left join dbo.EmployeeInformation eui on eui.SystemId = uu.EmployeeId
  left join mst.ManpowerBudget uumb on uumb.Id = eui.BudgetCode

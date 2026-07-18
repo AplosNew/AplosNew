@@ -398,11 +398,11 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
                 <div class="row">
                     <div class="form-elements">
-                        <div class="common-btn">
+                        @*<div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="EmployeeSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
                             </ul>
-                        </div>
+                        </div>*@
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
@@ -424,10 +424,14 @@
                                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                         <div e-columns>
-                                            <div e-column e-field="Id" e-headertext="Id"></div>
-                                            <div e-column e-field="InspectionTypeId" e-headertext="InspectionTypeId"></div>
-                                            <div e-column e-field="EmployeeCode" e-headertext="EmployeeCode"></div>
-                                            <div e-column e-field="EmployeeName" e-headertext="EmployeeName"></div>
+                                            @*<div e-column e-field="Id" e-headertext="Id"></div>*@
+                                            <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                                            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                            <div e-column e-type="string" e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                                            <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
+                                            <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                                            <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                                            <div e-column e-type="string" e-field="Line" e-headertext="Line" e-width="80"></div>
                                         </div>
                                     </div>
 
