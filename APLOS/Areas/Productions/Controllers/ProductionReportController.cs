@@ -1454,13 +1454,34 @@ SELECT
     MAX(CASE WHEN [WorkDate] = DATEADD(DAY,6,@fromDate) THEN DayStatus END) AS DayStatus7,
 
     -- ✅ Optional: Efficiency Pivot
-    MAX(CASE WHEN [Date] = @fromDate THEN Efficency END) AS Day1,
-    MAX(CASE WHEN [Date] = DATEADD(DAY,1,@fromDate) THEN Efficency END) AS Day2,
-    MAX(CASE WHEN [Date] = DATEADD(DAY,2,@fromDate) THEN Efficency END) AS Day3,
-    MAX(CASE WHEN [Date] = DATEADD(DAY,3,@fromDate) THEN Efficency END) AS Day4,
-    MAX(CASE WHEN [Date] = DATEADD(DAY,4,@fromDate) THEN Efficency END) AS Day5,
-    MAX(CASE WHEN [Date] = DATEADD(DAY,5,@fromDate) THEN Efficency END) AS Day6,
-    MAX(CASE WHEN [Date] = DATEADD(DAY,6,@fromDate) THEN Efficency END) AS Day7,
+    CASE WHEN MAX(CASE WHEN [Date] = @fromDate THEN AvailableMinute END) > 0
+     THEN SUM(CASE WHEN [Date] = @fromDate THEN ProduceMinute ELSE 0 END)
+          / MAX(CASE WHEN [Date] = @fromDate THEN AvailableMinute END)
+END AS Day1,
+    CASE WHEN MAX(CASE WHEN [Date] = DATEADD(DAY,1,@fromDate) THEN AvailableMinute END) > 0
+     THEN SUM(CASE WHEN [Date] = DATEADD(DAY,1,@fromDate) THEN ProduceMinute ELSE 0 END)
+          / MAX(CASE WHEN [Date] = DATEADD(DAY,1,@fromDate) THEN AvailableMinute END)
+END AS Day2,
+    CASE WHEN MAX(CASE WHEN [Date] = DATEADD(DAY,2,@fromDate) THEN AvailableMinute END) > 0
+     THEN SUM(CASE WHEN [Date] = DATEADD(DAY,2,@fromDate) THEN ProduceMinute ELSE 0 END)
+          / MAX(CASE WHEN [Date] = DATEADD(DAY,2,@fromDate) THEN AvailableMinute END)
+END AS Day3,
+    CASE WHEN MAX(CASE WHEN [Date] = DATEADD(DAY,3,@fromDate) THEN AvailableMinute END) > 0
+     THEN SUM(CASE WHEN [Date] = DATEADD(DAY,3,@fromDate) THEN ProduceMinute ELSE 0 END)
+          / MAX(CASE WHEN [Date] = DATEADD(DAY,3,@fromDate) THEN AvailableMinute END)
+END AS Day4,
+    CASE WHEN MAX(CASE WHEN [Date] = DATEADD(DAY,4,@fromDate) THEN AvailableMinute END) > 0
+     THEN SUM(CASE WHEN [Date] = DATEADD(DAY,4,@fromDate) THEN ProduceMinute ELSE 0 END)
+          / MAX(CASE WHEN [Date] = DATEADD(DAY,4,@fromDate) THEN AvailableMinute END)
+END AS Day5,
+    CASE WHEN MAX(CASE WHEN [Date] = DATEADD(DAY,5,@fromDate) THEN AvailableMinute END) > 0
+     THEN SUM(CASE WHEN [Date] = DATEADD(DAY,5,@fromDate) THEN ProduceMinute ELSE 0 END)
+          / MAX(CASE WHEN [Date] = DATEADD(DAY,5,@fromDate) THEN AvailableMinute END)
+END AS Day6,
+    CASE WHEN MAX(CASE WHEN [Date] = DATEADD(DAY,6,@fromDate) THEN AvailableMinute END) > 0
+     THEN SUM(CASE WHEN [Date] = DATEADD(DAY,6,@fromDate) THEN ProduceMinute ELSE 0 END)
+          / MAX(CASE WHEN [Date] = DATEADD(DAY,6,@fromDate) THEN AvailableMinute END)
+END AS Day7,
 
 	 (
      ISNULL(MAX(CASE WHEN [Date] = @fromDate AND NewDayStatus IN ('P','HDP','WP','L','A') THEN AvailableMinute END),0)  +

@@ -185,7 +185,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColOTime = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Physical Varification", 13, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Physical Verification", 13, ExcelHAlign.HAlignCenter);
             int ColPhysicalVarification = COL;
             COL++;
 

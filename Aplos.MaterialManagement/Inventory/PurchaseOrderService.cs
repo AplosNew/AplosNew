@@ -7982,7 +7982,7 @@ ORDER BY IR.ID DESC";
 								, Act.Id As Activity , Act.UserName As ActivityName , IM.BudgetType ,IM.Reason
 								, IM.Remarks ,IM.FutureReqApp ,NULL CheckedStatus   ,NULL TaxList
 								, (ROUND(IM.TransactionQty,2)-ISNULL(PORaisedQty,0)) AS BalanceQty
-							,MM.HSNCodeId ,EI.EmployeeName PreparedBy
+							,HSNCodeId=case when MM.HSNCodeId<>'' then MM.HSNCodeId when ART.HSNCodeId<>'' then ART.HSNCodeId end  ,EI.EmployeeName PreparedBy
 							,IM.POQtyStatus ,CONVERT(bit,0) WantToClose ,IR.InActive
 							,IR.CheckedByStatus ,IR.AuthorizedByStatus,MM.IsOriginApplicable,IR.EntityId,EN.UserName EntityName
 							FROM TRN.MaterialRequsitionDetails AS IM
