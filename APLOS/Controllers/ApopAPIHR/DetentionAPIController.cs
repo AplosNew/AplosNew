@@ -2071,7 +2071,7 @@ where SU.UserId = '" + Userid + "'"));
 
         }
 
-        public IHttpActionResult GetWorkcenter(string EntityId)
+        public IHttpActionResult GetWorkcenter(string EntityId , string ProcessId)
         {
             /* clsDataContext clsData = new clsDataContext();
              clsData.GetTNAReport(out List<TNAGetSet> activelists);
@@ -2079,7 +2079,7 @@ where SU.UserId = '" + Userid + "'"));
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"Select Id Value , Code Name from scs.WorkCenterMaster where ProcessId = '20257' and EntityId = '" + EntityId + "' order by Code asc"));
+                return Json(_sqlRepository.GetDataTable(@"Select Id Value , Code Name from scs.WorkCenterMaster where ProcessId = '" + ProcessId + "' and EntityId = '" + EntityId + "' order by Code asc"));
 
             }
             catch (Exception ex)
