@@ -2079,7 +2079,7 @@ where SU.UserId = '" + Userid + "'"));
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"Select Id Value , Code Name from scs.WorkCenterMaster where ProcessId = '" + ProcessId + "' and EntityId = '" + EntityId + "' order by Code asc"));
+                return Json(_sqlRepository.GetDataTable(@"Select Id Value , UserName Name from scs.WorkCenterMaster where ProcessId = '" + ProcessId + "' and EntityId = '" + EntityId + "' order by Code asc"));
 
             }
             catch (Exception ex)
