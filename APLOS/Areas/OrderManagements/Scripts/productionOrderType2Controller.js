@@ -2133,25 +2133,25 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
     };
 
-    $scope.employeeGroupNew = {
-        SKU1: false, SKU2: false, Both: false
+    $scope.ModelNewSPO = {
+        SKU1: false, SKU2: false, Both: false, SPT: 0, PlanHour: 0, PlanPercentage: 0, NetUtilizationPercentage: 0, MinQty: 1, LSD: null,
     }
 
     $scope.SetCheckbox = function (name) {
         if (name === 'sku1') {
-            $scope.employeeGroupNew.SKU1 = true;
-            $scope.employeeGroupNew.SKU2 = false;
-            $scope.employeeGroupNew.Both = false;
+            $scope.ModelNewSPO.SKU1 = true;
+            $scope.ModelNewSPO.SKU2 = false;
+            $scope.ModelNewSPO.Both = false;
         }
         if (name === 'sku2') {
-            $scope.employeeGroupNew.SKU2 = true;
-            $scope.employeeGroupNew.SKU1 = false;
-            $scope.employeeGroupNew.Both = false;
+            $scope.ModelNewSPO.SKU2 = true;
+            $scope.ModelNewSPO.SKU1 = false;
+            $scope.ModelNewSPO.Both = false;
         }
         if (name === 'both') {
-            $scope.employeeGroupNew.Both = true;
-            $scope.employeeGroupNew.SKU1 = false;
-            $scope.employeeGroupNew.SKU2 = false;
+            $scope.ModelNewSPO.Both = true;
+            $scope.ModelNewSPO.SKU1 = false;
+            $scope.ModelNewSPO.SKU2 = false;
         }
     }
 
@@ -2162,26 +2162,41 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         $scope.sku1List = [];
         $scope.sku2List = [];
         $scope.sku1sku2List = [];
-        $http({
-            method: 'POST',
-            data: {
-                'poId': $scope.model.Id, 'SKU1': $scope.employeeGroupNew.SKU1, 'SKU2': $scope.employeeGroupNew.SKU2, 'Both': $scope.employeeGroupNew.Both
-            },
-            url: 'OrderManagements/ProductionOrder/GetSKUData'
-        }).then(function successCallback(response) {
-            if ($scope.employeeGroupNew.SKU1 == true) {
-                $scope.sku1List = response.data;
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.SPONewForm.$valid) {
+                $http({
+                    method: 'POST',
+                    data: {
+                        'poId': $scope.model.Id, 'SKU1': $scope.ModelNewSPO.SKU1, 'SKU2': $scope.ModelNewSPO.SKU2, 'Both': $scope.ModelNewSPO.Both
+                    },
+                    url: 'OrderManagements/ProductionOrder/GetSKUData'
+                }).then(function successCallback(response) {
+                    for (var i = 0; i < response.data.length; i++) {
+                        response.data[i].SPT = $scope.ModelNewSPO.SPT;
+                        response.data[i].PlanHour = $scope.ModelNewSPO.PlanHour;
+                        response.data[i].NetUtilizationPercentage = $scope.ModelNewSPO.NetUtilizationPercentage;
+                        
+                    }
+                    $scope.sku1sku2List = response.data;
+                });
             }
-            if ($scope.employeeGroupNew.SKU2 == true) {
-                $scope.sku2List = response.data;
-            }
-            if ($scope.employeeGroupNew.SKU1 == true && $scope.employeeGroupNew.SKU2 == true || $scope.employeeGroupNew.Both == true) {
-                $scope.sku1sku2List = response.data;
-            }
-        });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
 
     };
 
+
+    $scope.calculate = function (obj) {
+        for (var i = 0; i < $scope.sku1sku2List.length; i++) {
+            $scope.sku1sku2List[i].PlanQty = $scope.sku1sku2List[i].Qty + $scope.sku1sku2List[i].AdjustableQty;
+            $scope.sku1sku2List[i].RequiredMachineDays = ($scope.sku1sku2List[i].PlanHour * 60) / ($scope.sku1sku2List[i].SPT * $scope.sku1sku2List[i].PlanQty) / $scope.sku1sku2List[i].NetUtilizationPercentage;
+            $scope.sku1sku2List[i].MinWorkCenterDays = Math.floor($scope.sku1sku2List[i].RequiredMachineDays / $scope.ModelNewSPO.MinWorkCenterDays);
+        }
+        var gridObj = $("#GridSKU12").data("ejGrid");
+        gridObj.refreshContent();
+    }
 
 
 }

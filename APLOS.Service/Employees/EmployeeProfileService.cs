@@ -5532,7 +5532,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
             {
 
                 string sql = @"SELECT TOP 1 EmployeeCode,  
-                           EmployeeName=(TAB3.Salutation+''+ TAB3.EmployeeName),TAB3.FatherName,TAB3.MotherName,TAB3.ParmanentAddress, TAB3.PresentAddress,
+                           EmployeeName=TAB3.EmployeeName,TAB3.FatherName,TAB3.MotherName,TAB3.ParmanentAddress, TAB3.PresentAddress,
                             ISNULL(LocalCompanyName,CompanyName) CompanyName,
                             ISNULL(CompanyAddress,CompanyAddress) CompanyAddress,
                             ISNULL(UtilityName,UtilityName) UtilityName,
@@ -5575,11 +5575,11 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
 							,UnMarriedEmpNomineeRelation=CASE WHEN CivilStatus!='Married' then NomineeRelation else '' end
 							,UnMarriedEmpNomineeAge=CASE WHEN CivilStatus!='Married' then NomineeAge else '' end
                             ,Salutation,EmployeeFingerPrint,CardHolderSignature,DOS,AuthorizedSignature,Contractor,ContractorAddress
-                            ,EmrCntPer1CellNo,FatherOrSpouse,CompanyLogo,BarCodeId,Designation
+                            ,EmrCntPer1CellNo,FatherOrSpouse,CompanyLogo,BarCodeId,Designation,Entity
                                     FROM(SELECT TAB2.*, AM.Phone, AM.Email, AM.Website, AM.Address1 FROM 
 									--tab2
 									(SELECT TAB1.*, LAN.StandardName 
-                                    FROM (SELECT CM.Image CompanyLogo,E.SystemID as EmpSystemID,DES.UserName Designation,
+                                    FROM (SELECT CM.Image CompanyLogo,E.SystemID as EmpSystemID,DES.UserName Designation,ENT.UserName Entity,
                                     CM.UserName CompanyName,AM.Address1 CompanyAddress,E.EmpPicPath EmployeePic,E.EmployeeCode, Convert(varchar, E.DOJ, 105) DOJ,
                                     REPLACE(CONVERT(VARCHAR(11),E.DOJ,106),' ','-') DateOfJoin,BG.UserName BloodGroup,REPLACE(CONVERT(VARCHAR(11),E.DOB,106),' ','-') DateOfBirth
                                     ,E.NationalID,E.EmploymentType,D.UserName DesignationName, dm.EmployeeCategoryId,ec.UserName EmployeeCategory,L.UserName Line,
@@ -5591,7 +5591,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
                                     ,E.EmployeeNameLocal,LL.UtilityName,NID.Name NIDLabel, LMB.Name MobileNoLabel,
 			                		LD.Name LegalDesignationLocal,SEC.Name SectionName, CAC.[Name] LocalDepartmentName1
 									,GD.ShortName Grade,LSGA.Name GradeLocal
-                                    ,Convert(varchar, DATEADD(year, 5, E.DOJ),105) AS Validity,LNN.Name LineLocal,UN.Username Unit, LUN.[Name] UnitLocal, Convert(varchar, E.DOC, 105) DOC,FORMAT(E.AppliedDate,'dd-MMM-yyyy') AppliedDate
+                                    ,Convert(varchar, DATEADD(year, 5, E.DOJ),105) AS Validity,LNN.Name LineLocal,UN.Username Unit, LUN.[Name] UnitLocal,FORMAT(E.DOC,'dd-MMM-yyyy') DOC,FORMAT(E.AppliedDate,'dd-MMM-yyyy') AppliedDate
                                     ,PCN.Name LPermanentCountry,PRCN.Name LPresentCountry
 			                		,PD.Name PermanentDistrict,PRD.Name PresentDistrict,PST.Name PermanentState, PRST.Name PresentState,PCT.Name PermanentCity, PRCT.Name PresentCity
                                     ,CASE WHEN E.DOCDay=0 THEN E.DOCMonth ELSE E.DOCDay/30 END AS confirm, PL.LanguageId, PL.Id as 'PlantId', CM.AddressMasterId,E.FirstName,LDN.UserName LegalDesignation,ISNULL(E.SpouseNameLocal,E.SpouseName) SpouseName,  ISNULL(LET.Name,E.EmploymentType) EmploymentTypelocal
@@ -5645,8 +5645,9 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
                                     LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId = e.GivenDesignationId
                                     LEFT JOIN  hkp.LegalDesignation LDN ON LDN.Id=E.LegalDesignationId
                                     LEFT JOIN HKP.EmployeeCategory EC ON EC.Id = DM.EmployeeCategoryId
-                                    LEFT JOIN ORG.Line L ON L.Id=E.LineId
-                                    LEFT JOIN ORG.Unit UN ON UN.Id=E.UnitId
+                                    LEFT JOIN ORG.Line L ON L.Id=bbb.LineId
+ LEFT JOIN ORG.Unit UN ON UN.Id=E.UnitId
+ LEFT JOIN ORG.Entity ENT ON ENT.Id=bbb.EntityId
 			                		LEFT JOIN [SCS].[PlantSetting] P ON P.PlantId=E.PlantId AND P.ModuleName='HR'
                                     LEFT JOIN ORG.Department DP ON DP.Id=PS.DepartmentId
                                     LEFT JOIN org.Section SE ON SE.Id=PS.SectionId

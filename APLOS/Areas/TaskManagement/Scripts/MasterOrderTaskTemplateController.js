@@ -60,34 +60,7 @@ function MasterOrderTaskTemplateController(cboService, commonMessage, $scope, $r
 
     });
 
-    $scope.GEEhideNewOrRepeatOrderCheckbox = false;
-    $scope.GEELoadDependentDates = function (args) {
-        $http({
-            method: 'GET',
-            url: $scope.GEEpathTaskMaster + "GetDependentDateData?dependon=" + $scope.GEESingleMasterOrderTaskTemplate.TaskAppliedOnId
-        }).then(function successCallback(response) {
-            $scope.GEETaskDependentDateList = response.data.TaskDependentDates;
-            $scope.GEEtempdateid = $scope.GEESingleMasterOrderTaskTemplate.TaskDependentDatesId;
 
-            $scope.GEEhideNewOrRepeatOrderCheckbox = false;
-            if (response.data.TaskDependentDates[0].TaskDependentOn == 'MasterOrder') {
-                $scope.GEEhideNewOrRepeatOrderCheckbox = true;
-                $scope.GEESingleMasterOrderTaskTemplate.ForNewOrder = false;
-            }
-        });
-    }
-    $scope.GEEtempdateid = null;
-    $scope.GEESelectDependentDates = function (args) {
-
-        try {
-            $scope.GEESingleMasterOrderTaskTemplate.TaskDependentDatesId = $scope.GEEtempdateid;
-            var DropDownListObj = $("#GEETaskDependentDateList").data("ejDropDownList");
-            DropDownListObj.selectItemByValue($scope.GEEtempdateid);
-        } catch (e) {
-
-        }
-
-    }
 
 
     $scope.GEEsearchCol = "EmployeeName";
@@ -345,7 +318,7 @@ function MasterOrderTaskTemplateController(cboService, commonMessage, $scope, $r
 
 
             $scope.GEEganttdata = ganttdata;
-           
+
         } catch (e) {
 
         }
@@ -397,7 +370,7 @@ function MasterOrderTaskTemplateController(cboService, commonMessage, $scope, $r
             data: { MasterOrderId: $scope.GEEMasterOrderId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-           
+
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
         }
@@ -555,6 +528,7 @@ function MasterOrderTaskTemplateController(cboService, commonMessage, $scope, $r
                 $scope.GEESingleMasterOrderTaskTemplate = response.data.Task[0];
                 $scope.GEESubTaskList = response.data.SubTasks;
                 $scope.GEEDependencyList = response.data.DependencyList;
+                $scope.GEEtempdateid = $scope.GEESingleMasterOrderTaskTemplate.TaskDependentDatesId;
 
                 $("#GEEgridPredecessor").ejGrid("instance").refreshContent();
                 $("#GEEgridSubTask").ejGrid("instance").refreshContent();
@@ -564,7 +538,7 @@ function MasterOrderTaskTemplateController(cboService, commonMessage, $scope, $r
                     $scope.GEEhideNewOrRepeatOrderCheckbox = true;
                     $scope.GEESingleMasterOrderTaskTemplate.ForNewOrder = false;
                 }
-
+                $scope.GEELoadDependentDates(null);
             } catch (e) {
 
             }
@@ -606,6 +580,36 @@ function MasterOrderTaskTemplateController(cboService, commonMessage, $scope, $r
             ShowResult(e, 'failure');
         }
     }
+
+    $scope.GEEhideNewOrRepeatOrderCheckbox = false;
+    $scope.GEELoadDependentDates = function (args) {
+        $http({
+            method: 'GET',
+            url: $scope.GEEpathTaskMaster + "GetDependentDateData?dependon=" + $scope.GEESingleMasterOrderTaskTemplate.TaskAppliedOnId
+        }).then(function successCallback(response) {
+            $scope.GEETaskDependentDateList = response.data.TaskDependentDates;
+            $scope.GEESingleMasterOrderTaskTemplate.TaskDependentDatesId = $scope.GEEtempdateid;
+
+            $scope.GEEhideNewOrRepeatOrderCheckbox = false;
+            if (response.data.TaskDependentDates[0].TaskDependentOn == 'MasterOrder') {
+                $scope.GEEhideNewOrRepeatOrderCheckbox = true;
+                $scope.GEESingleMasterOrderTaskTemplate.ForNewOrder = false;
+            }
+        });
+    }
+    $scope.GEEtempdateid = null;
+    $scope.GEESelectDependentDates = function (args) {
+
+        try {
+            $scope.GEESingleMasterOrderTaskTemplate.TaskDependentDatesId = $scope.GEEtempdateid;
+            var DropDownListObj = $("#GEETaskDependentDateList").data("ejDropDownList");
+            DropDownListObj.selectItemByValue($scope.GEEtempdateid);
+        } catch (e) {
+
+        }
+
+    }
+
     $scope.GEEUpdateTaskDuration = function (model) {
 
         try {
