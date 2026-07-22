@@ -1127,6 +1127,19 @@ Group By  D.ProductionOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueI
             }
         }
 
+        public IEnumerable<object> GetWorkCenterGroup()
+        {
+            try
+            {
+                string sql = @"select WM.UserName ,WG.* from hkp.WorkCenterGroup WG
+LEFT JOIN SCS.WorkCenterMaster WM ON WM.Id=WG.WorkCenterMasterId";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
 
     }

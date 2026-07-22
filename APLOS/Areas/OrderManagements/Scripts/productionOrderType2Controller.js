@@ -2134,7 +2134,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     };
 
     $scope.ModelNewSPO = {
-        SKU1: false, SKU2: false, Both: false, SPT: 0, PlanHour: 0, PlanPercentage: 0, NetUtilizationPercentage: 0, MinQty: 1, LSD: null,
+        SKU1: false, SKU2: false, Both: false, SPT: 0, PlanHour: 24, PlanPercentage: 0, NetUtilizationPercentage: 0, MinQty: 1, LSD: null,
     }
 
     $scope.SetCheckbox = function (name) {
@@ -2155,16 +2155,18 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         }
     }
 
-    $scope.sku1List = [];
-    $scope.sku2List = [];
     $scope.sku1sku2List = [];
     $scope.GetSKUData = function () {
         $scope.sku1List = [];
         $scope.sku2List = [];
         $scope.sku1sku2List = [];
         try {
+            if ($scope.ModelNewSPO.SKU1 == false && $scope.ModelNewSPO.SKU2 == false && $scope.ModelNewSPO.Both == false) {
+                throw "Select SKU level.";
+            }
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.SPONewForm.$valid) {
+
                 $http({
                     method: 'POST',
                     data: {
@@ -2176,7 +2178,8 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                         response.data[i].SPT = $scope.ModelNewSPO.SPT;
                         response.data[i].PlanHour = $scope.ModelNewSPO.PlanHour;
                         response.data[i].NetUtilizationPercentage = $scope.ModelNewSPO.NetUtilizationPercentage;
-                        
+                        response.data[i].MinWorkCenterDays = 10;
+                        response.data[i].PlanQty = response.data[i].Qty;
                     }
                     $scope.sku1sku2List = response.data;
                 });
@@ -2187,16 +2190,54 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
     };
 
-
     $scope.calculate = function (obj) {
         for (var i = 0; i < $scope.sku1sku2List.length; i++) {
-            $scope.sku1sku2List[i].PlanQty = $scope.sku1sku2List[i].Qty + $scope.sku1sku2List[i].AdjustableQty;
-            $scope.sku1sku2List[i].RequiredMachineDays = ($scope.sku1sku2List[i].PlanHour * 60) / ($scope.sku1sku2List[i].SPT * $scope.sku1sku2List[i].PlanQty) / $scope.sku1sku2List[i].NetUtilizationPercentage;
-            $scope.sku1sku2List[i].MinWorkCenterDays = Math.floor($scope.sku1sku2List[i].RequiredMachineDays / $scope.ModelNewSPO.MinWorkCenterDays);
+            if (!baseService.isUndefinedOrNull($scope.sku1sku2List[i].AdjustableQty)) {
+                $scope.sku1sku2List[i].PlanQty = $scope.sku1sku2List[i].Qty + $scope.sku1sku2List[i].AdjustableQty;
+            }
+            $scope.sku1sku2List[i].RequiredMachineDays = parseFloat(($scope.sku1sku2List[i].PlanHour * 60) / ($scope.sku1sku2List[i].SPT * $scope.sku1sku2List[i].PlanQty) / $scope.sku1sku2List[i].NetUtilizationPercentage).toFixed(2);
+            $scope.sku1sku2List[i].MaximumAllowedWorkCenter = Math.floor($scope.sku1sku2List[i].RequiredMachineDays) / $scope.sku1sku2List[i].MinWorkCenterDays;
+            if ($scope.sku1sku2List[i].MaximumAllowedWorkCenter < 1) {
+                $scope.sku1sku2List[i].MaximumAllowedWorkCenter = 1;
+            }
         }
         var gridObj = $("#GridSKU12").data("ejGrid");
         gridObj.refreshContent();
     }
 
+    $scope.CheckMaxWCValue = function (obj) {
+        try {
+            if (obj.data.AllotedWorkCenter > obj.data.MaximumAllowedWorkCenter) {
+                throw "Alloted Work Center can't greater than Maximum Allowed Work Center.";
+            }
 
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+
+
+    $scope.SaveSPO = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: "OrderManagements/ProductionOrder/SaveSPO",
+                data: { 'data': $scope.sku1sku2List, 'POId': $scope.model.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 }

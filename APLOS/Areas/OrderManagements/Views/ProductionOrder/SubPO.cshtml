@@ -116,6 +116,7 @@
                 <div class="common-btn">
                     <ul class="list-inline text-left">
                         <li> <button ng-click="GetSKUData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Go </button></li>
+                        <li> <button ng-click="GetSKUData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-fl"></i> Save </button></li>
                     </ul>
                 </div>
             </div>
@@ -138,7 +139,7 @@
                     <div e-column e-type="string" e-template="#RequiredMachineDays" e-headertext="RequiredMachineDays" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#MinWorkCenterDays" e-headertext="MinWorkCenterDays" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#MaximumAllowedWorkCenter" e-headertext="MaximumAllowedWorkCenter" e-width="80" style="height: 20px;"></div>
-                    <div e-column e-type="string" e-field="AllotedWorkCenter" e-headertext="AllotedWorkCenter" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-template="#AllotedWorkCenter" e-headertext="AllotedWorkCenter" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-field="PrefenceWorkCenter" e-headertext="PrefenceWorkCenter" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-field="RunningWorkCenter" e-headertext="RunningWorkCenter" e-width="80" style="height: 20px;"></div>
                 </div>
@@ -178,6 +179,11 @@
                     <input type="text" name="MaximumAllowedWorkCenter" ng-disabled="true" ng-model="data.MaximumAllowedWorkCenter" class="form-control">
                 </div>
             </script>
+            <script type="text/template" id="AllotedWorkCenter">
+                <div class="col-sm-10" style="padding:0px; width:70px;">
+                    <input type="text" name="AllotedWorkCenter" ng-keydown="$parent.CheckMaxWCValue(this);" ng-model="data.AllotedWorkCenter" class="form-control">
+                </div>
+            </script>
             <script type="text/template" id="ShowWCGroupButtons">
                 <div class="col-sm-8" style="padding:0px;">
                     <input type="text" name="WorkCenterGroupId" ng-model="data.WorkCenterGroupId" ng-disabled="true" ng-click="" class="form-control" maxlength="200">
@@ -191,3 +197,4 @@
 
 
 </div>
+
