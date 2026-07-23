@@ -816,7 +816,7 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
                 DataTable dtSO = _sqlRepository.GetDataTable(sql);
                 string TaskTemplateMasterId = dtSO.Rows[0]["TaskTemplateMasterId"].ToString();
 
-                DataTable dt = schedule.GetDataSourceProdOrderNew(master.Id, master.EntityId,TaskAppliedOnEnum.ProductionOrder);
+                DataTable dt = schedule.GetDataSourceProdOrderNew(master.Id, master.EntityId, TaskAppliedOnEnum.ProductionOrder);
                 if (dt.Rows.Count > 0)
                     schedule.MakeTNAMaster(dt, master.Id, TaskAppliedOnEnum.ProductionOrder);
 
@@ -1678,11 +1678,11 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
         }
 
         [HttpPost, Authorize]
-        public JsonResult CreateOperation(IEnumerable<ProductionBulletinTemplateDetail> entities, string productionBulletinTemplateMasterId, Dictionary<string, object> calculateddata,string pId)
+        public JsonResult CreateOperation(IEnumerable<ProductionBulletinTemplateDetail> entities, string productionBulletinTemplateMasterId, Dictionary<string, object> calculateddata, string pId)
         {
             try
             {
-                SaveOperationData(entities, productionBulletinTemplateMasterId, calculateddata,pId
+                SaveOperationData(entities, productionBulletinTemplateMasterId, calculateddata, pId
                     );
                 return Json(new { Message = AplosMessage.Insert });
             }
@@ -1822,7 +1822,7 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
                     }
                     EvaluateSPI(data);
                     string sql = "SELECT * FROM [TRN].[ProductionBulletinTemplateDetail] WHERE ProductionBulletinTemplateMasterId='" + productionBulletinTemplateMasterId + "'";
-                    string esql = "select * from dbo.EmployeeOperationWip Where ProductionOrderId='"+pId+"'";
+                    string esql = "select * from dbo.EmployeeOperationWip Where ProductionOrderId='" + pId + "'";
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
                     objCon.OpenDataSetThroughAdapter(esql, out dsEO, false, "1");
@@ -1899,7 +1899,7 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
                             DataView dveo = new DataView(dsEO.Tables[0]);
                             dveo.RowFilter = "OperationVariationId='" + item.OperationVariationId + "'";
 
-                            if (dveo.Count>0)
+                            if (dveo.Count > 0)
                             {
                                 if (Convert.ToDecimal(dveo[0]["OperationSequence"]) != item.Sequence)
                                 {
@@ -3303,7 +3303,7 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsDetail, dsProcDetail, dsWCDetail, dsFPWCDetail);
-                return Json(new { Error = false,DATA = _Id, Message = AplosMessage.Success });
+                return Json(new { Error = false, DATA = _Id, Message = AplosMessage.Success });
             }
             catch (Exception ex)
             {
@@ -3407,15 +3407,70 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetSKUData(string poId,bool SKU1, bool SKU2, bool Both)
+        public ActionResult GetSKUData(string poId, bool SKU1, bool SKU2, bool Both)
         {
             Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
-            var jsondata = Json(order.GetSKUData(poId,SKU1,SKU2,Both), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(order.GetSKUData(poId, SKU1, SKU2, Both), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
 
-       
+        [HttpPost, Authorize]
+        public ActionResult GetWorkCenterGroup()
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetWorkCenterGroup(), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+        [HttpPost, Authorize]
+        public JsonResult SaveSPO(List<Dictionary<string, object>> data, string masterId)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsBC;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionOrderSchedulingParametersType2 Where ProductionOrderID='" + masterId + "'", out dsBC, false, "1");
+
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["ProductionOrderID"] = masterId;
+                            AddNewRow(dsBC.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                }
+
+                #endregion
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         #endregion
     }
 

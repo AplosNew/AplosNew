@@ -56,26 +56,26 @@ namespace Aplos.Areas.TaskManagement.Controllers
             if (filterSettings["ActiveStatus"].ToString() != "All")
             {
                 if (filterSettings["ActiveStatus"].ToString() == "Closed")
-                    filter += " AND TM.CurrentStatus='" + filterSettings["ActiveStatus"].ToString() + "'";
+                    filter += " WHERE TM.CurrentStatus='" + filterSettings["ActiveStatus"].ToString() + "'";
                 else
-                    filter += " AND isnull(TM.CurrentStatus,'')<>'" + filterSettings["ActiveStatus"].ToString() + "'";
+                    filter += " WHERE isnull(TM.CurrentStatus,'')<>'" + filterSettings["ActiveStatus"].ToString() + "'";
             }
             if (filterSettings["DateSelection"].ToString() != "WITHOUTDATE")
             {
                 if (filterSettings["DateSelection"].ToString() == "WITHDATE")
                 {
                     if (filterSettings["ActiveStatus"].ToString() == "Closed")
-                        filter += " AND TM.ClosingDate between '" + filterSettings["FromDate"].ToString() + "' AND '" + filterSettings["ToDate"].ToString() + "'";
+                        filter += " WHERE TM.ClosingDate between '" + filterSettings["FromDate"].ToString() + "' AND '" + filterSettings["ToDate"].ToString() + "'";
                     else
-                        filter += " AND " + DueDate + " between '" + filterSettings["FromDate"].ToString() + "' AND '" + filterSettings["ToDate"].ToString() + "'";
+                        filter += " WHERE " + DueDate + " between '" + filterSettings["FromDate"].ToString() + "' AND '" + filterSettings["ToDate"].ToString() + "'";
 
                 }
                 else if (filterSettings["DateSelection"].ToString() == "WITHOUTDATE")
                 {
                     if (filterSettings["ActiveStatus"].ToString() == "Closed")
-                        filter += " AND TM.ClosingDate<='" + System.DateTime.Now.ToString("dd-MMM-yyyy") + "'";
+                        filter += " WHERE TM.ClosingDate<='" + System.DateTime.Now.ToString("dd-MMM-yyyy") + "'";
                     else
-                        filter += " AND " + DueDate + "<='" + System.DateTime.Now.ToString("dd-MMM-yyyy") + "'";
+                        filter += " WHERE " + DueDate + "<='" + System.DateTime.Now.ToString("dd-MMM-yyyy") + "'";
 
                 }
             }
@@ -89,7 +89,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                 isnull(tc.UserName,'') AS TaskCategory,isnull(tsc.UserName,'') AS TaskSubCategory
                                 ,LineItemReference
                                  FROM TaskManagerMaster AS tm
-                                inner join (" + TNAOrderColumns() + @") AS MO on TaskManagerMasterId=Tm.Id
+                                inner join (" + TNAOrderColumns(identity.PlantId) + @") AS MO on TaskManagerMasterId=Tm.Id
                                 INNER JOIN TNATasks AS TT ON TT.Id=tm.TNATasksId
                                 LEFT OUTER JOIN TaskAudit AS AB ON ab.TaskManagerMasterId=tm.Id AND ab.AuthorizationType='CreatedBy'
                                 LEFT OUTER JOIN TaskAudit AS ATO ON ATO.TaskManagerMasterId=tm.Id AND ATO.AuthorizationType='AssignTo'
@@ -108,7 +108,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                 INNER JOIN hkp.TaskSubCategory AS tsc ON tsc.Id=T.TaskSubCategoryId and tsc.Active=1
 
                                 LEFT OUTER JOIN hkp.Process AS p ON p.Id=t.ProcessId
-                                               WHERE eab.PlantId='" + identity.PlantId + @"' " + filter + @"
+                                 " + filter + @"
                                 ) AS K ";
 
             var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -1373,7 +1373,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                     INNER JOIN trn.MasterOrder AS mo ON mo.Id=t.MasterOrderId
                                     LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
 
-                                    UNION
+                                    UNION ALL
 
                                     SELECT 2 AS RNK, 'Style' AS TNAType, (ISNULL(MOI.BuyerReferenceNo,'')+tm.Id+'STYLE') AS [KEY], tm.Id AS TaskManagerMasterId,b.Id AS BuyerId,tt.TaskTemplateId, b.UserName AS Buyer,mo.Id  AS MasterOrderId,
                                 StyleNo=MOI.BuyerReferenceNo,
@@ -1399,7 +1399,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                 INNER JOIN trn.MasterOrder AS mo ON mo.Id=MOI.MasterOrderId
                                 LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
                                 
-                                UNION
+                                UNION ALL
 
                               SELECT  3 AS RNK, 'Sales Order' AS TNAType, (ISNULL(so.Id,'')+tm.Id+'SO') AS [KEY],tm.Id AS TaskManagerMasterId,b.Id AS BuyerId,tt.TaskTemplateId, b.UserName AS Buyer,mo.Id  AS MasterOrderId,
                                 StyleNo=MOI.BuyerReferenceNo,
@@ -1418,7 +1418,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                 INNER JOIN trn.MasterOrder AS mo ON mo.Id=MOI.MasterOrderId
                                 LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
                                 
-                                UNION
+                                UNION ALL
 
                                SELECT 4 AS RNK, 'Prod. Order' AS TNAType, (ISNULL(PR.ProductionOrderId,'')+tm.Id+'PR') AS [KEY],tm.Id AS TaskManagerMasterId,
                                 PR.BuyerId,tt.TaskTemplateId,   PR.Buyer,
@@ -1465,6 +1465,131 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                 		inner join trn.MasterOrderItem MOI on MOI.Id=so.MasterOrderItemId
 										INNER JOIN trn.MasterOrder AS mo ON mo.Id=MOI.MasterOrderId
 										LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
+                                ) AS PR ON pr.ProductionOrderId=po.Id";
+
+            return s;
+        }
+
+
+        private string TNAOrderColumns(string plantId)
+        {
+            string s = @"SELECT 1 AS RNK, 'Order' AS TNAType,  (ISNULL(MasterOrderId,'')+tm.Id+'ORDER') AS [KEY],tm.Id AS TaskManagerMasterId,b.Id AS BuyerId,tt.TaskTemplateId, b.UserName AS Buyer,mo.Id  AS MasterOrderId,
+                                    StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+				                                        trn.MasterOrderItem XMOI 	                                                   
+				                                    where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+				LineItemReference=STUFF((select distinct ','+so.LineItemReference from 
+				                                        trn.MasterOrderItem XMOI 	 
+				                                        INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id                                                  
+				                                    where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                    SONo=STUFF((select distinct ','+so.Id from 
+				                                        trn.MasterOrderItem XMOI 	 
+				                                        INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id                                                  
+				                                    where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+				
+                                    PRNo=STUFF((select distinct ','+pod.ProductionOrderId from 
+				                                        trn.MasterOrderItem XMOI 	 
+				                                        INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id   
+				                                        INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id                                               
+				                                    where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+				
+                                        FROM TaskManagerMaster AS tm
+                                    INNER JOIN TNATasks AS TT ON TT.Id=tm.TNATasksId
+                                    INNER JOIN TNAMaster AS T ON t.Id=tt.TNAMasterId AND isnull(t.MasterOrderId,'')<>''
+                                    INNER JOIN trn.MasterOrder AS mo ON mo.Id=t.MasterOrderId
+                                    LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
+                                    WHERE mo.PlantId='" + plantId + @"'
+                                    UNION
+
+                                    SELECT 2 AS RNK, 'Style' AS TNAType, (ISNULL(MOI.BuyerReferenceNo,'')+tm.Id+'STYLE') AS [KEY], tm.Id AS TaskManagerMasterId,b.Id AS BuyerId,tt.TaskTemplateId, b.UserName AS Buyer,mo.Id  AS MasterOrderId,
+                                StyleNo=MOI.BuyerReferenceNo,
+				LineItemReference=STUFF((select distinct ','+so.LineItemReference from 
+				                                 trn.MasterOrderItem XMOI 	 
+				                                 INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id                                                  
+				                                where MOI.Id=XMOI.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                SONo=STUFF((select distinct ','+so.Id from 
+				                                 trn.MasterOrderItem XMOI 	 
+				                                 INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id                                                  
+				                                where MOI.Id=XMOI.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+				
+                                PRNo=STUFF((select distinct ','+pod.ProductionOrderId from 
+				                                 trn.MasterOrderItem XMOI 	 
+				                                 INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id   
+				                                 INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id                                               
+				                                where MOI.Id=XMOI.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+				
+                                 FROM TaskManagerMaster AS tm
+                                INNER JOIN TNATasks AS TT ON TT.Id=tm.TNATasksId
+                                INNER JOIN TNAMaster AS T ON t.Id=tt.TNAMasterId AND isnull(t.MasterOrderItemId,'')<>''
+                                inner join trn.MasterOrderItem MOI on MOI.Id=t.MasterOrderItemId
+                                INNER JOIN trn.MasterOrder AS mo ON mo.Id=MOI.MasterOrderId
+                                LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
+                                 WHERE mo.PlantId='" + plantId + @"'
+                                UNION 
+                              SELECT  3 AS RNK, 'Sales Order' AS TNAType, (ISNULL(so.Id,'')+tm.Id+'SO') AS [KEY],tm.Id AS TaskManagerMasterId,b.Id AS BuyerId,tt.TaskTemplateId, b.UserName AS Buyer,mo.Id  AS MasterOrderId,
+                                StyleNo=MOI.BuyerReferenceNo,
+				so.LineItemReference,
+                                SONo=so.Id,
+				
+                                PRNo=STUFF((select distinct ','+pod.ProductionOrderId from 
+				                                  trn.ProductionOrderDetail AS pod                                              
+				                                where SO.Id=POD.SalesOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+				
+                                 FROM TaskManagerMaster AS tm
+                                INNER JOIN TNATasks AS TT ON TT.Id=tm.TNATasksId
+                                INNER JOIN TNAMaster AS T ON t.Id=tt.TNAMasterId AND isnull(t.SalesOrderId,'')<>''
+                                INNER JOIN trn.salesorder SO ON so.Id=t.SalesOrderId
+                                inner join trn.MasterOrderItem MOI on MOI.Id=so.MasterOrderItemId
+                                INNER JOIN trn.MasterOrder AS mo ON mo.Id=MOI.MasterOrderId
+                                LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
+                                 WHERE mo.PlantId='" + plantId + @"'
+                                UNION 
+
+                               SELECT 4 AS RNK, 'Prod. Order' AS TNAType, (ISNULL(PR.ProductionOrderId,'')+tm.Id+'PR') AS [KEY],tm.Id AS TaskManagerMasterId,
+                                PR.BuyerId,tt.TaskTemplateId,   PR.Buyer,
+                                PR.MasterOrderId,
+                                PR.StyleNo,pr.LineItemReference,pr.SONo,
+				
+				
+                                pr.ProductionOrderId AS PRNo
+				
+                                 FROM TaskManagerMaster AS tm
+                                INNER JOIN TNATasks AS TT ON TT.Id=tm.TNATasksId
+                                INNER JOIN TNAMaster AS T ON t.Id=tt.TNAMasterId  AND isnull(t.ProductionOrderId,'')<>''
+                                INNER JOIN trn.ProductionOrder AS po ON PO.Id=t.ProductionOrderId
+                                INNER JOIN
+                                (
+                                			SELECT distinct po.Id AS ProductionOrderId,
+                                			b.Id AS BuyerId,b.UserName AS Buyer,
+                                			
+                                			 MasterOrderId=STUFF((select distinct ','+XMOI.MasterOrderId from 
+														 trn.MasterOrderItem XMOI 	 
+														 INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+														 INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+														where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+											 
+											 ,StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+														 trn.MasterOrderItem XMOI 	 
+														 INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+														 INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+														where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                	 ,LineItemReference=STUFF((select distinct ','+sox.LineItemReference from 
+														 trn.MasterOrderItem XMOI 	 
+														 INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+														 INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+														where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                			  ,SONo=STUFF((select distinct ','+sox.Id from 
+														 trn.MasterOrderItem XMOI 	 
+														 INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+														 INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+														where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+				                                
+														 FROM trn.ProductionOrder PO
+										INNER JOIN trn.ProductionOrderDetail AS pod ON pod.ProductionOrderId=po.Id AND pod.Id=(SELECT TOP 1 Id FROM trn.ProductionOrderDetail AS px WHERE px.ProductionOrderId=po.Id)
+                                		INNER JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
+                                		inner join trn.MasterOrderItem MOI on MOI.Id=so.MasterOrderItemId
+										INNER JOIN trn.MasterOrder AS mo ON mo.Id=MOI.MasterOrderId
+										LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
+                                        WHERE mo.PlantId='" + plantId + @"'
                                 ) AS PR ON pr.ProductionOrderId=po.Id";
 
             return s;

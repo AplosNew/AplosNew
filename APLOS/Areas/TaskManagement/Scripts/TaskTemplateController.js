@@ -58,33 +58,6 @@ function TaskTemplateController(cboService, commonMessage, $scope, $rootScope, b
     });
 
     $scope.hideNewOrRepeatOrderCheckbox = false;
-    $scope.LoadDependentDates = function (args) {
-        $http({
-            method: 'GET',
-            url: $scope.pathTaskMaster + "GetDependentDateData?dependon=" + $scope.SingleTaskTemplate.TaskAppliedOnId
-        }).then(function successCallback(response) {
-            $scope.TaskDependentDateList = response.data.TaskDependentDates;
-            $scope.tempdateid = $scope.SingleTaskTemplate.TaskDependentDatesId;
-
-            $scope.hideNewOrRepeatOrderCheckbox = false;
-            if (response.data.TaskDependentDates[0].TaskDependentOn == 'MasterOrder') {
-                $scope.hideNewOrRepeatOrderCheckbox = true;
-                $scope.model.ForNewOrder = false;
-            }
-        });
-    }
-    $scope.tempdateid = null;
-    $scope.SelectDependentDates = function (args) {
-
-        try {
-            $scope.SingleTaskTemplate.TaskDependentDatesId = $scope.tempdateid;
-            var DropDownListObj = $("#TaskDependentDateList").data("ejDropDownList");
-            DropDownListObj.selectItemByValue($scope.tempdateid);
-        } catch (e) {
-
-        }
-
-    }
 
 
     $scope.searchCol = "UserName";
@@ -261,7 +234,7 @@ function TaskTemplateController(cboService, commonMessage, $scope, $rootScope, b
             method: 'POST',
             url: $scope.path + "CopyTask?TaskId=" + Id + "&TemplateMasterId=" + $scope.model.Id
         }).then(function successCallback(response) {
-           
+
             if (response.data.Error == false) {
                 $scope.LoadData($scope.model.Id);
             }
@@ -539,7 +512,7 @@ function TaskTemplateController(cboService, commonMessage, $scope, $rootScope, b
                 $scope.SingleTaskTemplate = response.data.Task[0];
                 $scope.SubTaskList = response.data.SubTasks;
                 $scope.DependencyList = response.data.DependencyList;
-
+                $scope.tempdateid = $scope.SingleTaskTemplate.TaskDependentDatesId;
                 $("#gridPredecessor").ejGrid("instance").refreshContent();
                 $("#gridSubTask").ejGrid("instance").refreshContent();
 
@@ -549,6 +522,7 @@ function TaskTemplateController(cboService, commonMessage, $scope, $rootScope, b
                     $scope.hideNewOrRepeatOrderCheckbox = true;
                     $scope.model.ForNewOrder = false;
                 }
+                $scope.LoadDependentDates(null);
             } catch (e) {
 
             }
@@ -556,6 +530,40 @@ function TaskTemplateController(cboService, commonMessage, $scope, $rootScope, b
         });
 
         $("#tabEdit").ejTab({ headerSize: "30px" });
+    }
+    $scope.tempdateid = null;
+    $scope.LoadDependentDates = function (args) {
+        $http({
+            method: 'GET',
+            url: $scope.pathTaskMaster + "GetDependentDateData?dependon=" + $scope.SingleTaskTemplate.TaskAppliedOnId
+        }).then(function successCallback(response) {
+            $scope.TaskDependentDateList = response.data.TaskDependentDates;
+            $scope.SingleTaskTemplate.TaskDependentDatesId = $scope.tempdateid;
+            for (var i = 0; i < $scope.TaskDependentDateList.length; i++) {
+                if ($scope.SingleTaskTemplate.TaskDependentDatesId == $scope.TaskDependentDateList[i].Id) {
+                    $scope.SingleTaskTemplate.TaskDependentDatesId = $scope.TaskDependentDateList[i].Id;
+                    break;
+                }
+            }
+
+            $scope.hideNewOrRepeatOrderCheckbox = false;
+            if (response.data.TaskDependentDates[0].TaskDependentOn == 'MasterOrder') {
+                $scope.hideNewOrRepeatOrderCheckbox = true;
+                $scope.model.ForNewOrder = false;
+            }
+        });
+    }
+
+    $scope.SelectDependentDates = function (args) {
+
+        try {
+            $scope.SingleTaskTemplate.TaskDependentDatesId = $scope.tempdateid;
+            var DropDownListObj = $("#TaskDependentDateList").data("ejDropDownList");
+            DropDownListObj.selectItemByValue($scope.tempdateid);
+        } catch (e) {
+
+        }
+
     }
 
 

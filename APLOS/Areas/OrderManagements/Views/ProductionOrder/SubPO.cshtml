@@ -1,20 +1,20 @@
 ﻿
 <togglable name="Sub Production Order"></togglable>
-<div class="row">
-    <div class="form-horizontal form-elements" ng-form="modelNewSPOForm">
+<div class="form-horizontal form-elements" ng-form="modelNewSPOForm">
+    <div class="row">
 
         @*<div class="form-group">
-            <label class="col-sm-4 control-label">Production Order</label>
-            <div class="input-group">
-                <div class="input-group col-sm-8">
-                    <input type="text" name="EmployeeName" ng-model="leaveApplicationNew.EmployeeName" class="form-control" required readonly>
-                    <span class="input-group-btn">
-                        <button name="submit" ng-click="getPopUpData()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </span>
-                </div>
+                <label class="col-sm-4 control-label">Production Order</label>
+                <div class="input-group">
+                    <div class="input-group col-sm-8">
+                        <input type="text" name="EmployeeName" ng-model="leaveApplicationNew.EmployeeName" class="form-control" required readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="getPopUpData()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
 
-            </div>
-        </div>*@
+                </div>
+            </div>*@
         <div class="col-xs-12">
             <div style="color:black;" id="GridSPO" ej-grid e-datasource="ProductionOrderList" e-allowscrolling="true"
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" @*e-recorddoubleclick="SetPrOData"*@
@@ -35,7 +35,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xs-12">
+        <div class="col-xs-12" ng-form="SPONewForm">
 
             <div class="col-sm-3">
                 <div class="form-group">
@@ -43,10 +43,22 @@
                     <div class="col-sm-8">
                         <div class="checkbox-site">
                             <label>
-                                <input type="checkbox" ng-model="employeeGroupNew.SKU1" ng-change="SetCheckbox('sku1');">
+                                <input type="checkbox" ng-model="ModelNewSPO.SKU1" ng-change="SetCheckbox('sku1');">
                                 <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                             </label>
                         </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">SPT<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="SPT" n-decimals="2" ng-model="ModelNewSPO.SPT" required class="form-control" tabindex="4" maxlength="50">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Plan Hour<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="PlanHour" n-decimals="2" ng-model="ModelNewSPO.PlanHour" required class="form-control" tabindex="4" maxlength="50">
                     </div>
                 </div>
             </div>
@@ -56,10 +68,22 @@
                     <div class="col-sm-8">
                         <div class="checkbox-site">
                             <label>
-                                <input type="checkbox" ng-model="employeeGroupNew.SKU2"ng-change="SetCheckbox('sku2');">
+                                <input type="checkbox" ng-model="ModelNewSPO.SKU2" ng-change="SetCheckbox('sku2');">
                                 <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                             </label>
                         </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Plan Percentage<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="SPT" n-decimals="2" ng-model="ModelNewSPO.PlanPercentage" class="form-control" required tabindex="4" maxlength="50">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Net Utilization Percentage<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" title="Net Utilization Percentage" name="Net Utilization Percentage" n-decimals="2" ng-model="ModelNewSPO.NetUtilizationPercentage" required class="form-control" tabindex="4" maxlength="50">
                     </div>
                 </div>
             </div>
@@ -69,10 +93,22 @@
                     <div class="col-sm-8">
                         <div class="checkbox-site">
                             <label>
-                                <input type="checkbox" ng-model="employeeGroupNew.Both"ng-change="SetCheckbox('both');">
+                                <input type="checkbox" ng-model="ModelNewSPO.Both" ng-change="SetCheckbox('both');">
                                 <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                             </label>
                         </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Min Qty<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="MinQty" n-decimals="2" ng-model="ModelNewSPO.MinQty" class="form-control" required tabindex="4" maxlength="50">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="LSD" ng-model="ModelNewSPO.LSD" datepicker class="form-control" required>
                     </div>
                 </div>
             </div>
@@ -80,45 +116,85 @@
                 <div class="common-btn">
                     <ul class="list-inline text-left">
                         <li> <button ng-click="GetSKUData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Go </button></li>
+                        <li> <button ng-click="GetSKUData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-fl"></i> Save </button></li>
                     </ul>
                 </div>
             </div>
         </div>
-        <div class="col-xs-12" ng-show="sku1List.length>0">
-            <div style="color:black;" id="GridSKU1" ej-grid e-datasource="sku1List" e-allowscrolling="true"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" @*e-recorddoubleclick="SetPrOData"*@
-                 e-allowselection="true" e-filtersettings-filterType="excel">
-                <div e-columns>
-                    <div e-column e-type="string" e-field="Color" e-headertext="Color" e-width="80"></div>
-                    <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="80"></div>
 
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12" ng-show="sku2List.length>0">
-            <div style="color:black;" id="GridSKU2" ej-grid e-datasource="sku2List" e-allowscrolling="true"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" @*e-recorddoubleclick="SetPrOData"*@
-                 e-allowselection="true" e-filtersettings-filterType="excel">
-                <div e-columns>
-                    <div e-column e-type="string" e-field="Size" e-headertext="Size" e-width="80"></div>
-                    <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="80"></div>
-
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12" ng-show="sku1sku2List.length>0">
+        <div class="col-xs-12">
             <div style="color:black;" id="GridSKU12" ej-grid e-datasource="sku1sku2List" e-allowscrolling="true"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" @*e-recorddoubleclick="SetPrOData"*@
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                  e-allowselection="true" e-filtersettings-filterType="excel">
                 <div e-columns>
                     <div e-column e-type="string" e-field="Color" e-headertext="Color" e-width="80"></div>
                     <div e-column e-type="string" e-field="Size" e-headertext="Size" e-width="80"></div>
                     <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="80"></div>
-
+                    <div e-column e-template="#AdjustableQty" e-headertext="AdjustableQty" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-field="PlanQty" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-template="#SPT" e-headertext="SPT" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-headertext="WCGroup" e-template="#ShowWCGroupButtons" e-width="20"></div>
+                    <div e-column e-template="#PlanHour" e-headertext="PlanHour" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-template="#NetUtilizationPercentage" e-headertext="NetUtilizationPercentage" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-template="#RequiredMachineDays" e-headertext="RequiredMachineDays" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-template="#MinWorkCenterDays" e-headertext="MinWorkCenterDays" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-template="#MaximumAllowedWorkCenter" e-headertext="MaximumAllowedWorkCenter" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-template="#AllotedWorkCenter" e-headertext="AllotedWorkCenter" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-field="PrefenceWorkCenter" e-headertext="PrefenceWorkCenter" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-field="RunningWorkCenter" e-headertext="RunningWorkCenter" e-width="80" style="height: 20px;"></div>
                 </div>
             </div>
+            <script type="text/template" id="SPT">
+                <div class="col-sm-10" style="padding:0px; width:70px;">
+                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.SPT" @*e-change="data.TotalSPT=data.AdditionalSPT+data.OperationSPT"*@ e-width="80" />
+                </div>
+            </script>
+            <script type="text/template" id="PlanHour">
+                <div class="col-sm-10" style="padding:0px; width:70px;">
+                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.PlanHour" @*e-change="data.TotalSPT=data.AdditionalSPT+data.OperationSPT"*@ e-width="80" />
+                </div>
+            </script>
+            <script type="text/template" id="AdjustableQty">
+                <div class="col-sm-10" style="padding:0px; width:70px;">
+                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AdjustableQty" e-change="$parent.calculate" e-width="80" />
+                </div>
+            </script>
+            <script type="text/template" id="NetUtilizationPercentage">
+                <div class="col-sm-10" style="padding:0px; width:70px;">
+                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.NetUtilizationPercentage" e-width="80" />
+                </div>
+            </script>
+            <script type="text/template" id="RequiredMachineDays">
+                <div class="col-sm-10" style="padding:0px; width:70px;">
+                    <input type="text" name="RequiredMachineDays" ng-disabled="true" ng-model="data.RequiredMachineDays" class="form-control">
+                </div>
+            </script>
+            <script type="text/template" id="MinWorkCenterDays">
+                <div class="col-sm-10" style="padding:0px; width:70px;">
+                    <input type="text" name="MinWorkCenterDays" ng-disabled="true" ng-model="data.MinWorkCenterDays" class="form-control">
+                </div>
+            </script>
+            <script type="text/template" id="MaximumAllowedWorkCenter">
+                <div class="col-sm-10" style="padding:0px; width:70px;">
+                    <input type="text" name="MaximumAllowedWorkCenter" ng-disabled="true" ng-model="data.MaximumAllowedWorkCenter" class="form-control">
+                </div>
+            </script>
+            <script type="text/template" id="AllotedWorkCenter">
+                <div class="col-sm-10" style="padding:0px; width:70px;">
+                    <input type="text" name="AllotedWorkCenter" ng-keydown="$parent.CheckMaxWCValue(this);" ng-model="data.AllotedWorkCenter" class="form-control">
+                </div>
+            </script>
+            <script type="text/template" id="ShowWCGroupButtons">
+                <div class="col-sm-8" style="padding:0px;">
+                    <input type="text" name="WorkCenterGroupId" ng-model="data.WorkCenterGroupId" ng-disabled="true" ng-click="" class="form-control" maxlength="200">
+                </div>
+                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                    <button @*ng-click="$parent.getWorkCenterGroupPopUp(this);"*@ class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                </div>
+            </script>
         </div>
-
-
     </div>
+
+
 </div>
+
