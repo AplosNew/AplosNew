@@ -590,58 +590,7 @@ namespace Library.Service.Expenses
 							GROUP BY G.CompanyGroupId
 						) Agg ON Agg.CompanyGroupId = CMPGR.Id
 						WHERE CMPGR.Active = 1
-						UNION ALL
-						SELECT
-						'Pending GRN For Approval' Category, 10 SI
-						,isnull(Agg.ThreeDaysCount,0) ThreeDaysCount,isnull(Agg.Total3Value,0) Total3Value
-						,isnull(Agg.FiveDaysCount,0) FiveDaysCount,isnull(Agg.Total5Value,0) Total5Value
-						,isnull(Agg.TenDaysCount,0) TenDaysCount,isnull(Agg.Total10Value,0) Total10Value
-						,isnull(Agg.FifteenDaysCount,0) FifteenDaysCount,isnull(Agg.Total15Value,0) Total15Value
-						,isnull(Agg.TweentyDaysCount,0) TweentyDaysCount,isnull(Agg.Total20Value,0) Total20Value
-						,isnull(Agg.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Agg.Total25Value,0) Total25Value
-						,isnull(Agg.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Agg.Total30Value,0) Total30Value
-						,isnull(Agg.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Agg.Total31Value,0) Total31Value
-						,isnull(Agg.AllCount,0) AllCount,isnull(Agg.Total32Value,0) Total32Value
-						FROM ORG.CompanyGroup CMPGR
-						LEFT JOIN (
-							SELECT G.CompanyGroupId AS CompanyGroupId
-							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 0 AND 3 THEN G.Id END) AS ThreeDaysCount
-							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 0 AND 3 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total3Value
-							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 4 AND 5 THEN G.Id END) AS FiveDaysCount
-							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 4 AND 5 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total5Value
-							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 6 AND 10 THEN G.Id END) AS TenDaysCount
-							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 6 AND 10 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total10Value
-							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 11 AND 15 THEN G.Id END) AS FifteenDaysCount
-							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 11 AND 15 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total15Value
-							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 16 AND 20 THEN G.Id END) AS TweentyDaysCount
-							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 16 AND 20 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total20Value
-							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 21 AND 25 THEN G.Id END) AS TwentyFiveyDaysCount
-							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 21 AND 25 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total25Value
-							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 26 AND 30 THEN G.Id END) AS ThirtyDaysCount
-							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 26 AND 30 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total30Value
-							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) >= 31 THEN G.Id END) AS GraterThirtyDaysCount
-							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) >= 31 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total31Value
-							,COUNT(DISTINCT CASE WHEN 1=1 THEN G.Id END) AS AllCount
-							,SUM(CASE WHEN 1=1 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total32Value
-							FROM trn.InventoryReceive IR
-							LEFT JOIN TRN.[GateEntry] G ON IR.GateEntryNo=G.Id
-							LEFT JOIN hkp.Party p ON P.Id= G.PartyId
-							LEFT JOIN ORG.CompanyGroup CG ON CG.Id= G.CompanyGroupId
-							LEFT JOIN ORG.Company C ON C.Id= G.CompanyId
-							LEFT JOIN ORG.Plant Pl ON Pl.Id= G.PlantId
-							LEFT JOIN (
-								SELECT InventoryReceiveId, SUM(TransactionQty) TransactionQty, SUM(MaterialTranRate) MaterialTranRate,
-									SUM(TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
-								FROM trn.InventoryReceiveDetail GROUP BY InventoryReceiveId
-							) IRD ON IRD.InventoryReceiveId=IR.Id
-							LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=G.EmployeeId
-							LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=G.EmployeeIdForGateEntry
-							LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-							LEFT JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-							WHERE IR.AuthorizedByStatus='For Approval'
-							GROUP BY G.CompanyGroupId
-						) Agg ON Agg.CompanyGroupId = CMPGR.Id
-						WHERE CMPGR.Active = 1
+						
 						UNION ALL
 						SELECT
 						'Pending GRN For Checking' Category, 10 SI
@@ -691,6 +640,58 @@ namespace Library.Service.Expenses
 							LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
 							LEFT JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
 							WHERE IR.CheckedByStatus='ForChecked'
+							GROUP BY G.CompanyGroupId
+						) Agg ON Agg.CompanyGroupId = CMPGR.Id
+						WHERE CMPGR.Active = 1
+						UNION ALL
+						SELECT
+						'Pending GRN For Approval' Category, 10 SI
+						,isnull(Agg.ThreeDaysCount,0) ThreeDaysCount,isnull(Agg.Total3Value,0) Total3Value
+						,isnull(Agg.FiveDaysCount,0) FiveDaysCount,isnull(Agg.Total5Value,0) Total5Value
+						,isnull(Agg.TenDaysCount,0) TenDaysCount,isnull(Agg.Total10Value,0) Total10Value
+						,isnull(Agg.FifteenDaysCount,0) FifteenDaysCount,isnull(Agg.Total15Value,0) Total15Value
+						,isnull(Agg.TweentyDaysCount,0) TweentyDaysCount,isnull(Agg.Total20Value,0) Total20Value
+						,isnull(Agg.TwentyFiveyDaysCount,0) TwentyFiveyDaysCount,isnull(Agg.Total25Value,0) Total25Value
+						,isnull(Agg.ThirtyDaysCount,0) ThirtyDaysCount,isnull(Agg.Total30Value,0) Total30Value
+						,isnull(Agg.GraterThirtyDaysCount,0) GraterThirtyDaysCount,isnull(Agg.Total31Value,0) Total31Value
+						,isnull(Agg.AllCount,0) AllCount,isnull(Agg.Total32Value,0) Total32Value
+						FROM ORG.CompanyGroup CMPGR
+						LEFT JOIN (
+							SELECT G.CompanyGroupId AS CompanyGroupId
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 0 AND 3 THEN G.Id END) AS ThreeDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 0 AND 3 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total3Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 4 AND 5 THEN G.Id END) AS FiveDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 4 AND 5 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total5Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 6 AND 10 THEN G.Id END) AS TenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 6 AND 10 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total10Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 11 AND 15 THEN G.Id END) AS FifteenDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 11 AND 15 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total15Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 16 AND 20 THEN G.Id END) AS TweentyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 16 AND 20 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total20Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 21 AND 25 THEN G.Id END) AS TwentyFiveyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 21 AND 25 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total25Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 26 AND 30 THEN G.Id END) AS ThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) BETWEEN 26 AND 30 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total30Value
+							,COUNT(DISTINCT CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) >= 31 THEN G.Id END) AS GraterThirtyDaysCount
+							,SUM(CASE WHEN DATEDIFF(day,G.EntryDate,GETDATE()) >= 31 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total31Value
+							,COUNT(DISTINCT CASE WHEN 1=1 THEN G.Id END) AS AllCount
+							,SUM(CASE WHEN 1=1 THEN IRD.TotalMaterialBooksCurrencyAmount END) AS Total32Value
+							FROM trn.InventoryReceive IR
+							LEFT JOIN TRN.[GateEntry] G ON IR.GateEntryNo=G.Id
+							LEFT JOIN hkp.Party p ON P.Id= G.PartyId
+							LEFT JOIN ORG.CompanyGroup CG ON CG.Id= G.CompanyGroupId
+							LEFT JOIN ORG.Company C ON C.Id= G.CompanyId
+							LEFT JOIN ORG.Plant Pl ON Pl.Id= G.PlantId
+							LEFT JOIN (
+								SELECT InventoryReceiveId, SUM(TransactionQty) TransactionQty, SUM(MaterialTranRate) MaterialTranRate,
+									SUM(TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+								FROM trn.InventoryReceiveDetail GROUP BY InventoryReceiveId
+							) IRD ON IRD.InventoryReceiveId=IR.Id
+							LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=G.EmployeeId
+							LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=G.EmployeeIdForGateEntry
+							LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
+							LEFT JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
+							WHERE IR.AuthorizedByStatus='For Approval'
 							GROUP BY G.CompanyGroupId
 						) Agg ON Agg.CompanyGroupId = CMPGR.Id
 						WHERE CMPGR.Active = 1

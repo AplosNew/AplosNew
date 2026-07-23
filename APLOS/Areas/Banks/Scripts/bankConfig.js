@@ -187,5 +187,9 @@ function bankConfig($routeProvider, $locationProvider) {
             templateUrl: "Banks/bankreconciliation/BankSettlementJournal",
             controller: "bankSettlementJournalController"
         })
+        .when("/monthly-expenses-asset", {
+            templateUrl: "Banks/CashReport/MonthlyExpenseAndAssetStatement",
+            controller: "monthlyExpensesAndAssetStatementController"
+        })
         ;
 }

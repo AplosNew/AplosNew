@@ -1,4 +1,5 @@
-﻿using Library.Data.Sql;
+﻿using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.Model.Enums;
 using Library.Service.Currencies;
 using Library.Service.Extension.Accounts;
@@ -7,9 +8,12 @@ using Library.Service.Organizations;
 using OTSBD;
 using Syncfusion.XlsIO;
 using System;
+using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
-
+using System.Threading;
 
 namespace Library.Service.Banks
 {
@@ -2398,5 +2402,167 @@ namespace Library.Service.Banks
             }
         }
 
+        /* =====================================================================
+   Statement of Payments report - built the same way as GetDayBooksReport,
+   with one key difference: your SQL uses a dynamic PIVOT, so the category
+   columns (bank/cash accounts) are NOT fixed and can change from run to
+   run. That means, unlike GetDayBooksReport, this method cannot declare
+   fixed "colX" ints up front - it reads the column list off the returned
+   DataTable at runtime and builds the header/body from that.
+
+   Column contract coming back from usp_GetPaymentsStatement:
+       [SL #], [ACCOUNTS HEAD], <dynamic category columns...>, [TOTAL]
+   Subtotal rows ("(A) TOTAL REVENUE EXPENSES", "(B) TOTAL CAPITAL EXPENSES")
+   and the grand total row ("TOTAL EXPENSES") are identified by [SL #] being
+   NULL/blank - the query does this on purpose so the report layer can bold
+   them without guessing from text.
+   ===================================================================== */
+
+        public IWorkbook GetMontlyExpensesAndAssetWorkBook(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, DateTime fromDate, DateTime toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            ExcelEngine excelEngine = new ExcelEngine();
+            //Instantiate the Excel application object
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+
+            //Load the existing Excel workbook into IWorkbook
+            IWorkbook workbook = application.Workbooks.Create(1);
+
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+            DataTable dtPayments = GetPaymentsStatementData(companyGroupId, companyId, plantId, fromDate, toDate);
+
+            worksheet.Name = "EXPENDITURE STATEMENT";
+            reportFileName = "EXPENDITURE STATEMENT " + toDate.ToString("dd-MMM-yyyy");
+
+            //if (dtPayments.Rows.Count == 0)
+            //    throw new Exception("No data found");
+
+            int COL = 1; int ROW = 5;
+            int startCol = COL;
+
+            worksheet.Range[ROW - 1, 3].Text = "Posting Date:  From " + Convert.ToDateTime(fromDate).ToString("dd-MMM-yyyy") + " To " + Convert.ToDateTime(toDate).ToString("dd-MMM-yyyy");
+
+            /* ---- Header row: one Excel column per DataTable column, in the order
+               the proc returned them. colIndexByName lets the detail loop below
+               write into the right cell without knowing the category names ahead
+               of time. ---- */
+            Dictionary<string, int> colIndexByName = new Dictionary<string, int>();
+
+            foreach (DataColumn dc in dtPayments.Columns)
+            {
+                worksheet[ROW, COL].Text = dc.ColumnName;
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+
+                if (dc.ColumnName == "SL #")
+                {
+                    worksheet[ROW, COL].ColumnWidth = 6;
+                    worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                }
+                else if (dc.ColumnName == "ACCOUNTS HEAD")
+                {
+                    worksheet[ROW, COL].ColumnWidth = 35;
+                }
+                else
+                {
+                    // dynamic category column, or TOTAL - both are amount columns
+                    worksheet[ROW, COL].ColumnWidth = 16;
+                    worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                }
+
+                colIndexByName[dc.ColumnName] = COL;
+                COL++;
+            }
+
+            int endCol = COL - 1;
+            worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
+            ROW++;
+
+            /* ---- Detail / subtotal / grand-total rows ---- */
+            for (int i = 0; i < dtPayments.Rows.Count; i++)
+            {
+                DataRow dr = dtPayments.Rows[i];
+                bool isTotalRow = dr["SL #"] == DBNull.Value || string.IsNullOrEmpty(dr["SL #"].ToString());
+
+                foreach (DataColumn dc in dtPayments.Columns)
+                {
+                    int col = colIndexByName[dc.ColumnName];
+
+                    if (dc.ColumnName == "SL #" || dc.ColumnName == "ACCOUNTS HEAD")
+                    {
+                        worksheet[ROW, col].Text = dr[dc.ColumnName].ToString();
+                    }
+                    else
+                    {
+                        // every remaining column (each category + TOTAL) is an amount
+                        worksheet[ROW, col].Number = clsStaticInfo.dbl(dr[dc.ColumnName].ToString());
+                        worksheet[ROW, col].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    }
+
+                    if (isTotalRow)
+                    {
+                        worksheet[ROW, col].CellStyle.Font.Bold = true;
+                    }
+                }
+
+                if (isTotalRow)
+                {
+                    worksheet.Range[ROW, 1, ROW, endCol].CellStyle.ColorIndex = ExcelKnownColors.Grey_25_percent;
+                }
+
+                worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+            }
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.CellStyle.Font.Size = 8f;
+
+            ReportUtility reportUtility = new ReportUtility();
+
+            reportUtility.PlantHeader(ref worksheet, endCol, " EXPENDITURE STATEMENT ", identity.PlantId);
+            reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            worksheet.IsGridLinesVisible = false;
+
+            #region Freeze Panes
+
+            worksheet.IsDisplayZeros = false;
+            worksheet.UsedRange["A6"].FreezePanes();
+            worksheet.FirstVisibleColumn = 1;
+            worksheet.FirstVisibleRow = 6;
+
+            #endregion Freeze Panes
+
+            return workbook;
+        }
+
+        /* ---------------------------------------------------------------------
+           Data access - calls usp_GetPaymentsStatement (the stored-procedure
+           version of your ad-hoc script). Follow whatever connection/command
+           pattern GetDayBooksData already uses in this project; the shape below
+           is a standard ADO.NET example so you can drop it into that pattern.
+           --------------------------------------------------------------------- */
+        private DataTable GetPaymentsStatementData(string companyGroupId, string companyId, string plantId, DateTime fromDate, DateTime toDate)
+        {
+            var sqlBuilder = new System.Text.StringBuilder();
+            var builderSql = @"EXEC dbo.usp_GetMonthlyExpAndAssetStatement '" + plantId + "' ,'" + fromDate.ToString("yyyy-MM-dd") + "' ,'" + toDate.ToString("yyyy-MM-dd") + "'";
+            sqlBuilder.Append(builderSql);
+
+            DataTable dtPayments = _sqlRepository.GetDataTable(sqlBuilder.ToString());
+
+            return dtPayments;
+        }
     }
 }
