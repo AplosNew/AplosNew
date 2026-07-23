@@ -2129,6 +2129,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             url: 'OrderManagements/ProductionOrder/GetProductionOredrList'
         }).then(function successCallback(response) {
             $scope.ProductionOrderList = response.data;
+            $scope.GetSavedSKUData();
         });
 
     };
@@ -2155,12 +2156,26 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         }
     }
 
+    $scope.GetSavedSKUData = function () {
+        $http({
+            method: 'POST',
+            data: {
+                'poId': $scope.model.Id
+            },
+            url: 'OrderManagements/ProductionOrder/GetSavedSKUData'
+        }).then(function successCallback(response) {
+            $scope.sku1sku2List = response.data;
+        });
+    }
+
+
     $scope.sku1sku2List = [];
     $scope.GetSKUData = function () {
         $scope.sku1List = [];
         $scope.sku2List = [];
         $scope.sku1sku2List = [];
         try {
+
             if ($scope.ModelNewSPO.SKU1 == false && $scope.ModelNewSPO.SKU2 == false && $scope.ModelNewSPO.Both == false) {
                 throw "Select SKU level.";
             }
@@ -2174,12 +2189,108 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                     },
                     url: 'OrderManagements/ProductionOrder/GetSKUData'
                 }).then(function successCallback(response) {
-                    for (var i = 0; i < response.data.length; i++) {
-                        response.data[i].SPT = $scope.ModelNewSPO.SPT;
-                        response.data[i].PlanHour = $scope.ModelNewSPO.PlanHour;
-                        response.data[i].NetUtilizationPercentage = $scope.ModelNewSPO.NetUtilizationPercentage;
-                        response.data[i].MinWorkCenterDays = 10;
-                        response.data[i].PlanQty = response.data[i].Qty;
+                    if (baseService.isUndefinedOrNull(response.data[0].Id)) {
+                        for (var i = 0; i < response.data.length; i++) {
+                            response.data[i].Id = -(Math.floor(Math.random() * 100) + 1);
+                            response.data[i].NoOfWorkStation = $scope.ModelNewSPO.NoOfWorkStation;
+                            response.data[i].Efficiency = $scope.ModelNewSPO.NetUtilizationPercentage;
+                            response.data[i].SPT = $scope.ModelNewSPO.SPT;
+                            response.data[i].PlanWorkingHoursPerDay = $scope.ModelNewSPO.PlanHour;
+                            response.data[i].FirstDayOutPut = $scope.ModelNewSPO.FirstDayOutPut;
+                            response.data[i].DayToReachTheTarget = 0;
+                            response.data[i].LSD = $scope.ModelNewSPO.LSD; 
+                            response.data[i].CommitmentDate = $scope.ModelNewSPO.CommitmentDate;
+                            response.data[i].MainRawMaterialInhouseDate = $scope.ModelNewSPO.MainRawMaterialInhouseDate;
+                            response.data[i].OtherRawMaterialInhouseDate = $scope.ModelNewSPO.OtherRawMaterialInhouseDate;
+                            response.data[i].ProductionPriority = $scope.ModelNewSPO.ProductionPriority;
+                            response.data[i].TargetPerHour = 0;
+                            response.data[i].TargetPerDay = 0;
+                            response.data[i].EfficiencyPercentage = 0;
+                            response.data[i].IncrementValue = 0;
+                            response.data[i].IncrementType = null;
+                            response.data[i].RequiredNoOfLines = 0;
+                            response.data[i].RequiredLineDays = 0;
+                            response.data[i].MinimumLineDays = 10;
+                            response.data[i].Qty = response.data[i].Qty;
+                            response.data[i].AllocatedLines = 0;
+                            response.data[i].SKU1 = $scope.ModelNewSPO.SKU1;
+                            response.data[i].SKU2 = $scope.ModelNewSPO.SKU2;
+                            response.data[i].Both = $scope.ModelNewSPO.Both;
+                            response.data[i].IncrementType = "FIXED";
+                            response.data[i].IncrementValue = 100;
+                            response.data[i].RunningOrderBlockSize = 1;
+                            response.data[i].WCPreferenceType= 'INCLUDE';
+                          
+                            response.data[i].RequiredLineDays = parseFloat((response.data[i].PlanWorkingHoursPerDay * 60) / (response.data[i].SPT * response.data[i].Qty) / response.data[i].Efficiency).toFixed(2);
+                            response.data[i].MaximumAllowedWorkCenter = Math.floor(response.data[i].RequiredLineDays) / response.data[i].MinimumLineDays;
+                            if (response.data[i].MaximumAllowedWorkCenter < 1) {
+                                response.data[i].MaximumAllowedWorkCenter = 1;
+                            }
+
+                            if (response.data[i].NoOfWorkStation > 0 || response.data[i].Efficiency > 0 || response.data[i].SPT > 0) {
+
+                                response.data[i].TargetPerHour = (response.data[i].NoOfWorkStation * 60 / response.data[i].SPT);
+                                $scope.TargetQtyAtFullEfficiency = response.data[i].TargetPerHour;
+                                if (response.data[i].TargetPerHour > 0) {
+
+                                    response.data[i].TargetPerDay = (response.data[i].PlanWorkingHoursPerDay * response.data[i].TargetPerHour);
+                                    $scope.EfficiencyPercentage = (response.data[i].TargetPerDay);// * response.data[i].Efficiency / 100;
+
+
+                                    //at efficiency level
+                                    response.data[i].TargetPerHour = response.data[i].TargetPerHour * response.data[i].Efficiency / 100;
+                                    response.data[i].TargetPerDay = response.data[i].TargetPerDay * response.data[i].Efficiency / 100;
+
+
+
+                                    response.data[i].RequiredLineDays = (response.data[i].Qty / response.data[i].TargetPerDay).toFixed(2);
+                                }
+
+                                if (response.data[i].MinimumLineDays > 0) {
+
+                                    response.data[i].RequiredNoOfLines = response.data[i].RequiredLineDays / response.data[i].MinimumLineDays;
+
+                                    if (response.data[i].RequiredNoOfLines > 0 && response.data[i].RequiredNoOfLines <= 1)
+                                        response.data[i].AllocatedLines = 1;
+
+                                    if (response.data[i].RequiredNoOfLines > 1)
+                                        response.data[i].AllocatedLines = Math.floor(response.data[i].RequiredNoOfLines);
+                                }
+
+                                try {
+                                    response.data[i].RequiredNoOfLines = response.data[i].RequiredNoOfLines.toFixed(4)
+                                    response.data[i].RequiredLineDays = response.data[i].RequiredLineDays.toFixed(4)
+                                } catch (e) {
+
+                                }
+                            }
+                            if (response.data[i].FirstDayOutPut > 0 && response.data[i].IncrementValue > 0) {
+
+                                if (response.data[i].IncrementType == "FIXED" || response.data[i].IncrementType == "PERCENTAGE") {
+                                    var daysrequired = 1;
+                                    if (response.data[i].FirstDayOutPut < response.data[i].TargetPerHour) {
+                                        daysrequired = 1;
+                                        var firstdaysoutput = response.data[i].FirstDayOutPut;
+                                        while (firstdaysoutput * response.data[i].PlanWorkingHoursPerDay < response.data[i].TargetPerDay) {
+                                            daysrequired++;
+                                            //if (response.data[i].IncrementType == "FIXED")
+                                                firstdaysoutput += response.data[i].IncrementValue;
+
+                                            //compounding method
+                                            //if (response.data[i].IncrementType == "PERCENTAGE")
+                                            //    firstdaysoutput = firstdaysoutput + (firstdaysoutput * response.data[i].IncrementValue / 100);
+
+
+
+                                        }
+
+                                    }
+                                    response.data[i].DayToReachTheTarget = daysrequired.toFixed(2);
+                                }
+                               
+                            }
+
+                        }
                     }
                     $scope.sku1sku2List = response.data;
                 });
@@ -2195,10 +2306,10 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             if (!baseService.isUndefinedOrNull($scope.sku1sku2List[i].AdjustableQty)) {
                 $scope.sku1sku2List[i].PlanQty = $scope.sku1sku2List[i].Qty + $scope.sku1sku2List[i].AdjustableQty;
             }
-            $scope.sku1sku2List[i].RequiredMachineDays = parseFloat(($scope.sku1sku2List[i].PlanHour * 60) / ($scope.sku1sku2List[i].SPT * $scope.sku1sku2List[i].PlanQty) / $scope.sku1sku2List[i].NetUtilizationPercentage).toFixed(2);
-            $scope.sku1sku2List[i].MaximumAllowedWorkCenter = Math.floor($scope.sku1sku2List[i].RequiredMachineDays) / $scope.sku1sku2List[i].MinWorkCenterDays;
-            if ($scope.sku1sku2List[i].MaximumAllowedWorkCenter < 1) {
-                $scope.sku1sku2List[i].MaximumAllowedWorkCenter = 1;
+            $scope.sku1sku2List[i].RequiredLineDays = parseFloat(($scope.sku1sku2List[i].PlanHour * 60) / ($scope.sku1sku2List[i].SPT * $scope.sku1sku2List[i].PlanQty) / $scope.sku1sku2List[i].Efficiency).toFixed(2);
+            $scope.sku1sku2List[i].NoOfWorkStation = Math.floor($scope.sku1sku2List[i].RequiredLineDays) / $scope.sku1sku2List[i].MinimumLineDays;
+            if ($scope.sku1sku2List[i].NoOfWorkStation < 1) {
+                $scope.sku1sku2List[i].NoOfWorkStation = 1;
             }
         }
         var gridObj = $("#GridSKU12").data("ejGrid");
@@ -2207,7 +2318,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
     $scope.CheckMaxWCValue = function (obj) {
         try {
-            if (obj.data.AllotedWorkCenter > obj.data.MaximumAllowedWorkCenter) {
+            if (obj.data.AllocatedLines > obj.data.NoOfWorkStation) {
                 throw "Alloted Work Center can't greater than Maximum Allowed Work Center.";
             }
 
@@ -2216,7 +2327,30 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         }
     }
 
+    $scope.tempOj = {}
+    $scope.wcgList = [];
+    $scope.GetWorkCenterGroup = function (obj) {
+        $scope.tempOj = obj.data;
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/ProductionOrder/GetWorkCenterGroup'
+        }).then(function successCallback(response) {
+            $scope.wcgList = response.data;
+            angular.element(document.querySelector('#WCGPopUp')).modal('show');
+        });
+    }
 
+    $scope.selectWCG = function (data) {
+        $scope.tempOj.WorkCenterGroupId = data.data.Id
+        $scope.tempOj.WorkCenterGroup = data.data.UserName;
+        var gridObj = $("#GridSKU12").data("ejGrid");
+        gridObj.refreshContent();
+        $scope.CloseWCG();
+    };
+
+    $scope.CloseWCG = function () {
+        angular.element(document.querySelector('#WCGPopUp')).modal('hide');
+    }
 
     $scope.SaveSPO = function () {
         try {
@@ -2231,7 +2365,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-
+                    $scope.GetSavedSKUData();
                 }
             }, function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -2240,4 +2374,92 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             ShowResult(e, 'failure');
         }
     }
+
+    $scope.workCenterList = [];
+    $scope.workcenterfor = '';
+    //$scope.workcenterDialog = $("#workCenterPopUp").ejDialog({ target: "#entrycontainer" });
+    $scope.workCenterPopUp = function (wcfor) {
+        $scope.workcenterfor = wcfor;
+        $rootScope.tempList = [];
+        $scope.workCenterList = [];
+
+        if (wcfor == 'RUNNING') {
+            angular.forEach($scope.runningWorkCenterList, function (a) {
+                $rootScope.tempList.push({
+                    Id: a.Id
+                    , Plant: a.Plant
+                    , Entity: a.Entity
+                    , WorkCenterMasterId: a.WorkCenterMasterId
+                    , ProductionOrderId: a.ProductionOrderId
+                    , Code: a.Code
+                    , UserName: a.UserName
+                    , Flag: true
+                });
+            });
+        }
+        else {
+            angular.forEach($scope.productionWorkCenterList, function (a) {
+                $rootScope.tempList.push({
+                    Id: a.Id
+                    , Plant: a.Plant
+                    , Entity: a.Entity
+                    , WorkCenterMasterId: a.WorkCenterMasterId
+                    , ProductionOrderId: a.ProductionOrderId
+                    , Code: a.Code
+                    , UserName: a.UserName
+                    , Flag: true
+                });
+            });
+        }
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetWorkCenterList?entityIds=' + $scope.productionOrderModel.EntityId + "&processid=" + $scope.PlanningTypeProcessId
+        }).then(function successCallback(res) {
+            $scope.workCenterList = res.data;
+
+            if (baseService.arrayLength($scope.workCenterList) > 0) {
+                for (var i = 0; i < $scope.workCenterList.length; i++) {
+                    if (wcfor == 'RUNNING') {
+                        for (var j = 0; j < $scope.runningWorkCenterList.length; j++) {
+                            if ($scope.runningWorkCenterList[j].WorkCenterMasterId === $scope.workCenterList[i].WorkCenterMasterId) {
+                                $scope.workCenterList[i].Flag = true;
+                            }
+                        }
+                    }
+                    else {
+                        for (var j = 0; j < $scope.productionWorkCenterList.length; j++) {
+                            if ($scope.productionWorkCenterList[j].WorkCenterMasterId === $scope.workCenterList[i].WorkCenterMasterId) {
+                                $scope.workCenterList[i].Flag = true;
+                            }
+                        }
+                    }
+
+                }
+            }
+        });
+
+
+        var eDialog = $("#workCenterPopUp").data("ejDialog");
+        eDialog.open();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -3415,6 +3415,16 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
             return jsondata;
         }
 
+
+        [HttpPost, Authorize]
+        public ActionResult GetSavedSKUData(string poId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetSavedSKUData(poId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
         [HttpPost, Authorize]
         public ActionResult GetWorkCenterGroup()
         {
@@ -3424,7 +3434,7 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
             return jsondata;
         }
         [HttpPost, Authorize]
-        public JsonResult SaveSPO(List<Dictionary<string, object>> data, string masterId)
+        public JsonResult SaveSPO(List<Dictionary<string, object>> data, string POId)
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -3436,7 +3446,7 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
                 #region Entity 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionOrderSchedulingParametersType2 Where ProductionOrderID='" + masterId + "'", out dsBC, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionOrderSchedulingParametersType2 Where ProductionOrderID='" + POId + "'", out dsBC, false, "1");
 
                 if (data != null)
                 {
@@ -3447,7 +3457,8 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
 
                         if (dv.Count == 0)
                         {
-                            item["ProductionOrderID"] = masterId;
+                            item["ProductionOrderID"] = POId;
+                            item["Color"] = DBNull.Value;
                             AddNewRow(dsBC.Tables[0], item);
                         }
                         else
