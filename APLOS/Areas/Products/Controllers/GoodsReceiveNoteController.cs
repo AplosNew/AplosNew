@@ -5067,10 +5067,10 @@ ROW_NUMBER() OVER(ORDER BY MT.Id) SrNo
                             FROM [TRN].[InventoryReceiveTax]
                             WHERE InventoryReceiveDetailId = IRD.Id
                             )
-                            FROM  [TRN].[GRNBinAllocationMap] GAM 
+                             FROM trn.inventoryReceiveDetail IRD 
+                             LEFT JOIN [TRN].[GRNBinAllocationMap] GAM ON IRD.Id = GAM.InventoryReceiveDetailId
 							LEFT JOIN MST.StorageBinMaster SBM on SBM.Id = GAM.StorageBinMasterId
 							LEFT JOIN TRN.BinAllocation BA on BA.StorageBinMasterId = SBM.Id
-                            LEFT JOIN trn.inventoryReceiveDetail IRD ON IRD.Id = GAM.InventoryReceiveDetailId
 							LEFT JOIN TRN.InventoryReceive IR ON ir.Id = IRD.InventoryReceiveId
                             LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                             LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId

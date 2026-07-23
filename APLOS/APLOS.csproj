@@ -1984,6 +1984,7 @@
     <Content Include="Areas\Attendances\Scripts\GoodWorkReportController.js" />
     <Content Include="Areas\Attendances\Scripts\GoodWorkPaymentDisburseController.js" />
     <Content Include="Areas\Attendances\Scripts\EmployeeMultipleAdvanceController.js" />
+    <Content Include="Areas\Banks\Scripts\monthlyExpensesAndAssetStatementController.js" />
     <Content Include="Areas\Commercial\Scripts\ComplianceAuditController.js" />
     <Content Include="Areas\Commercial\Scripts\ComplianceTransactionController.js" />
     <Content Include="Areas\Commercial\Scripts\ContractSummaryController.js" />
@@ -5134,6 +5135,7 @@
     <Content Include="Areas\OrderManagements\Views\ProductionOrder\PO.cshtml" />
     <Content Include="Areas\OrderManagements\Views\ProductionOrder\SubPO.cshtml" />
     <Content Include="Areas\OrderManagements\Views\ProductionOrder\Schedulle.cshtml" />
+    <Content Include="Areas\Banks\Views\MonthlyExpenseAndAssetStatement.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -1,4 +1,5 @@
-﻿using Aplos.Controllers;
+﻿
+using Aplos.Controllers;
 using Library.Accounting.Accounts;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
@@ -207,6 +208,29 @@ namespace Aplos.Areas.Banks.Controllers
 
                 default:
                     return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+
+        public ActionResult MonthlyExpenseAndAssetStatement()
+        {
+            return View("~/Areas/Banks/Views/MonthlyExpenseAndAssetStatement.cshtml");
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetMontlyExpensesAndAssetStatement(ReportFormat reportFormat, DateTime fromdate, DateTime todate, string entityId, string dateType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _cashReportService.GetMontlyExpensesAndAssetWorkBook(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromdate, todate);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
             }
         }
     }

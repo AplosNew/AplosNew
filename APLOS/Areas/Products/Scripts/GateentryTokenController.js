@@ -46,7 +46,7 @@ function GateentryTokenController(accountService, addressService, $window, facto
     $scope.product = {
         Id: null
         , CompanyGroupId: null
-        , EntryDate: null//$filter("dateFiltering")(Date.now())
+        , EntryDate: $filter("dateFiltering")(Date.now())
         , PartyCode: null
         , Description: null
         , PackageQty: null
