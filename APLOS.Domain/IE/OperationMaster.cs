@@ -26,6 +26,8 @@ namespace Library.Model.IE
         public decimal ProposedSalary { get; set; }
         public string Remarks { get; set; }
         public string SkillLevel { get; set; }
+        public string SpecialSkill { get; set; }
+        public string EmployeeRating { get; set; }
         public bool Active { get; set; }
 
         #endregion Scalar Properties

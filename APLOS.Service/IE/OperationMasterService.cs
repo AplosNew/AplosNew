@@ -322,32 +322,7 @@ namespace Library.Service.IE
         {
             try
             {
-                var sql = @"SELECT  
-                             Id	
-	                        ,CompanyGroupId
-		                    ,[Sequence]                                          
-		                    ,Code,
-		                    ShortName ,
-		                    StandardName,
-		                    UserName,
-		                    OperationActivityId,
-		                    OperationTypeId,
-		                    OperationCategoryId,
-		                    SkillId,
-		                    [Type],
-		                    MachineMasterId	,
-		                    SkillGroupId,
-		                    LegalDesignationId,
-		                    ProcessId,
-		                    ProposedSalary,
-		                    Remarks,
-		                    Active,
-		                    AddedBy,
-		                    AddedDate,
-		                    AddedFromIP,
-		                    UpdatedBy,
-		                    UpdatedDate,
-		                    UpdatedFromIP from [MST].[OperationMaster] where Id='" + id + "'";
+                var sql = @"SELECT * from [MST].[OperationMaster] where Id='" + id + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

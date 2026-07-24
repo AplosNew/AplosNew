@@ -3453,17 +3453,19 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
                     foreach (var item in data)
                     {
                         DataView dv = new DataView(dsBC.Tables[0]);
-                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
+                        dv.RowFilter = "ID='" + Convert.ToInt64(item["ID"]) + "'";
 
                         if (dv.Count == 0)
                         {
                             item["ProductionOrderID"] = POId;
+                            item["Qty"] = item["PlanQty"];
                             item["Color"] = DBNull.Value;
                             AddNewRow(dsBC.Tables[0], item);
                         }
                         else
                         {
                             DataRow drmo = dv[0].Row;
+                            item["Qty"] = item["PlanQty"];
                             EditRow(drmo, item);
                         }
                     }

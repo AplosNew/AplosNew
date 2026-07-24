@@ -2306,10 +2306,73 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             if (!baseService.isUndefinedOrNull($scope.sku1sku2List[i].AdjustableQty)) {
                 $scope.sku1sku2List[i].PlanQty = $scope.sku1sku2List[i].Qty + $scope.sku1sku2List[i].AdjustableQty;
             }
-            $scope.sku1sku2List[i].RequiredLineDays = parseFloat(($scope.sku1sku2List[i].PlanHour * 60) / ($scope.sku1sku2List[i].SPT * $scope.sku1sku2List[i].PlanQty) / $scope.sku1sku2List[i].Efficiency).toFixed(2);
-            $scope.sku1sku2List[i].NoOfWorkStation = Math.floor($scope.sku1sku2List[i].RequiredLineDays) / $scope.sku1sku2List[i].MinimumLineDays;
-            if ($scope.sku1sku2List[i].NoOfWorkStation < 1) {
-                $scope.sku1sku2List[i].NoOfWorkStation = 1;
+            $scope.sku1sku2List[i].RequiredLineDays = parseFloat(($scope.sku1sku2List[i].PlanWorkingHoursPerDay * 60) / ($scope.sku1sku2List[i].SPT * $scope.sku1sku2List[i].Qty) / $scope.sku1sku2List[i].Efficiency).toFixed(2);
+            $scope.sku1sku2List[i].MaximumAllowedWorkCenter = Math.floor($scope.sku1sku2List[i].RequiredLineDays) / $scope.sku1sku2List[i].MinimumLineDays;
+            if ($scope.sku1sku2List[i].MaximumAllowedWorkCenter < 1) {
+                $scope.sku1sku2List[i].MaximumAllowedWorkCenter = 1;
+            }
+
+            if ($scope.sku1sku2List[i].NoOfWorkStation > 0 || $scope.sku1sku2List[i].Efficiency > 0 || $scope.sku1sku2List[i].SPT > 0) {
+
+                $scope.sku1sku2List[i].TargetPerHour = ($scope.sku1sku2List[i].NoOfWorkStation * 60 / $scope.sku1sku2List[i].SPT);
+                $scope.TargetQtyAtFullEfficiency = $scope.sku1sku2List[i].TargetPerHour;
+                if ($scope.sku1sku2List[i].TargetPerHour > 0) {
+
+                    $scope.sku1sku2List[i].TargetPerDay = ($scope.sku1sku2List[i].PlanWorkingHoursPerDay * $scope.sku1sku2List[i].TargetPerHour);
+                    $scope.EfficiencyPercentage = ($scope.sku1sku2List[i].TargetPerDay);// * $scope.sku1sku2List[i].Efficiency / 100;
+
+
+                    //at efficiency level
+                    $scope.sku1sku2List[i].TargetPerHour = $scope.sku1sku2List[i].TargetPerHour * $scope.sku1sku2List[i].Efficiency / 100;
+                    $scope.sku1sku2List[i].TargetPerDay = $scope.sku1sku2List[i].TargetPerDay * $scope.sku1sku2List[i].Efficiency / 100;
+
+
+
+                    $scope.sku1sku2List[i].RequiredLineDays = ($scope.sku1sku2List[i].Qty / $scope.sku1sku2List[i].TargetPerDay).toFixed(2);
+                }
+
+                if ($scope.sku1sku2List[i].MinimumLineDays > 0) {
+
+                    $scope.sku1sku2List[i].RequiredNoOfLines = $scope.sku1sku2List[i].RequiredLineDays / $scope.sku1sku2List[i].MinimumLineDays;
+
+                    if ($scope.sku1sku2List[i].RequiredNoOfLines > 0 && $scope.sku1sku2List[i].RequiredNoOfLines <= 1)
+                        $scope.sku1sku2List[i].AllocatedLines = 1;
+
+                    if ($scope.sku1sku2List[i].RequiredNoOfLines > 1)
+                        $scope.sku1sku2List[i].AllocatedLines = Math.floor($scope.sku1sku2List[i].RequiredNoOfLines);
+                }
+
+                try {
+                    $scope.sku1sku2List[i].RequiredNoOfLines = $scope.sku1sku2List[i].RequiredNoOfLines.toFixed(4)
+                    $scope.sku1sku2List[i].RequiredLineDays = $scope.sku1sku2List[i].RequiredLineDays.toFixed(4)
+                } catch (e) {
+
+                }
+            }
+            if ($scope.sku1sku2List[i].FirstDayOutPut > 0 && $scope.sku1sku2List[i].IncrementValue > 0) {
+
+                if ($scope.sku1sku2List[i].IncrementType == "FIXED" || $scope.sku1sku2List[i].IncrementType == "PERCENTAGE") {
+                    var daysrequired = 1;
+                    if ($scope.sku1sku2List[i].FirstDayOutPut < $scope.sku1sku2List[i].TargetPerHour) {
+                        daysrequired = 1;
+                        var firstdaysoutput = $scope.sku1sku2List[i].FirstDayOutPut;
+                        while (firstdaysoutput * $scope.sku1sku2List[i].PlanWorkingHoursPerDay < $scope.sku1sku2List[i].TargetPerDay) {
+                            daysrequired++;
+                            //if ($scope.sku1sku2List[i].IncrementType == "FIXED")
+                            firstdaysoutput += $scope.sku1sku2List[i].IncrementValue;
+
+                            //compounding method
+                            //if ($scope.sku1sku2List[i].IncrementType == "PERCENTAGE")
+                            //    firstdaysoutput = firstdaysoutput + (firstdaysoutput * $scope.sku1sku2List[i].IncrementValue / 100);
+
+
+
+                        }
+
+                    }
+                    $scope.sku1sku2List[i].DayToReachTheTarget = daysrequired.toFixed(2);
+                }
+
             }
         }
         var gridObj = $("#GridSKU12").data("ejGrid");

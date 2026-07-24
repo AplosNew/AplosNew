@@ -50,7 +50,9 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         Remarks: null,
         Active: null,
         DesignationGroupId: null,
-        SkillLevel:null
+        SkillLevel:null,
+        SpecialSkill:null,
+        EmployeeRating:null
     };
     $scope.modelNew = Object.assign({}, $scope.model);
 
@@ -465,7 +467,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         $scope.modelNew = Object.assign({}, x.data);
         $scope.modelNew.OperationMasterId = x.data.Id;
         $scope.modelNew.SkillId = x.data.SkillId;
-        $scope.GetDataByMasterOrderIdfn($scope.OMId);
+        //$scope.GetDataByMasterOrderIdfn($scope.OMId);
         // $scope.GetDataByMasterOrderIdfnMP1($scope.OMId);
         $scope.GetOperationPositionMPBudget();
         $scope.GetAutoSequenceForManPower();

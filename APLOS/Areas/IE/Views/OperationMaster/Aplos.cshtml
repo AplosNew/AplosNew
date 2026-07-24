@@ -239,15 +239,29 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="col-md-8">
-                    <div class="form-group" id="">
-                        <label class="col-sm-2 control-label">Remarks</label>
-                        <div class="col-sm-10">
-                            <textarea class="form-control" rows="1" ng-model="modelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">Special Skill<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select class="form-control" id="SpecialSkill" name="Special Skill" ng-model="modelNew.SpecialSkill" tabindex="4" required>
+                                    <option value="">---Select---</option>
+                                    <option value="0">0</option>
+                                    <option value="1">1</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">Employee Rating<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="EmployeeRating" ng-model="modelNew.EmployeeRating" class="form-control" maxlength="10" required>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <div class="clearfix"></div>
 
@@ -289,7 +303,14 @@
                 </div>
             </div>
 
-
+            <div class="col-md-12">
+                <div class="form-group" id="">
+                    <label class="col-sm-2 control-label">Remarks</label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control" rows="1" ng-model="modelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                    </div>
+                </div>
+            </div>
             <div class="common-btn">
                 <ul class="list-inline text-right">
                     <li><button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
@@ -406,7 +427,7 @@
             </div>
             <div role="tabpanel" class="tab-pane" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                 <div ng-form="modelNewFormMC">
-                    
+
                     <div class="common-btn">
                         <ul class="list-inline text-left">
                             <li><button ng-click="getArticle();" ng-disabled="modelNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign"></i> Machine Master</button></li>

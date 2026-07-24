@@ -1734,6 +1734,8 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DesignationGroup"); int colDesignationGroup = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LegalDesignation"); int colLegalDesignation = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Process"); int colProcess = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SpecialSkill"); int colSpecialSkill = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeRating"); int colEmployeeRating = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmpSystemId"); int colEmpSystemId = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sequence"); int colSeq = xlsCol;
 
@@ -1759,6 +1761,8 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
                     sheet1[xlsRow, colDesignationGroup].Text = dtSkill.Rows[i]["DesignationGroup"].ToString();
                     sheet1[xlsRow, colLegalDesignation].Text = dtSkill.Rows[i]["LegalDesignation"].ToString();
                     sheet1[xlsRow, colProcess].Text = dtSkill.Rows[i]["Process"].ToString();
+                    sheet1[xlsRow, colSpecialSkill].Text = dtSkill.Rows[i]["SpecialSkill"].ToString();
+                    sheet1[xlsRow, colEmployeeRating].Text = dtSkill.Rows[i]["EmployeeRating"].ToString();
                     xlsRow++;
                 }
 
@@ -1800,7 +1804,7 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
         public DataTable GetOperationData()
         {
             var cmdText = @"SELECT OM.Id OperationMasterId,OM.UserName OperationMaster
-,S.UserName Skill,SG.UserName SkillGroup,DG.UserName DesignationGroup,LD.UserName LegalDesignation,MM.UserName MachineMaster,P.UserName Process
+,S.UserName Skill,SG.UserName SkillGroup,DG.UserName DesignationGroup,LD.UserName LegalDesignation,MM.UserName MachineMaster,P.UserName Process,OM.SpecialSkill,OM.EmployeeRating
 FROM MST.OperationMaster OM
 LEFT JOIN HKP.Skill S ON S.Id=OM.SkillId
 LEFT JOIN SCS.SkillGrouping SG ON SG.Id=OM.SkillGroupId

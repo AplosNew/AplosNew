@@ -42,9 +42,18 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
         , OperationMasterId: null
         , OperationMasterCode: null
         , Color: null
-        , AreaCode:null
+        , AreaCode: null
+        , SkillCategoryId: null
     };
     $scope.operationVariationNew = Object.assign({}, $scope.operationVariation);
+
+    $scope.skillcategoryList = [];
+    $http({
+        method: 'GET',
+        url: 'skills/skillcategory/getcbo'
+    }).then(function successCallback(response) {
+        $scope.skillcategoryList = response.data;
+    });
 
     $scope.searchByOpStepList = [
         {
@@ -870,7 +879,7 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
                 if (checkPMExist($scope.operationVariationPMDataList, $scope.PMModelList[i].ProductMasterId) === false) {
                     var ob = {};
                     ob.Id = null;
-                    ob.OperationVariationId= $scope.operationVariationNew.Id;
+                    ob.OperationVariationId = $scope.operationVariationNew.Id;
                     ob.Sequence = $scope.PMModelList[i].Sequence;
                     ob.ProductMasterId = $scope.PMModelList[i].ProductMasterId;
                     ob.Code = $scope.PMModelList[i].Code;
