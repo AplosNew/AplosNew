@@ -36,6 +36,7 @@ namespace Library.Service.IE
         private readonly IOperationTypeService _OperationTypeService;
         private readonly IOperationCategoryService _OperationCategoryService;
         private readonly ISkillService _SkillService;
+        private readonly ISkillCategoryService _SkillCategoryService;
         private readonly IMachineMasterService _MachineMasterService;
         private readonly ILegalDesignationService _legalDesignationService;
         private readonly IProcessService _ProcessService;
@@ -53,6 +54,7 @@ namespace Library.Service.IE
             , IOperationTypeService OperationTypeService
             , IOperationCategoryService OperationCategoryService
             , ISkillService SkillService
+            , ISkillCategoryService SkillCategoryService
             , IProcessService ProcessService
             , IMachineMasterService MachineMasterService
             , ILegalDesignationService legalDesignationService
@@ -70,6 +72,7 @@ namespace Library.Service.IE
             _legalDesignationService = legalDesignationService;
             _ProcessService = ProcessService;
             _SkillGroupingService = SkillGroupingService;
+            _SkillCategoryService = SkillCategoryService;
 
 
         }
@@ -219,6 +222,22 @@ namespace Library.Service.IE
             }
         }
 
+        public IEnumerable<object> GetCboSkillCategory()
+        {
+            try
+            {
+
+                return from m in _SkillCategoryService.Query().Select().OrderBy(r => r.UserName)
+                       select new { Text = m.UserName, Value = m.Id};
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
         public IEnumerable<object> GetCboSkillCboByMachine(string Id)
         {
             try
@@ -306,7 +325,29 @@ namespace Library.Service.IE
         {
             try
             {
-                var sql = @"SELECT OM.*                                ,CG.StandardName AS CompanyGroup                                ,OA.UserName AS OperationActivity                                ,OT.UserName AS OperationType                                ,OC.UserName AS OperationCategory                                ,S.Id SkillId,S.UserName AS Skill                                ,MM.UserName AS MachineMaster                                ,SG.UserName AS SkillGroup                                ,LD.UserName AS LegalDesignation                                ,DG.UserName AS DesignationGroup                                ,p.UserName As Process                                From [MST].[OperationMaster] OM                                LEFT JOIN [ORG].CompanyGroup CG ON CG.Id=OM.CompanyGroupId                                LEFT JOIN [HKP].[OperationActivity] OA ON OA.Id=OM.OperationActivityId                                LEFT JOIN [HKP].[OperationType] OT ON OT.Id=OM.OperationTypeId                                LEFT JOIN [HKP].[OperationCategory] OC ON OC.Id=OM.OperationCategoryId                                LEFT JOIN [HKP].[Skill] S On S.Id=OM.SkillId                                LEFT JOIN [MST].[MachineMaster] MM ON MM.Id=OM.MachineMasterId                                LEFT JOIN [SCS].[SkillGrouping] SG ON SG.Id=OM.SkillGroupId                                LEFT JOIN [HKP].[DesignationGroup] DG ON DG.Id=OM.DesignationGroupId                                LEFT JOIN [HKP].[LegalDesignation] LD ON LD.Id=OM.LegalDesignationId                                LEFT JOIN [HKP].[Process] P ON P.Id=OM.ProcessId";
+                var sql = @"SELECT OM.*
+                                ,CG.StandardName AS CompanyGroup
+                                ,OA.UserName AS OperationActivity
+                                ,OT.UserName AS OperationType
+                                ,OC.UserName AS OperationCategory
+                                ,S.Id SkillId,S.UserName AS Skill
+                                ,MM.UserName AS MachineMaster
+                                ,SG.UserName AS SkillGroup
+                                ,LD.UserName AS LegalDesignation
+                                ,DG.UserName AS DesignationGroup
+                                ,p.UserName As Process,SC.UserName SkillMasterCategory
+                                From [MST].[OperationMaster] OM
+                                LEFT JOIN [ORG].CompanyGroup CG ON CG.Id=OM.CompanyGroupId
+                                LEFT JOIN [HKP].[OperationActivity] OA ON OA.Id=OM.OperationActivityId
+                                LEFT JOIN [HKP].[OperationType] OT ON OT.Id=OM.OperationTypeId
+                                LEFT JOIN [HKP].[OperationCategory] OC ON OC.Id=OM.OperationCategoryId
+                                LEFT JOIN [HKP].[Skill] S On S.Id=OM.SkillId
+                                LEFT JOIN [HKP].[SkillCategory] SC On SC.Id=OM.SkillCategoryId
+                                LEFT JOIN [MST].[MachineMaster] MM ON MM.Id=OM.MachineMasterId
+                                LEFT JOIN [SCS].[SkillGrouping] SG ON SG.Id=OM.SkillGroupId
+                                LEFT JOIN [HKP].[DesignationGroup] DG ON DG.Id=OM.DesignationGroupId
+                                LEFT JOIN [HKP].[LegalDesignation] LD ON LD.Id=OM.LegalDesignationId
+                                LEFT JOIN [HKP].[Process] P ON P.Id=OM.ProcessId";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

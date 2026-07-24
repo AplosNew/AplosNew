@@ -11,6 +11,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.SkillList = [];
     $scope.MachineMasterList = [];
     $scope.ProcessList = [];
+    $scope.designationGroupList = [];
     $scope.legalDesignationList = [];
     $scope.SkillGroupingList = [];
     $scope.GetDataByMasterOrderIdList = [];
@@ -50,7 +51,8 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         Remarks: null,
         Active: null,
         DesignationGroupId: null,
-        SkillLevel:null
+        SkillLevel:null,
+        SkillCategoryId:null
     };
     $scope.modelNew = Object.assign({}, $scope.model);
 
@@ -73,7 +75,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.modelNewM.Active = true;
     $scope.modelNew.Active = true;
 
-    $scope.designationGroupList = [];
+    
     $scope.GetDesignationGroupCbo = function () {
         $http({
             method: 'GET',
@@ -206,6 +208,16 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         });
     }
     $scope.GetCboSkillCbo();
+    $scope.SkillCategoryList = [];
+    $scope.GetCboSkillCategoryCbo = function () {
+        $http({
+            method: 'GET',
+            url: 'IE/OperationMaster/GetCboSkillCategory'
+        }).then(function successCallback(response) {
+            $scope.SkillCategoryList = response.data;
+        });
+    }
+    $scope.GetCboSkillCategoryCbo();
 
     $scope.GetCboMachineMasterCbo = function () {
         //debugger;
@@ -465,6 +477,8 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         $scope.modelNew = Object.assign({}, x.data);
         $scope.modelNew.OperationMasterId = x.data.Id;
         $scope.modelNew.SkillId = x.data.SkillId;
+        $scope.modelNew.DesignationGroupId = x.data.DesignationGroupId;
+        $scope.modelNew.SkillLevel = x.data.SkillLevel;
         $scope.GetDataByMasterOrderIdfn($scope.OMId);
         // $scope.GetDataByMasterOrderIdfnMP1($scope.OMId);
         $scope.GetOperationPositionMPBudget();
@@ -473,6 +487,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     };
+
     $scope.recorddoubleclickMP = function ($event) {
         //debugger;
         var x = $event;
@@ -492,7 +507,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
             url: 'IE/OperationMaster/GetDataByMasterOrderId?id=' + OMId
         }).then(function successCallback(response) {
 
-            $scope.modelNew = response.data[0];
+            //$scope.modelNew = response.data[0];
             $scope.modelNew.OperationMasterId = response.data[0].Id;
 
         });

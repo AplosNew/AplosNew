@@ -105,6 +105,13 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetCboSkillCategory()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_operationMasterService.GetCboSkillCategory(), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetCboSkillCboByMachine(string Id)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

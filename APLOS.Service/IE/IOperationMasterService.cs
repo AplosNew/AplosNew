@@ -30,6 +30,7 @@ namespace Library.Service.IE
 		IEnumerable<object> GetCboSkillGrouping();
 		IEnumerable<object> GetDataByMasterOrderId(string id);
 		IEnumerable<object> GetSkillMasterMachineData(string masterId);
+		IEnumerable<object> GetCboSkillCategory();
 		void Check(OperationMaster entity);
 
 
