@@ -140,7 +140,8 @@
                         <label class="col-sm-4 control-label">Designation Group<sup>*</sup></label>
                         <div class="col-sm-8 show-message ">
                             <div class="select-style">
-                                <select class="form-control" id="DesignationGroup" name="Designation Group" ng-model="modelNew.DesignationGroupId" ng-options="item.Id as item.UserName for item in designationGroupList" ng-change="GetCbolegalDesignation();" tabindex="2" required>
+                                <select class="form-control" id="DesignationGroup1" name="Designation Group1" ng-model="modelNew.DesignationGroupId"
+                                        ng-options="item.Id as item.UserName for item in designationGroupList" ng-change="GetCbolegalDesignation();" tabindex="2" required>
                                     <option value="">---Select---</option>
                                 </select>
                             </div>
@@ -166,7 +167,7 @@
                         <label class="col-sm-4 control-label">Type<sup>*</sup></label>
                         <div class="col-sm-8 show-message ">
                             <div class="select-style">
-                                <select class="form-control" id="currency" name="Type" ng-model="modelNew.Type" tabindex="4" required>
+                                <select class="form-control" id="currency" name="Type" ng-model="modelNew.Type" tabindex="14" required>
                                     <option value="">---Select---</option>
                                     <option value="ACTIVITY">ACTIVITY</option>
                                     <option value="OPERATION">OPERATION</option>
@@ -285,8 +286,16 @@
 
                 <div class="col-md-4" show-errors>
                     <div class="form-group" id="">
-                        <label class="col-sm-4 control-label">Active<sup>*</sup></label>
-                        <div class="col-sm-8 show-message ">
+                        <label class="col-sm-4 control-label">Skill Master Category <sup></sup></label>
+                        <div class="col-sm-4 show-message">
+                            <div class="select-style">
+                                <select class="form-control" id="SkillCategoryId" name="SkillCategory" required ng-model="modelNew.SkillCategoryId" ng-options="item.Value as item.Text for item in SkillCategoryList" tabindex="9">
+                                    <option value="">---Select---</option>
+                                </select>
+                            </div>
+                        </div>
+                        <label class="col-sm-2 control-label">Active<sup>*</sup></label>
+                        <div class="col-sm-2 show-message ">
                             <input type="checkbox" name="Active" ng-model="modelNew.Active" checked="checked" />
 
                         </div>

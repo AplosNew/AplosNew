@@ -11,6 +11,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.SkillList = [];
     $scope.MachineMasterList = [];
     $scope.ProcessList = [];
+    $scope.designationGroupList = [];
     $scope.legalDesignationList = [];
     $scope.SkillGroupingList = [];
     $scope.GetDataByMasterOrderIdList = [];
@@ -53,6 +54,8 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         SkillLevel:null,
         SpecialSkill:null,
         EmployeeRating:null
+        SkillLevel:null,
+        SkillCategoryId:null
     };
     $scope.modelNew = Object.assign({}, $scope.model);
 
@@ -75,7 +78,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.modelNewM.Active = true;
     $scope.modelNew.Active = true;
 
-    $scope.designationGroupList = [];
+    
     $scope.GetDesignationGroupCbo = function () {
         $http({
             method: 'GET',
@@ -208,6 +211,16 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         });
     }
     $scope.GetCboSkillCbo();
+    $scope.SkillCategoryList = [];
+    $scope.GetCboSkillCategoryCbo = function () {
+        $http({
+            method: 'GET',
+            url: 'IE/OperationMaster/GetCboSkillCategory'
+        }).then(function successCallback(response) {
+            $scope.SkillCategoryList = response.data;
+        });
+    }
+    $scope.GetCboSkillCategoryCbo();
 
     $scope.GetCboMachineMasterCbo = function () {
         //debugger;
@@ -475,6 +488,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     };
+
     $scope.recorddoubleclickMP = function ($event) {
         //debugger;
         var x = $event;
@@ -494,7 +508,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
             url: 'IE/OperationMaster/GetDataByMasterOrderId?id=' + OMId
         }).then(function successCallback(response) {
 
-            $scope.modelNew = response.data[0];
+            //$scope.modelNew = response.data[0];
             $scope.modelNew.OperationMasterId = response.data[0].Id;
 
         });
