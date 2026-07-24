@@ -1086,7 +1086,7 @@ Where P.Id IS NOT NULL";
         }
 
 
-        public IEnumerable<object> GetSKUData(string poId, bool SKU1, bool SKU2, bool Both)
+        public IEnumerable<object> _GetSKUData(string poId, bool SKU1, bool SKU2, bool Both)
         {
             try
             {
@@ -1126,6 +1126,105 @@ Group By  D.ProductionOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueI
                 throw ex;
             }
         }
+
+        public IEnumerable<object> GetSKUData(string poId, bool SKU1, bool SKU2, bool Both)
+        {
+            try
+            {
+                string sql = "";
+                if (SKU1 && !SKU2 && !Both)
+                {
+                    sql = @"Select ''Id,D.ProductionOrderId,FC.CharacteristicsValueId SKU1Id,CV.UserName SKUColor,SUM(Qty)Qty From [TRN].[FirstCharacteristics] FC 
+LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id=FC.CharacteristicsValueId
+left join TRN.ProductionOrderType2Detail D ON D.SalesOrderId=FC.SalesOrderId
+Where D.ProductionOrderId='" + poId + @"'
+Group By  D.ProductionOrderId,FC.CharacteristicsValueId,CV.UserName";
+
+                }
+                else if (SKU2 && !SKU1 && !Both)
+                {
+                    sql = @"Select ''Id,D.ProductionOrderId,SC.CharacteristicsValueId SKU2Id,SCV.UserName SKUSize,SUM(Qty)Qty From TRN.[SecondCharacteristics] SC
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id=SC.CharacteristicsValueId
+left join TRN.ProductionOrderType2Detail D ON D.SalesOrderId=SC.SalesOrderId
+Where D.ProductionOrderId='" + poId + @"'
+Group By  D.ProductionOrderId,SC.CharacteristicsValueId,SCV.UserName";
+                }
+                else
+                {
+                    sql = @"Select ''Id,D.ProductionOrderId,FC.CharacteristicsValueId SKU1Id,SC.CharacteristicsValueId SKU2Id,FCV.UserName SKUColor,SCV.UserName SKUSize,SUM(SC.Qty)Qty 
+From TRN.[SecondCharacteristics] SC
+LEFT JOIN [TRN].[FirstCharacteristics] FC ON FC.Id=SC.FirstCharacteristicsId
+LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id=FC.CharacteristicsValueId
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id=SC.CharacteristicsValueId
+left join TRN.ProductionOrderType2Detail D ON D.SalesOrderId=SC.SalesOrderId
+Where D.ProductionOrderId='" + poId + @"'
+Group By  D.ProductionOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName ,SCV.UserName";
+                }
+
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex) { throw ex; }
+        }
+
+
+        public IEnumerable<object> GetSavedSKUData(string poId)
+        {
+            try
+            {
+                // 1. Check if data already saved for this Production Order
+                string checkSql = @"SELECT * FROM dbo.ProductionOrderSchedulingParametersType2 WHERE ProductionOrderId = '" + poId + @"'";
+                DataTable savedCount = _sqlRepository.GetDataTable(checkSql); // adjust to your repo's scalar method
+
+
+
+                string sql = "";
+                if (savedCount.Rows.Count > 0)
+                {
+
+                    if (Convert.ToBoolean(savedCount.Rows[0]["SKU1"].ToString()) && !Convert.ToBoolean(savedCount.Rows[0]["SKU2"].ToString()) && !Convert.ToBoolean(savedCount.Rows[0]["Both"].ToString()))
+                    {
+                        sql = @"SELECT D.ID,D.ProductionOrderID,D.NoOfWorkStation,D.Efficiency,D.SPT,D.PlanWorkingHoursPerDay,D.FirstDayOutPut,D.PlanTargetPerHour,D.IncrementValue,D.IncrementType,D.DayToReachTheTarget
+,FORMAT(D.LSD,'dd-MMM-yyyy')LSD,FORMAT(D.CommitmentDate,'dd-MMM-yyyy')CommitmentDate,D.ProductionPriority,D.TargetPerHour,D.TargetPerDay,D.MinimumLineDays,D.RequiredLineDays
+,D.RequiredNoOfLines,D.AllocatedLines,D.Color,D.Qty,FORMAT(D.MainRawMaterialInhouseDate,'dd-MMM-yyyy')MainRawMaterialInhouseDate
+,FORMAT(D.OtherRawMaterialInhouseDate,'dd-MMM-yyyy')OtherRawMaterialInhouseDate,D.WCPreferenceType,D.PlanningStatus,D.RunningOrderBlockSize,D.ConsiderHourFromWorkCenter,D.ConsiderWorkStationsFromWorkCenter,D.WorkCenterGroupId
+,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,D.AdjustableQty,D.SKU1,D.SKU2,D.Both,D.SKU1Id,D.SKU2Id,CV.UserName SKUColor, WG.UserName WorkCenterGroup
+                     FROM dbo.ProductionOrderSchedulingParametersType2  D
+                     LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id = D.SKU1Id
+                     LEFT JOIN HKP.WorkCenterGroup WG ON WG.Id=D.WorkCenterGroupId
+                     WHERE D.ProductionOrderId = '" + poId + @"'";
+                    }
+                    else if (Convert.ToBoolean(savedCount.Rows[0]["SKU2"].ToString()) && !Convert.ToBoolean(savedCount.Rows[0]["SKU1"].ToString()) && !Convert.ToBoolean(savedCount.Rows[0]["Both"].ToString()))
+                    {
+                        sql = @"D.ID,D.ProductionOrderID,D.NoOfWorkStation,D.Efficiency,D.SPT,D.PlanWorkingHoursPerDay,D.FirstDayOutPut,D.PlanTargetPerHour,D.IncrementValue,D.IncrementType,D.DayToReachTheTarget
+,FORMAT(D.LSD,'dd-MMM-yyyy')LSD,FORMAT(D.CommitmentDate,'dd-MMM-yyyy')CommitmentDate,D.ProductionPriority,D.TargetPerHour,D.TargetPerDay,D.MinimumLineDays,D.RequiredLineDays
+,D.RequiredNoOfLines,D.AllocatedLines,D.Color,D.Qty,FORMAT(D.MainRawMaterialInhouseDate,'dd-MMM-yyyy')MainRawMaterialInhouseDate
+,FORMAT(D.OtherRawMaterialInhouseDate,'dd-MMM-yyyy')OtherRawMaterialInhouseDate,D.WCPreferenceType,D.PlanningStatus,D.RunningOrderBlockSize,D.ConsiderHourFromWorkCenter,D.ConsiderWorkStationsFromWorkCenter,D.WorkCenterGroupId
+,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,D.AdjustableQty,D.SKU1,D.SKU2,D.Both,D.SKU1Id,D.SKU2Id, CV.UserName SKUSize, WG.UserName WorkCenterGroup
+                     FROM dbo.ProductionOrderSchedulingParametersType2  D
+                     LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id = D.SKU2Id
+                     LEFT JOIN HKP.WorkCenterGroup WG ON WG.Id=D.WorkCenterGroupId
+                     WHERE D.ProductionOrderId = '" + poId + @"'";
+                    }
+                    else
+                    {
+                        sql = @"SELECT D.ID,D.ProductionOrderID,D.NoOfWorkStation,D.Efficiency,D.SPT,D.PlanWorkingHoursPerDay,D.FirstDayOutPut,D.PlanTargetPerHour,D.IncrementValue,D.IncrementType,D.DayToReachTheTarget
+,FORMAT(D.LSD,'dd-MMM-yyyy')LSD,FORMAT(D.CommitmentDate,'dd-MMM-yyyy')CommitmentDate,D.ProductionPriority,D.TargetPerHour,D.TargetPerDay,D.MinimumLineDays,D.RequiredLineDays
+,D.RequiredNoOfLines,D.AllocatedLines,D.Color,D.Qty,FORMAT(D.MainRawMaterialInhouseDate,'dd-MMM-yyyy')MainRawMaterialInhouseDate
+,FORMAT(D.OtherRawMaterialInhouseDate,'dd-MMM-yyyy')OtherRawMaterialInhouseDate,D.WCPreferenceType,D.PlanningStatus,D.RunningOrderBlockSize,D.ConsiderHourFromWorkCenter,D.ConsiderWorkStationsFromWorkCenter,D.WorkCenterGroupId
+,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,D.AdjustableQty,D.SKU1,D.SKU2,D.Both,D.SKU1Id,D.SKU2Id, WG.UserName WorkCenterGroup,FCV.UserName SKUColor, SCV.UserName SKUSize
+                     FROM dbo.ProductionOrderSchedulingParametersType2  D
+                     LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = D.SKU1Id
+                     LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = D.SKU2Id
+                     LEFT JOIN HKP.WorkCenterGroup WG ON WG.Id=D.WorkCenterGroupId
+                     WHERE D.ProductionOrderId = '" + poId + @"'";
+                    }
+                }
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex) { throw ex; }
+        }
+
 
         public IEnumerable<object> GetWorkCenterGroup()
         {
