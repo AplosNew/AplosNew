@@ -3202,5 +3202,7 @@ Where EmpSystemId='" + empId + "'";
         public string Archive { get; set; }
         public string Operation { get; set; }
         public string SKillMaster { get; set; }
+        public string SpecialSkill { get; set; }
+        public string EmployeeRating { get; set; }
     }
 }

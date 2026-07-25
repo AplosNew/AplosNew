@@ -2441,7 +2441,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     $scope.workCenterList = [];
     $scope.workcenterfor = '';
     //$scope.workcenterDialog = $("#workCenterPopUp").ejDialog({ target: "#entrycontainer" });
-    $scope.workCenterPopUp = function (wcfor) {
+    $scope.GetWorkCenterMaster = function (obj,wcfor) {
         $scope.workcenterfor = wcfor;
         $rootScope.tempList = [];
         $scope.workCenterList = [];

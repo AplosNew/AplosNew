@@ -26,8 +26,6 @@ namespace Library.Model.IE
         public decimal ProposedSalary { get; set; }
         public string Remarks { get; set; }
         public string SkillLevel { get; set; }
-        public string SpecialSkill { get; set; }
-        public string EmployeeRating { get; set; }
         public string SkillCategoryId { get; set; }
         public bool Active { get; set; }
 
