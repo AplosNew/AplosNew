@@ -53,8 +53,7 @@ function OperationMasterController(cboService, commonMessage, $scope, $rootScope
         DesignationGroupId: null,
         SkillLevel:null,
         SpecialSkill:null,
-        EmployeeRating:null
-        SkillLevel:null,
+        EmployeeRating:null,
         SkillCategoryId:null
     };
     $scope.modelNew = Object.assign({}, $scope.model);
