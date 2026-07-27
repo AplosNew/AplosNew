@@ -152,8 +152,9 @@
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-left">
-                        <li> <button ng-click="GetSKUData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Go </button></li>
+                        <li> <button ng-click="GetSKUData();" ng-disabled="disableinput" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Go </button></li>
                         <li> <button ng-click="SaveSPO();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-save"></i> Save </button></li>
+                        <li> <button ng-click="Simulate();" class="btn small" style="height: 28px; width: 100px; padding: 0px; margin: 0px;"><i class="glyphicon glyphicon-play"></i>Simulate</button></li>
                     </ul>
                 </div>
             </div>
@@ -273,7 +274,12 @@
             </script>
             <script type="text/template" id="PrefenceWorkCenter">
                 <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
-                    <button ng-click="$parent.GetWorkCenterMaster(this,'Prefence');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    <button ng-click="$parent.GetPrefenceWorkCenter(this,'Prefence');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                </div>
+            </script>
+            <script type="text/template" id="RunningWorkCenter">
+                <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                    <button ng-click="$parent.GetRunningWorkCenter(this,'Running');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                 </div>
             </script>
         </div>
@@ -309,6 +315,83 @@
     </div>
 </div>
 
+<div class="modal fade site-modal in" id="PrefenceWorkCenterPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Work Center Prefence<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="col-xs-12 col-sm-6 col-md-6" style="height:48px;">
+                    <ul class="common-btn list-inline text-left">
+                        <li><button ng-click="GetWorkCenterMaster('PREFERENCE');" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Work Center</button></li>
+                    </ul>
+                </div>
+                <div class="col-md-12">
+                    <div id="GridWorkCenter" ng-init="chkinit()" ej-grid e-datasource="productionWorkCenterList" e-rowdatabound="rowDataBoundWorkCenter"
+                         e-allowpaging="true" e-enabletouch="false" e-responsive="true">
+                        <div e-columns>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-width="150"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-width="120"></div>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                            <div e-column e-field="UserName" e-headertext="Work Center" e-width="180"></div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SavePrefenceWorkCenter();" class="btn">Save</button></li>
+                        <li> <button ng-click="ClosePrefenceWorkCenter();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="RunningWorkCenterPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Running Work Center<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="col-xs-12 col-sm-6 col-md-6" style="height:48px;">
+                    <ul class="common-btn list-inline text-left">
+                        <li><button ng-click="GetWorkCenterMaster('RUNNING');" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Work Center</button></li>
+                    </ul>
+                </div>
+                <div class="col-md-12">
+                    <div id="GridWorkCenterForRunningHeaven" ng-init="chkinit()" ej-grid e-datasource="runningWorkCenterList" @*e-rowdatabound="rowDataBoundWorkCenter"*@
+                         @*e-allowpaging="true"*@ e-allowselection="false" e-enabletouch="true" e-responsive="true">
+                        <div e-columns>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-width="150"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-width="120"></div>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                            <div e-column e-field="UserName" e-headertext="Work Center" e-width="180"></div>
+                            <div e-column e-template="#RunningOrderLineWiseQty" e-headertext="Quantity" e-width="50"></div>
+
+                            <div e-column e-template="#appliedFor" e-headertext="Residual Value" e-width="40"></div>
+
+                        </div>
+                    </div>
+                    <script type="text/template" id="RunningOrderLineWiseQty">
+                        <input type="text" ej-numerictextbox e-minvalue="0" e-decimalplaces="0" e-enablertl="false" e-value="data.Qty" e-width="100" />
+                    </script>
+                    <script type="text/template" id="appliedFor">
+                        <input type="checkbox" e-value="data.isResidualApplicable" e-checked="data.isResidualApplicable" ej-checkbox class="nodetext" e-change="$parent.changeRunningOrderResidual" />
+                    </script>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveRunningWorkCenter();" class="btn">Save</button></li>
+                        <li> <button ng-click="CloseRunningeWorkCenter();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <ej-dialog id="workCenterPopUp" title=" Work Center" e-enablemodal="true" e-position-y="0" e-showoninit="false"
            e-width="550" e-target="#tarekcontainer" e-open="enableBtn">
     <div class="row" style="width:540px">
@@ -340,6 +423,78 @@
         <div class="common-btn">
             <ul class="list-inline text-right">
                 <li> <button ng-click="AddNewWorkCenter();" class="btn">Done</button></li>
+            </ul>
+        </div>
+    </div>
+</ej-dialog>
+
+<ej-dialog id="type2workCenterPopUp" title=" Work Center" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-width="550" e-target="#PrefenceWorkCenterPopUp" e-open="enableBtn">
+    <div class="row" style="width:540px">
+        <div class="col-xs-12 col-sm-12">
+            <div id="GridSelectWC" ej-grid e-datasource="workCenterList"
+                 e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
+                 e-allowscrolling="true"
+                 e-allowselection="false" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-template="#workcenterselect" e-headertext="" e-width="1"></div>
+                    <div e-column e-field="Plant" e-headertext="Plant" e-width="3"></div>
+                    <div e-column e-field="Entity" e-headertext="Entity" e-width="3"></div>
+                    <div e-column e-field="Code" e-headertext="Code" e-width="2"></div>
+                    <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                </div>
+
+            </div>
+            <script type="text/template" id="workcenterselect">
+                @*<input type="checkbox" ej-checkbox class="nodetext" e-value="data.Flag" e-checked="data.Flag" />*@
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="data.Flag" ng-checked="data.Flag" ng-click="$parent.workcenterfor=='RUNNING'?$parent.genericPushInTempList(data,$event, $parent.runningWorkCenterList, 'WorkCenterMasterId', 'WorkCenterMasterId'):$parent.genericPushInTempList(data,$event, $parent.productionWorkCenterList, 'WorkCenterMasterId', 'WorkCenterMasterId')">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </script>
+        </div>
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="AddNewType2WorkCenter();" class="btn">Done</button></li>
+            </ul>
+        </div>
+    </div>
+</ej-dialog>
+
+<ej-dialog id="type2RunworkCenterPopUp" title=" Work Center" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-width="550" e-target="#RunningWorkCenterPopUp" e-open="enableBtn">
+    <div class="row" style="width:540px">
+        <div class="col-xs-12 col-sm-12">
+            <div id="GridSelectWC" ej-grid e-datasource="workCenterList"
+                 e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
+                 e-allowscrolling="true"
+                 e-allowselection="false" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-template="#workcenterselect" e-headertext="" e-width="1"></div>
+                    <div e-column e-field="Plant" e-headertext="Plant" e-width="3"></div>
+                    <div e-column e-field="Entity" e-headertext="Entity" e-width="3"></div>
+                    <div e-column e-field="Code" e-headertext="Code" e-width="2"></div>
+                    <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                </div>
+
+            </div>
+            <script type="text/template" id="workcenterselect">
+                @*<input type="checkbox" ej-checkbox class="nodetext" e-value="data.Flag" e-checked="data.Flag" />*@
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="data.Flag" ng-checked="data.Flag" ng-click="$parent.workcenterfor=='RUNNING'?$parent.genericPushInTempList(data,$event, $parent.runningWorkCenterList, 'WorkCenterMasterId', 'WorkCenterMasterId'):$parent.genericPushInTempList(data,$event, $parent.productionWorkCenterList, 'WorkCenterMasterId', 'WorkCenterMasterId')">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </script>
+        </div>
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="AddNewType2WorkCenter();" class="btn">Done</button></li>
             </ul>
         </div>
     </div>

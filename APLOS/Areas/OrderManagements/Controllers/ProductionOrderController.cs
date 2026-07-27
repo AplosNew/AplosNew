@@ -666,9 +666,15 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetProductionOrderType2WorkCenterList(string productionOrderId)
+        public JsonResult GetProductionOrderType2WorkCenterList(int productionOrderId)
         {
             return Json(_productionOrderService.GetProductionOrderType2WorkCenterList(productionOrderId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetRunningOrderType2WorkCenterList(int productionOrderId)
+        {
+            return Json(_productionOrderService.GetRunningOrderType2WorkCenterList(productionOrderId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -3484,12 +3490,122 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
             }
         }
 
+        
+
+        [HttpPost, Authorize]
+        public JsonResult SavePreferenceWorkCenter(List<Dictionary<string, object>> workcenterlist, int spoId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsWorkcenter = null;
+                string sql = "SELECT * FROM [TRN].[ProductionOrderType2WorkCenter] where ProductionOrderID=" + spoId + "";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsWorkcenter, false, "1");
+
+                string SystemID = "";
+                for (int i = 0; i < workcenterlist.Count; i++)
+                {
+                    dsWorkcenter.Tables[0].DefaultView.RowFilter = "WorkcenterMasterID='" + workcenterlist[i]["WorkCenterMasterId"] + "'";
+                    if (dsWorkcenter.Tables[0].DefaultView.Count == 0)
+                    {
+                        if (SystemID == "")
+                        {
+                            bplib.clsGenID id = new bplib.clsGenID();
+                            id.GenID(System.DateTime.Now.ToShortDateString(), "PRTWC", out SystemID);
+                        }
+                        DataRow dr = dsWorkcenter.Tables[0].NewRow();
+
+                        dr["id"] = SystemID + "-" + (i + 1).ToString();
+                        dr["ProductionOrderID"] = spoId;
+                        dr["WorkcenterMasterID"] = workcenterlist[i]["WorkCenterMasterId"];
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dsWorkcenter.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsWorkcenter);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveType2RunningWorkCenter(List<Dictionary<string, object>> workcenterlist, int spoId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsWorkcenter = null;
+                string sql = "SELECT * FROM [TRN].[RunningOrderType2WorkCenter] where ProductionOrderID=" + spoId + "";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsWorkcenter, false, "1");
+
+                string SystemID = "";
+                for (int i = 0; i < workcenterlist.Count; i++)
+                {
+                    dsWorkcenter.Tables[0].DefaultView.RowFilter = "WorkcenterMasterID='" + workcenterlist[i]["WorkCenterMasterId"] + "'";
+                    if (dsWorkcenter.Tables[0].DefaultView.Count == 0)
+                    {
+                        if (SystemID == "")
+                        {
+                            bplib.clsGenID id = new bplib.clsGenID();
+                            id.GenID(System.DateTime.Now.ToShortDateString(), "PRTWC", out SystemID);
+                        }
+                        DataRow dr = dsWorkcenter.Tables[0].NewRow();
+
+                        dr["id"] = SystemID + "-" + (i + 1).ToString();
+                        dr["ProductionOrderID"] = spoId;
+                        dr["WorkcenterMasterID"] = workcenterlist[i]["WorkCenterMasterId"];
+                        dr["isResidualApplicable"] = bplib.clsWebLib.GetBoolData(workcenterlist[i]["isResidualApplicable"]);
+                        dr["Qty"] = clsStaticInfo.dbl(workcenterlist[i]["Qty"]);
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dsWorkcenter.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsWorkcenter);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+
         #endregion
     }
 
-    public class MultiCode
-    {
-        public string Sequenc { get; set; }
-        public string OperationCode { get; set; }
-    }
+
+}
+
+public class MultiCode
+{
+    public string Sequenc { get; set; }
+    public string OperationCode { get; set; }
 }

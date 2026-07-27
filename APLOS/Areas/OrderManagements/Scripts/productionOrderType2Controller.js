@@ -1736,7 +1736,10 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     $scope.CloseWorkCenterPopUp = function () {
 
         var eDialog = $("#workCenterPopUp").data("ejDialog");
+        var eDialog = $("#type2RunworkCenterPopUp").data("ejDialog");
+        var eDialog = $("#type2workCenterPopUp").data("ejDialog");
         eDialog.close();
+
     };
     $scope.productWorkCenterList = [];
     $scope.rowDataBoundWorkCenter = function rowDataBoundWorkCenter(e) {
@@ -1752,15 +1755,6 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     }
 
     $scope.productionWorkCenterList = [];
-    //function getProductionOrderWorkCenterList() {
-    //    $http({
-    //        method: 'GET',
-    //        url: $scope.path + 'GetProductionOrderWorkCenterList?productionOrderId=' + $scope.productionOrderModel.Id
-    //    }).then(function successCallback(response) {
-    //        $scope.productionWorkCenterList = response.data;
-    //    });
-    //}
-
 
     $scope.AddNewWorkCenter = function () {
         if ($scope.workcenterfor == 'RUNNING') {
@@ -1994,10 +1988,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         $scope.popUpIndex = -1;
         angular.element(document.querySelector('#confirmRecipeMaterialPopUp')).modal('hide');
     };
-
-
-    //#region 
-
+    
 
     $scope.lotControlList = [];
     $scope.GetPOLotControlSettingsData = function () {
@@ -2156,6 +2147,8 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         }
     }
 
+    $scope.disableinput = false;
+
     $scope.GetSavedSKUData = function () {
         $http({
             method: 'POST',
@@ -2165,6 +2158,12 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             url: 'OrderManagements/ProductionOrder/GetSavedSKUData'
         }).then(function successCallback(response) {
             $scope.sku1sku2List = response.data;
+            if (!baseService.isUndefinedOrNull($scope.sku1sku2List[0].ID)) {
+                $scope.disableinput = true;
+                $scope.ModelNewSPO.SKU1 = $scope.sku1sku2List[0].SKU1;
+                $scope.ModelNewSPO.SKU2 = $scope.sku1sku2List[0].SKU2;
+                $scope.ModelNewSPO.Both = $scope.sku1sku2List[0].Both;
+            }
         });
     }
 
@@ -2198,7 +2197,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                             response.data[i].PlanWorkingHoursPerDay = $scope.ModelNewSPO.PlanHour;
                             response.data[i].FirstDayOutPut = $scope.ModelNewSPO.FirstDayOutPut;
                             response.data[i].DayToReachTheTarget = 0;
-                            response.data[i].LSD = $scope.ModelNewSPO.LSD; 
+                            response.data[i].LSD = $scope.ModelNewSPO.LSD;
                             response.data[i].CommitmentDate = $scope.ModelNewSPO.CommitmentDate;
                             response.data[i].MainRawMaterialInhouseDate = $scope.ModelNewSPO.MainRawMaterialInhouseDate;
                             response.data[i].OtherRawMaterialInhouseDate = $scope.ModelNewSPO.OtherRawMaterialInhouseDate;
@@ -2219,8 +2218,8 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                             response.data[i].IncrementType = "FIXED";
                             response.data[i].IncrementValue = 100;
                             response.data[i].RunningOrderBlockSize = 1;
-                            response.data[i].WCPreferenceType= 'INCLUDE';
-                          
+                            response.data[i].WCPreferenceType = 'INCLUDE';
+
                             response.data[i].RequiredLineDays = parseFloat((response.data[i].PlanWorkingHoursPerDay * 60) / (response.data[i].SPT * response.data[i].Qty) / response.data[i].Efficiency).toFixed(2);
                             response.data[i].MaximumAllowedWorkCenter = Math.floor(response.data[i].RequiredLineDays) / response.data[i].MinimumLineDays;
                             if (response.data[i].MaximumAllowedWorkCenter < 1) {
@@ -2274,7 +2273,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                                         while (firstdaysoutput * response.data[i].PlanWorkingHoursPerDay < response.data[i].TargetPerDay) {
                                             daysrequired++;
                                             //if (response.data[i].IncrementType == "FIXED")
-                                                firstdaysoutput += response.data[i].IncrementValue;
+                                            firstdaysoutput += response.data[i].IncrementValue;
 
                                             //compounding method
                                             //if (response.data[i].IncrementType == "PERCENTAGE")
@@ -2287,7 +2286,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                                     }
                                     response.data[i].DayToReachTheTarget = daysrequired.toFixed(2);
                                 }
-                               
+
                             }
 
                         }
@@ -2441,7 +2440,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     $scope.workCenterList = [];
     $scope.workcenterfor = '';
     //$scope.workcenterDialog = $("#workCenterPopUp").ejDialog({ target: "#entrycontainer" });
-    $scope.GetWorkCenterMaster = function (obj,wcfor) {
+    $scope.GetWorkCenterMaster = function (wcfor) {
         $scope.workcenterfor = wcfor;
         $rootScope.tempList = [];
         $scope.workCenterList = [];
@@ -2453,7 +2452,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                     , Plant: a.Plant
                     , Entity: a.Entity
                     , WorkCenterMasterId: a.WorkCenterMasterId
-                    , ProductionOrderId: a.ProductionOrderId
+                    , ProductionOrderId: $scope.tempOj.ID
                     , Code: a.Code
                     , UserName: a.UserName
                     , Flag: true
@@ -2467,7 +2466,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                     , Plant: a.Plant
                     , Entity: a.Entity
                     , WorkCenterMasterId: a.WorkCenterMasterId
-                    , ProductionOrderId: a.ProductionOrderId
+                    , ProductionOrderId: $scope.tempOj.ID
                     , Code: a.Code
                     , UserName: a.UserName
                     , Flag: true
@@ -2477,7 +2476,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
         $http({
             method: 'GET',
-            url: $scope.path + 'GetWorkCenterList?entityIds=' + $scope.productionOrderModel.EntityId + "&processid=" + $scope.PlanningTypeProcessId
+            url: 'OrderManagements/productionOrderSchedulingParametersType1/GetType2WorkCenterList?entityIds=' + $scope.model.EntityId + "&processid=" + $scope.model.PlanningTypeProcessId + "&wcgId=" + $scope.tempOj.WorkCenterGroupId
         }).then(function successCallback(res) {
             $scope.workCenterList = res.data;
 
@@ -2503,17 +2502,214 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         });
 
 
-        var eDialog = $("#workCenterPopUp").data("ejDialog");
-        eDialog.open();
+        if (wcfor == 'RUNNING') {
+            var eDialog = $("#type2RunworkCenterPopUp").data("ejDialog");
+            eDialog.open();
+        } else {
+            var eDialog = $("#type2workCenterPopUp").data("ejDialog");
+            eDialog.open();
+        }
+    }
+    $scope.productionWorkCenterList = [];
+    $scope.runningWorkCenterList = [];
+
+    $scope.AddNewType2WorkCenter = function () {
+        if ($scope.workcenterfor == 'RUNNING') {
+            for (var i = 0; i < $scope.workCenterList.length; i++) {
+                var exists = ej.DataManager($scope.runningWorkCenterList).executeLocal(ej.Query().where("Code", "equal", $scope.workCenterList[i].Code));
+                if ($scope.workCenterList[i].Flag == true) {
+                    if (exists.length == 0) {
+                        $scope.runningWorkCenterList.push({
+                            Id: null
+                            , isResidualApplicable: false
+                            , Plant: $scope.workCenterList[i].Plant
+                            , Entity: $scope.workCenterList[i].Entity
+                            , WorkCenterMasterId: $scope.workCenterList[i].WorkCenterMasterId
+                            , ProductionOrderId: $scope.tempOj.ID
+                            , Code: $scope.workCenterList[i].Code
+                            , UserName: $scope.workCenterList[i].UserName
+                        });
+                    }
+                }
+                else {
+                    if (exists.length > 0) {
+                        exists.pop();
+                    }
+                }
+            }
+
+        }
+        else {
+
+            for (var i = 0; i < $scope.workCenterList.length; i++) {
+                var exists = ej.DataManager($scope.productionWorkCenterList).executeLocal(ej.Query().where("Code", "equal", $scope.workCenterList[i].Code));
+                if ($scope.workCenterList[i].Flag == true) {
+                    if (exists.length == 0) {
+                        $scope.productionWorkCenterList.push({
+                            Id: null
+                            , Plant: $scope.workCenterList[i].Plant
+                            , Entity: $scope.workCenterList[i].Entity
+                            , WorkCenterMasterId: $scope.workCenterList[i].WorkCenterMasterId
+                            , ProductionOrderId: $scope.tempOj.ID
+                            , Code: $scope.workCenterList[i].Code
+                            , UserName: $scope.workCenterList[i].UserName
+                        });
+                    }
+                }
+                else {
+                    if (exists.length > 0) {
+                        exists.pop();
+                    }
+                }
+            }
+        }
+
+        $scope.CloseWorkCenterPopUp();
     }
 
 
+    $scope.productionWorkCenterList = [];
+    $scope.runningWorkCenterList = [];
+
+    $scope.GetPrefenceWorkCenter = function (obj) {
+        $scope.tempOj = obj.data;
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetProductionOrderType2WorkCenterList?productionOrderId=' + $scope.tempOj.ID
+        }).then(function successCallback(response) {
+            $scope.productionWorkCenterList = response.data;
+        });
+        angular.element(document.querySelector('#PrefenceWorkCenterPopUp')).modal('show');
+
+    }
+
+    $scope.GetSavedPrefenceWorkCenter = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetProductionOrderType2WorkCenterList?productionOrderId=' + $scope.tempOj.ID
+        }).then(function successCallback(response) {
+            $scope.productionWorkCenterList = response.data;
+        });
+
+    }
+
+    $scope.ClosePrefenceWorkCenter = function () {
+        angular.element(document.querySelector('#PrefenceWorkCenterPopUp')).modal('hide');
+    }
+
+    $scope.CloseRunningeWorkCenter = function () {
+        angular.element(document.querySelector('#RunningWorkCenterPopUp')).modal('hide');
+    }
+
+    $scope.GetRunningWorkCenter = function (obj) {
+        $scope.tempOj = obj.data;
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetRunningOrderType2WorkCenterList?productionOrderId=' + $scope.tempOj.ID
+        }).then(function successCallback(response) {
+            $scope.runningWorkCenterList = response.data;
+        });
+        angular.element(document.querySelector('#RunningWorkCenterPopUp')).modal('show');
+    }
 
 
+    $scope.GetSavedRunningWorkCenter = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetRunningOrderType2WorkCenterList?productionOrderId=' + $scope.tempOj.ID
+        }).then(function successCallback(response) {
+            $scope.runningWorkCenterList = response.data;
+        });
+    }
 
 
+    $scope.SavePrefenceWorkCenter = function () {
+        try {
+            if ($scope.productionWorkCenterList.length > 0) {
+                $http({
+                    method: 'POST',
+                    url: "OrderManagements/ProductionOrder/SavePreferenceWorkCenter",
+                    data: { 'workcenterlist': $scope.productionWorkCenterList, 'spoId': $scope.tempOj.ID },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error == true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetSavedPrefenceWorkCenter();
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.data.Message, 'failure');
+                });
+
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.SaveRunningWorkCenter = function () {
+        try {
+            if ($scope.runningWorkCenterList.length > 0) {
+                $http({
+                    method: 'POST',
+                    url: "OrderManagements/ProductionOrder/SaveType2RunningWorkCenter",
+                    data: { 'workcenterlist': $scope.runningWorkCenterList, 'spoId': $scope.tempOj.ID },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error == true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetSavedRunningWorkCenter();
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.data.Message, 'failure');
+                });
+
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.Simulate = function () {
+        try {
+            //var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
+            //$scope.EntityId = DropDownEntityListObj.getSelectedValue();
+
+            //if (angular.isUndefinedOrNull($scope.EntityId)) {
+            //    for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
+            //        if (angular.isUndefinedOrNull($scope.EntityId)) {
+            //            EntityId = + DropDownEntityListObj.popupListItems[i].Id;
+            //        } else {
+            //            EntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
+            //        }
+            //    }
+            //}
+            $http({
+                method: 'GET',
+                url: $scope.path + "OrderManagements/productionOrderSchedulingParametersType1/ProductionType2PlanSimulation?entityid=" + $scope.model.EntityId + "&processid=" + $scope.model.PlanningTypeProcessId
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult("Simulated successfully", 'success');
 
 
+                   // var args = { "requestType": "filtering" };
+                   // $scope.filterComplete(args);
+
+                }
+            });
+        } catch (e) {
+
+        }
+        //$scope.SimulateVisual();
+    }
 
 
 
