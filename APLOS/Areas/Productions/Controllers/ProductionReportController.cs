@@ -693,7 +693,7 @@ declare @entityId varchar(50)='" + entityId + @"'
 						LEFT JOIN MST.ManpowerBudget MB ON MB.Id=ei.BudgetCode
 						LEFT JOIN HKP.IncentiveType IT ON IT.Id=MB.IncentiveTypeId
 						LEFT JOIN ORG.Entity EN  ON EN.Id=MB.EntityId
-						LEFT JOIN [dbo].[EmployeeOperation] EO ON EO.OperationMasterId=OM.Id AND OWE.EmployeeId=EO.EmpSystemId
+						LEFT JOIN [dbo].[EmployeeOperation] EO ON EO.OperationMasterId=OM.Id AND OWE.EmployeeId=EO.EmpSystemId AND EO.Archive=0
 						where APD.WorkDate > Convert(date, DateAdd(DAY, -365, GetDate()))
 						AND APD.[WorkDate] between DATEADD(dd, DATEDIFF(dd, 0, '" + fromDate + "'), 0) and DATEADD(dd, DATEDIFF(dd, 0, '" + toDate + @"'), 0)
                         AND IT.UserName IN (" + tempincentiveType + @") AND MB.EntityId='" + entityId + @"'
@@ -941,7 +941,7 @@ WITH base_prod AS (
     LEFT JOIN MST.ManpowerBudget MB ON MB.Id=ei.BudgetCode
     LEFT JOIN ORG.Entity EN ON EN.Id=MB.EntityId
 	LEFT JOIN HKP.IncentiveType IT ON IT.Id=MB.IncentiveTypeId
-    LEFT JOIN [dbo].[EmployeeOperation] EO ON EO.OperationMasterId=OM.Id AND OWE.EmployeeId=EO.EmpSystemId
+    LEFT JOIN [dbo].[EmployeeOperation] EO ON EO.OperationMasterId=OM.Id AND OWE.EmployeeId=EO.EmpSystemId AND EO.Archive=0
     WHERE APD.[WorkDate] BETWEEN  DATEADD(dd, DATEDIFF(dd, 0, '" + fromDate + "'), 0) and DATEADD(dd, DATEDIFF(dd, 0, '" + toDate + @"'), 0)
     AND IT.UserName IN (" + tempincentiveType + ")  AND MB.EntityId='" + entityId + @"'
     AND ei.EmployeeStatus='Active' " + tempdaystatus + " " + tempShiftId + " " + tempwcId + @"
@@ -1024,7 +1024,7 @@ base AS (
 	LEFT JOIN HKP.IncentiveType IT ON IT.Id=MB.IncentiveTypeId
     LEFT JOIN [SCS].[WorkCenterMaster] wcm on wcm.Id=owe.WorkcenterId
 	LEFT JOIN ShiftDefination SD ON SD.SystemId=OWE.ShiftId
-    LEFT JOIN [dbo].[EmployeeOperation] EO ON EO.OperationMasterId=OM.Id AND OWE.EmployeeId=EO.EmpSystemId
+    LEFT JOIN [dbo].[EmployeeOperation] EO ON EO.OperationMasterId=OM.Id AND OWE.EmployeeId=EO.EmpSystemId AND EO.Archive=0
     WHERE OWE.[Date] BETWEEN  DATEADD(dd, DATEDIFF(dd, 0, '" + fromDate + "'), 0) and DATEADD(dd, DATEDIFF(dd, 0, '" + toDate + @"'), 0)
 AND IT.UserName IN (" + tempincentiveType + ")  AND MB.EntityId='" + entityId + @"' AND ei.EmployeeStatus='Active' " + tempShiftId + " " + tempwcId + @"
 ),
@@ -1396,7 +1396,7 @@ WITH base_prod AS (
     LEFT JOIN MST.ManpowerBudget MB ON MB.Id=ei.BudgetCode
 	LEFT JOIN HKP.IncentiveType IT ON IT.Id=MB.IncentiveTypeId
     LEFT JOIN ORG.Entity EN ON EN.Id=MB.EntityId
-    LEFT JOIN [dbo].[EmployeeOperation] EO ON EO.OperationMasterId=OM.Id AND OWE.EmployeeId=EO.EmpSystemId
+    LEFT JOIN [dbo].[EmployeeOperation] EO ON EO.OperationMasterId=OM.Id AND OWE.EmployeeId=EO.EmpSystemId AND EO.Archive=0
     WHERE APD.[WorkDate] BETWEEN  '" + fromDate + "' AND '" + toDate + @"'
     AND IT.UserName IN (" + tempincentiveType + ")  AND MB.EntityId='" + entityId + @"'
 	 AND ei.EmployeeStatus='Active'  " + tempdaystatus + " " + tempShiftId + " " + tempwcId + @"--and ei.employeecode in ('10000351')
