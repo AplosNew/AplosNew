@@ -1734,6 +1734,8 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DesignationGroup"); int colDesignationGroup = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LegalDesignation"); int colLegalDesignation = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Process"); int colProcess = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SpecialSkill"); int colSpecialSkill = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeRating"); int colEmployeeRating = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmpSystemId"); int colEmpSystemId = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sequence"); int colSeq = xlsCol;
 
@@ -1759,6 +1761,8 @@ LEFT JOIN HKP.[SkillCategory] SC ON SC.Id=S.SkillCategoryId";
                     sheet1[xlsRow, colDesignationGroup].Text = dtSkill.Rows[i]["DesignationGroup"].ToString();
                     sheet1[xlsRow, colLegalDesignation].Text = dtSkill.Rows[i]["LegalDesignation"].ToString();
                     sheet1[xlsRow, colProcess].Text = dtSkill.Rows[i]["Process"].ToString();
+                    //sheet1[xlsRow, colSpecialSkill].Text = dtSkill.Rows[i]["SpecialSkill"].ToString();
+                    //sheet1[xlsRow, colEmployeeRating].Text = dtSkill.Rows[i]["EmployeeRating"].ToString();
                     xlsRow++;
                 }
 
@@ -1904,8 +1908,10 @@ Where OV.Active=1 Order By OV.UserName";
                                 vm.DesignationGroup = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
                                 vm.LegalDesignation = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
                                 vm.Process = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
-                                vm.EmpSystemId = dsExcel.Tables[0].Rows[i][7].ToString().Trim();
-                                vm.Sequence = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][8].ToString());
+                                vm.SpecialSkill = dsExcel.Tables[0].Rows[i][7].ToString().Trim();
+                                vm.EmployeeRating = dsExcel.Tables[0].Rows[i][8].ToString().Trim();
+                                vm.EmpSystemId = dsExcel.Tables[0].Rows[i][9].ToString().Trim();
+                                vm.Sequence = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][10].ToString());
                                 data.Add(vm);
 
                             }
@@ -2007,6 +2013,8 @@ Where OV.Active=1 Order By OV.UserName";
                             //dr["Id"] = item.EmpSystemId + "-" + item.Sequence;
                             dr["EmpSystemId"] = item.EmpSystemId;
                             dr["OperationMasterId"] = item.OperationMasterId;
+                            dr["SpecialSkill"] = item.SpecialSkill;
+                            dr["EmployeeRating"] = item.EmployeeRating;
                             dr["Sequence"] = item.Sequence; ;
                             dr["Archive"] = false;
                             dr["AddedBy"] = identity.Name;

@@ -325,29 +325,9 @@ namespace Library.Service.IE
         {
             try
             {
-                var sql = @"SELECT OM.*
-                                ,CG.StandardName AS CompanyGroup
-                                ,OA.UserName AS OperationActivity
-                                ,OT.UserName AS OperationType
-                                ,OC.UserName AS OperationCategory
-                                ,S.Id SkillId,S.UserName AS Skill
-                                ,MM.UserName AS MachineMaster
-                                ,SG.UserName AS SkillGroup
-                                ,LD.UserName AS LegalDesignation
-                                ,DG.UserName AS DesignationGroup
-                                ,p.UserName As Process,SC.UserName SkillMasterCategory
-                                From [MST].[OperationMaster] OM
-                                LEFT JOIN [ORG].CompanyGroup CG ON CG.Id=OM.CompanyGroupId
-                                LEFT JOIN [HKP].[OperationActivity] OA ON OA.Id=OM.OperationActivityId
-                                LEFT JOIN [HKP].[OperationType] OT ON OT.Id=OM.OperationTypeId
-                                LEFT JOIN [HKP].[OperationCategory] OC ON OC.Id=OM.OperationCategoryId
-                                LEFT JOIN [HKP].[Skill] S On S.Id=OM.SkillId
-                                LEFT JOIN [HKP].[SkillCategory] SC On SC.Id=OM.SkillCategoryId
-                                LEFT JOIN [MST].[MachineMaster] MM ON MM.Id=OM.MachineMasterId
-                                LEFT JOIN [SCS].[SkillGrouping] SG ON SG.Id=OM.SkillGroupId
-                                LEFT JOIN [HKP].[DesignationGroup] DG ON DG.Id=OM.DesignationGroupId
-                                LEFT JOIN [HKP].[LegalDesignation] LD ON LD.Id=OM.LegalDesignationId
-                                LEFT JOIN [HKP].[Process] P ON P.Id=OM.ProcessId";
+                var sql = @"SELECT OM.*                                ,CG.StandardName AS CompanyGroup                                ,OA.UserName AS OperationActivity                                ,OT.UserName AS OperationType                                ,OC.UserName AS OperationCategory                                ,S.Id SkillId,S.UserName AS Skill                                ,MM.UserName AS MachineMaster                                ,SG.UserName AS SkillGroup                                ,LD.UserName AS LegalDesignation                                ,DG.UserName AS DesignationGroup                                ,p.UserName As Process,SC.UserName SkillMasterCategory
+                                From [MST].[OperationMaster] OM                                LEFT JOIN [ORG].CompanyGroup CG ON CG.Id=OM.CompanyGroupId                                LEFT JOIN [HKP].[OperationActivity] OA ON OA.Id=OM.OperationActivityId                                LEFT JOIN [HKP].[OperationType] OT ON OT.Id=OM.OperationTypeId                                LEFT JOIN [HKP].[OperationCategory] OC ON OC.Id=OM.OperationCategoryId                                LEFT JOIN [HKP].[Skill] S On S.Id=OM.SkillId                                LEFT JOIN [HKP].[SkillCategory] SC On SC.Id=OM.SkillCategoryId
+                                LEFT JOIN [MST].[MachineMaster] MM ON MM.Id=OM.MachineMasterId                                LEFT JOIN [SCS].[SkillGrouping] SG ON SG.Id=OM.SkillGroupId                                LEFT JOIN [HKP].[DesignationGroup] DG ON DG.Id=OM.DesignationGroupId                                LEFT JOIN [HKP].[LegalDesignation] LD ON LD.Id=OM.LegalDesignationId                                LEFT JOIN [HKP].[Process] P ON P.Id=OM.ProcessId";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -363,32 +343,7 @@ namespace Library.Service.IE
         {
             try
             {
-                var sql = @"SELECT  
-                             Id	
-	                        ,CompanyGroupId
-		                    ,[Sequence]                                          
-		                    ,Code,
-		                    ShortName ,
-		                    StandardName,
-		                    UserName,
-		                    OperationActivityId,
-		                    OperationTypeId,
-		                    OperationCategoryId,
-		                    SkillId,
-		                    [Type],
-		                    MachineMasterId	,
-		                    SkillGroupId,
-		                    LegalDesignationId,
-		                    ProcessId,
-		                    ProposedSalary,
-		                    Remarks,
-		                    Active,
-		                    AddedBy,
-		                    AddedDate,
-		                    AddedFromIP,
-		                    UpdatedBy,
-		                    UpdatedDate,
-		                    UpdatedFromIP from [MST].[OperationMaster] where Id='" + id + "'";
+                var sql = @"SELECT * from [MST].[OperationMaster] where Id='" + id + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

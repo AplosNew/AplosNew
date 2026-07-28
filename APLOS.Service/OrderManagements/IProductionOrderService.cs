@@ -19,9 +19,10 @@ namespace Library.Service.OrderManagements
         IEnumerable<object> GetProductionOrderEntityList(string productionOrderId);
 
         IEnumerable<object> GetWorkCenterList(string[] entityIds,string processid);
-
+        IEnumerable<object> GetType2WorkCenterList(string[] entityIds, string processid, string wcgId);
         IEnumerable<object> GetProductionOrderWorkCenterList(string productionOrderId);
-        IEnumerable<object> GetProductionOrderType2WorkCenterList(string productionOrderId);
+        IEnumerable<object> GetProductionOrderType2WorkCenterList(int productionOrderId);
+        IEnumerable<object> GetRunningOrderType2WorkCenterList(int productionOrderId);
         IEnumerable<object> GetWorkCenterListByEntity(string entityId);
 
         IEnumerable<object> GetWorkCenterListByEntityandFirstProcess(string entityId, string processId, string productionOrderId);

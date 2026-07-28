@@ -1092,6 +1092,18 @@ isnull(S.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entit
             return Json(_productionOrderService.GetWorkCenterList(entityidList, processid), JsonRequestBehavior.AllowGet);
         }
 
+
+        [HttpGet, Authorize]
+        public JsonResult GetType2WorkCenterList(string entityIds, string processid, string wcgId)
+        {
+            DataTable dt = _sqlRepository.GetDataTable(EntityList());
+            string[] entityidList = new string[dt.Rows.Count];
+            for (int i = 0; i < dt.Rows.Count; i++)
+                entityidList[i] = dt.Rows[i]["Id"].ToString();
+
+            return Json(_productionOrderService.GetType2WorkCenterList(entityidList, processid, wcgId), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public JsonResult GetWorkCenterNewList(string entityIds, string processid)
         {
@@ -1147,6 +1159,7 @@ isnull(S.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entit
                                 WHERE PWCM.ProductionOrderId='" + productionOrderId + "' ORDER BY p.UserName,e.UserName,wcm.sequence";
             return Json(_sqlRepository.GetDataCollection(_sql), JsonRequestBehavior.AllowGet);
         }
+
         [HttpPost]
         public JsonResult Create(ProductionOrderSchedulingParametersType1 parameter, string ProductionStatusId, List<ProductionOrderWorkCenter> workcenterlist, List<RunningOrderWorkCenter> runningworkcenterlist)
         {
@@ -3480,6 +3493,121 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.Pro
             return dtWorkCenter;
         }
 
+        private DataTable dtType2AllAvailableWrokcenters(string entityid, string processid)
+        {
+
+            string sql = @"SELECT WC.* FROM  [SCS].[WorkCenterMaster] WC WHERE WC.EntityId IN(" + entityid + @") AND WC.ProcessId='" + processid + @"' AND WC.[Active]=1 
+                                ";
+            DataTable dtWorkCenter = _sqlRepository.GetDataTable(sql);
+
+
+
+            //final block for all workcenters with last production date
+            string workcenterlist = "''";
+            for (int i = 0; i < dtWorkCenter.Rows.Count; i++)
+                workcenterlist += ",'" + dtWorkCenter.Rows[i]["ID"].ToString() + "'";
+
+
+            //GETDATE()-1
+            sql = @"SELECT WC.Id AS WorkCenterMasterId,WC.EntityId,WC.UserName AS WorkCenter,WC.StandardTimePerDay,WC.NoOfWorkStation, p.MaterialMasterId,WC.ProcessID,
+                   -- FORMAT(ISNULL(p.ProductionDate,dateadd(DAY,-1, CONVERT(DATE, CASE WHEN ISNULL(e.StartDate,'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"')<='" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"' THEN '" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"' ELSE e.StartDate END))),'dd-MMM-yyyy') AS LastProductionDate,0 AS LastStyleRunningFor,
+                    FORMAT(dateadd(DAY,-1, CONVERT(DATE, CASE WHEN ISNULL(e.StartDate,'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"')<='" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"' THEN '" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"' ELSE e.StartDate END)),'dd-MMM-yyyy') AS LastProductionDate,0 AS LastStyleRunningFor,
+                           p.Quantity,0 AS CurrentPRQty--, p.ProductionHours
+                      FROM [SCS].[WorkCenterMaster] WC 
+                      INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[WorkCenterMasterEffectiveDate] GROUP BY WorkCenterMasterId) E ON e.WorkCenterMasterId=WC.Id
+                    LEFT OUTER JOIN 
+                    (
+		                    SELECT  * FROM (	
+					                    SELECT dense_rank() OVER (PARTITION BY t.WorkCenterMasterId ORDER BY t.ProductionDate DESC) AS RANK,
+					                    t.WorkCenterMasterId,t.ProductionDate,t.Quantity,t.MaterialMasterId
+					                    FROM (SELECT t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,SUM(t.Quantity) AS Quantity
+					                      FROM trn.ProductionSummary t 
+					                    INNER JOIN [TRN].[ProductionOrderType2] P ON p.Id=t.ProductionOrderID
+					                    LEFT OUTER JOIN (SELECT DISTINCT pod.ProductionOrderId,mm.Id AS MaterialMasterId
+FROM trn.ProductionOrderType2Detail AS pod
+INNER JOIN(SELECT distinct pod.ProductionOrderId,(select top(1) SalesOrderId from trn.ProductionOrderType2Detail where ProductionOrderId=POD.ProductionOrderId) SOId
+FROM trn.ProductionOrderType2Detail POD) A ON A.ProductionOrderId=pod.ProductionOrderId
+INNER JOIN trn.SalesOrder AS so ON A.SOId=so.Id
+INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.ProductionOrderId=p.Id
+                                    where t.ProductionDate<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
+					                    GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId) AS T
+		                    ) AS K WHERE K.[RANK]=1
+                    ) AS P ON p.WorkCenterMasterId=wc.Id
+                    WHERE WC.[Active]=1 AND WC.Id IN (" + workcenterlist + ")";
+            dtWorkCenter = _sqlRepository.GetDataTable(sql);
+
+
+
+            string sqlLastRunningDays = @"SELECT *
+                    FROM ( SELECT dense_rank() OVER (PARTITION BY t.WorkCenterMasterId ORDER BY t.ProductionDate DESC) AS LW,
+					                    t.WorkCenterMasterId,t.ProductionDate,t.Quantity,0 AS CurrentPRQty, t.MaterialMasterId
+                           from (SELECT t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,SUM(t.Quantity) AS Quantity
+					                      FROM trn.ProductionSummary t 
+					                    INNER JOIN [TRN].[ProductionOrder] P ON p.Id=t.ProductionOrderID
+					                    LEFT OUTER JOIN (SELECT DISTINCT pod.ProductionOrderId,mm.Id AS MaterialMasterId
+FROM trn.ProductionOrderType2Detail AS pod
+INNER JOIN(SELECT distinct pod.ProductionOrderId,(select top(1) SalesOrderId from trn.ProductionOrderType2Detail where ProductionOrderId=POD.ProductionOrderId) SOId
+FROM trn.ProductionOrderType2Detail POD) A ON A.ProductionOrderId=pod.ProductionOrderId
+INNER JOIN trn.SalesOrder AS so ON A.SOId=so.Id
+INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.ProductionOrderId=p.Id
+                                        WHERE p.EntityId IN(" + entityid + @") AND t.ProductionDate<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
+					                    GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId) AS T
+                        ) AS T  
+                    WHERE LW<=(SELECT MAX(T1.DayToReachTheTarget*10)
+                   FROM ProductionOrderSchedulingParametersType2 AS T1 
+                  INNER JOIN trn.ProductionOrderType2 AS po ON t1.ProductionOrderID=po.Id WHERE po.EntityId IN(" + entityid + @")
+                    )";
+
+
+            DataTable dtWorkCenterProductionHistory = _sqlRepository.GetDataTable(sqlLastRunningDays);
+            DataView dvtemp = new DataView(dtWorkCenterProductionHistory);
+
+            Dictionary<string, int> distinctWorkCenter = new Dictionary<string, int>();
+
+            for (int i = 0; i < dtWorkCenterProductionHistory.Rows.Count; i++)
+            {
+
+                if (distinctWorkCenter.ContainsKey(dtWorkCenterProductionHistory.Rows[i]["WorkCenterMasterId"].ToString() + dtWorkCenterProductionHistory.Rows[i]["MaterialMasterId"].ToString()) == false)
+                {
+                    //if (dtWorkCenterProductionHistory.Rows[i]["WorkCenterMasterId"].ToString() == "7")
+                    //{
+
+                    //}
+
+                    dvtemp.RowFilter = "MaterialMasterId='" + dtWorkCenterProductionHistory.Rows[i]["MaterialMasterId"].ToString() + "' AND WorkCenterMasterId='" + dtWorkCenterProductionHistory.Rows[i]["WorkCenterMasterId"].ToString() + "'";
+                    string materialmasterid = dtWorkCenterProductionHistory.Rows[i]["MaterialMasterId"].ToString();
+                    int ReverseCountDays = 0;
+                    int PreviousRowSerial = 0;
+                    for (int R = 0; R < dvtemp.Count; R++)
+                    {
+                        PreviousRowSerial++;
+                        if (clsStaticInfo.dbl(dvtemp[R]["LW"].ToString()) == PreviousRowSerial)
+                        {
+                            if (materialmasterid == dtWorkCenterProductionHistory.Rows[i]["MaterialMasterId"].ToString())
+                                ReverseCountDays++;
+                            else
+                                break;
+                        }
+                    }
+
+
+                    dtWorkCenter.DefaultView.RowFilter = "MaterialMasterId='" + dtWorkCenterProductionHistory.Rows[i]["MaterialMasterId"].ToString() + "' AND WorkCenterMasterId='" + dtWorkCenterProductionHistory.Rows[i]["WorkCenterMasterId"].ToString() + "'";
+                    if (dtWorkCenter.DefaultView.Count > 0)
+                        dtWorkCenter.DefaultView[0].Row["LastStyleRunningFor"] = ReverseCountDays;
+
+
+                    distinctWorkCenter.Add(dtWorkCenterProductionHistory.Rows[i]["WorkCenterMasterId"].ToString() + dtWorkCenterProductionHistory.Rows[i]["MaterialMasterId"].ToString(), ReverseCountDays);
+                }
+
+            }
+
+
+
+
+            return dtWorkCenter;
+        }
 
         private DataTable dtProductionParameters(string entityid)
         {
@@ -3596,7 +3724,40 @@ AS rnk,ppc.*
 
         }
 
+        private Dictionary<string, DataTable> dtProductionType2Calendar(DateTime startDate, int noOfWorkingDays, string processid, string entityid)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
+            string sql = @"select * from (SELECT 
+dense_rank() OVER (PARTITION BY ppc.EntityID ORDER BY EntityID,ppc.WorkingDate)
+AS rnk,ppc.*
+                                     FROM ProductionPlanningType2Calendar AS ppc 
+                            WHERE ppc.WorkingDate>='" + startDate.ToString("dd-MMM-yyyy") + @"' AND ppc.WorkingHours>0 
+                            AND ppc.ProcessID='" + processid + @"' AND ppc.EntityID IN(" + entityid + @")) as ppc WHERE rnk<=" + noOfWorkingDays + @"
+                            ORDER BY  ppc.EntityID, ppc.WorkingDate ASC";
+            DataTable _dtProductionParameters = _sqlRepository.GetDataTable(sql);
+            if (_dtProductionParameters.Rows.Count == 0)
+                throw new Exception("No calendar was defined for selected entity");
+
+            Dictionary<string, DataTable> dicCalendar = new Dictionary<string, DataTable>();
+            DataTable dt = _dtProductionParameters.Clone();
+            string _entityId = "";
+            for (int i = 0; i < _dtProductionParameters.Rows.Count; i++)
+            {
+                if (_entityId != _dtProductionParameters.Rows[i]["EntityID"].ToString())
+                {
+                    dt = _dtProductionParameters.Clone();
+                    dicCalendar.Add(_dtProductionParameters.Rows[i]["EntityID"].ToString(), dt);
+                }
+                dt.ImportRow(_dtProductionParameters.Rows[i]);
+
+                _entityId = _dtProductionParameters.Rows[i]["EntityID"].ToString();
+            }
+
+            return dicCalendar;
+
+
+        }
 
         #region Production Plan Simulation Visualization
         int maxDaysToShow = 30;
@@ -6213,9 +6374,10 @@ isnull(S.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entit
                     string _sql = @"SELECT distinct WCM.EntityId
                                   from (SELECT distinct W.ProductionOrderId,W.WorkCenterMasterId FROM trn.ProductionOrderType2WorkCenter AS W
                                 UNION
-                                SELECT distinct W.ProductionOrderId,W.WorkCenterMasterId FROM trn.RunningOrderWorkCenter AS W
+                                SELECT distinct W.ProductionOrderId,W.WorkCenterMasterId FROM trn.RunningOrderType2WorkCenter AS W
                                 ) AS W
-                                JOIN trn.ProductionOrderType2 AS po ON po.Id=w.ProductionOrderId
+                                join [dbo].[ProductionOrderSchedulingParametersType2] spo on spo.ID=W.ProductionOrderId
+JOIN trn.ProductionOrderType2 AS po ON po.Id=spo.ProductionOrderId
                                 join scs.WorkCenterMaster AS wcm ON wcm.Id=w.WorkCenterMasterId
                                 INNER JOIN hkp.ProductionStatus AS ps ON ps.Id = po.ProductionStatusId
                                 WHERE  (po.EntityId IN(" + entityid + @") OR WCM.EntityId IN(" + entityid + @")) 
@@ -6223,14 +6385,16 @@ isnull(S.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entit
 UNION
 SELECT distinct po.EntityId FROM 
 trn.ProductionOrderType2WorkCenter W
-JOIN trn.ProductionOrderType2 AS po ON W.ProductionOrderId=po.Id
+join [dbo].[ProductionOrderSchedulingParametersType2] spo on spo.ID=W.ProductionOrderId
+JOIN trn.ProductionOrderType2 AS po ON po.Id=spo.ProductionOrderId
 JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=w.WorkCenterMasterId
 INNER JOIN hkp.ProductionStatus AS ps ON ps.Id = po.ProductionStatusId
 WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningStatus.CLOSED.ToString() + @"')
 UNION
 SELECT distinct po.EntityId FROM 
-trn.RunningOrderWorkCenter W
-JOIN trn.ProductionOrderType2 AS po ON W.ProductionOrderId=po.Id
+trn.RunningOrderType2WorkCenter W
+join [dbo].[ProductionOrderSchedulingParametersType2] spo on spo.ID=W.ProductionOrderId
+JOIN trn.ProductionOrderType2 AS po ON po.Id=spo.ProductionOrderId
 JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=w.WorkCenterMasterId
 INNER JOIN hkp.ProductionStatus AS ps ON ps.Id = po.ProductionStatusId
 WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningStatus.CLOSED.ToString() + @"')";
@@ -6295,7 +6459,8 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                                                 FROM trn.ProductionOrderType2 PO 
 
                                                 WHERE PO.Id IN (
-			                                                SELECT PO.Id AS ProductionOrderId FROM trn.ProductionOrderType2 AS po 
+			                                                SELECT PO.Id AS ProductionOrderId FROM [dbo].[ProductionOrderSchedulingParametersType2] spo 
+INNER JOIN trn.ProductionOrderType2 AS po ON po.Id=spo.ProductionOrderId
 			                                                INNER JOIN hkp.ProductionStatus ps ON ps.Id=po.ProductionStatusId
 			                                                LEFT OUTER JOIN trn.ProductionOrderType2Detail AS pod ON pod.ProductionOrderId=po.Id
 			                                                AND pod.Id = (
@@ -6307,15 +6472,17 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                                                 )");
 
                 _sqlRepository.ExecuteSqlCommand(@"DELETE FROM ProductionPlanningType2 WHERE ProductionOrderID IN (
-                                                SELECT po.Id FROM trn.ProductionOrder AS po
-                                                INNER JOIN ProductionPlanningType2 AS ppt ON ppt.ProductionOrderID=po.Id
+                                               SELECT po.Id FROM [dbo].[ProductionOrderSchedulingParametersType2] spo
+                                                INNER JOIN trn.ProductionOrderType2 AS po ON po.id=spo.ProductionOrderID
+                                                INNER JOIN ProductionPlanningType2 AS ppt ON ppt.ProductionOrderID=spo.ID
                                                 INNER JOIN hkp.ProductionStatus AS ps ON po.ProductionStatusId=ps.Id
                                                 WHERE ps.UserName='" + Library.Model.Enums.OrderStatusEnum.Closed.ToString() + @"'
                                                 )");
 
-                string runningsql = @"SELECT DISTINCT po.Id FROM trn.ProductionOrderType2 AS po
+                string runningsql = @"SELECT DISTINCT po.Id FROM [dbo].[ProductionOrderSchedulingParametersType2] spo
+                                    INNER JOIN trn.ProductionOrderType2 AS po ON po.id=spo.ProductionOrderID
                                     LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
-                                    LEFT OUTER JOIN trn.RunningOrderWorkCenter AS r ON po.Id=r.ProductionOrderId
+                                    LEFT OUTER JOIN trn.RunningOrderType2WorkCenter AS r ON spo.Id=r.ProductionOrderId
                                     WHERE ISNULL(r.Id,'')='' AND ps.UserName='running' AND po.EntityId IN (" + ProcessingEntities + @")";
                 DataTable dtCheck = _sqlRepository.GetDataTable(runningsql);
                 if (dtCheck.Rows.Count > 0)
@@ -6336,7 +6503,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
 
                 Dictionary<string, double> DicBalanceWorkcenterHours = new Dictionary<string, double>();
 
-                DataTable dtWorkCenter = dtAllAvailableWrokcenters(ProcessingEntities, processid);
+                DataTable dtWorkCenter = dtType2AllAvailableWrokcenters(ProcessingEntities, processid);
                 dtWorkCenter.Columns.Add("CURRENT_APPLICABLE");
                 dtWorkCenter.Columns.Add("ACTUAL_APPLICABLE");
                 dtWorkCenter.Columns.Add("AlreadyBooked", typeof(double));
@@ -6344,7 +6511,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                 dtWorkCenter.DefaultView.RowFilter = null;
                 DataTable dvDistinctEntity = dtWorkCenter.DefaultView.ToTable(true, "EntityId");
 
-                Dictionary<string, DataTable> dicCalendar = dtProductionCalendar(System.DateTime.Now, 1500, processid, ProcessingEntities);
+                Dictionary<string, DataTable> dicCalendar = dtProductionType2Calendar(System.DateTime.Now, 1500, processid, ProcessingEntities);
                 DataTable dtCalendar = new DataTable("Temp");
                 DataTable productionOrders = dtProductionType2Parameters(ProcessingEntities);
                 for (int i = 0; i < productionOrders.Rows.Count; i++)
@@ -6787,7 +6954,8 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
             connection = new ConnectionManager.clsConnection();
             connection.BeginTransaction();
             connection.executeQuery(@"delete FROM ProductionPlanningType2 WHERE ProductionOrderID IN (
-                                SELECT po.Id FROM trn.ProductionOrderType2 AS po
+                                              SELECT T2.Id FROM ProductionOrderSchedulingParametersType2 AS T2 
+                                INNER JOIN trn.ProductionOrderType2 AS po ON T2.ProductionOrderID=po.Id
                                 INNER JOIN hkp.ProductionStatus AS ps ON ps.Id = po.ProductionStatusId
                                 WHERE ps.UserName NOT IN ('" + PlanningStatus.ACTIVE.ToString() + @"','" + PlanningStatus.RUNNING.ToString() + @"')
                                 )");
@@ -6795,7 +6963,9 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
 
             string sql = @"SELECT  PO.EntityId, PO.Remarks,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,mm.MaterialMasterId,
                             --ISNULL(PO.PlannedQty,0)-ISNULL(PRODPR.ProductionQtyAtPR,0) AS SOQuantity,ISNULL(PRODPR.ProductionQtyAtPR,0) AS ProductionQty,
-                            ISNULL(CASE WHEN ISNULL(T1.Qty,0)>0 THEN T1.Qty ELSE PO.PlannedQty END,0)-(ISNULL(PRODPR.ProductionQtyAtPR,0)-ISNULL(PRDQ.ProductionBookedQty,0)) AS SOQuantity,ISNULL(PRODPR.ProductionQtyAtPR,0) AS ProductionQty,
+                            --ISNULL(CASE WHEN ISNULL(T1.Qty,0)>0 THEN T1.Qty ELSE PO.PlannedQty END,0)-(ISNULL(PRODPR.ProductionQtyAtPR,0)-ISNULL(PRDQ.ProductionBookedQty,0)) AS SOQuantity
+                            T1.Qty SOQuantity
+                            ,ISNULL(PRODPR.ProductionQtyAtPR,0) AS ProductionQty,
                            t1.*
                                                             FROM [TRN].[ProductionOrderType2] AS PO
                                                         JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
@@ -6856,7 +7026,7 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId
             if (dtWorkCenter.Rows.Count == 0)
             {
 
-                sql = @"SELECT ws.*,isnull(W.isResidualApplicable,0) AS isResidualApplicable FROM [TRN].[RunningOrderWorkCenter] W
+                sql = @"SELECT ws.*,isnull(W.isResidualApplicable,0) AS isResidualApplicable FROM [TRN].[RunningOrderType2WorkCenter] W
                         INNER JOIN [SCS].[WorkCenterMaster] WS ON ws.Id=w.WorkCenterMasterId
                         INNER JOIN ProductionOrderSchedulingParametersType2 AS T ON t.ProductionOrderID=w.ProductionOrderId
                         INNER JOIN trn.ProductionOrder po ON po.Id=t.ProductionOrderID
@@ -6872,20 +7042,19 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId
                 DataTable dsExcludeWorkCenter = null;
                 sql = @"SELECT ws.*,convert(bit,0) as isResidualApplicable FROM [TRN].[ProductionOrderType2WorkCenter] W
                         INNER JOIN [SCS].[WorkCenterMaster] WS ON ws.Id=w.WorkCenterMasterId
-                        INNER JOIN ProductionOrderSchedulingParametersType2 AS t ON t.ProductionOrderID=w.ProductionOrderId
+                        INNER JOIN ProductionOrderSchedulingParametersType2 AS t ON t.ID=w.ProductionOrderId
                 WHERE t.WCPreferenceType='EXCLUDE' AND W.ProductionOrderId='" + productionOrderID + "' AND WS.ProcessID='" + processid + "'";
                 dsExcludeWorkCenter = _sqlRepository.GetDataTable(sql);
                 if (dsExcludeWorkCenter.Rows.Count > 0)
                 {
                     sql = @"SELECT WC.*,convert(bit,0) as isResidualApplicable FROM  [SCS].[WorkCenterMaster] WC 
-
                                 WHERE wc.[Active]=1 and  WC.ProcessId ='" + processid + @"' AND WC.EntityId IN (
-                                SELECT DISTINCT d.EntityId FROM [TRN].ProductionOrder D
-                               
-                                WHERE d.Id='" + productionOrderID + @"'
+                               SELECT DISTINCT d.EntityId FROM [TRN].ProductionOrderType2 D  
+INNER JOIN ProductionOrderSchedulingParametersType2 AS t ON t.ProductionOrderID=D.Id                              
+                                WHERE t.Id='" + productionOrderID + @"'
                                 ) AND WC.Id NOT IN (SELECT ws.Id FROM [TRN].[ProductionOrderType2WorkCenter] W
                         INNER JOIN [SCS].[WorkCenterMaster] WS ON ws.Id=w.WorkCenterMasterId
-                        INNER JOIN ProductionOrderSchedulingParametersType2 AS t ON t.ProductionOrderID=w.ProductionOrderId
+                        INNER JOIN ProductionOrderSchedulingParametersType2 AS t ON t.ID=w.ProductionOrderId
                 WHERE t.WCPreferenceType='EXCLUDE' AND W.ProductionOrderId='" + productionOrderID + "' AND WS.ProcessID='" + processid + @"')
                                 ";
                     dtWorkCenter = _sqlRepository.GetDataTable(sql);
@@ -6896,7 +7065,7 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId
                     {
                         sql = @"SELECT ws.*,convert(bit,0) as isResidualApplicable FROM [TRN].[ProductionOrderType2WorkCenter] W
                         INNER JOIN [SCS].[WorkCenterMaster] WS ON ws.Id=w.WorkCenterMasterId
-                        INNER JOIN ProductionOrderSchedulingParametersType2 AS t ON t.ProductionOrderID=w.ProductionOrderId
+                        INNER JOIN ProductionOrderSchedulingParametersType2 AS t ON t.ID=w.ProductionOrderId
                 WHERE t.WCPreferenceType='INCLUDE' AND W.ProductionOrderId='" + productionOrderID + "' AND WS.ProcessID='" + processid + "'";
                         dtWorkCenter = _sqlRepository.GetDataTable(sql);
                     }
@@ -7125,6 +7294,7 @@ INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[Wo
             clsStaticInfo clsStatic = new clsStaticInfo();
             clsStatic.SaveDataSets(dsMaster);
         }
+
 
         #endregion
 

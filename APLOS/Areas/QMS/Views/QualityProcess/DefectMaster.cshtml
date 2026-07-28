@@ -20,21 +20,21 @@
                 <input type="text" name="Defect Names" ng-model="ModelNew.DefectNames" class="form-control" required tabindex="5" maxlength="50">
             </div>
         </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Process<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.ProcessId" name="Process" ng-options="item.Value as item.Text for item in processList" required>
-                        <option value=""></option>
-                    </select>
+        @*<div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.ProcessId" name="Process" ng-options="item.Value as item.Text for item in processList" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </div>*@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Types Of Defects<sup>*</sup></label>
             @*<div class="col-sm-8 show-message">
-                <input type="text" name="TypesOfDefects" ng-model="ModelNew.TypesOfDefects" class="form-control" required tabindex="4" maxlength="50">
-            </div>*@
+                    <input type="text" name="TypesOfDefects" ng-model="ModelNew.TypesOfDefects" class="form-control" required tabindex="4" maxlength="50">
+                </div>*@
             <div class="col-sm-8 show-message">
                 <div class="select-style">
                     <select class="form-control" ng-model="ModelNew.TypesOfDefects" name="TypesOfDefects" required>
@@ -42,6 +42,17 @@
                         <option value="Operation">Operation</option>
                         <option value="Other">Other</option>
                     </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Is Machine</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="ModelNew.IsMachine" tabindex="8">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
                 </div>
             </div>
         </div>
@@ -90,6 +101,54 @@
             <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1)" href="" data-toggle="tab">Process</a></li>
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
+            <div class="row" ng-form="processform">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li><button ng-click="processPopUpDataList();" ng-disabled="ModelNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Process</button></li>
+                            <li> <button ng-click="SaveProcess();" ng-show="userProcessList.length>0" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save Process</button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="table-responsive modal-table" ng-show="userProcessList.length>0">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Short Name</th>
+                                    <th>Process</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in userProcessList" ng-class="{selected : x.Id==null}">
+                                    <td>{{x.Code}}</td>
+                                    <td>{{x.ShortName}}</td>
+                                    <td>{{x.Process}}</td>
+                                    <td class="text-right table-td">
+                                        <ul class="list-inline action-list">
+                                            <li>
+                                                <button ng-click="removeProcess(x)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
 <div class="row text-right aplos-grid-toggle">
     <div class="col-xs-12 col-sm-12 col-sm-12">
@@ -128,3 +187,5 @@
     </div>
 </div>
 <confirm-modal></confirm-modal>
+@Html.Partial("~/Areas/Processes/Views/Shared/_SelectMultipleProcessPopUp.cshtml")
+<confirm-archive-generic modalid="confirmProcessPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteProcess();"></confirm-archive-generic>

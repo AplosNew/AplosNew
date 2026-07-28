@@ -1715,7 +1715,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                 DataSet dsEntity;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from InspectionUserApplicable where InspectionTypeId='" 
+                con.OpenDataSetThroughAdapter("select * from InspectionUserApplicable where InspectionTypeId='"
                     + datas[0]["InspectionTypeId"] + "' ", out dsEntity, false, "1");
 
                 string _Id = "";
@@ -1725,9 +1725,9 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                 foreach (var d in datas)
                 {
                     DataView dv = new DataView(dsEntity.Tables[0]);
-                   
-                        dv.RowFilter = "BudgetId=" + d["BudgetId"].ToString() + " AND InspectionTypeId='" + d["InspectionTypeId"].ToString() + "'";
-                    
+
+                    dv.RowFilter = "BudgetId=" + d["BudgetId"].ToString() + " AND InspectionTypeId='" + d["InspectionTypeId"].ToString() + "'";
+
                     if (dv.Count == 0)
                     {
                         DataRow dr = dsEntity.Tables[0].NewRow();
@@ -1752,7 +1752,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                     }
                 }
 
-                
+
                 #endregion data update
 
                 clsStaticInfo _info = new clsStaticInfo();
@@ -1813,7 +1813,7 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                 DataSet dsEntity;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from InspectionTypeEnteryLevel where Id='"+data["Id"]+"' and InspectionTypeId='" + data["InspectionTypeId"] + "' ", out dsEntity, false, "1");
+                con.OpenDataSetThroughAdapter("select * from InspectionTypeEnteryLevel where Id='" + data["Id"] + "' and InspectionTypeId='" + data["InspectionTypeId"] + "' ", out dsEntity, false, "1");
 
                 #region data update
                 if (dsEntity.Tables[0].Rows.Count == 0)
@@ -2059,12 +2059,12 @@ LEFT JOIN dbo.EmployeeInformation ER ON ER.SystemId=ReportingOfficerId) AS TEMP 
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetInspectionTypeSettingList(string imageInspectionTypeId,string inspectionId)
+        public ActionResult GetInspectionTypeSettingList(string imageInspectionTypeId, string inspectionId)
         {
             string sql = @"SELECT UserName,LineItem,ProductCode,ProductionOrder,SalesOrder,SKU1,SKU2,SKU3,MaxQty,Picture,Operation,Defect,S.Id InspectionTypeEnteryLevelId,E.*
 FROM InspectionTypeEnteryLevel S
 LEFT JOIN [TRN].[InspectionTranChild] E ON E.InspectionTypeEnteryLevelId=S.Id AND E.InspectionId='" + inspectionId + @"'
-WHERE S.InspectionTypeId='"+ imageInspectionTypeId + "'";
+WHERE S.InspectionTypeId='" + imageInspectionTypeId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -2078,7 +2078,7 @@ WHERE S.InspectionTypeId='"+ imageInspectionTypeId + "'";
             string _Id = string.Empty;
             try
             {
-                
+
 
                 #region Entity 
 
@@ -2198,7 +2198,7 @@ WHERE S.InspectionTypeId='"+ imageInspectionTypeId + "'";
 
         public ActionResult DeleteDefectMaster(string id)
         {
-           
+
             try
             {
 
@@ -2207,6 +2207,7 @@ WHERE S.InspectionTypeId='"+ imageInspectionTypeId + "'";
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
+                con.executeQuery("delete from dbo.DefectMasterProcess where DefectMasterId='" + id + "'");
                 con.executeQuery("delete from HKP.DefectMaster where id='" + id + "'");
                 con.CommitTransaction();
 
@@ -2221,6 +2222,93 @@ WHERE S.InspectionTypeId='"+ imageInspectionTypeId + "'";
             }
 
 
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveDefectProcess(List<Dictionary<string, object>> data, string masterId)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsBC;
+            string _Id = string.Empty;
+            try
+            {
+
+                #region Entity 
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.DefectMasterProcess Where DefectMasterId='" + masterId + "'", out dsBC, false, "1");
+
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["DefectMasterId"] = masterId;
+                            AddNewRow(dsBC.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                }
+
+                #endregion
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult DeleteDefectMasterProcess(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.DefectMasterProcess where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetDefectMasterProcessList(string masterId)
+        {
+
+            string sql = @"SELECT D.*,P.Code,P.ShortName,P.UserName Process FROM [dbo].[DefectMasterProcess] D
+LEFT JOIn HKP.Process P ON P.Id=D.ProcessId
+Where D.DefectMasterId='" + masterId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         #endregion
 
@@ -2261,7 +2349,7 @@ WHERE S.InspectionTypeId='"+ imageInspectionTypeId + "'";
                 con.OpenDataSetThroughAdapter("select * from HKP.DefectPoint where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same User Name already exists!!!");
-                            
+
 
                 con.OpenDataSetThroughAdapter("select * from HKP.DefectPoint where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -2339,7 +2427,7 @@ WHERE S.InspectionTypeId='"+ imageInspectionTypeId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-       
+
         [HttpPost]
         public JsonResult CreateAQLMaster(Dictionary<string, object> data)
         {
@@ -2347,7 +2435,7 @@ WHERE S.InspectionTypeId='"+ imageInspectionTypeId + "'";
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-               
+
 
                 con.OpenDataSetThroughAdapter("select * from HKP.AQLMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 

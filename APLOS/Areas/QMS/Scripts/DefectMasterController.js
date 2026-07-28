@@ -9,6 +9,7 @@ function DefectMasterController(cboService, commonMessage, $scope, $rootScope, b
     $scope.path = 'QMS/QualityProcess/';
     $scope.getSeqUrl = $scope.path + 'getdefectmasterautosequence';
     $scope.saveUrl = $scope.path + 'createdefectmaster';
+    $scope.saveProcessUrl = $scope.path + 'SaveDefectProcess';
     $scope.deleteUrl = $scope.path + 'deletedefectmaster/';
     $scope.getDPSeqUrl = $scope.path + 'getdefectpointautosequence';
     $scope.saveDPUrl = $scope.path + 'createdefectpoint';
@@ -25,6 +26,14 @@ function DefectMasterController(cboService, commonMessage, $scope, $rootScope, b
     };
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
+    };
+
+    $scope.tab2 = 1;
+    $scope.setTab2 = function (newTab) {
+        $scope.tab2 = newTab;
+    };
+    $scope.isSet2 = function (tabNum) {
+        return $scope.tab2 === tabNum;
     };
 
     //#region Defect Master
@@ -73,8 +82,6 @@ function DefectMasterController(cboService, commonMessage, $scope, $rootScope, b
 
     });
 
-
-
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
             $scope.ModelTemp.SrNo = data;
@@ -86,6 +93,7 @@ function DefectMasterController(cboService, commonMessage, $scope, $rootScope, b
     $scope.Get = function (args) {
 
         $scope.ModelNew = Object.assign({}, args.data);
+        getDefectMasterProcessList();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -148,9 +156,10 @@ function DefectMasterController(cboService, commonMessage, $scope, $rootScope, b
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.SrNo = seq;
+        $scope.userProcessList = [];
     }
 
-   //#endregion
+    //#endregion
 
     // #region  DP
     $scope.searchByDP = "UserName"; $scope.searchDP = "";
@@ -372,5 +381,177 @@ function DefectMasterController(cboService, commonMessage, $scope, $rootScope, b
     }
     //#endregion
 
+    // #region Process
 
+    $scope.userProcessList = [];
+
+    $scope.processPopUpDataList = function () {
+        $scope.processDataList = [];
+        $scope.processSearchList = [];
+        $rootScope.tempList = [];
+        CloseShowResult();
+        CloseModalShowResult();
+        $scope.processPopUpParameters = {
+            limit: 10
+            , offset: 0
+            , order: 'asc'
+            , sort: 'UserName'
+            , searchBy: "UserName"
+            , pageSize: 10
+            , total_count: 0
+            , search: null
+            , serverPagination: true
+        };
+        $scope.processUrl = 'Processes/Process/GetList?processId=[]';
+        baseService.setCurrentPage('processDataList');
+        $scope.getProcessDataList = function (pageno) {
+            baseService.paginationBase($scope.processUrl, pageno, $scope.processPopUpParameters)
+                .then(function (result) {
+                    $scope.processDataList = result.Rows;
+                    $scope.processPopUpParameters.total_count = result.Total;
+
+                    if (baseService.arrayLength($scope.userProcessList) > 0) {
+                        for (var i = 0; i < $scope.userProcessList.length; i++) {
+                            for (var j = 0; j < $scope.processDataList.length; j++) {
+                                if ($scope.userProcessList[i].ProcessId === $scope.processDataList[j].Id) {
+                                    $scope.processDataList[j].Flag = true;
+                                }
+                            }
+                        }
+                    }
+
+                    if (baseService.arrayLength($scope.processSearchList) === 0)
+                        baseService.getDDLSearchColumn(result.Rows, $scope.processSearchList);
+                    angular.element(document.querySelector('#processPopUp')).modal('show');
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure', 'processPopUp');
+                }).finally(function () {
+                });
+        };
+        $scope.getProcessDataList();
+    };
+
+    $scope.addProcess = function () {
+        if (baseService.arrayLength($scope.processDataList) > 0) {
+            angular.forEach($scope.processDataList, function (a) {
+                if (checkProcessExist($scope.userProcessList, a.Id) === false) {
+                    if (a.Flag) {
+                        $scope.userProcessList.push({
+                            Id: -(Math.floor(Math.random() * 100) + 1)
+                            , ProcessId: a.Id
+                            , DefectMasterId: $scope.ModelNew.Id
+                            , Code: a.Code
+                            , Sequence: a.Sequence
+                            , ShortName: a.ShortName
+                            , StandardName: a.StandardName
+                            , ProcessName: a.UserName
+                        });
+                      
+                    }
+                }
+
+            });
+        }
+       
+        $scope.closeProcessPopUp();
+    };
+
+    function checkProcessExist(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].ProcessId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.closeProcessPopUp = function () {
+       
+        $scope.processUpUrl = null;
+        $scope.processDataList = [];
+        $scope.processSearchList = [];
+        angular.element(document.querySelector('#processPopUp')).modal('hide');
+    };
+    $scope.userProcessList = [];
+    function getDefectMasterProcessList() {
+        $http({
+            method: 'GET',
+            url: 'QMS/QualityProcess/GetDefectMasterProcessList?masterId=' + $scope.ModelNew.Id
+        }).then(function successCallback(response) {
+            $scope.userProcessList = response.data;
+        });
+    }
+
+    $scope.SaveProcess = function () {
+        $http({
+            method: 'POST',
+            url: $scope.saveProcessUrl,
+            data: { 'data': $scope.userProcessList, 'masterId': $scope.ModelNew.Id  },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                getDefectMasterProcessList();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    $scope._SaveProcess = function () {
+        try {
+            if ($scope.userProcessList > 0) {
+                $http({
+                    method: 'POST',
+                    url: "QMS/QualityProcess/SaveDefectProcess",
+                    data: { 'data': $scope.userProcessList, 'masterId': $scope.ModelNew.Id },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error == true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        getDefectMasterProcessList();
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.data.Message, 'failure');
+                });
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.message_confirmation = null;
+    $scope.removeProcess = function (obj) {
+        $scope.processobj = obj;
+        if (!baseService.isUndefinedOrNull($scope.processobj.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently [' + $scope.processobj.Process + ' ]';
+        angular.element(document.querySelector('#confirmProcessPopUp')).modal('show');
+    }
+
+    $scope.DeleteProcess = function () {
+        $http({
+            method: 'POST',
+            url: 'QMS/QualityProcess/DeleteDefectMasterProcess?id=' + $scope.processobj.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                getDefectMasterProcessList();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
+    // #endregion Process
 }

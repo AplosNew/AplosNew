@@ -240,19 +240,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="col-md-8">
-                    <div class="form-group" id="">
-                        <label class="col-sm-2 control-label">Remarks</label>
-                        <div class="col-sm-10">
-                            <textarea class="form-control" rows="1" ng-model="modelNew.Remarks" maxlength="250" tabindex="6"></textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="clearfix"></div>
-
-            <div class="col-md-12">
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Skill Level</label>
@@ -269,19 +256,51 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="col-md-4" show-errors>
                     <div class="form-group" id="">
-                        <label class="col-sm-4 control-label">Skill Master Category <sup></sup></label>
-                        <div class="col-sm-4 show-message">
+                        <label class="col-sm-4 control-label">Skill Master Category <sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
                             <div class="select-style">
                                 <select class="form-control" id="SkillCategoryId" name="SkillCategory" required ng-model="modelNew.SkillCategoryId" ng-options="item.Value as item.Text for item in SkillCategoryList" tabindex="9">
                                     <option value="">---Select---</option>
                                 </select>
                             </div>
                         </div>
-                        <label class="col-sm-2 control-label">Active<sup>*</sup></label>
-                        <div class="col-sm-2 show-message ">
+                    </div>
+                </div>
+                @*<div class="col-md-4">
+                        <div class="form-group" id="" show-errors>
+                            <label class="col-sm-4 control-label">Special Skill<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" id="SpecialSkill" name="Special Skill" ng-model="modelNew.SpecialSkill" tabindex="4" required>
+                                        <option value="">---Select---</option>
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group" id="" show-errors>
+                            <label class="col-sm-4 control-label">Employee Rating<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="EmployeeRating" ng-model="modelNew.EmployeeRating" class="form-control" maxlength="10" required>
+                            </div>
+                        </div>
+                    </div>*@
+
+            </div>
+            <div class="clearfix"></div>
+
+            <div class="col-md-12">
+
+
+                <div class="col-md-4" show-errors>
+                    <div class="form-group" id="">
+                        <label class="col-sm-4 control-label">Active<sup>*</sup></label>
+                        <div class="col-sm-8 show-message ">
                             <input type="checkbox" name="Active" ng-model="modelNew.Active" checked="checked" />
 
                         </div>
@@ -298,7 +317,14 @@
                 </div>
             </div>
 
-
+            <div class="col-md-12">
+                <div class="form-group" id="">
+                    <label class="col-sm-2 control-label">Remarks</label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control" rows="1" ng-model="modelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                    </div>
+                </div>
+            </div>
             <div class="common-btn">
                 <ul class="list-inline text-right">
                     <li><button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>

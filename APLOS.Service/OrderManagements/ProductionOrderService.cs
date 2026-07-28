@@ -931,6 +931,33 @@ namespace Library.Service.OrderManagements
             }
         }
 
+        public IEnumerable<object> GetType2WorkCenterList(string[] entityIds, string processid,string wcgId)
+        {
+
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var _sql = @"SELECT WCM.Id AS WorkCenterMasterId, NULL AS ProductionOrderId,e.UserName AS Entity,p.UserName AS Plant
+	                             , WCM.EntityId, WCM.Code, WCM.UserName, Flag = Convert(bit,0)
+                            FROM SCS.WorkCenterMaster AS WCM
+                            INNER JOIN org.Entity AS e ON e.Id=wcm.EntityId
+                            INNER JOIN org.Plant AS p ON p.Id=wcm.PlantId
+                            WHERE WCM.ProcessID='" + processid + @"' AND  WCM.EntityId IN(" + ReturnStringArray(entityIds) + ") AND WCM.Id IN(select WorkCenterMasterId from HKP.WorkCenterGroup Where Id='"+ wcgId + "') order by p.userName, e.UserName,WCM.sequence";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.OrderManagement.ToString()));
+            }
+        }
+
         public IEnumerable<object> GetProductionOrderWorkCenterList(string productionOrderId)
         {
 
@@ -958,7 +985,7 @@ namespace Library.Service.OrderManagements
             return null;
         }
 
-        public IEnumerable<object> GetProductionOrderType2WorkCenterList(string productionOrderId)
+        public IEnumerable<object> GetProductionOrderType2WorkCenterList(int productionOrderId)
         {
 
             try
@@ -968,7 +995,7 @@ namespace Library.Service.OrderManagements
                                 JOIN [SCS].[WorkCenterMaster] AS WCM ON PWCM.WorkCenterMasterId = WCM.Id
                                 INNER JOIN org.Entity AS e ON e.Id=wcm.EntityId
                                 INNER JOIN org.Plant AS p ON p.Id=wcm.PlantId
-                                WHERE PWCM.ProductionOrderId='" + productionOrderId + "' ORDER BY p.UserName,e.UserName,wcm.sequence";
+                                WHERE PWCM.ProductionOrderId=" + productionOrderId + " ORDER BY p.UserName,e.UserName,wcm.sequence";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (CustomException)
@@ -984,6 +1011,34 @@ namespace Library.Service.OrderManagements
             }
             return null;
         }
+
+        public IEnumerable<object> GetRunningOrderType2WorkCenterList(int productionOrderId)
+        {
+
+            try
+            {
+                var _sql = @"SELECT PWCM.Id,e.UserName AS Entity,p.UserName AS Plant, PWCM.ProductionOrderId, PWCM.WorkCenterMasterId, WCM.Code, WCM.UserName,PWCM.isResidualApplicable,PWCM.Qty
+                                FROM [TRN].[RunningOrderType2WorkCenter] AS PWCM
+                                JOIN [SCS].[WorkCenterMaster] AS WCM ON PWCM.WorkCenterMasterId = WCM.Id
+                                INNER JOIN org.Entity AS e ON e.Id=wcm.EntityId
+                                INNER JOIN org.Plant AS p ON p.Id=wcm.PlantId
+                                WHERE PWCM.ProductionOrderId=" + productionOrderId + " ORDER BY p.UserName,e.UserName,wcm.sequence";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.OrderManagement.ToString()));
+            }
+            return null;
+        }
+
 
 
         public IEnumerable<object> GetWorkCenterListByEntity(string entityId)
