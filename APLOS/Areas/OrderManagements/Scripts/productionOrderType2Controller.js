@@ -1068,6 +1068,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                 }
             }
 
+
         });
     }
 
@@ -1316,15 +1317,44 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         }
     }
 
+    function getProductionType2ProcessSetList() {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetProductionOrderType2ProcessSetList?productionOrderId=' + $scope.model.Id
+        }).then(function successCallback(response) {
+            $scope.prdProcessSetList = response.data;
+        });
+    }
+
+
+
+    $scope.message_confirmation = null;
     $scope.valuePassInDelModal = function (data, index) {
         $scope.index = index;
+        $scope.processobj = data;
         $scope.message_confirmation = 'Are you sure want to delete [ ' + data.ProcessName + ' ]';
         angular.element(document.querySelector('#confirmDelPopUp')).modal('show');
     };
     $scope.processSetRemoveRow = function () {
-        $scope.prdProcessSetList.splice($scope.index, 1);
         $scope.index = -1;
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/ProductionOrder/DeleteType2Process?id=' + $scope.processobj.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                getProductionType2ProcessSetList();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
     };
+
+
 
     $scope.businessProcesses = "BOM";
     //$scope.materialType = 'ProductDefinition';
@@ -1988,7 +2018,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         $scope.popUpIndex = -1;
         angular.element(document.querySelector('#confirmRecipeMaterialPopUp')).modal('hide');
     };
-    
+
 
     $scope.lotControlList = [];
     $scope.GetPOLotControlSettingsData = function () {
@@ -2121,6 +2151,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         }).then(function successCallback(response) {
             $scope.ProductionOrderList = response.data;
             $scope.GetSavedSKUData();
+            //$scope.GetAllWorkcenterWisePlanningSummary();
         });
 
     };
@@ -2164,6 +2195,8 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                 $scope.ModelNewSPO.SKU2 = $scope.sku1sku2List[0].SKU2;
                 $scope.ModelNewSPO.Both = $scope.sku1sku2List[0].Both;
             }
+            $scope.getModelFilter();
+            
         });
     }
 
@@ -2675,6 +2708,114 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         }
     }
 
+    $scope.appointments = [];
+    $scope.setDate = new Date();
+    $scope.group = {
+        resources: ["WorkCenters"]
+    };
+    $scope.groupdata = [];
+    $scope.resourcedata2 = {
+        //dataSource: $scope.groupdata,
+        dataSource: [
+            { text: "Workcenter", id: 3, groupId: 1, color: "#ffaa00" }
+        ],
+        text: "text", id: "id", groupId: "groupId", color: "color"
+    };
+
+    $scope.workweek = ["Saturday", "Friday", "Monday", "Tuesday", "Wednesday", "Thursday"];
+    $scope.FreezeDate = null;
+    $scope.tempo = "";
+    $scope.plancolorchange = function (args) {
+
+
+
+        if ($scope.tempo != args.requestType) {
+            $scope.tempo = args.requestType;
+        }
+        try {
+            if (args.requestType == "resourcegroupheader") {
+                args.element[0].innerText = "Work Centers";
+                args.element.css("vertical-align", "middle");
+                args.element.css("text-align", "center");
+            }
+
+            if (args.requestType == "headercells") {
+                try {
+                    try {
+                        if (args.element[0].innerText.length > 4) {
+                            args.element[0].innerText = "0" + args.element[0].innerText.substring(4);
+                            args.element.css("color", "#0000ff");
+                            args.element.css("vertical-align", "middle");
+                            args.element.css("text-align", "center");
+                        }
+
+                    } catch (e) { }
+
+                    var Ayear = args.model.currentDate().getFullYear();
+                    var AMonth = args.model.currentDate().getMonth() + 1;
+                    var ADay = parseInt(args.element[0].innerText);
+
+                    var FDate = new Date($scope.FreezeDate);
+                    var Fyear = FDate.getFullYear();
+                    var FMonth = FDate.getMonth();
+                    var FDay = FDate.getDate();
+
+                    if (Ayear == Fyear & AMonth == FMonth & ADay == FDay) {
+                        args.element.css("background", "#FF5733");
+                    }
+                } catch (e) {
+
+                }
+
+            }
+
+            if (args.requestType == "appointment") {
+
+                args.element.css("background", args.appointment.Color);
+                args.element.css("border-color", args.appointment.Color);
+                args.element.css("color", args.appointment.Color);
+                args.element.css("font-size", "1px");
+                args.element.css("height", "19px");
+
+                try {
+                    for (var i = 0; i < args.element.length; i++) {
+                        args.element[i].innerText = "";
+                    }
+                } catch (e) {
+
+                }
+
+                if (args.appointment.isBuildUp == true) {
+                    args.element.css("border-radius", "100%");
+                }
+
+                if (args.appointment.FilterData == 0) {
+                    args.element.css("opacity", "0.1");
+                }
+
+                if (args.appointment.isStyleChange == true) {
+                    args.element.css("border-color", "yellow");
+                    args.element.css("border-style", "groove");
+                    args.element.css("border-width", "4px");
+                }
+
+                if (args.appointment.planningStatus == "FREEZE") {
+                    args.element.css("border-bottom", "4px  groove blue");
+                }
+                else if (args.appointment.planningStatus == "RUNNING") {
+                    args.element.css("border-bottom", "4px  groove green");
+                }
+                if (args.appointment.FailedToCommitmentDate == true) {
+                    args.element.css("border-top", "4px  groove red");
+                }
+            }
+        } catch (e) {
+
+        }
+
+    }
+
+
     $scope.Simulate = function () {
         try {
             //var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
@@ -2691,7 +2832,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             //}
             $http({
                 method: 'GET',
-                url: $scope.path + "OrderManagements/productionOrderSchedulingParametersType1/ProductionType2PlanSimulation?entityid=" + $scope.model.EntityId + "&processid=" + $scope.model.PlanningTypeProcessId
+                url: "OrderManagements/productionOrderSchedulingParametersType1/ProductionType2PlanSimulation?entityid=" + $scope.model.EntityId + "&processid=" + $scope.model.PlanningTypeProcessId
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
                     ShowResult(response.data.Message, 'failure');
@@ -2700,15 +2841,192 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                     ShowResult("Simulated successfully", 'success');
 
 
-                   // var args = { "requestType": "filtering" };
-                   // $scope.filterComplete(args);
+                    var args = { "requestType": "filtering" };
+                    $scope.filterComplete(args);
 
                 }
             });
         } catch (e) {
 
         }
-        //$scope.SimulateVisual();
+    }
+
+    $scope.ModelFilter = null;
+    $scope.filtergridonload = function () {
+        try {
+            $("#GridPlanFilter").children('.e-pager.e-js.e-pager').hide();
+            $("#GridPlanFilter").children('.e-gridcontent.e-droppable.e-js').hide();
+            $("#GridPlanFilter").children('.e-gridcontent').hide();
+        } catch (e) {
+
+        }
+
+    }
+
+    $scope.getModelFilter = function () {
+        $http({
+            method: 'POST',
+            url: "OrderManagements/productionOrderSchedulingParametersType1/LoadType2NewFilterSQL"
+        }).then(function successCallback(response) {
+
+            if (response.data.length > 0) {
+                try {
+                    $scope.ModelFilter = response.data;
+
+                } catch (e) {
+
+                }
+
+            }
+            $scope.filtergridonload();
+        });
+
+    };
+    $scope.filterComplete = function (args) {
+        if (args.requestType == "filtering") {
+            var gridObj = $("#GridPlanFilterT2").data("ejGrid");
+            var filteredRecords = gridObj.getFilteredRecords();
+            if (angular.isUndefinedOrNull(filteredRecords) == false) {
+                if (filteredRecords.length > 0) {
+                    var parameters = [];
+                    parameters.push({ "Key": "ProductOrderId", "Value": getString(filteredRecords, "ProductOrderId") });
+                    parameters.push({ "Key": "WorkCenterId", "Value": getString(filteredRecords, "WorkCenterId") });
+                    //parameters.push({ "Key": "EntityId", "Value": getString(filteredRecords, "EntityId") });
+                    parameters.push({ "Key": "ProductMasterId", "Value": getString(filteredRecords, "ProductMasterId") });
+                    parameters.push({ "Key": "ProductCategoryId", "Value": getString(filteredRecords, "ProductCategoryId") });
+                    parameters.push({ "Key": "MaterialMasterId", "Value": getString(filteredRecords, "MaterialMasterId") });
+                    parameters.push({ "Key": "ArticleId", "Value": getString(filteredRecords, "ArticleId") });
+                    parameters.push({ "Key": "BuyerId", "Value": getString(filteredRecords, "BuyerId") });
+                    parameters.push({ "Key": "CustomerId", "Value": getString(filteredRecords, "CustomerId") });
+                    parameters.push({ "Key": "AccountInchargeId", "Value": getString(filteredRecords, "AccountInchargeId") });
+                    parameters.push({ "Key": "AccountHolderId", "Value": getString(filteredRecords, "AccountHolderId") });
+                    parameters.push({ "Key": "ProductionStatusId", "Value": getString(filteredRecords, "ProductionStatusId") });
+
+                    parameters.push({ "Key": "MasterOrderNo", "Value": getString(filteredRecords, "MasterOrderNo") });
+                    parameters.push({ "Key": "BuyerOrderNo", "Value": getString(filteredRecords, "BuyerOrderNo") });
+                    parameters.push({ "Key": "BuyerItemNo", "Value": getString(filteredRecords, "BuyerItemNo") });
+
+
+                    $scope.SimulateVisual(parameters);
+                }
+                else {
+                    $scope.SimulateVisual(null);
+                }
+            }
+        }
+    }
+
+    var getString = function (data, column) {
+        var string = "''";
+        var collection = [];
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) == false) {
+                string += ",'" + data[i][column] + "'";
+                collection.push(data[i][column]);
+            }
+        }
+
+        return string;
+    }
+
+    $scope.OpenSimulatedData = function () {
+        try {
+
+
+            var args = { "requestType": "filtering" };
+            $scope.filterComplete(args);
+
+        } catch (e) {
+
+        }
+    }
+
+    $scope.renderDates = {
+        start: new Date(),
+        end: new Date().setDate(new Date().getDate() + 30)
+    }
+    $scope.viewtype = ["CustomView"];
+    $scope.currentDate = { day: new Date().getDate(), month: new Date().getMonth(), year: new Date().getFullYear() };
+
+
+    $scope.SimulateVisual = function (ExtraParams) {
+        var _data = {};
+        var _path = "OrderManagements/productionOrderSchedulingParametersType1/GetNewScheduleData?entityid=" + $scope.model.EntityId + "&processid=" + $scope.model.PlanningTypeProcessId + "&year=" + $scope.currentDate.year + "&month=" + $scope.currentDate.month + "&day=" + $scope.currentDate.day;
+
+        if (angular.isUndefinedOrNull(ExtraParams) == false) {
+            _path = "OrderManagements/productionOrderSchedulingParametersType1/GetNewScheduleDataFiltered?entityid=" + $scope.model.EntityId + "&processid=" + $scope.model.PlanningTypeProcessId + "&year=" + $scope.currentDate.year + "&month=" + $scope.currentDate.month + "&day=" + $scope.currentDate.day;
+
+            var _data = {
+                "parameters": ExtraParams
+            }
+        }
+        try {
+            $http({
+                method: 'POST',
+                url: _path,
+                data: _data
+            }).then(function successCallback(res) {
+
+                if (res.data.DATA.length > 0) {
+                    $scope.resourcedata2 = {
+                        dataSource: res.data.GROUPDATA,
+                        text: "text", id: "id", groupId: "groupId", color: "color"
+                    };
+                    //for (var i = 0; i < res.data.DATA.length; i++) {
+                    //    res.data.DATA[i].AllDay = true;
+                    //    res.data.DATA[i].Recurrence = false;
+                    //}
+                    $scope.workweek = res.data.WORKDAYDATA;
+                    $scope.appointments = angular.copy(res.data.DATA);
+
+                    try {
+                        var gridObj = $("#GridPlanFilterT2").data("ejGrid");
+                        //gridObj.clearFiltering();
+                        $scope.getModelFilter();
+                    } catch (e) {
+
+                    }
+
+
+                    $scope.FreezeDate = res.data.FREEZEDATE;
+
+                    var schObj = $("#ResourceGroupScheduleT2").data("ejSchedule");
+
+                    schObj.refresh(); // To refresh the Schedule control within the client side event
+                    schObj.refreshAppointments();
+
+                }
+            });
+        } catch (e) {
+
+        }
+        //var schObj = $("#ResourceGroupSchedule").data("ejSchedule");
+        //var appointments = schObj.getAppointments();
+
+
+    }
+
+
+    $scope.WorkAllCenterPlanList = [];
+    $scope.WorkCenterPlanList = [];
+    $scope.SelectedWorlcenterForSummary = {};
+    $scope.GetAllWorkcenterWisePlanningSummary = function () {
+        try {
+
+            $http({
+                method: 'POST',
+                url: "OrderManagements/productionOrderSchedulingParametersType1/GetAllWorkcenterWisePlanningType2Summary?EntityId=" + $scope.model.EntityId
+
+            }).then(function successCallback(response) {
+                $scope.WorkAllCenterPlanList = response.data;
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+
+            ShowResult(response.data.Message, 'failure');
+        }
+
     }
 
 
@@ -2716,9 +3034,114 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
 
 
+    // The functions for the priority Update
+    $scope.fileData = [];
+    $scope.GetSample = function () {
+        var reportFormat = "Excel";
+
+        if (angular.isUndefinedOrNull($scope.EntityId)) {
+            ShowResult("Please First Select the Entity!");
+            throw ("Invalid");
+        }
+
+        try {
+            window.open('OrderManagements/productionOrderSchedulingParametersType1/GetSampleReports?reportFormat=' + reportFormat + '&Entity=' + $scope.EntityId, '_blank');
+
+        } catch (e) {
+
+        }
+    }
+
+    $("#uploadFile").change(function () {
+        $scope.fileData = this.files[0];
+    });
+    $scope.ExcelUploadData = [];
+    //IMporting The Data From the Excel File
+
+    $scope.ModelNew = {
+        FileName: null
+    }
 
 
+    $scope.ImportData = function () {
+        try {
+            $scope.ExcelUploadData = [];
+            $scope.msg = "";
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.fileData.length == 0) {
+
+                throw ("Please Select A File!!");
+            }
 
 
+            var fileData = new FormData();
+            if (!baseService.isUndefinedOrNull($scope.fileData)) {
+                $scope.ModelNew.FileName = $scope.fileData.name;
+            }
+
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/productionOrderSchedulingParametersType1/ImportData',
+                headers: { 'Content-Type': undefined },
+                transformRequest: function (data) {
+                    fileData.append("modelNew", angular.toJson(data.modelNew));
+                    if (baseService.isUndefinedOrNull($scope.fileData) === false) {
+                        fileData.append('file', data.file);
+
+                    }
+                    return fileData;
+                },
+                data: { 'modelNew': $scope.ModelNew, 'file': $scope.fileData }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+
+                }
+
+                else {
+                    try {
+                        $scope.ExcelUploadData = response.data;
+                    }
+
+                    catch (e) {
+
+                        ShowResult(e, "failure");
+                    }
+
+                }
+            }, function errorCallback(response) {
+
+            });
+            return true;
+
+
+        } catch (e) {
+
+            ShowResult(e, "failure");
+        }
+    };
+
+    //Save the File Data
+    $scope.saveFileList = function () {
+
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/productionOrderSchedulingParametersType1/SaveFileList',
+            data: { 'data': $scope.ExcelUploadData }
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                try {
+                    ShowResult(response.data.Message, 'success')
+                }
+                catch (e) {
+
+                    ShowResult(e, "failure");
+                }
+            }
+        });
+    }
 
 }

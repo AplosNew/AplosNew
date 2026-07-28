@@ -501,31 +501,6 @@ function DefectMasterController(cboService, commonMessage, $scope, $rootScope, b
         }
     };
 
-    $scope._SaveProcess = function () {
-        try {
-            if ($scope.userProcessList > 0) {
-                $http({
-                    method: 'POST',
-                    url: "QMS/QualityProcess/SaveDefectProcess",
-                    data: { 'data': $scope.userProcessList, 'masterId': $scope.ModelNew.Id },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error == true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        getDefectMasterProcessList();
-                    }
-                }, function errorCallback(response) {
-                    ShowResult(response.data.Message, 'failure');
-                });
-            }
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    }
-
     $scope.message_confirmation = null;
     $scope.removeProcess = function (obj) {
         $scope.processobj = obj;

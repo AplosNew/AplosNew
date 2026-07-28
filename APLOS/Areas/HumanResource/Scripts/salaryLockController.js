@@ -7,6 +7,7 @@ function salaryLockController(commonMessage, $scope, $rootScope, baseService, $r
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.SaveSalaryLockUrl = $scope.path + 'Save';
     $scope.SaveSalaryViewLockUrl = $scope.path + 'SaveSalaryViewLock';
+    $scope.SetSalaryUnlockUrl = $scope.path + 'SetSalaryUnlock';
     $scope.Action = 'Lock Salary';
     $scope.paymentMode = null;
     $scope.sheetType = false;
@@ -281,14 +282,67 @@ function salaryLockController(commonMessage, $scope, $rootScope, baseService, $r
         }
     };
 
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
+    }
+
+    $scope.SalaryUnLock = function () {
+        try {
+            $scope.idList = [];
+            for (var di = 0; di < $scope.EmployeeListTemp.length; di++) {
+                if ($scope.EmployeeListTemp[di].isToBeSelect) {
+                    $scope.idList.push($scope.EmployeeListTemp[di]);
+                }
+            }
+            if ($scope.idList.length == 0) {
+                throw "Please Select Employee";
+            }
+            if ($scope.idList.length > 0) {
+                var uniqueId = removeDuplicates($scope.idList, 'Id');
+                var wcId = "";
+                if (uniqueId.length > 0) {
+                    wcId = "IN(";
+                    wcId += Array.prototype.map.call(uniqueId, function (item) { return "'" + item.Id + "'"; }).join(",") + ")";
+                }
+                $scope.sqlInStatement = wcId;
+            }                      
+
+            $http({
+                method: 'POST',
+                url: $scope.SetSalaryUnlockUrl,
+                data: {
+                    'id': $scope.sqlInStatement
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetEmployeeInformation();
+                    var gridObj = $("#empInfoGrid").data("ejGrid");
+                    gridObj.refreshContent();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
     $scope.SalaryViewUnLock = function () {
         try {
-            
+
             $http({
                 method: 'POST',
                 url: $scope.SaveSalaryViewLockUrl,
                 data: {
-                  'Month': $scope.month, 'Year': $scope.year
+                    'Month': $scope.month, 'Year': $scope.year
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {

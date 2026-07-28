@@ -1,7 +1,7 @@
 ﻿<div id="Tab" ej-tab e-itemactive="onactivetab" e-create="oncreatetab">
     <ul>
-        <li><a href="#TabSimulation">Production Plan Simulation</a></li>
-        <li><a href="#TabPlanningSchedule">View Planning Schedule</a></li>
+        <li><a href="#TabSimulation"ng-click="OpenSimulatedData()">Production Plan Simulation</a></li>
+        <li><a href="#TabPlanningSchedule" ng-click="GetAllWorkcenterWisePlanningSummary()">View Planning Schedule</a></li>
         <li><a href="#TabPriorityUpdate">Priority Update</a></li>
     </ul>
     
@@ -52,7 +52,7 @@
                 </li>
             </ul>
             <div class="row" style="padding:0px;margin:0px;position:relative;border:none;">
-                <div id="GridPlanFilter" ng-init="chkinit()" e-cssclass="wrap" e-allowtextwrap="true" e-load="getModelFilter" ej-grid e-datasource="ModelFilter"
+                <div id="GridPlanFilterT2" ng-init="chkinit()" e-cssclass="wrap" e-allowtextwrap="true" e-load="getModelFilter" ej-grid e-datasource="ModelFilter"
                      e-allowfiltering="true" e-actioncomplete="filterComplete" e-allowpaging="true" e-allowsorting="false" e-enabletouch="false" e-responsive="true"
                      e-filtersettings-filterType="excel">
                     <div e-columns>
@@ -76,7 +76,7 @@
 
             </div>
 
-            <ej-schedule id="ResourceGroupSchedule" e-renderdates="renderDates" e-appointmentsettings-datasource="appointments" e-allowdelete="false" e-enableappointmentresize="false"
+            <ej-schedule id="ResourceGroupScheduleT2" e-renderdates="renderDates" e-appointmentsettings-datasource="appointments" e-allowdelete="false" e-enableappointmentresize="false"
                          e-appointmentsettings-id="Id" e-appointmentsettings-subject="Subject" e-readonly="false" e-showquickwindow="false"
                          e-appointmentsettings-starttime="StartTime" e-views="viewtype" e-workweek="workweek"
                          e-appointmentsettings-endtime="EndTime" e-appointmentsettings-description="Description"

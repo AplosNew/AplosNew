@@ -68,7 +68,250 @@
         @Html.Partial("~/Areas/OrderManagements/Views/ProductionOrder/SubPO.cshtml")
     </div>
     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(3), active: isSet2(3) }">
-        @Html.Partial("~/Areas/OrderManagements/Views/ProductionOrder/Schedulle.cshtml")
+        @*@Html.Partial("~/Areas/OrderManagements/Views/ProductionOrder/Schedulle.cshtml")*@
+        <div id="Tab" ej-tab e-itemactive="onactivetab" e-create="oncreatetab">
+            <ul>
+                <li><a href="#TabSimulation"ng-click="OpenSimulatedData()">Production Plan Simulation</a></li>
+                <li><a href="#TabPlanningSchedule" ng-click="GetAllWorkcenterWisePlanningSummary()">View Planning Schedule</a></li>
+                <li><a href="#TabPriorityUpdate">Priority Update</a></li>
+            </ul>
+            
+            <div id="TabSimulation">
+
+                <div class="form-element-ctrl form-horizontal">
+
+                    <ul id="centermenu" class="ang-menu" ej-menu e-enablecenteralign="false">
+
+                        <li>
+                            <a>Reports</a>
+                            <ul>
+                                <li ng-click="DownloadOS2();"><a>OS-2  </a></li>
+                                <li ng-click="OrderMaster();"><a>OS-3  </a></li>
+                                <li ng-click="LineBookingStatus();"><a>Workcenter Booking Status  </a></li>
+                                <li ng-click="LadderPlanStatus();"><a>Ladder Plan</a></li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            <a>Simulation</a>
+                            <ul>
+                                <li ng-click="OpenSimulatedData();"><a>Load Latest Simulation  </a></li>
+                                <li ng-click="Simulate();"><a>Simulate New  </a></li>
+                                @*<li ng-click="getFreezeConfig();"><a>Freeze  </a></li>*@
+                            </ul>
+                        </li>
+
+                        <li>
+                            <a>Snapshot-1</a>
+                            <ul>
+                                <li ng-click="showSnapshotPanel();"><a>Take Snapshot</a></li>
+                                <li ng-click="getSnapshotList();"><a>Load Snapshot</a></li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            <a>Snapshot-2</a>
+                            <ul>
+                                <li ng-click="showSnapshotPanel2();"><a>Take Snapshot</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a>Tools</a>
+                            <ul>
+                                <li ng-click="openPopup('dialogresetpriority');loadDataForPriority();"><a>Reset Priority</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div class="row" style="padding:0px;margin:0px;position:relative;border:none;">
+                        <div id="GridPlanFilterT2" ng-init="chkinit()" e-cssclass="wrap" e-allowtextwrap="true" e-load="getModelFilter" ej-grid e-datasource="ModelFilter"
+                             e-allowfiltering="true" e-actioncomplete="filterComplete" e-allowpaging="true" e-allowsorting="false" e-enabletouch="false" e-responsive="true"
+                             e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                @*<div e-column e-field="Entity" e-headertext="Entity" e-width="5"></div>*@
+                                <div e-column e-field="MasterOrderNo" e-headertext="Mst.Order.No" e-width="5"></div>
+                                <div e-column e-field="ProductOrderId" e-headertext="PR Order" e-width="5"></div>
+                                <div e-column e-field="BuyerOrderNo" e-headertext="Buyer.Ord" e-width="5"></div>
+                                <div e-column e-field="BuyerItemNo" e-headertext="Buyer.Item" e-width="5"></div>
+                                <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="5"></div>
+                                <div e-column e-field="ProductCategory" e-headertext="Product Cat." e-width="5"></div>
+                                <div e-column e-field="ProductMaster" e-headertext="Product" e-width="5"></div>
+                                <div e-column e-field="MaterialMaster" e-headertext="Material" e-width="5"></div>
+                                <div e-column e-field="Customer" e-headertext="Customer" e-width="5"></div>
+                                <div e-column e-field="Buyer" e-headertext="Buyer" e-width="5"></div>
+                                <div e-column e-field="AccountIncharge" e-headertext="Acc. Incharge" e-width="5"></div>
+                                <div e-column e-field="AccountHolder" e-headertext="Acc. Holder" e-width="5"></div>
+                                <div e-column e-field="ProductionStatus" e-headertext="Prod. Status" e-width="5"></div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <ej-schedule id="ResourceGroupScheduleT2" e-renderdates="renderDates" e-appointmentsettings-datasource="appointments" e-allowdelete="false" e-enableappointmentresize="false"
+                                 e-appointmentsettings-id="Id" e-appointmentsettings-subject="Subject" e-readonly="false" e-showquickwindow="false"
+                                 e-appointmentsettings-starttime="StartTime" e-views="viewtype" e-workweek="workweek"
+                                 e-appointmentsettings-endtime="EndTime" e-appointmentsettings-description="Description"
+                                 e-appointmentsettings-allday="true" e-allowdraganddrop="false"
+                                 e-appointmentsettings-resourcefields="WorkCenterMasterId" e-navigation="navigation"
+                                 e-querycellinfo="plancolorchange" e-appointmentclick="OpenSchedule" e-appointmentwindowopen="clickonschedule"
+                                 e-cellclick="clickonschedule" e-celldoubleclick="clickonschedule" e-appointmenthover="clickonschedule"
+                                 @*e-beforeContextMenuOpen="actionBegin" *@
+                                 e-firstdayofweek="Saturday"
+                                 @*e-dateformat="dd-MMM-yyyy"*@ @*e-create="scOnCreate" e-appointmenthover="scappmouseover"*@
+                                 e-width="100%" e-height="500px" e-cellheight="30px"
+                                 e-orientation="horizontal" e-currentdate="setDate"
+                                 e-currentview="Month" e-group="group">
+                        <e-resources>
+                            <e-resource e-allowmultiple="true" e-field="WorkCenterMasterId" e-title="Work Center" e-name="WorkCenters" e-resourcesettings="resourcedata2"></e-resource>
+                        </e-resources>
+                    </ej-schedule>
+
+
+                    <div class="row" style="        padding-top: 10px;">
+                        <div class="col-xs-2">
+                            <div style="        border-color: yellow;
+        border-style: groove;
+        border-width: 3px;
+        height: 30px;
+        width: 30px;">
+
+                            </div>
+                            Style Change
+                        </div>
+                        <div class="col-xs-2">
+                            <div style="        border-color: blue;
+        font-size: 20px;
+        border-style: groove;
+        border-width: 1px;
+        border-radius: 100%;
+        height: 30px;
+        width: 50px;">
+
+                            </div>
+                            Buildup
+                        </div>
+                        <div class="col-xs-2">
+                            <div style="        border-color: blue;
+        border-style: groove;
+        border-width: 2px;
+        height: 30px;
+        width: 30px;">
+
+                            </div>
+                            Normal Distribution
+                        </div>
+
+                        <div class="col-xs-2">
+                            <div style="        border: 1px solid #e1e1e1;
+        border-bottom: 6px groove blue;
+        height: 30px;
+        width: 30px;">
+
+                            </div>
+                            Freeze
+                        </div>
+                        <div class="col-xs-2">
+                            <div style="        border: 1px solid #e1e1e1;
+        border-bottom: 6px groove green;
+        height: 30px;
+        width: 30px;">
+
+                            </div>
+                            Running
+                        </div>
+                        <div class="col-xs-2">
+                            <div style="        border: 1px solid #e1e1e1;
+        border-top: 6px groove red;
+        height: 30px;
+        width: 30px;">
+
+                            </div>
+                            Exceeding Commitment Date
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="TabPlanningSchedule">
+                <div class="row">
+
+                    <div class="col-md-12">
+                        <div id="GridWorkCenterList" ng-init="chkinit()" ej-grid e-datasource="WorkAllCenterPlanList"
+                             e-allowpaging="true" e-enabletouch="false" e-responsive="true">
+                            <div e-columns>
+                                <div e-column e-field="Plant" e-headertext="Plant" e-width="120"></div>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="120"></div>
+                                <div e-column e-field="WorkCenterCode" e-headertext="Code" e-width="80"></div>
+                                <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="120"></div>
+                                <div e-column e-field="WorkCenterStartDate" e-headertext="WC Effective Date" e-width="80"></div>
+
+                                <div e-column e-field="PlanningStartDate" e-headertext="Planning Start Date" e-width="80"></div>
+                                <div e-column e-field="PlanningEndDate" e-headertext="Planning End Date" e-width="80"></div>
+                                <div e-column e-template="#ShowWotkcenterWisePlanList" e-headertext="" e-width="60"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="ShowWotkcenterWisePlanList">
+
+                        <div class="common-btn">
+                            <ul class="list-inline text-right small">
+                                <li>
+                                    <button ng-click="$parent.GetWorkCenterParametersData(data.Id);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button ng-click="$parent.GetSingleWorkcenterWisePlanningSummary(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                        <i class="glyphicon glyphicon-list-alt"></i>
+                                    </button>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </script>
+                </div>
+            </div>
+            <div id="TabPriorityUpdate" class="form-elements form-horizontal" ng-form name="HeaderForm">
+                <div class="row">
+
+
+                    <div class="col-md-10">
+
+                        <div class="inputBtnSection common-btn">
+                            <label class="fileUpload col-sm-4 " style="padding: 0 0 0 0 ; margin-right:8px;">
+                                <input id="uploadFile" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                            </label>
+                            <input type="button" style="margin-right: 8px;" value="Import Data" ng-disabled="enable" class="btn btn-success" ng-click="ImportData()" />
+                            <button ng-click="GetSample();" class="btn" style="margin-right: 8px;"><i class="glyphicon glyphicon-download"></i> Get Sample Report File </button>
+
+                        </div>
+                    </div>
+
+
+
+                </div>
+                <div class="common-btn" style="margin-top:10px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="saveFileList();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Save </button></li>
+                        <li> <button ng-click="clearFileList();" class="btn" tabindex="12"><i class="glyphicon glyphicon-repeat"></i> Clear </button></li>
+
+                    </ul>
+                </div>
+
+                <div id="RosterBudgetGrid" ej-grid e-datasource="ExcelUploadData" e-templaterefresh="refreshTemplate"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;">
+                    <div e-columns>
+                        <div e-column e-field="ProductionId" e-type="string" e-headertext="Id" e-width="80"></div>
+                        <div e-column e-field="Status" e-type="string" e-headertext="Status" e-width="80"></div>
+                        <div e-column e-field="ProductionPriority" e-type="string" e-headertext="Priority" e-width="80"></div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
     </div>
 </div>
 

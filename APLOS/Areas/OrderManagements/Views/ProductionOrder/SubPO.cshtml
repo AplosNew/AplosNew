@@ -182,10 +182,11 @@
                     <div e-column e-type="string" e-template="#DayToReachTheTarget" e-headertext="DayToReachTheTarget" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#IncrementValue" e-headertext="IncrementValue" e-width="80" style="height: 20px;"></div>
 
-                    <div e-column e-type="string" e-field="LSD" e-headertext="LSD" e-width="80" style="height: 20px;"></div>
-                    <div e-column e-type="string" e-field="CommitmentDate" e-headertext="CommitmentDate" e-width="80" style="height: 20px;"></div>
-                    <div e-column e-type="string" e-field="MainRawMaterialInhouseDate" e-headertext="MainRawMaterialInhouseDate" e-width="80" style="height: 20px;"></div>
-                    <div e-column e-type="string" e-field="OtherRawMaterialInhouseDate" e-headertext="OtherRawMaterialInhouseDate" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-template="#LSD" e-headertext="LSD" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-template="#CommitmentDate" e-headertext="CommitmentDate" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-template="#MainRawMaterialInhouseDate" e-headertext="MainRawMaterialInhouseDate" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-template="#OtherRawMaterialInhouseDate" e-headertext="OtherRawMaterialInhouseDate" e-width="80" style="height: 20px;"></div>
+
                     <div e-column e-type="string" e-template="#TargetPerHour" e-headertext="TargetPerHour" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#TargetPerDay" e-headertext="TargetPerDay" e-width="80" style="height: 20px;"></div>
 
@@ -193,6 +194,26 @@
                     <div e-column e-type="string" e-template="#RunningWorkCenter" e-headertext="RunningWorkCenter" e-width="80" style="height: 20px;"></div>
                 </div>
             </div>
+            <script type="text/template" id="LSD">
+                <div class="col-sm-10" style="padding:0px; width:70px;">
+                    <input type="text" name="LSD" ng-model="data.LSD" datepicker class="form-control" required>
+                </div>
+            </script>
+            <script type="text/template" id="CommitmentDate">
+                <div class="col-sm-10" style="padding:0px; width:70px;">
+                    <input type="text" name="CommitmentDate" ng-model="data.CommitmentDate" datepicker class="form-control" required>
+                </div>
+            </script>
+            <script type="text/template" id="MainRawMaterialInhouseDate">
+                <div class="col-sm-10" style="padding:0px; width:70px;">
+                    <input type="text" name="MainRawMaterialInhouseDate" ng-model="data.MainRawMaterialInhouseDate" datepicker class="form-control" required>
+                </div>
+            </script>
+            <script type="text/template" id="OtherRawMaterialInhouseDate">
+                <div class="col-sm-10" style="padding:0px; width:70px;">
+                    <input type="text" name="OtherRawMaterialInhouseDate" ng-model="data.OtherRawMaterialInhouseDate" datepicker class="form-control" required>
+                </div>
+            </script>
             <script type="text/template" id="SPT">
                 <div class="col-sm-10" style="padding:0px; width:70px;">
                     <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.SPT" @*e-change="data.TotalSPT=data.AdditionalSPT+data.OperationSPT"*@ e-width="80" />
@@ -210,10 +231,10 @@
                 </div>
             </script>
             @*<script type="text/template" id="AdjustableQty">
-                    <div class="col-sm-10" style="padding:0px; width:70px;">
-                        <input type="text" name="AdjustableQty" ng-keydown="$parent.calculate(this);" ng-model="data.AdjustableQty" class="form-control">
-                    </div>
-                </script>*@
+            <div class="col-sm-10" style="padding:0px; width:70px;">
+                <input type="text" name="AdjustableQty" ng-keydown="$parent.calculate(this);" ng-model="data.AdjustableQty" class="form-control">
+            </div>
+        </script>*@
             <script type="text/template" id="NetUtilizationPercentage">
                 <div class="col-sm-10" style="padding:0px; width:70px;">
                     <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.Efficiency" e-width="80" />

@@ -2823,6 +2823,8 @@ SELECT
                 return Json(_sqlRepository.GetDataTable(@"Select 'First 50PCS Review' Value , 'First 50 PCS Review' Name
 Union All
 Select 'Pre-Final' Value , 'Pre-Final' Name
+Union All
+Select 'InLine' Value , 'InLine' Name
 Union all
 Select 'AQL-LotAudit' Value , 'AQL-LotAudit' Name"));
 

@@ -39,7 +39,7 @@ namespace Library.Planning.PlanningType1
                     INNER JOIN org.Plant AS p ON p.Id=wcm.PlantId
                     INNER JOIN org.Entity AS e ON e.Id=wcm.EntityId
                     LEFT OUTER JOIN (
-                    SELECT ppt.WorkCenterMasterId,MIN(ppt.ProductionDate) AS PlanningStartDate,MAX(ppt.ProductionDate) AS PlanningEndDate FROM ProductionPlanningType1 AS ppt 
+                    SELECT ppt.WorkCenterMasterId,MIN(ppt.ProductionDate) AS PlanningStartDate,MAX(ppt.ProductionDate) AS PlanningEndDate FROM ProductionPlanningType2 AS ppt 
                     WHERE ppt.EntityID='" + EntityId + @"'	
                     GROUP BY ppt.WorkCenterMasterId
                     ) AS PL ON pl.WorkCenterMasterId=wcm.Id
