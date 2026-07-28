@@ -1317,15 +1317,44 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         }
     }
 
+    function getProductionType2ProcessSetList() {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetProductionOrderType2ProcessSetList?productionOrderId=' + $scope.model.Id
+        }).then(function successCallback(response) {
+            $scope.prdProcessSetList = response.data;
+        });
+    }
+
+
+
+    $scope.message_confirmation = null;
     $scope.valuePassInDelModal = function (data, index) {
         $scope.index = index;
+        $scope.processobj = data;
         $scope.message_confirmation = 'Are you sure want to delete [ ' + data.ProcessName + ' ]';
         angular.element(document.querySelector('#confirmDelPopUp')).modal('show');
     };
     $scope.processSetRemoveRow = function () {
-        $scope.prdProcessSetList.splice($scope.index, 1);
         $scope.index = -1;
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/ProductionOrder/DeleteType2Process?id=' + $scope.processobj.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                getProductionType2ProcessSetList();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
     };
+
+
 
     $scope.businessProcesses = "BOM";
     //$scope.materialType = 'ProductDefinition';
@@ -2166,6 +2195,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                 $scope.ModelNewSPO.SKU2 = $scope.sku1sku2List[0].SKU2;
                 $scope.ModelNewSPO.Both = $scope.sku1sku2List[0].Both;
             }
+            $scope.getModelFilter();
             
         });
     }
@@ -2854,7 +2884,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     };
     $scope.filterComplete = function (args) {
         if (args.requestType == "filtering") {
-            var gridObj = $("#GridPlanFilter").data("ejGrid");
+            var gridObj = $("#GridPlanFilterT2").data("ejGrid");
             var filteredRecords = gridObj.getFilteredRecords();
             if (angular.isUndefinedOrNull(filteredRecords) == false) {
                 if (filteredRecords.length > 0) {
@@ -3093,9 +3123,6 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
     //Save the File Data
     $scope.saveFileList = function () {
-
-
-
 
         $http({
             method: 'POST',

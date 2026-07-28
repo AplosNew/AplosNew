@@ -509,6 +509,35 @@ Where C.EmpInfoSystemID IN (" + EmpIdLoop + @") AND PO.DirectManpowerCost=0 AND 
 
         }
 
+
+        [HttpPost, Authorize]
+        public ActionResult SetSalaryUnlock(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("Update dbo.SalaryLock set IsLocked=0 Where Id "+id+"");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+
         public class SalaryLock : BaseModel
         {
             #region Scalar Properties            

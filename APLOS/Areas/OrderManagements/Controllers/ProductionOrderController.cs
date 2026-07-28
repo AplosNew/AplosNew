@@ -3211,7 +3211,7 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
 
 
                 con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionOrderType2ProcessSet] where ProductionOrderId='" + data["Id"] + "'", out dsProcDetail, false, "1");
-                con.OpenDataSetThroughAdapter("select count(Id) countId from [TRN].[ProductionOrderType2ProcessSet] where ProductionOrderId='" + data["Id"] + "'", out dsPDD, false, "1");
+                con.OpenDataSetThroughAdapter("select CAST((RIGHT(ISNULL(MAX(CAST(Id AS INT)), 0),2)) AS INT) countId from [TRN].[ProductionOrderType2ProcessSet] where ProductionOrderId='" + data["Id"] + "'", out dsPDD, false, "1");
                 int pcount = Convert.ToInt32(dsPDD.Tables[0].Rows[0]["countId"].ToString());
                 if (processSetlist != null)
                 {
@@ -3598,6 +3598,33 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
         }
 
 
+        [HttpPost, Authorize]
+        public ActionResult DeleteType2Process(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from trn.ProductionOrderType2ProcessSet where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
         #endregion
     }
 
