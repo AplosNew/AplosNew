@@ -87,7 +87,7 @@ function bankJournalController(bankService, accountService, cboService, commonMe
         ActivityCode: null,
         ActivityName: null,
         FinancingTypeId: null,
-        BankJournalType: "BankToBank",
+        BankJournalType: "GL",
         BankJournalId: null,
         IsReverse: false,
         CompanyCurrencyRate: 1
@@ -321,7 +321,7 @@ function bankJournalController(bankService, accountService, cboService, commonMe
         $scope.actionIsDisable = false;
         $scope.voucher.DocRefNo = null;
         $scope.voucher.PaymentSource = "Bank";
-        $scope.voucher.BankJournalType = "BankToBank";
+        $scope.voucher.BankJournalType = "GL";
         $scope.voucher.IsReverse = false;
         $scope.voucher.Amount = null;
         $scope.voucher.VoucherId = null;
@@ -659,8 +659,8 @@ function bankJournalController(bankService, accountService, cboService, commonMe
         limit: 10,
         offset: 0,
         order: "asc",
-        sort: "GLGeneralInfoName",
-        searchBy: "GLGeneralInfoName",
+        sort: "ActivityName",
+        searchBy: "ActivityName",
         pageSize: 10,
         total_count: 0,
         search: null,
