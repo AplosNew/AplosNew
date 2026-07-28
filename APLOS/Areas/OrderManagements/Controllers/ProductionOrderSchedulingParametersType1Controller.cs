@@ -4057,17 +4057,17 @@ isnull(po.ProductionStatusId,'') IN (" + parameters["ProductionStatusId"] + @")
                             convert(bit,case when fail.LastPlanDate> t1.CommitmentDate then 1 else 0 end) as FailedToCommitmentDate
 --'UTC +06:00' AS [EndTimeZone],'UTC +06:00' AS [StartTimeZone]
                             --Mon Jun 22 2019 23:59:00
-                              FROM ProductionPlanningType1 AS PT
-                            LEFT OUTER JOIN [TRN].[ProductionOrder] P ON p.Id=pt.ProductionOrderID
-                            LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS T1 ON t1.ProductionOrderID=pt.ProductionOrderID
+                              FROM ProductionPlanningType2 AS PT
+                            LEFT OUTER JOIN ProductionOrderSchedulingParametersType2 AS T1 ON t1.ID=pt.ProductionOrderID
+                            LEFT OUTER JOIN [TRN].[ProductionOrderType2] P ON p.Id=T1.ProductionOrderID
                             LEFT OUTER JOIN [SCS].[WorkCenterMaster] WC ON wc.Id=pt.WorkCenterMasterId
                             LEFT OUTER JOIN [MST].[MaterialMaster] MM ON mm.Id=pt.MaterialMasterId
                             LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=P.ProductionStatusId
-                            LEFT OUTER JOIN trn.FreezeConfigPlanningType1 AS FC ON fc.EntityId=pt.EntityID AND fc.FreezeDate 
-											BETWEEN (SELECT MIN(ProductionDate) FROM ProductionPlanningType1 WHERE ProductionOrderID=pt.ProductionOrderID)
-											AND (SELECT MAX(ProductionDate) FROM ProductionPlanningType1 WHERE ProductionOrderID=pt.ProductionOrderID)
+                            LEFT OUTER JOIN trn.FreezeConfigPlanningType2 AS FC ON fc.EntityId=pt.EntityID AND fc.FreezeDate 
+											BETWEEN (SELECT MIN(ProductionDate) FROM ProductionPlanningType2 WHERE ProductionOrderID=pt.ProductionOrderID)
+											AND (SELECT MAX(ProductionDate) FROM ProductionPlanningType2 WHERE ProductionOrderID=pt.ProductionOrderID)
                             
-                            LEFT OUTER JOIN (select ProductionOrderID,Max(ProductionDate) AS LastPlanDate  from ProductionPlanningType1 group by productionOrderID) 
+                            LEFT OUTER JOIN (select ProductionOrderID,Max(ProductionDate) AS LastPlanDate  from ProductionPlanningType2 group by productionOrderID) 
 							AS FAIL on fail.ProductionOrderID=pt.ProductionOrderID
                             INNER JOIN org.Entity AS e ON e.Id=p.EntityId
                             WHERE pt.ProductionDate between '" + startDate.ToString("dd-MMM-yyyy") + @"' and '" + endDate.ToString("dd-MMM-yyyy") + @"' AND WC.EntityID IN(" + entityid + @") AND WC.processid='" + processid + @"'
@@ -4104,7 +4104,7 @@ ORDER BY k.Entity,K.WorkCenterMasterId,CONVERT(DATE, K.ProductionDate) ";
             DataTable _dtWC = _sqlRepository.GetDataTable(sqlWC);
 
 
-            string sqlFreeze = "select * from  trn.FreezeConfigPlanningType1 WHERE EntityId IN(" + entityid + ") ";
+            string sqlFreeze = "select * from  trn.FreezeConfigPlanningType2 WHERE EntityId IN(" + entityid + ") ";
 
             DateTime freezedate = System.DateTime.Now.AddYears(-100);
             DataTable dtFreeze = _sqlRepository.GetDataTable(sqlFreeze);
@@ -4125,7 +4125,7 @@ ORDER BY k.Entity,K.WorkCenterMasterId,CONVERT(DATE, K.ProductionDate) ";
 
 
             string sqlWORKDAYDATA = @"SELECT distinct FORMAT(ppc.WorkingDate, 'dddd') AS WorkingDays
-                                    FROM ProductionPlanningCalendar AS ppc WHERE ISNULL(ppc.WorkingHours,0)>0 AND ppc.EntityID IN(" + entityid + ")";
+                                    FROM ProductionPlanningType2Calendar AS ppc WHERE ISNULL(ppc.WorkingHours,0)>0 AND ppc.EntityID IN(" + entityid + ")";
 
             DataTable dtWorkDays = _sqlRepository.GetDataTable(sqlWORKDAYDATA);
             List<string> days = new List<string>();
@@ -4169,29 +4169,29 @@ ORDER BY k.Entity,K.WorkCenterMasterId,CONVERT(DATE, K.ProductionDate) ";
                             convert(bit,case when fail.LastPlanDate> t1.CommitmentDate then 1 else 0 end) as FailedToCommitmentDate
 --'UTC +06:00' AS [EndTimeZone],'UTC +06:00' AS [StartTimeZone]
                             --Mon Jun 22 2019 23:59:00
-                              FROM ProductionPlanningType1 AS PT
-                            LEFT OUTER JOIN [TRN].[ProductionOrder] P ON p.Id=pt.ProductionOrderID
-                            LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS T1 ON t1.ProductionOrderID=pt.ProductionOrderID
+                                FROM ProductionPlanningType2 AS PT
+LEFT OUTER JOIN ProductionOrderSchedulingParametersType2 AS T1 ON t1.ID=pt.ProductionOrderID
+LEFT OUTER JOIN [TRN].[ProductionOrderType2] P ON p.Id=T1.ProductionOrderID
                             LEFT OUTER JOIN [SCS].[WorkCenterMaster] WC ON wc.Id=pt.WorkCenterMasterId
                             LEFT OUTER JOIN [MST].[MaterialMaster] MM ON mm.Id=pt.MaterialMasterId
                             LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=P.ProductionStatusId
-                            LEFT OUTER JOIN trn.FreezeConfigPlanningType1 AS FC ON fc.EntityId=pt.EntityID AND fc.FreezeDate 
-											BETWEEN (SELECT MIN(ProductionDate) FROM ProductionPlanningType1 WHERE ProductionOrderID=pt.ProductionOrderID)
-											AND (SELECT MAX(ProductionDate) FROM ProductionPlanningType1 WHERE ProductionOrderID=pt.ProductionOrderID)
+                            LEFT OUTER JOIN trn.FreezeConfigPlanningType2 AS FC ON fc.EntityId=pt.EntityID AND fc.FreezeDate 
+											BETWEEN (SELECT MIN(ProductionDate) FROM ProductionPlanningType2 WHERE ProductionOrderID=pt.ProductionOrderID)
+											AND (SELECT MAX(ProductionDate) FROM ProductionPlanningType2 WHERE ProductionOrderID=pt.ProductionOrderID)
                             
-                            LEFT OUTER JOIN (select ProductionOrderID,Max(ProductionDate) AS LastPlanDate  from ProductionPlanningType1 group by productionOrderID) 
+                            LEFT OUTER JOIN (select ProductionOrderID,Max(ProductionDate) AS LastPlanDate  from ProductionPlanningType2 group by productionOrderID) 
 							AS FAIL on fail.ProductionOrderID=pt.ProductionOrderID
                             INNER JOIN org.Entity AS e ON e.Id=p.EntityId
                             ) AS K 
                             
 left outer join (select distinct po.Id AS ProductionOrderId,p1.WorkCenterMasterId
-from trn.ProductionOrder PO
-				inner join ProductionOrderSchedulingParametersType1 T1 on t1.ProductionOrderID=po.Id
-				INNER join ProductionPlanningType1 p1 on p1.ProductionOrderID=t1.ProductionOrderID and ProcessID=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
+from ProductionOrderSchedulingParametersType2 T1 
+				inner join trn.ProductionOrderType2 PO on t1.ProductionOrderID=po.Id
+				INNER join ProductionPlanningType2 p1 on p1.ProductionOrderID=t1.ID and ProcessID=(select ProcessId from trn.ProductionOrderType2ProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
 	
 				left outer join scs.WorkCenterMaster WC on wc.id=p1.WorkCenterMasterId
 			
-				INNER JOIN trn.ProductionOrderDetail AS pod ON pod.ProductionOrderId=PO.Id
+				INNER JOIN trn.ProductionOrderType2Detail AS pod ON pod.ProductionOrderId=PO.Id
 				LEFT OUTER JOIN trn.SalesOrder SO ON so.Id=pod.SalesOrderId
 				left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
 				left outer join mst.MaterialMaster mm on mm.id=p1.MaterialMasterId
@@ -4232,7 +4232,7 @@ isnull(po.ProductionStatusId,'') IN (" + parameters["ProductionStatusId"] + @")
 
 
 
-                            LEFT OUTER JOIN (select ProductionOrderID,Max(ProductionDate) AS LastPlanDate  from ProductionPlanningType1 group by productionOrderID) 
+                            LEFT OUTER JOIN (select ProductionOrderID,Max(ProductionDate) AS LastPlanDate  from ProductionPlanningType2 group by productionOrderID) 
 							AS FAIL on fail.ProductionOrderID=K.ProductionOrderID
                             INNER JOIN org.Entity AS e ON e.Id=K.EntityId
                             WHERE CONVERT(DATE,K.ProductionDate) between '" + startDate.ToString("dd-MMM-yyyy") + @"' and '" + endDate.ToString("dd-MMM-yyyy") + @"' AND K.EntityID IN(" + entityid + @") AND K.processid='" + processid + @"'
@@ -4248,7 +4248,7 @@ isnull(po.ProductionStatusId,'') IN (" + parameters["ProductionStatusId"] + @")
             DataTable _dtWC = _sqlRepository.GetDataTable(sqlWC);
 
 
-            string sqlFreeze = "select * from  trn.FreezeConfigPlanningType1 WHERE EntityId IN('" + entityid + @")";
+            string sqlFreeze = "select * from  trn.FreezeConfigPlanningType2 WHERE EntityId IN('" + entityid + @")";
 
             DateTime freezedate = System.DateTime.Now.AddYears(-100);
             DataTable dtFreeze = _sqlRepository.GetDataTable(sqlFreeze);
@@ -4269,7 +4269,7 @@ isnull(po.ProductionStatusId,'') IN (" + parameters["ProductionStatusId"] + @")
 
 
             string sqlWORKDAYDATA = @"SELECT distinct FORMAT(ppc.WorkingDate, 'dddd') AS WorkingDays
-                                    FROM ProductionPlanningCalendar AS ppc WHERE ISNULL(ppc.WorkingHours,0)>0 AND ppc.EntityID IN('" + entityid + @")";
+                                    FROM ProductionPlanningType2Calendar AS ppc WHERE ISNULL(ppc.WorkingHours,0)>0 AND ppc.EntityID IN('" + entityid + @")";
 
             DataTable dtWorkDays = _sqlRepository.GetDataTable(sqlWORKDAYDATA);
             List<string> days = new List<string>();
@@ -4682,6 +4682,56 @@ LEFT OUTER JOIN (SELECT p.ProductionOrderID,FORMAT(MIN(p.ProductionDate),'dd-MMM
 				                                LEFT OUTER JOIN EmployeeInformation AS ACCH ON ACCH.SystemId=wc.AccountHolder
 
 				                                INNER JOIN trn.ProductionOrderDetail AS pod ON pod.ProductionOrderId=PO.Id
+				                                LEFT OUTER JOIN trn.SalesOrder SO ON so.Id=pod.SalesOrderId
+				                                left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+				                                left outer join mst.MaterialMaster mm on mm.id=p1.MaterialMasterId
+				                                LEFT OUTER JOIN MST.MaterialMasterArticle MMR ON mmr.Id=moi.ArticleId
+ 
+				                                left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+				                                left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+				                                left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+
+				                                left outer join trn.MasterOrder MO on mo.Id=moi.MasterOrderId
+				                                left outer join [HKP].Buyer B on B.Id=MO.BuyerId
+				                                left outer join [HKP].[Party] p on P.Id=MO.PartyId
+
+				                                left outer join org.Entity E on e.Id=p1.EntityID
+				                                LEFT OUTER JOIN org.Unit AS u ON u.Id=e.UnitId
+				                                left outer join org.Plant PLN on pln.Id=PO.PlantId
+				                                LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
+				
+                                WHERE po.PlantId='" + identity.PlantId + @"'
+                                ) AS KK";
+
+
+
+
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult LoadType2FilterSQL()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @" SELECT * FROM (
+                                        SELECT DISTINCT 
+                                        isnull(po.Id,'') ProductOrderId,isnull(mo.Id,'')AS MasterOrderNo,isnull(mo.BuyerReferenceNo,'') AS BuyerOrderNo,isnull(moi.BuyerReferenceNo,'') AS BuyerItemNo,
+                                        wc.Sequence, isnull(wc.Id,'') AS WorkCenterId,isnull(wc.UserName,'') AS WorkCenter,isnull(e.Id,'') AS EntityId,isnull(e.UserName,'') Entity,
+                                        isnull(pm.Id,'') ProductMasterId,isnull(pm.UserName,'') ProductMaster,isnull(pc.Id,'') ProductCategoryId,isnull(pc.UserName,'') ProductCategory,
+                                        isnull(mm.Id,'') MaterialMasterId,isnull(mm.UserName ,'')MaterialMaster,isnull(MMr.Id,'') ArticleId,isnull(mmr.ShortName,'') Article,isnull(b.Id,'') BuyerId,isnull(b.UserName,'') Buyer,
+                                        isnull(p.Id,'') CustomerId,isnull(p.UserName,'') Customer,
+                                        isnull(acci.SystemId,'') AccountInchargeId, isnull(ACCI.EmployeeName,'') AS AccountIncharge,isnull(acch.SystemId,'') AccountHolderId, isnull(acch.EmployeeName,'') AS AccountHolder,
+                                        isnull(ps.Id,'') AS ProductionStatusId, isnull(ps.UserName,'') AS ProductionStatus
+                                        from ProductionOrderSchedulingParametersType1 T1 
+				                                inner join trn.ProductionOrder PO on t1.ProductionOrderID=po.Id
+				                                INNER join ProductionPlanningType2 p1 on p1.ProductionOrderID=t1.ID and ProcessID=(select ProcessId from trn.ProductionOrderType2ProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
+	
+				                                left outer join scs.WorkCenterMaster WC on wc.id=p1.WorkCenterMasterId
+				                                LEFT OUTER JOIN EmployeeInformation AS ACCI ON ACCI.SystemId=wc.AccountInCharge
+				                                LEFT OUTER JOIN EmployeeInformation AS ACCH ON ACCH.SystemId=wc.AccountHolder
+
+				                                INNER JOIN trn.ProductionOrderType2Detail AS pod ON pod.ProductionOrderId=PO.Id
 				                                LEFT OUTER JOIN trn.SalesOrder SO ON so.Id=pod.SalesOrderId
 				                                left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
 				                                left outer join mst.MaterialMaster mm on mm.id=p1.MaterialMasterId
@@ -6191,7 +6241,7 @@ isnull(S.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entit
         }
 
         [HttpPost, Authorize]
-        public JsonResult LoadType2FilterSQL()
+        public JsonResult LoadType2NewFilterSQL()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @" SELECT * FROM (
@@ -6479,7 +6529,7 @@ INNER JOIN trn.ProductionOrderType2 AS po ON po.Id=spo.ProductionOrderId
                                                 WHERE ps.UserName='" + Library.Model.Enums.OrderStatusEnum.Closed.ToString() + @"'
                                                 )");
 
-                string runningsql = @"SELECT DISTINCT po.Id FROM [dbo].[ProductionOrderSchedulingParametersType2] spo
+                string runningsql = @"SELECT DISTINCT spo.Id FROM [dbo].[ProductionOrderSchedulingParametersType2] spo
                                     INNER JOIN trn.ProductionOrderType2 AS po ON po.id=spo.ProductionOrderID
                                     LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
                                     LEFT OUTER JOIN trn.RunningOrderType2WorkCenter AS r ON spo.Id=r.ProductionOrderId
@@ -6520,14 +6570,14 @@ INNER JOIN trn.ProductionOrderType2 AS po ON po.Id=spo.ProductionOrderId
                     dtCalendar = dicCalendar[productionOrders.Rows[i]["EntityId"].ToString()];
 
                     sbLog = new StringBuilder();
-                    SendNotification("Simulating production order#" + productionOrders.Rows[i]["ProductionOrderID"].ToString(), i, productionOrders.Rows.Count);
-                    sbLog.AppendLine("Starting simulation for production order#" + productionOrders.Rows[i]["ProductionOrderID"].ToString());
+                    SendNotification("Simulating production order#" + productionOrders.Rows[i]["ID"].ToString(), i, productionOrders.Rows.Count);
+                    sbLog.AppendLine("Starting simulation for production order#" + productionOrders.Rows[i]["ID"].ToString());
                     DateTime startDate = Convert.ToDateTime(Convert.ToDateTime(productionOrders.Rows[i]["LSD"].ToString()).ToString("dd-MMM-yyyy"));
                     DateTime LSD = Convert.ToDateTime(Convert.ToDateTime(productionOrders.Rows[i]["LSD"].ToString()).ToString("dd-MMM-yyyy"));
                     double DaysToReachTheTarget = clsStaticInfo.dbl(productionOrders.Rows[i]["DayToReachTheTarget"].ToString());
                     DaysToBeAddedForLineChange = (int)DaysToReachTheTarget - 1;
 
-                    DataTable dtCurrentWorkCenter = dtType2AvailableWrokcenters(productionOrders.Rows[i]["ProductionOrderID"].ToString(), productionOrders.Rows[i]["ProductionStatusName"].ToString(), processid);
+                    DataTable dtCurrentWorkCenter = dtType2AvailableWrokcenters(productionOrders.Rows[i]["ID"].ToString(), productionOrders.Rows[i]["ProductionStatusName"].ToString(), processid);
 
                     StringCollection strColMultipleProductionInSingleLine = new StringCollection();
                     if (dtCurrentWorkCenter.Rows.Count == 0)
@@ -6802,7 +6852,7 @@ INNER JOIN trn.ProductionOrderType2 AS po ON po.Id=spo.ProductionOrderId
                         entry.MaterialMasterId = productionOrders.Rows[i]["MaterialMasterId"].ToString();
                         entry.EntityId = BestLine["EntityId"].ToString();//productionOrders.Rows[i]["EntityId"].ToString();
                         entry.ProcessID = BestLine["ProcessID"].ToString();
-                        entry.ProductionOrderId = productionOrders.Rows[i]["ProductionOrderId"].ToString();
+                        entry.ProductionOrderId = productionOrders.Rows[i]["ID"].ToString();
 
                         entry.ProductionHours = clsStaticInfo.dbl(dtCalendar.DefaultView[Index]["WorkingHours"].ToString()) + clsStaticInfo.dbl(dtCalendar.DefaultView[Index]["OTHours"].ToString());// clsStaticInfo.dbl(productionOrders.Rows[i]["PlanWorkingHoursPerDay"].ToString());
                         if (bplib.clsWebLib.GetBoolData(productionOrders.Rows[i]["ConsiderHourFromWorkCenter"].ToString()) == true)
@@ -6903,7 +6953,7 @@ INNER JOIN trn.ProductionOrderType2 AS po ON po.Id=spo.ProductionOrderId
                     }
 
                     //saving final PR data
-                    saveProductionPlanType2(_ProductionBlock, productionOrders.Rows[i]["ProductionOrderID"].ToString(), entityid, processid);
+                    saveProductionPlanType2(_ProductionBlock, productionOrders.Rows[i]["ID"].ToString(), entityid, processid);
                 }
                 SendNotification("Distributing production quantity in sales orders and calculating expected completion date");
                 Library.OrderManagement.Production.ExpectedSOWiseDateService expectedSO = new Library.OrderManagement.Production.ExpectedSOWiseDateService();
@@ -7073,21 +7123,14 @@ INNER JOIN ProductionOrderSchedulingParametersType2 AS t ON t.ProductionOrderID=
                     if (dtWorkCenter.Rows.Count == 0)
                     {
                         sbLog.AppendLine("No workcenter preference was defined in production order\r\nSearching in product preference...");
-                        sql = @"SELECT WC.*,convert(bit,0) as isResidualApplicable FROM [SCS].[WorkCenterMasterProductPriority] WP 
-                                INNER JOIN [SCS].[WorkCenterMaster] WC ON wc.Id=wp.WorkCenterMasterId
-
-                                WHERE WP.ProductMasterId IN (
-                                SELECT DISTINCT pd.ProductMasterId FROM [TRN].[ProductionOrderType2Detail] D
-                                INNER JOIN trn.SalesOrder AS so ON so.Id=d.SalesOrderId
-                                INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
-                                INNER JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
-
-                                WHERE d.ProductionOrderId='" + productionOrderID + @"'
+                        sql = @"SELECT WC.*,convert(bit,0) as isResidualApplicable FROM  [SCS].[WorkCenterMaster] WC 
+                                WHERE WC.Id IN (
+                                Select WorkCenterMasterId from HKP.WorkCenterGroup WHERE ID 
+                                IN(Select WorkCenterGroupId from dbo.ProductionOrderSchedulingParametersType2 WHERE ID='" + productionOrderID + @"')
                                 ) AND WC.ProcessID='" + processid + @"' AND WC.EntityId IN (
-                                SELECT DISTINCT d.EntityId FROM [TRN].ProductionOrder D
-                                WHERE d.Id='" + productionOrderID + @"'
-                                ) 
-                                ORDER BY WP.Priority ASC";
+                                SELECT DISTINCT d.EntityId FROM [TRN].ProductionOrderType2 D
+                                INNER JOIN dbo.ProductionOrderSchedulingParametersType2 T2 ON T2.ProductionOrderID=D.Id
+                                WHERE T2.Id='" + productionOrderID + @"') ";
                         dtWorkCenter = _sqlRepository.GetDataTable(sql);
 
                     }
@@ -7101,12 +7144,10 @@ INNER JOIN ProductionOrderSchedulingParametersType2 AS t ON t.ProductionOrderID=
                     {
                         sbLog.AppendLine("No workcenter preference was defined in product configuration");
                         sql = @"SELECT WC.*,convert(bit,0) as isResidualApplicable FROM  [SCS].[WorkCenterMaster] WC 
-
                                 WHERE wc.[Active]=1 and WC.ProcessId ='" + processid + @"' AND WC.EntityId IN (
-                                SELECT DISTINCT d.EntityId FROM [TRN].ProductionOrder D
-                               
-                                WHERE d.Id='" + productionOrderID + @"'
-                                ) 
+                                SELECT DISTINCT d.EntityId FROM [TRN].ProductionOrderType2 D
+                               INNER JOIN dbo.ProductionOrderSchedulingParametersType2 T2 ON T2.ProductionOrderID=D.Id
+                                WHERE T2.Id='" + productionOrderID + @"') 
                                 ";
                         dtWorkCenter = _sqlRepository.GetDataTable(sql);
 
