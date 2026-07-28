@@ -460,6 +460,9 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
             int colEmployeeName = 0;
             int colSkillCategory = 0;
             int colSkill = 0;
+            int coloperationSkill = 0;
+            int colEmployeeRating = 0;
+            int colSpecialSkill = 0;
             int colProductionOrderId = 0;
             int colPOQty = 0;
             int colOPeration = 0;
@@ -488,6 +491,9 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
             //SetHeadText(string text, IWorksheet sheet, int xlsRow, ref int xlsCol, out int ColIndex)
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Oper. Skill", 8); colSkillCategory = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Skill", 8); colSkill = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "OperationSkill", 8); coloperationSkill = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "EmployeeRating", 8); colEmployeeRating = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "SpecialSkill", 8); colSpecialSkill = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "PO", 8); colProductionOrderId = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "POQty", 8); colPOQty = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "OP", 8); colOPeration = xlsCol; xlsCol++;
@@ -521,6 +527,9 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
                     //sheet.Range[row, colDate].Text = dsLocal.Rows[i]["Date"].ToString();
                     reportUtility.SetText(ref sheet, row, colSkillCategory, dsLocal.Rows[i]["SkillCategory"].ToString());
                     reportUtility.SetText(ref sheet, row, colSkill, dsLocal.Rows[i]["Skill"].ToString());
+                    reportUtility.SetText(ref sheet, row, coloperationSkill, dsLocal.Rows[i]["OperationSkill"].ToString());
+                    reportUtility.SetText(ref sheet, row, colEmployeeRating, dsLocal.Rows[i]["EmployeeRating"].ToString());
+                    reportUtility.SetText(ref sheet, row, colSpecialSkill, dsLocal.Rows[i]["SpecialSkill"].ToString());
                     reportUtility.SetText(ref sheet, row, colProductionOrderId, dsLocal.Rows[i]["ProductionOrderId"].ToString());
                     reportUtility.SetText(ref sheet, row, colPOQty, Convert.ToDouble(dsLocal.Rows[i]["POQty"].ToString()));
                     reportUtility.SetText(ref sheet, row, colOPeration, dsLocal.Rows[i]["OperationName"].ToString());
@@ -664,7 +673,7 @@ declare @entityId varchar(50)='" + entityId + @"'
 					, OP.OperationMasterId as MasterOperationId, owe.ProductionOrderId ,ISNULL(PO.Qty,0) POQty,PO.OrderLevel 
 					, ISNULL(bt.TotalSPT,0) SAM, SUM(isnull(owe.Qty,0)) as Qty , BasicProduceMin=round(cast(isnull(Sum(owe.Qty),0)*ISNULL(bt.TotalSPT,0) as float),1)
 					, DENSE_RANK() OVER (PARTITION BY owe.EmployeeId,owe.[Date],wcm.UserName,OP.OperationMasterId,owe.ProductionOrderId ORDER BY round(cast(isnull(Sum(owe.Qty),0)*ISNULL(bt.TotalSPT,0) as INT),1) DESC) AS [Sequence]  , APD.EmpSystemID EmployeeId , isnull(o.WIP,0) as WIP
-					,SK.SkillCategoryId,P.UserName Plant,wcm.UserName WorkCenter,SD.UserName ShiftName,APD.DayStatus
+					,SK.SkillCategoryId,P.UserName Plant,wcm.UserName WorkCenter,SD.UserName ShiftName,APD.DayStatus,OM.UserName OperationSkill,EO.EmployeeRating,EO.SpecialSkill
 						FROM AttdnProcessData APD 
                         LEFT JOIN dbo.OperationWiseEmployees owe ON APD.EmpSystemID=owe.EmployeeId  and apd.WorkDate=owe.[Date]
 						left join [SCS].[WorkCenterMaster] wcm on wcm.Id=owe.WorkcenterId
@@ -684,14 +693,14 @@ declare @entityId varchar(50)='" + entityId + @"'
 						LEFT JOIN MST.ManpowerBudget MB ON MB.Id=ei.BudgetCode
 						LEFT JOIN HKP.IncentiveType IT ON IT.Id=MB.IncentiveTypeId
 						LEFT JOIN ORG.Entity EN  ON EN.Id=MB.EntityId
-						
+						LEFT JOIN [dbo].[EmployeeOperation] EO ON EO.OperationMasterId=OM.Id AND OWE.EmployeeId=EO.EmpSystemId AND EO.Archive=0
 						where APD.WorkDate > Convert(date, DateAdd(DAY, -365, GetDate()))
 						AND APD.[WorkDate] between DATEADD(dd, DATEDIFF(dd, 0, '" + fromDate + "'), 0) and DATEADD(dd, DATEDIFF(dd, 0, '" + toDate + @"'), 0)
                         AND IT.UserName IN (" + tempincentiveType + @") AND MB.EntityId='" + entityId + @"'
                         AND ei.EmployeeStatus='Active' " + tempdaystatus + " " + tempShiftId + " " + tempwcId + @"
                         group by OP.Id , op.Code ,APD.EmpSystemID,APD.WorkDate, op.UserName ,owe.ProductionOrderId  , owe.EmployeeId ,MB.EntityId, ei.EmployeeCode , op.OperationMasterId , o.WIP
 						,SK.SkillCategoryId,APD.ShiftFullDayDuration,APD.OTHr,EN.UserName, ei.EmployeeName,SC.UserName,SK.UserName,bt.TotalSPT,bt.ProductionBulletinTemplateMasterId  
-						,owe.[Date],P.UserName,wcm.UserName ,PO.Qty,PO.OrderLevel,SD.UserName,APD.DayStatus
+						,owe.[Date],P.UserName,wcm.UserName ,PO.Qty,PO.OrderLevel,SD.UserName,APD.DayStatus,OM.UserName,EO.EmployeeRating,EO.SpecialSkill
                        ) x
 					    left join dbo.ProducedMinAllowanceChild PMC ON PMC.SkillCategoryId=x.SkillCategoryId AND PMC.OperationSequence=x.[Sequence]
 					    left join dbo.OrderSizeAllowance OSA ON OSA.Days=DAY(x.[Date])
@@ -740,7 +749,6 @@ declare @entityId varchar(50)='" + entityId + @"'
 
             var dsLocal = GetEmployeeWiseProductionSummarySQL(fromDate, toDate, entityId, incentiveType, shiftId, workCenterId, dayStatus);
 
-
             var row = 3;
 
             var colLast = 1;
@@ -766,6 +774,9 @@ declare @entityId varchar(50)='" + entityId + @"'
             int colShift = 0;
             int colWorkCenter = 0;
             int colProductionSummary = 0;
+            int colOperationSkill = 0;
+            int colSpecialSkill = 0;
+            int colEmployeeRating = 0;
             int colRemark = 0;
 
 
@@ -777,8 +788,11 @@ declare @entityId varchar(50)='" + entityId + @"'
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Entity"); colEntity = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Date", 8); colDate = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "DayStatus", 8); colDayStatus = xlsCol; xlsCol++;
-            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Oper. Skill", 12); colSkillCategory = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Skill Category", 12); colSkillCategory = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Skill", 8); colSkill = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Operation Skill", 8); colOperationSkill = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "SpecialSkill", 8); colSpecialSkill = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "EmployeeRating", 8); colEmployeeRating = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "AvailableMinute", 8); colAvailableMinute = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "BasicProduceMin", 8); colBasicProd = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "SkillAllowance", 8); colSkillAllowance = xlsCol; xlsCol++;
@@ -807,6 +821,9 @@ declare @entityId varchar(50)='" + entityId + @"'
                     reportUtility.SetText(ref sheet, row, colDayStatus, dsLocal.Rows[i]["DayStatus"].ToString());
                     reportUtility.SetText(ref sheet, row, colSkillCategory, dsLocal.Rows[i]["SkillCategory"].ToString());
                     reportUtility.SetText(ref sheet, row, colSkill, dsLocal.Rows[i]["Skill"].ToString());
+                    reportUtility.SetText(ref sheet, row, colOperationSkill, dsLocal.Rows[i]["OperationSkill"].ToString());
+                    reportUtility.SetText(ref sheet, row, colSpecialSkill, dsLocal.Rows[i]["SpecialSkill"].ToString());
+                    reportUtility.SetText(ref sheet, row, colEmployeeRating, dsLocal.Rows[i]["EmployeeRating"].ToString());
                     reportUtility.SetText(ref sheet, row, colAvailableMinute, Convert.ToDouble(dsLocal.Rows[i]["AvailableMinute"].ToString()));
 
                     reportUtility.SetText(ref sheet, row, colBasicProd, Convert.ToDouble(dsLocal.Rows[i]["BasicProduceMin"].ToString()));
@@ -903,9 +920,9 @@ WITH base_prod AS (
         BasicProduceMin = ROUND(SUM(ISNULL(owe.Qty,0)) * ISNULL(bt.TotalSPT,0),1),
 
         DENSE_RANK() OVER (
-            PARTITION BY owe.EmployeeId, owe.[Date],wcm.UserName,OP.OperationMasterId,owe.ProductionOrderId
+            PARTITION BY owe.EmployeeId, owe.[Date],wcm.UserName,OP.OperationMasterId,owe.ProductionOrderId,OP.UserName,EO.EmployeeRating,EO.SpecialSkill
             ORDER BY ROUND(SUM(ISNULL(owe.Qty,0)) * ISNULL(bt.TotalSPT,0),1) DESC
-        ) AS Sequence,wcm.UserName WorkCenter,APD.DayStatus
+        ) AS Sequence,wcm.UserName WorkCenter,APD.DayStatus,OP.UserName OperationSkill,EO.EmployeeRating,EO.SpecialSkill
 
     FROM  AttdnProcessData APD 
 	LEFT JOIN dbo.OperationWiseEmployees owe ON APD.EmpSystemID = owe.EmployeeId  AND APD.WorkDate = owe.[Date]
@@ -923,6 +940,7 @@ WITH base_prod AS (
     LEFT JOIN MST.ManpowerBudget MB ON MB.Id=ei.BudgetCode
     LEFT JOIN ORG.Entity EN ON EN.Id=MB.EntityId
 	LEFT JOIN HKP.IncentiveType IT ON IT.Id=MB.IncentiveTypeId
+    LEFT JOIN [dbo].[EmployeeOperation] EO ON EO.OperationMasterId=OM.Id AND OWE.EmployeeId=EO.EmpSystemId AND EO.Archive=0
     WHERE APD.[WorkDate] BETWEEN  DATEADD(dd, DATEDIFF(dd, 0, '" + fromDate + "'), 0) and DATEADD(dd, DATEDIFF(dd, 0, '" + toDate + @"'), 0)
     AND IT.UserName IN (" + tempincentiveType + ")  AND MB.EntityId='" + entityId + @"'
     AND ei.EmployeeStatus='Active' " + tempdaystatus + " " + tempShiftId + " " + tempwcId + @"
@@ -934,7 +952,7 @@ WITH base_prod AS (
         owe.ProductionOrderId,
         owe.EmployeeId,APD.EmpSystemID,APD.WorkDate,
         owe.[Date],PO.OrderLevel,
-        bt.TotalSPT,wcm.UserName,APD.ShiftFullDayDuration,APD.OTHr,APD.DayStatus
+        bt.TotalSPT,wcm.UserName,APD.ShiftFullDayDuration,APD.OTHr,APD.DayStatus,OP.UserName,EO.EmployeeRating,EO.SpecialSkill
 ),
 
 prod_calc AS (
@@ -975,9 +993,9 @@ prod_group AS (
         SUM(OrderSizeAllowance) AS OrderSizeAllowance,
         SUM(ProduceMinute) AS ProduceMinute,
         MAX(AvailableMinute) AS AvailableMinute
-        ,DayStatus
+        ,DayStatus,OperationSkill,EmployeeRating,SpecialSkill
     FROM prod_calc
-    GROUP BY Entity,[Date],EmployeeCode,EmployeeName,DayStatus
+    GROUP BY Entity,[Date],EmployeeCode,EmployeeName,DayStatus,OperationSkill,EmployeeRating,SpecialSkill
 ),
 
 -- =========================
@@ -993,7 +1011,7 @@ base AS (
         CAST(PO.Id AS VARCHAR(20)) AS PO,
         OP.UserName AS Operation,
         OP.Id AS OperationId,
-        OWE.Qty,wcm.UserName WorkCenter,SD.UserName ShiftName
+        OWE.Qty,wcm.UserName WorkCenter,SD.UserName ShiftName,OM.UserName OperationSkill,EO.EmployeeRating,EO.SpecialSkill
     FROM dbo.OperationWiseEmployees OWE
     LEFT JOIN EmployeeInformation EI ON EI.SystemId = OWE.EmployeeId
     LEFT JOIN trn.ProductionOrder PO ON PO.Id = OWE.ProductionOrderId
@@ -1005,6 +1023,7 @@ base AS (
 	LEFT JOIN HKP.IncentiveType IT ON IT.Id=MB.IncentiveTypeId
     LEFT JOIN [SCS].[WorkCenterMaster] wcm on wcm.Id=owe.WorkcenterId
 	LEFT JOIN ShiftDefination SD ON SD.SystemId=OWE.ShiftId
+    LEFT JOIN [dbo].[EmployeeOperation] EO ON EO.OperationMasterId=OM.Id AND OWE.EmployeeId=EO.EmpSystemId AND EO.Archive=0
     WHERE OWE.[Date] BETWEEN  DATEADD(dd, DATEDIFF(dd, 0, '" + fromDate + "'), 0) and DATEADD(dd, DATEDIFF(dd, 0, '" + toDate + @"'), 0)
 AND IT.UserName IN (" + tempincentiveType + ")  AND MB.EntityId='" + entityId + @"' AND ei.EmployeeStatus='Active' " + tempShiftId + " " + tempwcId + @"
 ),
@@ -1060,6 +1079,25 @@ shiftName_agg AS (
            STRING_AGG(ShiftName, ', ') AS ShiftName
     FROM (SELECT DISTINCT EmployeeCode, WorkDate, ShiftName FROM base WHERE ShiftName IS NOT NULL) x
     GROUP BY EmployeeCode, WorkDate
+),
+employeeRating_agg AS (
+    SELECT EmployeeCode, WorkDate,
+           STRING_AGG(EmployeeRating, ', ') AS EmployeeRating
+    FROM (SELECT DISTINCT EmployeeCode, WorkDate, EmployeeRating FROM base WHERE EmployeeRating IS NOT NULL) x
+    GROUP BY EmployeeCode, WorkDate
+),
+specialSkill_agg AS (
+    SELECT EmployeeCode, WorkDate,
+           STRING_AGG(SpecialSkill, ', ') AS SpecialSkill
+    FROM (SELECT DISTINCT EmployeeCode, WorkDate, SpecialSkill FROM base WHERE SpecialSkill IS NOT NULL) x
+    GROUP BY EmployeeCode, WorkDate
+)
+,
+operationSkill_agg AS (
+    SELECT EmployeeCode, WorkDate,
+           STRING_AGG(OperationSkill, ', ') AS OperationSkill
+    FROM (SELECT DISTINCT EmployeeCode, WorkDate, OperationSkill FROM base WHERE OperationSkill IS NOT NULL) x
+    GROUP BY EmployeeCode, WorkDate
 )
 
 -- =========================
@@ -1087,7 +1125,7 @@ SELECT
     p.SkillAllowance,
     p.AdditionalAllowance,
     p.OrderSizeAllowance,
-    p.ProduceMinute,wc.WorkCenter,sn.ShiftName,
+    p.ProduceMinute,wc.WorkCenter,sn.ShiftName,os.OperationSkill,er.EmployeeRating,ss.SpecialSkill,
 
     Efficency =
         CASE 
@@ -1108,7 +1146,9 @@ LEFT JOIN opid_agg oid ON oid.EmployeeCode=p.EmployeeCode AND oid.WorkDate=p.[Da
 LEFT JOIN qty_agg q ON q.EmployeeCode=p.EmployeeCode AND q.WorkDate=p.[Date]
 LEFT JOIN shiftName_agg sn ON sn.EmployeeCode=p.EmployeeCode AND sn.WorkDate=p.[Date]
 LEFT JOIN workcenter_agg wc ON wc.EmployeeCode=p.EmployeeCode AND wc.WorkDate=p.[Date]
-
+LEFT JOIN employeeRating_agg er ON er.EmployeeCode=p.EmployeeCode AND er.WorkDate=p.[Date]
+LEFT JOIN specialSkill_agg ss ON ss.EmployeeCode=p.EmployeeCode AND ss.WorkDate=p.[Date]
+LEFT JOIN operationSkill_agg os ON os.EmployeeCode=p.EmployeeCode AND os.WorkDate=p.[Date]
 ORDER BY  p.EmployeeCode,p.[Date]   ";
             return _sqlRepository.GetDataTable(cmdText);
         }
@@ -1181,6 +1221,9 @@ ORDER BY  p.EmployeeCode,p.[Date]   ";
                 int colGivenDesignation = 0;
                 int colNumberOfMonth = 0;
                 int colSkillLevel = 0;
+                int coloperationSkill = 0;
+                int colEmployeeRating = 0;
+                int colSpecialSkill = 0;
                 int colRemark = 0;
 
                 row++;
@@ -1206,6 +1249,9 @@ ORDER BY  p.EmployeeCode,p.[Date]   ";
                 reportUtility.SetHeaderText(ref sheet, row, xlsCol, "GivenDesignation", 12); colGivenDesignation = xlsCol; xlsCol++;
                 reportUtility.SetHeaderText(ref sheet, row, xlsCol, "NumberOfMonth", 12); colNumberOfMonth = xlsCol; xlsCol++;
                 reportUtility.SetHeaderText(ref sheet, row, xlsCol, "SkillLevel", 12); colSkillLevel = xlsCol; xlsCol++;
+                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "OperationSkill", 12); coloperationSkill = xlsCol; xlsCol++;
+                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "SpecialSkill", 12); colSpecialSkill = xlsCol; xlsCol++;
+                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "EmployeeRating", 12); colEmployeeRating = xlsCol; xlsCol++;
                 reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Remark", 12); colRemark = xlsCol; xlsCol++;
                 colLast = xlsCol;
 
@@ -1237,6 +1283,9 @@ ORDER BY  p.EmployeeCode,p.[Date]   ";
                         reportUtility.SetText(ref sheet, row, colGivenDesignation, dsLocal.Rows[i]["GivenDesignation"].ToString());
                         reportUtility.SetText(ref sheet, row, colNumberOfMonth, dsLocal.Rows[i]["NumberOfMonth"].ToString());
                         reportUtility.SetText(ref sheet, row, colSkillLevel, dsLocal.Rows[i]["SkillLevel"].ToString());
+                        reportUtility.SetText(ref sheet, row, coloperationSkill, dsLocal.Rows[i]["OperationSkill"].ToString());
+                        reportUtility.SetText(ref sheet, row, colSpecialSkill, dsLocal.Rows[i]["SpecialSkill"].ToString());
+                        reportUtility.SetText(ref sheet, row, colEmployeeRating, dsLocal.Rows[i]["EmployeeRating"].ToString());
                         reportUtility.SetText(ref sheet, row, colRemark, dsLocal.Rows[i]["Remark"].ToString());
 
                         sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
@@ -1324,10 +1373,10 @@ WITH base_prod AS (
         BasicProduceMin = ROUND(SUM(ISNULL(owe.Qty,0)) * ISNULL(bt.TotalSPT,0),1),
 		(ISNULL(APD.ShiftFullDayDuration,0)+ISNULL(APD.OTHr,0)) AS AvailableMinute,
         DENSE_RANK() OVER (
-            PARTITION BY owe.EmployeeId, owe.[Date],wcm.UserName,OP.OperationMasterId,owe.ProductionOrderId
+            PARTITION BY owe.EmployeeId, owe.[Date],wcm.UserName,OP.OperationMasterId,owe.ProductionOrderId,OM.UserName ,EO.EmployeeRating,EO.SpecialSkill
             ORDER BY ROUND(SUM(ISNULL(owe.Qty,0)) * ISNULL(bt.TotalSPT,0),1) DESC
         ) AS Sequence,wcm.UserName WorkCenter,GD.UserName GivenDesignation
-		,NumberOfMonth=DATEDIFF(MONTH,ei.DOJ,GETDATE()),PO.OrderLevel
+		,NumberOfMonth=DATEDIFF(MONTH,ei.DOJ,GETDATE()),PO.OrderLevel,OM.UserName OperationSkill,EO.EmployeeRating,EO.SpecialSkill
 
     FROM AttdnProcessData APD
 	left join dbo.OperationWiseEmployees owe ON APD.EmpSystemID=owe.EmployeeId  and apd.WorkDate=owe.[Date]
@@ -1346,6 +1395,7 @@ WITH base_prod AS (
     LEFT JOIN MST.ManpowerBudget MB ON MB.Id=ei.BudgetCode
 	LEFT JOIN HKP.IncentiveType IT ON IT.Id=MB.IncentiveTypeId
     LEFT JOIN ORG.Entity EN ON EN.Id=MB.EntityId
+    LEFT JOIN [dbo].[EmployeeOperation] EO ON EO.OperationMasterId=OM.Id AND OWE.EmployeeId=EO.EmpSystemId AND EO.Archive=0
     WHERE APD.[WorkDate] BETWEEN  '" + fromDate + "' AND '" + toDate + @"'
     AND IT.UserName IN (" + tempincentiveType + ")  AND MB.EntityId='" + entityId + @"'
 	 AND ei.EmployeeStatus='Active'  " + tempdaystatus + " " + tempShiftId + " " + tempwcId + @"--and ei.employeecode in ('10000351')
@@ -1357,7 +1407,7 @@ WITH base_prod AS (
         owe.ProductionOrderId,
         owe.EmployeeId,APD.EmpSystemID,APD.DayStatus,
         owe.[Date],APD.WorkDate,APD.ShiftFullDayDuration,APD.OTHr,
-        bt.TotalSPT,wcm.UserName,GD.UserName,ei.DOJ,PO.OrderLevel
+        bt.TotalSPT,wcm.UserName,GD.UserName,ei.DOJ,PO.OrderLevel,OM.UserName ,EO.EmployeeRating,EO.SpecialSkill
 ),
 
 prod_calc AS (
@@ -1405,7 +1455,7 @@ prod_calc AS (
 
 select z.* from (
 select y.Entity,y.EmployeeCode,y.EmployeeName,ISNULL(y.AvailableMinute,0) AvailableMinute,y.GivenDesignation,y.NumberOfMonth,y.SkillLevel
-
+,OperationSkill,EmployeeRating,SpecialSkill
 ,case when y.Day1>0 then cast(ROUND(y.Day1,2) as nvarchar) ELSE y.NewDayStatus END  Day1
 ,case when y.Day2>0 then cast(ROUND(y.Day2,2) as nvarchar) ELSE y.NewDayStatus2 END Day2
 ,case when y.Day3>0 then cast(ROUND(y.Day3,2) as nvarchar) ELSE y.NewDayStatus3 END Day3
@@ -1443,7 +1493,7 @@ SELECT
     EntityId,
     EmployeeCode,
     EmployeeName,EmployeeId,NewDayStatus,NewDayStatus2,NewDayStatus3,NewDayStatus4,NewDayStatus5,NewDayStatus6,NewDayStatus7,
-    GivenDesignation,SkillLevel,NumberOfMonth,
+    GivenDesignation,SkillLevel,NumberOfMonth,EmployeeRating,SpecialSkill,OperationSkill,
 	-- ✅ DayStatus Pivot
     MAX(CASE WHEN [WorkDate] = @fromDate  THEN DayStatus END) AS DayStatus1,
     MAX(CASE WHEN [WorkDate] = DATEADD(DAY,1,@fromDate) THEN DayStatus END) AS DayStatus2,
@@ -1525,7 +1575,7 @@ FROM prod_calc
 
 GROUP BY 
     Entity, EntityId,EmployeeId,  EmployeeCode,  EmployeeName,GivenDesignation,NumberOfMonth,SkillLevel 
-	,NewDayStatus,NewDayStatus2,NewDayStatus3,NewDayStatus4,NewDayStatus5,NewDayStatus6,NewDayStatus7
+	,NewDayStatus,NewDayStatus2,NewDayStatus3,NewDayStatus4,NewDayStatus5,NewDayStatus6,NewDayStatus7,OperationSkill,EmployeeRating,SpecialSkill
 	) y
 
 	LEFT JOIN IncentiveRateSetupEntity irs ON irs.EntityId=y.EntityId

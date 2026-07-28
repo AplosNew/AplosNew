@@ -37,6 +37,10 @@
             <label class="col-sm-3 control-label">Journal Type<sup>*</sup></label>
             <div class="col-sm-9 radio">
                 <label>
+                    <input ng-click="clearBankPopUp();clearJournalType();" type="radio" name="source" ng-disabled="voucher.VoucherId" ng-model="voucher.BankJournalType" value="@Library.Model.Banks.BankJournalType.CashExpense.ToString()">
+                    <span class="cr" tabindex="9"><i class="cr-icon"></i></span>GL
+                </label>
+                <label>
                     <input ng-click="clearBankPopUp()" type="radio" name="source" ng-model="voucher.BankJournalType" ng-disabled="voucher.VoucherId" value="@Library.Model.Banks.BankJournalType.BankToBank.ToString()">
                     <span class="cr" tabindex="8"><i class="cr-icon"></i></span>@Library.Model.Banks.BankJournalType.BankToBank.ToString()
                 </label>
@@ -52,10 +56,7 @@
                     <input ng-click="clearBankPopUp()" type="radio" name="source" ng-model="voucher.BankJournalType" ng-disabled="voucher.VoucherId" value="@Library.Model.Banks.BankJournalType.ProfitEarn.ToString()">
                     <span class="cr" tabindex="9"><i class="cr-icon"></i></span>@Library.Model.Banks.BankJournalType.ProfitEarn.ToString()
                 </label>
-                <label>
-                    <input ng-click="clearBankPopUp();clearJournalType();" type="radio" name="source" ng-disabled="voucher.VoucherId" ng-model="voucher.BankJournalType" value="@Library.Model.Banks.BankJournalType.CashExpense.ToString()">
-                    <span class="cr" tabindex="9"><i class="cr-icon"></i></span>GL
-                </label>
+
                 <label>
                     <input ng-click="clearBankPopUp();clearJournalType();checkReverse(voucher.BankJournalType)" type="radio" name="source" ng-disabled="voucher.VoucherId" ng-model="voucher.BankJournalType" value="@Library.Model.Banks.BankJournalType.BankReverse.ToString()">
                     <span class="cr" tabindex="9"><i class="cr-icon"></i></span>Reverse
