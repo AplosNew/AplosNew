@@ -749,7 +749,6 @@ declare @entityId varchar(50)='" + entityId + @"'
 
             var dsLocal = GetEmployeeWiseProductionSummarySQL(fromDate, toDate, entityId, incentiveType, shiftId, workCenterId, dayStatus);
 
-
             var row = 3;
 
             var colLast = 1;
