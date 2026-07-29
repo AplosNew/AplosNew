@@ -2196,7 +2196,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                 $scope.ModelNewSPO.Both = $scope.sku1sku2List[0].Both;
             }
             $scope.getModelFilter();
-            
+
         });
     }
 
@@ -2221,109 +2221,110 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                     },
                     url: 'OrderManagements/ProductionOrder/GetSKUData'
                 }).then(function successCallback(response) {
-                    if (baseService.isUndefinedOrNull(response.data[0].Id)) {
-                        for (var i = 0; i < response.data.length; i++) {
-                            response.data[i].Id = -(Math.floor(Math.random() * 100) + 1);
-                            response.data[i].NoOfWorkStation = $scope.ModelNewSPO.NoOfWorkStation;
-                            response.data[i].Efficiency = $scope.ModelNewSPO.NetUtilizationPercentage;
-                            response.data[i].SPT = $scope.ModelNewSPO.SPT;
-                            response.data[i].PlanWorkingHoursPerDay = $scope.ModelNewSPO.PlanHour;
-                            response.data[i].FirstDayOutPut = $scope.ModelNewSPO.FirstDayOutPut;
-                            response.data[i].DayToReachTheTarget = 0;
-                            response.data[i].LSD = $scope.ModelNewSPO.LSD;
-                            response.data[i].CommitmentDate = $scope.ModelNewSPO.CommitmentDate;
-                            response.data[i].MainRawMaterialInhouseDate = $scope.ModelNewSPO.MainRawMaterialInhouseDate;
-                            response.data[i].OtherRawMaterialInhouseDate = $scope.ModelNewSPO.OtherRawMaterialInhouseDate;
-                            response.data[i].ProductionPriority = $scope.ModelNewSPO.ProductionPriority;
-                            response.data[i].TargetPerHour = 0;
-                            response.data[i].TargetPerDay = 0;
-                            response.data[i].EfficiencyPercentage = 0;
-                            response.data[i].IncrementValue = 0;
-                            response.data[i].IncrementType = null;
-                            response.data[i].RequiredNoOfLines = 0;
-                            response.data[i].RequiredLineDays = 0;
-                            response.data[i].MinimumLineDays = 10;
-                            response.data[i].Qty = response.data[i].Qty;
-                            response.data[i].AllocatedLines = 0;
-                            response.data[i].SKU1 = $scope.ModelNewSPO.SKU1;
-                            response.data[i].SKU2 = $scope.ModelNewSPO.SKU2;
-                            response.data[i].Both = $scope.ModelNewSPO.Both;
-                            response.data[i].IncrementType = "FIXED";
-                            response.data[i].IncrementValue = 100;
-                            response.data[i].RunningOrderBlockSize = 1;
-                            response.data[i].WCPreferenceType = 'INCLUDE';
 
-                            response.data[i].RequiredLineDays = parseFloat((response.data[i].PlanWorkingHoursPerDay * 60) / (response.data[i].SPT * response.data[i].Qty) / response.data[i].Efficiency).toFixed(2);
-                            response.data[i].MaximumAllowedWorkCenter = Math.floor(response.data[i].RequiredLineDays) / response.data[i].MinimumLineDays;
-                            if (response.data[i].MaximumAllowedWorkCenter < 1) {
-                                response.data[i].MaximumAllowedWorkCenter = 1;
+                    for (var i = 0; i < response.data.length; i++) {
+                        response.data[i].ID = -(Math.floor(Math.random() * 100) + 1);
+                        response.data[i].NoOfWorkStation = $scope.ModelNewSPO.NoOfWorkStation;
+                        response.data[i].Efficiency = $scope.ModelNewSPO.NetUtilizationPercentage;
+                        response.data[i].SPT = $scope.ModelNewSPO.SPT;
+                        response.data[i].PlanWorkingHoursPerDay = $scope.ModelNewSPO.PlanHour;
+                        response.data[i].FirstDayOutPut = $scope.ModelNewSPO.FirstDayOutPut;
+                        response.data[i].DayToReachTheTarget = 0;
+                        response.data[i].LSD = $scope.ModelNewSPO.LSD;
+                        response.data[i].CommitmentDate = $scope.ModelNewSPO.CommitmentDate;
+                        response.data[i].MainRawMaterialInhouseDate = $scope.ModelNewSPO.MainRawMaterialInhouseDate;
+                        response.data[i].OtherRawMaterialInhouseDate = $scope.ModelNewSPO.OtherRawMaterialInhouseDate;
+                        response.data[i].ProductionPriority = $scope.ModelNewSPO.ProductionPriority;
+                        response.data[i].TargetPerHour = 0;
+                        response.data[i].TargetPerDay = 0;
+                        response.data[i].EfficiencyPercentage = 0;
+                        response.data[i].IncrementValue = 0;
+                        response.data[i].IncrementType = null;
+                        response.data[i].RequiredNoOfLines = 0;
+                        response.data[i].RequiredLineDays = 0;
+                        response.data[i].MinimumLineDays = 10;
+                        response.data[i].Qty = response.data[i].Qty;
+                        response.data[i].PlanQty = response.data[i].Qty;
+                        response.data[i].AllocatedLines = 0;
+                        response.data[i].SKU1 = $scope.ModelNewSPO.SKU1;
+                        response.data[i].SKU2 = $scope.ModelNewSPO.SKU2;
+                        response.data[i].Both = $scope.ModelNewSPO.Both;
+                        response.data[i].IncrementType = "FIXED";
+                        response.data[i].IncrementValue = 100;
+                        response.data[i].RunningOrderBlockSize = 1;
+                        response.data[i].WCPreferenceType = 'INCLUDE';
+
+                        response.data[i].RequiredLineDays = parseFloat((response.data[i].PlanWorkingHoursPerDay * 60) / (response.data[i].SPT * response.data[i].Qty) / response.data[i].Efficiency).toFixed(2);
+                        response.data[i].MaximumAllowedWorkCenter = Math.floor(response.data[i].RequiredLineDays) / response.data[i].MinimumLineDays;
+                        if (response.data[i].MaximumAllowedWorkCenter < 1) {
+                            response.data[i].MaximumAllowedWorkCenter = 1;
+                        }
+
+                        if (response.data[i].NoOfWorkStation > 0 || response.data[i].Efficiency > 0 || response.data[i].SPT > 0) {
+
+                            response.data[i].TargetPerHour = (response.data[i].NoOfWorkStation * 60 / response.data[i].SPT);
+                            $scope.TargetQtyAtFullEfficiency = response.data[i].TargetPerHour;
+                            if (response.data[i].TargetPerHour > 0) {
+
+                                response.data[i].TargetPerDay = (response.data[i].PlanWorkingHoursPerDay * response.data[i].TargetPerHour);
+                                $scope.EfficiencyPercentage = (response.data[i].TargetPerDay);// * response.data[i].Efficiency / 100;
+
+
+                                //at efficiency level
+                                response.data[i].TargetPerHour = response.data[i].TargetPerHour * response.data[i].Efficiency / 100;
+                                response.data[i].TargetPerDay = response.data[i].TargetPerDay * response.data[i].Efficiency / 100;
+
+
+
+                                response.data[i].RequiredLineDays = (response.data[i].Qty / response.data[i].TargetPerDay).toFixed(2);
                             }
 
-                            if (response.data[i].NoOfWorkStation > 0 || response.data[i].Efficiency > 0 || response.data[i].SPT > 0) {
+                            if (response.data[i].MinimumLineDays > 0) {
 
-                                response.data[i].TargetPerHour = (response.data[i].NoOfWorkStation * 60 / response.data[i].SPT);
-                                $scope.TargetQtyAtFullEfficiency = response.data[i].TargetPerHour;
-                                if (response.data[i].TargetPerHour > 0) {
+                                response.data[i].RequiredNoOfLines = response.data[i].RequiredLineDays / response.data[i].MinimumLineDays;
 
-                                    response.data[i].TargetPerDay = (response.data[i].PlanWorkingHoursPerDay * response.data[i].TargetPerHour);
-                                    $scope.EfficiencyPercentage = (response.data[i].TargetPerDay);// * response.data[i].Efficiency / 100;
+                                if (response.data[i].RequiredNoOfLines > 0 && response.data[i].RequiredNoOfLines <= 1)
+                                    response.data[i].AllocatedLines = 1;
 
-
-                                    //at efficiency level
-                                    response.data[i].TargetPerHour = response.data[i].TargetPerHour * response.data[i].Efficiency / 100;
-                                    response.data[i].TargetPerDay = response.data[i].TargetPerDay * response.data[i].Efficiency / 100;
-
-
-
-                                    response.data[i].RequiredLineDays = (response.data[i].Qty / response.data[i].TargetPerDay).toFixed(2);
-                                }
-
-                                if (response.data[i].MinimumLineDays > 0) {
-
-                                    response.data[i].RequiredNoOfLines = response.data[i].RequiredLineDays / response.data[i].MinimumLineDays;
-
-                                    if (response.data[i].RequiredNoOfLines > 0 && response.data[i].RequiredNoOfLines <= 1)
-                                        response.data[i].AllocatedLines = 1;
-
-                                    if (response.data[i].RequiredNoOfLines > 1)
-                                        response.data[i].AllocatedLines = Math.floor(response.data[i].RequiredNoOfLines);
-                                }
-
-                                try {
-                                    response.data[i].RequiredNoOfLines = response.data[i].RequiredNoOfLines.toFixed(4)
-                                    response.data[i].RequiredLineDays = response.data[i].RequiredLineDays.toFixed(4)
-                                } catch (e) {
-
-                                }
+                                if (response.data[i].RequiredNoOfLines > 1)
+                                    response.data[i].AllocatedLines = Math.floor(response.data[i].RequiredNoOfLines);
                             }
-                            if (response.data[i].FirstDayOutPut > 0 && response.data[i].IncrementValue > 0) {
 
-                                if (response.data[i].IncrementType == "FIXED" || response.data[i].IncrementType == "PERCENTAGE") {
-                                    var daysrequired = 1;
-                                    if (response.data[i].FirstDayOutPut < response.data[i].TargetPerHour) {
-                                        daysrequired = 1;
-                                        var firstdaysoutput = response.data[i].FirstDayOutPut;
-                                        while (firstdaysoutput * response.data[i].PlanWorkingHoursPerDay < response.data[i].TargetPerDay) {
-                                            daysrequired++;
-                                            //if (response.data[i].IncrementType == "FIXED")
-                                            firstdaysoutput += response.data[i].IncrementValue;
+                            try {
+                                response.data[i].RequiredNoOfLines = response.data[i].RequiredNoOfLines.toFixed(4)
+                                response.data[i].RequiredLineDays = response.data[i].RequiredLineDays.toFixed(4)
+                            } catch (e) {
 
-                                            //compounding method
-                                            //if (response.data[i].IncrementType == "PERCENTAGE")
-                                            //    firstdaysoutput = firstdaysoutput + (firstdaysoutput * response.data[i].IncrementValue / 100);
+                            }
+                        }
+                        if (response.data[i].FirstDayOutPut > 0 && response.data[i].IncrementValue > 0) {
+
+                            if (response.data[i].IncrementType == "FIXED" || response.data[i].IncrementType == "PERCENTAGE") {
+                                var daysrequired = 1;
+                                if (response.data[i].FirstDayOutPut < response.data[i].TargetPerHour) {
+                                    daysrequired = 1;
+                                    var firstdaysoutput = response.data[i].FirstDayOutPut;
+                                    while (firstdaysoutput * response.data[i].PlanWorkingHoursPerDay < response.data[i].TargetPerDay) {
+                                        daysrequired++;
+                                        //if (response.data[i].IncrementType == "FIXED")
+                                        firstdaysoutput += response.data[i].IncrementValue;
+
+                                        //compounding method
+                                        //if (response.data[i].IncrementType == "PERCENTAGE")
+                                        //    firstdaysoutput = firstdaysoutput + (firstdaysoutput * response.data[i].IncrementValue / 100);
 
 
-
-                                        }
 
                                     }
-                                    response.data[i].DayToReachTheTarget = daysrequired.toFixed(2);
-                                }
 
+                                }
+                                response.data[i].DayToReachTheTarget = daysrequired.toFixed(2);
                             }
 
                         }
+
                     }
+
                     $scope.sku1sku2List = response.data;
                 });
             }

@@ -1134,7 +1134,7 @@ Group By  D.ProductionOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueI
                 string sql = "";
                 if (SKU1 && !SKU2 && !Both)
                 {
-                    sql = @"Select ''Id,D.ProductionOrderId,FC.CharacteristicsValueId SKU1Id,CV.UserName SKUColor,SUM(Qty)Qty From [TRN].[FirstCharacteristics] FC 
+                    sql = @"Select ''ID,D.ProductionOrderId,FC.CharacteristicsValueId SKU1Id,CV.UserName SKUColor,SUM(Qty)Qty From [TRN].[FirstCharacteristics] FC 
 LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id=FC.CharacteristicsValueId
 left join TRN.ProductionOrderType2Detail D ON D.SalesOrderId=FC.SalesOrderId
 Where D.ProductionOrderId='" + poId + @"'
@@ -1143,7 +1143,7 @@ Group By  D.ProductionOrderId,FC.CharacteristicsValueId,CV.UserName";
                 }
                 else if (SKU2 && !SKU1 && !Both)
                 {
-                    sql = @"Select ''Id,D.ProductionOrderId,SC.CharacteristicsValueId SKU2Id,SCV.UserName SKUSize,SUM(Qty)Qty From TRN.[SecondCharacteristics] SC
+                    sql = @"Select ''ID,D.ProductionOrderId,SC.CharacteristicsValueId SKU2Id,SCV.UserName SKUSize,SUM(Qty)Qty From TRN.[SecondCharacteristics] SC
 LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id=SC.CharacteristicsValueId
 left join TRN.ProductionOrderType2Detail D ON D.SalesOrderId=SC.SalesOrderId
 Where D.ProductionOrderId='" + poId + @"'
@@ -1151,7 +1151,7 @@ Group By  D.ProductionOrderId,SC.CharacteristicsValueId,SCV.UserName";
                 }
                 else
                 {
-                    sql = @"Select ''Id,D.ProductionOrderId,FC.CharacteristicsValueId SKU1Id,SC.CharacteristicsValueId SKU2Id,FCV.UserName SKUColor,SCV.UserName SKUSize,SUM(SC.Qty)Qty 
+                    sql = @"Select ''ID,D.ProductionOrderId,FC.CharacteristicsValueId SKU1Id,SC.CharacteristicsValueId SKU2Id,FCV.UserName SKUColor,SCV.UserName SKUSize,SUM(SC.Qty)Qty 
 From TRN.[SecondCharacteristics] SC
 LEFT JOIN [TRN].[FirstCharacteristics] FC ON FC.Id=SC.FirstCharacteristicsId
 LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id=FC.CharacteristicsValueId
@@ -1230,7 +1230,7 @@ Group By  D.ProductionOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueI
         {
             try
             {
-                string sql = @"select WM.UserName ,WG.* from hkp.WorkCenterGroup WG
+                string sql = @"select WM.UserName WorkCenterMaster,WG.* from hkp.WorkCenterGroup WG
 LEFT JOIN SCS.WorkCenterMaster WM ON WM.Id=WG.WorkCenterMasterId";
                 return _sqlRepository.GetDataCollection(sql);
             }

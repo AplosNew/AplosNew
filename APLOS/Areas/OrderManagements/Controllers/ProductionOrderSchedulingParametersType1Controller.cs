@@ -6412,7 +6412,7 @@ isnull(S.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entit
             return Json(new { MainData = _sqlRepository.GetDataCollection(sql), BulletinData = _sqlRepository.GetDataCollection(sqlBulletinData) }, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet]
+        [Authorize, HttpGet]
         public async Task<ActionResult> ProductionType2PlanSimulation(string entityid, string processid)
         {
             return await Task.Factory.StartNew(() =>

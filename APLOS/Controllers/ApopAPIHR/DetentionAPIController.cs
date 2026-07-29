@@ -2281,13 +2281,14 @@ where US.UserId = '" + Userid + "'"));
             {
                 return Json(_sqlRepository.GetDataTable(@"Select  IT.Id InspectionTypeId ,IT.UserName InspectionType , ITE.Id InspectionTypeEnteryLevelId, ITE.InspectionTypeId ITEITID , ITE.Grade Grade , ITE.UserName ITEUsername
 ,ITE.LineItem , ITE.ProductCode , ITE.ProductionOrder , ITE.SalesOrder , ITE.SKU1 , ITE.SKU2 , ITE.SKU3 , ITE.MaxQty , ITE.Picture , ITE.Operation , ITE.Defect 
-,ITP.ProcessId , IE.EntityId , IEA.EmployeeId , IUA.BudgetId
+,ITP.ProcessId , IE.EntityId , IEA.EmployeeId , IUA.BudgetId,pc.UserName ProcessName
 from InspectionType IT
 left join InspectionTypeEnteryLevel ITE on ITE.InspectionTypeId = IT.Id
 left join InspectionTypeProcess ITP  on ITP.InspectionTypeId = IT.Id
 left join InspectionEntity IE on IE.InspectionTypeId = IT.Id
 left join InspectionEmployeeApplicable IEA on IEA.InspectionTypeId = IT.Id
-left join InspectionUserApplicable IUA on IUA.InspectionTypeId = IT.Id"));
+left join InspectionUserApplicable IUA on IUA.InspectionTypeId = IT.Id
+left join hkp.process pc on pc.id = ITP.ProcessId"));
 
             }
             catch (Exception ex)
@@ -2436,7 +2437,7 @@ where Convert(Date,ITG.AddedDate) = CONVERT(Date,Getdate())  and TRN.SalesOrderI
 
         }
 
-        public IHttpActionResult GetPOWiseImage(string productionorderid)
+        public IHttpActionResult GetPOWiseImage(string productionorderid , string ProcessId)
         {
             /* clsDataContext clsData = new clsDataContext();
              clsData.GetTNAReport(out List<TNAGetSet> activelists);
@@ -2450,7 +2451,7 @@ from [dbo].[ProductArea] PA
 left join [MST].[ImageMaster] IM on IM.Id = PA.ImageMasterId
 left join [MST].[ImageProduct] IMP on IMP.ImageMasterId = IM.Id
 left join TRN.ProductionBulletinTemplate PB on PB.ProductMasterId = IMP.ProductMasterId
-where PB.ProductionOrderId = '" + productionorderid + "'"));
+where PB.ProductionOrderId = '" + productionorderid + "'  and  IM.ProcessId = '" + ProcessId + "'"));
 
             }
             catch (Exception ex)
@@ -2490,7 +2491,7 @@ where PB.ProductionOrderid = '" + POID + "' and PBT.AreaCode = '" + AreaCode + "
 
         }
 
-        public IHttpActionResult GetDefactMaster()
+        public IHttpActionResult GetDefactMaster(string ProcessId)
         {
             /* clsDataContext clsData = new clsDataContext();
              clsData.GetTNAReport(out List<TNAGetSet> activelists);
@@ -2498,7 +2499,10 @@ where PB.ProductionOrderid = '" + POID + "' and PBT.AreaCode = '" + AreaCode + "
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"Select Id, SrNo,DefectCategory,DefectCode,Remarks,DefectNames,DefectsLocalName , ProcessId , QualityProcessId,TypesofDefects , Zone from [HKP].[DefectMaster]"));
+                return Json(_sqlRepository.GetDataTable(@"Select Distinct DM.Id, SrNo,DefectCategory,DefectCode,Remarks,DefectNames,DefectsLocalName , DM.ProcessId , QualityProcessId,TypesofDefects , Zone 
+from [HKP].[DefectMaster] DM 
+left join defectmasterprocess dmp on dmp.DefectMasterId = dm.Id
+where dmp.ProcessId = '" + ProcessId + "'"));
 
             }
             catch (Exception ex)

@@ -1251,7 +1251,8 @@ LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=DM.ResponsiblePersonId
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM MST.ImageMaster ) AS TEMP WHERE " + strkey + " order by UserName";
+            string sql = @"select top 100 * from (SELECT IM.*,P.username Process FROM MST.ImageMaster IM
+LEFT JOIN HKP.Process P ON P.id=Im.Processid ) AS TEMP WHERE " + strkey + " order by UserName";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

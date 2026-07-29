@@ -21,10 +21,22 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
         return $scope.tab === tabNum;
     };
 
+
+    $scope.processList = [];
+    $http({
+        method: 'GET',
+        url: "QMS/QualityProcess/GetProcessCbo",
+        dataType: 'JSON'
+    }).then(function successCallback(response) {
+        $scope.processList = response.data;
+
+    });
+
     $scope.ModelNew = {
         Id: null,
         StandardName: null,
         UserName: null,
+        ProcessId: null,
         Remarks: null
     }
     $scope.EntityModelNew = {
