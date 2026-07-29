@@ -40,7 +40,16 @@
                 <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50" autocomplete="off">
             </div>
         </div>
-
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="ModelNew.ProcessId" name="Process" ng-options="item.Value as item.Text for item in processList" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
 
     </div>
     <div class="common-btn">
@@ -91,7 +100,7 @@
                                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                         <div e-columns>
-                                            <div e-column e-field="Id" e-headertext="Id" e-width="3"></div>
+                                            <div e-column e-field="Id" e-headertext="Id"></div>
                                             <div e-column e-field="EntityName" e-headertext="EntityName"></div>
                                             <div e-column e-field="ImageMaster" e-headertext="ImageMasterName"></div>
                                         </div>
@@ -196,10 +205,11 @@
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="Id" e-headertext="Id" e-width="3"></div>
-            <div e-column e-field="UserName" e-headertext="ProductionShift" e-width="4"></div>
-            <div e-column e-field="StandardName" e-headertext="Color" e-width="2"></div>
-            <div e-column e-field="Remarks" e-headertext="Size" e-width="2"></div>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2"></div>
+            <div e-column e-field="UserName" e-headertext="UserName" e-width="4"></div>
+            <div e-column e-field="StandardName" e-headertext="StandardName" e-width="4"></div>
+            <div e-column e-field="Process" e-headertext="Process" e-width="3"></div>
+            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="5"></div>
         </div>
     </div>
 </div>

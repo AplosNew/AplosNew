@@ -3213,11 +3213,13 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
                 con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionOrderType2ProcessSet] where ProductionOrderId='" + data["Id"] + "'", out dsProcDetail, false, "1");
                 con.OpenDataSetThroughAdapter("select CAST((RIGHT(ISNULL(MAX(CAST(Id AS INT)), 0),2)) AS INT) countId from [TRN].[ProductionOrderType2ProcessSet] where ProductionOrderId='" + data["Id"] + "'", out dsPDD, false, "1");
                 int pcount = Convert.ToInt32(dsPDD.Tables[0].Rows[0]["countId"].ToString());
+                int sq = 0;
                 if (processSetlist != null)
                 {
                     foreach (var item in processSetlist)
                     {
-                        DataView dv = new DataView(dsProcDetail.Tables[0]);
+                        sq++;
+                           DataView dv = new DataView(dsProcDetail.Tables[0]);
                         dv.RowFilter = "Id='" + item["Id"] + "'";
                         if (dv.Count == 0)
                         {
@@ -3225,6 +3227,7 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
                             string detailid = materialCommonService.MakePK(_MasterId, pcount, 2);
                             item["Id"] = detailid;
                             item["ProductionOrderId"] = _MasterId;
+                            item["Sequence"] = sq;
 
 
                             materialCommonService.AddNewRowD(dsProcDetail.Tables[0], item);
@@ -3234,6 +3237,8 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
                             DataRow drmo = dv[0].Row;
                             drmo.BeginEdit();
                             drmo["ProcessId"] = item["ProcessId"];
+                            drmo["IsBaseProcess"] = item["IsBaseProcess"];
+                            drmo["Sequence"] = sq;
                             drmo.EndEdit();
                         }
                     }
@@ -3482,7 +3487,7 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
                 #endregion
                 OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
                 obj.SaveDataSets(dsBC);
-                return Json(new { Error = false, Message = AplosMessage.Updated });
+                return Json(new { Error = false, Message = AplosMessage.Success });
             }
             catch (Exception ex)
             {
