@@ -920,9 +920,9 @@ WITH base_prod AS (
         BasicProduceMin = ROUND(SUM(ISNULL(owe.Qty,0)) * ISNULL(bt.TotalSPT,0),1),
 
         DENSE_RANK() OVER (
-            PARTITION BY owe.EmployeeId, owe.[Date],wcm.UserName,OP.OperationMasterId,owe.ProductionOrderId,OP.UserName,EO.EmployeeRating,EO.SpecialSkill
+            PARTITION BY owe.EmployeeId, owe.[Date],wcm.UserName,OP.OperationMasterId,owe.ProductionOrderId,OM.UserName,EO.EmployeeRating,EO.SpecialSkill
             ORDER BY ROUND(SUM(ISNULL(owe.Qty,0)) * ISNULL(bt.TotalSPT,0),1) DESC
-        ) AS Sequence,wcm.UserName WorkCenter,APD.DayStatus,OP.UserName OperationSkill,EO.EmployeeRating,EO.SpecialSkill
+        ) AS Sequence,wcm.UserName WorkCenter,APD.DayStatus,OM.UserName OperationSkill,EO.EmployeeRating,EO.SpecialSkill
 
     FROM  AttdnProcessData APD 
 	LEFT JOIN dbo.OperationWiseEmployees owe ON APD.EmpSystemID = owe.EmployeeId  AND APD.WorkDate = owe.[Date]
@@ -952,7 +952,7 @@ WITH base_prod AS (
         owe.ProductionOrderId,
         owe.EmployeeId,APD.EmpSystemID,APD.WorkDate,
         owe.[Date],PO.OrderLevel,
-        bt.TotalSPT,wcm.UserName,APD.ShiftFullDayDuration,APD.OTHr,APD.DayStatus,OP.UserName,EO.EmployeeRating,EO.SpecialSkill
+        bt.TotalSPT,wcm.UserName,APD.ShiftFullDayDuration,APD.OTHr,APD.DayStatus,OM.UserName,EO.EmployeeRating,EO.SpecialSkill
 ),
 
 prod_calc AS (
