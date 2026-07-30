@@ -515,7 +515,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     function getProductionProcessSetList() {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetProductionOrderType2ProcessSetList?productionOrderId=' + $scope.model.Id
+            url: $scope.path + 'GetProductionOrderProcessSetList?productionOrderId=' + $scope.model.Id
         }).then(function successCallback(response) {
             $scope.prdProcessSetList = response.data;
             for (var i = 0; i < $scope.prdProcessSetList.length; i++) {
@@ -880,7 +880,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         }
         $http({
             method: 'GET',
-            url: $scope.path + 'GetType2SalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&productionorderid=" + $scope.model.Id + "&EntityId=" + $scope.model.EntityId + "&ProcessId=" + $scope.model.PlanningTypeProcessId + "&moentity=" + $scope.MOEntityId
+            url: $scope.path + 'GetSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&productionorderid=" + $scope.model.Id + "&EntityId=" + $scope.model.EntityId + "&ProcessId=" + $scope.model.PlanningTypeProcessId + "&moentity=" + $scope.MOEntityId
         }).then(function successCallback(response) {
 
             for (var i = 0; i < response.data.length; i++) {
@@ -1320,7 +1320,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     function getProductionType2ProcessSetList() {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetProductionOrderType2ProcessSetList?productionOrderId=' + $scope.model.Id
+            url: $scope.path + 'GetProductionOrderProcessSetList?productionOrderId=' + $scope.model.Id
         }).then(function successCallback(response) {
             $scope.prdProcessSetList = response.data;
         });
@@ -1336,22 +1336,27 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         angular.element(document.querySelector('#confirmDelPopUp')).modal('show');
     };
     $scope.processSetRemoveRow = function () {
-        $scope.index = -1;
-        $http({
-            method: 'POST',
-            url: 'OrderManagements/ProductionOrder/DeleteType2Process?id=' + $scope.processobj.Id
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                getProductionType2ProcessSetList();
-            }
-        }, function () {
-            ShowResult(commonMessage.NetworkError, 'failure');
-        }).finally(function () {
-        });
+        if (!baseService.isUndefinedOrNull($scope.processobj.Id)) {
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/ProductionOrder/DeleteType2Process?id=' + $scope.processobj.Id
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    getProductionType2ProcessSetList();
+                }
+            }, function () {
+                ShowResult(commonMessage.NetworkError, 'failure');
+            }).finally(function () {
+            });
+        }
+        else {
+            $scope.prdProcessSetList.splice($scope.index, 1);
+            $scope.index = -1;
+        }
     };
 
 
@@ -2157,7 +2162,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     };
 
     $scope.ModelNewSPO = {
-        SKU1: false, SKU2: false, Both: false, SPT: 0, PlanHour: 24, PlanPercentage: 0, NetUtilizationPercentage: 0, MinQty: 1, LSD: null,
+        SKU1: false, SKU2: false, Both: true, SPT: 0, PlanHour: 24, PlanPercentage: 0, NetUtilizationPercentage: 0, MinQty: 1, LSD: null, NoOfWorkStation:1
     }
 
     $scope.SetCheckbox = function (name) {
@@ -2224,7 +2229,8 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
                     for (var i = 0; i < response.data.length; i++) {
                         response.data[i].ID = -(Math.floor(Math.random() * 100) + 1);
-                        response.data[i].NoOfWorkStation = $scope.ModelNewSPO.NoOfWorkStation;
+                        response.data[i].NoOfWorkStation = 1;
+                        response.data[i].PlanPercentage = $scope.ModelNewSPO.PlanPercentage;
                         response.data[i].Efficiency = $scope.ModelNewSPO.NetUtilizationPercentage;
                         response.data[i].SPT = $scope.ModelNewSPO.SPT;
                         response.data[i].PlanWorkingHoursPerDay = $scope.ModelNewSPO.PlanHour;
@@ -2244,7 +2250,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                         response.data[i].RequiredLineDays = 0;
                         response.data[i].MinimumLineDays = 10;
                         response.data[i].Qty = response.data[i].Qty;
-                        response.data[i].PlanQty = response.data[i].Qty;
+                        response.data[i].AdjustableQty = 0;
                         response.data[i].AllocatedLines = 0;
                         response.data[i].SKU1 = $scope.ModelNewSPO.SKU1;
                         response.data[i].SKU2 = $scope.ModelNewSPO.SKU2;
@@ -2253,6 +2259,8 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                         response.data[i].IncrementValue = 100;
                         response.data[i].RunningOrderBlockSize = 1;
                         response.data[i].WCPreferenceType = 'INCLUDE';
+
+                        response.data[i].PlanQty = (response.data[i].Qty + response.data[i].AdjustableQty) * (response.data[i].PlanPercentage + 100) / 100;
 
                         response.data[i].RequiredLineDays = parseFloat((response.data[i].PlanWorkingHoursPerDay * 60) / (response.data[i].SPT * response.data[i].Qty) / response.data[i].Efficiency).toFixed(2);
                         response.data[i].MaximumAllowedWorkCenter = Math.floor(response.data[i].RequiredLineDays) / response.data[i].MinimumLineDays;
@@ -2336,9 +2344,8 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
     $scope.calculate = function (obj) {
         for (var i = 0; i < $scope.sku1sku2List.length; i++) {
-            if (!baseService.isUndefinedOrNull($scope.sku1sku2List[i].AdjustableQty)) {
-                $scope.sku1sku2List[i].PlanQty = $scope.sku1sku2List[i].Qty + $scope.sku1sku2List[i].AdjustableQty;
-            }
+            $scope.sku1sku2List[i].PlanQty = ($scope.sku1sku2List[i].Qty + $scope.sku1sku2List[i].AdjustableQty) * ($scope.sku1sku2List[i].PlanPercentage + 100) / 100;
+
             $scope.sku1sku2List[i].RequiredLineDays = parseFloat(($scope.sku1sku2List[i].PlanWorkingHoursPerDay * 60) / ($scope.sku1sku2List[i].SPT * $scope.sku1sku2List[i].Qty) / $scope.sku1sku2List[i].Efficiency).toFixed(2);
             $scope.sku1sku2List[i].MaximumAllowedWorkCenter = Math.floor($scope.sku1sku2List[i].RequiredLineDays) / $scope.sku1sku2List[i].MinimumLineDays;
             if ($scope.sku1sku2List[i].MaximumAllowedWorkCenter < 1) {

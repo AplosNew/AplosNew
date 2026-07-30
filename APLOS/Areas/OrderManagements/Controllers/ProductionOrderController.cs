@@ -91,33 +91,14 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetList(string column, string value)
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false)
                 strkey = column + " like '%" + value + "%'";
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT PO.*,UsedInPB=CAST(CASE WHEN m.productionorderid IS NOT NULL THEN 1 ELSE 0 END AS BIT),isnull(po.Remarks,'') AS ProductionRemarks,isnull(s.UserName,'') AS ProductionStatus, isnull(EN.UserName,'') AS EntityName, 
-            isnull(PS.UserName,'') AS ProductionStatusName,ISNULL(so.Qty,0) AS SOQuantity
-           
-                            FROM [TRN].[ProductionOrder] AS PO
-                        JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
-                        LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
-                        LEFT JOIN TRN.ProductionSummary M ON m.productionorderid=PO.Id
-                                AND m.Id=(SELECT TOP 1 ID FROM TRN.ProductionSummary EII WHERE EII.productionorderid=PO.Id ORDER BY EII.AddedDate DESC )
-                        LEFT OUTER  JOIN (SELECT pod.ProductionOrderId,SUM(so.Qty) AS Qty
-                                            FROM trn.SalesOrder AS so
-                        INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id 
-                  
-                                          GROUP BY pod.ProductionOrderId
-
-                        ) AS SO ON so.ProductionOrderId=po.Id
-                        LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
-
-                                                    WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE " + strkey;
-
-
-            sql = @"select top 100 * from ( " + new Library.OrderManagement.Production.ProductionOrder().ProductionOrderList() + @"
-                            WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE " + strkey + " ORDER BY AddedDate DESC";
+         
+          string  sql = @"select top 100 * from ( " + new Library.OrderManagement.Production.ProductionOrder().ProductionOrderList() + @"
+                            WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE OrderType = 'PlanningType1' AND " + strkey + " ORDER BY AddedDate DESC";
 
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -203,13 +184,14 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
 
             return null;
         }
+
         [Authorize, HttpGet]
         public ActionResult GetSalesOrderListSearch(string column, string value, string productionorderid, string EntityId, string ProcessId, string moentity)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = " temp." + column + " like '%" + value + "%'";
+                strkey = column + " like '%" + value + "%'";
             string Entity = "'" + moentity.Replace(",", "','") + "'";//replaced with ""
 
             string activeStatus = "";
@@ -220,7 +202,8 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
                     activeStatus = " AND isnull(SO.IsConfirm,0)=1 ";
 
 
-            string sql = @"SELECT isnull(moi.Consignment,0) AS Consignment,EOWN.UserName MasterOrderEntity,MO.OrderType MasterOrderType,MO.Type OrderType,
+            string sql = @"SELECT 
+                             MO.Type,isnull(moi.Consignment,0) AS Consignment,
                              CASE WHEN ISNULL(eout.Id,'')<>'' OR ISNULL(TOUT.Id,'')<>'' THEN CONCAT(POWN.UserName,'(',EOWN.UserName,')') ELSE '' END AS OrderOwner
                             ,TEMP.* FROM (SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,null AS Id,null AS ProductionOrderId
 	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
@@ -231,9 +214,8 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
 	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
 	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
 	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
-	                            , SO.Qty, SO.Rate,SO.LineItemReference,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
-	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
-								,ST.POStatus,ST.POEntity,''ProcessEntity,ART.ProcessSetId,ART.IsDefaultProcessSet
+	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
+	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription
                        FROM [TRN].[SalesOrder] AS SO 
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
                        JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
@@ -249,10 +231,6 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
                        LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
                        LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
                        LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
-					   LEFT JOIN(Select D.SalesOrderId,s.UserName POStatus,PE.UserName POEntity from TRN.ProductionOrder P
-					   INNER JOIN TRN.ProductionOrderDetail D ON D.ProductionOrderId=P.Id
-					   LEFT JOIN org.Entity AS PE ON PE.Id=P.EntityId
-					   INNER JOIN HKP.ProductionStatus S ON S.Id=P.ProductionStatusId) ST ON SalesOrderId=SO.Id
 
                        WHERE   
                        (
@@ -261,7 +239,7 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
                                 OR 
                        	    (ISNULL(moi.JobWorkType,'')<>'' AND EOUT.PlantId='" + identity.PlantId + @"' )
                        )
-                       AND (OS.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' " + activeStatus + @" and  SO.Id not IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail])) AND MOI.ArticleId<>'' AND OC.UserName<>'Projected'
+                       AND (OS.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' " + activeStatus + @" and  SO.Id not IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail])) AND MOI.ArticleId<>''
                         
 						UNION
 						
@@ -271,98 +249,13 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
 	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
 	                            , MOI.ArticleId, ART.StandardName AS ArticleName
 	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
-	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), SO.CommitmentDate, 106),' ','-')
-	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
-	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
-	                            , SO.Qty, SO.Rate,SO.LineItemReference,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
-	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
-								,S.UserName POStatus,PE.UserName POEntity,POS.ProcessEntity,ART.ProcessSetId,ART.IsDefaultProcessSet
-                       FROM [TRN].[SalesOrder] AS SO 
-                        left outer join [TRN].[ProductionOrderDetail] POD on POD.SalesOrderId=SO.Id and POD.ProductionOrderID='" + productionorderid + @"'
-                       INNER JOIN TRN.ProductionOrder PR ON POD.ProductionOrderId=PR.Id
-						LEFT JOIN org.Entity AS PE ON PE.Id=PR.EntityId
-					   INNER JOIN HKP.ProductionStatus S ON S.Id=PR.ProductionStatusId
-                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
-                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
-                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
-					   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
-					   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
-                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
-                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
-					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
-                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
-                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
-                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
-                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
-                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-					   LEFT JOIN(Select PSE.UserName ProcessEntity,POS.ProductionOrderID from [TRN].ProductionOrderProcessSet POS
-   LEFT JOIN org.Entity AS PSE ON PSE.Id=ISNULL(POS.EntityIdWithinCompany,POS.EntityIdWithinGroup)
-   WHERE POS.ProductionOrderID='" + productionorderid + @"' AND IsBaseProcess=1) POS ON POS.ProductionOrderID=PR.Id
-                       WHERE  SO.Id IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail] WHERE ProductionOrderID='" + productionorderid + @"') AND OC.UserName<>'Projected'
-UNION
-SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,null AS Id,null AS ProductionOrderId
-	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
-	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping 
-	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
-	                            , MOI.ArticleId, ART.StandardName AS ArticleName
-	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
 	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
 	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
 	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
-	                            , SO.Qty, SO.Rate,SO.LineItemReference,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
-	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
-								,ST.POStatus,ST.POEntity,''ProcessEntity,ART.ProcessSetId,ART.IsDefaultProcessSet
-                       FROM [TRN].[SalesOrder] AS SO 
-                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
-                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
-                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
-					   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
-					   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
-                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
-                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
-					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
-                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
-                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
-                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
-                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
-                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-                       LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
-					   LEFT JOIN(Select D.SalesOrderId,s.UserName POStatus,PE.UserName POEntity from TRN.ProductionOrder P
-					   INNER JOIN TRN.ProductionOrderDetail D ON D.ProductionOrderId=P.Id
-					   LEFT JOIN org.Entity AS PE ON PE.Id=P.EntityId
-					   INNER JOIN HKP.ProductionStatus S ON S.Id=P.ProductionStatusId) ST ON SalesOrderId=SO.Id
-
-                       WHERE   
-                       (
-                            --if there is no jobwork, i can create my own production order
-                       	    (ISNULL(moi.JobWorkType,'')='' AND MO.PlantId='" + identity.PlantId + @"' )
-                                OR 
-                       	    (ISNULL(moi.JobWorkType,'')<>'' AND EOUT.PlantId='" + identity.PlantId + @"' )
-                       )
-                       AND (OS.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' " + activeStatus + @" and  SO.Id not IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail])) AND MOI.ArticleId<>'' AND OC.UserName<>'Projected'
-                        AND PM.Id IN(Select PLPM.ProductMasterId from dbo.PlanningTypeProductMaster PLPM
-LEFT JOIN dbo.PlanningTypes PT ON PT.Id=PLPM.PlanningTypeId
-Where PT.EntityId='" + EntityId + @"' AND PT.BaseProcessId='" + ProcessId + @"'
-) 
-						UNION
-						
-						SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,POD.Id,POD.ProductionOrderId
-	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
-	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping
-	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
-	                            , MOI.ArticleId, ART.StandardName AS ArticleName
-	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
-	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), SO.CommitmentDate, 106),' ','-')
-	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
-	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
-	                            , SO.Qty, SO.Rate,SO.LineItemReference,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
-	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
-								,S.UserName POStatus,PE.UserName POEntity,POS.ProcessEntity,ART.ProcessSetId,ART.IsDefaultProcessSet
+	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
+	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription
                        FROM [TRN].[SalesOrder] AS SO 
                         left outer join [TRN].[ProductionOrderDetail] POD on POD.SalesOrderId=SO.Id and POD.ProductionOrderID='" + productionorderid + @"'
-                       INNER JOIN TRN.ProductionOrder PR ON POD.ProductionOrderId=PR.Id
-						LEFT JOIN org.Entity AS PE ON PE.Id=PR.EntityId
-					   INNER JOIN HKP.ProductionStatus S ON S.Id=PR.ProductionStatusId
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
                        JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
                        LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
@@ -376,15 +269,10 @@ Where PT.EntityId='" + EntityId + @"' AND PT.BaseProcessId='" + ProcessId + @"'
                        LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
                        LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
                        LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-					   LEFT JOIN(Select PSE.UserName ProcessEntity,POS.ProductionOrderID from [TRN].ProductionOrderProcessSet POS
-   LEFT JOIN org.Entity AS PSE ON PSE.Id=ISNULL(POS.EntityIdWithinCompany,POS.EntityIdWithinGroup)
-   WHERE POS.ProductionOrderID='" + productionorderid + @"' AND IsBaseProcess=1) POS ON POS.ProductionOrderID=PR.Id
-                       WHERE  SO.Id IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail] WHERE ProductionOrderID='" + productionorderid + @"') AND OC.UserName<>'Projected'
-AND PM.Id IN(Select PLPM.ProductMasterId from dbo.PlanningTypeProductMaster PLPM
-LEFT JOIN dbo.PlanningTypes PT ON PT.Id=PLPM.PlanningTypeId
-Where PT.EntityId='" + EntityId + @"' AND PT.BaseProcessId='" + ProcessId + @"'
-) 
-
+                       WHERE  SO.Id IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail] WHERE ProductionOrderID='" + productionorderid + @"')
+                        
+						
+						
 						) AS TEMP 
 
                             LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON TEMP.MasterOrderItemId=MOI.Id
@@ -395,207 +283,11 @@ Where PT.EntityId='" + EntityId + @"' AND PT.BaseProcessId='" + ProcessId + @"'
 							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
 							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
 
-WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId IN(" + Entity + @") ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
+WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId IN(" + Entity + @")  ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEMP.ArticleId";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpGet]
-        public ActionResult GetType2SalesOrderListSearch(string column, string value, string productionorderid, string EntityId, string ProcessId, string moentity)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = " temp." + column + " like '%" + value + "%'";
-            string Entity = "'" + moentity.Replace(",", "','") + "'";//replaced with ""
-
-            string activeStatus = "";
-            string plantSql = @"select * from scs.PlantConfig where plantid='" + identity.PlantId + "'";
-            DataTable dtPlantConfig = _sqlRepository.GetDataTable(plantSql);
-            if (dtPlantConfig.Rows.Count > 0)
-                if (bplib.clsWebLib.GetBoolData(dtPlantConfig.Rows[0]["IsProductionOrderCreatedAfterConfirmationOfSO"].ToString()))
-                    activeStatus = " AND isnull(SO.IsConfirm,0)=1 ";
-
-
-            string sql = @"SELECT isnull(moi.Consignment,0) AS Consignment,EOWN.UserName MasterOrderEntity,MO.OrderType MasterOrderType,MO.Type OrderType,
-                             CASE WHEN ISNULL(eout.Id,'')<>'' OR ISNULL(TOUT.Id,'')<>'' THEN CONCAT(POWN.UserName,'(',EOWN.UserName,')') ELSE '' END AS OrderOwner
-                            ,TEMP.* FROM (SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,null AS Id,null AS ProductionOrderId
-	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
-	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping 
-	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
-	                            , MOI.ArticleId, ART.StandardName AS ArticleName
-	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
-	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
-	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
-	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
-	                            , SO.Qty, SO.Rate,SO.LineItemReference,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
-	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
-								,ST.POStatus,ST.POEntity,''ProcessEntity,ART.ProcessSetId,ART.IsDefaultProcessSet
-                       FROM [TRN].[SalesOrder] AS SO 
-                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
-                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
-                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
-					   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
-					   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
-                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
-                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
-					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
-                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
-                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
-                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
-                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
-                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-                       LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
-					   LEFT JOIN(Select D.SalesOrderId,s.UserName POStatus,PE.UserName POEntity from TRN.ProductionOrder P
-					   INNER JOIN TRN.ProductionOrderDetail D ON D.ProductionOrderId=P.Id
-					   LEFT JOIN org.Entity AS PE ON PE.Id=P.EntityId
-					   INNER JOIN HKP.ProductionStatus S ON S.Id=P.ProductionStatusId) ST ON SalesOrderId=SO.Id
-
-                       WHERE   
-                       (
-                            --if there is no jobwork, i can create my own production order
-                       	    (ISNULL(moi.JobWorkType,'')='' AND MO.PlantId='" + identity.PlantId + @"' )
-                                OR 
-                       	    (ISNULL(moi.JobWorkType,'')<>'' AND EOUT.PlantId='" + identity.PlantId + @"' )
-                       )
-                       AND (OS.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' " + activeStatus + @" and  SO.Id not IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail])) AND SO.Id not IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderType2Detail]) AND MOI.ArticleId<>'' AND OC.UserName<>'Projected'
-                        
-						UNION
-						
-						SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,POD.Id,POD.ProductionOrderId
-	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
-	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping
-	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
-	                            , MOI.ArticleId, ART.StandardName AS ArticleName
-	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
-	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), SO.CommitmentDate, 106),' ','-')
-	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
-	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
-	                            , SO.Qty, SO.Rate,SO.LineItemReference,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
-	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
-								,S.UserName POStatus,PE.UserName POEntity,POS.ProcessEntity,ART.ProcessSetId,ART.IsDefaultProcessSet
-                       FROM [TRN].[SalesOrder] AS SO 
-                        left outer join [TRN].[ProductionOrderType2Detail] POD on POD.SalesOrderId=SO.Id and POD.ProductionOrderID='" + productionorderid + @"'
-                       INNER JOIN TRN.ProductionOrder PR ON POD.ProductionOrderId=PR.Id
-						LEFT JOIN org.Entity AS PE ON PE.Id=PR.EntityId
-					   INNER JOIN HKP.ProductionStatus S ON S.Id=PR.ProductionStatusId
-                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
-                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
-                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
-					   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
-					   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
-                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
-                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
-					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
-                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
-                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
-                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
-                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
-                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-					   LEFT JOIN(Select PSE.UserName ProcessEntity,POS.ProductionOrderID from [TRN].ProductionOrderProcessSet POS
-   LEFT JOIN org.Entity AS PSE ON PSE.Id=ISNULL(POS.EntityIdWithinCompany,POS.EntityIdWithinGroup)
-   WHERE POS.ProductionOrderID='" + productionorderid + @"' AND IsBaseProcess=1) POS ON POS.ProductionOrderID=PR.Id
-                       WHERE  SO.Id IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderType2Detail] WHERE ProductionOrderID='" + productionorderid + @"') AND OC.UserName<>'Projected'
-UNION
-SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,null AS Id,null AS ProductionOrderId
-	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
-	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping 
-	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
-	                            , MOI.ArticleId, ART.StandardName AS ArticleName
-	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
-	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
-	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
-	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
-	                            , SO.Qty, SO.Rate,SO.LineItemReference,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
-	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
-								,ST.POStatus,ST.POEntity,''ProcessEntity,ART.ProcessSetId,ART.IsDefaultProcessSet
-                       FROM [TRN].[SalesOrder] AS SO 
-                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
-                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
-                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
-					   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
-					   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
-                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
-                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
-					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
-                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
-                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
-                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
-                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
-                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-                       LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
-					   LEFT JOIN(Select D.SalesOrderId,s.UserName POStatus,PE.UserName POEntity from TRN.ProductionOrder P
-					   INNER JOIN TRN.ProductionOrderType2Detail D ON D.ProductionOrderId=P.Id
-					   LEFT JOIN org.Entity AS PE ON PE.Id=P.EntityId
-					   INNER JOIN HKP.ProductionStatus S ON S.Id=P.ProductionStatusId) ST ON SalesOrderId=SO.Id
-
-                       WHERE   
-                       (
-                            --if there is no jobwork, i can create my own production order
-                       	    (ISNULL(moi.JobWorkType,'')='' AND MO.PlantId='" + identity.PlantId + @"' )
-                                OR 
-                       	    (ISNULL(moi.JobWorkType,'')<>'' AND EOUT.PlantId='" + identity.PlantId + @"' )
-                       )
-                       AND (OS.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' " + activeStatus + @" and  SO.Id not IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderType2Detail])) AND MOI.ArticleId<>'' AND OC.UserName<>'Projected'
-                        AND PM.Id IN(Select PLPM.ProductMasterId from dbo.PlanningTypeProductMaster PLPM
-LEFT JOIN dbo.PlanningTypes PT ON PT.Id=PLPM.PlanningTypeId
-Where PT.EntityId='" + EntityId + @"' AND PT.BaseProcessId='" + ProcessId + @"'
-) 
-						UNION
-						
-						SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,POD.Id,POD.ProductionOrderId
-	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
-	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping
-	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
-	                            , MOI.ArticleId, ART.StandardName AS ArticleName
-	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
-	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), SO.CommitmentDate, 106),' ','-')
-	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
-	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
-	                            , SO.Qty, SO.Rate,SO.LineItemReference,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
-	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
-								,S.UserName POStatus,PE.UserName POEntity,POS.ProcessEntity,ART.ProcessSetId,ART.IsDefaultProcessSet
-                       FROM [TRN].[SalesOrder] AS SO 
-                        left outer join [TRN].[ProductionOrderDetail] POD on POD.SalesOrderId=SO.Id and POD.ProductionOrderID='" + productionorderid + @"'
-                       INNER JOIN TRN.ProductionOrder PR ON POD.ProductionOrderId=PR.Id
-						LEFT JOIN org.Entity AS PE ON PE.Id=PR.EntityId
-					   INNER JOIN HKP.ProductionStatus S ON S.Id=PR.ProductionStatusId
-                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
-                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
-                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
-					   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
-					   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
-                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
-                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
-					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
-                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
-                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
-                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
-                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
-                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-					   LEFT JOIN(Select PSE.UserName ProcessEntity,POS.ProductionOrderID from [TRN].ProductionOrderType2ProcessSet POS
-   LEFT JOIN org.Entity AS PSE ON PSE.Id=ISNULL(POS.EntityIdWithinCompany,POS.EntityIdWithinGroup)
-   WHERE POS.ProductionOrderID='" + productionorderid + @"' AND IsBaseProcess=1) POS ON POS.ProductionOrderID=PR.Id
-                       WHERE  SO.Id IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderType2Detail] WHERE ProductionOrderID='" + productionorderid + @"') AND OC.UserName<>'Projected'
-AND PM.Id IN(Select PLPM.ProductMasterId from dbo.PlanningTypeProductMaster PLPM
-LEFT JOIN dbo.PlanningTypes PT ON PT.Id=PLPM.PlanningTypeId
-Where PT.EntityId='" + EntityId + @"' AND PT.BaseProcessId='" + ProcessId + @"'
-) 
-
-						) AS TEMP 
-
-                            LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON TEMP.MasterOrderItemId=MOI.Id
-                            LEFT JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
-							LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
-							LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
-							LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
-							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
-							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
-
-WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId IN(" + Entity + @") ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
 
         [Authorize, HttpGet]
         public ActionResult GetSalesOrderList(GridParameter parameters)
@@ -621,12 +313,6 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
         public JsonResult GetProductionOrderProcessSetList(string productionOrderId)
         {
             return Json(_productionOrderService.GetProductionOrderProcessSetList(productionOrderId), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public JsonResult GetProductionOrderType2ProcessSetList(string productionOrderId)
-        {
-            return Json(_productionOrderService.GetProductionOrderType2ProcessSetList(productionOrderId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -3149,20 +2835,16 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
                 DataSet dsWCDD = null;
                 DataSet dsFPWCDD = null;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionOrderType2] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-
+                con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionOrder] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
                 string _Id = "";
-
                 #region data update
                 if (dsMaster.Tables[0].DefaultView.Count == 0)
                 {
-                    if (_Id == "")
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("ProductionOrderType2", out _Id);
-                    }
+                    
+                    bplib.clsGenID objID = new bplib.clsGenID();
+                    objID.GenHRID(System.DateTime.Now.ToShortDateString(), "PRODUCTION ORDER", out _Id);
                     data["Id"] = _Id;
+                    data["OrderType"] = "PlanningType2";
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -3174,11 +2856,11 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
 
                 #endregion data update
 
-                #region ProductionOrderType2Detail
+                #region ProductionOrderDetail
 
                 string _MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-                con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionOrderType2Detail] where ProductionOrderId='" + data["Id"] + "'", out dsDetail, false, "1");
-                con.OpenDataSetThroughAdapter("select count(Id) countId from [TRN].[ProductionOrderType2Detail] where ProductionOrderId='" + data["Id"] + "'", out dsDD, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionOrderDetail] where ProductionOrderId='" + data["Id"] + "'", out dsDetail, false, "1");
+                con.OpenDataSetThroughAdapter("select count(Id) countId from [TRN].[ProductionOrderDetail] where ProductionOrderId='" + data["Id"] + "'", out dsDD, false, "1");
                 int ccount = Convert.ToInt32(dsDD.Tables[0].Rows[0]["countId"].ToString());
                 if (detaillist != null)
                 {
@@ -3205,13 +2887,13 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
                         }
                     }
                 }
-                #endregion ProductionOrderType2Detail
+                #endregion ProductionOrderDetail
 
-                #region ProductionOrderType2ProcessSet
+                #region ProductionOrderProcessSet
 
 
-                con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionOrderType2ProcessSet] where ProductionOrderId='" + data["Id"] + "'", out dsProcDetail, false, "1");
-                con.OpenDataSetThroughAdapter("select CAST((RIGHT(ISNULL(MAX(CAST(Id AS INT)), 0),2)) AS INT) countId from [TRN].[ProductionOrderType2ProcessSet] where ProductionOrderId='" + data["Id"] + "'", out dsPDD, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionOrderProcessSet] where ProductionOrderId='" + data["Id"] + "'", out dsProcDetail, false, "1");
+                con.OpenDataSetThroughAdapter("select CAST((RIGHT(ISNULL(MAX(CAST(Id AS INT)), 0),2)) AS INT) countId from [TRN].[ProductionOrderProcessSet] where ProductionOrderId='" + data["Id"] + "'", out dsPDD, false, "1");
                 int pcount = Convert.ToInt32(dsPDD.Tables[0].Rows[0]["countId"].ToString());
                 int sq = 0;
                 if (processSetlist != null)
@@ -3243,7 +2925,7 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
                         }
                     }
                 }
-                #endregion ProductionOrderType2ProcessSet
+                #endregion ProductionOrderProcessSet
 
                 #region ProductionOrderType2WorkCenter
 
@@ -3331,28 +3013,9 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT PO.*,UsedInPB=CAST(CASE WHEN m.productionorderid IS NOT NULL THEN 1 ELSE 0 END AS BIT),isnull(po.Remarks,'') AS ProductionRemarks,isnull(s.UserName,'') AS ProductionStatus, isnull(EN.UserName,'') AS EntityName, 
-            isnull(PS.UserName,'') AS ProductionStatusName,ISNULL(so.Qty,0) AS SOQuantity
-           
-                            FROM [TRN].[ProductionOrderType2] AS PO
-                        JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
-                        LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
-                        LEFT JOIN TRN.ProductionSummary M ON m.productionorderid=PO.Id
-                                AND m.Id=(SELECT TOP 1 ID FROM TRN.ProductionSummary EII WHERE EII.productionorderid=PO.Id ORDER BY EII.AddedDate DESC )
-                        LEFT OUTER  JOIN (SELECT pod.ProductionOrderId,SUM(so.Qty) AS Qty
-                                            FROM trn.SalesOrder AS so
-                        INNER JOIN trn.ProductionOrderType2Detail AS pod ON pod.SalesOrderId=so.Id 
-                  
-                                          GROUP BY pod.ProductionOrderId
 
-                        ) AS SO ON so.ProductionOrderId=po.Id
-                        LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
-
-                                                    WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE " + strkey;
-
-
-            sql = @"select top 100 * from ( " + new Library.OrderManagement.Production.ProductionOrder().ProductionOrderType2List() + @"
-                            WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE " + strkey + " ORDER BY AddedDate DESC";
+           string sql = @"select top 100 * from ( " + new Library.OrderManagement.Production.ProductionOrder().ProductionOrderList() + @"
+                            WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE OrderType = 'PlanningType2' AND " + strkey + " ORDER BY AddedDate DESC";
 
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -3378,10 +3041,10 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
 
 
                 //objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderType2SubprocessSet where ProductionOrderId='" + masterid + "'", true, "1");
-                objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderType2ProcessSet where ProductionOrderId='" + masterid + "'", true, "1");
+                objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderProcessSet where ProductionOrderId='" + masterid + "'", true, "1");
                 //objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderType2ProcessCriteria where ProductionOrderId='" + masterid + "'", true, "1");
                 objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderType2WorkCenter where ProductionOrderId='" + masterid + "'", true, "1");
-                objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderType2Detail where ProductionOrderId='" + masterid + "'", true, "1");
+                objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderDetail where ProductionOrderId='" + masterid + "'", true, "1");
 
                 //objCon.ExecuteNonQueryWrapper(@"delete from [TRN].[ProductionBulletinTemplateDetail] 
                 //                                Where ProductionBulletinTemplateMasterId in (Select Id from [TRN].[ProductionBulletinTemplateMaster] 
@@ -3615,7 +3278,7 @@ WHERE  " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityI
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery("delete from trn.ProductionOrderType2ProcessSet where Id='" + id + "'");
+                con.executeQuery("delete from trn.ProductionOrderProcessSet where Id='" + id + "'");
                 con.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
