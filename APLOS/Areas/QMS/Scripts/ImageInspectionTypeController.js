@@ -59,7 +59,8 @@ function ImageInspectionTypeController(cboService, commonMessage, $scope, $rootS
         Remarks: null,
         Picture: null,
         Operation: null,
-        Defect: null
+        Defect: null,
+        IsProduction:false
     }
 
     $scope.UserApplicableModelNew = {
@@ -356,6 +357,10 @@ function ImageInspectionTypeController(cboService, commonMessage, $scope, $rootS
 
     };
 
+    $scope.GetInspectionTypeEntryLevel = function (Row) {
+        $scope.entryLevel = Object.assign({}, Row.data);
+    };
+
     $scope.EntryLevelSave = function () {
         $scope.entryLevel.InspectionTypeId = $scope.ModelNew.Id;
         $scope.$broadcast('show-errors-check-validity');
@@ -370,14 +375,37 @@ function ImageInspectionTypeController(cboService, commonMessage, $scope, $rootS
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                   // $scope.getInspectionTypeProcess();
-
+                   $scope.getInspectionTypeEntryLevel();
+                    clearInspectionTypeEntryLevel();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
 
     };
+
+    function clearInspectionTypeEntryLevel() {
+        $scope.entryLevel = {
+            Id: null,
+            InspectionTypeId: null,
+            Grade: null,
+            UserName: null,
+            LineItem: null,
+            ProductCode: null,
+            ProductionOrder: null,
+            SalesOrder: null,
+            SKU1: null,
+            SKU2: null,
+            SKU3: null,
+            MaxQty: null,
+            Remarks: null,
+            Picture: null,
+            Operation: null,
+            Defect: null,
+            IsProduction: false
+        }
+    }
+
 
     $scope.UserAppSave = function () {
         $scope.UserApplicableModelNew.InspectionTypeId = $scope.ModelNew.Id;

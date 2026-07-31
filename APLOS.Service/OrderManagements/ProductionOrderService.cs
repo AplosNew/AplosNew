@@ -108,6 +108,7 @@ namespace Library.Service.OrderManagements
                 //objID.GenerateIDMaxYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionOrder", out string systemid);
                 //master.Id = DateTime.Now.ToString("yy")+ systemid.ToString().PadLeft(4,"0".ToString()[0]);
                 master.Id = systemid;
+                master.OrderType = "PlanningType1";
                 base.InsertGraph(master);
                 InsertUpdateOrDeleteGraph(master.Id, detaillist);
                 InsertUpdateOrDeleteGraph(master.Id, processSetlist);
@@ -500,7 +501,7 @@ namespace Library.Service.OrderManagements
                                 --ISNULL(c3.UserName,'') AS ThirdCharacteristics,ISNULL(cv3.UserName,'') AS ThirdCharacteristicsValue
                        FROM 
                        [TRN].[SalesOrder] AS SO 
-                       JOIN [TRN].[ProductionOrderType2Detail] AS POD ON pod.SalesOrderId=so.Id
+                       JOIN [TRN].[ProductionOrderDetail] AS POD ON pod.SalesOrderId=so.Id
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
                        JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
                        LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 

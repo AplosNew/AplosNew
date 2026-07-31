@@ -13,7 +13,7 @@ namespace Library.Model.OrderManagements
         //public DateTime? TargetCommitmentDate { get; set; }
         public DateTime? Lsd { get; set; }
         public DateTime? ClosingDate { get; set; }
-        //public string LsdRemark { get; set; }
+        public string OrderType { get; set; }
         //public DateTime? TargetLsd { get; set; }
         public DateTime? CommitmentDate { get; set; }
         //public string CommitmentDateRemarks { get; set; }
