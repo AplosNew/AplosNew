@@ -1085,7 +1085,7 @@ Group By  D.ProductionOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueI
                     }
                     else if (Convert.ToBoolean(savedCount.Rows[0]["SKU2"].ToString()) && !Convert.ToBoolean(savedCount.Rows[0]["SKU1"].ToString()) && !Convert.ToBoolean(savedCount.Rows[0]["Both"].ToString()))
                     {
-                        sql = @"D.ID,D.ProductionOrderID,D.NoOfWorkStation,D.Efficiency,D.SPT,D.PlanWorkingHoursPerDay,D.FirstDayOutPut,D.PlanTargetPerHour,D.IncrementValue,D.IncrementType,D.DayToReachTheTarget
+                        sql = @"Select D.ID,D.ProductionOrderID,D.NoOfWorkStation,D.Efficiency,D.SPT,D.PlanWorkingHoursPerDay,D.FirstDayOutPut,D.PlanTargetPerHour,D.IncrementValue,D.IncrementType,D.DayToReachTheTarget
 ,FORMAT(D.LSD,'dd-MMM-yyyy')LSD,FORMAT(D.CommitmentDate,'dd-MMM-yyyy')CommitmentDate,D.ProductionPriority,D.TargetPerHour,D.TargetPerDay,D.MinimumLineDays,D.RequiredLineDays
 ,D.RequiredNoOfLines,D.AllocatedLines,D.Color,D.Qty,D.Qty PlanQty,FORMAT(D.MainRawMaterialInhouseDate,'dd-MMM-yyyy')MainRawMaterialInhouseDate
 ,FORMAT(D.OtherRawMaterialInhouseDate,'dd-MMM-yyyy')OtherRawMaterialInhouseDate,D.WCPreferenceType,D.PlanningStatus,D.RunningOrderBlockSize,D.ConsiderHourFromWorkCenter,D.ConsiderWorkStationsFromWorkCenter,D.WorkCenterGroupId

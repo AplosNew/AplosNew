@@ -615,6 +615,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                         $scope.model.Id = response.data.DATA;
                         $scope.getData();
                         getProductionRecipeMaterialList();
+                        $scope.GetProductionOrderPopUp();
                         $scope.btndisable = false;
                         $scope.Action = "Update"
                         //var uploadObj = $("#UploadDefault").data("ejUploadbox");
