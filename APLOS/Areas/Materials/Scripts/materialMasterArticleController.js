@@ -974,6 +974,9 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             if (baseService.isUndefinedOrNull($scope.articleAlias.ArticlePartyName)) {
                 throw "Article Party Name is required.";
             }
+            if (baseService.isUndefinedOrNull($scope.articleAlias.ArticleCode)) {
+                throw "Article Code is required.";
+            }
             if (baseService.isUndefinedOrNull($scope.articleAlias.UserGroup)) {
                 throw "User Group is required.";
             }
