@@ -84,8 +84,8 @@
         MasterOrderItem,
         ProductionOrder,
         ProductCode,
-        SalesOrder
-        //UptoSKU1,
+        SalesOrder,
+        SubProductionOrder
         //UptoSKU2,
         //UptoSKU3
     }

@@ -187,7 +187,7 @@
                     <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="100"></div>
                     <div e-column e-template="#ProductionOrderId" e-headertext="PO No" e-width="120"></div>
                     <div e-column e-field="BookingLevel" e-headertext="Booking Level" e-visible="false" e-width="120"></div>
-                    <div e-column e-template="#Article" e-headertext="Item/SO" e-width="300"></div>
+                    <div e-column e-template="#Article" e-headertext="Item/SO/SubPO" e-width="300"></div>
                     @*<div e-column e-template="#ProductionArticle" e-headertext="Production Article" e-width="200"></div>*@
                     <div e-column e-template="#LotNumber" e-headertext="Lot Number" e-width="130"></div>
                     <div e-column e-template="#ProductionGrade" e-headertext="Grade" e-width="80"></div>
@@ -241,7 +241,7 @@
                 <div class="col-sm-12" style="padding:0px; height:30px;">
                     <div class="col-sm-10" style="padding:0px;">
                         <input type="text" name="Article" ng-model="data.Article" ng-show="data.BookingLevel=='ProductionOrder'" class="form-control">
-                        @*<input type="text" ng-click="$parent.getSalesOrderPopUp(this);" name="Sales Order" ng-show="data.BookingLevel=='SalesOrder'" placeholder="Select SO Item" ng-model="data.SOArticle" class="form-control">*@
+                        <input type="text" ng-click="$parent.GetSavedSKUData(this);" name="Sub Production Order" ng-show="data.BookingLevel=='SubProductionOrder'" placeholder="Select SPO Item" ng-model="data.SubProductionOrderId" class="form-control">
                         <input type="text" ng-click="$parent.getSalesOrderPopUp(this);" name="Sales Order" ng-show="data.BookingLevel=='SalesOrder'" placeholder="Select SO Item" ng-model="data.SalesOrderId" class="form-control">
                         <input type="text" ng-click="$parent.getMasterOrderItemPopUp(this);" name="Master Order Item" ng-show="data.BookingLevel=='MasterOrderItem'" placeholder="Select MO Item" ng-model="data.MOIArticle" class="form-control">
                         <input type="text" ng-click="$parent.getProductCodePopUp(this);" name="Product Code" ng-show="data.BookingLevel=='ProductCode'" ng-model="data.ProductCodeArticle" placeholder="Select Product Code" class="form-control">
@@ -250,6 +250,7 @@
                     <input type="text" ng-disabled="true" name="Product Code" ng-show="data.BookingLevel=='ProductCode'" ng-model="data.ProductCodeArticle" placeholder="Select Product Code" class="form-control">*@
                     </div>
                     <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                        <button ng-click="$parent.GetSavedSKUData(this);" ng-show="data.BookingLevel=='SubProductionOrder'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         <button ng-click="$parent.getSalesOrderPopUp(this);" ng-show="data.BookingLevel=='SalesOrder'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         <button ng-click="$parent.getMasterOrderItemViewPopUp(this);" ng-show="data.BookingLevel=='MasterOrderItem'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         <button ng-click="$parent.getProductCodePopUp(this);" ng-show="data.BookingLevel=='ProductCode'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
@@ -1215,5 +1216,59 @@
     </div>
 </div>
 
+<div class="modal site-modal in" id="SPOItemPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Sub Production Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div style="color:black;" id="GridSKU12" ej-grid e-datasource="SubProductionOrderList" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="selectSPOItem"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="SKUColor" e-headertext="Color" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SKUSize" e-headertext="Size" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                            <div e-column e-field="AdjustableQty" e-headertext="AdjustableQty" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-type="string" e-headertext="PlanQty" e-field="PlanQty" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-field="SPT" e-headertext="SPT" e-width="80" style="height: 20px;"></div>
+                            @*<div e-column e-headertext="WCGroup" e-field="#ShowWCGroupButtons" e-width="120"></div>*@
+                            <div e-column e-field="PlanHour" e-headertext="PlanHour" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-field="NetUtilizationPercentage" e-headertext="NetUtilizationPercentage" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-type="string" e-field="RequiredMachineDays" e-headertext="RequiredMachineDays" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-type="string" e-field="MinWorkCenterDays" e-headertext="MinWorkCenterDays" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-type="string" e-field="Workstations" e-headertext="Workstations" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-type="string" e-field="MaximumAllowedWorkCenter" e-headertext="MaximumAllowedWorkCenter" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-type="string" e-field="AllotedWorkCenter" e-headertext="AllotedWorkCenter" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-type="string" e-field="DayToReachTheTarget" e-headertext="DayToReachTheTarget" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-type="string" e-field="IncrementValue" e-headertext="IncrementValue" e-width="80" style="height: 20px;"></div>
+
+                            <div e-column e-type="string" e-field="LSD" e-headertext="LSD" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-type="string" e-field="CommitmentDate" e-headertext="CommitmentDate" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-type="string" e-field="MainRawMaterialInhouseDate" e-headertext="MainRawMaterialInhouseDate" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-type="string" e-field="OtherRawMaterialInhouseDate" e-headertext="OtherRawMaterialInhouseDate" e-width="80" style="height: 20px;"></div>
+
+                            <div e-column e-type="string" e-field="TargetPerHour" e-headertext="TargetPerHour" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-type="string" e-field="TargetPerDay" e-headertext="TargetPerDay" e-width="80" style="height: 20px;"></div>
+
+                        </div>
+                    </div>
+                    <script type="text/template" id="showSOList">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right small">
+
+                                <li>
+                                    <button ng-click="$parent.getSalesOrderOfProdOrderList(data.POId);" class="btn small" style="height: 20px;width: 20px;padding: 0px;margin: 0px;">
+                                        <i class="glyphicon glyphicon-th-list"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 

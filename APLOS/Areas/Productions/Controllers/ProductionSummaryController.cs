@@ -793,6 +793,12 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetTotalSPOQty(string POId, string SPOId, string processId)
+        {
+            return Json(_ProductionSummaryService.GetTotalSPOQty(POId, SPOId, processId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetTotalMOIQty(string POId, string MasterOrderItemId, string processId)
         {
             return Json(_ProductionSummaryService.GetTotalMOIQty(POId, MasterOrderItemId, processId), JsonRequestBehavior.AllowGet);

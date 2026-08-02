@@ -17,7 +17,8 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
     $scope.path = 'OrderManagements/ProductionOrder/';
     $scope.getListUrl = $scope.path + 'GetType2List';
-    $scope.saveUrl = $scope.path + 'CreateProductionOrderType2';
+    //$scope.saveUrl = $scope.path + 'CreateProductionOrderType2';
+    $scope.saveUrl = $scope.path + 'Create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'DeleteType2/';
 
