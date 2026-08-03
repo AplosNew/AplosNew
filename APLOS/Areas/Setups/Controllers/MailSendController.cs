@@ -234,6 +234,13 @@ namespace Aplos.Areas.Setups.Controllers
         }//SaveScandataToBookingforPacking 
 
         [HttpPost, Authorize]
+        public JsonResult SaveInspectionToBooking()
+        {
+            _mailSenderService.SaveInspectionToBooking("TS", "TS", "10215");
+            return Json(new { Message = AplosMessage.Success });
+        }//SaveInspectionToBooking 
+
+        [HttpPost, Authorize]
         public JsonResult LVProcess()
         {
             _mailSenderService.LVProcess("TS", "TS", "10215");

@@ -216,6 +216,7 @@ namespace Library.Service.Setups
         void SendLastFewDaysPayableCreatedMail(string addedBy, string ip, string appVersion);
         void SendLastFewDaysPaymentMadeMail(string addedBy, string ip, string appVersion);
         void SaveScandataToBooking(string addedBy, string ip, string appVersion);
+        void SaveInspectionToBooking(string addedBy, string ip, string appVersion);
         void SendPendingBankReconciliationCreatedMail(string addedBy, string ip, string appVersion);
         void LVProcess(string addedBy, string ip, string appVersion);
     }
