@@ -580,6 +580,29 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
+        public ActionResult WeeklyReceiptAndPaymentStatement()
+        {
+            return View("~/Areas/Accounts/Views/WeeklyReceiptAndPaymentStatement.cshtml");
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetWeeklyReceiptAndPaymentStatement(ReportFormat reportFormat, DateTime fromdate, DateTime todate, string entityId, string dateType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsInvoiceReportService _accountsInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository);
+            var workbook = _accountsInvoiceReportService.GetWeeklyReceiptAndPaymnetWorkBook(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromdate, todate,null);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
     }
 
 

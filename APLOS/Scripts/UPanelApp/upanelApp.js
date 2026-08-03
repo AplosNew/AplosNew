@@ -1344,6 +1344,7 @@ upanelApp.controller("DefectMasterController", DefectMasterController)
 upanelApp.controller("productionCalendarType2Controller", productionCalendarType2Controller)
 upanelApp.controller("ELReportController", ELReportController)
 upanelApp.controller("monthlyExpensesAndAssetStatementController", monthlyExpensesAndAssetStatementController)
+upanelApp.controller("WeeklyReceiptAndPaymentStatementController", WeeklyReceiptAndPaymentStatementController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
