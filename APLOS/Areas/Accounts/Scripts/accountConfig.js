@@ -1115,5 +1115,9 @@ function accountConfig($routeProvider) {
             templateUrl: 'Accounts/BalanceSheetScheduling/EmployeeOperationUpload',
             controller: 'employeeOperationUploadController'
         })
+        .when('/weekly-rp-statement', {
+            templateUrl: 'Accounts/VoucherReport/WeeklyReceiptAndPaymentStatement',
+            controller: 'WeeklyReceiptAndPaymentStatementController'
+        })
         ;
 } 

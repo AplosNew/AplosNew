@@ -1,4 +1,5 @@
 ﻿using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Currencies;
@@ -18,6 +19,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Library.Accounting.Accounts
@@ -1723,7 +1725,7 @@ namespace Library.Accounting.Accounts
                                 LEFT JOIN (SELECT AdvanceId, PartyId, NetAmount FROM [TRN].[AdvanceDetail]
                                 ) AS AD ON AD.AdvanceId=A.Id AND AD.PartyId=A.PartyId
                                 WHERE A.OpeningBalanceId IS NULL AND A.Archive=0 AND V.Archive=0 
-								AND  A.CompanyId='" + companyId + "' AND A.PlantId='"+ plantId + @"' AND A.SourceType='CustomerAdvance' and A.AdvanceGroupNo='"+ invoiceWriteOffGroupNo + @"'
+								AND  A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + @"' AND A.SourceType='CustomerAdvance' and A.AdvanceGroupNo='" + invoiceWriteOffGroupNo + @"'
 								Group By A.PartyId, P.Code, P.UserName, A.PartyPlantId, PP.UserName, A.EmployeeId, EI.EmployeeCode
                                  , EI.EmployeeName, EIR.EmployeeCode,EIR.EmployeeName, A.PostingDate, A.DocDate, A.DocRefNo
                                  , A.CurrencyId, C.Code  , A.IsWrittenOff,A.AdvanceGroupNo,A.IsPark , A.IsInterTransaction, A.IsPosted,A.VoucherDate,A.Narration,VT.UserName,A.AddedBy,A.UpdatedBy";
@@ -4133,7 +4135,7 @@ namespace Library.Accounting.Accounts
                 formulaEndRow = row - 1;
 
 
-                
+
                 sheet.UsedRange.CellStyle.Font.Size = 8;
                 row += 4;
                 reportUtility.SetSignatureText(ref sheet, row - 1, 1, header["AddedBy"].ToString());
@@ -4195,7 +4197,7 @@ namespace Library.Accounting.Accounts
                 throw;
             }
         }
-       
+
         #endregion
 
         #region Invoice To Acceptance Post Report
@@ -4535,5 +4537,433 @@ namespace Library.Accounting.Accounts
 
         #endregion
 
+        /*
+  * =====================================================================================
+  *  RECEIPTS & EXPENDITURE STATEMENT REPORT
+  * =====================================================================================
+  *  Mirrors the pattern used in GetWeeklyReceiptAndPaymnetWorkBook (Syncfusion XlsIO,
+  *  ReportUtility.PlantHeader/PageSetup, clsStaticInfo, _sqlRepository.GetDataTable).
+  *
+  *  DATA SOURCE: a single combined query (Receipts CTE FULL OUTER JOINed to Expenses
+  *  CTE by ROW_NUMBER) - the same shape as your latest result-set screenshot:
+  *      [DATE] [RECEIPTS] [AMOUNT] [DATE] [EXPENSES] [AMOUNT]
+  *  Because the result set has two columns named DATE and two named AMOUNT, ADO.NET
+  *  auto-renames the duplicates when filling a DataTable (DATE, DATE1, AMOUNT, AMOUNT1).
+  *  To avoid relying on that renaming behavior, the code below reads by ORDINAL
+  *  position instead of column name:
+  *      0 = DATE (receipt side)   1 = RECEIPTS   2 = AMOUNT (receipt side)
+  *      3 = DATE (expense side)   4 = EXPENSES   5 = AMOUNT (expense side)
+  *
+  *  LAYOUT: even though the query row-aligns Receipts and Expenses by RN, the target
+  *  Excel layout does NOT render them row-aligned - Expenses fill top-to-bottom
+  *  continuously, while Receipts (Opening Balance + actual receipt vouchers) are
+  *  pulled out and rendered as a short block near the bottom, with blank rows in
+  *  between. So this code reads the single DataTable once, then splits it into two
+  *  independent lists for rendering:
+  *      - expenseRows  -> every row where the expense columns (3,4,5) are not null
+  *      - receiptRows  -> every row where the receipt columns (0,1,2) are not null
+  *                        ("Opening Balance" row is detected by its RECEIPTS text and
+  *                        rendered bold, without a date, matching the screenshot)
+  *
+  *  DASHED SEPARATOR LINE:
+  *  ---------------------------------------------------------------------------------
+  *  A dashed line appears after the 3rd expense row in your sample - it does NOT
+  *  correspond to a date change. I could not infer the rule that decides where this
+  *  line goes (cash limit cutoff? batch boundary? manual annotation?), so it's
+  *  exposed as the `dashedSeparatorAfterRowIndices` parameter - pass in the 0-based
+  *  row indices (within the rendered expense list) after which a dashed bottom-border
+  *  should be drawn.
+  * =====================================================================================
+  */
+
+
+        private const string OPENING_BALANCE_LABEL = "Opening Balance";
+        public IWorkbook GetWeeklyReceiptAndPaymnetWorkBook(
+          out string reportFileName,
+          string companyGroupId,
+          string companyId,
+          string plantId,
+          string plantName,
+          DateTime fromDate,
+          DateTime toDate,
+          IEnumerable<int> dashedSeparatorAfterRowIndices = null)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var separatorRows = new HashSet<int>(dashedSeparatorAfterRowIndices ?? new int[0]);
+
+            ExcelEngine excelEngine = new ExcelEngine();
+            IApplication application = excelEngine.Excel;
+            application.DefaultVersion = ExcelVersion.Excel2013;
+
+            IWorkbook workbook = application.Workbooks.Create(1);
+            IWorksheet worksheet = workbook.Worksheets[0];
+            worksheet.Name = "WEEKLY RECEIPT AND EXPENSES STATEMENT";
+            reportFileName = "WEEKLY RECEIPT AND EXPENSES STATEMENT " + toDate.ToString("dd-MMM-yyyy");
+
+            // ---- Pull + split data -----------------------------------------------------
+            DataTable dtCombined = GetCombinedStatementData(plantId, fromDate, toDate);
+
+            List<ReceiptLine> receiptRows;
+            List<ExpenseLine> expenseRows;
+            SplitCombinedData(dtCombined, out receiptRows, out expenseRows);
+
+            // ---- Column layout ---------------------------------------------------------
+            // 1=DATE(R) 2=VoucherNo(R) 3=RECEIPTS 4=AMOUNT(R) 5=DATE(E) 6=VoucherNo(E) 7=EXPENSES 8=AMOUNT(E)
+            const int COL_R_DATE = 1;
+            const int COL_R_VNO = 2;
+            const int COL_R_DESC = 3;
+            const int COL_R_AMT = 4;
+            const int COL_E_DATE = 5;
+            const int COL_E_VNO = 6;
+            const int COL_E_DESC = 7;
+            const int COL_E_AMT = 8;
+            const int END_COL = COL_E_AMT;
+
+            // ---- Title rows --------------------------------------------------------
+            worksheet.Range[1, 1, 1, END_COL].Merge();
+            worksheet.Range[1, 1].Text = identity.CompanyName;
+            worksheet.Range[1, 1].CellStyle.Font.Bold = true;
+            worksheet.Range[1, 1].CellStyle.Font.Size = 14f;
+            worksheet.Range[1, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+            worksheet.Range[2, 1, 2, END_COL].Merge();
+            worksheet.Range[2, 1].Text = "EXPENDITURE STATEMENT FROM "
+                + fromDate.ToString("dd.MM.yyyy") + " to " + toDate.ToString("dd.MM.yyyy");
+            worksheet.Range[2, 1].CellStyle.Font.Bold = true;
+            worksheet.Range[2, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+            // ---- Header row ----------------------------------------------------------
+            const int HEADER_ROW = 4;
+            worksheet[HEADER_ROW, COL_R_DATE].Text = "DATE";
+            worksheet[HEADER_ROW, COL_R_VNO].Text = "VoucherNo";
+            worksheet[HEADER_ROW, COL_R_DESC].Text = "RECEIPTS";
+            worksheet[HEADER_ROW, COL_R_AMT].Text = "AMOUNT";
+            worksheet[HEADER_ROW, COL_E_DATE].Text = "DATE";
+            worksheet[HEADER_ROW, COL_E_VNO].Text = "VoucherNo";
+            worksheet[HEADER_ROW, COL_E_DESC].Text = "EXPENSES";
+            worksheet[HEADER_ROW, COL_E_AMT].Text = "AMOUNT";
+
+            worksheet.Range[HEADER_ROW, 1, HEADER_ROW, END_COL].CellStyle.Font.Bold = true;
+            worksheet.Range[HEADER_ROW, 1, HEADER_ROW, END_COL].BorderAround(ExcelLineStyle.Dashed);
+            worksheet.Range[HEADER_ROW, 1, HEADER_ROW, END_COL].BorderInside(ExcelLineStyle.Thin);
+
+            worksheet.SetColumnWidth(COL_R_DATE, 10);
+            worksheet.SetColumnWidth(COL_R_VNO, 16);
+            worksheet.SetColumnWidth(COL_R_DESC, 32);
+            worksheet.SetColumnWidth(COL_R_AMT, 14);
+            worksheet.SetColumnWidth(COL_E_DATE, 10);
+            worksheet.SetColumnWidth(COL_E_VNO, 16);
+            worksheet.SetColumnWidth(COL_E_DESC, 40);
+            worksheet.SetColumnWidth(COL_E_AMT, 14);
+
+            // ---- Expense block (right side) --------------------------------------------
+            int expRow = HEADER_ROW + 1;
+            decimal totalExpenseLines = 0;
+
+            for (int i = 0; i < expenseRows.Count; i++)
+            {
+                ExpenseLine line = expenseRows[i];
+
+                worksheet[expRow, COL_E_DATE].Text = line.PostingDate.ToString("dd.MM.yy");
+                worksheet[expRow, COL_E_VNO].Text = line.VoucherNo;
+                worksheet[expRow, COL_E_DESC].Text = line.Description;
+
+                worksheet[expRow, COL_E_AMT].Number = (double)line.Amount;
+                worksheet[expRow, COL_E_AMT].NumberFormat = "#,##0.00";
+               // worksheet[expRow, COL_E_AMT].CellStyle.Color = System.Drawing.Color.FromArgb(198, 224, 180); // green fill
+
+                if (separatorRows.Contains(i))
+                {
+                    worksheet.Range[expRow, COL_E_DATE, expRow, COL_E_AMT].CellStyle.Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Dashed;
+                    worksheet.Range[expRow, COL_E_DATE, expRow, COL_E_AMT].CellStyle.Borders[ExcelBordersIndex.EdgeBottom].Color = ExcelKnownColors.Blue;
+                }
+
+                totalExpenseLines += line.Amount;
+                expRow++;
+            }
+
+            int expenseBlockEndRow = expRow - 1;
+
+            // ---- Receipts block (left side, top-aligned with Expenses) -----------------
+            int recRow = HEADER_ROW + 1;
+            decimal openingBalance = 0;
+            decimal totalOtherReceipts = 0;
+
+            foreach (ReceiptLine line in receiptRows)
+            {
+                bool isOpeningBalance = string.Equals(line.Description, OPENING_BALANCE_LABEL, StringComparison.OrdinalIgnoreCase);
+
+                if (isOpeningBalance)
+                {
+                    worksheet[recRow, COL_R_DESC].Text = "OPENING BALANCE";
+                    worksheet[recRow, COL_R_DESC].CellStyle.Font.Bold = true;
+                    worksheet[recRow, COL_R_AMT].CellStyle.Font.Bold = true;
+                    openingBalance = line.Amount;
+                    // no date/voucher printed for Opening Balance
+                }
+                else
+                {
+                    worksheet[recRow, COL_R_DATE].Text = line.PostingDate.ToString("dd.MM.yy");
+                    worksheet[recRow, COL_R_VNO].Text = line.VoucherNo;
+                    worksheet[recRow, COL_R_DESC].Text = line.Description;
+                    totalOtherReceipts += line.Amount;
+                }
+
+                worksheet[recRow, COL_R_AMT].Number = (double)line.Amount;
+                worksheet[recRow, COL_R_AMT].NumberFormat = "#,##0.00";
+
+                recRow++;
+            }
+
+            int receiptBlockEndRow = recRow - 1;
+
+            // ---- Cash In Hand (balancing figure) = Total Receipts - Total Expenses -----
+            decimal totalReceipts = openingBalance + totalOtherReceipts;
+            decimal cashInHand = totalReceipts - totalExpenseLines;
+
+            int cashInHandRow = expenseBlockEndRow + 2; // one blank row gap
+            worksheet[cashInHandRow, COL_E_DESC].Text = "CASH IN HAND";
+            worksheet[cashInHandRow, COL_E_DESC].CellStyle.Font.Bold = true;
+            worksheet[cashInHandRow, COL_E_AMT].Number = (double)cashInHand;
+            worksheet[cashInHandRow, COL_E_AMT].NumberFormat = "#,##0.00";
+            worksheet[cashInHandRow, COL_E_AMT].CellStyle.Font.Bold = true;
+
+            // ---- TOTAL boxes on both sides, aligned on the same row --------------------
+            int totalRow = Math.Max(receiptBlockEndRow, cashInHandRow) + 2; // one blank row gap
+
+            decimal totalExpensesGrand = totalExpenseLines + cashInHand; // == totalReceipts by construction
+
+            worksheet[totalRow, COL_R_DESC].Text = "TOTAL";
+            worksheet[totalRow, COL_R_DESC].CellStyle.Font.Bold = true;
+            worksheet[totalRow, COL_R_AMT].Number = (double)totalReceipts;
+            worksheet[totalRow, COL_R_AMT].NumberFormat = "#,##0.00";
+            worksheet[totalRow, COL_R_AMT].CellStyle.Font.Bold = true;
+            worksheet.Range[totalRow, COL_R_DESC, totalRow, COL_R_AMT].BorderAround(ExcelLineStyle.Dashed);
+
+            worksheet[totalRow, COL_E_DESC].Text = "TOTAL";
+            worksheet[totalRow, COL_E_DESC].CellStyle.Font.Bold = true;
+            worksheet[totalRow, COL_E_AMT].Number = (double)totalExpensesGrand;
+            worksheet[totalRow, COL_E_AMT].NumberFormat = "#,##0.00";
+            worksheet[totalRow, COL_E_AMT].CellStyle.Font.Bold = true;
+            worksheet.Range[totalRow, COL_E_DESC, totalRow, COL_E_AMT].BorderAround(ExcelLineStyle.Dashed);
+
+            // ---- Cosmetics / page setup, matching your existing report style ----------
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.CellStyle.Font.Size = 9f;
+            worksheet.Range[1, 1].CellStyle.Font.Size = 14f;
+
+            string from = fromDate.ToString("yyyy-MM-dd");
+            string to = toDate.ToString("yyyy-MM-dd");
+
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.PlantHeader(ref worksheet, END_COL, " WEEKLY STATEMENT OF "+ from + " TO " +to, identity.PlantId);
+            reportUtility.PageSetup(ref worksheet, HEADER_ROW, ExcelPageOrientation.Landscape);
+
+            worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            worksheet.IsGridLinesVisible = false;
+
+            #region Freeze Panes
+            worksheet.IsDisplayZeros = false;
+            worksheet.UsedRange["A" + (HEADER_ROW + 1)].FreezePanes();
+            worksheet.FirstVisibleColumn = 1;
+            worksheet.FirstVisibleRow = HEADER_ROW + 1;
+            #endregion
+
+            return workbook;
+        }
+
+        // =====================================================================================
+        //  DATA SPLITTING
+        // =====================================================================================
+
+        private struct ReceiptLine
+        {
+            public DateTime PostingDate;
+            public string VoucherNo;
+            public string Description;
+            public decimal Amount;
+        }
+
+        private struct ExpenseLine
+        {
+            public DateTime PostingDate;
+            public string VoucherNo;
+            public string Description;
+            public decimal Amount;
+        }
+
+        /// <summary>
+        /// Splits the single combined DataTable (Receipts FULL OUTER JOINed to Expenses by
+        /// RN, now including VoucherNo on both sides) into two independent lists for
+        /// rendering. Reads by ordinal position because the result set has duplicate
+        /// column names (DATE/DATE, VoucherNo/VoucherNo, AMOUNT/AMOUNT), which ADO.NET
+        /// silently renames when filling a DataTable - ordinal access sidesteps that.
+        /// </summary>
+        private void SplitCombinedData(DataTable dt, out List<ReceiptLine> receiptRows, out List<ExpenseLine> expenseRows)
+        {
+            receiptRows = new List<ReceiptLine>();
+            expenseRows = new List<ExpenseLine>();
+
+            const int COL_R_DATE = 0;
+            const int COL_R_VNO = 1;
+            const int COL_R_DESC = 2;
+            const int COL_R_AMT = 3;
+            const int COL_E_DATE = 4;
+            const int COL_E_VNO = 5;
+            const int COL_E_DESC = 6;
+            const int COL_E_AMT = 7;
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                if (dr[COL_R_DESC] != DBNull.Value && dr[COL_R_DESC] != null)
+                {
+                    receiptRows.Add(new ReceiptLine
+                    {
+                        PostingDate = dr[COL_R_DATE] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(dr[COL_R_DATE]),
+                        VoucherNo = dr[COL_R_VNO] == DBNull.Value ? string.Empty : dr[COL_R_VNO].ToString(),
+                        Description = dr[COL_R_DESC].ToString(),
+                        Amount = dr[COL_R_AMT] == DBNull.Value ? 0m : Convert.ToDecimal(dr[COL_R_AMT])
+                    });
+                }
+
+                if (dr[COL_E_DESC] != DBNull.Value && dr[COL_E_DESC] != null)
+                {
+                    expenseRows.Add(new ExpenseLine
+                    {
+                        PostingDate = dr[COL_E_DATE] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(dr[COL_E_DATE]),
+                        VoucherNo = dr[COL_E_VNO] == DBNull.Value ? string.Empty : dr[COL_E_VNO].ToString(),
+                        Description = dr[COL_E_DESC].ToString(),
+                        Amount = dr[COL_E_AMT] == DBNull.Value ? 0m : Convert.ToDecimal(dr[COL_E_AMT])
+                    });
+                }
+            }
+        }
+
+        // =====================================================================================
+        //  DATA ACCESS
+        // =====================================================================================
+
+        /// <summary>
+        /// The combined query exactly as you supplied it (Receipts CTE incl. Opening
+        /// Balance, FULL OUTER JOINed to Expenses CTE by ROW_NUMBER). Built via string
+        /// concatenation to match your ISqlRepository.GetDataTable(string sql) signature.
+        /// </summary>
+        private DataTable GetCombinedStatementData(string plantId, DateTime fromDate, DateTime toDate)
+        {
+            string from = fromDate.ToString("yyyy-MM-dd");
+            string to = toDate.ToString("yyyy-MM-dd");
+
+            var sql = @"WITH Expenses AS (
+    SELECT
+        V.PostingDate,V.VoucherNo,
+        A.UserName + ISNULL(' (' + V.Narration + ')','') AS HeadOfExpense,
+        VD.DrAmount AS Amount,
+        ROW_NUMBER() OVER (ORDER BY V.PostingDate, V.VoucherNo) AS RN
+    FROM TRN.VoucherDetail VD
+    LEFT JOIN TRN.Voucher V ON V.Id = VD.VoucherId
+    LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId = VD.Id
+    LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id = VD.GLGeneralInfoId
+    LEFT JOIN HKP.Activity A ON A.Id = VD.ActivityId
+    LEFT JOIN MST.BudgetMaster BM ON BM.Id = VD.BudgetMasterId
+    LEFT JOIN HKP.AccountGroup AG ON AG.Id = GL.AccountGroupId
+    WHERE V.PlantId = '"+ plantId + @"'
+        AND AG.AccountTypeId IN ('Expense','Asset')
+        AND VD.DrAmount > 0
+        AND V.PostingDate BETWEEN '"+ from + "' AND '"+to+@"'
+        AND VD.CashMasterId IS NULL
+        AND VD.BankMasterId IS NULL
+        AND V.SourceType <> 'OpeningBalance'
+),
+Receipts AS (
+    SELECT NULL PostingDate,NULL VoucherNo,
+        'Opening Balance' AS Receipt,SUM(X.ReceiptAmount)-SUM(X.ExAmountAmount) Amount ,0 RN
+		FROM (
+SELECT 
+        SUM(VD.DrAmount) AS ReceiptAmount,0 ExAmountAmount
+    FROM TRN.VoucherDetail VD
+    LEFT JOIN TRN.Voucher V ON V.Id = VD.VoucherId
+    LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId = VD.Id
+    LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id = VD.GLGeneralInfoId
+    LEFT JOIN HKP.Activity A ON A.Id = VD.ActivityId
+    LEFT JOIN MST.BudgetMaster BM ON BM.Id = VD.BudgetMasterId
+    LEFT JOIN HKP.AccountGroup AG ON AG.Id = GL.AccountGroupId
+    LEFT JOIN MST.CashMaster CM ON CM.Id = VD.CashMasterId
+    WHERE V.PlantId = '" + plantId + @"'
+        AND VD.DrAmount > 0
+        AND VD.CashMasterId <> ''
+        AND V.PostingDate < '"+ from + @"'
+        AND V.SourceType<>'OpeningBalance'
+UNION ALL 
+ SELECT 0 ReceiptAmount, SUM(VD.DrAmount) AS ExAmountAmount
+    FROM TRN.VoucherDetail VD
+    LEFT JOIN TRN.Voucher V ON V.Id = VD.VoucherId
+    LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId = VD.Id
+    LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id = VD.GLGeneralInfoId
+    LEFT JOIN HKP.Activity A ON A.Id = VD.ActivityId
+    LEFT JOIN MST.BudgetMaster BM ON BM.Id = VD.BudgetMasterId
+    LEFT JOIN HKP.AccountGroup AG ON AG.Id = GL.AccountGroupId
+    WHERE V.PlantId = '" + plantId + @"'
+        AND AG.AccountTypeId IN ('Expense','Asset')
+        AND VD.DrAmount > 0
+        AND V.PostingDate < '"+ from + @"'
+        AND VD.CashMasterId IS NULL
+        AND VD.BankMasterId IS NULL
+        AND V.SourceType <> 'OpeningBalance'
+		UNION ALL
+		 SELECT SUM(VD.DrAmount) AS ReceiptAmount,0 ExAmountAmount
+    FROM TRN.VoucherDetail VD
+    LEFT JOIN TRN.Voucher V ON V.Id = VD.VoucherId
+    LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId = VD.Id
+    LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id = VD.GLGeneralInfoId
+    LEFT JOIN HKP.Activity A ON A.Id = VD.ActivityId
+    LEFT JOIN MST.BudgetMaster BM ON BM.Id = VD.BudgetMasterId
+    LEFT JOIN HKP.AccountGroup AG ON AG.Id = GL.AccountGroupId
+    LEFT JOIN MST.CashMaster CM ON CM.Id = VD.CashMasterId
+    WHERE V.PlantId = '" + plantId + @"'
+        AND VD.DrAmount > 0
+        AND VD.CashMasterId <> ''
+        AND V.PostingDate  <= '" + from + @"'
+        AND V.SourceType = 'OpeningBalance'
+
+		) X
+
+	
+    UNION ALL
+    SELECT
+        V.PostingDate,V.VoucherNo,
+        CM.UserName + '(' + V.Narration + ')' AS Receipt,
+        VD.DrAmount AS Amount,
+        ROW_NUMBER() OVER (ORDER BY V.PostingDate, V.VoucherNo) AS RN
+    FROM TRN.VoucherDetail VD
+    LEFT JOIN TRN.Voucher V ON V.Id = VD.VoucherId
+    LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId = VD.Id
+    LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id = VD.GLGeneralInfoId
+    LEFT JOIN HKP.Activity A ON A.Id = VD.ActivityId
+    LEFT JOIN MST.BudgetMaster BM ON BM.Id = VD.BudgetMasterId
+    LEFT JOIN HKP.AccountGroup AG ON AG.Id = GL.AccountGroupId
+    LEFT JOIN MST.CashMaster CM ON CM.Id = VD.CashMasterId
+    WHERE V.PlantId = '" + plantId + @"'
+        AND VD.DrAmount > 0
+        AND VD.CashMasterId <> ''
+        AND V.PostingDate BETWEEN '"+ from + "' AND '"+to+@"'
+        AND V.SourceType <> 'OpeningBalance'
+)
+SELECT
+    R.PostingDate AS [RDATE],R.VoucherNo RVoucherNo,
+    R.Receipt     AS RECEIPTS,
+    R.Amount      AS ReceiptAMOUNT,
+    E.PostingDate AS [EDATE],E.VoucherNo EVoucherNo,
+    E.HeadOfExpense AS [EXPENSES],
+    E.Amount      AS PaymentAMOUNT
+FROM Receipts R
+FULL OUTER JOIN Expenses E ON R.RN = E.RN";
+
+            return _sqlRepository.GetDataTable(sql.ToString());
+        }
+
+
     }
+
 }
+
+
