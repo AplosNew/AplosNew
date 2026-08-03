@@ -1212,6 +1212,43 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             }
         }
 
+        public IEnumerable<object> GetTotalSPOQty(string POId, string SPOId, string processId)
+        {
+            try
+            {
+                string sql = @"SELECT PlannedQty=PQ.Qty,POQ.POQty,PQ.Qty * (PPS.Qty / 100)-ISNULL(CEILING(PRS.TotalProductionQty), 0) as RemainingQty
+,ISNULL(CEILING(PRS.TotalProductionQty), 0)TotalProductionQty,isnull(PQ.Qty,POQ.POQty) as TotalActualPlannedQty,PPS.Qty TotalProcessPlanPercentage
+,ProcessPlanQty = PQ.Qty * (PPS.Qty / 100)
+,isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * PQ.Qty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty,isnull(FPP.FirstProductionQty,0) POFirstProcessProductionQty,PPS.Sequence POProcessSequence
+                             FROM ProductionOrderSchedulingParametersType2 PQ
+                            LEFT JOIN  trn.ProductionOrder AS PO  ON PQ.ProductionOrderID = PO.Id
+                             LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + processId+@"'
+LEFT JOIN (select SUM(PP.Quantity)TotalProductionQty, PP.ProductionOrderId from [TRN].[ProductionSummary] PP where PP.ProcessId = 
+(select ProcessId from TRN.ProductionOrderProcessSet B where B.ProductionOrderId=PP.ProductionOrderId  and B.Sequence =
+(select top 1 Sequence=Sequence - 1  from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=PP.ProductionOrderId and A.ProcessId='"+processId+@"')) GROUP BY PP.ProductionOrderId
+ ) AS PPP ON PPP.ProductionOrderId = PO.Id
+LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId from [TRN].[ProductionSummary] FP where FP.ProcessId = 
+(select ProcessId from TRN.ProductionOrderProcessSet B where B.ProductionOrderId=FP.ProductionOrderId  and B.Sequence = 
+(select (Sequence-1) from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=FP.ProductionOrderId AND ProcessId='"+processId+ @"')) GROUP BY FP.ProductionOrderId 
+ ) AS FPP ON FPP.ProductionOrderId = PO.Id                            
+                            LEFT JOIN
+                            (SELECT SUM(SO.Qty) POQty, PD.ProductionOrderId FROM TRN.SalesOrder SO
+                            left join TRN.ProductionOrderDetail PD ON PD.SalesOrderId= SO.Id
+                            where SO.OrderStatusId<>'Cancelled' GROUP BY PD.ProductionOrderId
+                            ) AS POQ ON POQ.ProductionOrderId = PO.Id
+                            LEFT JOIN
+                            (SELECT SUM(PS.Quantity) TotalProductionQty, PS.ProductionOrderId, PS.SubProductionOrderId
+                            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId+ @"'  GROUP BY PS.ProductionOrderId, PS.SubProductionOrderId
+                            ) AS PRS ON PRS.ProductionOrderId = PO.Id 
+                            WHERE PO.Id = '" + POId + @"' AND PQ.ID="+ SPOId + "";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
         public IEnumerable<object> GetTotalMOIQty(string POId, string MasterOrderItemId, string processId)
         {
             try

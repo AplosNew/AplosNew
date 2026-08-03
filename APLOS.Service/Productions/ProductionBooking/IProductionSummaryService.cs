@@ -29,6 +29,7 @@ namespace Library.Service.Productions
         IEnumerable<object> GetEntity(string CompanyId, string PlantId);
         IEnumerable<object> GetTotalQty(string salesOrderId, string processId);
         IEnumerable<object> GetTotalSOQty(string POId, string salesOrderId, string processId);
+        IEnumerable<object> GetTotalSPOQty(string POId, string SPOId, string processId);
         IEnumerable<object> GetTotalMOIQty(string POId, string MasterOrderItemId, string processId);
         IEnumerable<object> GetTotalPCQty(string POId, string MasterOrderItemId, string processId);
         IEnumerable<object> GetMentorAndRespPersonByWCM(string wcmId);

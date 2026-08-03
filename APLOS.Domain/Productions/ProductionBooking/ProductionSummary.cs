@@ -94,6 +94,7 @@ namespace Library.Model.Productions.ProductionBooking
         public string FromSFGInventoryId { get; set; }
         public string ToSFGInventoryId { get; set; }
         public string ToWorkCenterMasterId { get; set; }
+        public string SubProductionOrderId { get; set; }
         
 
         #endregion Navigation

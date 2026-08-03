@@ -350,72 +350,78 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.ToCloseAllowed = false;
     $scope.getProdLevel = function () {
         try {
-            $scope.PQEnable = false;
+            if (!baseService.isUndefinedOrNull($scope.productionSummaryNew.ProcessId)) {
+                $scope.PQEnable = false;
 
-            $scope.IsFirst = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.productionSummaryNew.ProcessId;
-            })[0].IsFirst;
+                $scope.IsFirst = $.grep($scope.processList, function (item) {
+                    return item.Value === $scope.productionSummaryNew.ProcessId;
+                })[0].IsFirst;
 
-            $scope.productionSummaryNew.ProductionBookingLevel = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.productionSummaryNew.ProcessId;
-            })[0].ProductionBookingLevel;
+                $scope.productionSummaryNew.ProductionBookingLevel = $.grep($scope.processList, function (item) {
+                    return item.Value === $scope.productionSummaryNew.ProcessId;
+                })[0].ProductionBookingLevel;
 
-            $scope.LotNumberCapture = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.productionSummaryNew.ProcessId;
-            })[0].LotNumberCapture;
+                $scope.LotNumberCapture = $.grep($scope.processList, function (item) {
+                    return item.Value === $scope.productionSummaryNew.ProcessId;
+                })[0].LotNumberCapture;
 
-            $scope.LotNumberMandatory = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.productionSummaryNew.ProcessId;
-            })[0].LotNumberMandatory;
+                $scope.LotNumberMandatory = $.grep($scope.processList, function (item) {
+                    return item.Value === $scope.productionSummaryNew.ProcessId;
+                })[0].LotNumberMandatory;
 
-            $scope.IsSKU1 = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.productionSummaryNew.ProcessId;
-            })[0].IsSKU1;
+                $scope.IsSKU1 = $.grep($scope.processList, function (item) {
+                    return item.Value === $scope.productionSummaryNew.ProcessId;
+                })[0].IsSKU1;
 
-            $scope.IsSKU2 = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.productionSummaryNew.ProcessId;
-            })[0].IsSKU2;
+                $scope.IsSKU2 = $.grep($scope.processList, function (item) {
+                    return item.Value === $scope.productionSummaryNew.ProcessId;
+                })[0].IsSKU2;
 
-            $scope.IsSKU3 = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.productionSummaryNew.ProcessId;
-            })[0].IsSKU3;
+                $scope.IsSKU3 = $.grep($scope.processList, function (item) {
+                    return item.Value === $scope.productionSummaryNew.ProcessId;
+                })[0].IsSKU3;
 
-            $scope.IsParameterBased = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.productionSummaryNew.ProcessId;
-            })[0].IsParameterBased;
+                $scope.IsParameterBased = $.grep($scope.processList, function (item) {
+                    return item.Value === $scope.productionSummaryNew.ProcessId;
+                })[0].IsParameterBased;
 
 
-            $scope.ToCloseAllowed = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.productionSummaryNew.ProcessId;
-            })[0].ToCloseAllowed;
+                $scope.ToCloseAllowed = $.grep($scope.processList, function (item) {
+                    return item.Value === $scope.productionSummaryNew.ProcessId;
+                })[0].ToCloseAllowed;
 
-            if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
-                $scope.ProductionLevel = 'Production Order';
-                $scope.disGo = false;
+                if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
+                    $scope.ProductionLevel = 'Production Order';
+                    $scope.disGo = false;
+                }
+                else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
+                    $scope.ProductionLevel = 'Sales Order';
+                    $scope.disGo = false;
+                }
+                else if ($scope.productionSummaryNew.ProductionBookingLevel === 'MasterOrderItem') {
+                    $scope.ProductionLevel = 'Master Order Item';
+                    $scope.disGo = false;
+                }
+                else if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductCode') {
+                    $scope.ProductionLevel = 'Product Code';
+                    $scope.disGo = false;
+                }
+                else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SubProductionOrder') {
+                    $scope.ProductionLevel = 'Sub Production Order';
+                    $scope.disGo = false;
+                }
+                else {
+                    $scope.disGo = true;
+                    $scope.PQEnable = true;
+                    throw 'Production Booking Level is not defined for selected process.';
+                }
+
+                if ($scope.IsSKU1 === true || $scope.IsSKU2 === true || $scope.IsSKU2 === true || $scope.IsParameterBased == true) {
+                    $scope.PQEnable = true;
+                    $scope.disGo = false;
+                }
+
             }
-            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
-                $scope.ProductionLevel = 'Sales Order';
-                $scope.disGo = false;
-            }
-            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'MasterOrderItem') {
-                $scope.ProductionLevel = 'Master Order Item';
-                $scope.disGo = false;
-            }
-            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductCode') {
-                $scope.ProductionLevel = 'Product Code';
-                $scope.disGo = false;
-            }
-            else {
-                $scope.disGo = true;
-                $scope.PQEnable = true;
-                throw 'Production Booking Level is not defined for selected process.';
-            }
-
-            if ($scope.IsSKU1 === true || $scope.IsSKU2 === true || $scope.IsSKU2 === true || $scope.IsParameterBased == true) {
-                $scope.PQEnable = true;
-                $scope.disGo = false;
-            }
-
 
         } catch (e) {
             ShowResult(e, 'failure');
@@ -992,6 +998,68 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
 
     }
+
+    $scope.SubProductionOrderList = [];
+    $scope.GetSavedSKUData = function () {
+        $http({
+            method: 'POST',
+            data: {
+                'poId': $scope.NewObject.ProductionOrderId
+            },
+            url: 'OrderManagements/ProductionOrder/GetSavedSKUData'
+        }).then(function successCallback(response) {
+            $scope.SubProductionOrderList = response.data;
+            angular.element(document.querySelector('#SPOItemPopup')).modal('show');
+
+        });
+    }
+
+    $scope.selectSPOItem = function (e) {
+        $scope.NewObject.SubProductionOrderId = e.data.ID;
+        angular.element(document.querySelector('#SPOItemPopup')).modal('hide');
+
+        $scope.TotalSalesOrderQty = 0;
+        $scope.TotalProductionBookingQty = 0;
+        $scope.RemainQty = 0;
+        $scope.TotalActualPlannedQty = 0;
+        $scope.TotalProcessPlanPercentage = 0;
+        $scope.TotalPOQty = 0;
+        $scope.TotalProcessPlanQty = 0;
+        $scope.TotalCurPOBalProd = 0;
+        $scope.TotalPOPreviousProdQty = 0;
+        $scope.TotalPOFirstProcessProdQty = 0;
+        $scope.TotalPOProcessSequence = 0;
+        $http.get('Productions/Productionsummary/GetTotalSPOQty?POId=' + $scope.NewObject.ProductionOrderId + '&SPOId=' + $scope.NewObject.SubProductionOrderId + '&processId=' + $scope.productionSummaryNew.ProcessId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.TotalSalesOrderQty = parseFloat(response.data[0].PlannedQty).toFixed(0);
+                    $scope.RemainQty = parseFloat(response.data[0].RemainingQty).toFixed(0);
+                    $scope.TotalProductionBookingQty = parseFloat(response.data[0].TotalProductionQty).toFixed(0);
+                    $scope.TotalActualPlannedQty = parseFloat(response.data[0].TotalActualPlannedQty).toFixed(0);
+                    $scope.TotalProcessPlanPercentage = parseFloat(response.data[0].TotalProcessPlanPercentage).toFixed(0);
+                    $scope.TotalPOQty = parseFloat(response.data[0].POQty).toFixed(0);
+                    $scope.TotalProcessPlanQty = parseFloat(response.data[0].ProcessPlanQty).toFixed(0);
+                    $scope.TotalCurPOBalProd = parseFloat(response.data[0].CurPOBalProd).toFixed(0);
+                    $scope.TotalPOPreviousProdQty = parseFloat(response.data[0].POPreviousProdQty).toFixed(0);
+                    $scope.TotalPOFirstProcessProdQty = parseFloat(response.data[0].POFirstProcessProductionQty).toFixed(0);
+                    $scope.TotalPOProcessSequence = parseFloat(response.data[0].POProcessSequence).toFixed(0);
+                    $scope.NewObject.RemainingQty = $scope.RemainQty;
+                    $scope.NewObject.OrderQty = $scope.TotalSalesOrderQty;
+                    $scope.NewObject.BookedQty = $scope.TotalProductionBookingQty;
+                    $scope.NewObject.ActualPlannedQty = $scope.TotalActualPlannedQty;
+                    $scope.NewObject.ProcessPlanPercentage = $scope.TotalProcessPlanPercentage;
+                    $scope.NewObject.POQty = $scope.TotalPOQty;
+                    $scope.NewObject.ProcessPlanQty = $scope.TotalProcessPlanQty;
+                    $scope.NewObject.CurPOBalProd = $scope.TotalCurPOBalProd;
+                    $scope.NewObject.POPreviousProdQty = $scope.TotalPOPreviousProdQty;
+                    $scope.NewObject.POFirstProcessProductionQty = $scope.TotalPOFirstProcessProdQty;
+                    $scope.NewObject.POProcessSequence = $scope.TotalPOProcessSequence;
+                }
+            });
+
+        var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    }
+
 
     $scope.psdList = [];
     $scope.char1Save = function () {
@@ -1902,7 +1970,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         }
 
 
-        if ($scope.NewObject.ProductionGrade!=="C") {
+        if ($scope.NewObject.ProductionGrade !== "C") {
             if ($scope.NewObject.POProcessSequence != "1") {
                 if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.NewObject.POFirstProcessProductionQty) {
                     throw "Produced qty cannot more than the first process qty.";
@@ -1910,7 +1978,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 else {
                     $scope.CompareMaxValue = Math.max(parseFloat($scope.NewObject.ProcessPlanQty), parseFloat($scope.NewObject.POPreviousProdQty))
                     if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.CompareMaxValue) {
-                        throw "You cannot booked greater than Current Process Plan Qty or Previous Process Booked Qty.";
+                        throw "You cannot book greater than Current Process Plan Qty or Previous Process Booked Qty.";
                     }
                     else {
 
@@ -1930,7 +1998,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             }
             else {
                 if ($scope.NewObject.ProductionVerification != true) {
-                    throw "You cannot booked more than Verified Process...";
+                    throw "You cannot book more than Verified Process...";
                 }
                 if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.NewObject.ProcessPlanQty) {
                     throw "You cannot booked greater than Process Plan Qty.";
@@ -2776,15 +2844,17 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     $scope.shiftList = [];
     $scope.GetShiftList = function () {
-        $http.get('Productions/Productionsummary/GetShiftList?processId=' + $scope.productionSummaryNew.ProcessId)
-            .then(function (response) {
-                if (baseService.arrayLength(response.data) > 0) {
-                    $scope.shiftList = response.data;
-                    if (baseService.arrayLength(response.data) === 1) {
-                        $scope.productionSummaryNew.ProductionShiftId = $scope.shiftList[0].Value;
+        if (!baseService.isUndefinedOrNull($scope.productionSummaryNew.ProcessId)) {
+            $http.get('Productions/Productionsummary/GetShiftList?processId=' + $scope.productionSummaryNew.ProcessId)
+                .then(function (response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.shiftList = response.data;
+                        if (baseService.arrayLength(response.data) === 1) {
+                            $scope.productionSummaryNew.ProductionShiftId = $scope.shiftList[0].Value;
+                        }
                     }
-                }
-            });
+                });
+        }
     }
 
     $scope.selectGridIncharge = function (data) {

@@ -3098,7 +3098,14 @@ SELECT
     ISNULL(Y.LeaveEmp,0) LeaveYesterday,
     ISNULL(Y.WeekOffEmp,0) WeekOffYesterday,
     ISNULL(Y.AbsentEmp,0) AbsentYesterday,
-    AbsentPerYesterday=ISNULL((ISNULL(Y.LeaveEmp,0)+ISNULL(Y.AbsentEmp,0))/NULLIF((ISNULL(A.ActiveEmployee,0)-ISNULL(L5.Absent5DaysEmp,0)),0),0),
+    AbsentPerYesterday = ISNULL(
+    CAST(
+        ROUND(
+            CAST((ISNULL(Y.LeaveEmp,0) + ISNULL(Y.AbsentEmp,0)) AS DECIMAL(18,4)) * 100.0
+            / NULLIF((ISNULL(A.ActiveEmployee,0) - ISNULL(L5.Absent5DaysEmp,0)), 0)
+        , 2)
+    AS DECIMAL(10,2))
+, 0),
     NetDeployedYesterday=(ISNULL(A.ActiveEmployee,0)-ISNULL(L5.Absent5DaysEmp,0))-ISNULL(Y.LeaveEmp,0)-ISNULL(Y.WeekOffEmp,0)-ISNULL(Y.AbsentEmp,0),
     ISNULL(SA.ScanApplicableEmployee,0) ScanApplicable,
     ISNULL(YPV.ScanComplete,0)ScanComplete,
