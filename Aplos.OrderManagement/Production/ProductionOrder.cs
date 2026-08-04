@@ -1119,8 +1119,7 @@ Group By  D.ProductionOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueI
         {
             try
             {
-                string sql = @"select WM.UserName WorkCenterMaster,WG.* from hkp.WorkCenterGroup WG
-LEFT JOIN SCS.WorkCenterMaster WM ON WM.Id=WG.WorkCenterMasterId";
+                string sql = @"select WG.* from hkp.WorkCenterGroup WG";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
