@@ -16568,13 +16568,14 @@ Group By A.POId,A.LotNo,A.EntityId,A.WorkDate,A.ShiftId,A.Grade,A.ProcessId,A.Pl
             try
             {
                 string fromDate = Convert.ToDateTime(DateTime.Now).ToString("dd-MMM-yyyy");
-                var str = @"select SUM(G.Qty+PassQty)Quantity,C.ProductionOrderId,C.SalesOrderId,I.EntityId,I.DateTime ProductionDate
+                var str = @"select SUM(G.Qty+PassQty)Quantity,C.ProductionOrderId,C.SalesOrderId,I.EntityId,I.DateTime ProductionDate,I.WorkCenterMasterId
 ,I.ShiftId,G.Grade,I.ProcessId
 from [dbo].[InspectionTranGrandChild] G
 LEFT JOIN [TRN].[InspectionTranChild] C ON C.Id=G.InspectionTranChildId
 LEFT JOIN [TRN].[Inspection] I ON I.Id=C.InspectionId
-WHERE I.DateTime between '" + fromDate + @"' and '" + fromDate + @"'
-Group By C.ProductionOrderId,C.SalesOrderId,I.EntityId,I.DateTime,I.ShiftId,G.Grade,I.ProcessId
+LEFT JOIN [dbo].[InspectionTypeEnteryLevel] L ON L.Id=C.InspectionTypeEnteryLevelId
+WHERE I.DateTime between '" + fromDate + @"' and '" + fromDate + @"' AND L.IsProduction=1
+Group By C.ProductionOrderId,C.SalesOrderId,I.EntityId,I.DateTime,I.ShiftId,G.Grade,I.ProcessId,I.WorkCenterMasterId
 ";
                 dtOrder = _sqlRepository.GetDataTable(str);
             }
@@ -16609,6 +16610,7 @@ Group By C.ProductionOrderId,C.SalesOrderId,I.EntityId,I.DateTime,I.ShiftId,G.Gr
 
                             dr.BeginEdit();
                             dr["Quantity"] = data.Rows[i]["Quantity"].ToString();
+                            dr["InspectionQty"] = data.Rows[i]["Quantity"].ToString();
                             dr["UpdatedBy"] = "schedule";
                             dr["UpdatedDate"] = DateTime.Now.ToString();
                             dr["UpdatedFromIP"] = "";
@@ -16627,9 +16629,11 @@ Group By C.ProductionOrderId,C.SalesOrderId,I.EntityId,I.DateTime,I.ShiftId,G.Gr
                             drProductionSummary["ProcessId"] = data.Rows[i]["ProcessId"].ToString();
                             drProductionSummary["ProductionDate"] = data.Rows[i]["ProductionDate"].ToString();
                             drProductionSummary["Quantity"] = data.Rows[i]["Quantity"].ToString();
+                            drProductionSummary["InspectionQty"] = data.Rows[i]["Quantity"].ToString();
                             drProductionSummary["ProductionOrderId"] = data.Rows[i]["ProductionOrderId"].ToString();
                             drProductionSummary["ProductionShiftId"] = data.Rows[i]["ShiftId"].ToString();
                             drProductionSummary["ProductionGrade"] = data.Rows[i]["Grade"].ToString();
+                            drProductionSummary["WorkCenterMasterId"] = data.Rows[i]["WorkCenterMasterId"].ToString();
 
                             drProductionSummary["AddedBy"] = "schedule";
                             drProductionSummary["AddedDate"] = DateTime.Now;
