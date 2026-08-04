@@ -1052,7 +1052,6 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
             });
         $scope.GetWorkCenterWiseShiftList();
         $scope.GetWCSSequence();
-        $scope.GetWCGSequence();
         angular.element(document.querySelector('#detailPopUp')).modal('show');
     }
     // #endregion
@@ -1886,79 +1885,130 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
 
     //#region WorkCenterGroup
 
-    $scope.ModelWCGTemp = {
-        Id: null,
-        Sequence: 0,
-        Code: null,
-        ShortName: null,
-        StandardName: null,
-        UserName: null,
-        Description: null,
-        Remarks: null,
-        Active: true
-    };
-    $scope.ModelNewWCG = Object.assign({}, $scope.ModelTemp);
+    $scope.searchBy = "UserName"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
-    $scope.GetWCGSequence = function () {
-        cboService.getSequence('WorkCenters/WorkCenterMaster/GetWCGAutoSequence?WorkCenterMasterId=' + $scope.masterId, function (data) {
-            $scope.ModelNewWCG.Sequence = data;
-        });
-    };
 
     $scope.WCGList = [];
-    $scope.GetWCGList = function () {
-        $scope.WCGList = [];
+    $scope.GetWCGroupPopUp = function () {
         $http({
-            method: 'GET',
-            url: 'WorkCenters/WorkCenterMaster/GetWCGroup?WorkCenterMasterId=' + $scope.masterId
+            method: 'POST',
+            url: "WorkCenters/WorkCenterMaster/GetWCGroup",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.WCGList = response.data;
         });
-    }
-    $scope.WCGAction = 'Save';
 
-    $scope.GetWSC = function (args) {
-        $scope.ModelNewWCG = Object.assign({}, args.data);
-        $scope.WCGAction = 'Update';
+        angular.element(document.querySelector('#WCGroupPopUp')).modal('show');
     };
 
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllWise });
+    };
+
+    function CheckBoxSelectAllWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridQCG").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.WCGList.length; i++) {
+                $scope.WCGList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridQCG").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.WCGwiseList = [];
+    function MakeData() {
+
+        for (var i = 0; i < $scope.WCGList.length; i++) {
+            if ($scope.WCGList[i].Flag == true) {
+                if (checkExists($scope.WCGwiseList, $scope.WCGList[i].Id) === false) {
+                    var ob = {};
+                    ob.Id = -(Math.floor(Math.random() * 100) + 1);
+                    ob.WorkCenterGroupId = $scope.WCGList[i].Id;
+                    ob.WorkCenterMasterId = $scope.masterId;
+                    ob.Sequence = $scope.WCGList[i].Sequence;
+                    ob.Code = $scope.WCGList[i].Code;
+                    ob.ShortName = $scope.WCGList[i].ShortName;
+                    ob.StandardName = $scope.WCGList[i].StandardName;
+                    ob.UserName = $scope.WCGList[i].UserName;
+
+                    $scope.WCGwiseList.push(ob);
+                }
+                else {
+                    throw "This Work Center Group " + $scope.WCGList[i].UserName + " is already taken.";
+                }
+            }
+        }
+
+    }
+
+    function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].WorkCenterGroupId === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.CloseWCG = function () {
+        try {
+            MakeData();
+            $scope.SaveWCG();
+            angular.element(document.querySelector('#WCGroupPopUp')).modal('hide');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
     $scope.SaveWCG = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ModelNewWCGForm.$valid) {
-            $scope.ModelNewWCG.WorkCenterMasterId = $scope.masterId;
+        try {
+           
             $http({
                 method: 'POST',
-                url: 'WorkCenters/WorkCenterMaster/CreateWCGroup',
-                data: { 'data': $scope.ModelNewWCG, 'WorkCenterMasterId': $scope.ModelNewWCG.WorkCenterMasterId },
+                url: 'WorkCenters/WorkCenterMaster/SaveWorkCenterWiseGroup',
+                data: { 'data': $scope.WCGwiseList, 'masterId': $scope.masterId },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    ShowResult(response.data.Message, 'success');
-                    ClearWCGFields(response.data.Sequence);
+                    ShowResult(response.data.Message, 'success');                   
                     $scope.GetWCGList();
-
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
-            }
+            };
 
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
     };
 
-    $scope.ClearWCG = function () {
-        ClearWCGFields($scope.GetWCGSequence());
-        return true;
-    };
-
-    function ClearWCGFields(seq) {
-        $scope.Action = 'Save';
-        $scope.ModelNewWCG = Object.assign({}, $scope.ModelWCGTemp);
-        $scope.ModelNewWCG.Sequence = seq;
+    $scope.WCGwiseList = [];
+    $scope.GetWCGList = function () {
+        $scope.WCGwiseList = [];
+        $http({
+            method: 'GET',
+            url: 'WorkCenters/WorkCenterMaster/GetWCWGroup?WorkCenterMasterId=' + $scope.masterId
+        }).then(function successCallback(response) {
+            $scope.WCGwiseList = response.data;
+        });
     }
-
+    
 
     //#endregion
 };

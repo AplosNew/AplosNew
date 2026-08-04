@@ -35,6 +35,12 @@ namespace Aplos.Areas.WorkCenters.Controllers
             return View();
         }
 
+        [Authorize]
+        public ActionResult WCGroup()
+        {
+            return View();
+        }
+
         #region -- Operations
 
         [HttpGet, Authorize]
@@ -456,22 +462,22 @@ LEFT JOIN MST.OperationMaster A on A.Id=w.SkillMasterId Where w.WorkCenterMaster
         }
 
         [HttpPost,Authorize]
-        public JsonResult CreateWCGroup(Dictionary<string, object> data, string WorkCenterMasterId)
+        public JsonResult CreateWCGroup(Dictionary<string, object> data)
         {
             try
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from [HKP].[WorkCenterGroup] where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "' AND WorkCenterMasterId='" + WorkCenterMasterId + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[WorkCenterGroup] where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Code already exists!!!");
 
-                con.OpenDataSetThroughAdapter("select * from [HKP].[WorkCenterGroup] where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "' AND WorkCenterMasterId='" + WorkCenterMasterId + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[WorkCenterGroup] where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same User Name already exists!!!");
 
 
-                con.OpenDataSetThroughAdapter("select * from [HKP].[WorkCenterGroup] where Id='" + data["Id"] + "' AND WorkCenterMasterId='" + WorkCenterMasterId + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [HKP].[WorkCenterGroup] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -494,7 +500,7 @@ LEFT JOIN MST.OperationMaster A on A.Id=w.SkillMasterId Where w.WorkCenterMaster
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
-                return Json(new { Error = false, Data = data, Sequence = GetWCGSequence(WorkCenterMasterId), Message = AplosMessage.Success });
+                return Json(new { Error = false, Data = data, Sequence = GetWCGSequence(), Message = AplosMessage.Success });
 
             }
             catch (Exception ex)
@@ -506,25 +512,102 @@ LEFT JOIN MST.OperationMaster A on A.Id=w.SkillMasterId Where w.WorkCenterMaster
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetWCGAutoSequence(string WorkCenterMasterId)
+        public JsonResult GetWCGAutoSequence()
         {
-            return Json(GetWCGSequence(WorkCenterMasterId), JsonRequestBehavior.AllowGet);
+            return Json(GetWCGSequence(), JsonRequestBehavior.AllowGet);
         }
 
-        private double GetWCGSequence(string WorkCenterMasterId)
+        private double GetWCGSequence()
         {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM [HKP].[WorkCenterGroup] Where WorkCenterMasterId='" + WorkCenterMasterId + "'");
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM [HKP].[WorkCenterGroup]");
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
             return 1;
         }
 
-        [Authorize, HttpGet]
-        public ActionResult GetWCGroup(string WorkCenterMasterId)
+        
+        [HttpPost, Authorize]
+        public ActionResult GetWCGroup(string column, string value)
         {
-            string sql = @"select w.* from [HKP].[WorkCenterGroup] W Where w.WorkCenterMasterId='" + WorkCenterMasterId + "'";
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (SELECT *, Flag=CAST(0 as bit) FROM [HKP].[WorkCenterGroup]) AS TEMP WHERE " + strkey + " order by sequence";
+
+
+
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetWCWGroup(string WorkCenterMasterId)
+        {
+            string sql = @"select WM.UserName WorkCenterMaster,WWG.*,WG.Sequence,WG.Code,WG.ShortName,WG.StandardName,WG.UserName 
+from HKP.WorkCenterWiseGroup WWG 
+LEFT JOIN hkp.WorkCenterGroup WG ON WG.Id=WWG.WorkCenterGroupId 
+LEFT JOIN SCS.WorkCenterMaster WM ON WM.Id=WWG.WorkCenterMasterId
+Where WWG.WorkCenterMasterId='" + WorkCenterMasterId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveWorkCenterWiseGroup(List<Dictionary<string, object>> data, string masterId)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsBC;
+            string _Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                string strSQL = "Delete FROM HKP.WorkCenterWiseGroup Where WorkCenterMasterId='" + masterId + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+
+                #region Entity 
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM HKP.WorkCenterWiseGroup Where WorkCenterMasterId='" + masterId + "'", out dsBC, false, "1");
+
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["WorkCenterMasterId"] = masterId;
+                            AddNewRow(dsBC.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                }
+
+                #endregion
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
         }
 
 
