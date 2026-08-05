@@ -943,7 +943,7 @@ namespace Library.Service.OrderManagements
                             FROM SCS.WorkCenterMaster AS WCM
                             INNER JOIN org.Entity AS e ON e.Id=wcm.EntityId
                             INNER JOIN org.Plant AS p ON p.Id=wcm.PlantId
-                            WHERE WCM.ProcessID='" + processid + @"' AND  WCM.EntityId IN(" + ReturnStringArray(entityIds) + ") AND WCM.Id IN(select WorkCenterMasterId from HKP.WorkCenterGroup Where Id='"+ wcgId + "') order by p.userName, e.UserName,WCM.sequence";
+                            WHERE WCM.ProcessID='" + processid + @"' AND  WCM.EntityId IN(" + ReturnStringArray(entityIds) + ") AND WCM.Id IN(select WorkCenterMasterId from HKP.WorkCenterWiseGroup Where WorkCenterGroupId='" + wcgId + "') order by p.userName, e.UserName,WCM.sequence";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (CustomException)

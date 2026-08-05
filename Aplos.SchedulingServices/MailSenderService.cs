@@ -16563,6 +16563,98 @@ Group By A.POId,A.LotNo,A.EntityId,A.WorkDate,A.ShiftId,A.Grade,A.ProcessId,A.Pl
             }
         }
 
+        public void GetInspectionData(out DataTable dtOrder)
+        {
+            try
+            {
+                string fromDate = Convert.ToDateTime(DateTime.Now).ToString("dd-MMM-yyyy");
+                var str = @"select SUM(G.Qty+PassQty)Quantity,C.ProductionOrderId,C.SalesOrderId,I.EntityId,I.DateTime ProductionDate,I.WorkCenterMasterId
+,I.ShiftId,G.Grade,I.ProcessId
+from [dbo].[InspectionTranGrandChild] G
+LEFT JOIN [TRN].[InspectionTranChild] C ON C.Id=G.InspectionTranChildId
+LEFT JOIN [TRN].[Inspection] I ON I.Id=C.InspectionId
+LEFT JOIN [dbo].[InspectionTypeEnteryLevel] L ON L.Id=C.InspectionTypeEnteryLevelId
+WHERE I.DateTime between '" + fromDate + @"' and '" + fromDate + @"' AND L.IsProduction=1
+Group By C.ProductionOrderId,C.SalesOrderId,I.EntityId,I.DateTime,I.ShiftId,G.Grade,I.ProcessId,I.WorkCenterMasterId
+";
+                dtOrder = _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        public void SaveInspectionToBooking(string addedBy, string ip, string appVersion)
+        {
+            try
+            {
+                DataTable data = null;
+                DataSet dsProductionSummary = null;
+                GetInspectionData(out data);
+                #region ProductionSummary
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                if (data.Rows.Count > 0)
+                {
+                    for (int i = 0; i < data.Rows.Count; i++)
+                    {
+                        string pssql = @"SELECT * FROM TRN.ProductionSummary WHERE ProductionDate between '" + Convert.ToDateTime(data.Rows[i]["ProductionDate"]).ToString("dd-MMM-yyyy") + @"' AND '" + Convert.ToDateTime(data.Rows[i]["ProductionDate"]).ToString("dd-MMM-yyyy") + @"' AND ProductionOrderId='" + data.Rows[i]["ProductionOrderId"].ToString() + @"' AND EntityId='" + data.Rows[i]["EntityId"].ToString() + @"' AND ProcessId='" + data.Rows[i]["ProcessId"].ToString() + @"''";
+                        con.OpenDataSetThroughAdapter(pssql, out dsProductionSummary, false, "1");
+
+                        dsProductionSummary.Tables[0].DefaultView.RowFilter = "ProductionDate='" + data.Rows[i]["ProductionDate"].ToString() + "' AND ProductionOrderId = '" + data.Rows[i]["ProductionOrderId"] + "' AND EntityId = '" + data.Rows[i]["EntityId"].ToString() + "' AND ProcessId = '" + data.Rows[i]["ProcessId"].ToString() + "'";
+
+                        if (dsProductionSummary.Tables[0].DefaultView.Count > 0)
+                        {
+                            //edit
+                            DataRow dr = dsProductionSummary.Tables[0].DefaultView[0].Row;
+
+                            dr.BeginEdit();
+                            dr["Quantity"] = data.Rows[i]["Quantity"].ToString();
+                            dr["InspectionQty"] = data.Rows[i]["Quantity"].ToString();
+                            dr["UpdatedBy"] = "schedule";
+                            dr["UpdatedDate"] = DateTime.Now.ToString();
+                            dr["UpdatedFromIP"] = "";
+
+                            dr.EndEdit();
+                        }
+                        else
+                        {
+                            bplib.clsGenID objGenID = new bplib.clsGenID();
+                            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
+
+                            DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();
+                            drProductionSummary["Id"] = "PS" + sID;
+                            //drProductionSummary["PlantId"] = data.Rows[i]["PlantId"].ToString();//identity.PlantId;
+                            drProductionSummary["EntityId"] = data.Rows[i]["EntityId"].ToString();
+                            drProductionSummary["ProcessId"] = data.Rows[i]["ProcessId"].ToString();
+                            drProductionSummary["ProductionDate"] = data.Rows[i]["ProductionDate"].ToString();
+                            drProductionSummary["Quantity"] = data.Rows[i]["Quantity"].ToString();
+                            drProductionSummary["InspectionQty"] = data.Rows[i]["Quantity"].ToString();
+                            drProductionSummary["ProductionOrderId"] = data.Rows[i]["ProductionOrderId"].ToString();
+                            drProductionSummary["ProductionShiftId"] = data.Rows[i]["ShiftId"].ToString();
+                            drProductionSummary["ProductionGrade"] = data.Rows[i]["Grade"].ToString();
+                            drProductionSummary["WorkCenterMasterId"] = data.Rows[i]["WorkCenterMasterId"].ToString();
+
+                            drProductionSummary["AddedBy"] = "schedule";
+                            drProductionSummary["AddedDate"] = DateTime.Now;
+                            drProductionSummary["AddedFromIP"] = "";
+
+                            dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
+                        }
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsProductionSummary);
+
+                    }
+                }
+
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
         #endregion
 
         public void LVProcess(string addedBy, string ip, string appVersion)

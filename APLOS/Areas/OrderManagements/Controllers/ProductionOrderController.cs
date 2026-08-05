@@ -2920,6 +2920,13 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                             drmo.BeginEdit();
                             drmo["ProcessId"] = item["ProcessId"];
                             drmo["IsBaseProcess"] = item["IsBaseProcess"];
+                            drmo["ProductionBookingLevel"] = item["ProductionBookingLevel"];
+                            drmo["IsInventory"] = item["IsInventory"];
+                            drmo["Days"] = item["Days"];
+                            drmo["ProductionCycleTime"] = item["ProductionCycleTime"];
+                            drmo["Qty"] = item["Qty"];
+                            drmo["UOMId"] = item["UOMId"];
+                            drmo["IsProductionVerification"] = item["IsProductionVerification"];
                             drmo["Sequence"] = sq;
                             drmo.EndEdit();
                         }

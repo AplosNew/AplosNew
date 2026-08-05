@@ -21,5 +21,9 @@ function WorkCenterConfig($routeProvider, $locationProvider) {
             templateUrl: 'WorkCenters/workstationdaily/aplos',
             controller: 'workStationDailyController'
         })
+        .when('/work-center-group', {
+            templateUrl: 'WorkCenters/WorkCenterMaster/WCGroup',
+            controller: 'workCenterGroupController'
+        })
         ;
 }

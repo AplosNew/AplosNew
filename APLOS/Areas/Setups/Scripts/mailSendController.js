@@ -575,10 +575,10 @@ $scope.SendAccountDelayPosting = function () {
         };
     };
 
-    $scope.SaveScanToPacking = function () {
+    $scope.SaveInspectionToPacking = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'SaveScandataToBooking',
+            url: $scope.path + 'SaveInspectionToBooking',
             params: {
                 'addedBy': "",
                 'ip': "",

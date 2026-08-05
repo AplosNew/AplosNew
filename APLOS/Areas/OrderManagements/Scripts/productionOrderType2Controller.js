@@ -17,8 +17,8 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
     $scope.path = 'OrderManagements/ProductionOrder/';
     $scope.getListUrl = $scope.path + 'GetType2List';
-    //$scope.saveUrl = $scope.path + 'CreateProductionOrderType2';
-    $scope.saveUrl = $scope.path + 'Create';
+    $scope.saveUrl = $scope.path + 'CreateProductionOrderType2';
+    //$scope.saveUrl = $scope.path + 'Create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'DeleteType2/';
 
@@ -2164,7 +2164,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     };
 
     $scope.ModelNewSPO = {
-        SKU1: false, SKU2: false, Both: true, SPT: 0, PlanHour: 24, PlanPercentage: 0, NetUtilizationPercentage: 0, MinQty: 1, LSD: null, NoOfWorkStation:1
+        SKU1: false, SKU2: true, Both: false, SPT: 0, PlanHour: 24, PlanPercentage: 0, NetUtilizationPercentage: 0, MinQty: 1, LSD: null, NoOfWorkStation:1
     }
 
     $scope.SetCheckbox = function (name) {
@@ -2471,6 +2471,9 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.GetSavedSKUData();
+                    $scope.ModelNewSPO = {
+                        SKU1: false, SKU2: true, Both: false, SPT: 0, PlanHour: 24, PlanPercentage: 0, NetUtilizationPercentage: 0, MinQty: 1, LSD: null, NoOfWorkStation: 1
+                    }
                 }
             }, function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');

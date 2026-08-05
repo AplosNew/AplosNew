@@ -7125,7 +7125,7 @@ INNER JOIN ProductionOrderSchedulingParametersType2 AS t ON t.ProductionOrderID=
                         sbLog.AppendLine("No workcenter preference was defined in production order\r\nSearching in product preference...");
                         sql = @"SELECT WC.*,convert(bit,0) as isResidualApplicable FROM  [SCS].[WorkCenterMaster] WC 
                                 WHERE WC.Id IN (
-                                Select WorkCenterMasterId from HKP.WorkCenterGroup WHERE ID 
+                                Select WorkCenterMasterId from HKP.WorkCenterWiseGroup WHERE WorkCenterGroupId
                                 IN(Select WorkCenterGroupId from dbo.ProductionOrderSchedulingParametersType2 WHERE ID='" + productionOrderID + @"')
                                 ) AND WC.ProcessID='" + processid + @"' AND WC.EntityId IN (
                                 SELECT DISTINCT d.EntityId FROM [TRN].ProductionOrder D

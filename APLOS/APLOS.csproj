@@ -3255,6 +3255,7 @@
     <Content Include="Areas\TaskScheduler\Scripts\taskScheduleController.js" />
     <Content Include="Areas\TaskScheduler\Scripts\TaskSchedulerConfig.js" />
     <Content Include="Areas\TaskScheduler\Scripts\DependantTaskController.js" />
+    <Content Include="Areas\WorkCenters\Scripts\workCenterGroupController.js" />
     <Content Include="Content\angucomplete-alt.css" />
     <Content Include="Content\bootstrap-datepicker3.css" />
     <Content Include="Content\bootstrap-datepicker3.min.css" />
@@ -5334,6 +5335,7 @@
     <Content Include="Areas\QMS\Views\QualityProcess\Defects.cshtml" />
     <Content Include="Areas\QMS\Views\QualityProcess\DefectPoint.cshtml" />
     <Content Include="Areas\QMS\Views\QualityProcess\AQLMaster.cshtml" />
+    <Content Include="Areas\WorkCenters\Views\WorkCenterMaster\WCGroup.cshtml" />
     <None Include="Reports\HumanResource\Payrolls\PayrollsDataSet.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>PayrollsDataSet.Designer.cs</LastGenOutput>
