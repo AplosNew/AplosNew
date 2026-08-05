@@ -2451,7 +2451,8 @@ from [dbo].[ProductArea] PA
 left join [MST].[ImageMaster] IM on IM.Id = PA.ImageMasterId
 left join [MST].[ImageProduct] IMP on IMP.ImageMasterId = IM.Id
 left join TRN.ProductionBulletinTemplate PB on PB.ProductMasterId = IMP.ProductMasterId
-where PB.ProductionOrderId = '" + productionorderid + "'  and  IM.ProcessId = '" + ProcessId + "'"));
+left join hkp.ImageMasterProcess impe on impe.Imagemasterid = IM.Id
+where PB.ProductionOrderId = '" + productionorderid + "'  and  impe.ProcessId = '" + ProcessId + "'"));
 
             }
             catch (Exception ex)
@@ -2618,7 +2619,7 @@ FROM
         ITGC.Id,
         ITGC.QRCODE,
         ITGC.ISResolve,
-        ITGC.Qty,
+        ITGC.RecheckQty,
         SO.LineItemReference,
         ITY.UserName AS InspectionType,
         ITGC.DefectId, ITGC.AreaCode,
