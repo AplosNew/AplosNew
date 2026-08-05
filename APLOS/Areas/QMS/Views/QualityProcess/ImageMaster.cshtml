@@ -3,6 +3,7 @@
         position: relative;
         display: inline-block;
     }
+
     #garmentImage {
         display: block;
     }
@@ -40,16 +41,16 @@
                 <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50" autocomplete="off">
             </div>
         </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Process<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.ProcessId" name="Process" ng-options="item.Value as item.Text for item in processList" required>
-                        <option value=""></option>
-                    </select>
+        @*<div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.ProcessId" name="Process" ng-options="item.Value as item.Text for item in processList" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </div>*@
 
     </div>
     <div class="common-btn">
@@ -68,6 +69,7 @@
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);" href="" aria-controls="entity" role="tab" data-toggle="tab">Image Entity</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" aria-controls="product" role="tab" data-toggle="tab">Image Product</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);" href="" aria-controls="area" role="tab" data-toggle="tab">Image Area</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);" href="" aria-controls="process" role="tab" data-toggle="tab">Process</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -126,7 +128,7 @@
                                 <label class="col-sm-4 control-label">Product</label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="ProductModelNew.ProductMasterId"  ng-disabled="ModelNew.Id==null" name="Product"
+                                        <select class="form-control" ng-model="ProductModelNew.ProductMasterId" ng-disabled="ModelNew.Id==null" name="Product"
                                                 ng-options="item.Value as item.Text for item in productMasterList">
                                             <option value="">--Select--</option>
                                         </select>
@@ -164,15 +166,80 @@
                         </div>
 
                         <!--<div class="form-group">
-                            <span class="input-group-btn">
-                                <button ng-click="ShowDefectMarkingpopUp();" ng-disabled="ModelNew.Id==null" class="btn single-small-btn"><i class="glyphicon glyphicon-plus-sign"></i>Image Area</button>
-                            </span>
-                        </div>-->
+                    <span class="input-group-btn">
+                        <button ng-click="ShowDefectMarkingpopUp();" ng-disabled="ModelNew.Id==null" class="btn single-small-btn"><i class="glyphicon glyphicon-plus-sign"></i>Image Area</button>
+                    </span>
+                </div>-->
 
                     </div>
                 </div>
             </div>
+            <!--<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <div class="row">
+                    <div class="form-elements">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="ProcessSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Process Save</button></li>
+                            </ul>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="input-group">
+                                        <input type="text" name="ProcessName" ng-model="ProcessModelNew.ProcessName" required--> @*style="width:200px;"*@ <!--class="form-control" readonly>
+                                        <span class="input-group-btn">
+                                            <button name="submit" ng-click="processPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
 
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="content-container-fluid" style="color:black;">
+                                <div id="GridProcess" ej-grid e-datasource="ImageMasterProcessList"
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                    <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                                    <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+                                    <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                                    <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                                    <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                                    <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>-->
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <div ng-form name="tabGroupForm">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li><button ng-click="processPopUp();" ng-disabled="ModelNew.Id==null" class="btn"><i class="glyphicon glyphicon-plus"></i> Process</button></li>
+                        </ul>
+                    </div>
+                    <div style="color:black;" id="GridProcess" ej-grid e-datasource="ImageMasterProcessList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-headertext="Actions" e-template="#ShowActionBtn" e-width="2"></div>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                            <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="ShowActionBtn">
+                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeProcess(this);" style="margin: -6px;"></i></button>
+                    </script>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -208,7 +275,6 @@
             <div e-column e-field="Id" e-headertext="Id" e-width="2"></div>
             <div e-column e-field="UserName" e-headertext="UserName" e-width="4"></div>
             <div e-column e-field="StandardName" e-headertext="StandardName" e-width="4"></div>
-            <div e-column e-field="Process" e-headertext="Process" e-width="3"></div>
             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="5"></div>
         </div>
     </div>
@@ -350,63 +416,63 @@
         <div class="modal-content">
             <div class="modal-header">Image Area<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body text-center">
-                    <!-- Message Container for Non-Intrusive Notifications -->
-                    <div id="messageContainer" class="fixed top-0 left-0 w-full p-4 z-50"></div>
+                <!-- Message Container for Non-Intrusive Notifications -->
+                <div id="messageContainer" class="fixed top-0 left-0 w-full p-4 z-50"></div>
 
-                    <div class="w-full max-w-6xl bg-white rounded-xl shadow-2xl p-6 md:p-8 flex flex-col lg:flex-row gap-6">
+                <div class="w-full max-w-6xl bg-white rounded-xl shadow-2xl p-6 md:p-8 flex flex-col lg:flex-row gap-6">
 
-                        <!-- Image and Canvas Area -->
-                        <div class="lg:w-3/5">
-                            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Defect Marking Area</h2>
-                            <div class="relative bg-gray-200 border-2 border-dashed border-gray-400 rounded-lg overflow-hidden flex items-center justify-center" id="imageContainer" style="min-height: 400px;">
-                                <img id="garmentImage" class="max-w-full max-h-full object-contain" style="display: none;" src="" alt="Garment Image">
-                                <canvas id="defectCanvas" style="display: none;"></canvas>
-                                <p id="placeholderText" class="text-gray-500 font-medium p-4">Click "Import Image" to load a garment image.</p>
-                            </div>
-
-                            <!-- Controls -->
-
-
-                            <div class="mt-4 flex flex-wrap gap-3">
-                                <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="loadImage()">
-                                <button onclick="document.getElementById('imageInput').click()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150">
-                                    Import Image
-                                </button>
-                                <button id="saveButton" onclick="saveDefects()" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150" disabled>
-                                    Save Defects
-                                </button>
-                                <button id="clearButton" onclick="clearDefects()" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150" disabled>
-                                    Clear All
-                                </button>
-                            </div>
+                    <!-- Image and Canvas Area -->
+                    <div class="lg:w-3/5">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Defect Marking Area</h2>
+                        <div class="relative bg-gray-200 border-2 border-dashed border-gray-400 rounded-lg overflow-hidden flex items-center justify-center" id="imageContainer" style="min-height: 400px;">
+                            <img id="garmentImage" class="max-w-full max-h-full object-contain" style="display: none;" src="" alt="Garment Image">
+                            <canvas id="defectCanvas" style="display: none;"></canvas>
+                            <p id="placeholderText" class="text-gray-500 font-medium p-4">Click "Import Image" to load a garment image.</p>
                         </div>
 
-                        <!-- Defect List and Management -->
-                        <div class="lg:w-2/5">
-                            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Defect List</h2>
-                            <div class="h-80 overflow-y-auto defect-list p-2 bg-gray-50 rounded-lg border border-gray-200">
-                                <ul id="defectsList" class="space-y-2">
-                                    <!-- Defect items will be added here -->
-                                </ul>
-                                <p id="emptyListText" class="text-gray-400 text-sm mt-2 text-center">No defects marked yet.</p>
-                            </div>
+                        <!-- Controls -->
 
-                            <div class="mt-4">
-                                <h3 class="font-semibold text-gray-700 mb-2">Instructions:</h3>
-                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
-                                    <li>1. Click "Import Image" to select a garment photo.</li>
-                                    <li>2. Click anywhere on the image to mark a defect point.</li>
-                                    <li>3. Click "Save Defects".</li>
-                                </ul>
-                            </div>
+
+                        <div class="mt-4 flex flex-wrap gap-3">
+                            <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="loadImage()">
+                            <button onclick="document.getElementById('imageInput').click()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150">
+                                Import Image
+                            </button>
+                            <button id="saveButton" onclick="saveDefects()" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150" disabled>
+                                Save Defects
+                            </button>
+                            <button id="clearButton" onclick="clearDefects()" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150" disabled>
+                                Clear All
+                            </button>
                         </div>
                     </div>
-                    <div class="common-btn">
-                        <ul class="list-inline text-right">
-                            <li> <button ng-click="CloseDefectMarkingpopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
-                        </ul>
+
+                    <!-- Defect List and Management -->
+                    <div class="lg:w-2/5">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Defect List</h2>
+                        <div class="h-80 overflow-y-auto defect-list p-2 bg-gray-50 rounded-lg border border-gray-200">
+                            <ul id="defectsList" class="space-y-2">
+                                <!-- Defect items will be added here -->
+                            </ul>
+                            <p id="emptyListText" class="text-gray-400 text-sm mt-2 text-center">No defects marked yet.</p>
+                        </div>
+
+                        <div class="mt-4">
+                            <h3 class="font-semibold text-gray-700 mb-2">Instructions:</h3>
+                            <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                                <li>1. Click "Import Image" to select a garment photo.</li>
+                                <li>2. Click anywhere on the image to mark a defect point.</li>
+                                <li>3. Click "Save Defects".</li>
+                            </ul>
+                        </div>
                     </div>
-                    
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseDefectMarkingpopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+
                 <!-- Popup Modal -->
                 <div id="popupBackdrop"></div>
 
@@ -432,3 +498,46 @@
         </div>
     </div>
 </div>
+
+
+<div class="modal fade site-modal in" id="processPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <i class="glyphicon glyphicon-info-sign"></i>Process
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div style="color:black;" id="GridP" ej-grid e-datasource="processList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="2"></div>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                        <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                        <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                        <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                        <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="checkboxTemplate">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplate">
+                    <input type="checkbox" id="headchk" />
+                </script>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseProcess();" ng-disabled="ModelNew.Id==null"  class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmProcessPopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteProcess();"></confirm-archive-generic>

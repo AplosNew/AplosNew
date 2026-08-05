@@ -2311,6 +2311,116 @@ LEFT JOIn HKP.Process P ON P.Id=D.ProcessId
 Where D.DefectMasterId='" + masterId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetProcessList()
+        {
+
+            string sql = @"SELECT *,Flag=CAST(0 as bit) From HKP.Process Order By Sequence";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [Authorize, HttpGet]
+        public ActionResult GetImageMasterProcess(string masterId)
+        {
+            string sql = @"Select IP.*,P.Sequence,P.Code,P.ShortName,P.StandardName,P.UserName  from [HKP].[ImageMasterProcess] IP
+LEFT JOIN HKP.Process P ON P.Id=IP.ProcessId
+Where IP.ImageMasterId='"+ masterId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost, Authorize]
+        public JsonResult SaveProcess(List<Dictionary<string, object>> data, string masterId)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsBC;
+            string _Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+              
+                #region Entity 
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM HKP.ImageMasterProcess Where ImageMasterId='" + masterId + "'", out dsBC, false, "1");
+
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["ImageMasterId"] = masterId;
+                            AddNewRow(dsBC.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                }
+
+                #endregion
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost,Authorize]
+        public ActionResult DeleteProcess(string id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM HKP.ImageMasterProcess WHERE Id = '" + id + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+
+
+
         #endregion
 
         #region DefectPoint

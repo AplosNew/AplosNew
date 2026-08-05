@@ -22,15 +22,15 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
     };
 
 
-    $scope.processList = [];
-    $http({
-        method: 'GET',
-        url: "QMS/QualityProcess/GetProcessCbo",
-        dataType: 'JSON'
-    }).then(function successCallback(response) {
-        $scope.processList = response.data;
+    //$scope.processList = [];
+    //$http({
+    //    method: 'GET',
+    //    url: "QMS/QualityProcess/GetProcessCbo",
+    //    dataType: 'JSON'
+    //}).then(function successCallback(response) {
+    //    $scope.processList = response.data;
 
-    });
+    //});
 
     $scope.ModelNew = {
         Id: null,
@@ -100,6 +100,7 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ImageEntityList = response.data;
+            $scope.GetprocessList();
         });
     }
 
@@ -645,8 +646,151 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
         if ($scope.imageLoaded) $scope.prepareCanvas();
     });
 
+    $scope.processList = [];
+    $scope.processPopUp = function () {
+        $http({
+            method: 'GET',
+            url: "QMS/QualityProcess/GetProcessList",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.processList = response.data;
+        });
 
+        angular.element(document.querySelector('#processPopUp')).modal('show');
+    };
 
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllWise });
+    };
+
+    function CheckBoxSelectAllWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridP").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.processList.length; i++) {
+                $scope.processList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridP").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.ImageMasterProcessList = [];
+    function MakeData() {
+
+        for (var i = 0; i < $scope.processList.length; i++) {
+            if ($scope.processList[i].Flag == true) {
+                if (checkExists($scope.ImageMasterProcessList, $scope.processList[i].Id) === false) {
+                    var ob = {};
+                    ob.Id = -(Math.floor(Math.random() * 100) + 1);
+                    ob.ProcessId = $scope.processList[i].Id;
+                    ob.ImageMasterId = $scope.ModelNew.Id;
+                    ob.Sequence = $scope.processList[i].Sequence;
+                    ob.Code = $scope.processList[i].Code;
+                    ob.ShortName = $scope.processList[i].ShortName;
+                    ob.StandardName = $scope.processList[i].StandardName;
+                    ob.UserName = $scope.processList[i].UserName;
+
+                    $scope.ImageMasterProcessList.push(ob);
+                }
+                else {
+                    throw "This Process " + $scope.processList[i].UserName + " is already taken.";
+                }
+            }
+        }
+
+    }
+
+    function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].ProcessId === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.CloseProcess = function () {
+        try {
+            MakeData();
+            $scope.SaveProcess();
+            angular.element(document.querySelector('#processPopUp')).modal('hide');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.SaveProcess = function () {
+        try {
+
+            $http({
+                method: 'POST',
+                url: 'QMS/QualityProcess/SaveProcess',
+                data: { 'data': $scope.ImageMasterProcessList, 'masterId': $scope.ModelNew.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetprocessList();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.ImageMasterProcessList = [];
+    $scope.GetprocessList = function () {
+        $scope.ImageMasterProcessList = [];
+        $http({
+            method: 'GET',
+            url: 'QMS/QualityProcess/GetImageMasterProcess?masterId=' + $scope.ModelNew.Id
+        }).then(function successCallback(response) {
+            $scope.ImageMasterProcessList = response.data;
+        });
+    }
+
+    $scope.message_detailconfirmation = null;
+    $scope.removeProcess = function (obj) {
+        $scope.bomDetailNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.bomDetailNew.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.bomDetailNew.UserName + ' ]';
+        angular.element(document.querySelector('#confirmProcessPopUp')).modal('show');
+    }
+
+    $scope.DeleteProcess = function () {
+        $http({
+            method: 'POST',
+            url: 'QMS/QualityProcess/DeleteProcess?id=' + $scope.bomDetailNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetprocessList();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
 
 
 
