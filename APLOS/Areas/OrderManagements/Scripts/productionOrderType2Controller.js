@@ -2456,7 +2456,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     $scope.CloseWCG = function () {
         angular.element(document.querySelector('#WCGPopUp')).modal('hide');
     }
-
+    ///po running then running wc required   /// min wc booking
     $scope.SaveSPO = function () {
         try {
             $http({
