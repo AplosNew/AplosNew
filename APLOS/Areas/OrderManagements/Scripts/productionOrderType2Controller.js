@@ -2385,8 +2385,8 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                 }
 
                 try {
-                    $scope.sku1sku2List[i].RequiredNoOfLines = Number($scope.sku1sku2List[i].RequiredNoOfLines.toFixed(4));
-                    $scope.sku1sku2List[i].RequiredLineDays = Number($scope.sku1sku2List[i].RequiredLineDays.toFixed(4));
+                    $scope.sku1sku2List[i].RequiredNoOfLines = $scope.sku1sku2List[i].RequiredNoOfLines.toFixed(4)
+                    $scope.sku1sku2List[i].RequiredLineDays = $scope.sku1sku2List[i].RequiredLineDays.toFixed(4)
                 } catch (e) {
 
                 }
