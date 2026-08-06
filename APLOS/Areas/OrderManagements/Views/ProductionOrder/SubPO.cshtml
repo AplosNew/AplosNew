@@ -141,7 +141,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">First Day Output/Hour<sup>*</sup></label>
                     <div class="col-sm-8">
-                        <input type="number" ng-disabled="SPTEfficiencySlab.length>0" ng-change="calculations()" inputmode="numeric" class="form-control" rows="2" ng-model="ModelNewSPO.FirstDayOutPut" maxlength="250" />
+                        <input type="number" ng-disabled="SPTEfficiencySlab.length>0" @*ng-change="calculations()"*@ inputmode="numeric" class="form-control" rows="2" ng-model="ModelNewSPO.FirstDayOutPut" maxlength="250" />
                     </div>
                 </div>
                 <div class="form-group">
@@ -174,6 +174,7 @@
                     <div e-column e-headertext="WCGroup" e-template="#ShowWCGroupButtons" e-width="120"></div>
                     <div e-column e-template="#PlanHour" e-headertext="PlanHour" e-width="80" style="height: 20px;"></div>
                     <div e-column e-template="#NetUtilizationPercentage" e-headertext="NetUtilizationPercentage" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-template="#FirstDayOutPut" e-headertext="FirstDayOutPut" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#RequiredMachineDays" e-headertext="RequiredMachineDays" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#MinWorkCenterDays" e-headertext="MinWorkCenterDays" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#Workstations" e-headertext="Workstations" e-width="80" style="height: 20px;"></div>
@@ -221,7 +222,7 @@
             </script>
             <script type="text/template" id="PlanHour">
                 <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.PlanWorkingHoursPerDay" e-width="80" />
+                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.PlanWorkingHoursPerDay"  e-change="$parent.calculate"  e-width="80" />
                 </div>
             </script>
             <script type="text/template" id="AdjustableQty">
@@ -230,14 +231,14 @@
                     @*<input type="text" name="AdjustableQty" ng-model="data.AdjustableQty" ng-keydown="$parent.calculate(this);" class="form-control">*@
                 </div>
             </script>
-            @*<script type="text/template" id="AdjustableQty">
-            <div class="col-sm-10" style="padding:0px; width:70px;">
-                <input type="text" name="AdjustableQty" ng-keydown="$parent.calculate(this);" ng-model="data.AdjustableQty" class="form-control">
-            </div>
-        </script>*@
+            <script type="text/template" id="FirstDayOutPut">
+                <div class="col-sm-10" style="padding:0px; width:70px;">
+                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.FirstDayOutPut" e-change="$parent.calculate" e-width="80" />
+                </div>
+        </script>
             <script type="text/template" id="NetUtilizationPercentage">
                 <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.Efficiency" e-width="80" />
+                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.Efficiency" e-change="$parent.calculate"  e-width="80" />
                 </div>
             </script>
             <script type="text/template" id="RequiredMachineDays">
@@ -247,7 +248,7 @@
             </script>
             <script type="text/template" id="MinWorkCenterDays">
                 <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" name="MinimumLineDays" ng-disabled="true" ng-model="data.MinimumLineDays" class="form-control">
+                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.MinimumLineDays" e-change="$parent.calculate" e-width="80" />
                 </div>
             </script>
             <script type="text/template" id="MaximumAllowedWorkCenter">
@@ -257,7 +258,7 @@
             </script>
             <script type="text/template" id="Workstations">
                 <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" name="NoOfWorkStation" ng-model="data.NoOfWorkStation" class="form-control">
+                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.NoOfWorkStation" e-change="$parent.calculate" e-width="80" />
                 </div>
             </script>
             <script type="text/template" id="AllotedWorkCenter">
@@ -388,7 +389,6 @@
                             <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
                             <div e-column e-field="UserName" e-headertext="Work Center" e-width="180"></div>
                             <div e-column e-template="#RunningOrderLineWiseQty" e-headertext="Quantity" e-width="50"></div>
-
                             <div e-column e-template="#appliedFor" e-headertext="Residual Value" e-width="40"></div>
 
                         </div>
