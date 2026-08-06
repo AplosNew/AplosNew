@@ -2349,7 +2349,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             $scope.sku1sku2List[i].PlanQty = ($scope.sku1sku2List[i].Qty + $scope.sku1sku2List[i].AdjustableQty) * ($scope.sku1sku2List[i].PlanPercentage + 100) / 100;
 
             $scope.sku1sku2List[i].RequiredLineDays = parseFloat(($scope.sku1sku2List[i].PlanWorkingHoursPerDay * 60) / ($scope.sku1sku2List[i].SPT * $scope.sku1sku2List[i].Qty) / $scope.sku1sku2List[i].Efficiency).toFixed(2);
-            $scope.sku1sku2List[i].MaximumAllowedWorkCenter = Math.floor(Number($scope.sku1sku2List[i].RequiredLineDays)) / $scope.sku1sku2List[i].MinimumLineDays;
+            $scope.sku1sku2List[i].MaximumAllowedWorkCenter = Math.floor($scope.sku1sku2List[i].RequiredLineDays) / $scope.sku1sku2List[i].MinimumLineDays;
             if ($scope.sku1sku2List[i].MaximumAllowedWorkCenter < 1) {
                 $scope.sku1sku2List[i].MaximumAllowedWorkCenter = 1;
             }
@@ -2370,23 +2370,23 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
 
 
-                    $scope.sku1sku2List[i].RequiredLineDays = Number(($scope.sku1sku2List[i].Qty / $scope.sku1sku2List[i].TargetPerDay).toFixed(2));
+                    $scope.sku1sku2List[i].RequiredLineDays = ($scope.sku1sku2List[i].Qty / $scope.sku1sku2List[i].TargetPerDay).toFixed(2);
                 }
 
                 if ($scope.sku1sku2List[i].MinimumLineDays > 0) {
 
-                    $scope.sku1sku2List[i].RequiredNoOfLines = Number($scope.sku1sku2List[i].RequiredLineDays) / $scope.sku1sku2List[i].MinimumLineDays;
+                    $scope.sku1sku2List[i].RequiredNoOfLines = $scope.sku1sku2List[i].RequiredLineDays / $scope.sku1sku2List[i].MinimumLineDays;
 
                     if ($scope.sku1sku2List[i].RequiredNoOfLines > 0 && $scope.sku1sku2List[i].RequiredNoOfLines <= 1)
                         $scope.sku1sku2List[i].AllocatedLines = 1;
 
                     if ($scope.sku1sku2List[i].RequiredNoOfLines > 1)
-                        $scope.sku1sku2List[i].AllocatedLines = Number(Math.floor($scope.sku1sku2List[i].RequiredNoOfLines));
+                        $scope.sku1sku2List[i].AllocatedLines = Math.floor($scope.sku1sku2List[i].RequiredNoOfLines);
                 }
 
                 try {
-                    $scope.sku1sku2List[i].RequiredNoOfLines = Number($scope.sku1sku2List[i].RequiredNoOfLines.toFixed(4));
-                    $scope.sku1sku2List[i].RequiredLineDays = Number($scope.sku1sku2List[i].RequiredLineDays.toFixed(4));
+                    $scope.sku1sku2List[i].RequiredNoOfLines = $scope.sku1sku2List[i].RequiredNoOfLines.toFixed(4)
+                    $scope.sku1sku2List[i].RequiredLineDays = $scope.sku1sku2List[i].RequiredLineDays.toFixed(4)
                 } catch (e) {
 
                 }
@@ -2424,7 +2424,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     $scope.CheckMaxWCValue = function (obj) {
         try {
             if (obj.data.AllocatedLines > obj.data.NoOfWorkStation) {
-               // throw "Alloted Work Center can't greater than Maximum Allowed Work Center.";
+                throw "Alloted Work Center can't greater than Maximum Allowed Work Center.";
             }
 
         } catch (e) {
@@ -2459,11 +2459,6 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     ///po running then running wc required   /// min wc booking
     $scope.SaveSPO = function () {
         try {
-            for (var i = 0; i < $scope.sku1sku2List.length; i++) {
-                if (baseService.isUndefinedOrNull($scope.sku1sku2List[i].WorkCenterGroupId)) {
-                    throw "Work Center Group is required.";
-                }
-            }
             $http({
                 method: 'POST',
                 url: "OrderManagements/ProductionOrder/SaveSPO",
@@ -2573,7 +2568,6 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                         $scope.runningWorkCenterList.push({
                             Id: null
                             , isResidualApplicable: false
-                            , Qty: 0
                             , Plant: $scope.workCenterList[i].Plant
                             , Entity: $scope.workCenterList[i].Entity
                             , WorkCenterMasterId: $scope.workCenterList[i].WorkCenterMasterId

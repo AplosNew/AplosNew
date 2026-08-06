@@ -16568,21 +16568,15 @@ Group By A.POId,A.LotNo,A.EntityId,A.WorkDate,A.ShiftId,A.Grade,A.ProcessId,A.Pl
             try
             {
                 string fromDate = Convert.ToDateTime(DateTime.Now).ToString("dd-MMM-yyyy");
-                var str = @"select SUM(G.Qty+PassQty)Quantity,C.ProductionOrderId,C.SalesOrderId,I.DateTime ProductionDate,I.WorkCenterMasterId
+                var str = @"select SUM(G.Qty+PassQty)Quantity,C.ProductionOrderId,C.SalesOrderId,I.EntityId,I.DateTime ProductionDate,I.WorkCenterMasterId
 ,I.ShiftId,G.Grade,I.ProcessId
-,PlantId=(Select P.PlantId from TRN.ProductionOrderDetail D
-inner join TRN.ProductionOrder P ON P.id=D.ProductionOrderId
-Where D.SalesOrderId=C.SalesOrderId)
-,EntityId=(Select P.EntityId from TRN.ProductionOrderDetail D
-inner join TRN.ProductionOrder P ON P.id=D.ProductionOrderId
-Where D.SalesOrderId=C.SalesOrderId)
 from [dbo].[InspectionTranGrandChild] G
 LEFT JOIN [TRN].[InspectionTranChild] C ON C.Id=G.InspectionTranChildId
 LEFT JOIN [TRN].[Inspection] I ON I.Id=C.InspectionId
 LEFT JOIN [dbo].[InspectionTypeEnteryLevel] L ON L.Id=C.InspectionTypeEnteryLevelId
-WHERE FORMAT(I.DateTime,'dd-MMM-yyyy')  between '" + fromDate + @"' and '" + fromDate + @"' AND ISNULL(L.IsProduction,0)=1  AND G.ProductionSummaryId is null
-Group By C.ProductionOrderId,C.SalesOrderId,I.EntityId,I.DateTime,I.ShiftId,G.Grade,I.ProcessId,I.WorkCenterMasterId";
-
+WHERE I.DateTime between '" + fromDate + @"' and '" + fromDate + @"' AND L.IsProduction=1
+Group By C.ProductionOrderId,C.SalesOrderId,I.EntityId,I.DateTime,I.ShiftId,G.Grade,I.ProcessId,I.WorkCenterMasterId
+";
                 dtOrder = _sqlRepository.GetDataTable(str);
             }
             catch (Exception e)
@@ -16594,7 +16588,6 @@ Group By C.ProductionOrderId,C.SalesOrderId,I.EntityId,I.DateTime,I.ShiftId,G.Gr
         {
             try
             {
-                string ProductionSummaryId = null;
                 DataTable data = null;
                 DataSet dsProductionSummary = null;
                 GetInspectionData(out data);
@@ -16630,54 +16623,26 @@ Group By C.ProductionOrderId,C.SalesOrderId,I.EntityId,I.DateTime,I.ShiftId,G.Gr
                             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
 
                             DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();
-
                             drProductionSummary["Id"] = "PS" + sID;
-                            ProductionSummaryId = "PS" + sID;
-                            drProductionSummary["PlantId"] = data.Rows[i]["PlantId"].ToString();
+                            //drProductionSummary["PlantId"] = data.Rows[i]["PlantId"].ToString();//identity.PlantId;
                             drProductionSummary["EntityId"] = data.Rows[i]["EntityId"].ToString();
                             drProductionSummary["ProcessId"] = data.Rows[i]["ProcessId"].ToString();
                             drProductionSummary["ProductionDate"] = data.Rows[i]["ProductionDate"].ToString();
                             drProductionSummary["Quantity"] = data.Rows[i]["Quantity"].ToString();
                             drProductionSummary["InspectionQty"] = data.Rows[i]["Quantity"].ToString();
-                            drProductionSummary["ProductionOrderId"] = Convert.IsDBNull(data.Rows[i]["ProductionOrderId"])
-                                                                      ? DBNull.Value
-                                                                      : data.Rows[i]["ProductionOrderId"];
+                            drProductionSummary["ProductionOrderId"] = data.Rows[i]["ProductionOrderId"].ToString();
                             drProductionSummary["ProductionShiftId"] = data.Rows[i]["ShiftId"].ToString();
                             drProductionSummary["ProductionGrade"] = data.Rows[i]["Grade"].ToString();
-                            drProductionSummary["SalesOrderId"] = data.Rows[i]["SalesOrderId"].ToString();
                             drProductionSummary["WorkCenterMasterId"] = data.Rows[i]["WorkCenterMasterId"].ToString();
-                            drProductionSummary["SourceType"] = "Inspection";
 
                             drProductionSummary["AddedBy"] = "schedule";
                             drProductionSummary["AddedDate"] = DateTime.Now;
                             drProductionSummary["AddedFromIP"] = "";
 
                             dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
-
                         }
                         clsStaticInfo _info = new clsStaticInfo();
                         _info.SaveDataSets(dsProductionSummary);
-
-                        string updateSql = @"
-UPDATE G
-SET G.ProductionSummaryId = '" + ProductionSummaryId + @"'
-FROM dbo.InspectionTranGrandChild G
-INNER JOIN TRN.InspectionTranChild C ON C.Id = G.InspectionTranChildId
-INNER JOIN TRN.Inspection I ON I.Id = C.InspectionId
-LEFT JOIN dbo.InspectionTypeEnteryLevel L ON L.Id = C.InspectionTypeEnteryLevelId
-WHERE
-    C.SalesOrderId = '" + data.Rows[i]["SalesOrderId"] + @"'
-    AND I.ShiftId = '" + data.Rows[i]["ShiftId"] + @"'
-    AND I.WorkCenterMasterId = '" + data.Rows[i]["WorkCenterMasterId"] + @"'
-    AND G.Grade = '" + data.Rows[i]["Grade"] + @"'
-    AND CAST(I.DateTime AS DATE) = '" + Convert.ToDateTime(data.Rows[i]["ProductionDate"]).ToString("yyyy-MM-dd") + @"'
-    AND G.ProductionSummaryId IS NULL
-    AND ISNULL(L.IsProduction,0)=1";
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        objCon.OpenConnection("1");
-                        objCon.BeginTransaction();
-                        objCon.ExecuteNonQueryWrapper(updateSql, true, "1");
-                        objCon.CommitTransaction();
 
                     }
                 }
@@ -16746,7 +16711,7 @@ WHERE
             }
             catch (Exception ex)
             {
-                //   Console.WriteLine("");
+             //   Console.WriteLine("");
                 throw ex;
             }
         }
@@ -17767,7 +17732,7 @@ WHERE ENC.Id IS NULL;
             DataTable dtCarryForward = null;
             DataSet dsEsicEnum = null;
             dsSaveSummary = null;
-            string empId = null;
+            string empId=null;
 
             try
             {
@@ -17775,7 +17740,7 @@ WHERE ENC.Id IS NULL;
                 bplib.clsGenID genid = new bplib.clsGenID();
                 var _count = 0;
 
-
+               
                 string CalendarYearId;
                 string lvtId;
                 decimal currentYearAllocation = 0;
@@ -17828,14 +17793,14 @@ WHERE ENC.Id IS NULL;
                         //Console.Write("\r GetESICEnum" + new string(' ', 30));
                         GetESICEnum(DateTime.Now.ToString("dd-MMM-yyyy"), plantId, out dsEsicEnum);
 
-                        // Console.Write("\r LoadEmpLeaveSummaryData" + new string(' ', 30));
+                       // Console.Write("\r LoadEmpLeaveSummaryData" + new string(' ', 30));
                         LoadEmpLeaveSummaryData(CompanyGroupId, plantId, calendarYear, out dsSaveSummary, out Dictionary<string, DataRow> dicSaveSummary);
                         DataRow drSaveSummary = null;
                         //for HR porj ends
                         //Console.Write("\r GetLeaveMasterId" + new string(' ', 30));
                         var leaveMasterIds = GetLeaveMasterId(dtLeaveInfo);
 
-                        // Console.Write("\r LeavePolicyDetail" + new string(' ', 30));
+                       // Console.Write("\r LeavePolicyDetail" + new string(' ', 30));
                         dtLeavePolicyDetail = LeavePolicyDetail(leaveMasterIds);
 
                         //Console.Write("\r LeaveAllocationInfo" + new string(' ', 30));

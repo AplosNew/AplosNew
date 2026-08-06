@@ -3248,9 +3248,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                         dr["ProductionOrderID"] = spoId;
                         dr["WorkcenterMasterID"] = workcenterlist[i]["WorkCenterMasterId"];
                         dr["isResidualApplicable"] = bplib.clsWebLib.GetBoolData(workcenterlist[i]["isResidualApplicable"]);
-                        dr["Qty"] = Convert.IsDBNull(workcenterlist[i]["Qty"])
-                                                                     ? DBNull.Value
-                                                                     : workcenterlist[i]["Qty"];
+                        dr["Qty"] = clsStaticInfo.dbl(workcenterlist[i]["Qty"]);
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["AddedFromIP"] = identity.IPAddress;
@@ -3259,21 +3257,6 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                         dr["UpdatedFromIP"] = identity.IPAddress;
 
                         dsWorkcenter.Tables[0].Rows.Add(dr);
-                    }
-                    else
-                    {
-                        DataRow dr = dsWorkcenter.Tables[0].DefaultView[0].Row;
-
-                        dr.BeginEdit();
-                        dr["isResidualApplicable"] = bplib.clsWebLib.GetBoolData(workcenterlist[i]["isResidualApplicable"]);
-                        dr["Qty"] = Convert.IsDBNull(workcenterlist[i]["Qty"])
-                                                                     ? DBNull.Value
-                                                                     : workcenterlist[i]["Qty"];
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                        dr["UpdatedFromIP"] = identity.IPAddress;
-
-                        dr.EndEdit();
                     }
                 }
 
