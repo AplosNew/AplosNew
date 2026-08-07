@@ -480,6 +480,26 @@ function ImageMasterController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.areaDeleteList.push($scope.defects.find(d => d.id === id));
         $scope.defects = $scope.defects.filter(d => d.id !== id);
         $scope.drawDefects();
+        $scope.DeleteMarkedPoint(id);
+    };
+
+    $scope.DeleteMarkedPoint = function (id) {
+        $http({
+            method: 'POST',
+            url: 'QMS/QualityProcess/DeleteProductArea?id=' + id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.loadExistingDefects($scope.ModelNew.Id);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
     };
 
     // edit from list

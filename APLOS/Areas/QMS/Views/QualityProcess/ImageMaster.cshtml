@@ -68,7 +68,7 @@
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);" href="" aria-controls="entity" role="tab" data-toggle="tab">Image Entity</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" aria-controls="product" role="tab" data-toggle="tab">Image Product</a></li>
-                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);" href="" aria-controls="area" role="tab" data-toggle="tab">Image Area</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);loadExistingDefects();" href="" aria-controls="area" role="tab" data-toggle="tab">Image Area</a></li>
                 <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);" href="" aria-controls="process" role="tab" data-toggle="tab">Process</a></li>
             </ul>
         </div>
@@ -159,17 +159,129 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                 <div class="row">
                     <div class="form-elements">
-                        <div class="common-btn">
+                        @*<div class="common-btn">
                             <ul class="list-inline text-left">
                                 <li> <button ng-click="ShowDefectMarkingpopUp();" ng-disabled="ModelNew.Id==null" class="btn" tabindex="9"><i class="btn single-small-btn"></i> Image Area</button></li>
                             </ul>
+                        </div>*@
+
+                        <div class="col-xs-12 col-sm-8 col-md-8">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Image Area</h2>
+                            <div class="preview-box relative">
+                                <img ng-if="imageSrc"
+                                     ng-src="{{imageSrc}}"
+                                     id="garmentImage"
+                                     ng-load="prepareCanvas()"
+                                     style="display:block;max-width:100%;" />
+                                <canvas id="defectCanvas" ng-if="imageSrc" ng-click="onCanvasClick($event)" style="cursor:pointer;"></canvas>
+                                <p ng-if="!imageSrc">Click "Import Image" to load a garment image.</p>
+                            </div>
+                            <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="angular.element(this).scope().loadImage(this)" />
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="triggerImageUpload();" class="btn" tabindex="9"><i class="fa fa-paperclip"></i> Import Image</button></li>
+                                    <li> <button ng-click="saveDefects();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                                    <li> <button ng-click="clearDefects();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <!-- Defect List -->
+                            <h3 class="mt-4 font-semibold text-gray-700">Image Area List:</h3>
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>X</th>
+                                            <th>Y</th>
+                                            <th>Code</th>
+                                            <th>Area</th>
+                                            <th>Zone</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="defect in defects track by defect.id">
+                                            <td>{{defect.x | number:2}}</td>
+                                            <td>{{defect.y | number:2}}</td>
+                                            <td>{{defect.Code}}</td>
+                                            <td>{{defect.AreaName}}</td>
+                                            <td>{{defect.Zone}}</td>
+                                            <td class="text-right table-td">
+                                                <ul class="list-inline action-list">
+                                                    <li>
+                                                        <button ng-click="editDefect(defect, $event)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Edit"><i class="glyphicon glyphicon-pencil"></i></button>
+                                                    </li>
+                                                    <li>
+                                                        <button ng-click="deleteDefect(defect.id)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-trash"></i></button>
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <h3 class="font-semibold text-gray-700 mb-2">Instructions:</h3>
+                            <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                                <li>1. Click "Import Image" to select a garment photo.</li>
+                                <li>2. Click anywhere on the image to mark a Image area.</li>
+                                <li>3. Click "Save ImageArea".</li>
+                            </ul>
+                        </div>
+                        <div class="common-btn mt-2">
+                            <ul class="list-inline text-right">
+                                <li>
+                                    <button ng-click="CloseDefectMarkingpopUp()" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button>
+                                </li>
+                            </ul>
                         </div>
 
-                        <!--<div class="form-group">
-                    <span class="input-group-btn">
-                        <button ng-click="ShowDefectMarkingpopUp();" ng-disabled="ModelNew.Id==null" class="btn single-small-btn"><i class="glyphicon glyphicon-plus-sign"></i>Image Area</button>
-                    </span>
-                </div>-->
+                        <!-- Floating popup -->
+                        <div ng-show="showDefectModal" style="position: absolute; background: white; border: 1px solid #ccc; border-radius: 8px; padding: 30px; z-index: 999; top: 200px; left: 600px;">
+
+                            <div class="form-elements form-horizontal">
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Code</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" ng-model="currentDefect.Code" name="AreaName" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">AreaName</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" ng-model="currentDefect.AreaName" name="AreaName" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Zone</label>
+                                    <div class="col-sm-8">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="currentDefect.Zone" id="zone" name="Zone">
+                                                <option value="A">A</option>
+                                                <option value="B">B</option>
+                                                <option value="C">C</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Remarks</label>
+                                    <div class="col-sm-8">
+                                        <textarea class="form-control" rows="2" maxlength="250" ng-model="currentDefect.Remarks" name="Remarks" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="saveDefect();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i></button></li>
+                                    <li> <button ng-click="closeDefectModal();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i></button></li>
+                                    <li> <button ng-click="deleteCurrentDefect();" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
 
                     </div>
                 </div>
