@@ -89,7 +89,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         #region -- Operations
 
         [HttpGet, Authorize]
-        public ActionResult GetList(string column, string value)
+        public ActionResult GetList(string column, string value,string OrderType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -98,7 +98,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             string sql = @"select top 100 * from ( " + new Library.OrderManagement.Production.ProductionOrder().ProductionOrderList() + @"
-                            WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE OrderType = 'PlanningType1' AND " + strkey + " ORDER BY AddedDate DESC";
+                            WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE OrderType = '"+ OrderType + @"' AND " + strkey + " ORDER BY AddedDate DESC";
 
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
