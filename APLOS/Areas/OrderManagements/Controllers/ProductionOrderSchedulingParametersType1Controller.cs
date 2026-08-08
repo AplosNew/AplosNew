@@ -3493,6 +3493,7 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.Pro
             return dtWorkCenter;
         }
 
+        
         private DataTable dtType2AllAvailableWrokcenters(string entityid, string processid)
         {
 
@@ -7174,18 +7175,18 @@ INNER JOIN ProductionOrderSchedulingParametersType2 AS t ON t.ProductionOrderID=
                     FORMAT(ISNULL(p.ProductionDate,dateadd(DAY,-1, CONVERT(DATE, CASE WHEN ISNULL(e.StartDate,'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"')<='" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"' THEN '" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"' ELSE e.StartDate END))),'dd-MMM-yyyy') AS LastProductionDate,0 AS LastStyleRunningFor,
                            p.Quantity--, p.ProductionHours
                       FROM [SCS].[WorkCenterMaster] WC 
-                        left outer join trn.RunningOrderWorkCenter RWC on RWC.WorkCenterMasterId=WC.ID and RWC.ProductionOrderId='" + productionOrderID + @"'
-                         left outer join (SELECT t.WorkCenterMasterId,t.ProductionOrderId,SUM(t.Quantity) AS Quantity
+                        left outer join trn.RunningOrderType2WorkCenter RWC on RWC.WorkCenterMasterId=WC.ID and RWC.ProductionOrderId='" + productionOrderID + @"'
+                         left outer join (SELECT t.WorkCenterMasterId,t.ProductionOrderId,SUM(t.Quantity) AS Quantity,t.SubProductionOrderId
 					                      FROM trn.ProductionSummary t
                                          WHERE t.ProductionDate<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
-                                         GROUP BY  t.WorkCenterMasterId,t.ProductionOrderId ) AS PRD oN prd.ProductionOrderId=RWC.ProductionOrderId and PRD.WorkCenterMasterId=RWC.WorkCenterMasterId       
+                                         GROUP BY  t.WorkCenterMasterId,t.ProductionOrderId,t.SubProductionOrderId ) AS PRD oN prd.SubProductionOrderId=RWC.ProductionOrderId and PRD.WorkCenterMasterId=RWC.WorkCenterMasterId       
 
 INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[WorkCenterMasterEffectiveDate] GROUP BY WorkCenterMasterId) E ON e.WorkCenterMasterId=WC.Id
                     LEFT OUTER JOIN 
                     (
 		                 SELECT  * FROM ( SELECT dense_rank() OVER (PARTITION BY t.WorkCenterMasterId ORDER BY t.ProductionDate DESC) AS RANK,
 					                    t.WorkCenterMasterId,t.ProductionDate,t.Quantity,t.MaterialMasterId
-					                    FROM (SELECT t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,SUM(t.Quantity) AS Quantity
+					                    FROM (SELECT t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,SUM(t.Quantity) AS Quantity,t.SubProductionOrderId
 					                      FROM trn.ProductionSummary t 
 					                    INNER JOIN [TRN].[ProductionOrder] P ON p.Id=t.ProductionOrderID
 					                    LEFT OUTER JOIN (SELECT DISTINCT pod.ProductionOrderId,mm.Id AS MaterialMasterId
@@ -7194,7 +7195,7 @@ INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[Wo
 														INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
 														INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.ProductionOrderId=p.Id
                                         where  t.ProductionDate<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'					                   
-                                        GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId) AS T
+                                        GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,t.SubProductionOrderId) AS T
 		                    ) AS K WHERE K.[RANK]=1
                     ) AS P ON p.WorkCenterMasterId=wc.Id
                     WHERE WC.[Active]=1 AND WC.Id IN (" + workcenterlist + ")";
@@ -7209,17 +7210,17 @@ INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[Wo
                            p.Quantity--, p.ProductionHours
                       FROM [SCS].[WorkCenterMaster] WC 
                         left outer join trn.ProductionOrderType2WorkCenter RWC on RWC.WorkCenterMasterId=WC.ID and RWC.ProductionOrderId='" + productionOrderID + @"'
-                         left outer join (SELECT t.WorkCenterMasterId,t.ProductionOrderId,SUM(t.Quantity) AS Quantity
+                         left outer join (SELECT t.WorkCenterMasterId,t.ProductionOrderId,SUM(t.Quantity) AS Quantity,t.SubProductionOrderId
 					                      FROM trn.ProductionSummary t
                                          WHERE t.ProductionDate<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
-                                         GROUP BY  t.WorkCenterMasterId,t.ProductionOrderId ) AS PRD oN prd.ProductionOrderId=RWC.ProductionOrderId and PRD.WorkCenterMasterId=RWC.WorkCenterMasterId       
+                                         GROUP BY  t.WorkCenterMasterId,t.ProductionOrderId,t.SubProductionOrderId) AS PRD oN prd.SubProductionOrderId=RWC.ProductionOrderId and PRD.WorkCenterMasterId=RWC.WorkCenterMasterId       
 
                             INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[WorkCenterMasterEffectiveDate] GROUP BY WorkCenterMasterId) E ON e.WorkCenterMasterId=WC.Id
                     LEFT OUTER JOIN 
                     (
 		                 SELECT  * FROM ( SELECT dense_rank() OVER (PARTITION BY t.WorkCenterMasterId ORDER BY t.ProductionDate DESC) AS RANK,
 					                    t.WorkCenterMasterId,t.ProductionDate,t.Quantity,t.MaterialMasterId
-					                    FROM (SELECT t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,SUM(t.Quantity) AS Quantity
+					                    FROM (SELECT t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,SUM(t.Quantity) AS Quantity,t.SubProductionOrderId
 					                      FROM trn.ProductionSummary t 
 					                    INNER JOIN [TRN].[ProductionOrder] P ON p.Id=t.ProductionOrderID
 					                    LEFT OUTER JOIN (SELECT DISTINCT pod.ProductionOrderId,mm.Id AS MaterialMasterId
@@ -7228,7 +7229,7 @@ INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[Wo
 														INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
 														INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.ProductionOrderId=p.Id
                                         where  t.ProductionDate<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'					                   
-                                        GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId) AS T
+                                        GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,t.SubProductionOrderId) AS T
 		                    ) AS K WHERE K.[RANK]=1
                     ) AS P ON p.WorkCenterMasterId=wc.Id
                     WHERE WC.[Active]=1 AND WC.Id IN (" + workcenterlist + ")";
@@ -7238,7 +7239,7 @@ INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[Wo
             string sqlLastRunningDays = @"SELECT *
                     FROM ( SELECT dense_rank() OVER (PARTITION BY t.WorkCenterMasterId ORDER BY t.ProductionDate DESC) AS LW,
 					                    t.WorkCenterMasterId,t.ProductionDate,t.Quantity, t.MaterialMasterId
-                           from (SELECT t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,SUM(t.Quantity) AS Quantity
+                           from (SELECT t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,SUM(t.Quantity) AS Quantity,t.SubProductionOrderId
 					                      FROM trn.ProductionSummary t 
 					                    INNER JOIN [TRN].[ProductionOrder] P ON p.Id=t.ProductionOrderID
 					                    LEFT OUTER JOIN (SELECT DISTINCT pod.ProductionOrderId,mm.Id AS MaterialMasterId
@@ -7247,11 +7248,11 @@ INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[Wo
 														INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
 														INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.ProductionOrderId=p.Id
                                         WHERE p.Id='" + productionOrderID + @"' AND t.ProductionDate<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
-					                    GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId) AS T
+					                    GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,t.SubProductionOrderId) AS T
                         ) AS T  
                     WHERE LW<=(SELECT MAX(T1.DayToReachTheTarget)
                    FROM ProductionOrderSchedulingParametersType2 AS T1 
-                  INNER JOIN trn.ProductionOrder AS po ON t1.ProductionOrderID=po.Id WHERE po.Id='" + productionOrderID + @"' )";
+                  INNER JOIN trn.ProductionOrder AS po ON t1.ProductionOrderID=po.Id WHERE t1.Id='" + productionOrderID + @"' )";
 
 
             DataTable dtWorkCenterProductionHistory = _sqlRepository.GetDataTable(sqlLastRunningDays);
