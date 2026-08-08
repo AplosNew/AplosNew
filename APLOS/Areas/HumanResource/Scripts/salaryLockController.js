@@ -230,7 +230,10 @@ function salaryLockController(commonMessage, $scope, $rootScope, baseService, $r
         if (baseService.arrayLength(dataList) > 0) {
             for (var i = 0; i < dataList.length; i++) {
                 if (dataList[i].isToBeSelect) {
-                    if (dataList[i].IsDisburse == 'Not Disbursed' && baseService.isUndefinedOrNull(dataList[i].PayableVoucherNo)) {
+                    //if (dataList[i].IsDisburse == 'Not Disbursed' && baseService.isUndefinedOrNull(dataList[i].PayableVoucherNo)) {
+                    //    $scope.EmployeeListNew.push(dataList[i]);
+                    //}
+                    if (dataList[i].IsDisburse == 'Not Disbursed') {
                         $scope.EmployeeListNew.push(dataList[i]);
                     }
                 }

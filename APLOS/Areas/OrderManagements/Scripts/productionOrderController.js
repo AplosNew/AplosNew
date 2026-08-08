@@ -4577,5 +4577,27 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
     };
 
+    $scope.UpdateAreaCode = function (obj) {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/ProductionOrder/SetAreaCode',
+            data: {
+                'id': obj.data.Id
+                , 'areacode': obj.data.AreaCode
+            }
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                var gridObj = $("#GridBulOperation").ejGrid("instance");
+                gridObj.refreshContent(true);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
 
+    };
 }

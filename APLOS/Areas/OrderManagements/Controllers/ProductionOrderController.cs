@@ -2817,6 +2817,34 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult SetAreaCode(string id, string areacode)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("Update [TRN].[ProductionBulletinTemplateDetail] set AreaCode="+areacode+" Where Id= '"+id+"'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+
         #region ProductionOrderType2
         [HttpPost]
         public JsonResult CreateProductionOrderType2(Dictionary<string, object> data, List<Dictionary<string, object>> detaillist, List<Dictionary<string, object>> processSetlist, List<Dictionary<string, object>> workcenterlist, List<Dictionary<string, object>> fpworkcenterlist)

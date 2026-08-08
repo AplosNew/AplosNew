@@ -691,7 +691,7 @@
 
                                             <script type="text/template" id="AreaCode">
                                                 <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ng-model="data.AreaCode" ng-maxlength="50" style="color:black;" class="form-control" />
+                                                    <input type="text" ng-model="data.AreaCode" ng-maxlength="50" style="color:black;" ng-blur="$parent.UpdateAreaCode(this)" class="form-control" />
                                                 </div>
                                             </script>
                                             <script type="text/template" id="AddSPT">
