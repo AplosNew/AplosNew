@@ -2209,6 +2209,9 @@ left join [HKP].[CharacteristicsValue]  Chvs on Chvs.Id = Sc.CharacteristicsValu
 left join [TRN].[InspectionTranChild]  TRC on TRC.SalesOrderId = FC.SalesOrderId
 left join InspectionTypeEnteryLevel ITE on ITE.Id = TRC.InspectionTypeEnteryLevelId 
 left join [dbo].[InspectionTranGrandChild] ITG on ITG.InspectionTranChildId	 = TRC.Id
+left join trn.SalesOrder so on so.id = fc.SalesOrderId 
+left join trn.MasterOrderItem moi on moi.id = so.MasterOrderItemId
+left join trn.MasterOrder mo on mo.id = moi.MasterOrderId
 where FC.SalesOrderId = '" + SO + "'"));
 
             }
