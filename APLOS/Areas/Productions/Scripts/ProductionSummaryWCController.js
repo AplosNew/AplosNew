@@ -1000,11 +1000,12 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     }
 
     $scope.SubProductionOrderList = [];
-    $scope.GetSavedSKUData = function () {
+    $scope.GetSavedSKUData = function (obj) {
+        $scope.NewObject = obj.data;
         $http({
             method: 'POST',
             data: {
-                'poId': $scope.NewObject.ProductionOrderId
+                'poId': obj.data.ProductionOrderId
             },
             url: 'OrderManagements/ProductionOrder/GetSavedSKUData'
         }).then(function successCallback(response) {
