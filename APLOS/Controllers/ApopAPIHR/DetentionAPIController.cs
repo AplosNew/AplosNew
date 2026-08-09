@@ -2194,7 +2194,7 @@ where PO.ProductionStatusId = '20252'  and PO.PlantId = '" + Plantid + "'"));
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"Select Distinct FC.Id SKU1Id , SC.Id SKU2Id , FC.SalesOrderId SO , Chv.UserName Color , Chvs.UserName Size , FC.Qty TotalQty , SC.Qty CSWiseQty , SC.ValueFreeText Dia   
+                return Json(_sqlRepository.GetDataTable(@"Select Distinct FC.Id SKU1Id , SC.Id SKU2Id , FC.SalesOrderId SO , Chv.UserName Color , Chvs.UserName Size , FC.Qty TotalQty ,CEILING(( SC.Qty + ISNULL(SC.Qty*(Isnull(mo.ExtraOrderPercentage,0)/100),0) )) CSWiseQty , SC.ValueFreeText Dia   
 ,FeedingQty = isnull( (Select Sum(ITGC.Qty) FeedingQty from [TRN].[InspectionTranChild]  ITC
 				left join [dbo].[InspectionTranGrandChild] ITGC on ITGC.InspectionTranChildId = ITC.Id
 				where ITC.SalesOrderId = FC.SalesOrderId and ITC.SKU1Id = FC.Id and ITC.SKU2Id = SC.Id and ITC.InspectionTypeEnteryLevelId = '8'
@@ -2209,6 +2209,9 @@ left join [HKP].[CharacteristicsValue]  Chvs on Chvs.Id = Sc.CharacteristicsValu
 left join [TRN].[InspectionTranChild]  TRC on TRC.SalesOrderId = FC.SalesOrderId
 left join InspectionTypeEnteryLevel ITE on ITE.Id = TRC.InspectionTypeEnteryLevelId 
 left join [dbo].[InspectionTranGrandChild] ITG on ITG.InspectionTranChildId	 = TRC.Id
+left join trn.SalesOrder so on so.id = fc.SalesOrderId 
+left join trn.MasterOrderItem moi on moi.id = so.MasterOrderItemId
+left join trn.MasterOrder mo on mo.id = moi.MasterOrderId
 where FC.SalesOrderId = '" + SO + "'"));
 
             }
@@ -2619,7 +2622,7 @@ FROM
         ITGC.Id,
         ITGC.QRCODE,
         ITGC.ISResolve,
-        ITGC.Qty,
+        ITGC.RecheckQty,
         SO.LineItemReference,
         ITY.UserName AS InspectionType,
         ITGC.DefectId, ITGC.AreaCode,

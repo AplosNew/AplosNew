@@ -1686,6 +1686,9 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
 
     $scope.AddEditSalaryRow = function () {
         try {
+            if (baseService.isUndefinedOrNull($scope.salaryRuleGeneral.SalaryHeadID)) {
+                throw "Salary Head is required.";
+            }
             $scope.salaryRuleGeneral.SalaryHead = $("#SH option:selected").text();
             var hasGL = $.grep($scope.salaryHeadCboList, function (item) { return item.Value === $scope.salaryRuleGeneral.SalaryHeadID; })[0];
             if (hasGL.HasGL == false) {

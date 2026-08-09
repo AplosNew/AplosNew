@@ -108,7 +108,6 @@ namespace Library.Service.OrderManagements
                 //objID.GenerateIDMaxYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionOrder", out string systemid);
                 //master.Id = DateTime.Now.ToString("yy")+ systemid.ToString().PadLeft(4,"0".ToString()[0]);
                 master.Id = systemid;
-                master.OrderType = "PlanningType1";
                 base.InsertGraph(master);
                 InsertUpdateOrDeleteGraph(master.Id, detaillist);
                 InsertUpdateOrDeleteGraph(master.Id, processSetlist);

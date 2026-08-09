@@ -16588,6 +16588,7 @@ Group By C.ProductionOrderId,C.SalesOrderId,I.EntityId,I.DateTime,I.ShiftId,G.Gr
         {
             try
             {
+                string ProductionSummaryId = null;
                 DataTable data = null;
                 DataSet dsProductionSummary = null;
                 GetInspectionData(out data);
@@ -16622,27 +16623,51 @@ Group By C.ProductionOrderId,C.SalesOrderId,I.EntityId,I.DateTime,I.ShiftId,G.Gr
                             bplib.clsGenID objGenID = new bplib.clsGenID();
                             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
 
-                            DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();
+                            DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();                           
+
                             drProductionSummary["Id"] = "PS" + sID;
-                            //drProductionSummary["PlantId"] = data.Rows[i]["PlantId"].ToString();//identity.PlantId;
+                            ProductionSummaryId = "PS" + sID;
+                            drProductionSummary["PlantId"] = data.Rows[i]["PlantId"].ToString();
                             drProductionSummary["EntityId"] = data.Rows[i]["EntityId"].ToString();
                             drProductionSummary["ProcessId"] = data.Rows[i]["ProcessId"].ToString();
                             drProductionSummary["ProductionDate"] = data.Rows[i]["ProductionDate"].ToString();
                             drProductionSummary["Quantity"] = data.Rows[i]["Quantity"].ToString();
                             drProductionSummary["InspectionQty"] = data.Rows[i]["Quantity"].ToString();
-                            drProductionSummary["ProductionOrderId"] = data.Rows[i]["ProductionOrderId"].ToString();
+                            drProductionSummary["ProductionOrderId"] = Convert.IsDBNull(data.Rows[i]["ProductionOrderId"])
+                                                                      ? DBNull.Value
+                                                                      : data.Rows[i]["ProductionOrderId"];
                             drProductionSummary["ProductionShiftId"] = data.Rows[i]["ShiftId"].ToString();
                             drProductionSummary["ProductionGrade"] = data.Rows[i]["Grade"].ToString();
+                            drProductionSummary["SalesOrderId"] = data.Rows[i]["SalesOrderId"].ToString();
                             drProductionSummary["WorkCenterMasterId"] = data.Rows[i]["WorkCenterMasterId"].ToString();
+                            drProductionSummary["SourceType"] = "Inspection";
 
                             drProductionSummary["AddedBy"] = "schedule";
                             drProductionSummary["AddedDate"] = DateTime.Now;
                             drProductionSummary["AddedFromIP"] = "";
 
                             dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
+
                         }
                         clsStaticInfo _info = new clsStaticInfo();
                         _info.SaveDataSets(dsProductionSummary);
+
+                        string updateSql = @"
+UPDATE G
+SET G.ProductionSummaryId = '" + ProductionSummaryId + @"'
+FROM dbo.InspectionTranGrandChild G
+INNER JOIN TRN.InspectionTranChild C ON C.Id = G.InspectionTranChildId
+INNER JOIN TRN.Inspection I ON I.Id = C.InspectionId
+LEFT JOIN dbo.InspectionTypeEnteryLevel L ON L.Id = C.InspectionTypeEnteryLevelId
+WHERE
+    C.SalesOrderId = '" + data.Rows[i]["SalesOrderId"] + @"'
+    AND I.ShiftId = '" + data.Rows[i]["ShiftId"] + @"'
+    AND I.WorkCenterMasterId = '" + data.Rows[i]["WorkCenterMasterId"] + @"'
+    AND G.Grade = '" + data.Rows[i]["Grade"] + @"'
+    AND CAST(I.DateTime AS DATE) = '" + Convert.ToDateTime(data.Rows[i]["ProductionDate"]).ToString("yyyy-MM-dd") + @"'
+    AND G.ProductionSummaryId IS NULL
+    AND ISNULL(L.IsProduction,0)=1";
+                        con.ExecuteNonQueryWrapper(updateSql);
 
                     }
                 }

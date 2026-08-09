@@ -89,16 +89,16 @@ namespace Aplos.Areas.OrderManagements.Controllers
         #region -- Operations
 
         [HttpGet, Authorize]
-        public ActionResult GetList(string column, string value)
+        public ActionResult GetList(string column, string value,string OrderType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false)
                 strkey = column + " like '%" + value + "%'";
-         
-          string  sql = @"select top 100 * from ( " + new Library.OrderManagement.Production.ProductionOrder().ProductionOrderList() + @"
-                            WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE OrderType = 'PlanningType1' AND " + strkey + " ORDER BY AddedDate DESC";
+
+            string sql = @"select top 100 * from ( " + new Library.OrderManagement.Production.ProductionOrder().ProductionOrderList() + @"
+                            WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE OrderType = '"+ OrderType + @"' AND " + strkey + " ORDER BY AddedDate DESC";
 
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -2817,6 +2817,34 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult SetAreaCode(string id, string areacode)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("Update [TRN].[ProductionBulletinTemplateDetail] set AreaCode="+areacode+" Where Id= '"+id+"'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+
         #region ProductionOrderType2
         [HttpPost]
         public JsonResult CreateProductionOrderType2(Dictionary<string, object> data, List<Dictionary<string, object>> detaillist, List<Dictionary<string, object>> processSetlist, List<Dictionary<string, object>> workcenterlist, List<Dictionary<string, object>> fpworkcenterlist)
@@ -2840,7 +2868,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                 #region data update
                 if (dsMaster.Tables[0].DefaultView.Count == 0)
                 {
-                    
+
                     bplib.clsGenID objID = new bplib.clsGenID();
                     objID.GenHRID(System.DateTime.Now.ToShortDateString(), "PRODUCTION ORDER", out _Id);
                     data["Id"] = _Id;
@@ -2901,7 +2929,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                     foreach (var item in processSetlist)
                     {
                         sq++;
-                           DataView dv = new DataView(dsProcDetail.Tables[0]);
+                        DataView dv = new DataView(dsProcDetail.Tables[0]);
                         dv.RowFilter = "Id='" + item["Id"] + "'";
                         if (dv.Count == 0)
                         {
@@ -3021,7 +3049,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-           string sql = @"select top 100 * from ( " + new Library.OrderManagement.Production.ProductionOrder().ProductionOrderList() + @"
+            string sql = @"select top 100 * from ( " + new Library.OrderManagement.Production.ProductionOrder().ProductionOrderList() + @"
                             WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE OrderType = 'PlanningType2' AND " + strkey + " ORDER BY AddedDate DESC";
 
 
@@ -3165,7 +3193,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
             }
         }
 
-        
+
 
         [HttpPost, Authorize]
         public JsonResult SavePreferenceWorkCenter(List<Dictionary<string, object>> workcenterlist, int spoId)
@@ -3248,7 +3276,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                         dr["ProductionOrderID"] = spoId;
                         dr["WorkcenterMasterID"] = workcenterlist[i]["WorkCenterMasterId"];
                         dr["isResidualApplicable"] = bplib.clsWebLib.GetBoolData(workcenterlist[i]["isResidualApplicable"]);
-                        dr["Qty"] = clsStaticInfo.dbl(workcenterlist[i]["Qty"]);
+                        dr["Qty"] = Convert.IsDBNull(workcenterlist[i]["Qty"]) ? DBNull.Value : workcenterlist[i]["Qty"];
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["AddedFromIP"] = identity.IPAddress;
@@ -3257,6 +3285,18 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                         dr["UpdatedFromIP"] = identity.IPAddress;
 
                         dsWorkcenter.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        DataRow dr = dsWorkcenter.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["Qty"] = Convert.IsDBNull(workcenterlist[i]["Qty"]) ? DBNull.Value : workcenterlist[i]["Qty"];
+                        dr["isResidualApplicable"] = bplib.clsWebLib.GetBoolData(workcenterlist[i]["isResidualApplicable"]);
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
                     }
                 }
 

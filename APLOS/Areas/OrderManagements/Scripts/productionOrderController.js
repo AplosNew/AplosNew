@@ -41,6 +41,11 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         }
     }
 
+    $scope.orderTypeList = [
+        { Value: "PlanningType1", Text: "PlanningType1" },
+        { Value: "PlanningType2", Text: "PlanningType2" }
+    ];
+
     $scope.orderLevelList = [
         { Value: "Basic", Text: "Basic" },
         { Value: "Critical", Text: "Critical" },
@@ -135,12 +140,12 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         $http({
             method: 'GET',
             data: { 'parameters': null },
-            url: $scope.getListUrl + "?column=" + $scope.PRsearchBy + "&value=" + $scope.PRsearch
+            url: $scope.getListUrl + "?column=" + $scope.PRsearchBy + "&value=" + $scope.PRsearch + "&OrderType=" + $scope.model.OrderType
         }).then(function successCallback(response) {
             $scope.modelList = response.data;
         });
     };
-    $scope.getData();
+   // $scope.getData();
 
     //cboService.getCboProductionEntityByPlant(null, null, $window.plantId, function (result)
     //{
@@ -4572,5 +4577,27 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
     };
 
+    $scope.UpdateAreaCode = function (obj) {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/ProductionOrder/SetAreaCode',
+            data: {
+                'id': obj.data.Id
+                , 'areacode': obj.data.AreaCode
+            }
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                var gridObj = $("#GridBulOperation").ejGrid("instance");
+                gridObj.refreshContent(true);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
 
+    };
 }

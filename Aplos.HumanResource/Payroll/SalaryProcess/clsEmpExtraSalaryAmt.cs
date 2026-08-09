@@ -244,7 +244,8 @@ namespace OTSBD
                             FROM dbo.EmployeeInformation E
                             left join org.Plant PLN ON PLN.Id=E.PlantId
                             LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=e.SystemId AND  sl.YearNo=YEAR('" + fromdate + @"') AND sl.MonthNo=MONTH('" + fromdate + @"')
-		                            INNER JOIN dbo.SalaryRuleMaster SR ON E.SalaryRuleMasterSystemID = SR.SystemID
+		                            left join dbo.SalaryInfoDefineMaster SM ON SM.EmpInfoSystemID=E.SystemId and SM.IsApproved=1
+        INNER JOIN dbo.SalaryRuleMaster SR ON SM.SalaryRuleMasterSystemID = SR.SystemID
 		                            INNER JOIN dbo.CurrencyRuleChild CR ON SR.CurrencyRuleSystemID = CR.MstSystemID AND CR.SalaryHeadID = '" + strSalaryHdID + @"'
 		                            LEFT JOIN dbo.SalaryHead SD ON CR.SalaryHeadID = SD.SalaryHeadID
 		                            --LEFT JOIN dbo.MonthWiseExtraSalaryAmtMaster MWESMat ON E.SystemID = MWESMat.EmpInfoSystemID 
