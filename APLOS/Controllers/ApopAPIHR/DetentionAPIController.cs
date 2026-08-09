@@ -2437,7 +2437,7 @@ where Convert(Date,ITG.AddedDate) = CONVERT(Date,Getdate())  and TRN.SalesOrderI
 
         }
 
-        public IHttpActionResult GetPOWiseImage(string productionorderid , string ProcessId)
+        public IHttpActionResult GetPOWiseImage(string productionorderid, string ProcessId)
         {
             /* clsDataContext clsData = new clsDataContext();
              clsData.GetTNAReport(out List<TNAGetSet> activelists);
@@ -2451,7 +2451,8 @@ from [dbo].[ProductArea] PA
 left join [MST].[ImageMaster] IM on IM.Id = PA.ImageMasterId
 left join [MST].[ImageProduct] IMP on IMP.ImageMasterId = IM.Id
 left join TRN.ProductionBulletinTemplate PB on PB.ProductMasterId = IMP.ProductMasterId
-where PB.ProductionOrderId = '" + productionorderid + "'  and  IM.ProcessId = '" + ProcessId + "'"));
+left join hkp.ImageMasterProcess impe on impe.Imagemasterid = IM.Id
+where PB.ProductionOrderId = '" + productionorderid + "'  and  impe.ProcessId = '" + ProcessId + "'"));
 
             }
             catch (Exception ex)

@@ -37,6 +37,10 @@
             <label class="col-sm-3 control-label">Journal Type<sup>*</sup></label>
             <div class="col-sm-9 radio">
                 <label>
+                    <input ng-click="clearBankPopUp();clearJournalType();" type="radio" name="source" ng-disabled="voucher.VoucherId" ng-model="voucher.BankJournalType" value="@Library.Model.Banks.BankJournalType.CashExpense.ToString()">
+                    <span class="cr" tabindex="9"><i class="cr-icon"></i></span>@Library.Model.Banks.BankJournalType.CashExpense.ToString()
+                </label>
+                <label>
                     <input ng-click="clearBankPopUp();clearJournalType();" type="radio" name="source" ng-disabled="voucher.VoucherId" ng-model="voucher.BankJournalType" value="@Library.Model.Banks.BankJournalType.CashToCash.ToString()">
                     <span class="cr" tabindex="8"><i class="cr-icon"></i></span>@Library.Model.Banks.BankJournalType.CashToCash.ToString()
                 </label>
@@ -44,10 +48,7 @@
                     <input ng-click="clearBankPopUp();clearJournalType();" type="radio" name="source" ng-disabled="voucher.VoucherId" ng-model="voucher.BankJournalType" value="@Library.Model.Banks.BankJournalType.CashToBank.ToString()">
                     <span class="cr" tabindex="9"><i class="cr-icon"></i></span>@Library.Model.Banks.BankJournalType.CashToBank.ToString()
                 </label>
-                <label>
-                    <input ng-click="clearBankPopUp();clearJournalType();" type="radio" name="source" ng-disabled="voucher.VoucherId" ng-model="voucher.BankJournalType" value="@Library.Model.Banks.BankJournalType.CashExpense.ToString()">
-                    <span class="cr" tabindex="9"><i class="cr-icon"></i></span>@Library.Model.Banks.BankJournalType.CashExpense.ToString()
-                </label>
+
                 <label>
                     <input ng-click="clearBankPopUp();clearJournalType();" type="radio" name="source" ng-disabled="voucher.VoucherId" ng-model="voucher.BankJournalType" value="@Library.Model.Banks.BankJournalType.ExpenseReverse.ToString()">
                     <span class="cr" tabindex="9"><i class="cr-icon"></i></span>@Library.Model.Banks.BankJournalType.ExpenseReverse.ToString()
@@ -153,7 +154,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-2 control-label">Narration<sup>*</sup></label>
             <div class="col-sm-10 show-message">
-                <textarea ng-keyup="updateCrAmount();" rows="3" type="text" name="Narration" tabindex="13" class="form-control" ng-model="voucher.Narration" required capitalize></textarea>
+                <input ng-keyup="updateCrAmount();"  type="text" name="Narration" tabindex="13" autocomplete="on" class="form-control" ng-model="voucher.Narration" required capitalize>
             </div>
         </div>
     </div>

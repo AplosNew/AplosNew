@@ -43,7 +43,7 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
         ActivityCode: null,
         ActivityName: null,
         FinancingTypeId: null,
-        BankJournalType: "CashToCash"
+        BankJournalType: "CashExpense"
     };
 
     $scope.voucherDetail = {
@@ -264,10 +264,10 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.voucher.Narration = null;
         $scope.voucher.DocRefNo = null;
         $scope.voucher.Amount = null;
-        $scope.voucher.CashMasterId = null;
+        //$scope.voucher.CashMasterId = null;
         $scope.voucher.OtherCashMasterId = null;
         $scope.voucher.OtherBankMasterId = null;
-        $scope.voucher.BankJournalType = "CashToCash";
+        $scope.voucher.BankJournalType = "CashExpense";
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.getCboVoucherTypeCashJournalList();
         $scope.currencyExchangeRate = [];

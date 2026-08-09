@@ -4855,8 +4855,8 @@ namespace Library.Accounting.Accounts
 
             var sql = @"WITH Expenses AS (
     SELECT
-        V.PostingDate,V.VoucherNo,
-        A.UserName + ISNULL(' (' + V.Narration + ')','') AS HeadOfExpense,
+        V.PostingDate,V.VoucherNo,HeadOfExpense= case when vd.BankMasterId IS NULL THEN  A.UserName + ISNULL(' (' + V.Narration + ')','')
+        WHEN vd.BankMasterId<>'' THEN 'Cash Deposit ' + ISNULL(' (' + V.Narration + ')','') END,
         VD.DrAmount AS Amount,
         ROW_NUMBER() OVER (ORDER BY V.PostingDate, V.VoucherNo) AS RN
     FROM TRN.VoucherDetail VD
@@ -4866,12 +4866,12 @@ namespace Library.Accounting.Accounts
     LEFT JOIN HKP.Activity A ON A.Id = VD.ActivityId
     LEFT JOIN MST.BudgetMaster BM ON BM.Id = VD.BudgetMasterId
     LEFT JOIN HKP.AccountGroup AG ON AG.Id = GL.AccountGroupId
-    WHERE V.PlantId = '"+ plantId + @"'
+    WHERE V.PlantId = '" + plantId + @"'
         AND AG.AccountTypeId IN ('Expense','Asset')
         AND VD.DrAmount > 0
         AND V.PostingDate BETWEEN '"+ from + "' AND '"+to+@"'
         AND VD.CashMasterId IS NULL
-        AND VD.BankMasterId IS NULL
+        --AND VD.BankMasterId IS NULL
         AND V.SourceType <> 'OpeningBalance'
 ),
 Receipts AS (
@@ -4945,7 +4945,7 @@ UNION ALL
     WHERE V.PlantId = '" + plantId + @"'
         AND VD.DrAmount > 0
         AND VD.CashMasterId <> ''
-        AND V.PostingDate BETWEEN '"+ from + "' AND '"+to+@"'
+        AND V.PostingDate BETWEEN '"+ from + "' AND '"+to+ @"'
         AND V.SourceType <> 'OpeningBalance'
 )
 SELECT
@@ -4956,7 +4956,7 @@ SELECT
     E.HeadOfExpense AS [EXPENSES],
     E.Amount      AS PaymentAMOUNT
 FROM Receipts R
-FULL OUTER JOIN Expenses E ON R.RN = E.RN";
+FULL OUTER JOIN Expenses E ON R.RN = E.RN ORDER BY E.VoucherNo";
 
             return _sqlRepository.GetDataTable(sql.ToString());
         }
