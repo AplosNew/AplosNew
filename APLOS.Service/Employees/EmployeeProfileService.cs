@@ -5298,99 +5298,162 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
         {
             try
             {
-                var sql = @" SELECT salaryInfo.SystemID,salaryInfo.EmpInfoSystemID,Format(salaryInfo.EffectiveDate,'dd-MMM-yyyy') EffectiveDate
-                            ,LocLangGD.Name GivenDesignationName
-                            ,LocLangLD.Name LegalDesignationName
-                            ,LD.UserName DesignationName---ISNULL(LocalDesignationName,DesignationName) DesignationName,
-                            ,SH.SalaryHead,sh.HeadType
-                            ,BSH.Name SalaryHeadBangla
-                            ,convert(numeric(10,0), salaryInfo.EntryAmount) EntryAmount ----,IH.*
+                //var sql = @" SELECT salaryInfo.SystemID,salaryInfo.EmpInfoSystemID,Format(salaryInfo.EffectiveDate,'dd-MMM-yyyy') EffectiveDate
+                //            ,LocLangGD.Name GivenDesignationName
+                //            ,LocLangLD.Name LegalDesignationName
+                //            ,LD.UserName DesignationName---ISNULL(LocalDesignationName,DesignationName) DesignationName,
+                //            ,SH.SalaryHead,sh.HeadType
+                //            ,BSH.Name SalaryHeadBangla
+                //            ,convert(numeric(10,0), salaryInfo.EntryAmount) EntryAmount ----,IH.*
 
-                             from 
- 
-                             IncrementHistory IH 
- 
-                             LEFT JOIN (
-                            SELECT SM.SystemID,SM.EmpInfoSystemID,SM.EffectiveDate,SD.EntryAmount,SD.SalaryHeadID FROM SalaryInfoDefineMaster SM
-                            LEFT JOIN SalaryInfoDefine SD ON SD.SalaryID=SM.SystemID
-                            WHERE SM.EmpInfoSystemID='" + empId + @"' AND SM.IsApproved=1
-                            Union
-                            SELECT SMB.SystemID,SMB.EmpInfoSystemID,SMB.EffectiveDate,SDB.EntryAmount,SDB.SalaryHeadID FROM SalaryInfoBackMaster SMB
-                            LEFT JOIN SalaryInfoBack SDB ON SDB.SalaryID=SMB.SystemID
-                            WHERE SMB.EmpInfoSystemID='" + empId + @"'
-                            ) salaryInfo on IH.EmpSystemID=salaryInfo.EmpInfoSystemID AND IH.ToEffectiveDate=salaryInfo.EffectiveDate 
-                            --and IH.ToSalaryId=salaryInfo.SystemID
+                //             from 
 
+                //             IncrementHistory IH 
 
-                            LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=salaryInfo.SalaryHeadID
-                            LEFT JOIN EmployeeInformation ei ON EI.SystemId=salaryInfo.EmpInfoSystemID
-                            LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
-
-                            LEFT JOIN hkp.Designation GVDE ON IH.ToGivenDesignationId = GVDE.Id
-                            LEFT JOIN hkp.LegalDesignation LD ON IH.ToLegalDesignationId = LD.Id
-
-                            LEFT JOIN hkp.LocalLanguage LocLangLD ON LocLangLD.LegalDesignationId = IH.ToLegalDesignationId and LocLangLD.LanguageId ='" + languageId + @"'--PL.LanguageId	
-                            LEFT JOIN hkp.LocalLanguage LocLangGD ON LocLangGD.DesignationId = IH.ToGivenDesignationId and LocLangGD.LanguageId = '" + languageId + @"'--PL.LanguageId
+                //             LEFT JOIN (
+                //            SELECT SM.SystemID,SM.EmpInfoSystemID,SM.EffectiveDate,SD.EntryAmount,SD.SalaryHeadID FROM SalaryInfoDefineMaster SM
+                //            LEFT JOIN SalaryInfoDefine SD ON SD.SalaryID=SM.SystemID
+                //            WHERE SM.EmpInfoSystemID='" + empId + @"' AND SM.IsApproved=1
+                //            Union
+                //            SELECT SMB.SystemID,SMB.EmpInfoSystemID,SMB.EffectiveDate,SDB.EntryAmount,SDB.SalaryHeadID FROM SalaryInfoBackMaster SMB
+                //            LEFT JOIN SalaryInfoBack SDB ON SDB.SalaryID=SMB.SystemID
+                //            WHERE SMB.EmpInfoSystemID='" + empId + @"'
+                //            ) salaryInfo on IH.EmpSystemID=salaryInfo.EmpInfoSystemID AND IH.ToEffectiveDate=salaryInfo.EffectiveDate 
+                //            --and IH.ToSalaryId=salaryInfo.SystemID
 
 
+                //            LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=salaryInfo.SalaryHeadID
+                //            LEFT JOIN EmployeeInformation ei ON EI.SystemId=salaryInfo.EmpInfoSystemID
+                //            LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
+
+                //            LEFT JOIN hkp.Designation GVDE ON IH.ToGivenDesignationId = GVDE.Id
+                //            LEFT JOIN hkp.LegalDesignation LD ON IH.ToLegalDesignationId = LD.Id
+
+                //            LEFT JOIN hkp.LocalLanguage LocLangLD ON LocLangLD.LegalDesignationId = IH.ToLegalDesignationId and LocLangLD.LanguageId ='" + languageId + @"'--PL.LanguageId	
+                //            LEFT JOIN hkp.LocalLanguage LocLangGD ON LocLangGD.DesignationId = IH.ToGivenDesignationId and LocLangGD.LanguageId = '" + languageId + @"'--PL.LanguageId
 
 
-                            LEFT JOIN HKP.LocalLanguage B ON B.DesignationId=EI.GivenDesignationId AND B.LanguageId='" + languageId + @"'--PL.LanguageId 
 
 
-                            LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BSH ON BSH.SalaryHeadId = sh.SalaryHeadID and BSH.LanguageId='" + languageId + @"'--PL.LanguageId
-
-                            where IH.EmpSystemID='" + empId + @"'
-                            ORDER BY convert(date,salaryInfo.EffectiveDate) --DESC ";
+                //            LEFT JOIN HKP.LocalLanguage B ON B.DesignationId=EI.GivenDesignationId AND B.LanguageId='" + languageId + @"'--PL.LanguageId 
 
 
+                //            LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BSH ON BSH.SalaryHeadId = sh.SalaryHeadID and BSH.LanguageId='" + languageId + @"'--PL.LanguageId
+
+                //            where IH.EmpSystemID='" + empId + @"'
+                //            ORDER BY convert(date,salaryInfo.EffectiveDate) --DESC ";
 
 
 
 
 
-                var xsql = @"SELECT SystemId, FORMAT(EffectiveDate,'dd-MMM-yyyy') EffectiveDate,ISNULL(ISNULL(LegalDesignationName,DesignationName ),GivenDesignationName)  DesignationName,SalaryHead, Convert(decimal(18,0),EntryAmount) EntryAmount,HeadType
-                            FROM(
-                            SELECT SM.SystemID,SM.EmpInfoSystemID,SM.EffectiveDate
-                            ,LocLangGD.Name GivenDesignationName
-                            ,LocLangLD.Name LegalDesignationName
-                            ,LD.UserName DesignationName---ISNULL(LocalDesignationName,DesignationName) DesignationName,
-                            ,SH.SalaryHead,sh.HeadType
-                            ,BSH.Name SalaryHeadBangla
-                            ,convert(numeric(10,2), SD.EntryAmount) EntryAmount 
-                            FROM SalaryInfoDefineMaster SM
-                            LEFT JOIN SalaryInfoDefine SD ON SD.SalaryID=SM.SystemID
-                            LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SD.SalaryHeadID
-                            LEFT JOIN EmployeeInformation ei ON EI.SystemId=SM.EmpInfoSystemID
-                            LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
-                            LEFT JOIN hkp.Designation GVDE ON EI.GivenDesignationId = GVDE.Id
-                            LEFT JOIN hkp.LegalDesignation LD ON EI.LegalDesignationId = LD.Id
-                            LEFT JOIN hkp.LocalLanguage LocLangLD ON LocLangLD.LegalDesignationId = EI.LegalDesignationId and LocLangLD.LanguageId ='" + languageId + @"'--PL.LanguageId	
-                            LEFT JOIN hkp.LocalLanguage LocLangGD ON LocLangGD.DesignationId = EI.GivenDesignationId and LocLangGD.LanguageId = '" + languageId + @"'--PL.LanguageId	
-                            LEFT JOIN HKP.LocalLanguage B ON B.DesignationId=EI.GivenDesignationId AND B.LanguageId='" + languageId + @"'--PL.LanguageId
-                            LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BSH ON BSH.SalaryHeadId = sh.SalaryHeadID and BSH.LanguageId='" + languageId + @"'--PL.LanguageId
-                            WHERE SM.EmpInfoSystemID='" + empId + @"' AND SM.IsApproved=1
-                            UNION
-                            SELECT SM.SystemID,SM.EmpInfoSystemID,SM.EffectiveDate
-                            ,LocLangGD.Name GivenDesignationName
-                            ,LocLangLD.Name LegalDesignationName
-                            ,LD.UserName DesignationName---ISNULL(LocalDesignationName,DesignationName) DesignationName,
-                            ,SH.SalaryHead,sh.HeadType
-                            ,BSH.Name SalaryHeadBangla
-                            ,convert(numeric(10,2), SD.EntryAmount) EntryAmount 
-                            FROM SalaryInfoBackMaster SM
-                            LEFT JOIN SalaryInfoBack SD ON SD.SalaryID=SM.SystemID
-                            LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SD.SalaryHeadID
-                            LEFT JOIN EmployeeInformation ei ON EI.SystemId=SM.EmpInfoSystemID
-                            LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
-                            LEFT JOIN hkp.Designation GVDE ON EI.GivenDesignationId = GVDE.Id
-                            LEFT JOIN hkp.LegalDesignation LD ON EI.LegalDesignationId = LD.Id
-                            LEFT JOIN hkp.LocalLanguage LocLangLD ON LocLangLD.LegalDesignationId = EI.LegalDesignationId and LocLangLD.LanguageId ='" + languageId + @"'--PL.LanguageId	
-                            LEFT JOIN hkp.LocalLanguage LocLangGD ON LocLangGD.DesignationId = EI.GivenDesignationId and LocLangGD.LanguageId = '" + languageId + @"'--PL.LanguageId	
-                            LEFT JOIN HKP.LocalLanguage B ON B.DesignationId=EI.GivenDesignationId AND B.LanguageId='" + languageId + @"'--PL.LanguageId 
-                            LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BSH ON BSH.SalaryHeadId = sh.SalaryHeadID and BSH.LanguageId='" + languageId + @"'--PL.LanguageId
-                            WHERE SM.EmpInfoSystemID='" + empId + @"' ) x ORDER BY convert(date,EffectiveDate) DESC";
+
+
+                //var xsql = @"SELECT SystemId, FORMAT(EffectiveDate,'dd-MMM-yyyy') EffectiveDate,ISNULL(ISNULL(LegalDesignationName,DesignationName ),GivenDesignationName)  DesignationName,SalaryHead, Convert(decimal(18,0),EntryAmount) EntryAmount,HeadType
+                //            FROM(
+                //            SELECT SM.SystemID,SM.EmpInfoSystemID,SM.EffectiveDate
+                //            ,LocLangGD.Name GivenDesignationName
+                //            ,LocLangLD.Name LegalDesignationName
+                //            ,LD.UserName DesignationName---ISNULL(LocalDesignationName,DesignationName) DesignationName,
+                //            ,SH.SalaryHead,sh.HeadType
+                //            ,BSH.Name SalaryHeadBangla
+                //            ,convert(numeric(10,2), SD.EntryAmount) EntryAmount 
+                //            FROM SalaryInfoDefineMaster SM
+                //            LEFT JOIN SalaryInfoDefine SD ON SD.SalaryID=SM.SystemID
+                //            LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SD.SalaryHeadID
+                //            LEFT JOIN EmployeeInformation ei ON EI.SystemId=SM.EmpInfoSystemID
+                //            LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
+                //            LEFT JOIN hkp.Designation GVDE ON EI.GivenDesignationId = GVDE.Id
+                //            LEFT JOIN hkp.LegalDesignation LD ON EI.LegalDesignationId = LD.Id
+                //            LEFT JOIN hkp.LocalLanguage LocLangLD ON LocLangLD.LegalDesignationId = EI.LegalDesignationId and LocLangLD.LanguageId ='" + languageId + @"'--PL.LanguageId	
+                //            LEFT JOIN hkp.LocalLanguage LocLangGD ON LocLangGD.DesignationId = EI.GivenDesignationId and LocLangGD.LanguageId = '" + languageId + @"'--PL.LanguageId	
+                //            LEFT JOIN HKP.LocalLanguage B ON B.DesignationId=EI.GivenDesignationId AND B.LanguageId='" + languageId + @"'--PL.LanguageId
+                //            LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BSH ON BSH.SalaryHeadId = sh.SalaryHeadID and BSH.LanguageId='" + languageId + @"'--PL.LanguageId
+                //            WHERE SM.EmpInfoSystemID='" + empId + @"' AND SM.IsApproved=1
+                //            UNION
+                //            SELECT SM.SystemID,SM.EmpInfoSystemID,SM.EffectiveDate
+                //            ,LocLangGD.Name GivenDesignationName
+                //            ,LocLangLD.Name LegalDesignationName
+                //            ,LD.UserName DesignationName---ISNULL(LocalDesignationName,DesignationName) DesignationName,
+                //            ,SH.SalaryHead,sh.HeadType
+                //            ,BSH.Name SalaryHeadBangla
+                //            ,convert(numeric(10,2), SD.EntryAmount) EntryAmount 
+                //            FROM SalaryInfoBackMaster SM
+                //            LEFT JOIN SalaryInfoBack SD ON SD.SalaryID=SM.SystemID
+                //            LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SD.SalaryHeadID
+                //            LEFT JOIN EmployeeInformation ei ON EI.SystemId=SM.EmpInfoSystemID
+                //            LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
+                //            LEFT JOIN hkp.Designation GVDE ON EI.GivenDesignationId = GVDE.Id
+                //            LEFT JOIN hkp.LegalDesignation LD ON EI.LegalDesignationId = LD.Id
+                //            LEFT JOIN hkp.LocalLanguage LocLangLD ON LocLangLD.LegalDesignationId = EI.LegalDesignationId and LocLangLD.LanguageId ='" + languageId + @"'--PL.LanguageId	
+                //            LEFT JOIN hkp.LocalLanguage LocLangGD ON LocLangGD.DesignationId = EI.GivenDesignationId and LocLangGD.LanguageId = '" + languageId + @"'--PL.LanguageId	
+                //            LEFT JOIN HKP.LocalLanguage B ON B.DesignationId=EI.GivenDesignationId AND B.LanguageId='" + languageId + @"'--PL.LanguageId 
+                //            LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BSH ON BSH.SalaryHeadId = sh.SalaryHeadID and BSH.LanguageId='" + languageId + @"'--PL.LanguageId
+                //            WHERE SM.EmpInfoSystemID='" + empId + @"' ) x ORDER BY convert(date,EffectiveDate) DESC";
+
+                string sql = @";WITH BaseData AS
+(
+    SELECT salaryInfo.SystemID,salaryInfo.EmpInfoSystemID
+        ,salaryInfo.EffectiveDate AS EffectiveDateRaw
+        ,Format(salaryInfo.EffectiveDate,'dd-MMM-yyyy') EffectiveDate
+        ,LocLangGD.Name GivenDesignationName
+        ,LocLangLD.Name LegalDesignationName
+        ,LD.UserName DesignationName
+        ,SH.SalaryHead,sh.HeadType
+        ,BSH.Name SalaryHeadBangla
+        ,convert(numeric(10,0), salaryInfo.EntryAmount) EntryAmount
+
+    FROM IncrementHistory IH 
+
+    LEFT JOIN (
+        SELECT SM.SystemID,SM.EmpInfoSystemID,SM.EffectiveDate,SD.EntryAmount,SD.SalaryHeadID FROM SalaryInfoDefineMaster SM
+        LEFT JOIN SalaryInfoDefine SD ON SD.SalaryID=SM.SystemID
+        WHERE SM.EmpInfoSystemID='" + empId + @"' AND SM.IsApproved=1
+        UNION
+        SELECT SMB.SystemID,SMB.EmpInfoSystemID,SMB.EffectiveDate,SDB.EntryAmount,SDB.SalaryHeadID FROM SalaryInfoBackMaster SMB
+        LEFT JOIN SalaryInfoBack SDB ON SDB.SalaryID=SMB.SystemID
+        WHERE SMB.EmpInfoSystemID='" + empId + @"'
+    ) salaryInfo on IH.EmpSystemID=salaryInfo.EmpInfoSystemID AND IH.ToEffectiveDate=salaryInfo.EffectiveDate 
+
+    LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=salaryInfo.SalaryHeadID
+    LEFT JOIN EmployeeInformation ei ON EI.SystemId=salaryInfo.EmpInfoSystemID
+    LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
+    LEFT JOIN hkp.Designation GVDE ON IH.ToGivenDesignationId = GVDE.Id
+    LEFT JOIN hkp.LegalDesignation LD ON IH.ToLegalDesignationId = LD.Id
+    LEFT JOIN hkp.LocalLanguage LocLangLD ON LocLangLD.LegalDesignationId = IH.ToLegalDesignationId and LocLangLD.LanguageId ='" + languageId + @"'
+    LEFT JOIN hkp.LocalLanguage LocLangGD ON LocLangGD.DesignationId = IH.ToGivenDesignationId and LocLangGD.LanguageId = '" + languageId + @"'
+    LEFT JOIN HKP.LocalLanguage B ON B.DesignationId=EI.GivenDesignationId AND B.LanguageId='" + languageId + @"'
+    LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BSH ON BSH.SalaryHeadId = sh.SalaryHeadID and BSH.LanguageId='" + languageId + @"'
+    where IH.EmpSystemID='" + empId + @"'
+)
+
+SELECT SystemID, EmpInfoSystemID, EffectiveDateRaw, EffectiveDate, GivenDesignationName, LegalDesignationName,
+       DesignationName, SalaryHead, HeadType, SalaryHeadBangla, EntryAmount
+FROM BaseData
+
+UNION ALL
+
+SELECT
+    MIN(SystemID) SystemID,
+    EmpInfoSystemID,
+    MIN(EffectiveDateRaw) AS EffectiveDateRaw,
+    EffectiveDate,
+    GivenDesignationName,
+    LegalDesignationName,
+    DesignationName,
+    'Other' AS SalaryHead,
+    'E' AS HeadType,
+    N'অন্যান্য' AS SalaryHeadBangla,
+    SUM(CASE WHEN SalaryHead IN ('Travelling Allowance','Food Allowance') THEN EntryAmount ELSE 0 END) AS EntryAmount
+FROM BaseData
+GROUP BY EmpInfoSystemID, EffectiveDate, GivenDesignationName, LegalDesignationName, DesignationName
+
+ORDER BY EffectiveDateRaw";
+                
                 return _sqlRepository.GetDataTable(sql);
+
+
+
             }
             catch (Exception ex)
             {
