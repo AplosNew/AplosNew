@@ -5391,7 +5391,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
                 //            LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BSH ON BSH.SalaryHeadId = sh.SalaryHeadID and BSH.LanguageId='" + languageId + @"'--PL.LanguageId
                 //            WHERE SM.EmpInfoSystemID='" + empId + @"' ) x ORDER BY convert(date,EffectiveDate) DESC";
 
-                string sql = @";WITH BaseData AS
+                string sql = @";WITH BaseDataRaw AS
 (
     SELECT salaryInfo.SystemID,salaryInfo.EmpInfoSystemID
         ,salaryInfo.EffectiveDate AS EffectiveDateRaw
@@ -5425,6 +5425,11 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =PR.DepartmentId AND LDP.Lan
     LEFT JOIN HKP.LocalLanguage B ON B.DesignationId=EI.GivenDesignationId AND B.LanguageId='" + languageId + @"'
     LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BSH ON BSH.SalaryHeadId = sh.SalaryHeadID and BSH.LanguageId='" + languageId + @"'
     where IH.EmpSystemID='" + empId + @"'
+),
+BaseData AS
+(
+    -- collapse exact duplicate rows so each SalaryHead per date only counts once
+    SELECT DISTINCT * FROM BaseDataRaw
 )
 
 SELECT SystemID, EmpInfoSystemID, EffectiveDateRaw, EffectiveDate, GivenDesignationName, LegalDesignationName,
@@ -7337,30 +7342,30 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
             if (lng == "Bengali")
             {
                 return input
-                     //.Replace("Jan", "জানুয়ারি")
-                     //.Replace("Feb", "ফেব্রুয়ারি")
-                     //.Replace("Mar", "মার্চ")
-                     //.Replace("Apr", "এপ্রিল")
-                     //.Replace("May", "মে")
-                     //.Replace("Jun", "জুন")
-                     //.Replace("Jul", "জুলাই")
-                     //.Replace("Aug", "আগস্ট")
-                     //.Replace("Sep", "সেপ্টেম্বর")
-                     //.Replace("Oct", "অক্টোবর")
-                     //.Replace("Nov", "নভেম্বর")
-                     //.Replace("Dec", "ডিসেম্বর");
-                     .Replace("Jan", "জানু")
-                    .Replace("Feb", "ফেব্রু")
-                    .Replace("Mar", "মার্চ")
-                    .Replace("Apr", "এপ্রিল")
-                    .Replace("May", "মে")
-                    .Replace("Jun", "জুন")
-                    .Replace("Jul", "জুলাই")
-                    .Replace("Aug", "আগস্ট")
-                    .Replace("Sep", "সেপ্টে")
-                    .Replace("Oct", "অক্টো")
-                    .Replace("Nov", "নভে")
-                    .Replace("Dec", "ডিসে");
+                     .Replace("Jan", "জানুয়ারি")
+                     .Replace("Feb", "ফেব্রুয়ারি")
+                     .Replace("Mar", "মার্চ")
+                     .Replace("Apr", "এপ্রিল")
+                     .Replace("May", "মে")
+                     .Replace("Jun", "জুন")
+                     .Replace("Jul", "জুলাই")
+                     .Replace("Aug", "আগস্ট")
+                     .Replace("Sep", "সেপ্টেম্বর")
+                     .Replace("Oct", "অক্টোবর")
+                     .Replace("Nov", "নভেম্বর")
+                     .Replace("Dec", "ডিসেম্বর");
+                // .Replace("Jan", "জানু")
+                //.Replace("Feb", "ফেব্রু")
+                //.Replace("Mar", "মার্চ")
+                //.Replace("Apr", "এপ্রিল")
+                //.Replace("May", "মে")
+                //.Replace("Jun", "জুন")
+                //.Replace("Jul", "জুলাই")
+                //.Replace("Aug", "আগস্ট")
+                //.Replace("Sep", "সেপ্টে")
+                //.Replace("Oct", "অক্টো")
+                //.Replace("Nov", "নভে")
+                //.Replace("Dec", "ডিসে");
             }
             else if (lng == "Hindi")
             {

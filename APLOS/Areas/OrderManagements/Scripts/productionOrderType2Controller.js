@@ -2777,6 +2777,33 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         }
     }
 
+    $scope.valuePassInPrefenceDelModal = function (data) {
+        $scope.Prefenceobj = data.data;
+        $scope.message_confirmation = 'Are you sure want to delete [ ' + $scope.Prefenceobj.UserName + ' ]';
+        angular.element(document.querySelector('#confirmPreDelPopUp')).modal('show');
+    };
+    $scope.DeletePreferenceWC = function () {
+        if (!baseService.isUndefinedOrNull($scope.Prefenceobj.Id)) {
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/ProductionOrder/DeletePreferenceWC?id=' + $scope.Prefenceobj.Id
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetSavedPrefenceWorkCenter();
+                }
+            }, function () {
+                ShowResult(commonMessage.NetworkError, 'failure');
+            }).finally(function () {
+            });
+        }
+
+    };
+
+
     $scope.SaveRunningWorkCenter = function () {
         try {
             if ($scope.runningWorkCenterList.length > 0) {
@@ -2802,6 +2829,32 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             ShowResult(e, 'failure');
         }
     }
+
+    $scope.valuePassInRunningDelModal = function (data) {
+        $scope.runobj = data.data;
+        $scope.message_confirmation = 'Are you sure want to delete [ ' + $scope.runobj.UserName + ' ]';
+        angular.element(document.querySelector('#confirmRunDelPopUp')).modal('show');
+    };
+    $scope.DeleteRunningWC = function () {
+        if (!baseService.isUndefinedOrNull($scope.runobj.Id)) {
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/ProductionOrder/DeleteRunningWC?id=' + $scope.runobj.Id
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetSavedRunningWorkCenter();
+                }
+            }, function () {
+                ShowResult(commonMessage.NetworkError, 'failure');
+            }).finally(function () {
+            });
+        }
+
+    };
 
     $scope.appointments = [];
     $scope.setDate = new Date();
@@ -3123,11 +3176,6 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         }
 
     }
-
-
-
-
-
 
     // The functions for the priority Update
     $scope.fileData = [];

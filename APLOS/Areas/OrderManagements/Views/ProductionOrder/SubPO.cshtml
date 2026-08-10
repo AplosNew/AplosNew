@@ -338,6 +338,7 @@
                     <div id="GridWorkCenter" ng-init="chkinit()" ej-grid e-datasource="productionWorkCenterList" e-rowdatabound="rowDataBoundWorkCenter"
                          e-allowpaging="true" e-enabletouch="false" e-responsive="true">
                         <div e-columns>
+                            <div e-column e-type="string" e-template="#RemovePreWC" e-headertext="Remove" e-width="40"></div>
                             <div e-column e-field="Plant" e-headertext="Plant" e-width="150"></div>
                             <div e-column e-field="Entity" e-headertext="Entity" e-width="120"></div>
                             <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
@@ -345,7 +346,11 @@
 
                         </div>
                     </div>
-
+                    <script type="text/template" id="RemovePreWC">
+                        <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                            <button ng-click="$parent.valuePassInPrefenceDelModal(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
+                        </div>
+                    </script>
                 </div>
                 <div class="common-btn" style="padding-right: 15px;">
                     <ul class="list-inline text-right">
@@ -372,12 +377,12 @@
                     <div id="GridWorkCenterForRunningHeaven" ng-init="chkinit()" ej-grid e-datasource="runningWorkCenterList"
                          e-allowselection="false" e-enabletouch="true" e-responsive="true">
                         <div e-columns>
+                            <div e-column e-type="string" e-template="#RemoveRunWC" e-headertext="Remove" e-width="40"></div>
                             <div e-column e-field="Plant" e-headertext="Plant" e-width="150"></div>
                             <div e-column e-field="Entity" e-headertext="Entity" e-width="120"></div>
                             <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
                             <div e-column e-field="UserName" e-headertext="Work Center" e-width="180"></div>
                             <div e-column e-template="#RunningOrderLineWiseQty" e-headertext="Quantity" e-width="50"></div>
-
                             <div e-column e-template="#appliedFor" e-headertext="Residual Value" e-width="40"></div>
 
                         </div>
@@ -387,6 +392,11 @@
                     </script>
                     <script type="text/template" id="appliedFor">
                         <input type="checkbox" e-value="data.isResidualApplicable" e-checked="data.isResidualApplicable" ej-checkbox class="nodetext" e-change="$parent.changeRunningOrderResidual" />
+                    </script>
+                    <script type="text/template" id="RemoveRunWC">
+                        <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                            <button ng-click="$parent.valuePassInRunningDelModal(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
+                        </div>
                     </script>
                 </div>
                 <div class="common-btn" style="padding-right: 15px;">
@@ -504,3 +514,5 @@
         </div>
     </div>
 </ej-dialog>
+<confirm-archive-generic modalid="confirmRunDelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteRunningWC();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPreDelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeletePreferenceWC();"></confirm-archive-generic>

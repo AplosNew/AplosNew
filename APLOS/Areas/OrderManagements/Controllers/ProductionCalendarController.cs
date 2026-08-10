@@ -482,7 +482,7 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
                 DataSet dsMaster = null;
                 DataSet dsConfig = null;
                 string defaultWeekOff = "";
-                double defaultWorkingHours = 8;
+                double defaultWorkingHours = 24;
 
 
                 string fromdate = System.DateTime.Now.ToString("dd-MMM-yyyy");
@@ -570,8 +570,19 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
                     {
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
-                        dr["DayType"] = defaultWeekOff;
+                        if (Convert.ToDateTime(date).ToString("dddd").ToUpper() == defaultWeekOff.ToUpper())
+                        {
+                            dr["WorkingHours"] = 0;
+                            dr["DayType"] = "W";
+                            dr["OTHours"] = 0;
+                        }
+                        else
+                        {
+                            dr["DayType"] = DBNull.Value;
                         dr["WorkingHours"] = defaultWorkingHours;
+                        }
+
+                        
                         dr.EndEdit();
                     }
                 }
