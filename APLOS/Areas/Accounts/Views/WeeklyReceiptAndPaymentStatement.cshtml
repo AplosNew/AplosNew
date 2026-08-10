@@ -14,7 +14,16 @@
                 <input type="text" name="To Date" ng-model="report.ToDate" datepicker class="form-control" required tabindex="6">
             </div>
         </div>
-         
+        <div class="form-group" >
+            <label class="col-sm-3 control-label">Cash<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <div class="select-style">
+                    <select name="Cash" class="form-control" ng-model="report.CashMasterId" ng-options="item.Id as item.UserName for item in cashMasterList"  tabindex="1" required>
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="common-btn">
         <ul class="list-inline text-left">
