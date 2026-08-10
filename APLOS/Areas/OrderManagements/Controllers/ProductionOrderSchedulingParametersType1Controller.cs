@@ -3497,8 +3497,7 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.Pro
         private DataTable dtType2AllAvailableWrokcenters(string entityid, string processid)
         {
 
-            string sql = @"SELECT WC.* FROM  [SCS].[WorkCenterMaster] WC WHERE WC.EntityId IN(" + entityid + @") AND WC.ProcessId='" + processid + @"' AND WC.[Active]=1 
-                                ";
+            string sql = @"SELECT WC.* FROM  [SCS].[WorkCenterMaster] WC WHERE WC.EntityId IN(" + entityid + @") AND WC.ProcessId='" + processid + @"' AND WC.[Active]=1";
             DataTable dtWorkCenter = _sqlRepository.GetDataTable(sql);
 
 
@@ -3521,7 +3520,7 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.Pro
 		                    SELECT  * FROM (	
 					                    SELECT dense_rank() OVER (PARTITION BY t.WorkCenterMasterId ORDER BY t.ProductionDate DESC) AS RANK,
 					                    t.WorkCenterMasterId,t.ProductionDate,t.Quantity,t.MaterialMasterId
-					                    FROM (SELECT t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,SUM(t.Quantity) AS Quantity
+					                    FROM (SELECT t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,SUM(t.Quantity) AS Quantity,t.SubProductionOrderId
 					                      FROM trn.ProductionSummary t 
 					                    INNER JOIN [TRN].[ProductionOrder] P ON p.Id=t.ProductionOrderID
 					                    LEFT OUTER JOIN (SELECT DISTINCT pod.ProductionOrderId,mm.Id AS MaterialMasterId
@@ -3532,7 +3531,7 @@ INNER JOIN trn.SalesOrder AS so ON A.SOId=so.Id
 INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
 INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.ProductionOrderId=p.Id
                                     where t.ProductionDate<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
-					                    GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId) AS T
+					                    GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,t.SubProductionOrderId) AS T
 		                    ) AS K WHERE K.[RANK]=1
                     ) AS P ON p.WorkCenterMasterId=wc.Id
                     WHERE WC.[Active]=1 AND WC.Id IN (" + workcenterlist + ")";
@@ -3543,7 +3542,7 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.Pro
             string sqlLastRunningDays = @"SELECT *
                     FROM ( SELECT dense_rank() OVER (PARTITION BY t.WorkCenterMasterId ORDER BY t.ProductionDate DESC) AS LW,
 					                    t.WorkCenterMasterId,t.ProductionDate,t.Quantity,0 AS CurrentPRQty, t.MaterialMasterId
-                           from (SELECT t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,SUM(t.Quantity) AS Quantity
+                           from (SELECT t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,SUM(t.Quantity) AS Quantity,t.SubProductionOrderId
 					                      FROM trn.ProductionSummary t 
 					                    INNER JOIN [TRN].[ProductionOrder] P ON p.Id=t.ProductionOrderID
 					                    LEFT OUTER JOIN (SELECT DISTINCT pod.ProductionOrderId,mm.Id AS MaterialMasterId
@@ -3554,7 +3553,7 @@ INNER JOIN trn.SalesOrder AS so ON A.SOId=so.Id
 INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
 INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.ProductionOrderId=p.Id
                                         WHERE p.EntityId IN(" + entityid + @") AND t.ProductionDate<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
-					                    GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId) AS T
+					                    GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId,t.SubProductionOrderId) AS T
                         ) AS T  
                     WHERE LW<=(SELECT MAX(T1.DayToReachTheTarget*10)
                    FROM ProductionOrderSchedulingParametersType2 AS T1 
@@ -7014,8 +7013,7 @@ INNER JOIN trn.ProductionOrder AS po ON po.Id=spo.ProductionOrderId
 
             string sql = @"SELECT  PO.EntityId, PO.Remarks,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,mm.MaterialMasterId,
                             --ISNULL(PO.PlannedQty,0)-ISNULL(PRODPR.ProductionQtyAtPR,0) AS SOQuantity,ISNULL(PRODPR.ProductionQtyAtPR,0) AS ProductionQty,
-                            --ISNULL(CASE WHEN ISNULL(T1.Qty,0)>0 THEN T1.Qty ELSE PO.PlannedQty END,0)-(ISNULL(PRODPR.ProductionQtyAtPR,0)-ISNULL(PRDQ.ProductionBookedQty,0)) AS SOQuantity
-                            T1.Qty SOQuantity
+                            ISNULL(CASE WHEN ISNULL(T1.Qty,0)>0 THEN T1.Qty ELSE PO.PlannedQty END,0)-(ISNULL(PRODPR.ProductionQtyAtPR,0)-ISNULL(PRDQ.ProductionBookedQty,0)) AS SOQuantity
                             ,ISNULL(PRODPR.ProductionQtyAtPR,0) AS ProductionQty,
                            t1.*
                                                             FROM [TRN].[ProductionOrder] AS PO
@@ -7038,12 +7036,12 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId
                            
 							--production at PR Level
 							LEFT OUTER JOIN (
-												SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR,MIN(s.ProductionDate) AS ProductionStartDateAtPR
+												SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR,MIN(s.ProductionDate) AS ProductionStartDateAtPR,s.SubProductionOrderId
 											FROM  trn.ProductionSummary S 
 											WHERE  CONVERT(DATETIME, format(s.ProductionDate,'dd-MMM-yyyy'))<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
-											GROUP BY  s.ProductionOrderId,s.ProcessId
+											GROUP BY  s.ProductionOrderId,s.SubProductionOrderId,s.ProcessId
 							) AS PRODPR ON  PRODPR.ProductionOrderId=po.id AND PRODPR.ProcessId=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
-							
+							AND PRODPR.SubProductionOrderId=t1.ID
                             left outer join (SELECT pod.ProductionOrderId,
                                 sum(isnull(so.ProductionBookedQty,0)) ProductionBookedQty
                                  FROM trn.SalesOrder AS so
@@ -7053,9 +7051,9 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId
                             ) AS PRDQ ON PRDQ.ProductionOrderId=T1.ProductionOrderId
 							
 
-                            WHERE 
-                            po.EntityId IN(" + entityid + @")  AND ps.UserName IN ('" + PlanningStatus.ACTIVE.ToString() + @"','" + PlanningStatus.RUNNING.ToString() + @"')
+                            WHERE  po.EntityId IN(" + entityid + @")  AND ps.UserName IN ('" + PlanningStatus.ACTIVE.ToString() + @"','" + PlanningStatus.RUNNING.ToString() + @"')
                             ORDER BY ps.UserName DESC, t1.ProductionPriority ASC";
+
             DataTable _dtProductionParameters = _sqlRepository.GetDataTable(sql);
 
             return _dtProductionParameters;
@@ -7079,7 +7077,7 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId
 
                 sql = @"SELECT ws.*,isnull(W.isResidualApplicable,0) AS isResidualApplicable FROM [TRN].[RunningOrderType2WorkCenter] W
                         INNER JOIN [SCS].[WorkCenterMaster] WS ON ws.Id=w.WorkCenterMasterId
-                        INNER JOIN ProductionOrderSchedulingParametersType2 AS T ON t.ProductionOrderID=w.ProductionOrderId
+                        INNER JOIN ProductionOrderSchedulingParametersType2 AS T ON t.ID=w.ProductionOrderId
                         INNER JOIN trn.ProductionOrder po ON po.Id=t.ProductionOrderID
                         LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
                 WHERE  ps.UserName='" + PlanningStatus.RUNNING.ToString() + @"' AND W.ProductionOrderId='" + productionOrderID + "' AND WS.ProcessID='" + processid + "'";

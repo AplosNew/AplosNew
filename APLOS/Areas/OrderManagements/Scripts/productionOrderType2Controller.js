@@ -2345,6 +2345,82 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     };
 
     $scope.calculate = function (obj) {
+        $scope.sku1sku2 = obj.data;
+        $scope.sku1sku2.PlanQty = ($scope.sku1sku2.Qty + $scope.sku1sku2.AdjustableQty) * ($scope.sku1sku2.PlanPercentage + 100) / 100;
+
+        $scope.sku1sku2.RequiredLineDays = ($scope.sku1sku2.PlanWorkingHoursPerDay * 60) / ($scope.sku1sku2.SPT * $scope.sku1sku2.Qty) / $scope.sku1sku2.Efficiency;
+        $scope.sku1sku2.MaximumAllowedWorkCenter = Math.floor(Number($scope.sku1sku2.RequiredLineDays)) / $scope.sku1sku2.MinimumLineDays;
+        if ($scope.sku1sku2.MaximumAllowedWorkCenter < 1) {
+            $scope.sku1sku2.MaximumAllowedWorkCenter = 1;
+        }
+
+        if ($scope.sku1sku2.NoOfWorkStation > 0 || $scope.sku1sku2.Efficiency > 0 || $scope.sku1sku2.SPT > 0) {
+
+            $scope.sku1sku2.TargetPerHour = ($scope.sku1sku2.NoOfWorkStation * 60 / $scope.sku1sku2.SPT);
+            $scope.TargetQtyAtFullEfficiency = $scope.sku1sku2.TargetPerHour;
+            if ($scope.sku1sku2.TargetPerHour > 0) {
+
+                $scope.sku1sku2.TargetPerDay = ($scope.sku1sku2.PlanWorkingHoursPerDay * $scope.sku1sku2.TargetPerHour);
+                $scope.EfficiencyPercentage = ($scope.sku1sku2.TargetPerDay);// * $scope.sku1sku2[i].Efficiency / 100;
+
+
+                //at efficiency level
+                $scope.sku1sku2.TargetPerHour = $scope.sku1sku2.TargetPerHour * $scope.sku1sku2.Efficiency / 100;
+                $scope.sku1sku2.TargetPerDay = $scope.sku1sku2.TargetPerDay * $scope.sku1sku2.Efficiency / 100;
+
+
+
+                $scope.sku1sku2.RequiredLineDays = Number(($scope.sku1sku2.Qty / $scope.sku1sku2.TargetPerDay).toFixed(2));
+            }
+
+            if ($scope.sku1sku2.MinimumLineDays > 0) {
+
+                $scope.sku1sku2.RequiredNoOfLines = Number($scope.sku1sku2.RequiredLineDays) / $scope.sku1sku2.MinimumLineDays;
+
+                if ($scope.sku1sku2.RequiredNoOfLines > 0 && $scope.sku1sku2.RequiredNoOfLines <= 1)
+                    $scope.sku1sku2.AllocatedLines = 1;
+
+                if ($scope.sku1sku2.RequiredNoOfLines > 1)
+                    $scope.sku1sku2.AllocatedLines = Number(Math.floor($scope.sku1sku2.RequiredNoOfLines));
+            }
+
+            try {
+                $scope.sku1sku2.RequiredNoOfLines = Number($scope.sku1sku2.RequiredNoOfLines).toFixed(4)
+                $scope.sku1sku2.RequiredLineDays = Number($scope.sku1sku2.RequiredLineDays).toFixed(4)
+            } catch (e) {
+
+            }
+        }
+        if ($scope.sku1sku2.FirstDayOutPut > 0 && $scope.sku1sku2.IncrementValue > 0) {
+
+            if ($scope.sku1sku2.IncrementType == "FIXED" || $scope.sku1sku2.IncrementType == "PERCENTAGE") {
+                var daysrequired = 1;
+                if ($scope.sku1sku2.FirstDayOutPut < $scope.sku1sku2.TargetPerHour) {
+                    daysrequired = 1;
+                    var firstdaysoutput = $scope.sku1sku2.FirstDayOutPut;
+                    while (firstdaysoutput * $scope.sku1sku2.PlanWorkingHoursPerDay < $scope.sku1sku2.TargetPerDay) {
+                        daysrequired++;
+                        //if ($scope.sku1sku2[i].IncrementType == "FIXED")
+                        firstdaysoutput += $scope.sku1sku2.IncrementValue;
+
+                        //compounding method
+                        //if ($scope.sku1sku2[i].IncrementType == "PERCENTAGE")
+                        //    firstdaysoutput = firstdaysoutput + (firstdaysoutput * $scope.sku1sku2[i].IncrementValue / 100);
+
+
+
+                    }
+
+                }
+                $scope.sku1sku2.DayToReachTheTarget = daysrequired.toFixed(2);
+            }
+
+        }
+        var gridObj = $("#GridSKU12").data("ejGrid");
+        gridObj.refreshContent();
+    }
+
+    $scope._calculate = function (obj) {
         for (var i = 0; i < $scope.sku1sku2List.length; i++) {
             $scope.sku1sku2List[i].PlanQty = ($scope.sku1sku2List[i].Qty + $scope.sku1sku2List[i].AdjustableQty) * ($scope.sku1sku2List[i].PlanPercentage + 100) / 100;
 
