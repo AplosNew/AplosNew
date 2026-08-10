@@ -2949,7 +2949,7 @@ order by ATC.AddedDate desc"));
 ATS.Id ReportNumber, Format(ATS.DateTime,'yyyy-mm-dd') ReportDate , ATS.LotSize , ATS.SampleSize , ATS.AcceptPoint, RejectPoint = (ATS.AcceptPoint + 1)
 ,ATS.AQLLevelValue , ATS.AQLLevel , SD.ShiftType , EI.EmployeeName  , wcm.UserName [Line] 
 ,SO.Id Salesorder , SO.LineItemReference LineItem , PO.Id PO 
- ,Chv.UserName Color,SizeData.Size AS Size
+ ,Chv.UserName Color, case when ATS.LotNumber is not null then  Concat(SizeData.Size , '  , LOTNO: ',ATS.LotNumber) else SizeData.Size  end  AS Size
  ,PB.BulletinName [Description] , pt.UserName Customer  
  ,SUM(ISNULL(DefectCount.OperationDefect,0)) AS OperationDefect
 ,SUM(ISNULL(DefectCount.OtherDefect,0)) AS OtherDefect
@@ -3032,7 +3032,7 @@ where ATS.Id = '" + AQLId + @"'
 group by ATS.Id , Format(ATS.DateTime,'yyyy-mm-dd')  , ATS.LotSize , ATS.SampleSize , ATS.AcceptPoint 
 ,ATS.AQLLevelValue , ATS.AQLLevel , SD.ShiftType , EI.EmployeeName  , wcm.UserName
 ,SO.Id  , SO.LineItemReference  , PO.Id ,Chv.UserName,PB.BulletinName, pt.UserName ,
-SizeData.Size,FC.Qty"));
+SizeData.Size,FC.Qty,ATS.LotNumber"));
 
             }
             catch (Exception ex)

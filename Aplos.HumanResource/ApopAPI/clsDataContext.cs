@@ -14834,6 +14834,10 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
                         dr["QualityInchargeId"] = item.QualityInchargeId;
                         dr["ProductionInchargeId"] = item.ProductionInchargeId;
                         dr["ReportingOfficerId"] = item.ReportingOfficerId;
+                        dr["LotNumber"] = item.LotNumber;
+                        dr["ActionBy"] = item.ActionBy;
+                        dr["ForwardBy"] = item.ForwardBy;
+                        dr["UserReference"] = item.UserReference;
                         dr["AQLLevel"] = item.AQLLevel;
                         dr["AQLLevelValue"] = item.AQLLevelValue;
                         dr["LotSize"] = item.LotSize;
@@ -17082,6 +17086,10 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
         public string QualityInchargeId { get; set; }
         public string ProductionInchargeId { get; set; }
         public string ReportingOfficerId { get; set; }
+        public string LotNumber { get; set; }
+        public string ActionBy { get; set; }
+        public string ForwardBy { get; set; }
+        public string UserReference { get; set; }
         public string AQLLevel { get; set; }
         public string AQLLevelValue { get; set; }
         public string LotSize { get; set; }
