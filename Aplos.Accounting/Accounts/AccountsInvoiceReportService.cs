@@ -4585,7 +4585,7 @@ namespace Library.Accounting.Accounts
           string plantId,
           string plantName,
           DateTime fromDate,
-          DateTime toDate,
+          DateTime toDate, string cashMasterId,
           IEnumerable<int> dashedSeparatorAfterRowIndices = null)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -4601,7 +4601,7 @@ namespace Library.Accounting.Accounts
             reportFileName = "WEEKLY RECEIPT AND EXPENSES STATEMENT " + toDate.ToString("dd-MMM-yyyy");
 
             // ---- Pull + split data -----------------------------------------------------
-            DataTable dtCombined = GetCombinedStatementData(plantId, fromDate, toDate);
+            DataTable dtCombined = GetCombinedStatementData(plantId, fromDate, toDate,cashMasterId);
 
             List<ReceiptLine> receiptRows;
             List<ExpenseLine> expenseRows;
@@ -4848,15 +4848,15 @@ namespace Library.Accounting.Accounts
         /// Balance, FULL OUTER JOINed to Expenses CTE by ROW_NUMBER). Built via string
         /// concatenation to match your ISqlRepository.GetDataTable(string sql) signature.
         /// </summary>
-        private DataTable GetCombinedStatementData(string plantId, DateTime fromDate, DateTime toDate)
+        private DataTable GetCombinedStatementData(string plantId, DateTime fromDate, DateTime toDate,string cashMasterId)
         {
             string from = fromDate.ToString("yyyy-MM-dd");
             string to = toDate.ToString("yyyy-MM-dd");
 
             var sql = @"WITH Expenses AS (
     SELECT
-        V.PostingDate,V.VoucherNo,HeadOfExpense= case when vd.BankMasterId IS NULL THEN  A.UserName + ISNULL(' (' + V.Narration + ')','')
-        WHEN vd.BankMasterId<>'' THEN 'Cash Deposit ' + ISNULL(' (' + V.Narration + ')','') END,
+        V.PostingDate,V.VoucherNo,HeadOfExpense= case when vd.BankMasterId IS NULL THEN  A.UserName 
+        WHEN vd.BankMasterId<>'' THEN 'Cash Deposit ' + ISNULL(' (' + V.Narration + ')','') end,
         VD.DrAmount AS Amount,
         ROW_NUMBER() OVER (ORDER BY V.PostingDate, V.VoucherNo) AS RN
     FROM TRN.VoucherDetail VD
@@ -4866,11 +4866,13 @@ namespace Library.Accounting.Accounts
     LEFT JOIN HKP.Activity A ON A.Id = VD.ActivityId
     LEFT JOIN MST.BudgetMaster BM ON BM.Id = VD.BudgetMasterId
     LEFT JOIN HKP.AccountGroup AG ON AG.Id = GL.AccountGroupId
+	LEFT JOIN (SELECT CashMasterId,VoucherId FROM TRN.VoucherDetail where CrAmount>0 and CashMasterId='" + cashMasterId + @"' )XVD ON XVD.VoucherId=V.Id
+   
     WHERE V.PlantId = '" + plantId + @"'
-        AND AG.AccountTypeId IN ('Expense','Asset')
+        --AND AG.AccountTypeId IN ('Expense','Asset')
         AND VD.DrAmount > 0
-        AND V.PostingDate BETWEEN '"+ from + "' AND '"+to+@"'
-        AND VD.CashMasterId IS NULL
+        AND V.PostingDate BETWEEN '"+ from + "' AND '"+to+ @"'
+        AND VD.CashMasterId IS NULL AND XVD.CashMasterId='"+ cashMasterId + @"'
         --AND VD.BankMasterId IS NULL
         AND V.SourceType <> 'OpeningBalance'
 ),
@@ -4956,7 +4958,7 @@ SELECT
     E.HeadOfExpense AS [EXPENSES],
     E.Amount      AS PaymentAMOUNT
 FROM Receipts R
-FULL OUTER JOIN Expenses E ON R.RN = E.RN ORDER BY E.VoucherNo";
+FULL OUTER JOIN Expenses E ON R.RN = E.RN ORDER BY E.VoucherNo,E.HeadOfExpense";
 
             return _sqlRepository.GetDataTable(sql.ToString());
         }

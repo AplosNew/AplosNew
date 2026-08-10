@@ -6,8 +6,10 @@ function WeeklyReceiptAndPaymentStatementController($scope, $rootScope, bankServ
         FromDate: $filter("dateFiltering")(Date.now()),
         ToDate: $filter("dateFiltering")(Date.now())
     };
-
-
+    $scope.cashMasterList = [];
+    bankService.getCashMasterCboListByEntity(null, function (result) {
+        $scope.cashMasterList = result;
+    });
     $scope.getReport = function () {
          if (baseService.isUndefinedOrNull($scope.report.FromDate)) {
             manualValidation("div_FromDate", true, "From Date is required.");
@@ -22,7 +24,7 @@ function WeeklyReceiptAndPaymentStatementController($scope, $rootScope, bankServ
             manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
         }
         else {
-             var url = "Accounts/VoucherReport/GetWeeklyReceiptAndPaymentStatement?reportFormat=Excel" + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate;
+             var url = "Accounts/VoucherReport/GetWeeklyReceiptAndPaymentStatement?reportFormat=Excel" + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&cashMasterId=" + $scope.report.CashMasterId;
             //var url = "Banks/CashReport/GetCashBookReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&cashMasterId=" + $scope.report.CashMasterId;
             $window.open(url, "_blank");
         }

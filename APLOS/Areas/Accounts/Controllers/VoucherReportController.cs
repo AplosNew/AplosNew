@@ -585,12 +585,12 @@ namespace Aplos.Areas.Accounts.Controllers
             return View("~/Areas/Accounts/Views/WeeklyReceiptAndPaymentStatement.cshtml");
         }
 
-        [HttpGet, Authorize]
-        public ActionResult GetWeeklyReceiptAndPaymentStatement(ReportFormat reportFormat, DateTime fromdate, DateTime todate, string entityId, string dateType)
+        [HttpGet]
+        public ActionResult GetWeeklyReceiptAndPaymentStatement(ReportFormat reportFormat, DateTime fromdate, DateTime todate, string cashMasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsInvoiceReportService _accountsInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository);
-            var workbook = _accountsInvoiceReportService.GetWeeklyReceiptAndPaymnetWorkBook(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromdate, todate,null);
+            var workbook = _accountsInvoiceReportService.GetWeeklyReceiptAndPaymnetWorkBook(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromdate, todate, cashMasterId,null);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
