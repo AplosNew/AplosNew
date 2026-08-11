@@ -2978,6 +2978,11 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             //        }
             //    }
             //}
+
+            $scope.ProdStatus = $("#ProdStatus option:selected").text();
+            if ($scope.ProdStatus != "Running") {
+                throw "Production Status should Running to Simulate.";
+            }
             $http({
                 method: 'GET',
                 url: "OrderManagements/productionOrderSchedulingParametersType1/ProductionType2PlanSimulation?entityid=" + $scope.model.EntityId + "&processid=" + $scope.model.PlanningTypeProcessId
