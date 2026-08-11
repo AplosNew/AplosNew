@@ -1397,7 +1397,7 @@ WITH base_prod AS (
     LEFT JOIN ORG.Entity EN ON EN.Id=MB.EntityId
     LEFT JOIN [dbo].[EmployeeOperation] EO ON EO.OperationMasterId=OM.Id AND OWE.EmployeeId=EO.EmpSystemId AND EO.Archive=0
     WHERE APD.[WorkDate] BETWEEN  '" + fromDate + "' AND '" + toDate + @"'
-    AND IT.UserName IN (" + tempincentiveType + ")  AND MB.EntityId='" + entityId + @"'
+    AND IT.UserName IN (" + tempincentiveType + ")  AND MB.EntityId='" + entityId + @"'  
 	 AND ei.EmployeeStatus='Active'  " + tempdaystatus + " " + tempShiftId + " " + tempwcId + @"--and ei.employeecode in ('10000351')
     GROUP BY 
         MB.EntityId, EN.UserName,
@@ -1412,10 +1412,23 @@ WITH base_prod AS (
 
 
 operationSkill_agg AS (
-    SELECT EmployeeCode, WorkDate,
-           STRING_AGG(OperationSkill, ', ') AS OperationSkill
-    FROM (SELECT DISTINCT EmployeeCode, WorkDate, OperationSkill FROM base_prod WHERE OperationSkill IS NOT NULL) x
-    GROUP BY EmployeeCode, WorkDate
+    SELECT EmployeeCode,
+           STRING_AGG(OperationSkill, ', ') WITHIN GROUP (ORDER BY OperationSkill) AS OperationSkill
+    FROM (
+        SELECT DISTINCT EmployeeCode, OperationSkill 
+        FROM base_prod 
+        WHERE OperationSkill IS NOT NULL
+          AND WorkDate BETWEEN @fromDate AND @toDate
+    ) x
+    GROUP BY EmployeeCode
+),
+emp_rating_agg AS (
+    SELECT EmpSystemId,
+           MAX(ISNULL(EmployeeRating,0)) AS EmployeeRating,
+           MAX(ISNULL(SpecialSkill,0))   AS SpecialSkill
+    FROM dbo.EmployeeOperation
+    WHERE Archive = 0
+    GROUP BY EmpSystemId
 ),
 prod_calc AS (
     SELECT 
@@ -1500,7 +1513,7 @@ SELECT
     EntityId,
     pc.EmployeeCode,
     EmployeeName,EmployeeId,NewDayStatus,NewDayStatus2,NewDayStatus3,NewDayStatus4,NewDayStatus5,NewDayStatus6,NewDayStatus7,
-   GivenDesignation,SkillLevel,NumberOfMonth,EmployeeRating,SpecialSkill,os.OperationSkill,
+   GivenDesignation,SkillLevel,NumberOfMonth,os.OperationSkill, era.EmployeeRating, era.SpecialSkill,
 	-- ✅ DayStatus Pivot
     MAX(CASE WHEN pc.[WorkDate] = @fromDate  THEN DayStatus END) AS DayStatus1,
     MAX(CASE WHEN pc.[WorkDate] = DATEADD(DAY,1,@fromDate) THEN DayStatus END) AS DayStatus2,
@@ -1579,10 +1592,11 @@ END AS Day7,
 ) AS PresentDays
 
 FROM prod_calc pc
-LEFT JOIN operationSkill_agg os ON os.EmployeeCode=pc.EmployeeCode AND os.WorkDate=pc.[Date]
+LEFT JOIN operationSkill_agg os ON os.EmployeeCode=pc.EmployeeCode 
+LEFT JOIN emp_rating_agg era ON era.EmpSystemId=pc.EmployeeId
 GROUP BY 
     Entity, EntityId,EmployeeId,  pc.EmployeeCode,  EmployeeName,GivenDesignation,NumberOfMonth,SkillLevel ,os.OperationSkill
-	,NewDayStatus,NewDayStatus2,NewDayStatus3,NewDayStatus4,NewDayStatus5,NewDayStatus6,NewDayStatus7,EmployeeRating,SpecialSkill
+	,NewDayStatus,NewDayStatus2,NewDayStatus3,NewDayStatus4,NewDayStatus5,NewDayStatus6,NewDayStatus7, era.EmployeeRating, era.SpecialSkill
 	) y
 
 	LEFT JOIN IncentiveRateSetupEntity irs ON irs.EntityId=y.EntityId
