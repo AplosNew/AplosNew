@@ -1493,7 +1493,12 @@ namespace Library.OrderManagement.Production
 								   LEFT JOIN TRN.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                    LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
 								   ) PD ON PD.ProductionOrderId=PO.Id
-								    WHERE " + wcpr + " Order by PD.Description,PD.BuyerOrder";
+								    WHERE " + wcpr + "  AND Po.Id IN(Select ProductionOrderId from dbo.ProductionPlanningType1 Where workCenterMasterId='"+workCenterMasterId+ @"'
+                                    UNION
+                                    Select T2.ProductionOrderId from dbo.ProductionPlanningType2 PT2
+                                    INNER JOIN dbo.ProductionOrderSchedulingParametersType2 T2 ON T2.ID = PT2.ProductionOrderID
+                                    Where workCenterMasterId = '" + workCenterMasterId + @"'
+									) Order by PD.Description,PD.BuyerOrder";
 
             return _sqlRepository.GetDataCollection(CmdText);
         }

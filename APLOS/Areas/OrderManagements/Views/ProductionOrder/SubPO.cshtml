@@ -1,5 +1,5 @@
 ﻿<togglable name="Sub Production Order"></togglable>
-<div class="form-horizontal form-elements" ng-form="modelNewSPOForm">
+<div class="form-horizontal form-elements" ng-form="modelNewSPOForm" id="tarekcontainer">
     <div class="row">
         <div class="col-xs-12">
             <div style="color:black;" id="GridSPO" ej-grid e-datasource="ProductionOrderList" e-allowscrolling="true"
@@ -28,7 +28,7 @@
                     <div class="col-sm-8">
                         <div class="checkbox-site">
                             <label>
-                                <input type="checkbox" ng-model="ModelNewSPO.SKU1" ng-change="SetCheckbox('sku1');"/>
+                                <input type="checkbox" ng-model="ModelNewSPO.SKU1" ng-change="SetCheckbox('sku1');" />
                                 <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                             </label>
                         </div>
@@ -37,19 +37,19 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">SPT<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="SPT" n-decimals="2" ng-model="ModelNewSPO.SPT" required class="form-control" tabindex="4" maxlength="50"/>
+                        <input type="text" name="SPT" n-decimals="2" ng-model="ModelNewSPO.SPT" required class="form-control" tabindex="4" maxlength="50" />
                     </div>
                 </div>
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Plan Hour<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="PlanHour" n-decimals="2" ng-model="ModelNewSPO.PlanHour" required class="form-control" tabindex="4" maxlength="50"/>
+                        <input type="text" name="PlanHour" n-decimals="2" ng-model="ModelNewSPO.PlanHour" required class="form-control" tabindex="4" maxlength="50" />
                     </div>
                 </div>
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Commitment Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="CommitmentDate" ng-model="ModelNewSPO.CommitmentDate" datepicker class="form-control" required/>
+                        <input type="text" name="CommitmentDate" ng-model="ModelNewSPO.CommitmentDate" datepicker class="form-control" required />
                     </div>
                 </div>
             </div>
@@ -59,7 +59,7 @@
                     <div class="col-sm-8">
                         <div class="checkbox-site">
                             <label>
-                                <input type="checkbox" ng-model="ModelNewSPO.SKU2" ng-change="SetCheckbox('sku2');"/>
+                                <input type="checkbox" ng-model="ModelNewSPO.SKU2" ng-change="SetCheckbox('sku2');" />
                                 <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                             </label>
                         </div>
@@ -68,19 +68,19 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Plan Percentage<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="SPT" n-decimals="2" ng-model="ModelNewSPO.PlanPercentage" class="form-control" required tabindex="4" maxlength="50"/>
+                        <input type="text" name="SPT" n-decimals="2" ng-model="ModelNewSPO.PlanPercentage" class="form-control" required tabindex="4" maxlength="50" />
                     </div>
                 </div>
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Net Utilization Percentage<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" title="Net Utilization Percentage" name="Net Utilization Percentage" n-decimals="2" ng-model="ModelNewSPO.NetUtilizationPercentage" required class="form-control" tabindex="4" maxlength="50"/>
+                        <input type="text" title="Net Utilization Percentage" name="Net Utilization Percentage" n-decimals="2" ng-model="ModelNewSPO.NetUtilizationPercentage" required class="form-control" tabindex="4" maxlength="50" />
                     </div>
                 </div>
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Main RM Inhouse Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="MainRawMaterialInhouseDate" ng-model="ModelNewSPO.MainRawMaterialInhouseDate" datepicker class="form-control" required/>
+                        <input type="text" name="MainRawMaterialInhouseDate" ng-model="ModelNewSPO.MainRawMaterialInhouseDate" datepicker class="form-control" required />
                     </div>
                 </div>
             </div>
@@ -90,7 +90,7 @@
                     <div class="col-sm-8">
                         <div class="checkbox-site">
                             <label>
-                                <input type="checkbox" ng-model="ModelNewSPO.Both" ng-change="SetCheckbox('both');"/>
+                                <input type="checkbox" ng-model="ModelNewSPO.Both" ng-change="SetCheckbox('both');" />
                                 <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                             </label>
                         </div>
@@ -99,19 +99,19 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Min Qty<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="MinQty" n-decimals="2" ng-model="ModelNewSPO.MinQty" class="form-control" required tabindex="4" maxlength="50"/>
+                        <input type="text" name="MinQty" n-decimals="2" ng-model="ModelNewSPO.MinQty" class="form-control" required tabindex="4" maxlength="50" />
                     </div>
                 </div>
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="LSD" ng-model="ModelNewSPO.LSD" datepicker class="form-control" required/>
+                        <input type="text" name="LSD" ng-model="ModelNewSPO.LSD" datepicker class="form-control" required />
                     </div>
                 </div>
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Other RM Inhouse Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="OtherRawMaterialInhouseDate" ng-model="ModelNewSPO.OtherRawMaterialInhouseDate" datepicker class="form-control" required/>
+                        <input type="text" name="OtherRawMaterialInhouseDate" ng-model="ModelNewSPO.OtherRawMaterialInhouseDate" datepicker class="form-control" required />
                     </div>
                 </div>
             </div>
@@ -119,14 +119,14 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Workstations<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="Workstations" n-decimals="2" ng-model="ModelNewSPO.NoOfWorkStation" class="form-control" required tabindex="4" maxlength="50"/>
+                        <input type="text" name="Workstations" n-decimals="2" ng-model="ModelNewSPO.NoOfWorkStation" class="form-control" required tabindex="4" maxlength="50" />
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="col-sm-4 control-label">First Day Output/Hour<sup>*</sup></label>
                     <div class="col-sm-8">
-                        <input type="number" ng-disabled="SPTEfficiencySlab.length>0"  inputmode="numeric" class="form-control" rows="2" ng-model="ModelNewSPO.FirstDayOutPut" maxlength="250" />
+                        <input type="number" ng-disabled="SPTEfficiencySlab.length>0" inputmode="numeric" class="form-control" rows="2" ng-model="ModelNewSPO.FirstDayOutPut" maxlength="250" />
                     </div>
                 </div>
                 <div class="form-group">
@@ -175,6 +175,7 @@
 
                     <div e-column e-type="string" e-template="#TargetPerHour" e-headertext="TargetPerHour" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#TargetPerDay" e-headertext="TargetPerDay" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-template="#ProductionDisplayColor" e-headertext="ProductionDisplayColor" e-width="80" style="height: 20px;"></div>
 
                     <div e-column e-type="string" e-template="#PrefenceWorkCenter" e-headertext="PrefenceWorkCenter" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#RunningWorkCenter" e-headertext="RunningWorkCenter" e-width="80" style="height: 20px;"></div>
@@ -215,7 +216,7 @@
             <script type="text/template" id="AdjustableQty">
                 <div class="col-sm-10" style="padding:0px; width:70px;">
                     @*<input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AdjustableQty" e-change="$parent.calculate" e-width="80" />*@
-                    <input type="text" ng-model="data.AdjustableQty"n-decimals="2"  ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
+                    <input type="text" ng-model="data.AdjustableQty" n-decimals="2" ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
                 </div>
             </script>
             <script type="text/template" id="NetUtilizationPercentage">
@@ -225,10 +226,10 @@
                 </div>
             </script>
             @*<script type="text/template" id="FirstDayOutPut">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.FirstDayOutPut"e-change="$parent.calculate"  e-width="80" />
-                </div>
-            </script>*@
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.FirstDayOutPut"e-change="$parent.calculate"  e-width="80" />
+                    </div>
+                </script>*@
             <script type="text/template" id="RequiredMachineDays">
                 <div class="col-sm-10" style="padding:0px; width:70px;">
                     <input type="text" name="RequiredLineDays" only-numbers ng-disabled="true" ng-model="data.RequiredLineDays" class="form-control" />
@@ -237,7 +238,7 @@
             <script type="text/template" id="MinWorkCenterDays">
                 <div class="col-sm-10" style="padding:0px; width:70px;">
                     @*<input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.MinimumLineDays" e-change="$parent.calculate" e-width="80" />*@
-                    <input type="text" ng-model="data.MinimumLineDays"only-numbers ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
+                    <input type="text" ng-model="data.MinimumLineDays" only-numbers ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
                 </div>
             </script>
             <script type="text/template" id="MaximumAllowedWorkCenter">
@@ -248,12 +249,12 @@
             <script type="text/template" id="Workstations">
                 <div class="col-sm-10" style="padding:0px; width:70px;">
                     @*<input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.NoOfWorkStation" e-change="$parent.calculate" e-width="80" />*@
-                    <input type="text" ng-model="data.NoOfWorkStation"only-numbers ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
+                    <input type="text" ng-model="data.NoOfWorkStation" only-numbers ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
                 </div>
             </script>
             <script type="text/template" id="AllotedWorkCenter">
                 <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" name="AllocatedLines"only-numbers ng-blur="$parent.CheckMaxWCValue(this);" ng-model="data.AllocatedLines" class="form-control" />
+                    <input type="text" name="AllocatedLines" only-numbers ng-blur="$parent.CheckMaxWCValue(this);" ng-model="data.AllocatedLines" class="form-control" />
                 </div>
             </script>
             <script type="text/template" id="DayToReachTheTarget">
@@ -274,6 +275,11 @@
             <script type="text/template" id="IncrementValue">
                 <div class="col-sm-10" style="padding:0px; width:70px;">
                     <input type="text" name="IncrementValue" ng-disabled="true" ng-model="data.IncrementValue" class="form-control" />
+                </div>
+            </script>
+            <script type="text/template" id="ProductionDisplayColor">
+                <div class="col-sm-10" style="padding:0px; width:70px;">
+                    <input ej-colorpicker e-value="data.Color" e-modeltype="palette" />
                 </div>
             </script>
             <script type="text/template" id="ShowWCGroupButtons">
@@ -516,3 +522,17 @@
 </ej-dialog>
 <confirm-archive-generic modalid="confirmRunDelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteRunningWC();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPreDelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeletePreferenceWC();"></confirm-archive-generic>
+
+<ej-dialog id="dialogFreezeDate" title=" Freeze Date" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#tarekcontainer" e-width="400" e-open="enableBtn">
+
+    @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/freezeDate.cshtml")
+
+</ej-dialog>
+
+<div class="form-horizontal">
+    <ej-dialog id="dialogresetpriority" title=" Reset Priority" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#tarekcontainer" e-width="900" e-open="enableBtn">
+
+        @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/ResetPriority.cshtml")
+
+    </ej-dialog>
+</div>

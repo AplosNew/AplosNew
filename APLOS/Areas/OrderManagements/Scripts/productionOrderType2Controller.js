@@ -24,6 +24,106 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 
+
+    $scope.modelPriorityList = [];
+    $scope.loadDataForPriority = function () {
+        $scope.modelPriorityList = [];
+        try {
+            $http({
+                method: 'POST',
+                //data: {
+                //    'baseprocessid': $scope.PlanningTypeProcessId, 'entityid': $scope.EntityId, 'column': '', 'value': ''
+                //},
+                //url: $scope.getListUrl
+                data: {
+                    'poId': $scope.model.Id
+                },
+                url: 'OrderManagements/ProductionOrder/GetSavedSKUData'
+            }).then(function successCallback(response) {
+                for (var i = 0; i < response.data.length; i++) {
+                    response.data[i].LSD = new Date(response.data[i].LSD);
+                    response.data[i].FirstShipmentDate = new Date(response.data[i].FirstShipmentDate);
+                    response.data[i].LastShipmentDate = new Date(response.data[i].LastShipmentDate);
+                    response.data[i].LSD = new Date(response.data[i].LSD);
+                }
+
+                $scope.modelPriorityList = response.data;
+            });
+        } catch (e) {
+
+        }
+    }
+
+    //$scope.modelFilterByList = [
+    //    { value: 'Id', name: 'Order ID ' }, { value: 'EntityName', name: 'Entity ' }, { value: 'ProductionStatusName', name: 'Production Status ' }
+    //    , { value: 'Product', name: 'Product ' }, { value: 'ProductCategory', name: 'Product Category ' }, { value: 'Material', name: 'Material ' }
+    //    , { value: 'buyer', name: 'Buyer ' }
+    //];
+    $scope.linedaystooltip = "Order Quantity/Taret Quantity Per Day"
+    $scope.requiredNoOfLines = "Required Line Days/Min. Line Days";
+    $scope.targetperhourtooltip = "Workstations x 60 / SPT"
+    $scope.targetperdaytooltip = "Target Per Hour x Plan Working Hours"
+    $scope.targetPerDayOnEficiency = "Target Per day x Efficiency%"
+    baseService.init($scope.getListUrl, null, null, null, 'EntityName', 'EntityName');
+    $scope.closePopup = function (popupName) {
+        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+        try {
+            $("#" + popupName).data("ejDialog").close();
+        } catch (e) {
+
+        }
+    }
+    $scope.openPopup = function (popupName) {
+
+        try {
+            $("#" + popupName).data("ejDialog").open();
+        } catch (e) {
+
+        }
+    }
+    $scope.openPopupAngular = function (popupName) {
+        try {
+            angular.element(document.querySelector("#" + popupName + "")).modal("show");
+        } catch (e) {
+
+        }
+
+    }
+
+    $scope.getPriorityData = function (args) {
+        var gridObj = $("#GridChangePriority").data("ejGrid");
+        var kk = gridObj.model.query.queries;//"onSortBy"
+
+        var dataManagerObj = ej.DataManager($scope.modelList);
+        var query = ej.Query();
+
+        for (var i = 0; i < kk.length; i++) {
+            if (kk[i].fn == "onSortBy") {
+                query.queries.push(Object.assign({}, kk[i]));
+            }
+        }
+
+        dataManagerObj = dataManagerObj.executeLocal(query);
+
+        var index = 1;
+        for (var i = 0; i < dataManagerObj.length; i++) {
+            dataManagerObj[i].ProductionPriority = index;
+            index++;
+        }
+        //$scope.modelList = dataManagerObj;
+        //gridObj.refreshContent(true);
+        var sorteddata = ej.DataManager(dataManagerObj).executeLocal(ej.Query().select(["Id", "ProductionPriority"]));
+        $http({
+            method: 'POST',
+            url: $scope.path + "UpdatePriority",
+            data: { data: sorteddata }
+        }).then(function successCallback(response) {
+            $scope.loadDataForPriority();
+        });
+
+
+    }
+
     $scope.GetProductionHistory = function (Id) {
 
         try {
@@ -2420,83 +2520,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         gridObj.refreshContent();
     }
 
-    $scope._calculate = function (obj) {
-        for (var i = 0; i < $scope.sku1sku2List.length; i++) {
-            $scope.sku1sku2List[i].PlanQty = ($scope.sku1sku2List[i].Qty + $scope.sku1sku2List[i].AdjustableQty) * ($scope.sku1sku2List[i].PlanPercentage + 100) / 100;
-
-            $scope.sku1sku2List[i].RequiredLineDays = parseFloat(($scope.sku1sku2List[i].PlanWorkingHoursPerDay * 60) / ($scope.sku1sku2List[i].SPT * $scope.sku1sku2List[i].Qty) / $scope.sku1sku2List[i].Efficiency).toFixed(2);
-            $scope.sku1sku2List[i].MaximumAllowedWorkCenter = Math.floor(Number($scope.sku1sku2List[i].RequiredLineDays)) / $scope.sku1sku2List[i].MinimumLineDays;
-            if ($scope.sku1sku2List[i].MaximumAllowedWorkCenter < 1) {
-                $scope.sku1sku2List[i].MaximumAllowedWorkCenter = 1;
-            }
-
-            if ($scope.sku1sku2List[i].NoOfWorkStation > 0 || $scope.sku1sku2List[i].Efficiency > 0 || $scope.sku1sku2List[i].SPT > 0) {
-
-                $scope.sku1sku2List[i].TargetPerHour = ($scope.sku1sku2List[i].NoOfWorkStation * 60 / $scope.sku1sku2List[i].SPT);
-                $scope.TargetQtyAtFullEfficiency = $scope.sku1sku2List[i].TargetPerHour;
-                if ($scope.sku1sku2List[i].TargetPerHour > 0) {
-
-                    $scope.sku1sku2List[i].TargetPerDay = ($scope.sku1sku2List[i].PlanWorkingHoursPerDay * $scope.sku1sku2List[i].TargetPerHour);
-                    $scope.EfficiencyPercentage = ($scope.sku1sku2List[i].TargetPerDay);// * $scope.sku1sku2List[i].Efficiency / 100;
-
-
-                    //at efficiency level
-                    $scope.sku1sku2List[i].TargetPerHour = $scope.sku1sku2List[i].TargetPerHour * $scope.sku1sku2List[i].Efficiency / 100;
-                    $scope.sku1sku2List[i].TargetPerDay = $scope.sku1sku2List[i].TargetPerDay * $scope.sku1sku2List[i].Efficiency / 100;
-
-
-
-                    $scope.sku1sku2List[i].RequiredLineDays = Number(($scope.sku1sku2List[i].Qty / $scope.sku1sku2List[i].TargetPerDay).toFixed(2));
-                }
-
-                if ($scope.sku1sku2List[i].MinimumLineDays > 0) {
-
-                    $scope.sku1sku2List[i].RequiredNoOfLines = Number($scope.sku1sku2List[i].RequiredLineDays) / $scope.sku1sku2List[i].MinimumLineDays;
-
-                    if ($scope.sku1sku2List[i].RequiredNoOfLines > 0 && $scope.sku1sku2List[i].RequiredNoOfLines <= 1)
-                        $scope.sku1sku2List[i].AllocatedLines = 1;
-
-                    if ($scope.sku1sku2List[i].RequiredNoOfLines > 1)
-                        $scope.sku1sku2List[i].AllocatedLines = Number(Math.floor($scope.sku1sku2List[i].RequiredNoOfLines));
-                }
-
-                try {
-                    $scope.sku1sku2List[i].RequiredNoOfLines = $scope.sku1sku2List[i].RequiredNoOfLines.toFixed(4)
-                    $scope.sku1sku2List[i].RequiredLineDays = $scope.sku1sku2List[i].RequiredLineDays.toFixed(4)
-                } catch (e) {
-
-                }
-            }
-            if ($scope.sku1sku2List[i].FirstDayOutPut > 0 && $scope.sku1sku2List[i].IncrementValue > 0) {
-
-                if ($scope.sku1sku2List[i].IncrementType == "FIXED" || $scope.sku1sku2List[i].IncrementType == "PERCENTAGE") {
-                    var daysrequired = 1;
-                    if ($scope.sku1sku2List[i].FirstDayOutPut < $scope.sku1sku2List[i].TargetPerHour) {
-                        daysrequired = 1;
-                        var firstdaysoutput = $scope.sku1sku2List[i].FirstDayOutPut;
-                        while (firstdaysoutput * $scope.sku1sku2List[i].PlanWorkingHoursPerDay < $scope.sku1sku2List[i].TargetPerDay) {
-                            daysrequired++;
-                            //if ($scope.sku1sku2List[i].IncrementType == "FIXED")
-                            firstdaysoutput += $scope.sku1sku2List[i].IncrementValue;
-
-                            //compounding method
-                            //if ($scope.sku1sku2List[i].IncrementType == "PERCENTAGE")
-                            //    firstdaysoutput = firstdaysoutput + (firstdaysoutput * $scope.sku1sku2List[i].IncrementValue / 100);
-
-
-
-                        }
-
-                    }
-                    $scope.sku1sku2List[i].DayToReachTheTarget = daysrequired.toFixed(2);
-                }
-
-            }
-        }
-        var gridObj = $("#GridSKU12").data("ejGrid");
-        gridObj.refreshContent();
-    }
-
+   
     $scope.CheckMaxWCValue = function (obj) {
         try {
             if (obj.data.AllocatedLines > obj.data.NoOfWorkStation) {
@@ -3000,7 +3024,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                 }
             });
         } catch (e) {
-
+            ShowResult(e, 'failure');
         }
     }
 
@@ -3291,5 +3315,719 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             }
         });
     }
+
+    $scope.OpenSchedule = function (args) {
+
+        $scope.GetProductionPlanningData(args.appointment.Id, '');
+        //args.cancel = true;
+
+    }
+
+
+
+    $scope.navigation = function (args) {
+        $scope.currentDate.year = args.currentDate.getFullYear();
+        $scope.currentDate.month = args.currentDate.getMonth();
+        $scope.currentDate.day = args.currentDate.getDate();
+
+        var args = { "requestType": "filtering" };
+        $scope.filterComplete(args);
+
+    }
+
+    $scope.VWPRODDATA = [];
+    $scope.VWCDATA = [];
+    $scope.VROWDATA = {};
+    $scope.VPRDATA = {};
+    $scope.VSTYLEDATA = [];
+    $scope.SAMEDAYDATA = [];
+    $scope.GetProductionPlanningData = function (id, PRID) {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetProductionPlanningData?planrowid=" + id + "&ProductionOrderId=" + PRID + "&processid=" + $scope.PlanningTypeProcessId
+            }).then(function successCallback(res) {
+
+                $scope.VWCDATA = res.data.WCDATA;
+                $scope.VWPRODDATA = res.data.WPRODDATA;
+                $scope.VROWDATA = res.data.ROWDATA[0];
+                $scope.VPRDATA = res.data.PRDATA[0];
+                $scope.VSTYLEDATA = res.data.WSTYLEDATA;
+                $scope.SAMEDAYDATA = res.data.SAMEDAYDATA;
+
+
+                if (id) {
+                    $("#dialogProductionPlanView").ejDialog("setTitle", "Plan Summary for Date: [" + $scope.VROWDATA.ProductionDate + "], Prod. Order [" + $scope.VPRDATA.ProductionOrderID + "]");
+                }
+                else {
+                    $("#dialogProductionPlanView").ejDialog("setTitle", "Plan Summary for Prod. Order [" + PRID + "]");
+
+                }
+                var eDialog = $("#dialogProductionPlanView").data("ejDialog");
+                eDialog.open();
+
+                getAllDisplayParameters();
+            });
+        } catch (e) {
+
+        }
+        //var schObj = $("#ResourceGroupSchedule").data("ejSchedule");
+        //var appointments = schObj.getAppointments();
+
+
+    }
+
+    $scope.PRODUCTPARAMS = {};
+    $scope.PRODUCTIONPARAMS = {};
+    $scope.WORKCENTERPARAMS = {};
+    $scope.WORKCENTERProductList = [];
+    $scope.PRODUCTPARAMSWorkCenterList = [];//entityid HARD CODED, PLEASE REVIEW "4"
+    $scope.PRODUCTIONPARAMSWorkCenterList = [];
+    function getAllDisplayParameters() {
+
+        try {
+            $http({
+                method: 'GET',
+                url: $scope.path + "getProductMasterParametersDisplay?productionOrderID=" + $scope.VROWDATA.ProductionOrderId + "&entityid=" + $scope.VROWDATA.entityid
+            }).then(function successCallback(res) {
+                $scope.PRODUCTPARAMS = res.data.PRODUCTPARAMS[0];
+                $scope.PRODUCTIONPARAMS = res.data.PRODUCTIONPARAMS[0];
+                $scope.PRODUCTPARAMSWorkCenterList = res.data.PRODUCTPARAMSWorkCenterList;
+                $scope.PRODUCTIONPARAMSWorkCenterList = res.data.PRODUCTIONPARAMSWorkCenterList;
+
+
+                $scope.PRODUCTIONPARAMS.LSD = $filter('dateFiltering')($scope.PRODUCTIONPARAMS.LSD, 'dd-MM-yyyy');
+                $scope.PRODUCTIONPARAMS.CommitmentDate = $filter('dateFiltering')($scope.PRODUCTIONPARAMS.CommitmentDate, 'dd-MM-yyyy');
+
+
+            });
+        } catch (e) {
+
+        }
+    }
+
+    $scope.GetProductPlanningData = function () {
+        try {
+
+            $("#dialogProductMasterParameters").ejDialog("setTitle", "Configurations for Product [" + $scope.PRODUCTPARAMS.ProductName + "]");
+            var eDialog = $("#dialogProductMasterParameters").data("ejDialog");
+            eDialog.open();
+        } catch (e) {
+
+        }
+    }
+
+    $scope.oncloseprparams = function (args) {
+        try {
+            $scope.Clear();
+            $("#workCenterPopUp").ejDialog({
+                title: "Work Center",
+                enableModal: true,
+                showOnInit: false,
+                target: "#entrycontainer"
+            });
+        } catch (e) {
+
+        }
+
+    }
+    $scope.GetProductionPlanningParametersData = function (dialogName, targetName) {
+        try {
+            //$scope.productionOrderModel.Id = $scope.VROWDATA.ProductionOrderId;
+            //$scope.getProductionOrderParameters();
+            try {
+                $("#workCenterPopUp").ejDialog({
+                    title: "Work Center",
+                    enableModal: true,
+                    showOnInit: false,
+                    target: "#" + targetName
+                });
+            } catch (e) {
+
+            }
+
+
+            $scope.Get1($scope.VROWDATA.ProductionOrderId);
+
+            $("#" + dialogName).ejDialog("setTitle", "Configurations for Production Order [" + $scope.VROWDATA.ProductionOrderId + "]");
+            var eDialog = $("#" + dialogName).data("ejDialog");
+            eDialog.open();
+        } catch (e) {
+
+        }
+
+    }
+    $scope.GetWorkCenterParametersData = function (Id) {
+        try {
+            $http({
+                method: 'GET',
+                url: $scope.path + "getWorkcenterParametersDisplay?WorkCenterMasterId=" + Id
+            }).then(function successCallback(res) {
+
+                $scope.WORKCENTERPARAMS = res.data.WORKCENTERPARAMS[0];
+                $scope.WORKCENTERProductList = res.data.WORKCENTERProductList;
+
+                $("#dialogWorkCenterParameters").ejDialog("setTitle", "Configurations for Work Center [" + $scope.WORKCENTERPARAMS.WorkCenter + "]");
+                var eDialog = $("#dialogWorkCenterParameters").data("ejDialog");
+                eDialog.open();
+            });
+
+
+
+
+        } catch (e) {
+
+        }
+
+    }
+
+    $scope.onworkcenterproductrow = function (e) {
+        if ($scope.PRODUCTPARAMS.Id == e.data.Id)
+            e.row.css("background-color", '#00ff00');
+    }
+
+    $scope.workcenterclick = function (args) {
+        $scope.GetWorkCenterParametersData(args.data.WorkCenterMasterId);
+    }
+    $scope.workcenterclickbyid = function (args) {
+        $scope.GetWorkCenterParametersData(args.data.Id);
+
+
+    }
+
+    $scope.graphmaxheight = 10;
+    $scope.graphmaxwidth = '200px';
+    $scope.dataSourceLineGraph = [];
+    $scope.showlinegraph = function (args) {
+
+        try {
+            $scope.graphmaxwidth = '200px';
+            $http({
+                method: 'GET',
+                url: $scope.path + "GetProductionPlanGraph?orderid=" + args.data.ProductionOrderID + "&workcentrid=" + args.data.WorkCenterMasterId
+            }).then(function successCallback(res) {
+                $scope.graphmaxheight = 10;
+                for (var i = 0; i < res.data.length; i++) {
+                    if (res.data[i].Quantity > $scope.graphmaxheight)
+                        $scope.graphmaxheight = res.data[i].Quantity;
+                }
+
+                $scope.graphmaxwidth = ((res.data.length * 30) + 200) + 'px';
+                $scope.graphmaxheight = $scope.graphmaxheight + ($scope.graphmaxheight * .10);
+
+                $scope.dataSourceLineGraph = res.data;
+
+                $("#graph").ejDialog("setTitle", "Production Plan for Workcenter [" + args.data.WorkCenter + "], Production Order#" + args.data.ProductionOrderID);
+                var eDialog = $("#graph").data("ejDialog");
+                eDialog.open();
+            });
+
+
+
+        } catch (e) {
+
+        }
+    }
+    $scope.showlinegraphPRWise = function () {
+
+        try {
+            $scope.graphmaxwidth = '200px';
+            $http({
+                method: 'GET',
+                url: $scope.path + "GetProductionPlanGraphPRWise?orderid=" + $scope.VPRDATA.ProductionOrderID
+            }).then(function successCallback(res) {
+                $scope.graphmaxheight = 10;
+                for (var i = 0; i < res.data.length; i++) {
+                    if (res.data[i].Quantity > $scope.graphmaxheight)
+                        $scope.graphmaxheight = res.data[i].Quantity;
+                }
+
+                $scope.graphmaxwidth = ((res.data.length * 30) + 200) + 'px';
+                $scope.graphmaxheight = $scope.graphmaxheight + ($scope.graphmaxheight * .10);
+
+                $scope.dataSourceLineGraph = res.data;
+
+                $("#graph").ejDialog("setTitle", "Production Order#" + $scope.VPRDATA.ProductionOrderID);
+                var eDialog = $("#graph").data("ejDialog");
+                eDialog.open();
+            });
+
+
+
+        } catch (e) {
+
+        }
+    }
+    $scope.StyleGraph = [];
+    $scope.GetStyleGraphData = function (styleno) {
+        try {
+            $scope.graphmaxwidth = '200px';
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetStyleData",
+                data: { styleName: styleno, entityId: $scope.EntityId }
+            }).then(function successCallback(res) {
+                $scope.graphmaxheight = 10;
+                for (var i = 0; i < res.data.STYLEGRAPH.length; i++) {
+                    if (res.data.STYLEGRAPH[i].PlanQty > $scope.graphmaxheight)
+                        $scope.graphmaxheight = res.data.STYLEGRAPH[i].PlanQty;
+
+                    if (res.data.STYLEGRAPH[i].ProductionQty > $scope.graphmaxheight)
+                        $scope.graphmaxheight = res.data.STYLEGRAPH[i].ProductionQty;
+                }
+                $scope.graphmaxwidth = ((res.data.STYLEGRAPH.length * 30) + 200) + "px";;
+                $scope.graphmaxheight = $scope.graphmaxheight + ($scope.graphmaxheight * .10);
+
+                $scope.StyleGraph = res.data.STYLEGRAPH;
+                $("#Stylegraph").ejDialog("setTitle", "Production Plan for Style [" + styleno + "]");
+                var eDialog = $("#Stylegraph").data("ejDialog");
+                //$("#dialog").ejDialog({ maxWidth: ((res.data.STYLEGRAPH.length * 30) + 200) }).open;
+                eDialog.open();
+
+            });
+
+
+
+        } catch (e) {
+
+        }
+    }
+    $scope.dataSourceProductionLineGraph = [];
+    $scope.showProductionlinegraph = function (args) {
+
+        try {
+            $scope.graphmaxwidth = '200px';
+            $http({
+                method: 'GET',
+                url: $scope.path + "GetProductionGraph?orderid=" + args.data.ProductionOrderID + "&workcentrid=" + args.data.WorkCenterMasterId
+            }).then(function successCallback(res) {
+                $scope.graphmaxheight = 10;
+                for (var i = 0; i < res.data.length; i++) {
+                    if (res.data[i].Quantity > $scope.graphmaxheight)
+                        $scope.graphmaxheight = res.data[i].Quantity;
+
+                    if (res.data[i].TargetQty > $scope.graphmaxheight)
+                        $scope.graphmaxheight = res.data[i].TargetQty;
+
+                }
+                $scope.graphmaxwidth = ((res.data.length * 30) + 200) + "px";
+                $scope.graphmaxheight = $scope.graphmaxheight + ($scope.graphmaxheight * .10);
+
+                $scope.dataSourceProductionLineGraph = res.data;
+                $("#graphProduction").ejDialog("setTitle", "Production Info for Workcenter [" + args.data.WorkCenter + "], Production Order#" + args.data.ProductionOrderID);
+                var eDialog = $("#graphProduction").data("ejDialog");
+                eDialog.open();
+
+
+            });
+
+
+        } catch (e) {
+
+        }
+    }
+    $scope.showProductionlinegraphPRWise = function () {
+
+        try {
+            $scope.graphmaxwidth = '200px';
+            $http({
+                method: 'GET',
+                url: $scope.path + "GetProductionGraphPRWise?orderid=" + $scope.VPRDATA.ProductionOrderID
+            }).then(function successCallback(res) {
+                $scope.graphmaxheight = 10;
+                for (var i = 0; i < res.data.length; i++) {
+                    if (res.data[i].Quantity > $scope.graphmaxheight)
+                        $scope.graphmaxheight = res.data[i].Quantity;
+
+                    if (res.data[i].TargetQty > $scope.graphmaxheight)
+                        $scope.graphmaxheight = res.data[i].TargetQty;
+
+                }
+                $scope.graphmaxwidth = ((res.data.length * 30) + 200) + "px";
+                $scope.graphmaxheight = $scope.graphmaxheight + ($scope.graphmaxheight * .10);
+
+                $scope.dataSourceProductionLineGraph = res.data;
+                $("#graphProduction").ejDialog("setTitle", "Production Info Production Order#" + $scope.VPRDATA.ProductionOrderID);
+                var eDialog = $("#graphProduction").data("ejDialog");
+                eDialog.open();
+
+
+            });
+
+
+        } catch (e) {
+
+        }
+    }
+
+    ////////////////////////FREEZE//////////////////////////////////
+
+
+    $scope.NewFreezeDate = null;
+    $scope.FreezeConfig = {};
+    $scope.getFreezeConfig = function () {
+        $("#dialogFreezeDate").data("ejDialog").open();
+
+        $http({
+            method: 'GET',
+            url: $scope.path + "FreezeConfig?entityid=" + $scope.EntityId
+
+        }).then(function successCallback(response) {
+            $scope.FreezeConfig = response.data[0];
+        })
+    }
+    $scope.SaveFreezeConfig = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "SaveFreezeConfig?entityid=" + $scope.EntityId + "&date=" + $scope.NewFreezeDate
+
+        }).then(function successCallback(response) {
+            if (response.data.Error == true)
+                ShowResult(response.data.Message, 'failure');
+            else {
+                $("#dialogFreezeDate").data("ejDialog").close();
+                $scope.OpenSimulatedData();
+                ShowResult(response.data.Message, 'success');
+            }
+
+        })
+    }
+
+    ////////////////////////SNAPSHOT//////////////////////////////////
+    $scope.snapshotmaster = { ID: null, EntityID: null, ProcessID: null, SnapshotName: null, SnapshotDesc: null };
+    $scope.snapshotmasterNew = Object.assign({}, $scope.snapshotmaster);
+    $scope.takeSnapshot = function () {
+        try {
+
+            $scope.snapshotmasterNew.EntityID = $scope.EntityId;
+            $scope.snapshotmasterNew.ProcessID = $scope.PlanningTypeProcessId;
+
+
+
+            if (angular.isUndefinedOrNull($scope.snapshotmasterNew.SnapshotName) == true)
+                throw 'Please enter snapshot name';
+            if (angular.isUndefinedOrNull($scope.snapshotmasterNew.SnapshotDesc) == true)
+                throw 'Please enter snapshot description';
+
+            $http({
+                method: 'POST',
+                data: { t1: $scope.snapshotmasterNew },
+                url: $scope.path + "SaveSnapshot"
+
+            }).then(function successCallback(response) {
+                $scope.snapshotmasterNew = Object.assign({}, $scope.snapshotmaster);
+                ShowResult(response.data.Message, 'success');
+
+                var eDialog = $("#dialogSnapshot").data("ejDialog");
+                eDialog.close();
+
+
+                $scope.getSnapshotList();
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure', 'dialogSnapshot1');
+            };
+        } catch (e) {
+
+            ShowResult(e, 'failure', 'dialogSnapshot1');
+        }
+    }
+    $scope.showSnapshotPanel = function () {
+        $scope.snapshotmasterNew = Object.assign({}, $scope.snapshotmaster);
+        var eDialog = $("#dialogSnapshot").data("ejDialog");
+        eDialog.open();
+    }
+
+    $scope.snapshotList = [];
+    $scope.getSnapshotList = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "LoadSnapshotList?entityid=" + $scope.EntityId + "&processid=" + $scope.PlanningTypeProcessId
+
+        }).then(function successCallback(response) {
+            $scope.snapshotList = response.data.DATA;
+
+            var eDialog = $("#dialogSnapshotSelect").data("ejDialog");
+            eDialog.open();
+
+        })
+    }
+
+
+    $scope.SnapshotRestoreArgs = null;
+    $scope.PromtRestoreSnapshot = function (args) {
+        $scope.SnapshotRestoreArgs = args;
+
+        var eDialog = $("#dialogSnapshotRestoreConfirm").data("ejDialog");
+        eDialog.open();
+    }
+    $scope.RestoreSnapshot = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "RestoreSnapshot?MasterId=" + $scope.SnapshotRestoreArgs.data.ID
+
+        }).then(function successCallback(response) {
+            var eDialog = $("#dialogSnapshotRestoreConfirm").data("ejDialog");
+            eDialog.close();
+            ShowResult(response.data.Message, 'success');
+
+            $scope.OpenSimulatedData();
+
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure', 'dialogSnapshotRestoreConfirm');
+        };
+    }
+
+    $scope.appointmentsSnapshot = [];
+    $scope.loadSnapshot = function (args) {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "LoadSnapshot?id=" + args.data.ID + "&entityid=" + $scope.EntityId + "&processid=" + $scope.PlanningTypeProcessId
+            }).then(function successCallback(res) {
+
+                if (res.data.DATA.length > 0) {
+                    var eDialog = $("#dialogSnapshotSelect").data("ejDialog");
+                    eDialog.close();
+
+                    //$scope.OpenSimulatedData();
+
+                    $scope.resourcedata2 = {
+                        dataSource: res.data.GROUPDATA,
+                        text: "text", id: "id", groupId: "groupId", color: "color"
+                    };
+                    for (var i = 0; i < res.data.DATA.length; i++) {
+                        res.data.DATA[i].AllDay = true;
+                        res.data.DATA[i].Recurrence = false;
+                    }
+                    $scope.workweek = res.data.WORKDAYDATA;
+                    $scope.appointmentsSnapshot = angular.copy(res.data.DATA);
+
+                    var schObj = $("#ResourceGroupScheduleSnapshot").data("ejSchedule");
+                    schObj.refresh(); // To refresh the Schedule control within the client side event
+                    schObj.refreshAppointments();
+
+                }
+            });
+        } catch (e) {
+
+        }
+        //var schObj = $("#ResourceGroupSchedule").data("ejSchedule");
+        //var appointments = schObj.getAppointments();
+
+
+    }
+
+    $scope.GetSnapshotExcel = function (args) {
+
+        try {
+            var file_src = 'OrderManagements/productionOrderReports/OS2Snapshotxls?entityid=' + $scope.EntityId + '&SnapshotId=' + args.data.ID
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+    $scope.DownloadOS2 = function (args) {
+
+        try {
+            var file_src = 'OrderManagements/productionOrderReports/OS2xls?entityid=' + $scope.EntityId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+    $scope.OrderMaster = function () {
+
+        try {
+            var file_src = 'OrderManagements/productionOrderReports/OS3xls?entityid=' + $scope.EntityId
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+    $scope.LineBookingStatus = function () {
+
+        try {
+            var file_src = 'OrderManagements/productionOrderReports/LineBookingStatus?entityid=' + $scope.EntityId
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
+    $scope.LadderPlanStatus = function () {
+        var reportFormat = "Excel";
+        try {
+            var file_src = 'OrderManagements/productionOrderReports/LadderPlanStatus?reportFormat=' + reportFormat + '&entityid=' + $scope.EntityId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+    ////////////////////////CONTINUOUS SNAPSHOT//////////////////////////////////
+
+    $scope.snapshotmaster2 = { ID: null, EntityID: null, ProcessID: null, SnapshotName: null, SnapshotDesc: null, SnapshotTakenBy: null };
+    $scope.snapshotmasterNew2 = Object.assign({}, $scope.snapshotmaster2);
+
+    $scope.SaveSnapshot2 = function () {
+        try {
+
+            $scope.snapshotmasterNew2.EntityID = $scope.EntityId;
+            $scope.snapshotmasterNew2.ProcessID = $scope.PlanningTypeProcessId;
+
+
+            if (angular.isUndefinedOrNull($scope.snapshotmasterNew2.SnapshotName) == true)
+                throw 'Please enter snapshot name';
+            if (angular.isUndefinedOrNull($scope.snapshotmasterNew2.SnapshotDesc) == true)
+                throw 'Please enter snapshot description';
+
+
+            $http({
+                method: 'POST',
+                data: { t1: $scope.snapshotmasterNew2 },
+                url: $scope.path + "SaveSnapshot2"
+
+            }).then(function successCallback(response) {
+                ShowResult(response.data.Message, 'success');
+
+
+                var eDialog = $("#dialogSnapshot2").data("ejDialog");
+                eDialog.close();
+
+                $scope.snapshotmasterNew2 = Object.assign({}, $scope.snapshotmaster2);
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+
+            ShowResult(response.data.Message, 'failure');
+        }
+    }
+
+
+    ////////////////////////CONTINUOUS SNAPSHOT//////////////////////////////////
+
+
+    $scope.showSnapshotPanel2 = function () {
+        $scope.snapshotmasterNew = Object.assign({}, $scope.snapshotmaster);
+        var eDialog = $("#dialogSnapshot2").data("ejDialog");
+        eDialog.open();
+    }
+
+
+
+    ////////////////////////CONTINUOUS SNAPSHOT//////////////////////////////////
+
+    ////////////////////////////////////////////////REPORT//////////////////////////////////////////////////
+    $scope.hrefss = 'about:blank';
+    $scope.getos2 = function () {
+        //location.href = 'OrderManagements/productionOrderSchedulingParametersType1/OS2xls?entityid=sdsd&processid=process';
+        $scope.hrefss = 'about:blank';
+        $scope.hrefss = 'OrderManagements/productionOrderSchedulingParametersType1/OS2xls?entityid=sdsd&processid=process';
+        //
+    }
+
+    $scope.oncreatetab = function () {
+        try {
+            $("#workCenterPopUp").ejDialog({
+                title: "Work Center",
+                enableModal: true,
+                showOnInit: false,
+                target: "#entrycontainer"
+            });
+
+            $scope.actionCompleteSelected();
+        } catch (e) {
+
+        }
+    }
+
+
+    $scope.WorkAllCenterPlanList = [];
+    $scope.WorkCenterPlanList = [];
+    $scope.SelectedWorlcenterForSummary = {};
+    $scope.GetAllWorkcenterWisePlanningSummary = function () {
+        try {
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetWorkcenterWisePlanningSummary?EntityId=" + $scope.EntityId
+
+            }).then(function successCallback(response) {
+                $scope.WorkAllCenterPlanList = response.data;
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    }
+    $scope.GetSingleWorkcenterWisePlanningSummary = function (data) {
+        try {
+            $scope.SelectedWorlcenterForSummary = data;
+            $("#dialogWorkCenterWisePlanning").ejDialog("setTitle", "Plan Summary for Workcenter: [" + data.WorkCenterCode + '-' + data.WorkCenter + "]");
+
+            $scope.openPopup('dialogWorkCenterWisePlanning');
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetSingleWorkcenterWisePlanningSummary?WorkCenterId=" + data.Id
+
+            }).then(function successCallback(response) {
+                $scope.WorkCenterPlanList = response.data;
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    }
+
+    $scope.EditProductionPlanningData = function (args) {
+
+
+        $scope.VROWDATA.ProductionOrderId = args.data.ProductionOrderID;
+        $scope.GetProductionPlanningParametersData('dialogProductionOrderParameters1', 'entrypop1');
+    }
+    $scope.EditProductionPlanningDataSameDay = function (args) {
+
+
+        $scope.VROWDATA.ProductionOrderId = args.data.ProductionOrderID;
+        $scope.GetProductionPlanningParametersData('dialogProductionOrderParameters', 'entrypop');
+    }
+
+    // The functions for the priority Update
+    $scope.fileData = [];
+    $scope.GetSample = function () {
+        var reportFormat = "Excel";
+
+        if (angular.isUndefinedOrNull($scope.EntityId)) {
+            ShowResult("Please First Select the Entity!");
+            throw ("Invalid");
+        }
+
+        try {
+            window.open('OrderManagements/productionOrderSchedulingParametersType1/GetSampleReports?reportFormat=' + reportFormat + '&Entity=' + $scope.EntityId, '_blank');
+
+        } catch (e) {
+
+        }
+    }
+
+
+
+
+
+
+
 
 }
