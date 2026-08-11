@@ -2351,7 +2351,7 @@ SELECT
         WHERE CONVERT(date, ITG2.AddedDate) = CONVERT(date, GETDATE())
           AND TRN2.SalesOrderId = TRN.SalesOrderId
           AND TRN2.SKU1Id = TRN.SKU1Id
-          AND TRN2.SKU2Id = TRN.SKU2Id
+          AND TRN2.SKU2Id = TRN.SKU2Id  and ITEL2.InspectionTypeId =  ITY.Id
     ) AS RecheckQty,
 
     (
@@ -2369,7 +2369,7 @@ SELECT
         WHERE CONVERT(date, ITG2.AddedDate) = CONVERT(date, GETDATE())
           AND TRN2.SalesOrderId = TRN.SalesOrderId
           AND TRN2.SKU1Id = TRN.SKU1Id
-          AND TRN2.SKU2Id = TRN.SKU2Id
+          AND TRN2.SKU2Id = TRN.SKU2Id  and ITEL2.InspectionTypeId =  ITY.Id
     ) AS RejectedQty
 
 FROM dbo.InspectionTypeEnteryLevel ITEL
