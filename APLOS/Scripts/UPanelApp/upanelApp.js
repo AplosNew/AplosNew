@@ -1345,6 +1345,8 @@ upanelApp.controller("productionCalendarType2Controller", productionCalendarType
 upanelApp.controller("ELReportController", ELReportController)
 upanelApp.controller("monthlyExpensesAndAssetStatementController", monthlyExpensesAndAssetStatementController)
 upanelApp.controller("WeeklyReceiptAndPaymentStatementController", WeeklyReceiptAndPaymentStatementController)
+upanelApp.controller("DailyTargetUploadController", DailyTargetUploadController)
+upanelApp.controller("SKURegistrationController", SKURegistrationController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

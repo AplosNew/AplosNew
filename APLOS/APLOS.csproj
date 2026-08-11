@@ -1992,6 +1992,7 @@
     <Content Include="Areas\Commercial\Scripts\LCPendingReportController.js" />
     <Content Include="Areas\Commercial\Scripts\ComplianceController.js" />
     <Content Include="Areas\Costings\Scripts\OrderLineCostingItemServiceMasterMappingController.js" />
+    <Content Include="Areas\Employees\Scripts\DailyTargetUploadController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeeBulkUploadFNFController.js" />
     <Content Include="Areas\Employees\Scripts\CasteController.js" />
     <Content Include="Areas\Employees\Scripts\employeeAttdnTrendReportController.js" />
@@ -2017,6 +2018,7 @@
     <Content Include="Areas\MIS\Scripts\atAGlanceBIController.js" />
     <Content Include="Areas\MIS\Scripts\misConfig.js" />
     <Content Include="Areas\OrderManagements\Scripts\DispatchPlanController.js" />
+    <Content Include="Areas\OrderManagements\Scripts\SKURegistrationController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderUploadController.js" />
     <Content Include="Areas\OrderManagements\Scripts\productionCalendarType2Controller.js" />
     <Content Include="Areas\OrderManagements\Scripts\salesOrderRevisedateController.js" />
@@ -5139,6 +5141,8 @@
     <Content Include="Areas\OrderManagements\Views\ProductionOrder\Schedulle.cshtml" />
     <Content Include="Areas\Banks\Views\MonthlyExpenseAndAssetStatement.cshtml" />
     <Content Include="Areas\Accounts\Views\WeeklyReceiptAndPaymentStatement.cshtml" />
+    <Content Include="Areas\Employees\Views\EmployeeInformation\DailyTargetUpload.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\ProductionOrder\SKURegistration.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

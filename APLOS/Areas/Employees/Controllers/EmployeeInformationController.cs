@@ -149,6 +149,10 @@ namespace Aplos.Areas.Employees.Controllers
         {
             return View();
         }
+        public ActionResult DailyTargetUpload()
+        {
+            return View();
+        }
         #endregion Pages
 
         #region EmployeeResponsiblePerson
@@ -2607,6 +2611,347 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
             public string ToUpdate { get; set; }
 
         }
+
+        #endregion
+
+        #region Daily Target Upload
+
+        [HttpGet, Authorize]
+        public ActionResult GetDailyTargetSampleFile(ReportFormat reportFormat)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            IWorkbook workbook = GetDailyTargetSampleFile(identity.Name);
+            var reportFileName = "Daily Target Upload Sample File";
+
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+
+        }
+
+        public IWorkbook GetDailyTargetSampleFile(string Name)
+        {
+            #region declare
+            OTSBD.clsReport objRpt = null;
+            OTSBD.clsStaticInfo objStatic = null;
+            objStatic = new OTSBD.clsStaticInfo();
+            string OTConsiderOn = string.Empty;
+
+            #endregion
+            try
+            {
+                ReportUtility ru = new ReportUtility();
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                var workbook = ru.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2013;
+
+                objRpt = new OTSBD.clsReport();
+                string toDay = DateTime.Now.ToString("dd-MMM-yyyy");
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+
+                #region Lunch Out
+                IWorksheet sheet1 = null;
+                sheet1 = workbook.Worksheets[0];
+                IWorksheet sheetSource = null;
+                sheetSource = workbook.Worksheets[1];
+                xlsRow = 1;
+                int maxRow = 5001;
+                clsTemplateDownloadProfile clsTemp = new clsTemplateDownloadProfile();
+                string[] _UDC = { "A", "B", "C", "D" };
+                clsTemp.CreateSource(_UDC, 12, "UserDefineCategory", ref sheetSource); int colUDC = 0;
+                #region ------------------Column Header------------------
+
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 14; int colEC = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SystemId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 11; int colSId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeName"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 21; int colEN = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12; int colDOJ = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOS"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12; int colDOS = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Entity"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colEntity = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Company"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colCompany = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Plant"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colPlant = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 17; int colES = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCurrentStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 22; int colECS = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeUserStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colEUS = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserDefineCategory"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; colUDC = xlsCol;
+                ru.SetList(ref sheet1, xlsRow, maxRow, xlsCol, sheetSource, colUDC, _UDC.Length); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remark"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colRemark = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ToUpdate"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colToUpdate = xlsCol;
+                endXlsCol = xlsCol;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+
+                xlsRow++;
+
+                //sheet1.Range[xlsRow, colPurchaseApplicable, xlsRow, colPurchaseApplicable].DataValidation.AllowType = ExcelDataType.Integer;
+                //sheet1.Range[xlsRow, colSalesApplicable, xlsRow, colSalesApplicable].DataValidation.AllowType = ExcelDataType.Integer;
+                //sheet1.Range[xlsRow, colIndependentApplicable, xlsRow, colIndependentApplicable].DataValidation.AllowType = ExcelDataType.Integer;
+
+                #endregion ------------------Column Header------------------
+
+                DataTable dtData = GetDailyTargetData();
+                for (int i = 0; i < dtData.Rows.Count; i++)
+                {
+                    sheet1[xlsRow, colEC].Text = dtData.Rows[i]["EmployeeCode"].ToString();
+                    sheet1[xlsRow, colSId].Text = dtData.Rows[i]["SystemId"].ToString();
+                    sheet1[xlsRow, colEN].Text = dtData.Rows[i]["EmployeeName"].ToString();
+                    sheet1[xlsRow, colDOJ].Text = dtData.Rows[i]["DOJ"].ToString();
+                    sheet1[xlsRow, colDOS].Text = dtData.Rows[i]["DOS"].ToString();
+                    sheet1[xlsRow, colEntity].Text = dtData.Rows[i]["Entity"].ToString();
+                    sheet1[xlsRow, colCompany].Text = dtData.Rows[i]["Company"].ToString();
+                    sheet1[xlsRow, colPlant].Text = dtData.Rows[i]["Plant"].ToString();
+                    sheet1[xlsRow, colES].Text = dtData.Rows[i]["EmployeeStatus"].ToString();
+                    sheet1[xlsRow, colECS].Text = dtData.Rows[i]["EmployeeCurrentStatus"].ToString();
+                    sheet1[xlsRow, colEUS].Text = dtData.Rows[i]["EmployeeUserStatus"].ToString();
+                    sheet1[xlsRow, colUDC].Text = dtData.Rows[i]["UserDefineCategory"].ToString();
+                    sheet1[xlsRow, colRemark].Text = dtData.Rows[i]["Remark"].ToString();
+                    sheet1[xlsRow, colToUpdate].Text = dtData.Rows[i]["ToUpdate"].ToString();
+                    xlsRow++;
+                }
+
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.CellStyle.Font.Size = 10;
+                sheet1.Range["A1"].CellStyle.Font.Size = 10;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                sheet1.Name = "Sheet1";
+                #endregion Page Setup
+
+                #endregion  Lunch Out
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetDailyTargetData()
+        {
+            var cmdText = @"Select E.EmployeeCode,E.SystemId,E.EmployeeName,FORMAT(E.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(E.DOS,'dd-MMM-yyyy') DOS
+,En.UserName Entity,C.UserName Company,P.UserName Plant,E.EmployeeStatus,E.EmployeeCurrentStatus,E.EmployeeUserStatus,E.UserDefineCategory,E.Remark,''ToUpdate
+From dbo.EmployeeInformation E
+Left Join MST.ManpowerBudget M ON M.Id=E.BudgetCode
+Left Join ORG.Entity En ON En.Id=M.EntityId
+Left join Org.Company C ON C.Id=E.CompanyId
+Left join Org.Plant P ON P.Id=E.PlantId
+Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
+            return _sqlRepository.GetDataTable(cmdText);
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult ImportDailyTargetData(FormCollection form)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                List<UploadedEmployeeViewModel> data = new List<UploadedEmployeeViewModel>();
+
+                var file = Request.Files["file"];
+
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                else
+                {
+                    throw new CustomException(Resources.ExcelUploadError);
+                }
+                string path = "";
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetAttendanceRawData(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+                FileInfo docFile;
+                string exception = "\r\n";
+                try
+                {
+                    try
+                    {
+                        string connString = string.Empty;
+                        ExcelEngine excelEngine = null;
+                        IApplication application = null;
+                        IWorkbook workbook = null;
+
+                        excelEngine = new ExcelEngine();
+                        application = excelEngine.Excel;
+                        workbook = excelEngine.Excel.Workbooks.Open(path);
+
+                        DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+                        DataSet dsExcel = new DataSet();
+                        dsExcel.Tables.Add(dt);
+
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            exception += "\r\nTrying to delete";
+                            docFile.Delete();
+                        }
+
+                        if (dsExcel.Tables[0].Rows.Count > 0)
+                        {
+                            for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
+                            {
+                                UploadedEmployeeViewModel vm = new UploadedEmployeeViewModel();
+
+                                vm.EmployeeCode = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.SystemId = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                vm.EmployeeName = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
+                                vm.DOJ = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
+                                vm.DOS = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
+                                vm.Entity = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
+                                vm.Company = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.Plant = dsExcel.Tables[0].Rows[i][7].ToString().Trim();
+                                vm.EmployeeStatus = dsExcel.Tables[0].Rows[i][8].ToString().Trim();
+                                vm.EmployeeCurrentStatus = dsExcel.Tables[0].Rows[i][9].ToString().Trim();
+                                vm.EmployeeUserStatus = dsExcel.Tables[0].Rows[i][10].ToString().Trim();
+                                vm.UserDefineCategory = dsExcel.Tables[0].Rows[i][11].ToString().Trim();
+                                vm.Remark = dsExcel.Tables[0].Rows[i][11].ToString().Trim();
+
+                                data.Add(vm);
+
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Please Select File");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            docFile.Delete();
+                        }
+                        throw (ex);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    //throw ex;
+                }
+                finally
+                {
+                }
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveDailyTargetUploadedData(List<Dictionary<string, object>> data)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsBC;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+
+                string tempEmpSysId = "''";
+                for (int i = data.Count - 1; i >= 0; i--)
+                {
+                    var item = data.ElementAt(i);
+                    tempEmpSysId += ",'" + item["SystemId"] + "'";
+                }
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.EmployeeInformation Where SystemID IN (" + tempEmpSysId + ")", out dsBC, false, "1");
+
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "SystemId='" + item["SystemId"] + "'";
+
+                        if (dv.Count > 0)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            NewEditLogRow(drmo, item);
+                        }
+                    }
+
+
+                }
+                #endregion
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+      
 
         #endregion
 

@@ -84,6 +84,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             return View();
         }
+
+        [Authorize]
+        public ActionResult SKURegistration()
+        {
+            return View();
+        }
         #endregion
 
         #region -- Operations
@@ -2841,8 +2847,6 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
 
             }
-
-
         }
 
         #region ProductionOrderType2
@@ -3394,6 +3398,20 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
         }
 
         #endregion
+
+        #region SKURegistration
+
+        [HttpGet, Authorize]
+        public ActionResult GetSalesOrderFilterData()
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetSalesOrderFilterData(), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        #endregion
+
     }
 
 

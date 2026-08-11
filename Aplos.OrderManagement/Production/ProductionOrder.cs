@@ -1128,6 +1128,25 @@ Group By  D.ProductionOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueI
             }
         }
 
+        public IEnumerable<object> GetSalesOrderFilterData()
+        {
+            try
+            {
+                string sql = @"select Po.Id POId,SO.Id SOId,P.Id PartyId, P.UserName Customer from TRN.ProductionOrder PO
+LEFT JOIN TRN.ProductionOrderDetail PD ON PD.ProductionOrderId=PO.Id
+LEFT JOIN TRN.SalesOrder SO ON SO.Id=PD.SalesOrderId
+LEFT JOIN TRN.MasterOrderItem I ON I.Id=SO.MasterOrderItemId
+LEFT JOIN TRN.MasterOrder M ON M.Id=I.MasterOrderId
+LEFT JOIN HKP.Party P ON P.Id=M.PartyId
+Where SO.OrderStatusId NOT IN('Closed,Cancelled')";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
     }
 

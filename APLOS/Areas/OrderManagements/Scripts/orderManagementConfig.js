@@ -321,5 +321,9 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/ProductionCalendar/Type2',
             controller: 'productionCalendarType2Controller'
         })
+        .when('/sku-registration', {
+            templateUrl: 'OrderManagements/ProductionOrder/SKURegistration',
+            controller: 'SKURegistrationController'
+        })
         ;
 }
