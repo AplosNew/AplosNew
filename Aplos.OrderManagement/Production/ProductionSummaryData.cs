@@ -1412,8 +1412,8 @@ namespace Library.OrderManagement.Production
                                    isnull(CEILING(PLC.ProcessPlanQty),0) LotProcessPlanQty,PPS.IsProductionVerification ProductionVerification
                                    --,PRS.ResponsiblePerson
 								   FROM TRN.ProductionOrder PO 
-                                   LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '"+ processId + @"'
-                                   LEFT JOIN ProductionOrderLotControl PLC ON PLC.ProductionOrderID = PO.Id AND PLC.ProcessId = '"+ processId + @"'
+                                   LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + processId + @"'
+                                   LEFT JOIN ProductionOrderLotControl PLC ON PLC.ProductionOrderID = PO.Id AND PLC.ProcessId = '" + processId + @"'
 								   LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
 								   LEFT JOIN ORG.Entity E ON E.Id=PO.EntityId
 								  LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID=PO.Id
@@ -1421,7 +1421,7 @@ namespace Library.OrderManagement.Production
 								  (    SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId
                                       ,PS.LotNumber
                                        --,(select EmployeeName from EmployeeInformation where SystemId=PS.ResponsiblePersonId) as ResponsiblePerson
-                                       FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '"+ processId + @"' GROUP BY PS.ProductionOrderId,PS.LotNumber
+                                       FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.ProductionOrderId,PS.LotNumber
                                        --,PS.ResponsiblePersonId
                                   ) AS PRS ON PRS.ProductionOrderId = PO.Id
 								   LEFT JOIN 
@@ -1493,12 +1493,13 @@ namespace Library.OrderManagement.Production
 								   LEFT JOIN TRN.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                    LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
 								   ) PD ON PD.ProductionOrderId=PO.Id
-								    WHERE " + wcpr + "  AND Po.Id IN(Select ProductionOrderId from dbo.ProductionPlanningType1 Where workCenterMasterId='"+workCenterMasterId+ @"'
-                                    UNION
-                                    Select T2.ProductionOrderId from dbo.ProductionPlanningType2 PT2
-                                    INNER JOIN dbo.ProductionOrderSchedulingParametersType2 T2 ON T2.ID = PT2.ProductionOrderID
-                                    Where workCenterMasterId = '" + workCenterMasterId + @"'
-									) Order by PD.Description,PD.BuyerOrder";
+								    WHERE " + wcpr + "Order by PD.Description,PD.BuyerOrder";
+
+            //AND Po.Id IN(Select ProductionOrderId from dbo.ProductionPlanningType1 Where workCenterMasterId= '"+workCenterMasterId+ @"
+            //                      UNION
+            //                      Select T2.ProductionOrderId from dbo.ProductionPlanningType2 PT2
+            //                      INNER JOIN dbo.ProductionOrderSchedulingParametersType2 T2 ON T2.ID = PT2.ProductionOrderID
+            //                      Where workCenterMasterId = '" + workCenterMasterId + @"')
 
             return _sqlRepository.GetDataCollection(CmdText);
         }
