@@ -69,13 +69,13 @@
     </div>
     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(3), active: isSet2(3) }">
         @*@Html.Partial("~/Areas/OrderManagements/Views/ProductionOrder/Schedulle.cshtml")*@
-        <div id="Tab" ej-tab e-itemactive="onactivetab" e-create="oncreatetab">
+        <div id="TabSimulation" ej-tab e-itemactive="onactivetab" e-create="oncreatetab">
             <ul>
-                <li><a href="#TabSimulation"ng-click="OpenSimulatedData()">Production Plan Simulation</a></li>
+                <li><a href="#TabSimulation" ng-click="OpenSimulatedData()">Production Plan Simulation</a></li>
                 <li><a href="#TabPlanningSchedule" ng-click="GetAllWorkcenterWisePlanningSummary()">View Planning Schedule</a></li>
                 <li><a href="#TabPriorityUpdate">Priority Update</a></li>
             </ul>
-            
+
             <div id="TabSimulation">
 
                 <div class="form-element-ctrl form-horizontal">
@@ -314,4 +314,17 @@
         </div>
     </div>
 </div>
+<div class="form-horizontal">
+    <ej-dialog id="dialogresetpriority" title=" Reset Priority" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#TabSimulation" e-width="900" e-open="enableBtn">
+
+        @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/ResetPriority.cshtml")
+
+    </ej-dialog>
+</div>
+
+<ej-dialog id="dialogFreezeDate" title=" Freeze Date" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#TabSimulation" e-width="400" e-open="enableBtn">
+
+    @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/freezeDate.cshtml")
+
+</ej-dialog>
 

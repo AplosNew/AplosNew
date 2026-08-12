@@ -9,7 +9,7 @@
             </ul>
         </div>
         <div class="tab-content">
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }"id="mainContainer">
                 <div class="row">
                     <div class="form-group">
                         <label class="col-sm-2 control-label">Entity<sup class="redFont"> *</sup></label>
@@ -58,7 +58,7 @@
                      <e-resources>  </e-resources>
                     </ej-schedule>*@
 
-                        <ej-schedule id="ResourceGroupSchedule" e-appointmentsettings-datasource="appointments" e-allowdelete="false" e-enableappointmentresize="false"
+                        <ej-schedule id="ResourceGroupSchedules" e-appointmentsettings-datasource="appointments" e-allowdelete="false" e-enableappointmentresize="false"
                                      e-appointmentsettings-id="Id" e-appointmentsettings-subject="Subject" e-readonly="true" e-showquickwindow="false"
                                      e-appointmentsettings-starttime="StartTime" e-views="viewtype" e-workweek="workweek"
                                      e-appointmentsettings-endtime="EndTime" e-appointmentsettings-description="Description"
@@ -138,7 +138,7 @@
 
 
 
-<ej-dialog id="setholiday" title=" Assign Holiday" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-width="500" e-target="#mainContainer" e-open="enableBtn">
+<ej-dialog id="setsholiday" title=" Assign Holiday" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-width="500" e-target="#mainContainer" e-open="enableBtn">
 
     <div class="form-group">
         <label class="col-sm-4 control-label">Holiday Category<sup>*</sup></label>
@@ -158,7 +158,7 @@
     </div>
 </ej-dialog>
 
-<ej-dialog id="setworkingday" title=" Work Day Configuration" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-width="500" e-target="#mainContainer" e-open="enableBtn">
+<ej-dialog id="setsworkingday" title=" Work Day Configuration" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-width="500" e-target="#mainContainer" e-open="enableBtn">
 
     <div class="form-group">
         <label class="col-sm-4 control-label">Working Hours<sup>*</sup></label>
@@ -179,7 +179,7 @@
     </div>
 </ej-dialog>
 
-<ej-dialog id="show" title=" Work Day (View)" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-width="500" e-target="#mainContainer" e-open="enableBtn">
+<ej-dialog id="shows" title=" Work Day (View)" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-width="500" e-target="#mainContainer" e-open="enableBtn">
     <div class="row">
         <div class="form-group">
             <label class="col-sm-4 control-label">Day Status</label>

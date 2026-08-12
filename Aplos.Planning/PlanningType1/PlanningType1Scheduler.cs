@@ -421,7 +421,101 @@ ORDER BY min(ppt.ProductionDate) ASC
             return sql;
         }
 
-        public string GetProductionReference(string productionOrderId)
+		public string GetSameDayPlanningType2Summary(string RowId, string ProductionOrderId)
+		{
+
+			string sql = @"SELECT x.Id,x.Quantity, ppt.ProductionOrderID,ps.UserName AS ProductionStatus,t1.ProductionPriority,
+format(min(t1.LSD),'dd-MMM-yyyy') AS LSD,
+format(min(ppt.ProductionDate),'dd-MMM-yyyy') AS PlanningStartDate,
+format(MAX(ppt.ProductionDate),'dd-MMM-yyyy') AS PlanningEndDate,po.PlannedQty,
+
+ MasterOrderId=STUFF((select distinct ','+XMOI.MasterOrderId from 
+								                            trn.MasterOrderItem XMOI 	 
+								                            INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                            INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                            where podx.ProductionOrderId=T1.ProductionOrderID	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+											 
+					                                BuyerRefNo =STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=T1.ProductionOrderID	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+                                                    OwnRefNo =STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=T1.ProductionOrderID	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+													StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=T1.ProductionOrderID	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+	                                                
+                                                    OwnStyleNo=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=T1.ProductionOrderID	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+                                                    SONo=STUFF((select distinct ','+sox.Id from 
+								                                trn.MasterOrderItem XMOI 	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=T1.ProductionOrderID	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                                                    SODesc=STUFF((select distinct ','+sox.[Description] from 
+								                                trn.MasterOrderItem XMOI 	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=T1.ProductionOrderID	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                                                    buyer=STUFF((select distinct ','+XB.UserName from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+			                                                    where T1.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+
+                                                    Customer=STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where T1.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+			                    
+			                     FROM ProductionPlanningType2 AS ppt
+									LEFT JOIN ProductionPlanningType2 AS X ON x.ProductionOrderID=ppt.ProductionOrderID
+			                     AND x.ID=(SELECT top 1 Id FROM ProductionPlanningType2 AS M WHERE m.ProductionOrderID=ppt.ProductionOrderID
+			                     AND m.WorkCenterMasterId=ppt.WorkCenterMasterId AND m.ProductionDate=(SELECT ProductionDate FROM ProductionPlanningType2  WHERE ID='" + RowId + @"'))
+							
+								 left JOIN ProductionOrderSchedulingParametersType2 AS T1 ON t1.ID=ppt.ProductionOrderID
+								 left JOIN trn.ProductionOrder AS po ON po.Id=T1.ProductionOrderID
+								 left JOIN hkp.ProductionStatus ps ON ps.Id=po.ProductionStatusId
+
+
+WHERE ppt.WorkCenterMasterId=(SELECT pp.WorkCenterMasterId  FROM ProductionPlanningType2 AS pp WHERE pp.ID='" + RowId + @"')
+                               
+AND ppt.ProductionOrderID IN (
+	
+	SELECT  ProductionOrderID
+	  FROM ProductionPlanningType2 WHERE ProductionDate=(SELECT ProductionDate FROM ProductionPlanningType2  WHERE ID='" + RowId + @"')
+	  AND  WorkCenterMasterId=(SELECT WorkCenterMasterId FROM ProductionPlanningType2  WHERE ID='" + RowId + @"')
+	  AND  ProductionOrderID<>(SELECT ProductionOrderID FROM ProductionPlanningType2  WHERE ID='" + RowId + @"')
+	  )
+GROUP BY x.Id,x.Quantity, ps.UserName,t1.ProductionPriority,t1.LSD, ppt.ProductionOrderID, t1.ProductionOrderID,po.PlannedQty
+ORDER BY min(ppt.ProductionDate) ASC";
+
+			return sql;
+		}
+
+		public string GetProductionReference(string productionOrderId)
         {
 
             string sql = @"   SELECT  PO.Id,PO.EntityId, PO.Remarks,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,

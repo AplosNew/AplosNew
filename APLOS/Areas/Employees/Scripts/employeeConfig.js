@@ -561,5 +561,9 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'Employees/EmployeeInFoReport/AttendVerificationStatus',
             controller: 'AttendanceVerificationStatusController'
         })
+        .when('/dailytarget', {
+            templateUrl: 'Employees/EmployeeInformation/DailyTargetUpload',
+            controller: 'DailyTargetUploadController'
+        })
         ;
 } 

@@ -566,25 +566,25 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
                         dsMaster.Tables[0].Rows.Add(dr);
 
                     }
-                    else
-                    {
-                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-                        if (Convert.ToDateTime(date).ToString("dddd").ToUpper() == defaultWeekOff.ToUpper())
-                        {
-                            dr["WorkingHours"] = 0;
-                            dr["DayType"] = "W";
-                            dr["OTHours"] = 0;
-                        }
-                        else
-                        {
-                            dr["DayType"] = DBNull.Value;
-                        dr["WorkingHours"] = defaultWorkingHours;
-                        }
+                    //else
+                    //{
+                    //    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                    //    dr.BeginEdit();
+                    //    if (Convert.ToDateTime(date).ToString("dddd").ToUpper() == defaultWeekOff.ToUpper())
+                    //    {
+                    //        dr["WorkingHours"] = 0;
+                    //        dr["DayType"] = "W";
+                    //        dr["OTHours"] = 0;
+                    //    }
+                    //    else
+                    //    {
+                    //        dr["DayType"] = DBNull.Value;
+                    //    dr["WorkingHours"] = defaultWorkingHours;
+                    //    }
 
                         
-                        dr.EndEdit();
-                    }
+                    //    dr.EndEdit();
+                    //}
                 }
 
 

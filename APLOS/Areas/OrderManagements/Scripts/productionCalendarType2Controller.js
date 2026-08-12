@@ -1,6 +1,6 @@
 ﻿'use strict';
-productionCalendarType2Controller.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$filter", "$window", "$http"];
-function productionCalendarType2Controller(cboService, commonMessage, $scope, $rootScope, baseService, $filter, $window, $http) {
+productionCalendarType2Controller.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$filter", "$window", "$http","$timeout"];
+function productionCalendarType2Controller(cboService, commonMessage, $scope, $rootScope, baseService, $filter, $window, $http, $timeout ) {
     $rootScope.title = "Product Calendar";
     $scope.Action = 'Save';
     $scope.baseProcess = { Id: null, UserName: null };
@@ -198,10 +198,10 @@ function productionCalendarType2Controller(cboService, commonMessage, $scope, $r
                 ShowResult(response.data.Message, 'failure');
             }
 
-            var eDialog = $("#setholiday").data("ejDialog");
+            var eDialog = $("#setsholiday").data("ejDialog");
             eDialog.close();
         } catch (e) {
-            ShowResult(response.data.Message, 'failure', '#setholiday');
+            ShowResult(response.data.Message, 'failure', '#setsholiday');
         }
 
     }
@@ -245,11 +245,11 @@ function productionCalendarType2Controller(cboService, commonMessage, $scope, $r
             }
 
 
-            var eDialog = $("#setworkingday").data("ejDialog");
+            var eDialog = $("#setsworkingday").data("ejDialog");
             eDialog.close();
 
         } catch (e) {
-            ShowResult(e.me, 'failure', '#setworkingday');
+            ShowResult(e.me, 'failure', '#setsworkingday');
         }
 
     }
@@ -267,7 +267,7 @@ function productionCalendarType2Controller(cboService, commonMessage, $scope, $r
         }).then(function successCallback(response) {
             $scope.selectedDayStatus = response.data.DATA[0];
 
-            var eDialog = $("#show").data("ejDialog");
+            var eDialog = $("#shows").data("ejDialog");
             eDialog.open();
 
         }), function errorCallBack(response) {
@@ -322,7 +322,7 @@ function productionCalendarType2Controller(cboService, commonMessage, $scope, $r
                 $scope.appointments = angular.copy(res.data.DATA);
 
 
-                var schObj = $("#ResourceGroupSchedule").data("ejSchedule");
+                var schObj = $("#ResourceGroupSchedules").data("ejSchedule");
 
                 schObj.refresh(); // To refresh the Schedule control within the client side event
                 schObj.refreshAppointments();
@@ -334,36 +334,74 @@ function productionCalendarType2Controller(cboService, commonMessage, $scope, $r
         });
     }
 
-    $scope.contextmenuargs = null;
+    function openDialogSafely(selector, retries) {
+        retries = retries || 0;
+        var dialogObj = $(selector).data("ejDialog");
+
+        if (dialogObj) {
+            dialogObj.open();
+        } else if (retries < 10) {
+            // widget not ready yet, try again shortly
+            $timeout(function () {
+                openDialogSafely(selector, retries + 1);
+            }, 100);
+        } else {
+            console.error("ejDialog widget never initialized for", selector);
+        }
+    }
+
     $scope.menuitemclick = function (args) {
         $scope.contextmenuargs = args;
         switch (args.events.ID) {
             case 'xopen':
-                $scope.getDayStatus(args)
+                $scope.getDayStatus(args);
                 break;
             case 'xedit':
-                var eDialog = $("#setworkingday").data("ejDialog");
-                eDialog.open();
+            case 'yedit':
+                openDialogSafely("#setsworkingday");
                 break;
             case 'xweekoff':
-                $scope.WeekoffAssign(args)
+                $scope.WeekoffAssign(args);
                 break;
             case 'xholiday':
-                var eDialog = $("#setholiday").data("ejDialog");
-                eDialog.open();
-                break;
             case 'yholiday':
-                var eDialog = $("#setholiday").data("ejDialog");
-                eDialog.open();
-                break;
-            case 'yedit':
-                var eDialog = $("#setworkingday").data("ejDialog");
-                eDialog.open();
+                openDialogSafely("#setsholiday");
                 break;
             default:
                 break;
         }
-    }
+    };
+
+    $scope.contextmenuargs = null;
+    //$scope.menuitemclick = function (args) {
+    //    $scope.contextmenuargs = args;
+    //    switch (args.events.ID) {
+    //        case 'xopen':
+    //            $scope.getDayStatus(args)
+    //            break;
+    //        case 'xedit':
+    //            var eDialog = $("#setsworkingday").data("ejDialog");
+    //            eDialog.open();
+    //            break;
+    //        case 'xweekoff':
+    //            $scope.WeekoffAssign(args)
+    //            break;
+    //        case 'xholiday':
+    //            var eDialog = $("#setsholiday").data("ejDialog");
+    //            eDialog.open();
+    //            break;
+    //        case 'yholiday':
+    //            var eDialog = $("#setsholiday").data("ejDialog");
+    //            eDialog.open();
+    //            break;
+    //        case 'yedit':
+    //            var eDialog = $("#setsworkingday").data("ejDialog");
+    //            eDialog.open();
+    //            break;
+    //        default:
+    //            break;
+    //    }
+    //}
     $scope.OpenSimulatedData = function () {
         try {
 
@@ -432,7 +470,7 @@ function productionCalendarType2Controller(cboService, commonMessage, $scope, $r
                     $scope.workweek = res.data.WORKDAYDATA;
                     $scope.appointments = angular.copy(res.data.DATA);
 
-                    var schObj = $("#ResourceGroupSchedule").data("ejSchedule");
+                    var schObj = $("#ResourceGroupSchedules").data("ejSchedule");
 
                     schObj.refresh(); // To refresh the Schedule control within the client side event
                     schObj.refreshAppointments();
