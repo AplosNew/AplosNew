@@ -2684,77 +2684,181 @@ DECLARE @Today DATE = CAST(GETDATE() AS DATE);
 WITH Qty AS
 (
     SELECT
-        ITY.Id AS InspectionType,
+        IT.InspectionTypeId AS InspectionType,
         CAST(ITGC.AddedDate AS DATE) AS TranDate,
-        SUM(ISNULL((Case when IEL.UserName = 'PASS' then  ITGC.Qty when IEL.UserName = 'ALTER' then ITGC.PassQty else 0 end),0)) AS Qty
+
+        SUM(
+            ISNULL(ITGC.Qty, 0)
+            + ISNULL(ITGC.PassQty, 0)
+            + ISNULL(ITGC.RecheckQty, 0)
+            + ISNULL(ITGC.RejectQty, 0)
+        ) AS Qty
+
     FROM TRN.InspectionTranChild ITC
+
     INNER JOIN dbo.InspectionTranGrandChild ITGC
         ON ITGC.InspectionTranChildId = ITC.Id
+
     INNER JOIN TRN.Inspection IT
         ON IT.Id = ITC.InspectionId
-    INNER JOIN dbo.InspectionType ITY
-        ON ITY.Id = IT.InspectionTypeId
-		inner join InspectionTypeEnteryLevel IEL on IEL.Id = ITC.InspectionTypeEnteryLevelId
+
     WHERE ITC.SalesOrderId = @SalesOrderId
       AND ITC.SKU1Id = @SKU1Id
-      AND ITC.SKU2Id = @SKU2Id and IT.WorkCenterMasterId = @WorkCenterMasterId
+      AND ITC.SKU2Id = @SKU2Id
+      AND IT.WorkCenterMasterId = @WorkCenterMasterId
+
     GROUP BY
-        ITY.Id,
+        IT.InspectionTypeId,
         CAST(ITGC.AddedDate AS DATE)
 ),
+
 Summary AS
 (
     SELECT
-        SUM(CASE WHEN InspectionType='24' AND TranDate<@Today THEN Qty ELSE 0 END) AS PrevLF,
-        SUM(CASE WHEN InspectionType='1'          AND TranDate<@Today THEN Qty ELSE 0 END) AS PrevEOL,
-        SUM(CASE WHEN InspectionType='21'     AND TranDate<@Today THEN Qty ELSE 0 END) AS PrevFinished,
-       -- SUM(CASE WHEN InspectionType='22' AND TranDate<@Today THEN Qty ELSE 0 END) AS PrevFinal,
 
-        SUM(CASE WHEN InspectionType='24' AND TranDate=@Today THEN Qty ELSE 0 END) AS TodayLF,
-        SUM(CASE WHEN InspectionType='1'          AND TranDate=@Today THEN Qty ELSE 0 END) AS TodayEOL,
-        SUM(CASE WHEN InspectionType='21'     AND TranDate=@Today THEN Qty ELSE 0 END) AS TodayFinished
-       -- ,SUM(CASE WHEN InspectionType='22' AND TranDate=@Today THEN Qty ELSE 0 END) AS TodayFinal
+        -- Previous LF
+        SUM(
+            CASE 
+                WHEN InspectionType = 24
+                 AND TranDate < @Today
+                THEN Qty
+                ELSE 0
+            END
+        ) AS PrevLF,
+
+        -- Previous EOL
+        SUM(
+            CASE 
+                WHEN InspectionType = 1
+                 AND TranDate < @Today
+                THEN Qty
+                ELSE 0
+            END
+        ) AS PrevEOL,
+
+        -- Previous Finished
+        SUM(
+            CASE 
+                WHEN InspectionType = 21
+                 AND TranDate < @Today
+                THEN Qty
+                ELSE 0
+            END
+        ) AS PrevFinished,
+
+
+        -- Today's LF
+        SUM(
+            CASE 
+                WHEN InspectionType = 24
+                 AND TranDate = @Today
+                THEN Qty
+                ELSE 0
+            END
+        ) AS TodayLF,
+
+        -- Today's EOL
+        SUM(
+            CASE 
+                WHEN InspectionType = 1
+                 AND TranDate = @Today
+                THEN Qty
+                ELSE 0
+            END
+        ) AS TodayEOL,
+
+        -- Today's Finished
+        SUM(
+            CASE 
+                WHEN InspectionType = 21
+                 AND TranDate = @Today
+                THEN Qty
+                ELSE 0
+            END
+        ) AS TodayFinished
+
     FROM Qty
 )
 
-
 SELECT
+
+    -- =========================================
+    -- Allowed Qty
+    -- =========================================
     AllowedQty =
-    CASE
-        WHEN @InspectionType='1'
-            THEN ISNULL(TodayLF,0) + (ISNULL(PrevLF,0) - ISNULL(PrevEOL,0))
+        CASE
 
-        WHEN @InspectionType='21'
-            THEN ISNULL(TodayEOL,0) + (ISNULL(PrevEOL,0) - ISNULL(PrevFinished,0))
+            -- EOL
+            WHEN @InspectionType = '1'
+            THEN
+                ISNULL(TodayLF, 0)
+                +
+                (
+                    ISNULL(PrevLF, 0)
+                    -
+                    ISNULL(PrevEOL, 0)
+                )
 
-       -- WHEN @InspectionType='22'
-         --   THEN ISNULL(TodayFinished,0) + (ISNULL(PrevFinished,0) - ISNULL(PrevFinal,0))
-    END,
+            -- Finished
+            WHEN @InspectionType = '21'
+            THEN
+                ISNULL(TodayEOL, 0)
+                +
+                (
+                    ISNULL(PrevEOL, 0)
+                    -
+                    ISNULL(PrevFinished, 0)
+                )
 
+            ELSE 0
+
+        END,
+
+
+    -- =========================================
+    -- Already Entered Today
+    -- =========================================
     AlreadyEnteredToday =
-    CASE
-        WHEN @InspectionType='1'
-            THEN ISNULL(TodayEOL,0)
+        CASE
 
-        WHEN @InspectionType='21'
-            THEN ISNULL(TodayFinished,0)
+            -- EOL
+            WHEN @InspectionType = '1'
+            THEN ISNULL(TodayEOL, 0)
 
-       -- WHEN @InspectionType='22'
-       --     THEN ISNULL(TodayFinal,0)
-    END,
+            -- Finished
+            WHEN @InspectionType = '21'
+            THEN ISNULL(TodayFinished, 0)
 
+            ELSE 0
+
+        END,
+
+
+    -- =========================================
+    -- Previous WIP
+    -- =========================================
     PreviousWIP =
-    CASE
-        WHEN @InspectionType='1'
-            THEN ISNULL(PrevLF,0) - ISNULL(PrevEOL,0)
+        CASE
 
-        WHEN @InspectionType='21'
-            THEN ISNULL(PrevEOL,0) - ISNULL(PrevFinished,0)
+            -- EOL
+            WHEN @InspectionType = '1'
+            THEN
+                ISNULL(PrevLF, 0)
+                -
+                ISNULL(PrevEOL, 0)
 
-       -- WHEN @InspectionType='22'
-        --    THEN ISNULL(PrevFinished,0) - ISNULL(PrevFinal,0)
-    END 
-	from Summary"));
+            -- Finished
+            WHEN @InspectionType = '21'
+            THEN
+                ISNULL(PrevEOL, 0)
+                -
+                ISNULL(PrevFinished, 0)
+
+            ELSE 0
+
+        END
+
+FROM Summary;"));
 
             }
             catch (Exception ex)
