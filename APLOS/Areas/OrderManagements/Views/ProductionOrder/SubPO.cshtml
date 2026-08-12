@@ -139,7 +139,7 @@
                     <ul class="list-inline text-left">
                         <li> <button ng-click="GetSKUData();" ng-disabled="disableinput" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Go </button></li>
                         <li> <button ng-click="SaveSPO();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-save"></i> Save </button></li>
-                        <li> <button ng-click="Simulate();" class="btn small" style="height: 28px; width: 100px; padding: 0px; margin: 0px;"><i class="glyphicon glyphicon-play"></i>Simulate</button></li>
+                        <li> <button ng-click="Simulate();" ng-disabled="sku1sku2List.length==0" class="btn small" style="height: 28px; width: 100px; padding: 0px; margin: 0px;"><i class="glyphicon glyphicon-play"></i>Simulate</button></li>
                     </ul>
                 </div>
             </div>
@@ -176,130 +176,140 @@
                     <div e-column e-type="string" e-template="#TargetPerHour" e-headertext="TargetPerHour" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#TargetPerDay" e-headertext="TargetPerDay" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#ProductionDisplayColor" e-headertext="ProductionDisplayColor" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-template="#ProdStatus" e-headertext="ProductionStatus" e-width="80" style="height: 20px;"></div>
 
                     <div e-column e-type="string" e-template="#PrefenceWorkCenter" e-headertext="PrefenceWorkCenter" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#RunningWorkCenter" e-headertext="RunningWorkCenter" e-width="80" style="height: 20px;"></div>
                 </div>
-            </div>
-            <script type="text/template" id="LSD">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" name="LSD" ng-model="data.LSD" datepicker class="form-control" required />
-                </div>
-            </script>
-            <script type="text/template" id="CommitmentDate">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" name="CommitmentDate" ng-model="data.CommitmentDate" datepicker class="form-control" required />
-                </div>
-            </script>
-            <script type="text/template" id="MainRawMaterialInhouseDate">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" name="MainRawMaterialInhouseDate" ng-model="data.MainRawMaterialInhouseDate" datepicker class="form-control" required />
-                </div>
-            </script>
-            <script type="text/template" id="OtherRawMaterialInhouseDate">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" name="OtherRawMaterialInhouseDate" ng-model="data.OtherRawMaterialInhouseDate" datepicker class="form-control" required />
-                </div>
-            </script>
-            <script type="text/template" id="SPT">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    @*<input type="text" ej-numerictextbox e-decimalplaces="2" e-change="$parent.calculate" e-value="data.SPT" e-width="80" />*@
-                    <input type="text" ng-model="data.SPT" n-decimals="2" ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
-                </div>
-            </script>
-            <script type="text/template" id="PlanHour">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    @*<input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.PlanWorkingHoursPerDay" e-change="$parent.calculate" e-width="80" />*@
-                    <input type="text" ng-model="data.PlanWorkingHoursPerDay" only-numbers ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
-                </div>
-            </script>
-            <script type="text/template" id="AdjustableQty">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    @*<input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AdjustableQty" e-change="$parent.calculate" e-width="80" />*@
-                    <input type="text" ng-model="data.AdjustableQty" n-decimals="2" ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
-                </div>
-            </script>
-            <script type="text/template" id="NetUtilizationPercentage">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    @*<input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.Efficiency"e-change="$parent.calculate"  e-width="80" />*@
-                    <input type="text" ng-model="data.Efficiency" only-numbers ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
-                </div>
-            </script>
-            @*<script type="text/template" id="FirstDayOutPut">
+
+                <script type="text/template" id="LSD">
                     <div class="col-sm-10" style="padding:0px; width:70px;">
-                        <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.FirstDayOutPut"e-change="$parent.calculate"  e-width="80" />
+                        <input type="text" name="LSD" ng-model="data.LSD" datepicker class="form-control" required />
                     </div>
-                </script>*@
-            <script type="text/template" id="RequiredMachineDays">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" name="RequiredLineDays" only-numbers ng-disabled="true" ng-model="data.RequiredLineDays" class="form-control" />
-                </div>
-            </script>
-            <script type="text/template" id="MinWorkCenterDays">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    @*<input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.MinimumLineDays" e-change="$parent.calculate" e-width="80" />*@
-                    <input type="text" ng-model="data.MinimumLineDays" only-numbers ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
-                </div>
-            </script>
-            <script type="text/template" id="MaximumAllowedWorkCenter">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" name="MaximumAllowedWorkCenter" ng-disabled="true" ng-model="data.MaximumAllowedWorkCenter" class="form-control" />
-                </div>
-            </script>
-            <script type="text/template" id="Workstations">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    @*<input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.NoOfWorkStation" e-change="$parent.calculate" e-width="80" />*@
-                    <input type="text" ng-model="data.NoOfWorkStation" only-numbers ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
-                </div>
-            </script>
-            <script type="text/template" id="AllotedWorkCenter">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" name="AllocatedLines" only-numbers ng-blur="$parent.CheckMaxWCValue(this);" ng-model="data.AllocatedLines" class="form-control" />
-                </div>
-            </script>
-            <script type="text/template" id="DayToReachTheTarget">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" name="DayToReachTheTarget" ng-disabled="true" ng-model="data.DayToReachTheTarget" class="form-control" />
-                </div>
-            </script>
-            <script type="text/template" id="TargetPerHour">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" name="TargetPerHour" ng-disabled="true" ng-model="data.TargetPerHour" class="form-control" />
-                </div>
-            </script>
-            <script type="text/template" id="TargetPerDay">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" name="TargetPerDay" ng-disabled="true" ng-model="data.TargetPerDay" class="form-control" />
-                </div>
-            </script>
-            <script type="text/template" id="IncrementValue">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input type="text" name="IncrementValue" ng-disabled="true" ng-model="data.IncrementValue" class="form-control" />
-                </div>
-            </script>
-            <script type="text/template" id="ProductionDisplayColor">
-                <div class="col-sm-10" style="padding:0px; width:70px;">
-                    <input ej-colorpicker e-value="data.Color" e-modeltype="palette" />
-                </div>
-            </script>
-            <script type="text/template" id="ShowWCGroupButtons">
-                <div class="col-sm-8" style="padding: 0px; width: 70px;">
-                    <input type="text" name="WorkCenterGroupId" ng-model="data.WorkCenterGroup" ng-disabled="true" ng-click="" class="form-control" maxlength="200" />
-                </div>
-                <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
-                    <button ng-click="$parent.GetWorkCenterGroup(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                </div>
-            </script>
-            <script type="text/template" id="PrefenceWorkCenter">
-                <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
-                    <button ng-click="$parent.GetPrefenceWorkCenter(this,'Prefence');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                </div>
-            </script>
-            <script type="text/template" id="RunningWorkCenter">
-                <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
-                    <button ng-click="$parent.GetRunningWorkCenter(this,'Running');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                </div>
-            </script>
+                </script>
+                <script type="text/template" id="CommitmentDate">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        <input type="text" name="CommitmentDate" ng-model="data.CommitmentDate" datepicker class="form-control" required />
+                    </div>
+                </script>
+                <script type="text/template" id="MainRawMaterialInhouseDate">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        <input type="text" name="MainRawMaterialInhouseDate" ng-model="data.MainRawMaterialInhouseDate" datepicker class="form-control" required />
+                    </div>
+                </script>
+                <script type="text/template" id="OtherRawMaterialInhouseDate">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        <input type="text" name="OtherRawMaterialInhouseDate" ng-model="data.OtherRawMaterialInhouseDate" datepicker class="form-control" required />
+                    </div>
+                </script>
+                <script type="text/template" id="SPT">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        @*<input type="text" ej-numerictextbox e-decimalplaces="2" e-change="$parent.calculate" e-value="data.SPT" e-width="80" />*@
+                        <input type="text" ng-model="data.SPT" n-decimals="2" ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
+                    </div>
+                </script>
+                <script type="text/template" id="PlanHour">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        @*<input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.PlanWorkingHoursPerDay" e-change="$parent.calculate" e-width="80" />*@
+                        <input type="text" ng-model="data.PlanWorkingHoursPerDay" only-numbers ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
+                    </div>
+                </script>
+                <script type="text/template" id="AdjustableQty">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        @*<input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AdjustableQty" e-change="$parent.calculate" e-width="80" />*@
+                        <input type="text" ng-model="data.AdjustableQty" n-decimals="2" ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
+                    </div>
+                </script>
+                <script type="text/template" id="NetUtilizationPercentage">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        @*<input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.Efficiency"e-change="$parent.calculate"  e-width="80" />*@
+                        <input type="text" ng-model="data.Efficiency" only-numbers ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
+                    </div>
+                </script>
+                @*<script type="text/template" id="FirstDayOutPut">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.FirstDayOutPut"e-change="$parent.calculate"  e-width="80" />
+                        </div>
+                    </script>*@
+                <script type="text/template" id="RequiredMachineDays">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        <input type="text" name="RequiredLineDays" only-numbers ng-disabled="true" ng-model="data.RequiredLineDays" class="form-control" />
+                    </div>
+                </script>
+                <script type="text/template" id="MinWorkCenterDays">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        @*<input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.MinimumLineDays" e-change="$parent.calculate" e-width="80" />*@
+                        <input type="text" ng-model="data.MinimumLineDays" only-numbers ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
+                    </div>
+                </script>
+                <script type="text/template" id="MaximumAllowedWorkCenter">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        <input type="text" name="MaximumAllowedWorkCenter" ng-disabled="true" ng-model="data.MaximumAllowedWorkCenter" class="form-control" />
+                    </div>
+                </script>
+                <script type="text/template" id="Workstations">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        @*<input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.NoOfWorkStation" e-change="$parent.calculate" e-width="80" />*@
+                        <input type="text" ng-model="data.NoOfWorkStation" only-numbers ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
+                    </div>
+                </script>
+                <script type="text/template" id="AllotedWorkCenter">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        <input type="text" name="AllocatedLines" only-numbers ng-blur="$parent.CheckMaxWCValue(this);" ng-model="data.AllocatedLines" class="form-control" />
+                    </div>
+                </script>
+                <script type="text/template" id="DayToReachTheTarget">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        <input type="text" name="DayToReachTheTarget" ng-disabled="true" ng-model="data.DayToReachTheTarget" class="form-control" />
+                    </div>
+                </script>
+                <script type="text/template" id="TargetPerHour">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        <input type="text" name="TargetPerHour" ng-disabled="true" ng-model="data.TargetPerHour" class="form-control" />
+                    </div>
+                </script>
+                <script type="text/template" id="TargetPerDay">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        <input type="text" name="TargetPerDay" ng-disabled="true" ng-model="data.TargetPerDay" class="form-control" />
+                    </div>
+                </script>
+                <script type="text/template" id="IncrementValue">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        <input type="text" name="IncrementValue" ng-disabled="true" ng-model="data.IncrementValue" class="form-control" />
+                    </div>
+                </script>
+                <script type="text/template" id="ProdStatus">
+                    <div class="select-style">
+                        <select name="Production Status" class="form-control" ng-model="data.ProductionStatusId"
+                                ng-options="item.Value as item.Text for item in $parent.productionStatusList" tabindex="4">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </script>
+                <script type="text/template" id="ProductionDisplayColor">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        <input ej-colorpicker e-value="data.Color" e-modeltype="palette" />
+                    </div>
+                </script>
+                <script type="text/template" id="ShowWCGroupButtons">
+                    <div class="col-sm-8" style="padding: 0px; width: 70px;">
+                        <input type="text" name="WorkCenterGroupId" ng-model="data.WorkCenterGroup" ng-disabled="true" ng-click="" class="form-control" maxlength="200" />
+                    </div>
+                    <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                        <button ng-click="$parent.GetWorkCenterGroup(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </div>
+                </script>
+                <script type="text/template" id="PrefenceWorkCenter">
+                    <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                        <button ng-click="$parent.GetPrefenceWorkCenter(this,'Prefence');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </div>
+                </script>
+                <script type="text/template" id="RunningWorkCenter">
+                    <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                        <button ng-click="$parent.GetRunningWorkCenter(this,'Running');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </div>
+                </script>
+            </div>
         </div>
     </div>
 </div>
@@ -522,17 +532,3 @@
 </ej-dialog>
 <confirm-archive-generic modalid="confirmRunDelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteRunningWC();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPreDelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeletePreferenceWC();"></confirm-archive-generic>
-
-<ej-dialog id="dialogFreezeDate" title=" Freeze Date" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#tarekcontainer" e-width="400" e-open="enableBtn">
-
-    @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/freezeDate.cshtml")
-
-</ej-dialog>
-
-<div class="form-horizontal">
-    <ej-dialog id="dialogresetpriority" title=" Reset Priority" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#tarekcontainer" e-width="900" e-open="enableBtn">
-
-        @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/ResetPriority.cshtml")
-
-    </ej-dialog>
-</div>

@@ -2295,14 +2295,20 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             },
             url: 'OrderManagements/ProductionOrder/GetSavedSKUData'
         }).then(function successCallback(response) {
-            $scope.sku1sku2List = response.data;
-            if (!baseService.isUndefinedOrNull($scope.sku1sku2List[0].ID)) {
-                $scope.disableinput = true;
-                $scope.ModelNewSPO.SKU1 = $scope.sku1sku2List[0].SKU1;
-                $scope.ModelNewSPO.SKU2 = $scope.sku1sku2List[0].SKU2;
-                $scope.ModelNewSPO.Both = $scope.sku1sku2List[0].Both;
+            if (response.data.Error == true) {
+                $scope.sku1sku2List = [];
             }
-            $scope.getModelFilter();
+            else {
+                $scope.sku1sku2List = response.data;
+                if (!baseService.isUndefinedOrNull($scope.sku1sku2List[0].ID)) {
+                    $scope.disableinput = true;
+                    $scope.ModelNewSPO.SKU1 = $scope.sku1sku2List[0].SKU1;
+                    $scope.ModelNewSPO.SKU2 = $scope.sku1sku2List[0].SKU2;
+                    $scope.ModelNewSPO.Both = $scope.sku1sku2List[0].Both;
+                }
+                $scope.getModelFilter();
+            }
+
 
         });
     }
@@ -2520,7 +2526,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         gridObj.refreshContent();
     }
 
-   
+
     $scope.CheckMaxWCValue = function (obj) {
         try {
             if (obj.data.AllocatedLines > obj.data.NoOfWorkStation) {
@@ -3002,9 +3008,11 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             //        }
             //    }
             //}
-
-            $scope.ProdStatus = $("#ProdStatus option:selected").text();
-            if ($scope.ProdStatus != "Running") {
+            if (baseService.arrayLength($scope.sku1sku2List) == 0) {
+                throw "First save sub production order data.";
+            }
+            $scope.ProductionStatus = $("#ProductionStatus option:selected").text();
+            if ($scope.ProductionStatus != "Running") {
                 throw "Production Status should Running to Simulate.";
             }
             $http({
@@ -3957,7 +3965,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
             $http({
                 method: 'POST',
-                url: $scope.path + "GetWorkcenterWisePlanningSummary?EntityId=" + $scope.EntityId
+                url: "OrderManagements/productionOrderSchedulingParametersType1/GetAllWorkcenterWisePlanningType2Summary?EntityId=" + $scope.EntityId
 
             }).then(function successCallback(response) {
                 $scope.WorkAllCenterPlanList = response.data;
@@ -3978,7 +3986,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             $scope.openPopup('dialogWorkCenterWisePlanning');
             $http({
                 method: 'POST',
-                url: $scope.path + "GetSingleWorkcenterWisePlanningSummary?WorkCenterId=" + data.Id
+                url:  "OrderManagements/productionOrderSchedulingParametersType1/GetSingleWorkcenterWisePlanningType2Summary?WorkCenterId=" + data.Id
 
             }).then(function successCallback(response) {
                 $scope.WorkCenterPlanList = response.data;

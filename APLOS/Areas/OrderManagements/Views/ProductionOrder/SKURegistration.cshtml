@@ -1,16 +1,16 @@
-﻿<togglable name="SKU Registration"></togglable>
-<div class="form-horizontal form-elements" ng-form="modelNewSPOForm">
-    <div class="row">
-        <div class="col-xs-12">
-            <div id="filters">
-            </div>
-            <div class="common-btn" ng-show="filters.length>0">
-                <ul class="list-inline text-right">
-                    <li> <button ng-click="GetDailyReportData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-fly"></i> Go</button></li>
-                    @*<li> <button ng-click="GetDailyReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down"></i> Export to Excel</button></li>*@
-                </ul>
-            </div>
-        </div>
-     
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>SKU Registraion</h3>
+
+<div class="site-tab">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1)" href="" data-toggle="tab">Production Order Type2</a></li>
+        <li role="presentation" ng-class="{ active: isSet2(2) }"><a ng-click="setTab2(2)" href="" data-toggle="tab">Sub PrO Order</a></li>
+        <li role="presentation" ng-class="{ active: isSet2(3) }"><a ng-click="setTab2(3)" href="" data-toggle="tab">Schedulling</a></li>
+    </ul>
+</div>
+<div class="tab-content">
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+        
     </div>
 </div>
+
+
