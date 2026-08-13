@@ -4858,7 +4858,7 @@ namespace Library.Accounting.Accounts
         V.PostingDate,V.VoucherNo,HeadOfExpense= case when vd.BankMasterId IS NULL THEN  A.UserName 
         WHEN vd.BankMasterId<>'' THEN 'Cash Deposit ' + ISNULL(' (' + V.Narration + ')','') end,
         VD.DrAmount AS Amount,
-        ROW_NUMBER() OVER (ORDER BY V.PostingDate, V.VoucherNo) AS RN
+        ROW_NUMBER() OVER (ORDER BY V.PostingDate, V.VoucherNo) AS RN,VD.Id
     FROM TRN.VoucherDetail VD
     LEFT JOIN TRN.Voucher V ON V.Id = VD.VoucherId
     LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId = VD.Id
@@ -4878,7 +4878,7 @@ namespace Library.Accounting.Accounts
 ),
 Receipts AS (
     SELECT NULL PostingDate,NULL VoucherNo,
-        'Opening Balance' AS Receipt,SUM(X.ReceiptAmount)-SUM(X.ExAmountAmount) Amount ,0 RN
+        'Opening Balance' AS Receipt,SUM(X.ReceiptAmount)-SUM(X.ExAmountAmount) Amount ,0 RN,NULL Id
 		FROM (
 SELECT 
         SUM(VD.DrAmount) AS ReceiptAmount,0 ExAmountAmount
@@ -4935,7 +4935,7 @@ UNION ALL
         V.PostingDate,V.VoucherNo,
         CM.UserName + '(' + V.Narration + ')' AS Receipt,
         VD.DrAmount AS Amount,
-        ROW_NUMBER() OVER (ORDER BY V.PostingDate, V.VoucherNo) AS RN
+        ROW_NUMBER() OVER (ORDER BY V.PostingDate, V.VoucherNo) AS RN,VD.Id
     FROM TRN.VoucherDetail VD
     LEFT JOIN TRN.Voucher V ON V.Id = VD.VoucherId
     LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId = VD.Id
@@ -4958,7 +4958,7 @@ SELECT
     E.HeadOfExpense AS [EXPENSES],
     E.Amount      AS PaymentAMOUNT
 FROM Receipts R
-FULL OUTER JOIN Expenses E ON R.RN = E.RN ORDER BY E.VoucherNo,E.HeadOfExpense";
+FULL OUTER JOIN Expenses E ON R.RN = E.RN ORDER BY E.VoucherNo,E.Id";
 
             return _sqlRepository.GetDataTable(sql.ToString());
         }
