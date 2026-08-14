@@ -3450,9 +3450,9 @@ where   emp.Employeecode = '" + Empcode + "' and PT.Id = '" + PlantId + "'"));
             try
             {
 
-                return Json(_sqlRepository.GetDataTable(@"Select Id Value , UserName Name from scs.WorkCenterMaster where ResponsiblePersonId = '" + Empcode + "' and PlantId = '" + plantid + @"' and Active = 1
+                return Json(_sqlRepository.GetDataTable(@"Select UserName Value , UserName Name from scs.WorkCenterMaster where ResponsiblePersonId = '" + Empcode + "' and PlantId = '" + plantid + @"' and Active = 1
 union all
-Select Id Value, UserName Name from scs.WorkCenterMaster where PlantId = '" + plantid + "'  and Active = 1"));
+Select UserName Value, UserName Name from scs.WorkCenterMaster where PlantId = '" + plantid + "'  and Active = 1"));
 
             }
             catch (Exception ex)
