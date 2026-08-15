@@ -2678,21 +2678,21 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                 #region ------------------Column Header------------------
 
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 14; int colEC = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SystemId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 11; int colSId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeName"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 21; int colEN = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12; int colDOJ = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOS"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12; int colDOS = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Entity"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colEntity = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Company"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colCompany = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Plant"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colPlant = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 17; int colES = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCurrentStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 22; int colECS = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeUserStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colEUS = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserDefineCategory"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; colUDC = xlsCol;
-                ru.SetList(ref sheet1, xlsRow, maxRow, xlsCol, sheetSource, colUDC, _UDC.Length); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remark"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colRemark = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ToUpdate"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colToUpdate = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShiftName"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 14; int colEC = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "WorkCenter"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 11; int colSId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PO"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 21; int colEN = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SAM"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12; int colDOJ = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12; int colDOS = xlsCol; xlsCol += 1;
+                ////ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Entity"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colEntity = xlsCol; xlsCol += 1;
+                ////ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Company"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colCompany = xlsCol; xlsCol += 1;
+                ////ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Plant"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colPlant = xlsCol; xlsCol += 1;
+                ////ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 17; int colES = xlsCol; xlsCol += 1;
+                ////ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCurrentStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 22; int colECS = xlsCol; xlsCol += 1;
+                ////ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeUserStatus"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colEUS = xlsCol; xlsCol += 1;
+                ////ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserDefineCategory"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; colUDC = xlsCol;
+                ////ru.SetList(ref sheet1, xlsRow, maxRow, xlsCol, sheetSource, colUDC, _UDC.Length); xlsCol += 1;
+                ////ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remark"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colRemark = xlsCol; xlsCol += 1;
+                ////ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ToUpdate"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colToUpdate = xlsCol;
                 endXlsCol = xlsCol;
 
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -2712,20 +2712,20 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                 DataTable dtData = GetDailyTargetData();
                 for (int i = 0; i < dtData.Rows.Count; i++)
                 {
-                    sheet1[xlsRow, colEC].Text = dtData.Rows[i]["EmployeeCode"].ToString();
-                    sheet1[xlsRow, colSId].Text = dtData.Rows[i]["SystemId"].ToString();
-                    sheet1[xlsRow, colEN].Text = dtData.Rows[i]["EmployeeName"].ToString();
-                    sheet1[xlsRow, colDOJ].Text = dtData.Rows[i]["DOJ"].ToString();
-                    sheet1[xlsRow, colDOS].Text = dtData.Rows[i]["DOS"].ToString();
-                    sheet1[xlsRow, colEntity].Text = dtData.Rows[i]["Entity"].ToString();
-                    sheet1[xlsRow, colCompany].Text = dtData.Rows[i]["Company"].ToString();
-                    sheet1[xlsRow, colPlant].Text = dtData.Rows[i]["Plant"].ToString();
-                    sheet1[xlsRow, colES].Text = dtData.Rows[i]["EmployeeStatus"].ToString();
-                    sheet1[xlsRow, colECS].Text = dtData.Rows[i]["EmployeeCurrentStatus"].ToString();
-                    sheet1[xlsRow, colEUS].Text = dtData.Rows[i]["EmployeeUserStatus"].ToString();
-                    sheet1[xlsRow, colUDC].Text = dtData.Rows[i]["UserDefineCategory"].ToString();
-                    sheet1[xlsRow, colRemark].Text = dtData.Rows[i]["Remark"].ToString();
-                    sheet1[xlsRow, colToUpdate].Text = dtData.Rows[i]["ToUpdate"].ToString();
+                    sheet1[xlsRow, colEC].Text = dtData.Rows[i]["ShiftName"].ToString();
+                    sheet1[xlsRow, colSId].Text = dtData.Rows[i]["WorkCenter"].ToString();
+                    sheet1[xlsRow, colEN].Text = dtData.Rows[i]["ProductionOrderId"].ToString();
+                    sheet1[xlsRow, colDOJ].Text = dtData.Rows[i]["SAM"].ToString();
+                    sheet1[xlsRow, colDOS].Text = dtData.Rows[i]["Remarks"].ToString();
+                    //sheet1[xlsRow, colEntity].Text = dtData.Rows[i]["Entity"].ToString();
+                    //sheet1[xlsRow, colCompany].Text = dtData.Rows[i]["Company"].ToString();
+                    //sheet1[xlsRow, colPlant].Text = dtData.Rows[i]["Plant"].ToString();
+                    //sheet1[xlsRow, colES].Text = dtData.Rows[i]["EmployeeStatus"].ToString();
+                    //sheet1[xlsRow, colECS].Text = dtData.Rows[i]["EmployeeCurrentStatus"].ToString();
+                    //sheet1[xlsRow, colEUS].Text = dtData.Rows[i]["EmployeeUserStatus"].ToString();
+                    //sheet1[xlsRow, colUDC].Text = dtData.Rows[i]["UserDefineCategory"].ToString();
+                    //sheet1[xlsRow, colRemark].Text = dtData.Rows[i]["Remark"].ToString();
+                    //sheet1[xlsRow, colToUpdate].Text = dtData.Rows[i]["ToUpdate"].ToString();
                     xlsRow++;
                 }
 
@@ -2768,14 +2768,15 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
 
         public DataTable GetDailyTargetData()
         {
-            var cmdText = @"Select E.EmployeeCode,E.SystemId,E.EmployeeName,FORMAT(E.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(E.DOS,'dd-MMM-yyyy') DOS
-,En.UserName Entity,C.UserName Company,P.UserName Plant,E.EmployeeStatus,E.EmployeeCurrentStatus,E.EmployeeUserStatus,E.UserDefineCategory,E.Remark,''ToUpdate
-From dbo.EmployeeInformation E
-Left Join MST.ManpowerBudget M ON M.Id=E.BudgetCode
-Left Join ORG.Entity En ON En.Id=M.EntityId
-Left join Org.Company C ON C.Id=E.CompanyId
-Left join Org.Plant P ON P.Id=E.PlantId
-Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
+            var cmdText = @"SELECT SD.UserName ShiftName,wcm.UserName WorkCenter,DT.ProductionOrderId,ISNULL(bt.TotalSPT,0) SAM,DT.Remarks 
+from [dbo].[DailyTarget] DT 
+LEFT JOIN ShiftDefination  SD ON SD.SystemId=DT.ShiftId
+LEFT JOIN [SCS].[WorkCenterMaster] wcm on wcm.Id=DT.WorkCenterMasterId
+LEFT JOIN TRN.ProductionOrder PO ON PO.Id=DT.ProductionOrderId
+LEFT JOIN trn.ProductionBulletinTemplate pb on DT.ProductionOrderId = pb.ProductionOrderId
+LEFT JOIN trn.ProductionBulletinTemplateMaster pt on pt.ProductionBulletinTemplateId=pb.Id and pt.ProcessId=DT.ProcessId
+LEFT JOIN trn.ProductionBulletinTemplateDetail bt on  pt.Id=bt.ProductionBulletinTemplateMasterId
+";
             return _sqlRepository.GetDataTable(cmdText);
         }
 
@@ -2785,7 +2786,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                List<UploadedEmployeeViewModel> data = new List<UploadedEmployeeViewModel>();
+                List<UploadedDailyTargetViewModel> data = new List<UploadedDailyTargetViewModel>();
 
                 var file = Request.Files["file"];
 
@@ -2848,21 +2849,20 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                         {
                             for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
                             {
-                                UploadedEmployeeViewModel vm = new UploadedEmployeeViewModel();
+                                UploadedDailyTargetViewModel vm = new UploadedDailyTargetViewModel();
 
-                                vm.EmployeeCode = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
-                                vm.SystemId = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
-                                vm.EmployeeName = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
-                                vm.DOJ = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
-                                vm.DOS = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
-                                vm.Entity = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
-                                vm.Company = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
-                                vm.Plant = dsExcel.Tables[0].Rows[i][7].ToString().Trim();
-                                vm.EmployeeStatus = dsExcel.Tables[0].Rows[i][8].ToString().Trim();
-                                vm.EmployeeCurrentStatus = dsExcel.Tables[0].Rows[i][9].ToString().Trim();
-                                vm.EmployeeUserStatus = dsExcel.Tables[0].Rows[i][10].ToString().Trim();
-                                vm.UserDefineCategory = dsExcel.Tables[0].Rows[i][11].ToString().Trim();
-                                vm.Remark = dsExcel.Tables[0].Rows[i][11].ToString().Trim();
+                                vm.TargetDate =Convert.ToDateTime( dsExcel.Tables[0].Rows[i][0]).Date;
+                                vm.QCId = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                vm.ShiftId = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
+                                vm.WorkCenterMasterId = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
+                                vm.ProductionOrderId = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
+                                vm.SalesOrderId = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
+                                vm.ProcessId = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.TargetQty = Convert.ToDecimal( dsExcel.Tables[0].Rows[i][7]);
+                                vm.SPT = Convert.ToDecimal( dsExcel.Tables[0].Rows[i][8]);
+                                vm.Operator = Convert.ToInt16( dsExcel.Tables[0].Rows[i][9]);
+                                vm.Helper = Convert.ToInt16( dsExcel.Tables[0].Rows[i][10]);
+                                vm.Remarks = dsExcel.Tables[0].Rows[i][11].ToString().Trim();
 
                                 data.Add(vm);
 
@@ -2915,27 +2915,30 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
             {
                 #region Entity 
 
-                string tempEmpSysId = "''";
-                for (int i = data.Count - 1; i >= 0; i--)
-                {
-                    var item = data.ElementAt(i);
-                    tempEmpSysId += ",'" + item["SystemId"] + "'";
-                }
+                //string tempEmpSysId = "''";
+                //for (int i = data.Count - 1; i >= 0; i--)
+                //{
+                //    var item = data.ElementAt(i);
+                //    tempEmpSysId += ",'" + item["SystemId"] + "'";
+                //}
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.EmployeeInformation Where SystemID IN (" + tempEmpSysId + ")", out dsBC, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[DailyTarget] ", out dsBC, false, "1");
 
                 if (data != null)
                 {
                     foreach (var item in data)
                     {
                         DataView dv = new DataView(dsBC.Tables[0]);
-                        dv.RowFilter = "SystemId='" + item["SystemId"] + "'";
 
-                        if (dv.Count > 0)
+                        if (dv.Count == 0)
                         {
-                            DataRow drmo = dv[0].Row;
-                            NewEditLogRow(drmo, item);
+                            //DataRow drmo = dv[0].Row;
+                            //drmo["AddedBy"] = identity.Name;
+                            //drmo["AddedDate"] = DateTime.Now;
+                            //drmo["AddedFromIP"] = identity.IPAddress;
+                            //NewEditLogRow(drmo, item);
+                            AddNewRow(dsBC.Tables[0], item);
                         }
                     }
 
@@ -2951,7 +2954,34 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-      
+
+        public class UploadedDailyTargetViewModel
+        {
+            public DateTime TargetDate { get; set; }
+            public string QCId { get; set; }
+            public string ShiftId { get; set; }
+            public string WorkCenterMasterId { get; set; }
+            public string ProductionOrderId { get; set; }
+            public string SalesOrderId { get; set; }
+            public string ProcessId { get; set; }
+            public decimal TargetQty { get; set; }
+            public decimal SPT { get; set; }
+            public int Operator { get; set; }
+            public int Helper { get; set; }
+            public string Remarks { get; set; }
+            public string ShiftName { get; set; }
+            public string WorkCenter { get; set; }
+            public string PO { get; set; }
+            public string SAM { get; set; }
+            
+            public string AddedBy { get; set; }
+            public DateTime AddedDate { get; set; }
+            public string AddedFromIP { get; set; }
+            public string UpdatedBy { get; set; }
+            public DateTime UpdatedDate { get; set; }
+            public string UpdatedFromIP { get; set; }
+
+        }
 
         #endregion
 

@@ -585,7 +585,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return View("~/Areas/Accounts/Views/WeeklyReceiptAndPaymentStatement.cshtml");
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult GetWeeklyReceiptAndPaymentStatement(ReportFormat reportFormat, DateTime fromdate, DateTime todate, string cashMasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
