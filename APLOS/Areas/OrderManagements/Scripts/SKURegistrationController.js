@@ -87,6 +87,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
+        getSavedSalesOrderData($scope.ModelNew.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -246,9 +247,12 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     };
 
+    $scope.summaryRows = [{
+        title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Qty", dataMember: "Qty", format: "{0:N0}" }],
+        showCaptionSummary: true
 
-    $scope.serachSoMaterial = function serachSoMaterial() {
-        
+    }];
+    $scope.serachSoMaterial = function serachSoMaterial() {        
         $http({
             method: 'GET',
             url: $scope.path + 'GetSRSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&packetRegistrationMasterId=" + $scope.ModelNew.Id
@@ -264,9 +268,11 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
             $scope.recipeMaterialList = response.data;
 
         });
-
-
     }
+
+    $scope.CloseRecipeMaterialPopUp = function () {
+        angular.element(document.querySelector('#recipeMaterialPopUp')).modal('hide');
+    };
 
     $scope.recipeMaterialListSelected = [];
     $scope.addRecipeMaterial = function () {
@@ -317,7 +323,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                     $scope.recipeMaterialListSelected.push($scope.recipeMaterialList[i]);
                 }
             }
-
+            $scope.SaveSalesOrder();
             if (baseService.isUndefinedOrNull($scope.message_DiffArticleconfirmation)) {
                 $scope.CloseRecipeMaterialPopUp();
             }
@@ -326,8 +332,57 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         }
     };
 
+    $scope.message_DiffArticleconfirmation = null;
+    $scope.message_DiffArticle1confirmation = null;
+
+    $scope.ConDiffArticle = function () {
+        $scope.message_DiffArticle1confirmation = 'You are going to add different articles. Are you sure?';
+        angular.element(document.querySelector('#confirmDiffArticle1PopUp')).modal('show');
+    }
+
+    $scope.OverConDiffArticle = function () {
+        $scope.CloseRecipeMaterialPopUp();
+    }
 
 
+    $scope.checkSameRecipe = function (data, index, event) {
+        $rootScope.genericPushInTempList(data, event, $scope.recipeMaterialListSelected, 'SalesOrderId', 'SalesOrderId');
+    };
 
+    $scope.SaveSalesOrder = function () {
+        try {
+            if (baseService.arrayLength($scope.recipeMaterialListSelected) == 0) {
+                throw "Select Sales Order List.";
+            }
+           
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/ProductionOrder/SavePacketRegistrationDetail',
+                data: { 'details': $scope.recipeMaterialListSelected, 'packetRegistrationMasterId': $scope.ModelNew.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    getSavedSalesOrderData($scope.ModelNew.Id);
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
 
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    function getSavedSalesOrderData(masterId) {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetPacketRegistrationDetailList?masterId=' + masterId
+        }).then(function successCallback(response) {
+            $scope.recipeMaterialListSelected = response.data;
+        });
+    }
 }

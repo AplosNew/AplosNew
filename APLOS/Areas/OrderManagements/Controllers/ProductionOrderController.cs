@@ -315,6 +315,14 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
         }
 
 
+
+        [HttpGet, Authorize]
+        public JsonResult GetPacketRegistrationDetailList(string masterId)
+        {
+            return Json(_productionOrderService.GetPacketRegistrationDetailList(masterId), JsonRequestBehavior.AllowGet);
+        }
+
+
         [HttpGet, Authorize]
         public JsonResult GetProductionOrderProcessSetList(string productionOrderId)
         {
@@ -3609,7 +3617,7 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId) AS TEMP WHERE " 
             string sql = @"SELECT 
                              MO.Type,isnull(moi.Consignment,0) AS Consignment,
                              CASE WHEN ISNULL(eout.Id,'')<>'' OR ISNULL(TOUT.Id,'')<>'' THEN CONCAT(POWN.UserName,'(',EOWN.UserName,')') ELSE '' END AS OrderOwner
-                            ,TEMP.* FROM (SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,null AS Id,null AS ProductionOrderId
+                            ,TEMP.* FROM (SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,null AS Id,null AS PacketRegistrationMasterId
 	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
 	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping 
 	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
@@ -3647,7 +3655,7 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId) AS TEMP WHERE " 
                         
 						UNION
 						
-						SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,POD.Id,POD.ProductionOrderId
+						SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,POD.Id,POD.PacketRegistrationMasterId
 	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
 	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping
 	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
@@ -3687,6 +3695,79 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"'  ORDER BY  TEMP
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+
+
+        [HttpPost, Authorize]
+        public JsonResult SavePacketRegistrationDetail(List<Dictionary<string, object>> details, string packetRegistrationMasterId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsSO = null;
+                string sql = "SELECT * FROM dbo.PacketRegistrationDetail where packetRegistrationMasterId=" + packetRegistrationMasterId + "";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsSO, false, "1");
+
+                string SystemID = "";
+                for (int i = 0; i < details.Count; i++)
+                {
+                    dsSO.Tables[0].DefaultView.RowFilter = "SalesOrderId='" + details[i]["SalesOrderId"] + "'";
+                    if (dsSO.Tables[0].DefaultView.Count == 0)
+                    {
+                        if (SystemID == "")
+                        {
+                            bplib.clsGenID id = new bplib.clsGenID();
+                            id.GenID(System.DateTime.Now.ToShortDateString(), "PacketRegistrationDetail", out SystemID);
+                        }
+                        DataRow dr = dsSO.Tables[0].NewRow();
+
+                        dr["Id"] = SystemID + "-" + (i + 1).ToString();
+                        dr["PacketRegistrationMasterId"] = packetRegistrationMasterId;
+                        dr["SalesOrderId"] = details[i]["SalesOrderId"];
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dsSO.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsSO);
+                return Json(new { Error = false, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        #endregion
+
+        #region PackingCategory
+
+
 
         #endregion
 

@@ -14,6 +14,7 @@ namespace Library.Service.OrderManagements
 
         IEnumerable<object> GetProductionRecipeMaterialList(string productionOrderId);
         IEnumerable<object> GetProductionOrderType2MaterialList(string productionOrderId);
+        IEnumerable<object> GetPacketRegistrationDetailList(string masterId);
         IEnumerable<object> GetProductionOrderProcessSetList(string productionOrderId);
         IEnumerable<object> GetProductionOrderType2ProcessSetList(string productionOrderId);
         IEnumerable<object> GetProductionOrderEntityList(string productionOrderId);
