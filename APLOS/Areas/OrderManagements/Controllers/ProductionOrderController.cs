@@ -3505,6 +3505,189 @@ AS SO ON so.SubProductionOrderId=T1.ProductionOrderId
             return jsondata;
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetPacketRegistrationMasterList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (select M.*,E.EmployeeName from PacketRegistrationMaster M
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId) AS TEMP WHERE " + strkey + " order by UserName";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        
+        [HttpPost]
+        public JsonResult CreatePacketRegistrationMaster(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from PacketRegistrationMaster where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("UserName already exists!!!");
+
+
+                con.OpenDataSetThroughAdapter("select * from PacketRegistrationMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+
+
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(),"PacketRegistrationMaster", out _Id);
+
+                    data["Id"] =  _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Error = false, Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        public ActionResult DeletePRM(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from PacketRegistrationMaster where id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetSRSalesOrderListSearch(string column, string value, string packetRegistrationMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            string activeStatus = "";
+            string plantSql = @"select * from scs.PlantConfig where plantid='" + identity.PlantId + "'";
+            DataTable dtPlantConfig = _sqlRepository.GetDataTable(plantSql);
+            if (dtPlantConfig.Rows.Count > 0)
+                if (bplib.clsWebLib.GetBoolData(dtPlantConfig.Rows[0]["IsProductionOrderCreatedAfterConfirmationOfSO"].ToString()))
+                    activeStatus = " AND isnull(SO.IsConfirm,0)=1 ";
+
+
+            string sql = @"SELECT 
+                             MO.Type,isnull(moi.Consignment,0) AS Consignment,
+                             CASE WHEN ISNULL(eout.Id,'')<>'' OR ISNULL(TOUT.Id,'')<>'' THEN CONCAT(POWN.UserName,'(',EOWN.UserName,')') ELSE '' END AS OrderOwner
+                            ,TEMP.* FROM (SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,null AS Id,null AS ProductionOrderId
+	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
+	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping 
+	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
+	                            , MOI.ArticleId, ART.StandardName AS ArticleName
+	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
+	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
+	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
+	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
+	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
+	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription
+                       FROM [TRN].[SalesOrder] AS SO 
+                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
+					   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
+					   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
+                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
+					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
+                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
+                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
+                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
+                       LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+
+                       WHERE   
+                       (
+                            --if there is no jobwork, i can create my own production order
+                       	    (ISNULL(moi.JobWorkType,'')='' AND MO.PlantId='" + identity.PlantId + @"' )
+                                OR 
+                       	    (ISNULL(moi.JobWorkType,'')<>'' AND EOUT.PlantId='" + identity.PlantId + @"' )
+                       )
+                       AND (OS.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' " + activeStatus + @" and  SO.Id not IN (SELECT DISTINCT SalesOrderId FROM dbo.PacketRegistrationDetail)) AND MOI.ArticleId<>''
+                        
+						UNION
+						
+						SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,POD.Id,POD.ProductionOrderId
+	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
+	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping
+	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
+	                            , MOI.ArticleId, ART.StandardName AS ArticleName
+	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
+	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
+	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
+	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
+	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
+	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription
+                       FROM [TRN].[SalesOrder] AS SO 
+                        left outer join dbo.PacketRegistrationDetail POD on POD.SalesOrderId=SO.Id and POD.PacketRegistrationMasterId='" + packetRegistrationMasterId + @"'
+                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
+					   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
+					   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
+                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
+					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
+                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
+                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
+                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
+                       WHERE  SO.Id IN (SELECT DISTINCT SalesOrderId FROM dbo.PacketRegistrationDetail WHERE PacketRegistrationMasterId='" + packetRegistrationMasterId + @"')						
+						) AS TEMP 
+                            LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON TEMP.MasterOrderItemId=MOI.Id
+                            LEFT JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+							LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+							LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
+							LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
+							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
+							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
+
+WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"'  ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEMP.ArticleId";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
         #endregion
 
     }

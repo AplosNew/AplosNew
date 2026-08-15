@@ -3441,6 +3441,32 @@ where   emp.Employeecode = '" + Empcode + "' and PT.Id = '" + PlantId + "'"));
         }
 
 
+        public IHttpActionResult GetSuperviouserWC(string Empcode, string plantid)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+
+                return Json(_sqlRepository.GetDataTable(@"Select UserName Value , UserName Name from scs.WorkCenterMaster where ResponsiblePersonId = '" + Empcode + "' and PlantId = '" + plantid + @"' and Active = 1
+union all
+Select UserName Value, UserName Name from scs.WorkCenterMaster where PlantId = '" + plantid + "'  and Active = 1"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+
         public IHttpActionResult GetServiceAttdn(string date, string lineid, string entityid, string category)
         {
             /* clsDataContext clsData = new clsDataContext();
