@@ -1347,6 +1347,7 @@ upanelApp.controller("monthlyExpensesAndAssetStatementController", monthlyExpens
 upanelApp.controller("WeeklyReceiptAndPaymentStatementController", WeeklyReceiptAndPaymentStatementController)
 upanelApp.controller("DailyTargetUploadController", DailyTargetUploadController)
 upanelApp.controller("SKURegistrationController", SKURegistrationController)
+upanelApp.controller("PackingCategoryController", PackingCategoryController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

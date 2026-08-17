@@ -9,6 +9,7 @@
     <div class="col-md-12" style="color:blue;font-weight:bold;">
         {{NotificationMessage}}
     </div>
+
     <div class="tab-design" id="tab_show">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
@@ -27,39 +28,48 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet11(11), active: isSet11(11) }">
                 <div class="row">
                     <div id="TabEmployee">
-                        <div class="col-xs-12">
-                            <div class="col-md-4">
-                                Description<sup>*</sup>
-                            </div>
-                            <div class="col-md-8">
-                                <input class="form-control" autocomplete="off" id="txtDescription" ng-model="Description" placeholder="Description" type="text" />
-                            </div>
-                        </div>
-                        <div class="col-xs-12">
-                            <div class="col-xs-5 col-sm-5 col-md-5">
-                                <div class="col-md-4">
-                                    From Date<sup>*</sup>
-                                </div>
-                                <div class="col-md-8">
-                                    <input class="form-control datepicker" autocomplete="off" id="txtFromDate_sep" ng-model="FromDate_sep" placeholder="dd-MMM-yyyy" type="text" />
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Description<sup>*</sup></label>
+                                    <div class="col-sm-8" style="left:-15px;">
+                                        <input class="form-control" @*autocomplete="off"*@ id="txtDescription" ng-model="Description" placeholder="Description" type="text" tabindex="2" maxlength="200" />
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-xs-5 col-sm-5 col-md-5">
-                                <div class="col-md-4">
-                                    To Date<sup>*</sup>
-                                </div>
-                                <div class="col-md-8">
-                                    <input class="form-control datepicker" autocomplete="off" id="txtToDate_sep" ng-model="ToDate_sep" placeholder="dd-MMM-yyyy" type="text" />
-                                </div>
-                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
 
-                            <div class="col-xs-2 col-sm-2 col-md-2" style="text-align:right;padding-right:0px">
-                                <div class="common-btn">
-                                    <button ng-click="GetEmployee_sep();" class="btn"> <i class="glyphicon glyphicon-refresh"></i> Load</button>
-                                </div>
                             </div>
                         </div>
 
+                        <div class="row">
+                            <div class="col-xs-12">
+
+                                <div class="col-sm-5" style="left:-10px;">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                                        <div class="col-sm-8 show-message">
+                                            <input type="text" name="From Date" placeholder="dd-MM-yyyy" ng-change="CreateToDate()" ng-model="FromDate_sep" id="txtFromDate_sep" datepicker class="form-control datepicker" tabindex="1">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-5" style="left:-10px;">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                                        <div class="col-sm-8 show-message">
+                                            <input type="text" name="To Date" placeholder="dd-MM-yyyy" ng-model="ToDate_sep" id="txtToDate_sep" datepicker class="form-control datepicker" tabindex="1">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-2 col-sm-2 col-md-2" style="text-align:left;padding-right:0px">
+                                    <div class="common-btn">
+                                        <button ng-click="GetEmployee_sep();" class="btn"> <i class="glyphicon glyphicon-refresh"></i> Load</button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
 
                         <br />
                         <div class="col-xs-12">
@@ -86,12 +96,12 @@
                                 <div e-columns>
                                     <div e-column e-headertext="All" e-headertemplateid="#headerTemplate4" e-template="#checkboxTemplate4" e-textalign="center" e-width="30"></div>
                                     @*<div e-column e-field="EmpSystemID" e-headertext="Id" e-width="30" e-primarykey="true" e-visible="false"></div>
-                                        <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50"></div>
-                                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-                                        <div e-column e-field="SalaryRuleName" e-headertext="SalaryRuleName" e-width="50"></div>
-                                        <div e-column e-field="GivenDesignation" e-headertext="Designation" e-width="50"></div>
-                                        <div e-column e-field="DOJ" e-headertext="DOJ" e-width="25"></div>
-                                        <div e-column e-field="DOS" e-headertext="DOS" e-width="25"></div>*@
+                    <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                    <div e-column e-field="SalaryRuleName" e-headertext="SalaryRuleName" e-width="50"></div>
+                    <div e-column e-field="GivenDesignation" e-headertext="Designation" e-width="50"></div>
+                    <div e-column e-field="DOJ" e-headertext="DOJ" e-width="25"></div>
+                    <div e-column e-field="DOS" e-headertext="DOS" e-width="25"></div>*@
 
                                     <div e-column e-field="SystemID" e-headertext="SystemID" e-width="30" e-primarykey="true" e-visible="false"></div>
                                     <div e-column e-field="IsDisbursed" e-headertext="IsDisbursed" e-width="10" e-visible="false"></div>
@@ -282,17 +292,6 @@
                                  e-filtersettings-filterType="excel">
                                 <div e-columns>
                                     <div e-column e-headertext="All" e-headertemplateid="#headerTemplate5" e-template="#checkboxTemplate5" e-textalign="center" e-width="30"></div>
-                                    @*<div e-column e-field="EmpSystemID" e-headertext="Id" e-width="30" e-primarykey="true" e-visible="false"></div>
-                                        <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30"></div>
-                                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-                                        <div e-column e-field="BabyNo" e-headertext="Baby No" e-width="10"></div>
-                                        <div e-column e-field="WithBenefit" e-headertext="With Benefit" e-width="10"></div>
-                                        <div e-column e-field="GoingON" e-headertext="Going ON" e-width="25"></div>
-                                        <div e-column e-field="ComingON" e-headertext="Coming ON" e-width="25"></div>
-                                        <div e-column e-field="GivenDesignation" e-headertext="Designation" e-width="50"></div>
-                                        <div e-column e-field="DOJ" e-headertext="DOJ" e-width="25"></div>
-                                        <div e-column e-field="DOS" e-headertext="DOS" e-width="25"></div>*@
-
                                     <div e-column e-field="SystemID" e-headertext="SystemID" e-visible="false"></div>
                                     <div e-column e-field="IsDisbursed" e-headertext="IsDisbursed" e-visible="false"></div>
                                     <div e-column e-field="IsApproved" e-headertext="IsApproved" e-visible="false"></div>
@@ -381,37 +380,7 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet22(44), active: isSet22(44) }">
                 <div class="row">
                     <div id="TabEmployee">
-                        @*<div class="col-xs-12">
-                                <div class="col-md-4">
-                                    Description<sup>*</sup>
-                                </div>
-                                <div class="col-md-8">
-                                    <input class="form-control" autocomplete="off" id="txtDescriptionmlv" ng-model="Description_mlv" placeholder="Description" type="text" />
-                                </div>
-                            </div>*@
-                        @*<div class="col-xs-12">
-                                <div class="col-xs-5 col-sm-5 col-md-5">
-                                    <div class="col-md-4">
-                                        From Date<sup>*</sup>
-                                    </div>
-                                    <div class="col-md-8">
-                                        <input class="form-control datepicker" autocomplete="off" id="txtFromDate_mlv" ng-model="FromDate_mlv" placeholder="dd-MMM-yyyy" type="text" />
-                                    </div>
-                                </div>
-                                <div class="col-xs-5 col-sm-5 col-md-5">
-                                    <div class="col-md-4">
-                                        To Date<sup>*</sup>
-                                    </div>
-                                    <div class="col-md-8">
-                                        <input class="form-control datepicker" autocomplete="off" id="txtToDate_mlv" ng-model="ToDate_mlv" placeholder="dd-MMM-yyyy" type="text" />
-                                    </div>
-                                </div>
-                                <div class="col-xs-2 col-sm-2 col-md-2">
-                                    <div class="common-btn">
-                                        <button ng-click="GetEmployee_mlv();" class="btn"> <i class="glyphicon glyphicon-download"></i>Go</button>
-                                    </div>
-                                </div>
-                            </div>*@
+
 
 
                         <br />
@@ -450,24 +419,10 @@
                                 </div>
                             </div>
                         </div>
-                        @*<div class="col-xs-12" style="margin-top:5px">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-right">
-                                        <li>   <button ng-click="Emp_mlv_Process();" class="btn"> <i class="glyphicon glyphicon-repeat fast-right-spinner"></i> Process</button></li>
-                                    </ul>
-                                </div>
-                            </div>*@
-
 
                         <div class="col-xs-12">
                         </div>
 
-                        @*<script type="text/template" id="checkboxTemplate5">
-                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsSelectSlrProc" />
-                            </script>
-                            <script type="text/x-jsrender" id="headerTemplate5">
-                                <input type="checkbox" id="headchk5" />
-                            </script>*@
                     </div>
                 </div>
             </div>
@@ -476,14 +431,5 @@
 
         </div>
     </div>
+
 </div>
-
-
-
-
-
-
-
-
-
-

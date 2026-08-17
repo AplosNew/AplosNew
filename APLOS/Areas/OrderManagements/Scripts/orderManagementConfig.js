@@ -325,5 +325,11 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/ProductionOrder/SKURegistration',
             controller: 'SKURegistrationController'
         })
+
+        .when('/packingcategory', {
+            templateUrl: 'OrderManagements/ProductionOrder/PackingCategory',
+            controller: 'PackingCategoryController'
+        })
+
         ;
 }
