@@ -4894,7 +4894,7 @@ SELECT
         AND VD.DrAmount > 0
         AND VD.CashMasterId <> ''
         AND V.PostingDate < '"+ from + @"'
-        AND V.SourceType<>'OpeningBalance'
+        AND V.SourceType<>'OpeningBalance' AND VD.CashMasterId='" + cashMasterId + @"'
 UNION ALL 
  SELECT 0 ReceiptAmount, SUM(VD.DrAmount) AS ExAmountAmount
     FROM TRN.VoucherDetail VD
@@ -4904,13 +4904,15 @@ UNION ALL
     LEFT JOIN HKP.Activity A ON A.Id = VD.ActivityId
     LEFT JOIN MST.BudgetMaster BM ON BM.Id = VD.BudgetMasterId
     LEFT JOIN HKP.AccountGroup AG ON AG.Id = GL.AccountGroupId
+	LEFT JOIN (SELECT CashMasterId,VoucherId FROM TRN.VoucherDetail where CrAmount>0 and CashMasterId='" + cashMasterId + @"' )XVD ON XVD.VoucherId=V.Id
+
     WHERE V.PlantId = '" + plantId + @"'
         AND AG.AccountTypeId IN ('Expense','Asset')
         AND VD.DrAmount > 0
         AND V.PostingDate < '"+ from + @"'
         AND VD.CashMasterId IS NULL
         AND VD.BankMasterId IS NULL
-        AND V.SourceType <> 'OpeningBalance'
+        AND V.SourceType <> 'OpeningBalance' AND XVD.CashMasterId='" + cashMasterId + @"'
 		UNION ALL
 		 SELECT SUM(VD.DrAmount) AS ReceiptAmount,0 ExAmountAmount
     FROM TRN.VoucherDetail VD
@@ -4925,7 +4927,7 @@ UNION ALL
         AND VD.DrAmount > 0
         AND VD.CashMasterId <> ''
         AND V.PostingDate  <= '" + from + @"'
-        AND V.SourceType = 'OpeningBalance'
+        AND V.SourceType = 'OpeningBalance'  AND VD.CashMasterId='" + cashMasterId + @"'
 
 		) X
 
@@ -4948,7 +4950,7 @@ UNION ALL
         AND VD.DrAmount > 0
         AND VD.CashMasterId <> ''
         AND V.PostingDate BETWEEN '"+ from + "' AND '"+to+ @"'
-        AND V.SourceType <> 'OpeningBalance'
+        AND V.SourceType <> 'OpeningBalance'  and VD.CashMasterId='" + cashMasterId + @"'
 )
 SELECT
     R.PostingDate AS [RDATE],R.VoucherNo RVoucherNo,

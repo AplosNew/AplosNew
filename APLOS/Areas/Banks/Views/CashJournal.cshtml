@@ -242,6 +242,7 @@
                     <th>Posting Date</th>
                     <th>Entity</th>
                     <th>Currency</th>
+                    <th>Prepared By</th>
                     <th>Amount</th>
                     <th>Status</th>
                     <th class="text-right">Action</th>
@@ -254,6 +255,7 @@
                     <td>{{x.PostingDate | dateFiltering}}</td>
                     <td>{{x.EntityName}}</td>
                     <td>{{x.CurrencyCode}}</td>
+                    <td>{{x.AddedBy}}</td>
                     <td class="text-right">{{x.Amount | number:2}}</td>
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
                     <td class="text-right">
