@@ -501,10 +501,39 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
             $scope.skuList = response.data;
         });
     }
+
+    $scope.PRObj = {};
     $scope.GetPacketRegistrationPOP = function (data) {
         $scope.PRObj = data.data;
         $scope.GetPackingSKUData($scope.PRObj.Id);
         angular.element(document.querySelector('#PRPopUp')).modal('show');
+    }
+
+    $scope.SavePR = function () {
+        try {
+            if ($scope.skuList.length > 0) {
+                
+                $http({
+                    method: 'POST',
+                    url: "OrderManagements/ProductionOrder/SavePacketRegistration",
+                    data: { 'packregilist': $scope.skuList, 'masterId': $scope.PRObj.Id },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error == true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetPackingSKUData($scope.PRObj.Id);
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.data.Message, 'failure');
+                });
+
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
     $scope.ClosePR = function () {

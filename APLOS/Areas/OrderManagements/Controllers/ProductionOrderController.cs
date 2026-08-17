@@ -3854,9 +3854,7 @@ ORDER BY P.SortOrder";
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["AddedFromIP"] = identity.IPAddress;
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                        dr["UpdatedFromIP"] = identity.IPAddress;
+                       
 
                         dspackCat.Tables[0].Rows.Add(dr);
                     }
@@ -3867,7 +3865,9 @@ ORDER BY P.SortOrder";
                         dr["PackingTypeId"] = packCatlist[i]["PackingTypeId"];
                         dr["NoOfUnitPerPack"] = packCatlist[i]["NoOfUnitPerPack"];
                         dr["NoOfPack"] = packCatlist[i]["NoOfPack"];
-
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
                         dr.EndEdit();
                     }
                 }
@@ -3884,6 +3884,78 @@ ORDER BY P.SortOrder";
             }
         }
 
+        [HttpPost, Authorize]
+        public JsonResult SavePacketRegistration(List<Dictionary<string, object>> packregilist, int masterId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dspackCat = null;
+                string sql = "SELECT * FROM [dbo].[PacketRegistration] where PacketRegistrationTypeId=" + masterId + "";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
+
+                string SystemID = "";
+                for (int i = 0; i < packregilist.Count; i++)
+                {
+                    dspackCat.Tables[0].DefaultView.RowFilter = "Id='" + packregilist[i]["Id"] + "'";
+                    if (dspackCat.Tables[0].DefaultView.Count == 0)
+                    {
+                        if (SystemID == "")
+                        {
+                            bplib.clsGenID id = new bplib.clsGenID();
+                            id.GenID(System.DateTime.Now.ToShortDateString(), "PacketRegistration", out SystemID);
+                        }
+                        DataRow dr = dspackCat.Tables[0].NewRow();
+
+                        dr["Id"] = SystemID + "-" + (i + 1).ToString();
+                        dr["PacketRegistrationTypeId"] = masterId;
+                        dr["SalesOrderId"] = packregilist[i]["SalesOrderId"];
+                        dr["SKU1Id"] = packregilist[i]["SKU1Id"];
+                        dr["SKU2Id"] = packregilist[i]["SKU2Id"];
+                        dr["UnitPerPack"] = packregilist[i]["UnitPerPack"];
+                        dr["NoOfPack"] = packregilist[i]["NoOfPack"];
+                        dr["BarCode"] = packregilist[i]["BarCode"];
+                        dr["QRCode"] = packregilist[i]["QRCode"];
+                        dr["RFID"] = packregilist[i]["RFID"];
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                       
+
+                        dspackCat.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        DataRow dr = dspackCat.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["UnitPerPack"] = packregilist[i]["UnitPerPack"];
+                        dr["NoOfPack"] = packregilist[i]["NoOfPack"];
+                        dr["BarCode"] = packregilist[i]["BarCode"];
+                        dr["QRCode"] = packregilist[i]["QRCode"];
+                        dr["RFID"] = packregilist[i]["RFID"];
+
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+                    }
+                }
+
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dspackCat);
+                return Json(new { Error = false, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
 
 
 
