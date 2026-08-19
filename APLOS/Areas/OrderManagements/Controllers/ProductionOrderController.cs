@@ -85,14 +85,14 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return View();
         }
 
-        [Authorize]
+       
         public ActionResult SKURegistration()
         {
             return View();
         }
 
         [Authorize]
-        public ActionResult PackingCategory()
+        public ActionResult PackingBooking()
         {
             return View();
         }

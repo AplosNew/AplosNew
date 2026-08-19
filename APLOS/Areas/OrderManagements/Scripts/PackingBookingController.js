@@ -1,7 +1,7 @@
 ﻿'use strict';
-PackingCategoryController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function PackingCategoryController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Packing Category';
+PackingBookingController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function PackingBookingController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+    $rootScope.title = 'Packing Booking';
     $scope.PCAction = 'Save';
     $scope.PCModelList = [];
     $scope.path = 'OrderManagements/ProductionOrder/';

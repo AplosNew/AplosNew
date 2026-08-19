@@ -326,9 +326,9 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             controller: 'SKURegistrationController'
         })
 
-        .when('/packingcategory', {
-            templateUrl: 'OrderManagements/ProductionOrder/PackingCategory',
-            controller: 'PackingCategoryController'
+        .when('/packingbooking', {
+            templateUrl: 'OrderManagements/ProductionOrder/PackingBooking',
+            controller: 'PackingBookingController'
         })
 
         ;
