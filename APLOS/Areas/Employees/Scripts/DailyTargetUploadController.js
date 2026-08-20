@@ -6,11 +6,56 @@ function DailyTargetUploadController(cboService, commonMessage, $scope, $rootSco
     $scope.index = -1;
     $scope.bloodGroups = [];
     $scope.path = 'employees/EmployeeInformation/';
+    $scope.path2 = 'Productions/EmployeeOperations/';
+    $scope.TargetDate= $filter("dateFiltering")(Date.now());
+   
+    $scope.POList = [];
+    $scope.ShiftList = [];
+    $scope.EntityList = [];
+    $scope.ProcessList = [];
 
-    $scope.GetSampleFile = function () {
-        var ReportFormat = 'Excel';
-        location.href = $scope.path + 'GetDailyTargetSampleFile?reportFormat=' + ReportFormat;
-    };
+    $scope.getStartUp = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path2 + 'GetEntity'
+        }).then(function succ(resp) {
+            $scope.EntityList = resp.data;
+        });
+    }
+    $scope.getStartUp();
+    $scope.getProcess = function () {
+            $http({
+                method: 'POST',
+                url: $scope.path2 + 'GetProcess',
+                data: { 'EId': $scope.EntityId }
+            }).then(function succ(resp) {
+                $scope.ProcessList = resp.data;
+            });
+        }
+
+       
+        $scope.GetShiftList = function () {
+            $http.get('Productions/EmployeeOperations/GetShift?processId=' + $scope.ProcessId + '&entityId=' + $scope.EntityId)
+                .then(function (response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.ShiftList = response.data;
+                        if (baseService.arrayLength(response.data) === 1) {
+                            $scope.shiftId = $scope.ShiftList[0].Value;
+                        }
+                    }
+                });
+        }
+
+        // Getting the POs
+        $scope.getPo = function () {
+            $http({
+                method: 'POST',
+                url: $scope.path2 + 'GetPOs',
+                data: { 'entityId': $scope.EntityId },
+            }).then(function succ(resp) {
+                $scope.POList = resp.data;
+            });
+        }
 
     $scope.UploadedData = [];
     $scope.picdata = null;
@@ -25,6 +70,12 @@ function DailyTargetUploadController(cboService, commonMessage, $scope, $rootSco
             .then(function (result) {
                 $scope.imageSrc = result;
             });
+    };
+
+    $scope.GetSampleFile = function () {
+        var ReportFormat = 'Excel';
+        location.href = $scope.path + 'GetDailyTargetSampleFile?reportFormat=' + ReportFormat + '&entityId=' + $scope.EntityId
+            + '&targetDate=' + $scope.TargetDate + '&processId=' + $scope.ProcessId + '&shiftId=' + $scope.shiftId;
     };
 
     $scope.ImportData = function () {
@@ -74,11 +125,12 @@ function DailyTargetUploadController(cboService, commonMessage, $scope, $rootSco
             for (var i = 0; i < $scope.UploadedData.length; i++) {
                
                 $scope.UploadedData[i].Id = null;
+                $scope.UploadedData[i].TargetDate = $scope.TargetDate;
 
             }
             $http({
                 method: 'POST',
-                url: $scope.path + 'SaveDailyTargetUploadedData',
+                url: $scope.path + 'SaveDailyTargetUploadedData?targetDate=' + $scope.TargetDate + '&processId=' + $scope.ProcessId + '&shiftId=' + $scope.shiftId,
                 data: {
                     'data': $scope.UploadedData
                 },
