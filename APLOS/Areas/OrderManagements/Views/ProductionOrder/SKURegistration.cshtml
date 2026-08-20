@@ -1,59 +1,74 @@
-﻿<togglable name="SKU Registration"></togglable>
-<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
-    <input type="hidden" ng-model="ModelNew.Id">
-    <div class="col-xs-12 col-sm-6 col-md-6">
-
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">TargetClosingDays<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="number" name="TargetClosingDays" ng-model="ModelNew.TargetClosingDays" class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
-            </div>
-        </div>
-        <div>
-            <label class="col-sm-4 control-label">Status<sup>*</sup></label>
-            <div class="col-sm-8  show-message">
-                <div class="select-style">
-                    <select name="Status Type" class="form-control" ng-model="ModelNew.StatusType" required tabindex="1">
-                        <option value="">--Select--</option>
-                        <option value="Running">Running</option>
-                        <option value="Active">Active</option>
-                        <option value="Close">Close</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
-            <div class="col-sm-8">
-                <div class="input-group">
-                    <input type="text" name="Responsible Person" ng-model="ModelNew.EmployeeName" class="form-control" readonly>
-                    <span class="input-group-btn">
-                        <button ng-click="getEmpPopUpData();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
-                    </span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Remarks</label>
-            <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="8"></textarea>
-            </div>
-        </div>
-    </div>
-    <div class="common-btn">
-        <ul class="list-inline text-right">
-            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-            <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+﻿@*<div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1)" href="" data-toggle="tab">Packing Defination</a></li>
         </ul>
+    </div>
+
+
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
+
+
+        </div>
+    </div>*@
+<togglable name="Packing Defination"></togglable>
+<div class="form-elements form-horizontal">
+    <div class="row" ng-form name="ModelNewForm">
+        <input type="hidden" ng-model="ModelNew.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">TargetClosingDays<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="number" name="TargetClosingDays" ng-model="ModelNew.TargetClosingDays" class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Status<sup>*</sup></label>
+                <div class="col-sm-8  show-message">
+                    <div class="select-style">
+                        <select name="Status Type" class="form-control" ng-model="ModelNew.StatusType" required tabindex="1">
+                            <option value="">--Select--</option>
+                            <option value="Running">Running</option>
+                            <option value="Active">Active</option>
+                            <option value="Close">Close</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" name="Responsible Person" ng-model="ModelNew.EmployeeName" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="getEmpPopUpData();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="8"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
     </div>
 
     <div class="tab-design">
@@ -77,6 +92,7 @@
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                              e-showsummary="true" e-summaryrows="summaryRows" e-allowselection="true" e-filtersettings-filterType="excel">
                             <div e-columns>
+                                <div e-column e-template="#removeSO" e-headertext="Remove" e-width="80" style="height: 20px;"></div>
                                 <div e-column e-field="ProductName" e-headertext="Product" e-width="180" e></div>
                                 <div e-column e-field="ArticleName" e-headertext="Article" e-width="180"></div>
                                 <div e-column e-field="SalesOrderId" e-headertext="SO. ID" e-width="120"></div>
@@ -109,17 +125,66 @@
                                 <div e-column e-type="string" e-field="Type" e-headertext="Type" e-width="80"></div>
 
                             </div>
+                            <script type="text/template" id="removeSO">
+                                <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                                    <button ng-click="$parent.removeSO(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
+                                </div>
+                            </script>
                         </div>
                     </div>
                 </div>
             </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                 <div class="row" ng-form="tabFrom2">
                     <div class="col-xs-12">
-                        
+                        <div id="GridPackcat" ng-init="chkinit()" ej-grid e-datasource="packingCategoryList"
+                             e-allowscrolling="true" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-showsummary="true" e-allowselection="true" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-template="#pcselect" e-headertext="" e-width="20"></div>
+                                <div e-column e-field="PackingCategory" e-headertext="PackingCategory" e-width="100" e></div>
+                                <div e-column e-template="#PackingType" e-headertext="PackingType" e-width="80" style="height: 20px;"></div>
+                                <div e-column e-template="#NoOfUnitPerPack" e-headertext="NoOfUnitPerPack" e-width="80" style="height: 20px;"></div>
+                                <div e-column e-template="#NoOfPack" e-headertext="NoOfPack" e-width="80" style="height: 20px;"></div>
+                                <div e-column e-template="#PacketRegistration" e-headertext="PacketRegistration" e-width="80" style="height: 20px;"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="pcselect">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="data.Flag" ng-checked="data.Flag">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </script>
+                        <script type="text/template" id="PackingType">
+                            <div class="select-style">
+                                <select name="PackingType" class="form-control" ng-model="data.PackingTypeId"
+                                        ng-options="item.Value as item.Text for item in $parent.packingTypeList" tabindex="4">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </script>
+                        <script type="text/template" id="NoOfUnitPerPack">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.NoOfUnitPerPack" n-decimals="2" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="NoOfPack">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.NoOfPack" n-decimals="2" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="PacketRegistration">
+                            <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                                <button ng-click="$parent.GetPacketRegistrationPOP(this);" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
+                            </div>
+                        </script>
                     </div>
-                    <div class="col-xs-12">
-                        
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SavePackingCategory();"ng-disabled="ModelNew.Id==null"  class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -161,6 +226,9 @@
         </div>
     </div>
 </div>
+
+
+
 <confirm-modal></confirm-modal>
 <div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -296,4 +364,74 @@
     </div>
 </div>
 
+<div class="modal fade site-modal in" id="PRPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Packet Registration<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="col-xs-12">
+                    <div style="color:black;" id="GridSKU" ej-grid e-datasource="skuList" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SKUColor" e-headertext="Color" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SKUSize" e-headertext="Size" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#UnitPerPack" e-headertext="Unit/Pack" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#NoOfPack" e-headertext="NoOfPack" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#BarCode" e-headertext="BarCode" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#QRCode" e-headertext="QRCode" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#RFID" e-headertext="RFID" e-width="80"></div>
+                            <div e-column e-template="#Qty" e-headertext="Qty" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#Remark" e-headertext="Remark" e-width="100" style="height: 20px;"></div>
+                        </div>
 
+                        <script type="text/template" id="UnitPerPack">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.UnitPerPack" n-decimals="2" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="NoOfPack">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.NoOfPack" n-decimals="2" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="BarCode">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" class="form-control" ng-model="data.BarCode" ng-keydown="barcodeKeyDown($event)" placeholder="Scan Barcode" autofocus />
+                            </div>
+                        </script>
+                        <script type="text/template" id="QRCode">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.QRCode" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="RFID">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.RFID" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="Remark">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.Remark" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="Qty">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.Qty" n-decimals="2" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SavePR();" class="btn"><i class="glyphicon glyphicon-folder-open"></i>Save</button></li>
+                        <li> <button ng-click="ClosePR();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-archive-generic modalid="confirmSODelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteSO();"></confirm-archive-generic>

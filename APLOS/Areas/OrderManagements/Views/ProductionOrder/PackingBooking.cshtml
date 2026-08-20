@@ -1,0 +1,104 @@
+﻿<togglable name="{{title}}"></togglable>
+<div class="form-elements form-horizontal" ng-form name="PCModelNewForm">
+    <input type="hidden" ng-model="PCModelNew.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="PCModelNew.Sequence" e-width="100%" required />
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Short Name" ng-model="PCModelNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="User Name" ng-model="PCModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Description</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="PCModelNew.Description" tabindex="7" maxlength="250"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Code" ng-model="PCModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Standard Name" ng-model="PCModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="PCModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Active</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="PCModelNew.Active" tabindex="8">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="SavePC();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{PCAction}}</button></li>
+            <li> <button ng-click="RemovePC();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Delete</button></li>
+            <li> <button ng-click="PCClear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchPCBy">
+                            <option ng-repeat="option in searchPCByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="searchpc" ng-enter="getPCData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getPCData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridPCEdit" ej-grid e-datasource="PCModelList" e-recorddoubleclick="GetPC" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+            <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+            <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+        </div>
+    </div>
+</div>

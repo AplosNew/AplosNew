@@ -85,17 +85,24 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return View();
         }
 
-        [Authorize]
+       
         public ActionResult SKURegistration()
         {
             return View();
         }
+
+        [Authorize]
+        public ActionResult PackingBooking()
+        {
+            return View();
+        }
+
         #endregion
 
         #region -- Operations
 
         [HttpGet, Authorize]
-        public ActionResult GetList(string column, string value,string OrderType)
+        public ActionResult GetList(string column, string value, string OrderType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -104,7 +111,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             string sql = @"select top 100 * from ( " + new Library.OrderManagement.Production.ProductionOrder().ProductionOrderList() + @"
-                            WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE OrderType = '"+ OrderType + @"' AND " + strkey + " ORDER BY AddedDate DESC";
+                            WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE OrderType = '" + OrderType + @"' AND " + strkey + " ORDER BY AddedDate DESC";
 
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -2843,7 +2850,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery("Update [TRN].[ProductionBulletinTemplateDetail] set AreaCode="+areacode+" Where Id= '"+id+"'");
+                con.executeQuery("Update [TRN].[ProductionBulletinTemplateDetail] set AreaCode=" + areacode + " Where Id= '" + id + "'");
                 con.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
@@ -3133,6 +3140,15 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
         {
             Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
             var jsondata = Json(order.GetSKUData(poId, SKU1, SKU2, Both), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetPackingSKUData(string soId, string packetRegistrationTypeId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetPackingSKUData(soId, packetRegistrationTypeId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
@@ -3526,7 +3542,7 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId) AS TEMP WHERE " 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        
+
         [HttpPost]
         public JsonResult CreatePacketRegistrationMaster(Dictionary<string, object> data)
         {
@@ -3550,9 +3566,9 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId) AS TEMP WHERE " 
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(),"PacketRegistrationMaster", out _Id);
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "PacketRegistrationMaster", out _Id);
 
-                    data["Id"] =  _Id;
+                    data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -3567,7 +3583,7 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId) AS TEMP WHERE " 
                 _info.SaveDataSets(dsMaster);
 
 
-                return Json(new { Error = false, Message = AplosMessage.Success });
+                return Json(new { Error = false,Data= _Id, Message = AplosMessage.Success });
 
             }
             catch (Exception ex)
@@ -3749,10 +3765,197 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"'  ORDER BY  TEMP
             }
         }
 
+        public ActionResult DeleteSO(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from PacketRegistrationDetail where id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetPacketRegistrationTypeList(string masterId)
+        {
+            try
+            {
+                string sql = @"WITH PackingCategory AS
+(
+    SELECT 1 AS SortOrder, 'Individual' AS PackingCategory
+    UNION ALL
+    SELECT 2, 'Prepack'
+    UNION ALL
+    SELECT 3, 'Bulk Pack'
+    UNION ALL
+    SELECT 4, 'CartoonPack'
+)
+SELECT
+Flag=CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),
+    P.PackingCategory,
+    D.Id,D.PacketRegistrationMasterId,D.PackingTypeId,D.NoOfUnitPerPack,D.NoOfPack,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP
+
+FROM PackingCategory P
+LEFT JOIN PacketRegistrationType D ON D.PackingCategory = P.PackingCategory
+Where ISNULL(D.PacketRegistrationMasterId,'" + masterId + @"')='" + masterId + @"'
+ORDER BY P.SortOrder";
+                    return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            } 
+           
+            
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SavePackingCategory(List<Dictionary<string, object>> packCatlist, int masterId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dspackCat = null;
+                string sql = "SELECT * FROM [dbo].[PacketRegistrationType] where PacketRegistrationMasterId=" + masterId + "";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
+
+                string SystemID = "";
+                for (int i = 0; i < packCatlist.Count; i++)
+                {
+                    dspackCat.Tables[0].DefaultView.RowFilter = "Id='" + packCatlist[i]["Id"] + "'";
+                    if (dspackCat.Tables[0].DefaultView.Count == 0)
+                    {
+                        if (SystemID == "")
+                        {
+                            bplib.clsGenID id = new bplib.clsGenID();
+                            id.GenID(System.DateTime.Now.ToShortDateString(), "PacketRegistrationType", out SystemID);
+                        }
+                        DataRow dr = dspackCat.Tables[0].NewRow();
+
+                        dr["Id"] = SystemID + "-" + (i + 1).ToString();
+                        dr["PacketRegistrationMasterId"] = masterId;
+                        dr["PackingTypeId"] = packCatlist[i]["PackingTypeId"];
+                        dr["PackingCategory"] = packCatlist[i]["PackingCategory"];
+                        dr["NoOfUnitPerPack"] = packCatlist[i]["NoOfUnitPerPack"];
+                        dr["NoOfPack"] = packCatlist[i]["NoOfPack"];
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                       
+
+                        dspackCat.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        DataRow dr = dspackCat.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["PackingTypeId"] = packCatlist[i]["PackingTypeId"];
+                        dr["NoOfUnitPerPack"] = packCatlist[i]["NoOfUnitPerPack"];
+                        dr["NoOfPack"] = packCatlist[i]["NoOfPack"];
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr.EndEdit();
+                    }
+                }
 
 
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dspackCat);
+                return Json(new { Error = false, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SavePacketRegistration(List<Dictionary<string, object>> packregilist, int masterId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dspackCat = null;
+                string sql = "SELECT * FROM [dbo].[PacketRegistration] where PacketRegistrationTypeId=" + masterId + "";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
+
+                string SystemID = "";
+                for (int i = 0; i < packregilist.Count; i++)
+                {
+                    dspackCat.Tables[0].DefaultView.RowFilter = "Id='" + packregilist[i]["Id"] + "'";
+                    if (dspackCat.Tables[0].DefaultView.Count == 0)
+                    {
+                        if (SystemID == "")
+                        {
+                            bplib.clsGenID id = new bplib.clsGenID();
+                            id.GenID(System.DateTime.Now.ToShortDateString(), "PacketRegistration", out SystemID);
+                        }
+                        DataRow dr = dspackCat.Tables[0].NewRow();
+
+                        dr["Id"] = SystemID + "-" + (i + 1).ToString();
+                        dr["PacketRegistrationTypeId"] = masterId;
+                        dr["SalesOrderId"] = packregilist[i]["SalesOrderId"];
+                        dr["SKU1Id"] = packregilist[i]["SKU1Id"];
+                        dr["SKU2Id"] = packregilist[i]["SKU2Id"];
+                        dr["UnitPerPack"] = packregilist[i]["UnitPerPack"];
+                        dr["NoOfPack"] = packregilist[i]["NoOfPack"];
+                        dr["BarCode"] = packregilist[i]["BarCode"];
+                        dr["QRCode"] = packregilist[i]["QRCode"];
+                        dr["RFID"] = packregilist[i]["RFID"];
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                       
+
+                        dspackCat.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        DataRow dr = dspackCat.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["UnitPerPack"] = packregilist[i]["UnitPerPack"];
+                        dr["NoOfPack"] = packregilist[i]["NoOfPack"];
+                        dr["BarCode"] = packregilist[i]["BarCode"];
+                        dr["QRCode"] = packregilist[i]["QRCode"];
+                        dr["RFID"] = packregilist[i]["RFID"];
+
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+                    }
+                }
 
 
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dspackCat);
+                return Json(new { Error = false, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
 
 
 
@@ -3767,6 +3970,113 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"'  ORDER BY  TEMP
 
         #region PackingCategory
 
+        [HttpPost]
+        public ActionResult GetPCList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (SELECT * FROM HKP.PackingCategory) AS TEMP WHERE " + strkey + " order by sequence";
+
+
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetAutoPCSequence()
+        {
+            return Json(GetPCSequence(), JsonRequestBehavior.AllowGet);
+        }
+
+        private double GetPCSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM HKP.PackingCategory");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
+        [HttpPost,Authorize]
+        public JsonResult CreatePC(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from HKP.PackingCategory where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Code already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from HKP.PackingCategory where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+
+                con.OpenDataSetThroughAdapter("select * from HKP.PackingCategory where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("PackingCategory", out _Id);
+
+                    data["Id"] =_Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Sequence = GetPCSequence(), Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        public ActionResult DeletePC(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from HKP.PackingCategory where Id='" + id + "'");
+                con.CommitTransaction();
+                return Json(new { Error = false, Sequence = GetPCSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetPCCbo()
+        {
+            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM HKP.PackingCategory Where Active=1"), JsonRequestBehavior.AllowGet);
+        }
 
 
         #endregion

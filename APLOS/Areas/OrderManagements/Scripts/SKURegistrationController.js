@@ -1,6 +1,6 @@
 ﻿'use strict';
-SKURegistrationController.$inject = ['cboService', '$window', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function SKURegistrationController(cboService, $window, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+SKURegistrationController.$inject = ['cboService', '$window', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller'];
+function SKURegistrationController(cboService, $window, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
     $rootScope.title = "SKU Registration";
     $scope.Action = 'Save';
     $scope.ModelList = [];
@@ -10,6 +10,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     $scope.deleteUrl = $scope.path + 'DeletePRM/';
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'UserName', name: "User Name" }, { value: 'Remarks', name: "Remarks" }];
+    //  $controller('PackingCategoryController', { $scope: $scope, $http: $http });
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -19,41 +20,50 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         return $scope.tab === tabNum;
     };
 
-    $scope.getFiltersData = function () {
-        try {
+    $scope.tab2 = 1;
+    $scope.setTab2 = function (newTab) {
+        $scope.tab2 = newTab;
+    };
+    $scope.isSet2 = function (tabNum) {
+        return $scope.tab2 === tabNum;
+    };
 
-            $http({
-                method: 'GET',
-                url: 'OrderManagements/ProductionOrder/GetSalesOrderFilterData',
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.filters = response.data;
-                var columnList = [
-                    { field: 'POId', width: 20, headerText: "POId", type: "string" },
-                    { field: 'SOId', width: 20, headerText: "SOId", type: "string" },
-                    { field: 'PartyId', width: 20, headerText: "PartyId", type: "string" },
-                    { field: 'Customer', width: 20, headerText: "Customer", type: "string" }
-                ];
-                $("#filters").ejGrid({
-                    dataSource: $scope.filters,
-                    minWidth: 450, minHeight: 400,
-                    allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
-                    filterSettings: { filterType: "excel" },
-                    columns: columnList
-                });
 
-                var gridObj = $("#filters").data("ejGrid");
-                gridObj.refreshContent(true);
-                gridObj.refreshTemplate();
-                $("#filters").children('.e-pager.e-js.e-pager').hide();
-                $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
-                $("#filters").children('.e-gridcontent').hide();
-            });
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    }
-    $scope.getFiltersData();
+    //$scope.getFiltersData = function () {
+    //    try {
+
+    //        $http({
+    //            method: 'GET',
+    //            url: 'OrderManagements/ProductionOrder/GetSalesOrderFilterData',
+    //            dataType: 'JSON'
+    //        }).then(function successCallback(response) {
+    //            $scope.filters = response.data;
+    //            var columnList = [
+    //                { field: 'POId', width: 20, headerText: "POId", type: "string" },
+    //                { field: 'SOId', width: 20, headerText: "SOId", type: "string" },
+    //                { field: 'PartyId', width: 20, headerText: "PartyId", type: "string" },
+    //                { field: 'Customer', width: 20, headerText: "Customer", type: "string" }
+    //            ];
+    //            $("#filters").ejGrid({
+    //                dataSource: $scope.filters,
+    //                minWidth: 450, minHeight: 400,
+    //                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+    //                filterSettings: { filterType: "excel" },
+    //                columns: columnList
+    //            });
+
+    //            var gridObj = $("#filters").data("ejGrid");
+    //            gridObj.refreshContent(true);
+    //            gridObj.refreshTemplate();
+    //            $("#filters").children('.e-pager.e-js.e-pager').hide();
+    //            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
+    //            $("#filters").children('.e-gridcontent').hide();
+    //        });
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //}
+    //$scope.getFiltersData();
 
     $scope.ModelList = [];
     $scope.getData = function () {
@@ -75,6 +85,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         EmployeeId: null,
         TargetClosingDays: 0,
         Remarks: null,
+        StatusType: null,
         AddedBy: null,
         AddedDate: null,
         AddedFromIP: null,
@@ -140,7 +151,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields();
+                    $scope.ModelNew.Id = response.data.Data;
                     $scope.getData();
 
                 }
@@ -181,6 +192,8 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     function ClearFields() {
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.recipeMaterialListSelected = [];
+        $scope.packingCategoryList = [];
     }
 
     $scope.recipeMaterialFilterList = [
@@ -242,7 +255,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     $scope.recipeMaterialParameters.searchBy = "MaterialMasterName";
     $scope.recipeMaterialParameters.search = "";
     $scope.recipeMaterialPopUp = function () {
-        angular.element(document.querySelector('#recipeMaterialPopUp')).modal('show'); 
+        angular.element(document.querySelector('#recipeMaterialPopUp')).modal('show');
         $scope.serachSoMaterial();
 
     };
@@ -252,7 +265,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         showCaptionSummary: true
 
     }];
-    $scope.serachSoMaterial = function serachSoMaterial() {        
+    $scope.serachSoMaterial = function serachSoMaterial() {
         $http({
             method: 'GET',
             url: $scope.path + 'GetSRSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&packetRegistrationMasterId=" + $scope.ModelNew.Id
@@ -283,7 +296,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
             var groupid = "";
             for (var i = 0; i < $scope.recipeMaterialList.length; i++) {
                 if ($scope.recipeMaterialList[i].Checked == true) {
-                   
+
                     if (baseService.isUndefinedOrNull($scope.recipeMaterialList[i].ArticleId)
                         || $scope.recipeMaterialList[i].ArticleId == "") {
                         throw "Sales order items without product are not allowed";
@@ -354,7 +367,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
             if (baseService.arrayLength($scope.recipeMaterialListSelected) == 0) {
                 throw "Select Sales Order List.";
             }
-           
+
             $http({
                 method: 'POST',
                 url: 'OrderManagements/ProductionOrder/SavePacketRegistrationDetail',
@@ -383,6 +396,181 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
             url: $scope.path + 'GetPacketRegistrationDetailList?masterId=' + masterId
         }).then(function successCallback(response) {
             $scope.recipeMaterialListSelected = response.data;
+            $scope.GetPackingData();
         });
     }
+
+    $scope.message_confirmation = null;
+    $scope.removeSO = function (data) {
+        $scope.SOobj = data.data;
+        $scope.message_confirmation = 'Are you sure want to delete [ ' + $scope.SOobj.SalesOrderId + ' ]';
+        angular.element(document.querySelector('#confirmSODelPopUp')).modal('show');
+    };
+    $scope.DeleteSO= function () {
+        if (!baseService.isUndefinedOrNull($scope.SOobj.Id)) {
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/ProductionOrder/DeleteSO?id=' + $scope.SOobj.Id
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    getSavedSalesOrderData($scope.ModelNew.Id);
+                }
+            }, function () {
+                ShowResult(commonMessage.NetworkError, 'failure');
+            }).finally(function () {
+            });
+        }
+
+    };
+
+    $scope.packingTypeList = [];
+    $http({
+        method: 'GET',
+        url: 'OrderManagements/PackingType/GetCbo'
+    }).then(function successCallback(response) {
+        $scope.packingTypeList = response.data;
+    });
+
+    $scope.packingCategoryList = [];
+    $scope.GetPackingData = function () {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/ProductionOrder/GetPacketRegistrationTypeList?masterId=' + $scope.ModelNew.Id
+        }).then(function successCallback(response) {
+            $scope.packingCategoryList = response.data;
+        });
+    }
+
+    $scope.SavePackingCategory = function () {
+        try {
+            if ($scope.packingCategoryList.length > 0) {
+                var tempList = [];
+                for (var i = 0; i < $scope.packingCategoryList.length; i++) {
+                    if ($scope.packingCategoryList[i].Flag) {
+                        tempList.push($scope.packingCategoryList[i]);
+                    }
+                }
+                $http({
+                    method: 'POST',
+                    url: "OrderManagements/ProductionOrder/SavePackingCategory",
+                    data: { 'packCatlist': tempList, 'masterId': $scope.ModelNew.Id },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error == true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetPackingData();
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.data.Message, 'failure');
+                });
+
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.sqlsoId = null;
+    $scope.skuList = [];
+    $scope.GetPackingSKUData = function (typemasterId) {
+        $scope.idList = [];
+        for (var di = 0; di < $scope.recipeMaterialListSelected.length; di++) {
+            $scope.idList.push($scope.recipeMaterialListSelected[di]);
+        }
+
+        if ($scope.idList.length > 0) {
+            var uniqueSalesOrderId= removeDuplicates($scope.idList, 'SalesOrderId');
+            var wcsoId = "";
+            if (uniqueSalesOrderId.length > 0) {
+                wcsoId = "IN(";
+                wcsoId += Array.prototype.map.call(uniqueSalesOrderId, function (item) { return "'" + item.SalesOrderId + "'"; }).join(",") + ")";
+            }
+            $scope.sqlsoId = wcsoId;
+        }
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/ProductionOrder/GetPackingSKUData?soId=' + $scope.sqlsoId + '&packetRegistrationTypeId=' + typemasterId
+        }).then(function successCallback(response) {
+            $scope.skuList = response.data;
+        });
+    }
+
+    $scope.PRObj = {};
+    $scope.GetPacketRegistrationPOP = function (data) {
+        $scope.PRObj = data.data;
+        $scope.GetPackingSKUData($scope.PRObj.Id);
+        angular.element(document.querySelector('#PRPopUp')).modal('show');
+    }
+
+    $scope.SavePR = function () {
+        try {
+            if ($scope.skuList.length > 0) {
+                
+                $http({
+                    method: 'POST',
+                    url: "OrderManagements/ProductionOrder/SavePacketRegistration",
+                    data: { 'packregilist': $scope.skuList, 'masterId': $scope.PRObj.Id },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error == true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetPackingSKUData($scope.PRObj.Id);
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.data.Message, 'failure');
+                });
+
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.ClosePR = function () {
+        angular.element(document.querySelector('#PRPopUp')).modal('hide');
+    }
+
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
+    }
+
+    $scope.barcode = "";
+
+    $scope.barcodeKeyDown = function (event) {
+        if (event.key === "Enter") {
+            var barcode = $scope.barcode;
+            if (barcode) {
+
+                console.log("Barcode:", barcode);
+
+                $scope.processBarcode(barcode);
+
+                // Clear input
+                $scope.barcode = "";
+            }
+
+            event.preventDefault();
+        }
+    };
+
+    $scope.processBarcode = function (barcode) {
+
+        alert("Barcode: " + barcode);
+
+        // Call your API here
+    };
+
+
 }

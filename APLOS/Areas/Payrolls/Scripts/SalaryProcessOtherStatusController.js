@@ -5,11 +5,6 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
     $scope.Action = 'Save';
     $scope.path = 'payrolls/SalaryProcessOtherStatus/';
 
-
-
-
-
-
     $scope.monthList = [
         {
             Value: 1,
@@ -73,6 +68,23 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
             throw e;
         }
     }
+
+    $scope.CreateToDate = function () {
+        var date = new Date($scope.FromDate_sep);
+        var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+        var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        $scope.lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        $scope.lastDay = $filter('dateFiltering')(new Date(lastDay), 'dd-MM-yyyy');
+        $scope.ToDate_sep = $scope.lastDay;
+        //alert(lastDay);
+        // console.log($scope.lastDay);
+    }
+
+
+
+
+
+
     $scope.EmployeeList_sep = [];
     $scope.GetEmployee_sep = function () {
         try {
@@ -594,8 +606,54 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
     };
     ///separated
 
-
     $scope.Emp_sep_Process = function () {
+
+        try {
+            $scope.msg = "";
+
+            Check($scope.Description, "Description");
+            Check($scope.FromDate_sep, 'From Date');
+            Check($scope.ToDate_sep, 'To Date');
+
+            var eList = [];
+            var filtered = $("#GridEmpWise").data("ejGrid").getFilteredRecords();
+            if (angular.isUndefinedOrNull(filtered) || filtered.length == 0)
+                filtered = $scope.EmployeeList_sep;
+
+            eList = GetEmpList(filtered);
+
+            $scope.btnProcess = false;
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                data: {
+                    'FromDate': $scope.FromDate_sep, 'ToDate': $scope.ToDate_sep, 'pDescription': $scope.Description, 'eList': eList
+                },
+                contentType: "application/json charset=utf-8",
+                url: $scope.path + '/ProcessSalarySep'
+
+            }).then(function successCallback(response) {
+                $scope.btnProcess = true;
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $scope.msg = "Successfully Completed !!!";
+                    ShowResult(response.data.Message, "success");
+                }
+            }, function errorCallback(response) {
+                $scope.btnProcess = true;
+                ShowResult(response.status.Message, 'failure');
+            });//http
+        } catch (e) {
+            ShowResult(e, "Info");
+        }
+
+
+    };
+
+
+    $scope._Emp_sep_Process = function () {
         var eList = [];
         var filtered = $("#GridEmpWise").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0)
