@@ -4330,6 +4330,15 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"'  ORDER BY  TEMP
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetCartonSKUData(string soId, string cartonTypeId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetCartonSKUData(soId, cartonTypeId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
         #endregion
 
         #region PackingCategory

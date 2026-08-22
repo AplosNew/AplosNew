@@ -443,7 +443,7 @@ function CartonController(cboService, $window, commonMessage, $scope, $rootScope
 
     $scope.sqlsoId = null;
     $scope.skuList = [];
-    $scope.GetPackingSKUData = function (typemasterId) {
+    $scope.GetCartonSKUData = function (typemasterId) {
         $scope.idList = [];
         for (var di = 0; di < $scope.recipeMaterialListSelected.length; di++) {
             $scope.idList.push($scope.recipeMaterialListSelected[di]);
@@ -460,7 +460,7 @@ function CartonController(cboService, $window, commonMessage, $scope, $rootScope
         }
         $http({
             method: 'POST',
-            url: 'OrderManagements/ProductionOrder/GetPackingSKUData?soId=' + $scope.sqlsoId + '&CartonTypeId=' + typemasterId
+            url: 'OrderManagements/ProductionOrder/GetCartonSKUData?soId=' + $scope.sqlsoId + '&CartonTypeId=' + typemasterId
         }).then(function successCallback(response) {
             $scope.skuList = response.data;
         });
@@ -469,7 +469,7 @@ function CartonController(cboService, $window, commonMessage, $scope, $rootScope
     $scope.PRObj = {};
     $scope.GetCartonPOP = function (data) {
         $scope.PRObj = data.data;
-        $scope.GetPackingSKUData($scope.PRObj.Id);
+        $scope.GetCartonSKUData($scope.PRObj.Id);
         angular.element(document.querySelector('#PRPopUp')).modal('show');
     }
 
