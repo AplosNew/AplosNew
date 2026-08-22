@@ -354,7 +354,72 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
             ShowResult(e, 'failure');
         }
     }
+    //-----------------------------------
+    $scope.DailyHRAttdnReportList = [];
+    $scope.GetDailyAttdnReportData = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.WorkDate)) {
+                throw "Work Date is required.";
+            }
 
+            $scope.DailyHRAttdnReportList = [];
+           // $scope.filterComplete();
 
+            $http({
+                method: 'POST',
+                url: "Employees/EmployeeInFoReport/GetDailyAttdnReportData",
+                data: { 'date': $scope.WorkDate },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $scope.DailyHRAttdnReportList = response.data;
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+   
+    $scope.GetDailyAttdnReport = function () {
+        try {
+            var dataList = [];
+            var g = $("#GridAttdnEmp").data("ejGrid");
+            dataList = g.getFilteredRecords();
+
+            if (dataList.length == 0) {
+                dataList = $scope.DailyHRAttdnReportList;
+            }
+
+            if (dataList.length == 0) {
+                throw "First click on View button.";
+            }
+
+            $scope.fileName = "AttdnDailyReport.xlsx";
+
+            $http({
+                method: 'POST',
+                url: "Employees/EmployeeInFoReport/GetDailyReport",
+                data: { 'reportFileName': $scope.fileName, 'data': dataList, 'date': $scope.WorkDate },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
 }

@@ -1151,17 +1151,20 @@ Where SO.OrderStatusId NOT IN('Closed,Cancelled')";
         {
             try
             {
-                string sql = @"Select PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId SKU1Id,SC.CharacteristicsValueId SKU2Id,FCV.UserName SKUColor,SCV.UserName SKUSize,SUM(SC.Qty)NoOfPack 
-,PR.UnitPerPack ,PR.BarCode,PR.QRCode,PR.RFID,PR.Remark 
-From TRN.[SecondCharacteristics] SC
-LEFT JOIN [TRN].[FirstCharacteristics] FC ON FC.Id=SC.FirstCharacteristicsId
-LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id=FC.CharacteristicsValueId
-LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id=SC.CharacteristicsValueId
-left join TRN.ProductionOrderDetail D ON D.SalesOrderId=SC.SalesOrderId
-left join [dbo].[PacketRegistration] PR ON PR.SalesOrderId=SC.SalesOrderId
-Where SC.SalesOrderId " + soId + @" AND ISNULL(PR.PacketRegistrationTypeId,'"+ packetRegistrationTypeId + @"')='" + packetRegistrationTypeId + @"'
-Group By  PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName ,SCV.UserName,PR.UnitPerPack ,PR.BarCode,PR.QRCode,PR.RFID,PR.Remark 
-HAVING SUM(SC.Qty)<>0";            
+                string sql = @"SELECT PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId AS SKU1Id,SC.CharacteristicsValueId AS SKU2Id,FCV.UserName AS SKUColor,
+    SCV.UserName AS SKUSize,SUM(SC.Qty) AS NoOfPack,PR.UnitPerPack,PR.BarCode,PR.QRCode,PR.RFID,PR.Remark
+FROM TRN.SecondCharacteristics SC
+LEFT JOIN TRN.FirstCharacteristics FC ON FC.Id = SC.FirstCharacteristicsId
+LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = FC.CharacteristicsValueId
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = SC.CharacteristicsValueId
+LEFT JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId = SC.SalesOrderId
+LEFT JOIN dbo.PacketRegistration PR ON PR.SalesOrderId = SC.SalesOrderId
+    AND FC.CharacteristicsValueId = PR.SKU1Id
+    AND SC.CharacteristicsValueId = PR.SKU2Id
+WHERE SC.SalesOrderId "+ soId + @" AND ISNULL(PR.PacketRegistrationTypeId, '"+ packetRegistrationTypeId + @"') = '" + packetRegistrationTypeId + @"'
+GROUP BY PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName,
+    SCV.UserName,PR.UnitPerPack,PR.BarCode,PR.QRCode,PR.RFID,PR.Remark
+HAVING SUM(SC.Qty) <> 0";            
 
                 return _sqlRepository.GetDataCollection(sql);
             }

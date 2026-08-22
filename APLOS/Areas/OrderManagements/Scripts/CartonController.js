@@ -1,16 +1,15 @@
 ﻿'use strict';
-SKURegistrationController.$inject = ['cboService', '$window', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller'];
-function SKURegistrationController(cboService, $window, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
-    $rootScope.title = "SKU Registration";
+CartonController.$inject = ['cboService', '$window', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller'];
+function CartonController(cboService, $window, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
+    $rootScope.title = "Carton";
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'OrderManagements/ProductionOrder/';
-    $scope.getListUrl = $scope.path + 'GetPacketRegistrationMasterList';
-    $scope.saveUrl = $scope.path + 'CreatePacketRegistrationMaster';
-    $scope.deleteUrl = $scope.path + 'DeletePRM/';
+    $scope.getListUrl = $scope.path + 'GetCartonMasterList';
+    $scope.saveUrl = $scope.path + 'CreateCartonMaster';
+    $scope.deleteUrl = $scope.path + 'DeleteCarton/';
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'UserName', name: "User Name" }, { value: 'Remarks', name: "Remarks" }];
-    //  $controller('PackingCategoryController', { $scope: $scope, $http: $http });
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -29,41 +28,6 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     };
 
 
-    //$scope.getFiltersData = function () {
-    //    try {
-
-    //        $http({
-    //            method: 'GET',
-    //            url: 'OrderManagements/ProductionOrder/GetSalesOrderFilterData',
-    //            dataType: 'JSON'
-    //        }).then(function successCallback(response) {
-    //            $scope.filters = response.data;
-    //            var columnList = [
-    //                { field: 'POId', width: 20, headerText: "POId", type: "string" },
-    //                { field: 'SOId', width: 20, headerText: "SOId", type: "string" },
-    //                { field: 'PartyId', width: 20, headerText: "PartyId", type: "string" },
-    //                { field: 'Customer', width: 20, headerText: "Customer", type: "string" }
-    //            ];
-    //            $("#filters").ejGrid({
-    //                dataSource: $scope.filters,
-    //                minWidth: 450, minHeight: 400,
-    //                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
-    //                filterSettings: { filterType: "excel" },
-    //                columns: columnList
-    //            });
-
-    //            var gridObj = $("#filters").data("ejGrid");
-    //            gridObj.refreshContent(true);
-    //            gridObj.refreshTemplate();
-    //            $("#filters").children('.e-pager.e-js.e-pager').hide();
-    //            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
-    //            $("#filters").children('.e-gridcontent').hide();
-    //        });
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //}
-    //$scope.getFiltersData();
 
     $scope.ModelList = [];
     $scope.getData = function () {
@@ -84,7 +48,6 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         UserName: null,
         EmployeeId: null,
         TargetClosingDays: 0,
-        PlanPercentage:0,
         Remarks: null,
         StatusType: null,
         AddedBy: null,
@@ -269,7 +232,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     $scope.serachSoMaterial = function serachSoMaterial() {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetSRSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&packetRegistrationMasterId=" + $scope.ModelNew.Id
+            url: $scope.path + 'GetSRSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&CartonMasterId=" + $scope.ModelNew.Id
         }).then(function successCallback(response) {
 
             for (var i = 0; i < response.data.length; i++) {
@@ -371,8 +334,8 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
             $http({
                 method: 'POST',
-                url: 'OrderManagements/ProductionOrder/SavePacketRegistrationDetail',
-                data: { 'details': $scope.recipeMaterialListSelected, 'packetRegistrationMasterId': $scope.ModelNew.Id },
+                url: 'OrderManagements/ProductionOrder/SaveCartonDetail',
+                data: { 'details': $scope.recipeMaterialListSelected, 'CartonMasterId': $scope.ModelNew.Id },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -394,10 +357,10 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     function getSavedSalesOrderData(masterId) {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetPacketRegistrationDetailList?masterId=' + masterId
+            url: $scope.path + 'GetCartonDetailList?masterId=' + masterId
         }).then(function successCallback(response) {
             $scope.recipeMaterialListSelected = response.data;
-            $scope.GetPackingData();
+            $scope.GetCartonData();
         });
     }
 
@@ -411,7 +374,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         if (!baseService.isUndefinedOrNull($scope.SOobj.Id)) {
             $http({
                 method: 'POST',
-                url: 'OrderManagements/ProductionOrder/DeleteSO?id=' + $scope.SOobj.Id
+                url: 'OrderManagements/ProductionOrder/DeleteCartonSO?id=' + $scope.SOobj.Id
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -437,16 +400,16 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     });
 
     $scope.packingCategoryList = [];
-    $scope.GetPackingData = function () {
+    $scope.GetCartonData = function () {
         $http({
             method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetPacketRegistrationTypeList?masterId=' + $scope.ModelNew.Id
+            url: 'OrderManagements/ProductionOrder/GetCartonCategoryTypeList?masterId=' + $scope.ModelNew.Id
         }).then(function successCallback(response) {
             $scope.packingCategoryList = response.data;
         });
     }
 
-    $scope.SavePackingCategory = function () {
+    $scope.SaveCartonCategory = function () {
         try {
             if ($scope.packingCategoryList.length > 0) {
                 var tempList = [];
@@ -457,7 +420,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                 }
                 $http({
                     method: 'POST',
-                    url: "OrderManagements/ProductionOrder/SavePackingCategory",
+                    url: "OrderManagements/ProductionOrder/SaveCartonCategory",
                     data: { 'packCatlist': tempList, 'masterId': $scope.ModelNew.Id },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
@@ -466,7 +429,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.GetPackingData();
+                        $scope.GetCartonData();
                     }
                 }, function errorCallback(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -497,14 +460,14 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         }
         $http({
             method: 'POST',
-            url: 'OrderManagements/ProductionOrder/GetPackingSKUData?soId=' + $scope.sqlsoId + '&packetRegistrationTypeId=' + typemasterId
+            url: 'OrderManagements/ProductionOrder/GetPackingSKUData?soId=' + $scope.sqlsoId + '&CartonTypeId=' + typemasterId
         }).then(function successCallback(response) {
             $scope.skuList = response.data;
         });
     }
 
     $scope.PRObj = {};
-    $scope.GetPacketRegistrationPOP = function (data) {
+    $scope.GetCartonPOP = function (data) {
         $scope.PRObj = data.data;
         $scope.GetPackingSKUData($scope.PRObj.Id);
         angular.element(document.querySelector('#PRPopUp')).modal('show');
@@ -516,7 +479,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                 
                 $http({
                     method: 'POST',
-                    url: "OrderManagements/ProductionOrder/SavePacketRegistration",
+                    url: "OrderManagements/ProductionOrder/SaveCarton",
                     data: { 'packregilist': $scope.skuList, 'masterId': $scope.PRObj.Id },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {

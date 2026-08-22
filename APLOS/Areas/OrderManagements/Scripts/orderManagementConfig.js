@@ -331,5 +331,10 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             controller: 'PackingBookingController'
         })
 
+        .when('/carton', {
+            templateUrl: 'OrderManagements/ProductionOrder/carton',
+            controller: 'CartonController'
+        })
+
         ;
 }
