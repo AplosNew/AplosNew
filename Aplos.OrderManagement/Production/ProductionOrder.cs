@@ -1163,7 +1163,7 @@ LEFT JOIN dbo.PacketRegistrationType PT ON PT.Id='" + packetRegistrationTypeId +
 LEFT JOIN dbo.PacketRegistrationMaster CM ON CM.id=PT.PacketRegistrationMasterId
 WHERE SC.SalesOrderId " + soId + @" AND ISNULL(PR.PacketRegistrationTypeId, '"+ packetRegistrationTypeId + @"') = '" + packetRegistrationTypeId + @"'
 GROUP BY PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName,
-    SCV.UserName,PR.UnitPerPack,PR.BarCode,PR.QRCode,PR.RFID,PR.Remark
+    SCV.UserName,PR.UnitPerPack,PR.BarCode,PR.QRCode,PR.RFID,PR.Remark,CM.PlanPercentage
 HAVING SUM(SC.Qty) <> 0";            
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -1189,7 +1189,7 @@ LEFT JOIN CartonType CT ON CT.Id='" + cartonTypeId + @"'
 LEFT JOIN CartonMaster CM ON CM.Id=CT.CartonMasterId
 WHERE SC.SalesOrderId " + soId + @" AND ISNULL(PR.CartonTypeId, '" + cartonTypeId + @"') = '" + cartonTypeId + @"'
 GROUP BY PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName,
-    SCV.UserName,PR.UnitPerPack,PR.BarCode,PR.QRCode,PR.RFID,PR.Remark
+    SCV.UserName,PR.UnitPerPack,PR.BarCode,PR.QRCode,PR.RFID,PR.Remark,CM.PlanPercentage
 HAVING SUM(SC.Qty) <> 0";
 
                 return _sqlRepository.GetDataCollection(sql);

@@ -232,7 +232,7 @@ function CartonController(cboService, $window, commonMessage, $scope, $rootScope
     $scope.serachSoMaterial = function serachSoMaterial() {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetSRSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&CartonMasterId=" + $scope.ModelNew.Id
+            url: $scope.path + 'GetCartonSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&CartonMasterId=" + $scope.ModelNew.Id
         }).then(function successCallback(response) {
 
             for (var i = 0; i < response.data.length; i++) {
@@ -479,7 +479,7 @@ function CartonController(cboService, $window, commonMessage, $scope, $rootScope
                 
                 $http({
                     method: 'POST',
-                    url: "OrderManagements/ProductionOrder/SaveCarton",
+                    url: "OrderManagements/ProductionOrder/SaveCartonRegister",
                     data: { 'packregilist': $scope.skuList, 'masterId': $scope.PRObj.Id },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
@@ -488,7 +488,7 @@ function CartonController(cboService, $window, commonMessage, $scope, $rootScope
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.GetPackingSKUData($scope.PRObj.Id);
+                        $scope.GetCartonSKUData($scope.PRObj.Id);
                     }
                 }, function errorCallback(response) {
                     ShowResult(response.data.Message, 'failure');
