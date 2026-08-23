@@ -630,6 +630,86 @@ namespace Library.Service.OrderManagements
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.OrderManagement.ToString()));
             }
         }
+
+        public IEnumerable<object> GetCartonDetailList(string masterId)
+        {
+            try
+            {
+
+                var _sql = @"SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN
+                                ,MO.Type,isnull(moi.Consignment,0) AS Consignment
+                                ,CASE WHEN ISNULL(eout.Id,'')<>'' OR ISNULL(TOUT.Id,'')<>'' THEN CONCAT(POWN.UserName,'(',EOWN.UserName,')') ELSE '' END AS OrderOwner
+
+	                            ,POD.Id, POD.CartonMasterId, MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId
+	                            , SO.Id AS SalesOrderId,SO.Id SONo, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping
+	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
+	                            , MOI.ArticleId, ART.StandardName AS ArticleName,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,MO.BuyerReferenceNo AS BuyerOrderNo,MO.OwnReferenceNo AS OwnOrderNo
+	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
+	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
+                                , LSD = REPLACE(CONVERT(CHAR(11), SO.LSD, 106),' ','-')
+	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
+	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
+	                            , SO.Qty, SO.CM, SO.Rate,ISNULL(SO.Description,'')Description
+	                            , Flag = CAST(0 AS BIT),ISNULL(SO.DestinationDescription,'')DestinationDescription
+								--,ISNULL(fc.CharacteristicsValueId,'') FirstCharacteristicsValueId,ISNULL(sc.CharacteristicsValueId,'') SecondCharacteristicsValueId
+								--,ISNULL(tc.CharacteristicsValueId,'') ThirdCharacteristicsValueId,
+                              -- ISNULL(c1.UserName,'') AS FirstCharacteristics,ISNULL(cv1.UserName,'') AS FirstCharacteristicsValue,
+                                --ISNULL(c2.UserName,'') AS SecondCharacteristics,ISNULL(cv2.UserName,'') AS SecondCharacteristicsValue,
+                                --ISNULL(c3.UserName,'') AS ThirdCharacteristics,ISNULL(cv3.UserName,'') AS ThirdCharacteristicsValue
+                       FROM 
+                       [TRN].[SalesOrder] AS SO 
+                       JOIN dbo.CartonDetail AS POD ON pod.SalesOrderId=so.Id
+                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
+                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+					   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
+					   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
+                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
+					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
+                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
+                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
+                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
+					   --LEFT JOIN trn.FirstCharacteristics AS fc ON fc.SalesOrderId=so.Id
+
+
+							LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+							LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
+							LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
+							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
+							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
+                       --LEFT JOIN trn.SecondCharacteristics AS sc ON sc.FirstCharacteristicsId=fc.Id AND sc.SalesOrderId=so.Id
+                       --LEFT JOIN trn.ThirdCharacteristics AS tc ON tc.SecondCharacteristicsId=sc.Id AND tc.SalesOrderId=so.Id
+
+                       --LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=fc.CharacteristicsValueId
+                       --LEFT JOIN hkp.Characteristics AS c1 ON c1.Id=cv1.CharacteristicsId
+
+                       --LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=sc.CharacteristicsValueId
+                      -- LEFT JOIN hkp.Characteristics AS c2 ON c2.Id=cv2.CharacteristicsId
+
+                       --LEFT JOIN hkp.CharacteristicsValue AS cv3 ON cv3.Id=tc.CharacteristicsValueId
+                       --LEFT JOIN hkp.Characteristics AS c3 ON c3.Id=cv3.CharacteristicsId
+
+                      WHERE POD.CartonMasterId = '" + masterId + "'" +
+                          "ORDER BY MOI.MATERIALMASTERID,MOI.ArticleID";
+
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.OrderManagement.ToString()));
+            }
+        }
+
         private void InsertUpdateOrDeleteGraph(string masterId, IEnumerable<ProductionOrderDetail> entities)
         {
             try

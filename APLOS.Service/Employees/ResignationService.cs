@@ -1691,7 +1691,7 @@ namespace Library.Service.Employees
 
 
                                                 WHERE ISNULL(r.id,'') <> ''
-											    AND ISNULL(r.ApprovalStatus,'') = 'Pending' AND E.PlantId='" + PlantId + @"'
+											    AND ISNULL(r.ApprovalStatus,'') = 'Pending' AND EMP.PlantId='" + PlantId + @"'
 											    " + str;
                 return _sqlRepository.GetDataCollection(strSql);
             }
