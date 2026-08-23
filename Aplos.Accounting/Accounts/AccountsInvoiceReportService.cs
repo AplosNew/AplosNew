@@ -4907,7 +4907,7 @@ UNION ALL
 	LEFT JOIN (SELECT CashMasterId,VoucherId FROM TRN.VoucherDetail where CrAmount>0 and CashMasterId='" + cashMasterId + @"' )XVD ON XVD.VoucherId=V.Id
 
     WHERE V.PlantId = '" + plantId + @"'
-        AND AG.AccountTypeId IN ('Expense','Asset')
+       -- AND AG.AccountTypeId IN ('Expense','Asset')
         AND VD.DrAmount > 0
         AND V.PostingDate < '"+ from + @"'
         AND VD.CashMasterId IS NULL
