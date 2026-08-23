@@ -3151,7 +3151,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
             return jsondata;
         }
 
-        
+
 
         [HttpPost, Authorize]
         public ActionResult GetSavedSKUData(string poId)
@@ -3777,7 +3777,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"'  ORDER BY  TEMP
         {
             try
             {
-                string sql = @"DECLARE @PacketRegistrationMasterId varchar(30) = '"+masterId+@"';
+                string sql = @"DECLARE @PacketRegistrationMasterId varchar(30) = '" + masterId + @"';
 WITH PackingCategory AS
 (
     SELECT 1 AS SortOrder, 'Individual' AS PackingCategory
@@ -3909,6 +3909,7 @@ ORDER BY P.SortOrder;";
                         {
                             dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
                         }
+                        dr["LineItemReference"] = packregilist[i]["LineItemReference"];
                         dr["BarCode"] = packregilist[i]["BarCode"];
                         dr["QRCode"] = packregilist[i]["QRCode"];
                         dr["RFID"] = packregilist[i]["RFID"];
@@ -3933,7 +3934,7 @@ ORDER BY P.SortOrder;";
                         dr["BarCode"] = packregilist[i]["BarCode"];
                         dr["QRCode"] = packregilist[i]["QRCode"];
                         dr["RFID"] = packregilist[i]["RFID"];
-
+                        dr["LineItemReference"] = packregilist[i]["LineItemReference"];
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
@@ -3963,12 +3964,64 @@ ORDER BY P.SortOrder;";
             return jsondata;
         }
 
+        [HttpPost, Authorize]
+        public JsonResult GenerateCarton(Dictionary<string, object> data)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dspackCat = null;
+                string sql = "SELECT * FROM [dbo].[CartonGeneration] where PacketRegistrationId='" + data["PacketRegistrationId"] + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
 
+                int totalCartons = Convert.ToInt32(data["NoOfPack"]);
+                int existingCartons = dspackCat.Tables[0].AsEnumerable().Count(r => r["PacketRegistrationId"].ToString() == data["PacketRegistrationId"].ToString());
+
+                string SystemID = "";
+
+                if (existingCartons < totalCartons)
+                {
+                    if (SystemID == "")
+                    {
+                        bplib.clsGenID id = new bplib.clsGenID();
+                        id.GenID(System.DateTime.Now.ToShortDateString(), "CartonGeneration", out SystemID);
+                    }
+
+                    for (int i = existingCartons; i < totalCartons; i++)
+                    {
+                        DataRow dr = dspackCat.Tables[0].NewRow();
+
+                        dr["Id"] = SystemID + "-" + (i + 1);
+                        dr["PacketRegistrationId"] = data["PacketRegistrationId"];
+                        dr["NoOfPcs"] = data["NoOfPcs"];
+                        dr["CartonNo"] = i + 1;
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+                        dspackCat.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dspackCat);
+
+                return Json(new { Error = false, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
         #endregion
 
-        
 
-        
+
+
 
     }
 

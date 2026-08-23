@@ -585,4 +585,41 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     };
 
 
+    $scope.GenerateCarton = function (data) {
+        try {
+            var obj = {
+                Id: null,
+                PacketRegistrationId: data.data.Id,
+                NoOfPcs: data.data.UnitPerPack,
+                NoOfPack: data.data.NoOfPack,
+                CartonNo: 0,
+                AddedBy: null,
+                AddedDate: null,
+                AddedFromIP: null,
+                UpdatedBy: null,
+                UpdatedDate: null,
+                UpdatedFromIP: null
+            }
+            $http({
+                method: 'POST',
+                url: "OrderManagements/ProductionOrder/GenerateCarton",
+                data: { 'data': obj },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+
 }
