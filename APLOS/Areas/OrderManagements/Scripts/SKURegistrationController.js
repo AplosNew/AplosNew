@@ -621,5 +621,18 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         }
     }
 
+    $scope.CartonList = [];
+    $scope.GetCartonList = function (data) {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/ProductionOrder/GetCartonList?masterId=' + data.data.Id
+        }).then(function successCallback(response) {
+            $scope.CartonList = response.data;
+            angular.element(document.querySelector('#CartonPopUp')).modal('show');
+        });
+    }
+    $scope.CloseCG = function () {
+        angular.element(document.querySelector('#CartonPopUp')).modal('hide');
+    }
 
 }

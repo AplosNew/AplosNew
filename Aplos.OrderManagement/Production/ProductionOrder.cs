@@ -1176,6 +1176,20 @@ HAVING SUM(SC.Qty) <> 0;";
             catch (Exception ex) { throw ex; }
         }
 
+
+        public IEnumerable<object> GetCartonList(string masterId)
+        {
+            try
+            {
+                string sql = @"Select * from CartonGeneration Where PacketRegistrationId='" + masterId + "' Order By CAST(CartonNo as int)";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 
 

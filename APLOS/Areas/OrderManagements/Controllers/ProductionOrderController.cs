@@ -3965,6 +3965,15 @@ ORDER BY P.SortOrder;";
         }
 
         [HttpPost, Authorize]
+        public ActionResult GetCartonList(string masterId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetCartonList(masterId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
         public JsonResult GenerateCarton(Dictionary<string, object> data)
         {
             try
