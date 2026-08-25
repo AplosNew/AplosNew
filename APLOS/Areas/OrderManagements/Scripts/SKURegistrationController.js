@@ -85,6 +85,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         EmployeeId: null,
         TargetClosingDays: 0,
         PlanPercentage: 0,
+        LineItemReference: null,
         Remarks: null,
         StatusType: null,
         AddedBy: null,
@@ -634,5 +635,58 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     $scope.CloseCG = function () {
         angular.element(document.querySelector('#CartonPopUp')).modal('hide');
     }
+
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.CartonReportExcel = function () {
+        var dataListUnDisbursed = [];
+        var gUnDisbursed = $("#GridC").data("ejGrid");
+        dataListUnDisbursed = gUnDisbursed.getFilteredRecords();
+
+        if (dataListUnDisbursed.length == 0) {
+            dataListUnDisbursed = $scope.CartonList;
+        }
+        $scope.fileName = 'CartonList';
+        $http({
+            method: "POST",
+            url: $scope.exportgriddataUrl,
+            data: {
+                'data': dataListUnDisbursed,
+                'reportFileName': $scope.fileName
+            },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+    $scope.generateQRCode = function () {
+
+        //var packetRegistrationTypeId =
+        //    $scope.PacketRegistrationTypeId;
+
+        //if (!packetRegistrationTypeId) {
+        //    alert("Packet Registration Type is required.");
+        //    return;
+        //}
+
+        //var url =
+        //    '/YourController/GenerateQRCode' +
+        //    '?packetRegistrationTypeId=' +
+        //    encodeURIComponent(packetRegistrationTypeId);
+
+        var url ='OrderManagements/ProductionOrder/GetQRCode';
+
+        window.open(url, '_blank');
+    };
 
 }

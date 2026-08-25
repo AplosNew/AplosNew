@@ -27,7 +27,7 @@
                      e-allowselection="false" e-filtersettings-filterType="excel" e-allowscrolling="true">
                     <div e-columns>
                         <div e-column e-type="string" e-template="#ShowActionButtonsassigned" e-headertext="Remarks" e-width="30px"></div>
-                        <div e-column e-type="string" e-template="#cl" e-headertext="Criticality Level" e-width="100"></div>
+                        <div e-column e-type="string" e-template="#crl" e-headertext="Criticality Level" e-width="100"></div>
                         <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="80" e-Visible="false"></div>
                         <div e-column e-type="string" e-field="SalesOrderId" e-headertext="SO No" e-width="80"></div>
                         <div e-column e-type="date" e-field="Date" e-format="{0:dd-MMM-yyyy}" e-headertext="Date" e-width="80"></div>
@@ -80,10 +80,27 @@
             </div>
 
             <script type="text/template" id="cl">
-                <input type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.CriticalityLevelList" e-value="data.CriticalityLevel" e-width="100%" />
+                @*<input type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.CriticalityLevelList" e-value="data.CriticalityLevel" e-width="100%" />*@
+                @*<div class="select-style">
+                <select name="CriticalLevel" class="form-control" ng-model="data.CriticalityLevel" ng-options="item.Value as item.Text for item in $parent.CriticalityLevelList" tabindex="4">
+                    <option value=""></option>
+                </select>
+            </div>*@
+                <div class="select-style">
+                    <select name="CriticalLevel" class="form-control" ng-model="data.CriticalityLevel" tabindex="1">
+                        <option value="">--Select--</option>
+                        <option value="Critical">Critical</option>
+                        <option value="Important">Important</option>
+                        <option value="Normal">Normal</option>
+                    </select>
+                </div>
+            </script>
+            <script type="text/template" id="crl">
+                <input type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.SOCriticalityLevelList" e-value="data.CriticalityLevel" e-width="100%" />
             </script>
             <script type="text/template" id="templatestatus">
                 <input type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.StatusList" e-value="data.Status" e-width="100%" />
+
             </script>
 
             <script type="text/ng-template" id="ShowActionButtonsassigned">

@@ -3718,14 +3718,10 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"'  ORDER BY  TEMP
                     dsSO.Tables[0].DefaultView.RowFilter = "SalesOrderId='" + details[i]["SalesOrderId"] + "'";
                     if (dsSO.Tables[0].DefaultView.Count == 0)
                     {
-                        if (SystemID == "")
-                        {
-                            bplib.clsGenID id = new bplib.clsGenID();
-                            id.GenID(System.DateTime.Now.ToShortDateString(), "PacketRegistrationDetail", out SystemID);
-                        }
+                       
                         DataRow dr = dsSO.Tables[0].NewRow();
 
-                        dr["Id"] = SystemID + "-" + (i + 1).ToString();
+                        dr["Id"] = packetRegistrationMasterId + "-" + (i + 1).ToString();
                         dr["PacketRegistrationMasterId"] = packetRegistrationMasterId;
                         dr["SalesOrderId"] = details[i]["SalesOrderId"];
 
@@ -3816,24 +3812,18 @@ ORDER BY P.SortOrder;";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.DAL.ConManager objCon;
                 DataSet dspackCat = null;
-                string sql = "SELECT * FROM [dbo].[PacketRegistrationType] where PacketRegistrationMasterId=" + masterId + "";
+                string sql = "SELECT * FROM [dbo].[PacketRegistrationType] where PacketRegistrationMasterId='" + masterId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
 
-                string SystemID = "";
                 for (int i = 0; i < packCatlist.Count; i++)
                 {
                     dspackCat.Tables[0].DefaultView.RowFilter = "Id='" + packCatlist[i]["Id"] + "'";
                     if (dspackCat.Tables[0].DefaultView.Count == 0)
                     {
-                        if (SystemID == "")
-                        {
-                            bplib.clsGenID id = new bplib.clsGenID();
-                            id.GenID(System.DateTime.Now.ToShortDateString(), "PacketRegistrationType", out SystemID);
-                        }
                         DataRow dr = dspackCat.Tables[0].NewRow();
 
-                        dr["Id"] = SystemID + "-" + (i + 1).ToString();
+                        dr["Id"] = masterId + "-" + (i + 1).ToString();
                         dr["PacketRegistrationMasterId"] = masterId;
                         dr["PackingTypeId"] = packCatlist[i]["PackingTypeId"];
                         dr["PackingCategory"] = packCatlist[i]["PackingCategory"];
@@ -3861,7 +3851,6 @@ ORDER BY P.SortOrder;";
                     }
                 }
 
-
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dspackCat);
                 return Json(new { Error = false, Message = AplosMessage.Success });
@@ -3885,20 +3874,14 @@ ORDER BY P.SortOrder;";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
 
-                string SystemID = "";
                 for (int i = 0; i < packregilist.Count; i++)
                 {
                     dspackCat.Tables[0].DefaultView.RowFilter = "Id='" + packregilist[i]["Id"] + "'";
                     if (dspackCat.Tables[0].DefaultView.Count == 0)
                     {
-                        if (SystemID == "")
-                        {
-                            bplib.clsGenID id = new bplib.clsGenID();
-                            id.GenID(System.DateTime.Now.ToShortDateString(), "PacketRegistration", out SystemID);
-                        }
                         DataRow dr = dspackCat.Tables[0].NewRow();
 
-                        dr["Id"] = SystemID + "-" + (i + 1).ToString();
+                        dr["Id"] = masterId + "-" + (i + 1).ToString();
                         dr["PacketRegistrationTypeId"] = masterId;
                         dr["SalesOrderId"] = packregilist[i]["SalesOrderId"];
                         dr["SKU1Id"] = packregilist[i]["SKU1Id"];
@@ -3942,7 +3925,6 @@ ORDER BY P.SortOrder;";
                         dr.EndEdit();
                     }
                 }
-
 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dspackCat);
@@ -3988,21 +3970,13 @@ ORDER BY P.SortOrder;";
                 int totalCartons = Convert.ToInt32(data["NoOfPack"]);
                 int existingCartons = dspackCat.Tables[0].AsEnumerable().Count(r => r["PacketRegistrationId"].ToString() == data["PacketRegistrationId"].ToString());
 
-                string SystemID = "";
-
                 if (existingCartons < totalCartons)
                 {
-                    if (SystemID == "")
-                    {
-                        bplib.clsGenID id = new bplib.clsGenID();
-                        id.GenID(System.DateTime.Now.ToShortDateString(), "CartonGeneration", out SystemID);
-                    }
-
                     for (int i = existingCartons; i < totalCartons; i++)
                     {
                         DataRow dr = dspackCat.Tables[0].NewRow();
 
-                        dr["Id"] = SystemID + "-" + (i + 1);
+                        dr["Id"] = data["PacketRegistrationId"] + "-" + (i + 1);
                         dr["PacketRegistrationId"] = data["PacketRegistrationId"];
                         dr["NoOfPcs"] = data["NoOfPcs"];
                         dr["CartonNo"] = i + 1;

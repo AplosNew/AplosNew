@@ -27,7 +27,7 @@ function OrderControlController(commonMessage, $scope, $rootScope, baseService, 
             $scope.controlTypeList = response.data;
         });
 
-    $scope.CriticalityLevelList = [
+    $scope.SOCriticalityLevelList = [
         { Value: "Critical", Text: "Critical" },
         { Value: "Important", Text: "Important" },
         { Value: "Normal", Text: "Normal" }
