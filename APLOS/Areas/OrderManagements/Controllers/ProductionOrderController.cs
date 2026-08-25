@@ -98,10 +98,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
 
-        public ActionResult Carton()
-        {
-            return View();
-        }
 
         #endregion
 
@@ -3155,14 +3151,6 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
             return jsondata;
         }
 
-        [HttpPost, Authorize]
-        public ActionResult GetPackingSKUData(string soId, string packetRegistrationTypeId)
-        {
-            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
-            var jsondata = Json(order.GetPackingSKUData(soId, packetRegistrationTypeId), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
-        }
 
 
         [HttpPost, Authorize]
@@ -3564,14 +3552,8 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId) AS TEMP WHERE " 
                 con.OpenDataSetThroughAdapter("select * from PacketRegistrationMaster where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("UserName already exists!!!");
-
-
                 con.OpenDataSetThroughAdapter("select * from PacketRegistrationMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
                 string _Id = "";
-
-
-
 
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
@@ -3589,19 +3571,13 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId) AS TEMP WHERE " 
                 }
                 #endregion data update
 
-
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-
-
                 return Json(new { Error = false, Data = _Id, Message = AplosMessage.Success });
-
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message });
-
             }
         }
 
@@ -3724,105 +3700,6 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"'  ORDER BY  TEMP
         }
 
 
-        [Authorize, HttpGet]
-        public ActionResult GetCartonSalesOrderListSearch(string column, string value, string CartonMasterId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-
-            string activeStatus = "";
-            string plantSql = @"select * from scs.PlantConfig where plantid='" + identity.PlantId + "'";
-            DataTable dtPlantConfig = _sqlRepository.GetDataTable(plantSql);
-            if (dtPlantConfig.Rows.Count > 0)
-                if (bplib.clsWebLib.GetBoolData(dtPlantConfig.Rows[0]["IsProductionOrderCreatedAfterConfirmationOfSO"].ToString()))
-                    activeStatus = " AND isnull(SO.IsConfirm,0)=1 ";
-
-
-            string sql = @"SELECT 
-                             MO.Type,isnull(moi.Consignment,0) AS Consignment,
-                             CASE WHEN ISNULL(eout.Id,'')<>'' OR ISNULL(TOUT.Id,'')<>'' THEN CONCAT(POWN.UserName,'(',EOWN.UserName,')') ELSE '' END AS OrderOwner
-                            ,TEMP.* FROM (SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,null AS Id,null AS CartonMasterId
-	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
-	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping 
-	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
-	                            , MOI.ArticleId, ART.StandardName AS ArticleName
-	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
-	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
-	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
-	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
-	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
-	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription
-                       FROM [TRN].[SalesOrder] AS SO 
-                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
-                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
-                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
-					   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
-					   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
-                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
-                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
-					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
-                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
-                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
-                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
-                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
-                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-                       LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
-
-                       WHERE   
-                       (
-                            --if there is no jobwork, i can create my own production order
-                       	    (ISNULL(moi.JobWorkType,'')='' AND MO.PlantId='" + identity.PlantId + @"' )
-                                OR 
-                       	    (ISNULL(moi.JobWorkType,'')<>'' AND EOUT.PlantId='" + identity.PlantId + @"' )
-                       )
-                       AND (OS.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' " + activeStatus + @" and  SO.Id not IN (SELECT DISTINCT SalesOrderId FROM dbo.CartonDetail)) AND MOI.ArticleId<>''
-                        
-						UNION
-						
-						SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,POD.Id,POD.CartonMasterId
-	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
-	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping
-	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
-	                            , MOI.ArticleId, ART.StandardName AS ArticleName
-	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
-	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
-	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
-	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
-	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
-	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription
-                       FROM [TRN].[SalesOrder] AS SO 
-                        left outer join dbo.CartonDetail POD on POD.SalesOrderId=SO.Id and POD.CartonMasterId='" + CartonMasterId + @"'
-                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
-                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
-                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
-					   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
-					   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
-                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
-                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
-					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
-                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
-                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
-                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
-                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
-                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-                       WHERE  SO.Id IN (SELECT DISTINCT SalesOrderId FROM dbo.CartonDetail WHERE CartonMasterId='" + CartonMasterId + @"')						
-						) AS TEMP 
-                            LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON TEMP.MasterOrderItemId=MOI.Id
-                            LEFT JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
-							LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
-							LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
-							LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
-							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
-							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
-
-WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"'  ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEMP.ArticleId";
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-
         [HttpPost, Authorize]
         public JsonResult SavePacketRegistrationDetail(List<Dictionary<string, object>> details, string packetRegistrationMasterId)
         {
@@ -3900,7 +3777,8 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"'  ORDER BY  TEMP
         {
             try
             {
-                string sql = @"WITH PackingCategory AS
+                string sql = @"DECLARE @PacketRegistrationMasterId varchar(30) = '" + masterId + @"';
+WITH PackingCategory AS
 (
     SELECT 1 AS SortOrder, 'Individual' AS PackingCategory
     UNION ALL
@@ -3911,16 +3789,15 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"'  ORDER BY  TEMP
     SELECT 4, 'CartonPack'
 )
 SELECT
-Flag=CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),
-    P.PackingCategory,D.Id,D.PacketRegistrationMasterId,D.PackingTypeId,NoOfUnitPerPack =CASE WHEN D.Id IS NULL AND P.PackingCategory = 'Individual' THEN 1 ELSE D.NoOfUnitPerPack END,
-    NoOfPack =(ISNULL(D.NoOfPack, SO.Qty) * CM.PlanPercentage / 100) + ISNULL(D.NoOfPack, SO.Qty),D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP
+    Flag = CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),P.PackingCategory,D.Id,D.PacketRegistrationMasterId,D.PackingTypeId,
+    NoOfUnitPerPack =CASE WHEN D.Id IS NULL AND P.PackingCategory = 'Individual' THEN 1 ELSE D.NoOfUnitPerPack END,
+    NoOfPack =(SO.Qty * CM.PlanPercentage / 100) + SO.Qty,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP
 FROM PackingCategory P
-LEFT JOIN PacketRegistrationType D ON D.PackingCategory = P.PackingCategory
-LEFT JOIN PacketRegistrationDetail PD ON PD.PacketRegistrationMasterId='" + masterId + @"'
-LEFT JOIN PacketRegistrationMaster CM ON CM.Id=PD.PacketRegistrationMasterId
-LEFT JOIN TRN.SalesOrder SO ON SO.Id=PD.SalesOrderId
-Where ISNULL(D.PacketRegistrationMasterId,'" + masterId + @"')='" + masterId + @"'
-ORDER BY P.SortOrder";
+LEFT JOIN PacketRegistrationType D ON D.PackingCategory = P.PackingCategory AND D.PacketRegistrationMasterId = @PacketRegistrationMasterId
+LEFT JOIN PacketRegistrationDetail PD ON PD.PacketRegistrationMasterId = @PacketRegistrationMasterId
+LEFT JOIN PacketRegistrationMaster CM ON CM.Id = PD.PacketRegistrationMasterId
+LEFT JOIN TRN.SalesOrder SO ON SO.Id = PD.SalesOrderId
+ORDER BY P.SortOrder;";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -4027,7 +3904,12 @@ ORDER BY P.SortOrder";
                         dr["SKU1Id"] = packregilist[i]["SKU1Id"];
                         dr["SKU2Id"] = packregilist[i]["SKU2Id"];
                         dr["UnitPerPack"] = packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"];
-                        dr["NoOfPack"] = packregilist[i]["NoOfPack"];
+                        dr["NoOfUnit"] = packregilist[i]["NoOfUnit"];
+                        if (packregilist[i]["UnitPerPack"] != null)
+                        {
+                            dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
+                        }
+                        dr["LineItemReference"] = packregilist[i]["LineItemReference"];
                         dr["BarCode"] = packregilist[i]["BarCode"];
                         dr["QRCode"] = packregilist[i]["QRCode"];
                         dr["RFID"] = packregilist[i]["RFID"];
@@ -4044,11 +3926,15 @@ ORDER BY P.SortOrder";
                         DataRow dr = dspackCat.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
                         dr["UnitPerPack"] = packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"];
-                        dr["NoOfPack"] = packregilist[i]["NoOfPack"];
+                        dr["NoOfUnit"] = packregilist[i]["NoOfUnit"];
+                        if (packregilist[i]["UnitPerPack"] != null)
+                        {
+                            dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
+                        }
                         dr["BarCode"] = packregilist[i]["BarCode"];
                         dr["QRCode"] = packregilist[i]["QRCode"];
                         dr["RFID"] = packregilist[i]["RFID"];
-
+                        dr["LineItemReference"] = packregilist[i]["LineItemReference"];
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
@@ -4069,341 +3955,69 @@ ORDER BY P.SortOrder";
             }
         }
 
-        #endregion
-
-        #region Carton
-
         [HttpPost, Authorize]
-        public ActionResult GetCartonMasterList(string column, string value)
-        {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select M.*,E.EmployeeName from CartonMaster M
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId) AS TEMP WHERE " + strkey + " order by UserName";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult GetCartonCategoryTypeList(string masterId)
-        {
-            try
-            {
-                string sql = @"WITH CartonCategory AS
-(
-    SELECT 1 AS SortOrder, 'Individual' AS CartonCategory
-    UNION ALL
-    SELECT 2, 'Prepack'
-    UNION ALL
-    SELECT 3, 'Bulk Pack'
-    UNION ALL
-    SELECT 4, 'CartonPack'
-)
-SELECT
-Flag=CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),
-    P.CartonCategory,D.Id,D.CartonMasterId,D.PackingTypeId,NoOfUnitPerPack =CASE WHEN D.Id IS NULL AND P.CartonCategory = 'Individual' THEN 1 ELSE D.NoOfUnitPerPack END,NoOfPack=(ISNULL(D.NoOfPack,SO.Qty)*CM.PlanPercentage/100)+ISNULL(D.NoOfPack,SO.Qty),D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP
-FROM CartonCategory P
-LEFT JOIN CartonType D ON D.CartonCategory = P.CartonCategory
-LEFT JOIN CartonDetail PD ON PD.CartonMasterId='" + masterId + @"'
-LEFT JOIN CartonMaster CM ON CM.Id=PD.CartonMasterId
-LEFT JOIN TRN.SalesOrder SO ON SO.Id=PD.SalesOrderId
-Where ISNULL(D.CartonMasterId,'" + masterId + @"')='" + masterId + @"'
-ORDER BY P.SortOrder";
-                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
-
-        }
-
-
-        [HttpPost]
-        public JsonResult CreateCartonMaster(Dictionary<string, object> data)
-        {
-            try
-            {
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from CartonMaster where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("UserName already exists!!!");
-
-
-                con.OpenDataSetThroughAdapter("select * from CartonMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-
-
-
-
-                #region data update
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "CartonMaster", out _Id);
-
-                    data["Id"] = _Id;
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
-
-                return Json(new { Error = false, Data = _Id, Message = AplosMessage.Success });
-
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message });
-
-            }
-        }
-
-        public ActionResult DeleteCarton(string id)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from CartonMaster where id='" + id + "'");
-                con.CommitTransaction();
-
-                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
-
-
-        [HttpPost, Authorize]
-        public JsonResult SaveCartonDetail(List<Dictionary<string, object>> details, string CartonMasterId)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ConnectionManager.DAL.ConManager objCon;
-                DataSet dsSO = null;
-                string sql = "SELECT * FROM dbo.CartonDetail where CartonMasterId=" + CartonMasterId + "";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out dsSO, false, "1");
-
-                string SystemID = "";
-                for (int i = 0; i < details.Count; i++)
-                {
-                    dsSO.Tables[0].DefaultView.RowFilter = "SalesOrderId='" + details[i]["SalesOrderId"] + "'";
-                    if (dsSO.Tables[0].DefaultView.Count == 0)
-                    {
-                        if (SystemID == "")
-                        {
-                            bplib.clsGenID id = new bplib.clsGenID();
-                            id.GenID(System.DateTime.Now.ToShortDateString(), "CartonDetail", out SystemID);
-                        }
-                        DataRow dr = dsSO.Tables[0].NewRow();
-
-                        dr["Id"] = SystemID + "-" + (i + 1).ToString();
-                        dr["CartonMasterId"] = CartonMasterId;
-                        dr["SalesOrderId"] = details[i]["SalesOrderId"];
-
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = identity.IPAddress;
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                        dr["UpdatedFromIP"] = identity.IPAddress;
-
-                        dsSO.Tables[0].Rows.Add(dr);
-                    }
-                }
-
-
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsSO);
-                return Json(new { Error = false, Message = AplosMessage.Success });
-            }
-            catch (Exception ex)
-            {
-
-                throw ex;
-            }
-        }
-
-        public ActionResult DeleteCartonSO(string id)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from CartonDetail where id='" + id + "'");
-                con.CommitTransaction();
-
-                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
-
-        [HttpPost, Authorize]
-        public JsonResult SaveCartonCategory(List<Dictionary<string, object>> packCatlist, string masterId)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ConnectionManager.DAL.ConManager objCon;
-                DataSet dspackCat = null;
-                string sql = "SELECT * FROM [dbo].[CartonType] where CartonMasterId=" + masterId + "";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
-
-                string SystemID = "";
-                for (int i = 0; i < packCatlist.Count; i++)
-                {
-                    dspackCat.Tables[0].DefaultView.RowFilter = "Id='" + packCatlist[i]["Id"] + "'";
-                    if (dspackCat.Tables[0].DefaultView.Count == 0)
-                    {
-                        if (SystemID == "")
-                        {
-                            bplib.clsGenID id = new bplib.clsGenID();
-                            id.GenID(System.DateTime.Now.ToShortDateString(), "CartonType", out SystemID);
-                        }
-                        DataRow dr = dspackCat.Tables[0].NewRow();
-
-                        dr["Id"] = SystemID + "-" + (i + 1).ToString();
-                        dr["CartonMasterId"] = masterId;
-                        dr["PackingTypeId"] = packCatlist[i]["PackingTypeId"];
-                        dr["CartonCategory"] = packCatlist[i]["CartonCategory"];
-                        dr["NoOfUnitPerPack"] = packCatlist[i]["NoOfUnitPerPack"];
-                        dr["NoOfPack"] = packCatlist[i]["NoOfPack"];
-
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = identity.IPAddress;
-
-
-                        dspackCat.Tables[0].Rows.Add(dr);
-                    }
-                    else
-                    {
-                        DataRow dr = dspackCat.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-                        dr["PackingTypeId"] = packCatlist[i]["PackingTypeId"];
-                        dr["NoOfUnitPerPack"] = packCatlist[i]["NoOfUnitPerPack"];
-                        dr["NoOfPack"] = packCatlist[i]["NoOfPack"];
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                        dr["UpdatedFromIP"] = identity.IPAddress;
-                        dr.EndEdit();
-                    }
-                }
-
-
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dspackCat);
-                return Json(new { Error = false, Message = AplosMessage.Success });
-            }
-            catch (Exception ex)
-            {
-
-                throw ex;
-            }
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult GetCartonSKUData(string soId, string cartonTypeId)
+        public ActionResult GetPackingSKUData(string soId, string packetRegistrationTypeId)
         {
             Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
-            var jsondata = Json(order.GetCartonSKUData(soId, cartonTypeId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(order.GetPackingSKUData(soId, packetRegistrationTypeId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
 
         [HttpPost, Authorize]
-        public JsonResult SaveCartonRegister(List<Dictionary<string, object>> packregilist, string masterId)
+        public ActionResult GetCartonList(string masterId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetCartonList(masterId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult GenerateCarton(Dictionary<string, object> data)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.DAL.ConManager objCon;
                 DataSet dspackCat = null;
-                string sql = "SELECT * FROM [dbo].[CartonRegister] where CartonTypeId='" + masterId + "'";
+                string sql = "SELECT * FROM [dbo].[CartonGeneration] where PacketRegistrationId='" + data["PacketRegistrationId"] + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
 
+                int totalCartons = Convert.ToInt32(data["NoOfPack"]);
+                int existingCartons = dspackCat.Tables[0].AsEnumerable().Count(r => r["PacketRegistrationId"].ToString() == data["PacketRegistrationId"].ToString());
+
                 string SystemID = "";
-                for (int i = 0; i < packregilist.Count; i++)
+
+                if (existingCartons < totalCartons)
                 {
-                    dspackCat.Tables[0].DefaultView.RowFilter = "Id='" + packregilist[i]["Id"] + "'";
-                    if (dspackCat.Tables[0].DefaultView.Count == 0)
+                    if (SystemID == "")
                     {
-                        if (SystemID == "")
-                        {
-                            bplib.clsGenID id = new bplib.clsGenID();
-                            id.GenID(System.DateTime.Now.ToShortDateString(), "CartonRegister", out SystemID);
-                        }
+                        bplib.clsGenID id = new bplib.clsGenID();
+                        id.GenID(System.DateTime.Now.ToShortDateString(), "CartonGeneration", out SystemID);
+                    }
+
+                    for (int i = existingCartons; i < totalCartons; i++)
+                    {
                         DataRow dr = dspackCat.Tables[0].NewRow();
 
-                        dr["Id"] = SystemID + "-" + (i + 1).ToString();
-                        dr["CartonTypeId"] = masterId;
-                        dr["SalesOrderId"] = packregilist[i]["SalesOrderId"];
-                        dr["SKU1Id"] = packregilist[i]["SKU1Id"];
-                        dr["SKU2Id"] = packregilist[i]["SKU2Id"];
-                        dr["UnitPerPack"] = packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"];
-                        dr["NoOfPack"] = packregilist[i]["NoOfPack"];
-                        dr["BarCode"] = packregilist[i]["BarCode"];
-                        dr["QRCode"] = packregilist[i]["QRCode"];
-                        dr["RFID"] = packregilist[i]["RFID"];
+                        dr["Id"] = SystemID + "-" + (i + 1);
+                        dr["PacketRegistrationId"] = data["PacketRegistrationId"];
+                        dr["NoOfPcs"] = data["NoOfPcs"];
+                        dr["CartonNo"] = i + 1;
 
                         dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedDate"] = DateTime.Now;
                         dr["AddedFromIP"] = identity.IPAddress;
-
 
                         dspackCat.Tables[0].Rows.Add(dr);
                     }
-                    else
-                    {
-                        DataRow dr = dspackCat.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-                        dr["UnitPerPack"] = packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"];
-                        dr["NoOfPack"] = packregilist[i]["NoOfPack"];
-                        dr["BarCode"] = packregilist[i]["BarCode"];
-                        dr["QRCode"] = packregilist[i]["QRCode"];
-                        dr["RFID"] = packregilist[i]["RFID"];
-
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                        dr["UpdatedFromIP"] = identity.IPAddress;
-
-                        dr.EndEdit();
-                    }
                 }
-
 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dspackCat);
+
                 return Json(new { Error = false, Message = AplosMessage.Success });
             }
             catch (Exception ex)
@@ -4412,122 +4026,11 @@ ORDER BY P.SortOrder";
                 throw ex;
             }
         }
-
-
         #endregion
 
-        #region PackingCategory
-
-        [HttpPost]
-        public ActionResult GetPCList(string column, string value)
-        {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM HKP.PackingCategory) AS TEMP WHERE " + strkey + " order by sequence";
 
 
 
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public JsonResult GetAutoPCSequence()
-        {
-            return Json(GetPCSequence(), JsonRequestBehavior.AllowGet);
-        }
-
-        private double GetPCSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM HKP.PackingCategory");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
-            return 1;
-        }
-
-        [HttpPost, Authorize]
-        public JsonResult CreatePC(Dictionary<string, object> data)
-        {
-            try
-            {
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from HKP.PackingCategory where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Code already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from HKP.PackingCategory where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same User Name already exists!!!");
-
-
-                con.OpenDataSetThroughAdapter("select * from HKP.PackingCategory where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-
-                #region data update
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("PackingCategory", out _Id);
-
-                    data["Id"] = _Id;
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
-                return Json(new { Error = false, Data = data, Sequence = GetPCSequence(), Message = AplosMessage.Updated });
-
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message });
-
-            }
-        }
-
-        public ActionResult DeletePC(string id)
-        {
-
-            try
-            {
-
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from HKP.PackingCategory where Id='" + id + "'");
-                con.CommitTransaction();
-                return Json(new { Error = false, Sequence = GetPCSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
-
-        [Authorize, HttpGet]
-        public JsonResult GetPCCbo()
-        {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM HKP.PackingCategory Where Active=1"), JsonRequestBehavior.AllowGet);
-        }
-
-
-        #endregion
 
     }
 

@@ -2019,7 +2019,6 @@
     <Content Include="Areas\MIS\Scripts\misConfig.js" />
     <Content Include="Areas\OrderManagements\Scripts\PackingBookingController.js" />
     <Content Include="Areas\OrderManagements\Scripts\DispatchPlanController.js" />
-    <Content Include="Areas\OrderManagements\Scripts\CartonController.js" />
     <Content Include="Areas\OrderManagements\Scripts\SKURegistrationController.js" />
     <Content Include="Areas\OrderManagements\Scripts\masterOrderUploadController.js" />
     <Content Include="Areas\OrderManagements\Scripts\productionCalendarType2Controller.js" />
@@ -5146,7 +5145,6 @@
     <Content Include="Areas\Employees\Views\EmployeeInformation\DailyTargetUpload.cshtml" />
     <Content Include="Areas\OrderManagements\Views\ProductionOrder\SKURegistration.cshtml" />
     <Content Include="Areas\OrderManagements\Views\ProductionOrder\PackingBooking.cshtml" />
-    <Content Include="Areas\OrderManagements\Views\ProductionOrder\Carton.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

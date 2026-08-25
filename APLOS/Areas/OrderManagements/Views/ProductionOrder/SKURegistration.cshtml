@@ -68,7 +68,7 @@
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">SO Detail</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Packing Type</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetPackingData();" href="" aria-controls="general" role="tab" data-toggle="tab">Packing Type</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -176,7 +176,7 @@
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li> <button ng-click="SavePackingCategory();"ng-disabled="ModelNew.Id==null"  class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            <li> <button ng-click="SavePackingCategory();" ng-disabled="ModelNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
                         </ul>
                     </div>
                 </div>
@@ -357,36 +357,47 @@
     </div>
 </div>
 
+
+
+
 <div class="modal fade site-modal in" id="PRPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">Packet Registration<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-header">Carton <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body">
                 <div class="col-xs-12">
                     <div style="color:black;" id="GridSKU" ej-grid e-datasource="skuList" e-allowscrolling="true"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
-                            <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
                             <div e-column e-type="string" e-field="SKUColor" e-headertext="Color" e-width="80"></div>
                             <div e-column e-type="string" e-field="SKUSize" e-headertext="Size" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#NoOfUnit" e-headertext="NoOfUnit" e-width="80"></div>
                             <div e-column e-type="string" e-template="#UnitPerPack" e-headertext="Unit/Pack" e-width="80"></div>
                             <div e-column e-type="string" e-template="#NoOfPack" e-headertext="NoOfPack" e-width="80"></div>
                             <div e-column e-type="string" e-template="#BarCode" e-headertext="BarCode" e-width="80"></div>
                             <div e-column e-type="string" e-template="#QRCode" e-headertext="QRCode" e-width="80"></div>
                             <div e-column e-type="string" e-template="#RFID" e-headertext="RFID" e-width="80"></div>
                             <div e-column e-template="#Qty" e-headertext="Qty" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#LineItemReference" e-headertext="LineItemReference" e-width="80" style="height: 20px;"></div>
                             <div e-column e-template="#Remark" e-headertext="Remark" e-width="100" style="height: 20px;"></div>
+                            <div e-column e-template="#GenCarton" e-headertext="Carton Generate" e-width="100" style="height: 20px;"></div>
                         </div>
 
                         <script type="text/template" id="UnitPerPack">
                             <div class="col-sm-10" style="padding:0px; width:70px;">
-                                <input type="text" ng-model="data.UnitPerPack" n-decimals="2" style="color:black;" class="form-control" />
+                                <input type="text" ng-model="data.UnitPerPack" n-decimals="2" ng-blur="$parent.calculate(this)" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="NoOfUnit">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.NoOfUnit" disabled n-decimals="2" style="color:black;" class="form-control" />
                             </div>
                         </script>
                         <script type="text/template" id="NoOfPack">
                             <div class="col-sm-10" style="padding:0px; width:70px;">
-                                <input type="text" ng-model="data.NoOfPack" n-decimals="2" style="color:black;" class="form-control" />
+                                <input type="text" ng-model="data.NoOfPack" disabled n-decimals="2" style="color:black;" class="form-control" />
                             </div>
                         </script>
                         <script type="text/template" id="BarCode">
@@ -411,7 +422,18 @@
                         </script>
                         <script type="text/template" id="Qty">
                             <div class="col-sm-10" style="padding:0px; width:70px;">
-                                <input type="text" ng-model="data.Qty" n-decimals="2" style="color:black;" class="form-control" />
+                                <input type="text" ng-model="data.Qty" disabled n-decimals="2" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="LineItemReference">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.LineItemReference" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="GenCarton">
+                            <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                                <button ng-click="$parent.GenerateCarton(this);" title="Generate Carton" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
+                                <button ng-click="$parent.GetCartonList(this);" title="Carton List" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-eye-open"></i></button>
                             </div>
                         </script>
                     </div>
@@ -420,6 +442,32 @@
                     <ul class="list-inline text-right">
                         <li> <button ng-click="SavePR();" class="btn"><i class="glyphicon glyphicon-folder-open"></i>Save</button></li>
                         <li> <button ng-click="ClosePR();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="CartonPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">CartonList<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="col-xs-12">
+                    <div style="color:black;" id="GridC" ej-grid e-datasource="CartonList" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="NoOfPcs" e-headertext="NoOfPcs" e-width="80"></div>
+                            <div e-column e-type="string" e-field="CartonNo" e-headertext="CartonNo" e-width="80"></div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseCG();" class="btn">Close</button></li>
                     </ul>
                 </div>
             </div>

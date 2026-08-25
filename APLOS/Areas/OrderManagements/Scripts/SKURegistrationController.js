@@ -84,7 +84,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         UserName: null,
         EmployeeId: null,
         TargetClosingDays: 0,
-        PlanPercentage:0,
+        PlanPercentage: 0,
         Remarks: null,
         StatusType: null,
         AddedBy: null,
@@ -407,7 +407,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         $scope.message_confirmation = 'Are you sure want to delete [ ' + $scope.SOobj.SalesOrderId + ' ]';
         angular.element(document.querySelector('#confirmSODelPopUp')).modal('show');
     };
-    $scope.DeleteSO= function () {
+    $scope.DeleteSO = function () {
         if (!baseService.isUndefinedOrNull($scope.SOobj.Id)) {
             $http({
                 method: 'POST',
@@ -452,7 +452,14 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                 var tempList = [];
                 for (var i = 0; i < $scope.packingCategoryList.length; i++) {
                     if ($scope.packingCategoryList[i].Flag) {
-                        tempList.push($scope.packingCategoryList[i]);
+                        if (baseService.isUndefinedOrNull($scope.packingCategoryList[i].PackingTypeId)) {
+                            throw "Packing Type is required.";
+                        }
+                        else if (baseService.isUndefinedOrNull($scope.packingCategoryList[i].NoOfUnitPerPack)) {
+                            throw "No Of Unit Per Pack is required.";
+                        } else {
+                            tempList.push($scope.packingCategoryList[i]);
+                        }
                     }
                 }
                 $http({
@@ -487,7 +494,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         }
 
         if ($scope.idList.length > 0) {
-            var uniqueSalesOrderId= removeDuplicates($scope.idList, 'SalesOrderId');
+            var uniqueSalesOrderId = removeDuplicates($scope.idList, 'SalesOrderId');
             var wcsoId = "";
             if (uniqueSalesOrderId.length > 0) {
                 wcsoId = "IN(";
@@ -510,10 +517,14 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         angular.element(document.querySelector('#PRPopUp')).modal('show');
     }
 
+    $scope.calculate = function (obj) {
+        obj.data.NoOfPack = Math.ceil(obj.data.NoOfUnit / obj.data.UnitPerPack);
+    };
+
     $scope.SavePR = function () {
         try {
             if ($scope.skuList.length > 0) {
-                
+
                 $http({
                     method: 'POST',
                     url: "OrderManagements/ProductionOrder/SavePacketRegistration",
@@ -573,5 +584,55 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         // Call your API here
     };
 
+
+    $scope.GenerateCarton = function (data) {
+        try {
+            var obj = {
+                Id: null,
+                PacketRegistrationId: data.data.Id,
+                NoOfPcs: data.data.UnitPerPack,
+                NoOfPack: data.data.NoOfPack,
+                CartonNo: 0,
+                AddedBy: null,
+                AddedDate: null,
+                AddedFromIP: null,
+                UpdatedBy: null,
+                UpdatedDate: null,
+                UpdatedFromIP: null
+            }
+            $http({
+                method: 'POST',
+                url: "OrderManagements/ProductionOrder/GenerateCarton",
+                data: { 'data': obj },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.CartonList = [];
+    $scope.GetCartonList = function (data) {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/ProductionOrder/GetCartonList?masterId=' + data.data.Id
+        }).then(function successCallback(response) {
+            $scope.CartonList = response.data;
+            angular.element(document.querySelector('#CartonPopUp')).modal('show');
+        });
+    }
+    $scope.CloseCG = function () {
+        angular.element(document.querySelector('#CartonPopUp')).modal('hide');
+    }
 
 }

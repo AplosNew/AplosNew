@@ -1348,7 +1348,6 @@ upanelApp.controller("WeeklyReceiptAndPaymentStatementController", WeeklyReceipt
 upanelApp.controller("DailyTargetUploadController", DailyTargetUploadController)
 upanelApp.controller("SKURegistrationController", SKURegistrationController)
 upanelApp.controller("PackingBookingController", PackingBookingController)
-upanelApp.controller("CartonController", CartonController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
