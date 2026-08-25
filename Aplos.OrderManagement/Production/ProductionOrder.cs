@@ -1156,7 +1156,7 @@ Where SO.OrderStatusId NOT IN('Closed,Cancelled')";
     CEILING((SUM(SC.Qty) * CM.PlanPercentage / 100.0) + SUM(SC.Qty)) AS NoOfUnit,SUM(SC.Qty) AS Qty,
     UnitPerPack = ISNULL(PR.UnitPerPack,PT.NoOfUnitPerPack),PR.BarCode,PR.QRCode,PR.RFID,PR.Remark,
     NoOfPack =CEILING(ISNULL(PR.NoOfPack,((SUM(SC.Qty) * CM.PlanPercentage / 100.0)+ SUM(SC.Qty))/ ISNULL(PR.UnitPerPack,PT.NoOfUnitPerPack)))
-    ,ISNULL(PR.LineItemReference,MOI.BuyerReferenceNo) LineItemReference
+    ,LineItemReference = COALESCE(D.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo)
 FROM TRN.SecondCharacteristics SC
 LEFT JOIN TRN.FirstCharacteristics FC ON FC.Id = SC.FirstCharacteristicsId
 LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = FC.CharacteristicsValueId

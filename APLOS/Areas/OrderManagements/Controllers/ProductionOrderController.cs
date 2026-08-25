@@ -3805,8 +3805,6 @@ ORDER BY P.SortOrder;";
             {
                 throw ex;
             }
-
-
         }
 
         [HttpPost, Authorize]
@@ -3834,7 +3832,7 @@ ORDER BY P.SortOrder;";
                         dr["PackingCategory"] = packCatlist[i]["PackingCategory"];
                         dr["NoOfUnitPerPack"] = packCatlist[i]["NoOfUnitPerPack"];
                         dr["NoOfPack"] = packCatlist[i]["NoOfPack"];
-
+                        dr["LineItemReference"] = packCatlist[i]["LineItemReference"];
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["AddedFromIP"] = identity.IPAddress;
@@ -3849,6 +3847,7 @@ ORDER BY P.SortOrder;";
                         dr["PackingTypeId"] = packCatlist[i]["PackingTypeId"];
                         dr["NoOfUnitPerPack"] = packCatlist[i]["NoOfUnitPerPack"];
                         dr["NoOfPack"] = packCatlist[i]["NoOfPack"];
+                        dr["LineItemReference"] = packCatlist[i]["LineItemReference"];
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
