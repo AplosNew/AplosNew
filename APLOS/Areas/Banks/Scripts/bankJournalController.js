@@ -299,9 +299,50 @@ function bankJournalController(bankService, accountService, cboService, commonMe
         return manualValidation("div_entity", $scope.invalidEntity, "Entity is required.");
     };
 
-    $scope.removeRow = function (index) {
-        $scope.advanceDetailList.splice(index, 1);
+    //$scope.removeRow = function (index) {
+    //    $scope.advanceDetailList.splice(index, 1);
+    //};
+
+    $scope.removeDetaillRow = function (Id, voucherId, voucherDetailId, index) {
+        if (Id === null) {
+            //$(this).remove();
+            $scope.voucherDetailList.splice(index, 1);
+            return false;
+        }
+        else {
+            $scope.message = 'Are you sure want to permanently delete this?';
+            angular.element(document.querySelector('#removePopUp')).modal('show');
+            $scope.vdId = voucherDetailId;
+            $scope.voucherId = voucherId;
+            $scope.cashJournalDetailId = Id;
+            $scope.mateIndex = index;
+        }
     };
+
+    $scope.detailDelete = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'Banks/CashJournal/DeleteCashJournalDetail?Id=' + $scope.vdId + '&voucherId=' + $scope.voucherId + '&cashJournalDetailId=' + $scope.cashJournalDetailId,
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.vdId = null;
+                    $scope.voucherId = null;
+                    $scope.cashJournalDetailId = null;
+                    $scope.voucherDetailList.splice($scope.mateIndex, 1);
+                    $scope.getData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'success');
+        }
+    };
+
 
     $scope.setBankOb = function (id) {
         var bank;

@@ -3015,6 +3015,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
             }
         }
 
+
         public class UploadedDailyTargetViewModel
         {
             public string TargetDate { get; set; }
