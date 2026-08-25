@@ -669,24 +669,54 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     };
 
-    $scope.generateQRCode = function () {
 
-        //var packetRegistrationTypeId =
-        //    $scope.PacketRegistrationTypeId;
+    $scope.downloadgriddataUrlPath = 'GridReports/PPTFileDownLoad';
+    $scope.FN = null;
+    $scope.QRCodeGenerateModel = { LineItemReference: null, SKUColor: null, Qty: null};
+    $scope.generateQRCode = function (obj) {
+        try {
+            $scope.QRCodeGenerateModel.LineItemReference = obj.data.LineItemReference;
+            $scope.QRCodeGenerateModel.SKUColor = obj.data.SKUColor;
+            $scope.QRCodeGenerateModel.SKUSize = obj.data.SKUSize;
+            $scope.QRCodeGenerateModel.Qty = obj.data.Qty;
 
-        //if (!packetRegistrationTypeId) {
-        //    alert("Packet Registration Type is required.");
-        //    return;
-        //}
+            $scope.fileName = "QRCode.pptx";
+            $http({
+                method: 'POST',
+                url: $scope.path + "GenerateQRCode",
+                data: {
+                    'data': $scope.QRCodeGenerateModel
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
 
-        //var url =
-        //    '/YourController/GenerateQRCode' +
-        //    '?packetRegistrationTypeId=' +
-        //    encodeURIComponent(packetRegistrationTypeId);
+                    //$rootScope.report($scope.downloadgriddataUrlPath + "?FileName=" + response.data.FileName);//downloadgriddataUrlPath
+                    // $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    $scope.FN = $scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName;
+                    ShowResult(response.data.Message, 'success');
+                }
 
-        var url ='OrderManagements/ProductionOrder/GetQRCode';
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
 
-        window.open(url, '_blank');
-    };
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+
+    }
+
+
+
+
+
+
+
+
 
 }

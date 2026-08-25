@@ -26,13 +26,18 @@ using System.Web;
 using System.Web.Mvc;
 using Library.Service.Systems;
 using Aplos.MaterialManagement.MaterialQuery;
+using System.Drawing.Printing;
+using Zen.Barcode;
+using System.Text;
+using Aplos.Areas.Materials.Controllers;
+using System.Drawing;
 
 namespace Aplos.Areas.OrderManagements.Controllers
 {
     public class ProductionOrderController : BaseController
     {
         #region Constructor
-
+        string LineItemReference, SKUColor, SKUSize, Qty = null;
         private readonly IProductionOrderService _productionOrderService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
@@ -3718,7 +3723,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"'  ORDER BY  TEMP
                     dsSO.Tables[0].DefaultView.RowFilter = "SalesOrderId='" + details[i]["SalesOrderId"] + "'";
                     if (dsSO.Tables[0].DefaultView.Count == 0)
                     {
-                       
+
                         DataRow dr = dsSO.Tables[0].NewRow();
 
                         dr["Id"] = packetRegistrationMasterId + "-" + (i + 1).ToString();
@@ -3999,6 +4004,110 @@ ORDER BY P.SortOrder;";
 
                 throw ex;
             }
+        }
+
+        public ActionResult GenerateQRCode(Dictionary<string, object> data)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+
+
+                if (!String.IsNullOrEmpty(data["LineItemReference"].ToString()))
+                {
+                    LineItemReference = data["LineItemReference"].ToString();
+                }
+                if (!String.IsNullOrEmpty(data["SKUColor"].ToString()))
+                {
+                    SKUColor = data["SKUColor"].ToString();
+                }
+
+                if (!String.IsNullOrEmpty(data["SKUSize"].ToString()))
+                {
+                    SKUSize = data["SKUSize"].ToString();
+                }
+                if (!String.IsNullOrEmpty(data["Qty"].ToString()))
+                {
+                    Qty = data["Qty"].ToString();
+                }
+               
+
+                var doc = new PrintDocument();
+                var paperSize = new PaperSize("Custom", 520, 820);
+                doc.DefaultPageSettings.PaperSize = paperSize;
+
+                // doc.PrintPage += PrintPicture;
+                doc.PrintPage += new PrintPageEventHandler(ProvideContent);
+
+
+                doc.Print();
+
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public void ProvideContent(object sender, PrintPageEventArgs e)
+        {
+
+            int itemHeight = 0;
+            var curX = e.MarginBounds.X;
+            var curY = e.MarginBounds.Y;
+
+
+            string concatdata = Convert.ToString(
+                    string.Concat(
+                     LineItemReference, "#"
+                    , SKUColor, "#"
+                    , SKUSize, "#"
+                    , Qty, "#"
+                    ));
+
+            CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
+            var barcodeImg = qrCode.Draw(concatdata, 200, 2);
+
+            //ConvertImagePNGToBMP(concatdata);
+
+            var sb = new StringBuilder();
+
+            sb.AppendLine(($"LineItem#: {LineItemReference}"));
+            sb.AppendLine(($"Color: {SKUColor} "));
+            sb.AppendLine(($"Size: {SKUSize} "));
+            sb.AppendLine(($"Qty: {Qty} "));
+            sb.AppendLine(($"CartonNo: "));
+
+
+            var printText = new PrintText(sb.ToString(), new Font(System.Drawing.FontFamily.GenericSansSerif, 9, System.Drawing.FontStyle.Bold));
+            Graphics graphics = e.Graphics;
+
+            using (var fontNormal = new Font("Arial", 9))
+            using (var sf = new StringFormat())
+            {
+                sf.Alignment = sf.LineAlignment = StringAlignment.Far;
+                itemHeight = (int)fontNormal.GetHeight(e.Graphics) + 10;
+
+
+                var imgRect = new Rectangle(150, 50, 90, 90);
+                //var labelRect = new Rectangle(150, 50, imgRect.Width, itemHeight);
+
+                using (var qrImage = barcodeImg)
+                    e.Graphics.DrawImage(qrImage, imgRect);
+
+            }
+
+
+            int startX = 0;
+            int startY = 0;
+            int Offset = 20;
+
+            graphics.DrawString(printText.Text, new Font(System.Drawing.FontFamily.GenericMonospace, 9, System.Drawing.FontStyle.Bold),
+                                new SolidBrush(System.Drawing.Color.Black), startX, startY + Offset);
+            Offset = Offset + 20;
         }
         #endregion
 
