@@ -1,4 +1,9 @@
 ﻿<togglable name="Packing Defination"></togglable>
+<style>
+    .modellgModify {
+        width: 1200px;
+    }
+</style>
 <div class="form-elements form-horizontal">
     <div class="row" ng-form name="ModelNewForm">
         <input type="hidden" ng-model="ModelNew.Id">
@@ -369,7 +374,7 @@
 </div>
 
 <div class="modal fade site-modal in" id="PRPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
             <div class="modal-header">Carton <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body">
@@ -440,8 +445,8 @@
                             </div>
                         </script>
                         @*<script type="text/template" id="checkboxTemplateQR">
-                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Checked" e-checked="data.Checked" />
-                        </script>*@
+                                <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Checked" e-checked="data.Checked" />
+                            </script>*@
                         @*<script type="text/x-jsrender" id="headerTemplate">
                                 <input type="checkbox" id="headchk" />
                             </script>*@
