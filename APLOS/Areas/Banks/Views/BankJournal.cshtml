@@ -222,8 +222,11 @@
                                 <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.CompanyCurrencyAmount" ng-readonly="voucher.CurrencyId == companyCurrencyId">
                             </div>
                         </td>
+                        @*<td class="text-right">
+                                <button ng-click="removeRow($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                            </td>*@
                         <td class="text-right">
-                            <button ng-click="removeRow($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                            <button ng-click="removeDetaillRow(x.Id,x.VoucherId,x.VoucherDetailId,$index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
                         </td>
                     </tr>
                 </tbody>
@@ -367,5 +370,6 @@
 @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_PostPopUp.cshtml")
+<confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="detailDelete();"></confirm-archive-generic>
 @*<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId)"></confirm-archive-generic>*@
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(bankJournalId,voucherId)"></confirm-archive-generic>

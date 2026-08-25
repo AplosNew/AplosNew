@@ -2395,22 +2395,22 @@ namespace Library.Service.Banks
                         {
                             // INSERT INTO BankJournalDetail
                             currentBankJournalDetailId++;
-                            InsertBankJournalDetail(bankJournal, new BankJournalDetail
+                            var newbankJournalDetail = InsertBankJournalDetail(bankJournal, new BankJournalDetail
                             {
                                 GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                                 BudgetMasterId = voucherDetailVM.BudgetMasterId,
                                 ActivityId = voucherDetailVM.ActivityId,
                                 Amount = voucherDetailVM.Amount
                             }, currentBankJournalDetailId);
-
+                            currentVoucherDetailId++;
                             var voucherDetailDr = _voucherService.InsertVoucherDetail(voucher, new VoucherDetail
                             {
-                                BankJournalDetailId = bankJournalDetail.Id,
-                                GLGeneralInfoId = bankJournalDetail.GLGeneralInfoId,
-                                BudgetMasterId = bankJournalDetail.BudgetMasterId,
-                                ActivityId = bankJournalDetail.ActivityId,
+                                BankJournalDetailId = newbankJournalDetail.Id,
+                                GLGeneralInfoId = newbankJournalDetail.GLGeneralInfoId,
+                                BudgetMasterId = newbankJournalDetail.BudgetMasterId,
+                                ActivityId = newbankJournalDetail.ActivityId,
                                 CurrencyId = voucher.CurrencyId,
-                                DrAmount = bankJournalDetail.Amount,
+                                DrAmount = newbankJournalDetail.Amount,
                                 PaymentSource = bankJournal.PaymentSource,
                                 PartyType = bankJournal.PaymentSource,
                                 DocRefNo = voucherVM.DocRefNo,

@@ -4951,6 +4951,26 @@ UNION ALL
         AND VD.CashMasterId <> ''
         AND V.PostingDate BETWEEN '"+ from + "' AND '"+to+ @"'
         AND V.SourceType <> 'OpeningBalance'  and VD.CashMasterId='" + cashMasterId + @"'
+UNION ALL
+    SELECT
+        V.PostingDate,V.VoucherNo,
+         'Adv Adj ( '+V.Narration +' )'  AS Receipt,
+        VD.DrAmount AS Amount,
+        ROW_NUMBER() OVER (ORDER BY V.PostingDate, V.VoucherNo) AS RN,VD.Id
+    FROM TRN.VoucherDetail VD
+    LEFT JOIN TRN.Voucher V ON V.Id = VD.VoucherId
+    LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId = VD.Id
+    LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id = VD.GLGeneralInfoId
+    LEFT JOIN HKP.Activity A ON A.Id = VD.ActivityId
+    LEFT JOIN MST.BudgetMaster BM ON BM.Id = VD.BudgetMasterId
+    LEFT JOIN HKP.AccountGroup AG ON AG.Id = GL.AccountGroupId
+    LEFT JOIN MST.CashMaster CM ON CM.Id = VD.CashMasterId
+	LEFT JOIN (SELECT CashMasterId,VoucherId FROM TRN.VoucherDetail where CrAmount>0 and CashMasterId='1' )XVD ON XVD.VoucherId=V.Id
+	LEFT JOIN (SELECT Id,StartDate FROM SCS.FiscalYearPeriod) FYP ON FYP.StartDate BETWEEN  '" + from + "' AND '" + to + @"'
+    WHERE V.PlantId ='" + plantId + @"'  AND AG.AccountTypeId IN ('Liability')
+        AND VD.DrAmount > 0
+        AND VD.CashMasterId IS NULL
+        AND V.SourceType <> 'OpeningBalance'  and xVD.CashMasterId='1' AND V.FiscalYearPeriodId=(FYP.Id-1)
 )
 SELECT
     R.PostingDate AS [RDATE],R.VoucherNo RVoucherNo,
