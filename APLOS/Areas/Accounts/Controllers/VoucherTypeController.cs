@@ -4,6 +4,7 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.Data.UnitOfWorks;
 using Library.Model.Vouchers;
 using Library.Service.Enums;
 using Library.Service.Logs;
@@ -21,10 +22,13 @@ namespace Aplos.Areas.Accounts.Controllers
     {
         private readonly IVoucherTypeService _voucherTypeService;
         private readonly ISqlRepository _sqlRepository;
-        public VoucherTypeController(IVoucherTypeService voucherTypeService, ISqlRepository sqlRepository)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public VoucherTypeController(IVoucherTypeService voucherTypeService, ISqlRepository sqlRepository, IUnitOfWork unitOfWork)
         {
             _voucherTypeService = voucherTypeService;
             _sqlRepository = sqlRepository;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
@@ -49,6 +53,12 @@ namespace Aplos.Areas.Accounts.Controllers
         public ActionResult VoucherTypeConfig()
         {
             return View("~/Areas/Accounts/Views/VoucherTypeConfig.cshtml");
+        }
+
+        [HttpGet]
+        public ActionResult VoucherMaxNumberUpdate()
+        {
+            return View("~/Areas/Accounts/Views/VoucherMaxNumberUpdate.cshtml");
         }
 
         [Authorize]
@@ -159,5 +169,86 @@ namespace Aplos.Areas.Accounts.Controllers
             _voucherTypeService.UpdateVoucherTypeAdditionalInfo(gLCompanyInfoList);
             return Json(new { GLGeneralInfo = gLCompanyInfoList, Message = AplosMessage.Success });
         }
+
+        #region VoucherMaxNumber Update
+        [Authorize,HttpGet]
+        public JsonResult GetVoucherConfigPeriodCbo()
+        {
+            return Json(GetVoucherConfigPeriod(), JsonRequestBehavior.AllowGet);
+        }
+        public List<Dictionary<string, object>> GetVoucherConfigPeriod()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var cmdText = @"SELECT DISTINCT VTN.[Period] [Value],VTN.[Period] [Text]
+                                FROM SCS.VoucherTypeNumber VTN
+                                ORDER BY VTN.[Period] DESC";
+                return _sqlRepository.GetDataCollection(cmdText);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetVoucherMaxNumberCbo(string period,string voucherTypeId)
+        {
+            return Json(GetVoucherMaxNumber(period, voucherTypeId), JsonRequestBehavior.AllowGet);
+        }
+        public List<Dictionary<string, object>> GetVoucherMaxNumber(string period, string voucherTypeId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var cmdText = @"SELECT  VTN.Id,VTN.MaxNumber 
+                                FROM SCS.VoucherTypeNumber VTN
+                                LEFT JOIN [SCS].[VoucherTypeConfig] VTC ON VTC.Id=VTN.VoucherTypeConfigId
+                                WHERE VTC.PlantId='" + identity.PlantId + @"' AND VTN.[Period]='"+ period + @"' AND VTC.VoucherTypeId='"+ voucherTypeId + @"'
+                                ORDER BY VTN.[Period] DESC";
+                return _sqlRepository.GetDataCollection(cmdText);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        [HttpPost]
+        public ActionResult UpdateMaxNumber(string id, string maxNumber)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var rdBuilder = new System.Text.StringBuilder();
+                    var voucherSql = @"UPDATE SCS.VoucherTypeNumber SET MaxNumber="+ maxNumber + " WHERE Id='" + id + "'";
+                    rdBuilder.Append(voucherSql);
+
+                _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+                return Json(new { Message = " Successfully Updated" });
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+        #endregion
     }
 }

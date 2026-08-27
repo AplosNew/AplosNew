@@ -2643,7 +2643,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @"select Id WorkCenterMasterId,UserName WorkCenter from [SCS].[WorkCenterMaster] where EntityId='" + entityId + "' AND ProcessId='"+ processId + "'";
+                strSQL = @"select  UserName+'_#'+Id WorkCenter from [SCS].[WorkCenterMaster] where EntityId='" + entityId + "' AND ProcessId='"+ processId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
             }
@@ -2767,7 +2767,6 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                     sheet1[xlsRow, colRemarks].Text = dtData.Rows[i]["Remarks"].ToString();
                     sheet1[xlsRow, colWorkCenterIncharge].Text = dtData.Rows[i]["WorkCenterIncharge"].ToString();
                     sheet1[xlsRow, colQCIncharge].Text = dtData.Rows[i]["QCIncharge"].ToString();
-                    //sheet1[xlsRow, colWorkCenterId].Text = dtData.Rows[i]["WorkCenterMasterId"].ToString();
                     xlsRow++;
                 }
 
@@ -2919,7 +2918,8 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                                 vm.Helper = Convert.ToInt16( dsExcel.Tables[0].Rows[i][7]);
                                 vm.SPT = Convert.ToDecimal( dsExcel.Tables[0].Rows[i][8]);
                                 vm.Remarks = dsExcel.Tables[0].Rows[i][9].ToString().Trim();
-                                vm.WorkCenterMasterId = dsExcel.Tables[0].Rows[i][9].ToString().Trim();
+                                vm.WorkCenterIncharge = dsExcel.Tables[0].Rows[i][10].ToString().Trim();
+                                vm.QCIncharge = dsExcel.Tables[0].Rows[i][11].ToString().Trim();
 
                                 data.Add(vm);
                             }
@@ -2979,7 +2979,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
             LEFT JOIN trn.ProductionBulletinTemplateMaster pt on pt.ProductionBulletinTemplateId = pb.Id
             LEFT JOIN DBO.ProducitonBulletinCalculation bt on  pt.Id = bt.ProductionBulletinTemplateMasterId
             WHERE pb.ProductionOrderId IN ('"+ productionOrderIds + "') ", out dsPO, false, "1");
-
+                
                 if (data != null)
                 {
                     foreach (var item in data)
@@ -2999,6 +2999,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                             item["ShiftId"] = shiftId;
                             item["ProcessId"] = processId;
                             item["TargetDate"] = targetDate;
+                            item["WorkCenterMasterId"] = GetPK(item["WorkCenter"].ToString());
                             AddNewRow(dsBC.Tables[0], item);
                         }
                     }
@@ -3014,16 +3015,36 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-
+        string GetPK(string colvalue)
+        {
+            string r = string.Empty;
+            string token = "_#";
+            try
+            {
+                //var k = colvalue;
+                if (colvalue != null)
+                {
+                    var _index = colvalue.IndexOf(token);
+                    if (_index != -1)
+                    {
+                        r = colvalue.Substring(_index + token.Length).Trim().Replace("\n", "").Replace("\r", "");
+                    }
+                }
+                return r;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         public class UploadedDailyTargetViewModel
         {
             public string TargetDate { get; set; }
-            public string QCId { get; set; }
+            public string QCIncharge { get; set; }
             public string ShiftId { get; set; }
             public string WorkCenterMasterId { get; set; }
             public string ProductionOrderId { get; set; }
-            public string SalesOrderId { get; set; }
             public string ProcessId { get; set; }
             public decimal TargetQty { get; set; }
             public decimal SPT { get; set; }
@@ -3032,8 +3053,8 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
             public string Remarks { get; set; }
             public string ShiftName { get; set; }
             public string WorkCenter { get; set; }
+            public string WorkCenterIncharge { get; set; }
             public string PO { get; set; }
-            public string SAM { get; set; }
             
             public string AddedBy { get; set; }
             public DateTime AddedDate { get; set; }

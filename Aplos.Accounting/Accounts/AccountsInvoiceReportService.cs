@@ -4602,6 +4602,7 @@ namespace Library.Accounting.Accounts
 
             // ---- Pull + split data -----------------------------------------------------
             DataTable dtCombined = GetCombinedStatementData(plantId, fromDate, toDate,cashMasterId);
+            DataTable dtSumOfExp = GetSumOfExpensesData(plantId, fromDate, toDate, cashMasterId);
 
             List<ReceiptLine> receiptRows;
             List<ExpenseLine> expenseRows;
@@ -4612,11 +4613,12 @@ namespace Library.Accounting.Accounts
             const int COL_R_DATE = 1;
             const int COL_R_VNO = 2;
             const int COL_R_DESC = 3;
-            const int COL_R_AMT = 4;
-            const int COL_E_DATE = 5;
-            const int COL_E_VNO = 6;
-            const int COL_E_DESC = 7;
-            const int COL_E_AMT = 8;
+            const int COL_R_SubAMT = 4;
+            const int COL_R_AMT = 5;
+            const int COL_E_DATE = 6;
+            const int COL_E_VNO = 7;
+            const int COL_E_DESC = 8;
+            const int COL_E_AMT = 9;
             const int END_COL = COL_E_AMT;
 
             // ---- Title rows --------------------------------------------------------
@@ -4637,6 +4639,7 @@ namespace Library.Accounting.Accounts
             worksheet[HEADER_ROW, COL_R_DATE].Text = "DATE";
             worksheet[HEADER_ROW, COL_R_VNO].Text = "VoucherNo";
             worksheet[HEADER_ROW, COL_R_DESC].Text = "RECEIPTS";
+            worksheet[HEADER_ROW, COL_R_SubAMT].Text = "SubAmount";
             worksheet[HEADER_ROW, COL_R_AMT].Text = "AMOUNT";
             worksheet[HEADER_ROW, COL_E_DATE].Text = "DATE";
             worksheet[HEADER_ROW, COL_E_VNO].Text = "VoucherNo";
@@ -4650,6 +4653,7 @@ namespace Library.Accounting.Accounts
             worksheet.SetColumnWidth(COL_R_DATE, 10);
             worksheet.SetColumnWidth(COL_R_VNO, 16);
             worksheet.SetColumnWidth(COL_R_DESC, 32);
+            worksheet.SetColumnWidth(COL_R_SubAMT, 14);
             worksheet.SetColumnWidth(COL_R_AMT, 14);
             worksheet.SetColumnWidth(COL_E_DATE, 10);
             worksheet.SetColumnWidth(COL_E_VNO, 16);
@@ -4697,6 +4701,8 @@ namespace Library.Accounting.Accounts
                 {
                     worksheet[recRow, COL_R_DESC].Text = "OPENING BALANCE";
                     worksheet[recRow, COL_R_DESC].CellStyle.Font.Bold = true;
+                    worksheet[recRow, COL_R_VNO].CellStyle.Font.Bold = true;
+                    worksheet[recRow, COL_R_SubAMT].CellStyle.Font.Bold = true;
                     worksheet[recRow, COL_R_AMT].CellStyle.Font.Bold = true;
                     openingBalance = line.Amount;
                     // no date/voucher printed for Opening Balance
@@ -4706,8 +4712,11 @@ namespace Library.Accounting.Accounts
                     worksheet[recRow, COL_R_DATE].Text = line.PostingDate.ToString("dd.MM.yy");
                     worksheet[recRow, COL_R_VNO].Text = line.VoucherNo;
                     worksheet[recRow, COL_R_DESC].Text = line.Description;
+                    worksheet[recRow, COL_R_SubAMT].Number = (double)line.SubAmount;
                     totalOtherReceipts += line.Amount;
                 }
+                worksheet[recRow, COL_R_SubAMT].Number = (double)line.SubAmount;
+                worksheet[recRow, COL_R_SubAMT].NumberFormat = "#,##0.00";
 
                 worksheet[recRow, COL_R_AMT].Number = (double)line.Amount;
                 worksheet[recRow, COL_R_AMT].NumberFormat = "#,##0.00";
@@ -4715,8 +4724,20 @@ namespace Library.Accounting.Accounts
                 recRow++;
             }
 
-            int receiptBlockEndRow = recRow - 1;
 
+            recRow++; recRow++;
+            worksheet[recRow, COL_R_DESC].Text = "SUMMARY :";
+            recRow++;
+            for (int i = 0; i < dtSumOfExp.Rows.Count; i++)
+            {
+
+                worksheet[recRow, COL_R_DESC].Text = dtSumOfExp.Rows[i]["TotalExpenses"].ToString();
+
+                worksheet[recRow, COL_R_SubAMT].Number =Convert.ToDouble( dtSumOfExp.Rows[i]["SubAmount"]);
+                worksheet[recRow, COL_R_SubAMT].NumberFormat = "#,##0.00";
+                recRow++;
+            }
+            int receiptBlockEndRow = recRow - 1;
             // ---- Cash In Hand (balancing figure) = Total Receipts - Total Expenses -----
             decimal totalReceipts = openingBalance + totalOtherReceipts;
             decimal cashInHand = totalReceipts - totalExpenseLines;
@@ -4781,6 +4802,7 @@ namespace Library.Accounting.Accounts
             public DateTime PostingDate;
             public string VoucherNo;
             public string Description;
+            public decimal SubAmount;
             public decimal Amount;
         }
 
@@ -4791,7 +4813,11 @@ namespace Library.Accounting.Accounts
             public string Description;
             public decimal Amount;
         }
-
+        private struct SumOfExpenses
+        {
+            public string Description;
+            public decimal SubAmount;
+        }
         /// <summary>
         /// Splits the single combined DataTable (Receipts FULL OUTER JOINed to Expenses by
         /// RN, now including VoucherNo on both sides) into two independent lists for
@@ -4807,11 +4833,12 @@ namespace Library.Accounting.Accounts
             const int COL_R_DATE = 0;
             const int COL_R_VNO = 1;
             const int COL_R_DESC = 2;
-            const int COL_R_AMT = 3;
-            const int COL_E_DATE = 4;
-            const int COL_E_VNO = 5;
-            const int COL_E_DESC = 6;
-            const int COL_E_AMT = 7;
+            const int COL_R_SubAMT = 3;
+            const int COL_R_AMT = 4;
+            const int COL_E_DATE = 5;
+            const int COL_E_VNO = 6;
+            const int COL_E_DESC = 7;
+            const int COL_E_AMT = 8;
 
             foreach (DataRow dr in dt.Rows)
             {
@@ -4822,6 +4849,7 @@ namespace Library.Accounting.Accounts
                         PostingDate = dr[COL_R_DATE] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(dr[COL_R_DATE]),
                         VoucherNo = dr[COL_R_VNO] == DBNull.Value ? string.Empty : dr[COL_R_VNO].ToString(),
                         Description = dr[COL_R_DESC].ToString(),
+                        SubAmount = dr[COL_R_SubAMT] == DBNull.Value ? 0m : Convert.ToDecimal(dr[COL_R_SubAMT]),
                         Amount = dr[COL_R_AMT] == DBNull.Value ? 0m : Convert.ToDecimal(dr[COL_R_AMT])
                     });
                 }
@@ -4895,6 +4923,24 @@ SELECT
         AND VD.CashMasterId <> ''
         AND V.PostingDate < '"+ from + @"'
         AND V.SourceType<>'OpeningBalance' AND VD.CashMasterId='" + cashMasterId + @"'
+UNION ALL
+SELECT
+        
+        SUM(VD.DrAmount) AS ReceiptAmount,0 ExAmountAmount
+    FROM TRN.VoucherDetail VD
+    LEFT JOIN TRN.Voucher V ON V.Id = VD.VoucherId
+    LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId = VD.Id
+    LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id = VD.GLGeneralInfoId
+    LEFT JOIN HKP.Activity A ON A.Id = VD.ActivityId
+    LEFT JOIN MST.BudgetMaster BM ON BM.Id = VD.BudgetMasterId
+    LEFT JOIN HKP.AccountGroup AG ON AG.Id = GL.AccountGroupId
+    LEFT JOIN MST.CashMaster CM ON CM.Id = VD.CashMasterId
+	LEFT JOIN (SELECT CashMasterId,VoucherId FROM TRN.VoucherDetail where CrAmount>0 and CashMasterId='1' )XVD ON XVD.VoucherId=V.Id
+	LEFT JOIN (SELECT Id,StartDate FROM SCS.FiscalYearPeriod) FYP ON FYP.StartDate < '" + from + @"'
+    WHERE V.PlantId = '" + plantId + @"' AND AG.AccountTypeId IN ('Liability')
+        AND VD.DrAmount > 0
+        AND VD.CashMasterId IS NULL
+        AND V.SourceType <> 'OpeningBalance'  AND xVD.CashMasterId='" + cashMasterId + @"' AND V.FiscalYearPeriodId=(FYP.Id-1)
 UNION ALL 
  SELECT 0 ReceiptAmount, SUM(VD.DrAmount) AS ExAmountAmount
     FROM TRN.VoucherDetail VD
@@ -4933,11 +4979,32 @@ UNION ALL
 
 	
     UNION ALL
-    SELECT
+	SELECT Y.PostingDate,Y.VoucherNo,Y.Receipt,Y.Amount,
+        ROW_NUMBER() OVER (ORDER BY Y.PostingDate, Y.VoucherNo) AS RN,Y.Id FROM (
+	SELECT
+        V.PostingDate,V.VoucherNo,
+         'Adv Adj ( '+V.Narration +' )'  AS Receipt,
+        VD.DrAmount AS Amount,VD.Id
+    FROM TRN.VoucherDetail VD
+    LEFT JOIN TRN.Voucher V ON V.Id = VD.VoucherId
+    LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId = VD.Id
+    LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id = VD.GLGeneralInfoId
+    LEFT JOIN HKP.Activity A ON A.Id = VD.ActivityId
+    LEFT JOIN MST.BudgetMaster BM ON BM.Id = VD.BudgetMasterId
+    LEFT JOIN HKP.AccountGroup AG ON AG.Id = GL.AccountGroupId
+    LEFT JOIN MST.CashMaster CM ON CM.Id = VD.CashMasterId
+	LEFT JOIN (SELECT CashMasterId,VoucherId FROM TRN.VoucherDetail where CrAmount>0 and CashMasterId='1' )XVD ON XVD.VoucherId=V.Id
+	LEFT JOIN (SELECT Id,StartDate FROM SCS.FiscalYearPeriod) FYP ON FYP.StartDate BETWEEN  '"+from+"' AND '"+to+ @"'
+    WHERE V.PlantId = '" + plantId + @"' AND AG.AccountTypeId IN ('Liability')
+        AND VD.DrAmount > 0
+        AND VD.CashMasterId IS NULL
+        AND  DAY('" + to + @"') - DAY(FYP.StartDate)<7
+        AND V.SourceType <> 'OpeningBalance'  and xVD.CashMasterId='" + cashMasterId+ @"' AND V.FiscalYearPeriodId=(FYP.Id-1)
+    UNION ALL
+	SELECT
         V.PostingDate,V.VoucherNo,
         CM.UserName + '(' + V.Narration + ')' AS Receipt,
-        VD.DrAmount AS Amount,
-        ROW_NUMBER() OVER (ORDER BY V.PostingDate, V.VoucherNo) AS RN,VD.Id
+        VD.DrAmount AS Amount,VD.Id
     FROM TRN.VoucherDetail VD
     LEFT JOIN TRN.Voucher V ON V.Id = VD.VoucherId
     LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId = VD.Id
@@ -4949,32 +5016,13 @@ UNION ALL
     WHERE V.PlantId = '" + plantId + @"'
         AND VD.DrAmount > 0
         AND VD.CashMasterId <> ''
-        AND V.PostingDate BETWEEN '"+ from + "' AND '"+to+ @"'
+        AND V.PostingDate BETWEEN '" + from + "' AND '" + to + @"'
         AND V.SourceType <> 'OpeningBalance'  and VD.CashMasterId='" + cashMasterId + @"'
-UNION ALL
-    SELECT
-        V.PostingDate,V.VoucherNo,
-         'Adv Adj ( '+V.Narration +' )'  AS Receipt,
-        VD.DrAmount AS Amount,
-        ROW_NUMBER() OVER (ORDER BY V.PostingDate, V.VoucherNo) AS RN,VD.Id
-    FROM TRN.VoucherDetail VD
-    LEFT JOIN TRN.Voucher V ON V.Id = VD.VoucherId
-    LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId = VD.Id
-    LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id = VD.GLGeneralInfoId
-    LEFT JOIN HKP.Activity A ON A.Id = VD.ActivityId
-    LEFT JOIN MST.BudgetMaster BM ON BM.Id = VD.BudgetMasterId
-    LEFT JOIN HKP.AccountGroup AG ON AG.Id = GL.AccountGroupId
-    LEFT JOIN MST.CashMaster CM ON CM.Id = VD.CashMasterId
-	LEFT JOIN (SELECT CashMasterId,VoucherId FROM TRN.VoucherDetail where CrAmount>0 and CashMasterId='1' )XVD ON XVD.VoucherId=V.Id
-	LEFT JOIN (SELECT Id,StartDate FROM SCS.FiscalYearPeriod) FYP ON FYP.StartDate BETWEEN  '" + from + "' AND '" + to + @"'
-    WHERE V.PlantId ='" + plantId + @"'  AND AG.AccountTypeId IN ('Liability')
-        AND VD.DrAmount > 0
-        AND VD.CashMasterId IS NULL
-        AND V.SourceType <> 'OpeningBalance'  and xVD.CashMasterId='1' AND V.FiscalYearPeriodId=(FYP.Id-1)
+	) Y
 )
 SELECT
     R.PostingDate AS [RDATE],R.VoucherNo RVoucherNo,
-    R.Receipt     AS RECEIPTS,
+    R.Receipt     AS RECEIPTS,0 SubAmount,
     R.Amount      AS ReceiptAMOUNT,
     E.PostingDate AS [EDATE],E.VoucherNo EVoucherNo,
     E.HeadOfExpense AS [EXPENSES],
@@ -4985,7 +5033,61 @@ FULL OUTER JOIN Expenses E ON R.RN = E.RN ORDER BY E.VoucherNo,E.Id";
             return _sqlRepository.GetDataTable(sql.ToString());
         }
 
+ //       private DataTable GetSumOfExpensesData(string plantId, DateTime fromDate, DateTime toDate, string cashMasterId)
+ //       {
+ //           string from = fromDate.ToString("yyyy-MM-dd");
+ //           string to = toDate.ToString("yyyy-MM-dd");
+ //   var sql = @"SELECT TotalExpenses = A.UserName,
+ //       SUM(VD.DrAmount) AS SubAmount
+ //   FROM TRN.VoucherDetail VD
+ //   LEFT JOIN TRN.Voucher V ON V.Id = VD.VoucherId
+ //   LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId = VD.Id
+ //   LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id = VD.GLGeneralInfoId
+ //   LEFT JOIN HKP.Activity A ON A.Id = VD.ActivityId
+ //   LEFT JOIN MST.BudgetMaster BM ON BM.Id = VD.BudgetMasterId
+ //   LEFT JOIN HKP.AccountGroup AG ON AG.Id = GL.AccountGroupId
+	//LEFT JOIN (SELECT CashMasterId,VoucherId FROM TRN.VoucherDetail where CrAmount>0 and CashMasterId='" + cashMasterId + @"' )XVD ON XVD.VoucherId=V.Id
+ //   WHERE V.PlantId = '"+ plantId + @"' AND VD.DrAmount > 0 
+	//	AND V.PostingDate BETWEEN '"+ from + "' AND '"+ to + @"'
+ //       AND VD.CashMasterId IS NULL AND XVD.CashMasterId='1' AND V.SourceType <> 'OpeningBalance'
+	//	GROUP BY A.UserName";
+ //           return _sqlRepository.GetDataTable(sql.ToString());
+ //       }
 
+        private DataTable GetSumOfExpensesData(string plantId, DateTime fromDate, DateTime toDate, string cashMasterId)
+        {
+            string from = fromDate.ToString("yyyy-MM-dd");
+            string to = toDate.ToString("yyyy-MM-dd");
+
+            var sql = @";WITH ExpDetail AS (
+        SELECT
+            A.UserName AS TotalExpenses,
+            VD.DrAmount AS Amount,
+            ROW_NUMBER() OVER (ORDER BY V.PostingDate, V.VoucherNo) AS RN
+        FROM TRN.VoucherDetail VD
+        LEFT JOIN TRN.Voucher V ON V.Id = VD.VoucherId
+        LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId = VD.Id
+        LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id = VD.GLGeneralInfoId
+        LEFT JOIN HKP.Activity A ON A.Id = VD.ActivityId
+        LEFT JOIN MST.BudgetMaster BM ON BM.Id = VD.BudgetMasterId
+        LEFT JOIN HKP.AccountGroup AG ON AG.Id = GL.AccountGroupId
+        LEFT JOIN (SELECT CashMasterId, VoucherId FROM TRN.VoucherDetail WHERE CrAmount > 0 AND CashMasterId = '" + cashMasterId + @"') XVD ON XVD.VoucherId = V.Id
+        WHERE V.PlantId = '" + plantId + @"'
+            AND VD.DrAmount > 0
+            AND V.PostingDate BETWEEN '" + from + "' AND '" + to + @"'
+            AND VD.CashMasterId IS NULL
+            AND XVD.CashMasterId = '" + cashMasterId + @"'
+            AND V.SourceType <> 'OpeningBalance'
+    )
+    SELECT
+        TotalExpenses,
+        SUM(Amount) AS SubAmount
+    FROM ExpDetail
+    GROUP BY TotalExpenses
+    ORDER BY MIN(RN)";
+
+            return _sqlRepository.GetDataTable(sql.ToString());
+        }
     }
 
 }
