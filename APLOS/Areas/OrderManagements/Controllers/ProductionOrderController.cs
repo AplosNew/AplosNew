@@ -26,13 +26,18 @@ using System.Web;
 using System.Web.Mvc;
 using Library.Service.Systems;
 using Aplos.MaterialManagement.MaterialQuery;
+using System.Drawing.Printing;
+using Zen.Barcode;
+using System.Text;
+using Aplos.Areas.Materials.Controllers;
+using System.Drawing;
 
 namespace Aplos.Areas.OrderManagements.Controllers
 {
     public class ProductionOrderController : BaseController
     {
         #region Constructor
-
+        string LineItemReference, SKUColor, SKUSize, Qty = null;
         private readonly IProductionOrderService _productionOrderService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
@@ -85,19 +90,20 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return View();
         }
 
-
         public ActionResult SKURegistration()
         {
             return View();
         }
-
 
         public ActionResult PackingBooking()
         {
             return View();
         }
 
-
+        public ActionResult PackerCategory()
+        {
+            return View();
+        }
 
         #endregion
 
@@ -3718,14 +3724,10 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"'  ORDER BY  TEMP
                     dsSO.Tables[0].DefaultView.RowFilter = "SalesOrderId='" + details[i]["SalesOrderId"] + "'";
                     if (dsSO.Tables[0].DefaultView.Count == 0)
                     {
-                        if (SystemID == "")
-                        {
-                            bplib.clsGenID id = new bplib.clsGenID();
-                            id.GenID(System.DateTime.Now.ToShortDateString(), "PacketRegistrationDetail", out SystemID);
-                        }
+
                         DataRow dr = dsSO.Tables[0].NewRow();
 
-                        dr["Id"] = SystemID + "-" + (i + 1).ToString();
+                        dr["Id"] = packetRegistrationMasterId + "-" + (i + 1).ToString();
                         dr["PacketRegistrationMasterId"] = packetRegistrationMasterId;
                         dr["SalesOrderId"] = details[i]["SalesOrderId"];
 
@@ -3804,8 +3806,6 @@ ORDER BY P.SortOrder;";
             {
                 throw ex;
             }
-
-
         }
 
         [HttpPost, Authorize]
@@ -3816,30 +3816,24 @@ ORDER BY P.SortOrder;";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.DAL.ConManager objCon;
                 DataSet dspackCat = null;
-                string sql = "SELECT * FROM [dbo].[PacketRegistrationType] where PacketRegistrationMasterId=" + masterId + "";
+                string sql = "SELECT * FROM [dbo].[PacketRegistrationType] where PacketRegistrationMasterId='" + masterId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
 
-                string SystemID = "";
                 for (int i = 0; i < packCatlist.Count; i++)
                 {
                     dspackCat.Tables[0].DefaultView.RowFilter = "Id='" + packCatlist[i]["Id"] + "'";
                     if (dspackCat.Tables[0].DefaultView.Count == 0)
                     {
-                        if (SystemID == "")
-                        {
-                            bplib.clsGenID id = new bplib.clsGenID();
-                            id.GenID(System.DateTime.Now.ToShortDateString(), "PacketRegistrationType", out SystemID);
-                        }
                         DataRow dr = dspackCat.Tables[0].NewRow();
 
-                        dr["Id"] = SystemID + "-" + (i + 1).ToString();
+                        dr["Id"] = masterId + "-" + (i + 1).ToString();
                         dr["PacketRegistrationMasterId"] = masterId;
                         dr["PackingTypeId"] = packCatlist[i]["PackingTypeId"];
                         dr["PackingCategory"] = packCatlist[i]["PackingCategory"];
                         dr["NoOfUnitPerPack"] = packCatlist[i]["NoOfUnitPerPack"];
                         dr["NoOfPack"] = packCatlist[i]["NoOfPack"];
-
+                        dr["LineItemReference"] = packCatlist[i]["LineItemReference"];
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["AddedFromIP"] = identity.IPAddress;
@@ -3854,13 +3848,13 @@ ORDER BY P.SortOrder;";
                         dr["PackingTypeId"] = packCatlist[i]["PackingTypeId"];
                         dr["NoOfUnitPerPack"] = packCatlist[i]["NoOfUnitPerPack"];
                         dr["NoOfPack"] = packCatlist[i]["NoOfPack"];
+                        dr["LineItemReference"] = packCatlist[i]["LineItemReference"];
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
                         dr.EndEdit();
                     }
                 }
-
 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dspackCat);
@@ -3885,20 +3879,14 @@ ORDER BY P.SortOrder;";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
 
-                string SystemID = "";
                 for (int i = 0; i < packregilist.Count; i++)
                 {
                     dspackCat.Tables[0].DefaultView.RowFilter = "Id='" + packregilist[i]["Id"] + "'";
                     if (dspackCat.Tables[0].DefaultView.Count == 0)
                     {
-                        if (SystemID == "")
-                        {
-                            bplib.clsGenID id = new bplib.clsGenID();
-                            id.GenID(System.DateTime.Now.ToShortDateString(), "PacketRegistration", out SystemID);
-                        }
                         DataRow dr = dspackCat.Tables[0].NewRow();
 
-                        dr["Id"] = SystemID + "-" + (i + 1).ToString();
+                        dr["Id"] = masterId + "-" + (i + 1).ToString();
                         dr["PacketRegistrationTypeId"] = masterId;
                         dr["SalesOrderId"] = packregilist[i]["SalesOrderId"];
                         dr["SKU1Id"] = packregilist[i]["SKU1Id"];
@@ -3942,7 +3930,6 @@ ORDER BY P.SortOrder;";
                         dr.EndEdit();
                     }
                 }
-
 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dspackCat);
@@ -3988,21 +3975,13 @@ ORDER BY P.SortOrder;";
                 int totalCartons = Convert.ToInt32(data["NoOfPack"]);
                 int existingCartons = dspackCat.Tables[0].AsEnumerable().Count(r => r["PacketRegistrationId"].ToString() == data["PacketRegistrationId"].ToString());
 
-                string SystemID = "";
-
                 if (existingCartons < totalCartons)
                 {
-                    if (SystemID == "")
-                    {
-                        bplib.clsGenID id = new bplib.clsGenID();
-                        id.GenID(System.DateTime.Now.ToShortDateString(), "CartonGeneration", out SystemID);
-                    }
-
                     for (int i = existingCartons; i < totalCartons; i++)
                     {
                         DataRow dr = dspackCat.Tables[0].NewRow();
 
-                        dr["Id"] = SystemID + "-" + (i + 1);
+                        dr["Id"] = data["PacketRegistrationId"] + "-" + (i + 1);
                         dr["PacketRegistrationId"] = data["PacketRegistrationId"];
                         dr["NoOfPcs"] = data["NoOfPcs"];
                         dr["CartonNo"] = i + 1;
@@ -4026,9 +4005,225 @@ ORDER BY P.SortOrder;";
                 throw ex;
             }
         }
+
+        public ActionResult GenerateQRCode(Dictionary<string, object> data)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+
+
+                if (!String.IsNullOrEmpty(data["LineItemReference"].ToString()))
+                {
+                    LineItemReference = data["LineItemReference"].ToString();
+                }
+                if (!String.IsNullOrEmpty(data["SKUColor"].ToString()))
+                {
+                    SKUColor = data["SKUColor"].ToString();
+                }
+
+                if (!String.IsNullOrEmpty(data["SKUSize"].ToString()))
+                {
+                    SKUSize = data["SKUSize"].ToString();
+                }
+                if (!String.IsNullOrEmpty(data["Qty"].ToString()))
+                {
+                    Qty = data["Qty"].ToString();
+                }
+
+
+                var doc = new PrintDocument();
+                var paperSize = new PaperSize("Custom", 520, 820);
+                doc.DefaultPageSettings.PaperSize = paperSize;
+
+                // doc.PrintPage += PrintPicture;
+                doc.PrintPage += new PrintPageEventHandler(ProvideContent);
+
+
+                doc.Print();
+
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public void ProvideContent(object sender, PrintPageEventArgs e)
+        {
+
+            int itemHeight = 0;
+            var curX = e.MarginBounds.X;
+            var curY = e.MarginBounds.Y;
+
+
+            string concatdata = Convert.ToString(
+                    string.Concat(
+                     LineItemReference, "#"
+                    , SKUColor, "#"
+                    , SKUSize, "#"
+                    , Qty, "#"
+                    ));
+
+            CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
+            var barcodeImg = qrCode.Draw(concatdata, 200, 2);
+
+            //ConvertImagePNGToBMP(concatdata);
+
+            var sb = new StringBuilder();
+
+            sb.AppendLine(($"LineItem#: {LineItemReference}"));
+            sb.AppendLine(($"Color: {SKUColor} "));
+            sb.AppendLine(($"Size: {SKUSize} "));
+            sb.AppendLine(($"Qty: {Qty} "));
+            sb.AppendLine(($"CartonNo: "));
+
+
+            var printText = new PrintText(sb.ToString(), new Font(System.Drawing.FontFamily.GenericSansSerif, 9, System.Drawing.FontStyle.Bold));
+            Graphics graphics = e.Graphics;
+
+            using (var fontNormal = new Font("Arial", 9))
+            using (var sf = new StringFormat())
+            {
+                sf.Alignment = sf.LineAlignment = StringAlignment.Far;
+                itemHeight = (int)fontNormal.GetHeight(e.Graphics) + 10;
+
+
+                var imgRect = new Rectangle(150, 50, 90, 90);
+                //var labelRect = new Rectangle(150, 50, imgRect.Width, itemHeight);
+
+                using (var qrImage = barcodeImg)
+                    e.Graphics.DrawImage(qrImage, imgRect);
+
+            }
+
+
+            int startX = 0;
+            int startY = 0;
+            int Offset = 20;
+
+            graphics.DrawString(printText.Text, new Font(System.Drawing.FontFamily.GenericMonospace, 9, System.Drawing.FontStyle.Bold),
+                                new SolidBrush(System.Drawing.Color.Black), startX, startY + Offset);
+            Offset = Offset + 20;
+        }
         #endregion
 
+        #region PackerCategory
 
+        string TableName = "HKP.PackerCategory";
+
+        [Authorize, HttpGet]
+        public JsonResult GetPackerCategoryCbo()
+        {
+            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM HKP.PackerCategory"), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult GetPackerCategoryList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey + " order by sequence";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetPackerCategoryAutoSequence()
+        {
+            return Json(GetPackerCategorySequence(), JsonRequestBehavior.AllowGet);
+        }
+        private double GetPackerCategorySequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+        [HttpPost]
+        public JsonResult CreatePackerCategory(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Code already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Sequence = GetPackerCategorySequence(), Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        public ActionResult DeletePackerCategory(string id)
+        {
+           
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Sequence = GetPackerCategorySequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+        #endregion
 
 
 

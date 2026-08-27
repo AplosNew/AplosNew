@@ -2018,6 +2018,7 @@
     <Content Include="Areas\MIS\Scripts\orderStatusBIController.js" />
     <Content Include="Areas\MIS\Scripts\atAGlanceBIController.js" />
     <Content Include="Areas\MIS\Scripts\misConfig.js" />
+    <Content Include="Areas\OrderManagements\Scripts\PackerCategoryController.js" />
     <Content Include="Areas\OrderManagements\Scripts\PackingBookingController.js" />
     <Content Include="Areas\OrderManagements\Scripts\DispatchPlanController.js" />
     <Content Include="Areas\OrderManagements\Scripts\SKURegistrationController.js" />
@@ -5147,6 +5148,7 @@
     <Content Include="Areas\OrderManagements\Views\ProductionOrder\SKURegistration.cshtml" />
     <Content Include="Areas\OrderManagements\Views\ProductionOrder\PackingBooking.cshtml" />
     <Content Include="Areas\Accounts\Views\VoucherMaxNumberUpdate.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\ProductionOrder\PackerCategory.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

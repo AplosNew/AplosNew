@@ -1,4 +1,9 @@
 ﻿<togglable name="Packing Defination"></togglable>
+<style>
+    .modellgModify {
+        width: 1200px;
+    }
+</style>
 <div class="form-elements form-horizontal">
     <div class="row" ng-form name="ModelNewForm">
         <input type="hidden" ng-model="ModelNew.Id">
@@ -27,6 +32,12 @@
                             <option value="Close">Close</option>
                         </select>
                     </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Line Item Reference</label>
+                <div class="col-sm-8">
+                    <input type="text" ng-model="ModelNew.LineItemReference" style="color:black;" class="form-control" />
                 </div>
             </div>
         </div>
@@ -139,6 +150,7 @@
                                 <div e-column e-template="#PackingType" e-headertext="PackingType" e-width="80" style="height: 20px;"></div>
                                 <div e-column e-template="#NoOfUnitPerPack" e-headertext="NoOfUnitPerPack" e-width="80" style="height: 20px;"></div>
                                 <div e-column e-template="#NoOfPack" e-headertext="NoOfPack" e-width="80" style="height: 20px;"></div>
+                                <div e-column e-template="#TypeLineItemReference" e-headertext="LineItemReference" e-width="80" style="height: 20px;"></div>
                                 <div e-column e-template="#PacketRegistration" e-headertext="PacketRegistration" e-width="80" style="height: 20px;"></div>
                             </div>
                         </div>
@@ -166,6 +178,11 @@
                         <script type="text/template" id="NoOfPack">
                             <div class="col-sm-10" style="padding:0px; width:70px;">
                                 <input type="text" ng-model="data.NoOfPack" ng-disabled="true" n-decimals="2" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="TypeLineItemReference">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.LineItemReference" style="color:black;" class="form-control" />
                             </div>
                         </script>
                         <script type="text/template" id="PacketRegistration">
@@ -337,7 +354,6 @@
                     </div>
 
                     <script type="text/template" id="checkboxTemplateSOSearch">
-                        @*<input type="checkbox" ng-model="{{:SalesOrderId}}" class="rowCheckbox" value="{{:SalesOrderId}}" />*@
                         <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Checked" e-checked="data.Checked" />
 
                     </script>
@@ -357,11 +373,8 @@
     </div>
 </div>
 
-
-
-
 <div class="modal fade site-modal in" id="PRPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
             <div class="modal-header">Carton <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body">
@@ -370,6 +383,8 @@
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
+                            @*<div e-column e-headertext="" e-template="#checkboxTemplateQR" e-textalign="center" e-width="30"></div>*@
+                            <div e-column e-template="#GenCarton" e-headertext="Action" e-width="140" style="height: 20px;"></div>
                             <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
                             <div e-column e-type="string" e-field="SKUColor" e-headertext="Color" e-width="80"></div>
                             <div e-column e-type="string" e-field="SKUSize" e-headertext="Size" e-width="80"></div>
@@ -382,7 +397,6 @@
                             <div e-column e-template="#Qty" e-headertext="Qty" e-width="80" style="height: 20px;"></div>
                             <div e-column e-template="#LineItemReference" e-headertext="LineItemReference" e-width="80" style="height: 20px;"></div>
                             <div e-column e-template="#Remark" e-headertext="Remark" e-width="100" style="height: 20px;"></div>
-                            <div e-column e-template="#GenCarton" e-headertext="Carton Generate" e-width="100" style="height: 20px;"></div>
                         </div>
 
                         <script type="text/template" id="UnitPerPack">
@@ -430,9 +444,16 @@
                                 <input type="text" ng-model="data.LineItemReference" style="color:black;" class="form-control" />
                             </div>
                         </script>
+                        @*<script type="text/template" id="checkboxTemplateQR">
+                                <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Checked" e-checked="data.Checked" />
+                            </script>*@
+                        @*<script type="text/x-jsrender" id="headerTemplate">
+                                <input type="checkbox" id="headchk" />
+                            </script>*@
                         <script type="text/template" id="GenCarton">
                             <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
                                 <button ng-click="$parent.GenerateCarton(this);" title="Generate Carton" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
+                                <button ng-click="$parent.generateQRCode(this);" title="Generate QR" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="fa fa-qrcode"></i></button>
                                 <button ng-click="$parent.GetCartonList(this);" title="Carton List" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-eye-open"></i></button>
                             </div>
                         </script>
@@ -440,7 +461,8 @@
                 </div>
                 <div class="common-btn" style="padding-right: 15px;">
                     <ul class="list-inline text-right">
-                        <li> <button ng-click="SavePR();" class="btn"><i class="glyphicon glyphicon-folder-open"></i>Save</button></li>
+                        <li> <button ng-click="SavePR();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        @*<li> <button ng-click="generateQRCode();" class="btn"><i class="fa fa-qrcode"></i> Generate QR</button></li>*@
                         <li> <button ng-click="ClosePR();" class="btn">Close</button></li>
                     </ul>
                 </div>
@@ -459,14 +481,20 @@
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
-                            <div e-column e-type="string" e-field="NoOfPcs" e-headertext="NoOfPcs" e-width="80"></div>
+                            <div e-column e-type="string" e-field="PackingName" e-headertext="PackingName" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                            <div e-column e-type="string" e-field="SOId" e-headertext="SOId" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Color" e-headertext="Color" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Size" e-headertext="Size" e-width="80"></div>
                             <div e-column e-type="string" e-field="CartonNo" e-headertext="CartonNo" e-width="80"></div>
+                            <div e-column e-type="string" e-field="NoOfPcs" e-headertext="NoOfUnit" e-width="80"></div>
                         </div>
 
                     </div>
                 </div>
                 <div class="common-btn" style="padding-right: 15px;">
                     <ul class="list-inline text-right">
+                        <li> <button ng-click="CartonReportExcel();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
                         <li> <button ng-click="CloseCG();" class="btn">Close</button></li>
                     </ul>
                 </div>
