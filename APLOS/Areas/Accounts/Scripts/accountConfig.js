@@ -1119,5 +1119,9 @@ function accountConfig($routeProvider) {
             templateUrl: 'Accounts/VoucherReport/WeeklyReceiptAndPaymentStatement',
             controller: 'WeeklyReceiptAndPaymentStatementController'
         })
+        .when('/voucher-Max-No', {
+            templateUrl: 'Accounts/VoucherType/VoucherMaxNumberUpdate',
+            controller: 'VoucherMaxNumberUpdateController'
+        })
         ;
 } 
