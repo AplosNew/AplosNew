@@ -37,7 +37,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
     public class ProductionOrderController : BaseController
     {
         #region Constructor
-        string LineItemReference, SKUColor, SKUSize, Qty = null;
+        string LineItemReference, SKUColor, SKUSize, Qty, Code = null;
         private readonly IProductionOrderService _productionOrderService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
@@ -3985,6 +3985,7 @@ ORDER BY P.SortOrder;";
                         dr["PacketRegistrationId"] = data["PacketRegistrationId"];
                         dr["NoOfPcs"] = data["NoOfPcs"];
                         dr["CartonNo"] = i + 1;
+                        dr["Code"] = data["PacketRegistrationId"] + "-" + (i + 1);
 
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = DateTime.Now;
@@ -4121,7 +4122,7 @@ ORDER BY P.SortOrder;";
             return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM HKP.PackerCategory"), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [HttpPost,Authorize]
         public ActionResult GetPackerCategoryList(string column, string value)
         {
             string strkey = "1=1";

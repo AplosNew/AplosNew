@@ -637,7 +637,8 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     }
 
     $scope.downloadgriddataUrl = 'GridReports/Download';
-    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    //$scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.exportgriddataUrl = 'GridReports/ViewExcelExportUpd';
     $scope.CartonReportExcel = function () {
         var dataListUnDisbursed = [];
         var gUnDisbursed = $("#GridC").data("ejGrid");
