@@ -680,6 +680,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
             $scope.QRCodeGenerateModel.SKUColor = obj.data.SKUColor;
             $scope.QRCodeGenerateModel.SKUSize = obj.data.SKUSize;
             $scope.QRCodeGenerateModel.Qty = obj.data.Qty;
+            $scope.QRCodeGenerateModel.PacketRegistrationId = obj.data.Id;
 
             $scope.fileName = "QRCode.pptx";
             $http({

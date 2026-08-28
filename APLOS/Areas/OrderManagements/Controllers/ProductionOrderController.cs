@@ -4007,7 +4007,276 @@ ORDER BY P.SortOrder;";
             }
         }
 
+        private List<QRCodeItem> qrCodeItems = new List<QRCodeItem>();
+        private int currentQRCodeIndex = 0;
         public ActionResult GenerateQRCode(Dictionary<string, object> data)
+        {
+            try
+            {
+                string packetRegistrationId = Convert.ToString(data["PacketRegistrationId"]);
+
+                // -----------------------------------------
+                // Get your SQL DataTable
+                // -----------------------------------------
+                Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+                DataTable dt = order.GetQRCodeData(packetRegistrationId);
+
+                if (dt == null || dt.Rows.Count == 0)
+                {
+                    return Json(new
+                    {
+                        Error = true,
+                        Message = "No carton data found."
+                    });
+                }
+
+
+                // -----------------------------------------
+                // Prepare QR list
+                // -----------------------------------------
+
+                qrCodeItems = new List<QRCodeItem>();
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    qrCodeItems.Add(new QRCodeItem
+                    {
+                        PackingName = Convert.ToString(row["PackingName"]),
+
+                        Customer = Convert.ToString(row["Customer"]),
+
+                        SOId = Convert.ToString(row["SOId"]),
+
+                        Color = Convert.ToString(row["Color"]),
+
+                        Size = Convert.ToString(row["Size"]),
+
+                        NoOfPcs = Convert.ToString(row["NoOfPcs"]),
+
+                        CartonNo = Convert.ToString(row["CartonNo"])
+                    });
+                }
+
+
+                currentQRCodeIndex = 0;
+
+
+                // -----------------------------------------
+                // Print
+                // -----------------------------------------
+
+                var doc = new PrintDocument();
+
+                // A4
+                var paperSize = new PaperSize("A4", 827, 1169);
+
+                doc.DefaultPageSettings.PaperSize = paperSize;
+
+                doc.DefaultPageSettings.Margins = new Margins(10, 10, 10, 10);
+
+                doc.PrintPage += new PrintPageEventHandler(ProvideContent);
+
+                doc.Print();
+
+
+                return Json(new
+                {
+                    Error = false,
+                    Message = "QR Code printed successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public void ProvideContent(object sender, PrintPageEventArgs e)
+        {
+            Graphics graphics = e.Graphics;
+
+            // ============================================
+            // A4 SIZE
+            // ============================================
+
+            int pageWidth = e.PageBounds.Width;
+            int pageHeight = e.PageBounds.Height;
+
+
+            // ============================================
+            // 2 COLUMNS x 4 ROWS
+            // ============================================
+
+            int columns = 2;
+            int rows = 4;
+
+            int labelWidth = pageWidth / columns;
+
+            int labelHeight = pageHeight / rows;
+
+
+            // ============================================
+            // QR SIZE
+            // ============================================
+
+            int qrSize = 130;
+
+
+            using (Font font = new Font(FontFamily.GenericMonospace, 9, FontStyle.Bold))
+
+            using (Brush brush = new SolidBrush(Color.Black))
+
+            using (Pen pen = new Pen(Color.Black, 1))
+            {
+
+                // ============================================
+                // PRINT 8 LABELS
+                // ============================================
+
+                for (int i = 0; i < 8; i++)
+                {
+                    if (currentQRCodeIndex >= qrCodeItems.Count)
+                    {
+                        break;
+                    }
+
+
+                    QRCodeItem item = qrCodeItems[currentQRCodeIndex];
+
+
+                    // ============================================
+                    // POSITION
+                    // ============================================
+
+                    int column = i % 2;
+                    int row = i / 2;
+
+
+                    int startX = column * labelWidth;
+
+                    int startY = row * labelHeight;
+
+
+                    // ============================================
+                    // QR DATA
+                    // ============================================
+
+                    string qrData =
+                        string.Concat(
+                            item.PackingName,
+                            "#",
+                            item.Color,
+                            "#",
+                            item.Size,
+                            "#",
+                            item.NoOfPcs,
+                            "#",
+                            item.CartonNo
+                        );
+
+
+                    // Example:
+                    //
+                    // test#Black Stp.-NN#M#50#20261-1
+
+
+                    // ============================================
+                    // GENERATE QR
+                    // ============================================
+
+                    CodeQrBarcodeDraw qrCode =
+                        BarcodeDrawFactory.CodeQr;
+
+
+                    using (var barcodeImg = qrCode.Draw(qrData, 200, 2))
+                    {
+                        int qrX = startX + labelWidth - qrSize - 20;
+
+                        int qrY = startY + 35;
+
+
+                        Rectangle imgRect = new Rectangle(qrX, qrY, qrSize, qrSize);
+
+
+                        graphics.DrawImage(barcodeImg, imgRect);
+                    }
+
+
+                    // ============================================
+                    // TEXT
+                    // ============================================
+
+                    string printText =
+                        "Packing#: " +
+                        item.PackingName +
+                        "\r\n" +
+
+                        "Customer: " +
+                        item.Customer +
+                        "\r\n" +
+
+                        "SO: " +
+                        item.SOId +
+                        "\r\n" +
+
+                        "Color: " +
+                        item.Color +
+                        "\r\n" +
+
+                        "Size: " +
+                        item.Size +
+                        "\r\n" +
+
+                        "Qty: " +
+                        item.NoOfPcs +
+                        "\r\n" +
+
+                        "CartonNo: " +
+                        item.CartonNo;
+
+
+                    int textX = startX + 5;
+
+                    int textY = startY + 30;
+
+
+                    graphics.DrawString(printText, font, brush, textX, textY);
+
+
+                    // ============================================
+                    // BORDER
+                    // ============================================
+
+                    graphics.DrawRectangle(pen, startX + 2, startY + 2, labelWidth - 4, labelHeight - 4);
+
+
+                    // ============================================
+                    // NEXT CARTON
+                    // ============================================
+
+                    currentQRCodeIndex++;
+                }
+            }
+
+
+            // ============================================
+            // MORE PAGES
+            // ============================================
+
+            if (currentQRCodeIndex < qrCodeItems.Count)
+            {
+                e.HasMorePages = true;
+            }
+            else
+            {
+                e.HasMorePages = false;
+
+                currentQRCodeIndex = 0;
+                qrCodeItems.Clear();
+            }
+        }
+
+        public ActionResult _GenerateQRCode(Dictionary<string, object> data)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -4053,7 +4322,7 @@ ORDER BY P.SortOrder;";
         }
 
 
-        public void ProvideContent(object sender, PrintPageEventArgs e)
+        public void _ProvideContent(object sender, PrintPageEventArgs e)
         {
 
             int itemHeight = 0;
@@ -4122,7 +4391,7 @@ ORDER BY P.SortOrder;";
             return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM HKP.PackerCategory"), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public ActionResult GetPackerCategoryList(string column, string value)
         {
             string strkey = "1=1";
@@ -4200,7 +4469,7 @@ ORDER BY P.SortOrder;";
 
         public ActionResult DeletePackerCategory(string id)
         {
-           
+
             try
             {
 
@@ -4232,6 +4501,18 @@ ORDER BY P.SortOrder;";
 
 
 }
+
+public class QRCodeItem
+{
+    public string PackingName { get; set; }
+    public string Customer { get; set; }
+    public string SOId { get; set; }
+    public string Color { get; set; }
+    public string Size { get; set; }
+    public string NoOfPcs { get; set; }
+    public string CartonNo { get; set; }
+}
+
 
 public class MultiCode
 {
