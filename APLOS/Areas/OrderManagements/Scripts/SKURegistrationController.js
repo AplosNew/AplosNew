@@ -670,11 +670,10 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     };
 
-
-    $scope.downloadgriddataUrlPath = 'GridReports/PPTFileDownLoad';
+    $scope.pdfdownloadgriddataUrl = 'GridReports/DownloadPdf';
     $scope.FN = null;
     $scope.QRCodeGenerateModel = { LineItemReference: null, SKUColor: null, Qty: null};
-    $scope.generateQRCode = function (obj) {
+    $scope.generateQRCode_ = function (obj) {
         try {
             $scope.QRCodeGenerateModel.LineItemReference = obj.data.LineItemReference;
             $scope.QRCodeGenerateModel.SKUColor = obj.data.SKUColor;
@@ -714,7 +713,41 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     }
 
 
+   
+    $scope.generateQRCode = function (obj) {
+        try {
+            $scope.QRCodeGenerateModel.LineItemReference = obj.data.LineItemReference;
+            $scope.QRCodeGenerateModel.SKUColor = obj.data.SKUColor;
+            $scope.QRCodeGenerateModel.SKUSize = obj.data.SKUSize;
+            $scope.QRCodeGenerateModel.Qty = obj.data.Qty;
+            $scope.QRCodeGenerateModel.PacketRegistrationId = obj.data.Id;
+            $scope.fileName = "QRCode_" + $scope.QRCodeGenerateModel.PacketRegistrationId+".pdf"; // was "QRCode.pptx" — fix extension too
 
+            $http({
+                method: 'POST',
+                url: $scope.path + "GenerateQRCode",
+                data: {
+                    'data': $scope.QRCodeGenerateModel
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    //$scope.FN = $scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName;
+                    //$window.open($scope.FN + "&fileName=" + $scope.fileName);
+                    //$rootScope.report($scope.pdfdownloadgriddataUrl + "?FileName=" + response.data.FileName);
+                    //ShowResult(response.data.Message, 'success');
+                    $window.open($scope.pdfdownloadgriddataUrl + "?FileName="  + $scope.fileName);
+                }
+            }, function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
 
 

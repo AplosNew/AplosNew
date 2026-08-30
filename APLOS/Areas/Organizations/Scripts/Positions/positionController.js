@@ -69,7 +69,7 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
         GoodWorkPositionCodeId: null,
         GoodWorkPositionCode: null,
         SkillApplicable: false,
-        SkillType:null
+        SkillType: null
     };
 
     $scope.positionAllowance = {
@@ -291,6 +291,7 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
             .then(function (result) {
                 $scope.positionAllowanceList = result.Rows;
                 $scope.allowanceParameters.total_count = result.Total;
+                $scope.getPRJobDescription($scope.companyStructureSetup.Id);
             }, function () {
                 ShowResult(commonMessage.NetworkError, 'failure');
             }).finally(function () {
@@ -302,8 +303,8 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
             .then(function (response) {
                 $scope.companyStructureSetup = response.data;
                 $scope.getCompanyStructurerRelation($scope.companyStructureSetup);
-                $scope.getAllowanceData();
-                $scope.getPRJobDescription(id);
+                //$scope.getAllowanceData();
+                //$scope.getPRJobDescription(id);
                 if (!$rootScope.isCollapsed) {
                     $rootScope.toggle();
                     $scope.Action = 'Update';
@@ -423,6 +424,8 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
         $http.get('Organizations/PositionRelationship/getcompanystructurerelationlist')
             .then(function (response) {
                 var obj = response.data.Rows;
+                $scope.getAllowanceData();
+
                 if (obj !== null) {
                     angular.forEach(obj, function (item, i) {
                         var dynamicHtml = '';
@@ -653,7 +656,7 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
                         '<label class="col-sm-2 control-label">Skill Type</label>' +
                         '<div class="col-sm-4">' +
                         '<div class="select-style">' +
-                        '<select class="form-control" id="SkillType" ng-disabled="companyStructureSetup.SkillApplicable==false" name="SkillType" ng-model="companyStructureSetup.SkillType" tabindex="4">' +
+                        '<select class="form-control" id="SType" ng-disabled="companyStructureSetup.SkillApplicable==false" name="SkillType" ng-model="companyStructureSetup.SkillType" tabindex="4">' +
                         '<option value="">---Select---</option>' +
                         '<option value="ACTIVITY">ACTIVITY</option>' +
                         '<option value="OPERATION">OPERATION</option>' +

@@ -31,6 +31,17 @@ using Zen.Barcode;
 using System.Text;
 using Aplos.Areas.Materials.Controllers;
 using System.Drawing;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Web.Mvc;
+using System.Web.Hosting;
 
 namespace Aplos.Areas.OrderManagements.Controllers
 {
@@ -4009,7 +4020,7 @@ ORDER BY P.SortOrder;";
 
         private List<QRCodeItem> qrCodeItems = new List<QRCodeItem>();
         private int currentQRCodeIndex = 0;
-        public ActionResult GenerateQRCode(Dictionary<string, object> data)
+        public ActionResult _GenerateQRCode(Dictionary<string, object> data)
         {
             try
             {
@@ -4276,7 +4287,7 @@ ORDER BY P.SortOrder;";
             }
         }
 
-        public ActionResult _GenerateQRCode(Dictionary<string, object> data)
+        public ActionResult __GenerateQRCode(Dictionary<string, object> data)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -4320,8 +4331,6 @@ ORDER BY P.SortOrder;";
                 throw ex;
             }
         }
-
-
         public void _ProvideContent(object sender, PrintPageEventArgs e)
         {
 
@@ -4495,14 +4504,357 @@ ORDER BY P.SortOrder;";
         }
         #endregion
 
+        #region QRCode
 
+        public ActionResult GenerateQRCode_(Dictionary<string, object> data)
+        {
+            try
+            {
+                string packetRegistrationId = Convert.ToString(data["PacketRegistrationId"]);
+
+                Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+                DataTable dt = order.GetQRCodeData(packetRegistrationId);
+
+                if (dt == null || dt.Rows.Count == 0)
+                {
+                    return Json(new { Error = true, Message = "No carton data found." });
+                }
+
+                List<QRCodeItem> qrCodeItems = dt.AsEnumerable().Select(row => new QRCodeItem
+                {
+                    PackingName = Convert.ToString(row["PackingName"]),
+                    Customer = Convert.ToString(row["Customer"]),
+                    SOId = Convert.ToString(row["SOId"]),
+                    Color = Convert.ToString(row["Color"]),
+                    Size = Convert.ToString(row["Size"]),
+                    NoOfPcs = Convert.ToString(row["NoOfPcs"]),
+                    CartonNo = Convert.ToString(row["CartonNo"])
+                }).ToList();
+
+                byte[] pdfBytes = BuildQRCodePdf(qrCodeItems);
+                string fileName = $"QRCode_{packetRegistrationId}.pdf";
+
+                return File(pdfBytes, "application/pdf", fileName);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public ActionResult GenerateQRCode(Dictionary<string, object> data)
+        {
+            try
+            {
+                string packetRegistrationId = Convert.ToString(data["PacketRegistrationId"]);
+
+                Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+                DataTable dt = order.GetQRCodeData(packetRegistrationId);
+
+                if (dt == null || dt.Rows.Count == 0)
+                {
+                    return Json(new { Error = true, Message = "No carton data found." });
+                }
+
+                List<QRCodeItem> qrCodeItems = dt.AsEnumerable().Select(row => new QRCodeItem
+                {
+                    PackingName = Convert.ToString(row["PackingName"]),
+                    Customer = Convert.ToString(row["Customer"]),
+                    SOId = Convert.ToString(row["SOId"]),
+                    Color = Convert.ToString(row["Color"]),
+                    Size = Convert.ToString(row["Size"]),
+                    NoOfPcs = Convert.ToString(row["NoOfPcs"]),
+                    CartonNo = Convert.ToString(row["CartonNo"])
+                }).ToList();
+
+                byte[] pdfBytes = BuildQRCodePdf(qrCodeItems);
+
+                // -----------------------------------------
+                // Save to a temp folder on the server, same
+                // way your other download-generating actions do
+                // -----------------------------------------
+                //string fileName = $"QRCode_{packetRegistrationId}_{DateTime.Now:yyyyMMddHHmmss}.pdf";
+                string fileName = $"QRCode_{packetRegistrationId}.pdf";
+                //string folderPath = Server.MapPath("~/POPResources/QRCode"); // adjust to whatever folder your downloadgriddataUrlPath action already reads from
+                //if (!Directory.Exists(folderPath))
+                //{
+                //    Directory.CreateDirectory(folderPath);
+                //}
+               // string fullPath = Path.Combine(folderPath, fileName);
+                //save the file to server temp folder
+                string fullPath = Path.Combine(HostingEnvironment.MapPath("~/") + fileName);
+                System.IO.File.WriteAllBytes(fullPath, pdfBytes);
+
+                return Json(new
+                {
+                    Error = false,
+                    Message = "QR Code generated successfully.",
+                    FileName = fullPath   // matches response.data.FileName your JS already expects
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        private byte[] BuildQRCodePdf(List<QRCodeItem> qrCodeItems)
+        {
+            const int columns = 2;
+            const int rows = 4;
+            const int perPage = columns * rows;
+
+            // A4 in points
+            const double pageWidth = 595.0;
+            const double pageHeight = 842.0;
+            const double labelWidth = pageWidth / columns;
+            const double labelHeight = pageHeight / rows;
+            const double qrSize = 90;
+            const double fontSize = 9;
+            const double lineHeight = fontSize + 2;
+
+            var pdf = new MinimalPdfBuilder(pageWidth, pageHeight);
+
+            int index = 0;
+            while (index < qrCodeItems.Count)
+            {
+                var sb = new StringBuilder();
+                var imageResources = new Dictionary<string, int>();
+                int imgCounter = 0;
+
+                sb.AppendLine("0 0 0 rg 0 0 0 RG 1 w");
+
+                for (int i = 0; i < perPage && index < qrCodeItems.Count; i++, index++)
+                {
+                    QRCodeItem item = qrCodeItems[index];
+
+                    int column = i % columns;
+                    int row = i / columns;
+
+                    double startX = column * labelWidth;
+                    double startYTopDown = row * labelHeight;
+
+                    // ---- QR DATA ----
+                    string qrData = string.Concat(
+                        item.PackingName, "#", item.Color, "#", item.Size, "#",
+                        item.NoOfPcs, "#", item.CartonNo);
+
+                    // ---- GENERATE QR (existing barcode lib, unchanged) ----
+                    CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
+
+                    using (Image barcodeImg = qrCode.Draw(qrData, 200, 2))
+                    using (var jpegStream = new MemoryStream())
+                    {
+                        barcodeImg.Save(jpegStream, ImageFormat.Jpeg);
+                        byte[] jpegBytes = jpegStream.ToArray();
+
+                        int imgObj = pdf.AddJpegImage(jpegBytes, barcodeImg.Width, barcodeImg.Height);
+                        imgCounter++;
+                        string imgName = "Im" + imgCounter;
+                        imageResources[imgName] = imgObj;
+
+                        double qrX = startX + labelWidth - qrSize - 20;
+                        double qrYTopDown = startYTopDown + 35;
+                        double qrYPdf = pageHeight - qrYTopDown - qrSize;
+
+                        sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
+                            "q {0} 0 0 {1} {2} {3} cm /{4} Do Q",
+                            qrSize, qrSize, qrX, qrYPdf, imgName));
+                    }
+
+                    // ---- TEXT ----
+                    string[] lines =
+                    {
+                $"{item.PackingName}_{item.Customer}",
+                $"{item.SOId}_{item.Color}_{item.Size}",
+                $"{item.NoOfPcs}_{item.CartonNo}"
+            };
+
+                    double textX = startX + 5;
+                    double firstLineTopDown = startYTopDown + 30;
+
+                    sb.AppendLine("BT /F1 " + fontSize.ToString(CultureInfo.InvariantCulture) + " Tf");
+                    for (int li = 0; li < lines.Length; li++)
+                    {
+                        double lineTopDown = firstLineTopDown + li * lineHeight;
+                        double lineYPdf = pageHeight - lineTopDown - fontSize;
+                        sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
+                            "1 0 0 1 {0} {1} Tm ({2}) Tj",
+                            textX, lineYPdf, EscapePdfText(lines[li])));
+                    }
+                    sb.AppendLine("ET");
+
+                    // ---- BORDER ----
+                    double rectX = startX + 2;
+                    double rectYPdf = pageHeight - (startYTopDown + 2) - (labelHeight - 4);
+                    double rectW = labelWidth - 4;
+                    double rectH = labelHeight - 4;
+
+                    sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
+                        "{0} {1} {2} {3} re S", rectX, rectYPdf, rectW, rectH));
+                }
+
+                pdf.AddPage(sb.ToString(), imageResources);
+            }
+
+            return pdf.Build();
+        }
+
+        private static string EscapePdfText(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return string.Empty;
+            return text.Replace("\\", "\\\\").Replace("(", "\\(").Replace(")", "\\)");
+        }
+
+        #endregion
 
     }
 
 
 }
 
+
+
 public class QRCodeItem
+{
+    public string PackingName { get; set; }
+    public string Customer { get; set; }
+    public string SOId { get; set; }
+    public string Color { get; set; }
+    public string Size { get; set; }
+    public string NoOfPcs { get; set; }
+    public string CartonNo { get; set; }
+}
+
+// =====================================================================
+// Minimal hand-written PDF builder — no external package required.
+// Supports: multiple pages, JPEG images (DCTDecode), vector rectangles,
+// and text in the standard Courier-Bold font.
+// =====================================================================
+public class MinimalPdfBuilder
+{
+    private readonly List<byte[]> _objects = new List<byte[]>();
+    private readonly List<int> _pageObjNums = new List<int>();
+    private readonly double _pageWidth;
+    private readonly double _pageHeight;
+
+    private int _catalogObj;
+    private int _pagesObj;
+    private int _fontObj;
+
+    public MinimalPdfBuilder(double pageWidthPt, double pageHeightPt)
+    {
+        _pageWidth = pageWidthPt;
+        _pageHeight = pageHeightPt;
+
+        _objects.Add(null);              // placeholder for Catalog (obj 1)
+        _objects.Add(null);              // placeholder for Pages   (obj 2)
+        _catalogObj = 1;
+        _pagesObj = 2;
+
+        _fontObj = AddRaw("<< /Type /Font /Subtype /Type1 /BaseFont /Courier-Bold >>");
+    }
+
+    private int AddRaw(string dictContent)
+    {
+        _objects.Add(Encoding.ASCII.GetBytes(dictContent));
+        return _objects.Count;
+    }
+
+   
+    public int AddJpegImage(byte[] jpegBytes, int widthPx, int heightPx)
+    {
+        string dict = string.Format(CultureInfo.InvariantCulture,
+            "<< /Type /XObject /Subtype /Image /Width {0} /Height {1} " +
+            "/ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length {2} >>\nstream\n",
+            widthPx, heightPx, jpegBytes.Length);
+
+        var head = Encoding.ASCII.GetBytes(dict);
+        var tail = Encoding.ASCII.GetBytes("\nendstream");
+        var combined = new byte[head.Length + jpegBytes.Length + tail.Length];
+        Buffer.BlockCopy(head, 0, combined, 0, head.Length);
+        Buffer.BlockCopy(jpegBytes, 0, combined, head.Length, jpegBytes.Length);
+        Buffer.BlockCopy(tail, 0, combined, head.Length + jpegBytes.Length, tail.Length);
+
+        _objects.Add(combined);
+        return _objects.Count;
+    }
+
+    public int AddPage(string contentStream, Dictionary<string, int> imageResources)
+    {
+        var contentBytes = Encoding.ASCII.GetBytes(contentStream);
+        var streamDict = string.Format(CultureInfo.InvariantCulture,
+            "<< /Length {0} >>\nstream\n", contentBytes.Length);
+
+        var head = Encoding.ASCII.GetBytes(streamDict);
+        var tail = Encoding.ASCII.GetBytes("\nendstream");
+        var combined = new byte[head.Length + contentBytes.Length + tail.Length];
+        Buffer.BlockCopy(head, 0, combined, 0, head.Length);
+        Buffer.BlockCopy(contentBytes, 0, combined, head.Length, contentBytes.Length);
+        Buffer.BlockCopy(tail, 0, combined, head.Length + contentBytes.Length, tail.Length);
+
+        _objects.Add(combined);
+        int contentObjNum = _objects.Count;
+
+        var xObjEntries = string.Join(" ", imageResources.Select(kv => $"/{kv.Key} {kv.Value} 0 R"));
+
+        string pageDict = string.Format(CultureInfo.InvariantCulture,
+            "<< /Type /Page /Parent {0} 0 R /MediaBox [0 0 {1} {2}] " +
+            "/Resources << /Font << /F1 {3} 0 R >> /XObject << {4} >> >> " +
+            "/Contents {5} 0 R >>",
+            _pagesObj, _pageWidth, _pageHeight, _fontObj, xObjEntries, contentObjNum);
+
+        _objects.Add(Encoding.ASCII.GetBytes(pageDict));
+        int pageObjNum = _objects.Count;
+        _pageObjNums.Add(pageObjNum);
+        return pageObjNum;
+    }
+
+    public byte[] Build()
+    {
+        var kids = string.Join(" ", _pageObjNums.Select(n => $"{n} 0 R"));
+        _objects[_pagesObj - 1] = Encoding.ASCII.GetBytes(
+            $"<< /Type /Pages /Kids [{kids}] /Count {_pageObjNums.Count} >>");
+        _objects[_catalogObj - 1] = Encoding.ASCII.GetBytes(
+            $"<< /Type /Catalog /Pages {_pagesObj} 0 R >>");
+
+        using (var buffer = new MemoryStream())
+        {
+            void WriteAscii(string s)
+            {
+                var b = Encoding.ASCII.GetBytes(s);
+                buffer.Write(b, 0, b.Length);
+            }
+
+            WriteAscii("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
+
+            var offsets = new long[_objects.Count + 1]; // 1-based
+
+            for (int i = 0; i < _objects.Count; i++)
+            {
+                offsets[i + 1] = buffer.Position;
+                WriteAscii($"{i + 1} 0 obj\n");
+                buffer.Write(_objects[i], 0, _objects[i].Length);
+                WriteAscii("\nendobj\n");
+            }
+
+            long xrefStart = buffer.Position;
+            WriteAscii($"xref\n0 {_objects.Count + 1}\n");
+            WriteAscii("0000000000 65535 f \n");
+            for (int i = 1; i <= _objects.Count; i++)
+            {
+                WriteAscii(offsets[i].ToString("D10", CultureInfo.InvariantCulture) + " 00000 n \n");
+            }
+
+            WriteAscii($"trailer\n<< /Size {_objects.Count + 1} /Root {_catalogObj} 0 R >>\n");
+            WriteAscii($"startxref\n{xrefStart}\n%%EOF");
+
+            return buffer.ToArray();
+        }
+    }
+}
+
+public class _QRCodeItem
 {
     public string PackingName { get; set; }
     public string Customer { get; set; }
