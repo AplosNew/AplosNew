@@ -31,24 +31,19 @@ using Zen.Barcode;
 using System.Text;
 using Aplos.Areas.Materials.Controllers;
 using System.Drawing;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Web.Mvc;
 using System.Web.Hosting;
+using Syncfusion.Pdf;
+using Syncfusion.Pdf.Graphics;
+
 
 namespace Aplos.Areas.OrderManagements.Controllers
 {
     public class ProductionOrderController : BaseController
     {
         #region Constructor
-        string LineItemReference, SKUColor, SKUSize, Qty, Code = null;
+        string LineItemReference, SKUColor, SKUSize, Qty = null;
         private readonly IProductionOrderService _productionOrderService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
@@ -3711,7 +3706,7 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId) AS TEMP WHERE " 
 							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
 							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
 
-WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"'  ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEMP.ArticleId";
+WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND  TEMP.SalesOrderId IN(Select SalesOrderId from TRN.SecondCharacteristics) ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEMP.ArticleId";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -3804,12 +3799,13 @@ WITH PackingCategory AS
 SELECT
     Flag = CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),P.PackingCategory,D.Id,D.PacketRegistrationMasterId,D.PackingTypeId,
     NoOfUnitPerPack =CASE WHEN D.Id IS NULL AND P.PackingCategory = 'Individual' THEN 1 ELSE D.NoOfUnitPerPack END,
-    NoOfPack =(SO.Qty * CM.PlanPercentage / 100) + SO.Qty,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP
+    NoOfPack =(SO.Qty * CM.PlanPercentage / 100) + SO.Qty,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,PT.UserName PackType
 FROM PackingCategory P
 LEFT JOIN PacketRegistrationType D ON D.PackingCategory = P.PackingCategory AND D.PacketRegistrationMasterId = @PacketRegistrationMasterId
 LEFT JOIN PacketRegistrationDetail PD ON PD.PacketRegistrationMasterId = @PacketRegistrationMasterId
 LEFT JOIN PacketRegistrationMaster CM ON CM.Id = PD.PacketRegistrationMasterId
 LEFT JOIN TRN.SalesOrder SO ON SO.Id = PD.SalesOrderId
+LEFT JOIN HKP.PackingType PT ON PT.Id=D.PackingTypeId
 ORDER BY P.SortOrder;";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
@@ -4580,7 +4576,7 @@ ORDER BY P.SortOrder;";
                 //{
                 //    Directory.CreateDirectory(folderPath);
                 //}
-               // string fullPath = Path.Combine(folderPath, fileName);
+                // string fullPath = Path.Combine(folderPath, fileName);
                 //save the file to server temp folder
                 string fullPath = Path.Combine(HostingEnvironment.MapPath("~/") + fileName);
                 System.IO.File.WriteAllBytes(fullPath, pdfBytes);
@@ -4597,8 +4593,273 @@ ORDER BY P.SortOrder;";
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-
         private byte[] BuildQRCodePdf(List<QRCodeItem> qrCodeItems)
+        {
+            //const float pageWidth = 4f * 72f;    // 288pt (4in wide)
+            //const float cellPadding = 4f;        // small inner padding, not a margin
+            //const float qrSize = 95f;            // was 110f — a bit smaller
+            //const float textFontSize = 5f;
+            //const float textLineHeight = textFontSize + 3f;
+
+            const float cellPadding = 4f;
+            const float qrSize = 95f;
+            const float textFontSize = 5f;
+            const float textLineHeight = textFontSize + 3f;
+            float pageWidth = cellPadding + qrSize + cellPadding;   // content-sized width
+          
+            using (PdfDocument document = new PdfDocument())
+            {
+
+                PdfFont font = new PdfStandardFont(PdfFontFamily.Courier, textFontSize, PdfFontStyle.Bold);
+                PdfBrush brush = PdfBrushes.Black;
+
+                PdfStringFormat leftFormat = new PdfStringFormat
+                {
+                    Alignment = PdfTextAlignment.Left,
+                    LineAlignment = PdfVerticalAlignment.Top
+                };
+
+                float textAreaWidth = pageWidth - (cellPadding * 2);   // now == qrSize
+
+                for (int pairStart = 0; pairStart < qrCodeItems.Count; pairStart += 2)
+                {
+                    List<QRCodeItem> pair = qrCodeItems.Skip(pairStart).Take(2).ToList();
+
+                    List<List<string>> wrappedLinesPerItem = new List<List<string>>();
+                    List<float> blockHeights = new List<float>();
+
+                    foreach (QRCodeItem item in pair)
+                    {
+                        string[] rawLines =
+                        {
+                $"{item.PackingName}_{item.Customer}_{item.SOId}",
+                $"{item.Color}_{item.Size}",
+                $"{item.NoOfPcs}_{item.CartonNo}"
+            };
+
+                        List<string> wrappedLines = new List<string>();
+                        foreach (string raw in rawLines)
+                        {
+                            wrappedLines.AddRange(WrapTextToWidth(raw, font, textAreaWidth));
+                        }
+                        wrappedLinesPerItem.Add(wrappedLines);
+
+                        float blockHeight =
+                            cellPadding + qrSize + 3f + (textLineHeight * wrappedLines.Count) + cellPadding;
+
+                        blockHeights.Add(blockHeight);
+                    }
+
+                    float pageHeight = blockHeights.Sum();
+
+                    PdfSection section = document.Sections.Add();
+                    section.PageSettings.Size = new SizeF(pageWidth, pageHeight);
+                    section.PageSettings.Margins.All = 0;
+
+                    PdfPage page = section.Pages.Add();
+                    PdfGraphics g = page.Graphics;
+
+                    float cursorY = 0f;
+
+                    for (int p = 0; p < pair.Count; p++)
+                    {
+                        QRCodeItem item = pair[p];
+                        List<string> wrappedLines = wrappedLinesPerItem[p];
+
+                        string qrData = string.Concat(item.CartonNo);
+
+                        CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
+
+                        using (Image barcodeImg = qrCode.Draw(qrData, 200, 2))
+                        using (MemoryStream imgStream = new MemoryStream())
+                        {
+                            barcodeImg.Save(imgStream, ImageFormat.Png);
+                            imgStream.Position = 0;
+
+                            PdfBitmap pdfImage = new PdfBitmap(imgStream);
+
+                            float qrX = cellPadding;
+                            float qrY = cursorY + cellPadding;
+                            g.DrawImage(pdfImage, qrX, qrY, qrSize, qrSize);
+
+                            float textAreaX = cellPadding;
+                            float textY = qrY + qrSize + 3f;
+
+                            for (int li = 0; li < wrappedLines.Count; li++)
+                            {
+                                RectangleF textRect = new RectangleF(
+                                    textAreaX, textY + li * textLineHeight, textAreaWidth, textLineHeight);
+
+                                g.DrawString(wrappedLines[li], font, brush, textRect, leftFormat);
+                            }
+                        }
+
+                        cursorY += blockHeights[p];
+                    }
+                }
+
+                using (MemoryStream output = new MemoryStream())
+                {
+                    document.Save(output);
+                    return output.ToArray();
+                }
+            }
+
+
+        }
+
+        private List<string> WrapTextToWidth(string text, PdfFont font, float maxWidth)
+        {
+            List<string> lines = new List<string>();
+            if (string.IsNullOrEmpty(text))
+            {
+                lines.Add(string.Empty);
+                return lines;
+            }
+
+            string[] words = text.Split(' ');
+            string currentLine = string.Empty;
+
+            foreach (string word in words)
+            {
+                string candidate = currentLine.Length == 0 ? word : currentLine + " " + word;
+                SizeF size = font.MeasureString(candidate);
+
+                if (size.Width <= maxWidth || currentLine.Length == 0)
+                {
+                    currentLine = candidate;
+                }
+                else
+                {
+                    lines.Add(currentLine);
+                    currentLine = word;
+                }
+            }
+
+            if (currentLine.Length > 0)
+            {
+                lines.Add(currentLine);
+            }
+
+            return lines;
+        }
+
+        private byte[] __BuildQRCodePdf(List<QRCodeItem> qrCodeItems)
+        {
+            const int columns = 3;
+            const int rows = 3;
+            const int perPage = columns * rows;
+
+            // ---- Custom 12in x 12in page (points: 1in = 72pt) ----
+            const float pageWidth = 12f * 72f;   // 864pt
+            const float pageHeight = 12f * 72f;  // 864pt
+
+            const float cellWidth = pageWidth / columns;   // 4in per column
+            const float cellHeight = pageHeight / rows;    // 4in per row
+
+            const float cellPadding = 6f;                  // tight gap between cells
+            const float qrSize = 220f;                     // QR block itself, within the 4in cell
+            const float textFontSize = 9f;
+            const float textLineHeight = textFontSize + 3f;
+
+            using (PdfDocument document = new PdfDocument())
+            {
+                document.PageSettings.Size = new SizeF(pageWidth, pageHeight);
+                document.PageSettings.Margins.All = 0;
+
+                PdfFont font = new PdfStandardFont(PdfFontFamily.Courier, textFontSize, PdfFontStyle.Bold);
+                PdfPen pen = new PdfPen(Color.Black, 1);
+                PdfBrush brush = PdfBrushes.Black;
+
+                // center-aligned text format so each line sits centered under the QR
+                PdfStringFormat centerFormat = new PdfStringFormat
+                {
+                    Alignment = PdfTextAlignment.Center,
+                    LineAlignment = PdfVerticalAlignment.Top
+                };
+
+                int index = 0;
+                while (index < qrCodeItems.Count)
+                {
+                    PdfPage page = document.Pages.Add();
+                    PdfGraphics g = page.Graphics;
+
+                    for (int i = 0; i < perPage && index < qrCodeItems.Count; i++, index++)
+                    {
+                        QRCodeItem item = qrCodeItems[index];
+
+                        int column = i % columns;
+                        int row = i / columns;
+
+                        float cellX = column * cellWidth;
+                        float cellY = row * cellHeight;
+
+                        // ---- QR DATA ----
+                        //string qrData = string.Concat(
+                        //    item.PackingName, "#", item.Color, "#", item.Size, "#",
+                        //    item.NoOfPcs, "#", item.CartonNo);
+                        string qrData = string.Concat(item.CartonNo);
+
+                        // ---- GENERATE QR (existing barcode lib, unchanged) ----
+                        CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
+
+                        using (Image barcodeImg = qrCode.Draw(qrData, 200, 2))
+                        using (MemoryStream imgStream = new MemoryStream())
+                        {
+                            barcodeImg.Save(imgStream, ImageFormat.Png);
+                            imgStream.Position = 0;
+
+                            PdfBitmap pdfImage = new PdfBitmap(imgStream);
+
+                            // Center the QR horizontally in the cell, near the top
+                            float qrX = cellX + (cellWidth - qrSize) / 2f;
+                            float qrY = cellY + cellPadding;
+
+                            g.DrawImage(pdfImage, qrX, qrY, qrSize, qrSize);
+
+                            // ---- TEXT UNDER QR CODE ----
+                            string[] lines =
+                            {
+                        $"{item.PackingName}_{item.Customer}_{item.SOId}",
+                        $"{item.Color}_{item.Size}",
+                        $"{item.NoOfPcs}_{item.CartonNo}"
+                    };
+
+                            float textAreaX = cellX + cellPadding;
+                            float textAreaWidth = cellWidth - (cellPadding * 2);
+                            float textY = qrY + qrSize + 4f; // small gap under the QR block
+
+                            for (int li = 0; li < lines.Length; li++)
+                            {
+                                RectangleF textRect = new RectangleF(
+                                    textAreaX,
+                                    textY + li * textLineHeight,
+                                    textAreaWidth,
+                                    textLineHeight);
+
+                                g.DrawString(lines[li], font, brush, textRect, centerFormat);
+                            }
+                        }
+
+                        // ---- BORDER (tight, close to cell edges) ----
+                        g.DrawRectangle(
+                            pen,
+                            cellX + 2,
+                            cellY + 2,
+                            cellWidth - 4,
+                            cellHeight - 4);
+                    }
+                }
+
+                using (MemoryStream output = new MemoryStream())
+                {
+                    document.Save(output);
+                    return output.ToArray();
+                }
+            }
+        }
+
+        private byte[] _BuildQRCodePdf(List<QRCodeItem> qrCodeItems)
         {
             const int columns = 2;
             const int rows = 4;
@@ -4761,7 +5022,7 @@ public class MinimalPdfBuilder
         return _objects.Count;
     }
 
-   
+
     public int AddJpegImage(byte[] jpegBytes, int widthPx, int heightPx)
     {
         string dict = string.Format(CultureInfo.InvariantCulture,

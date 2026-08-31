@@ -1,7 +1,7 @@
 ﻿'use strict';
 SKURegistrationController.$inject = ['cboService', '$window', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller'];
 function SKURegistrationController(cboService, $window, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
-    $rootScope.title = "SKU Registration";
+    $rootScope.title = "Packing Definition";
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'OrderManagements/ProductionOrder/';
@@ -290,14 +290,15 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     };
 
     $scope.recipeMaterialListSelected = [];
-    $scope.addRecipeMaterial = function () {
+    $scope.addRecipeMaterial = function (obj) {
 
         try {
+            
             var id = "";
             var productid = "";
             var groupid = "";
             for (var i = 0; i < $scope.recipeMaterialList.length; i++) {
-                if ($scope.recipeMaterialList[i].Checked == true) {
+                if ($scope.recipeMaterialList[i].SalesOrderId == obj.data.SalesOrderId) {
 
                     if (baseService.isUndefinedOrNull($scope.recipeMaterialList[i].ArticleId)
                         || $scope.recipeMaterialList[i].ArticleId == "") {
@@ -330,14 +331,17 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
                     }
                 }
+                $scope.recipeMaterialListSelected = [];
+                $scope.recipeMaterialListSelected.push($scope.recipeMaterialList[i]);
+                break;
             }
 
-            $scope.recipeMaterialListSelected = [];
-            for (var i = 0; i < $scope.recipeMaterialList.length; i++) {
-                if ($scope.recipeMaterialList[i].Checked == true) {
-                    $scope.recipeMaterialListSelected.push($scope.recipeMaterialList[i]);
-                }
-            }
+            //$scope.recipeMaterialListSelected = [];
+            //for (var i = 0; i < $scope.recipeMaterialList.length; i++) {
+            //    if ($scope.recipeMaterialList[i].Checked == true) {
+            //        $scope.recipeMaterialListSelected.push($scope.recipeMaterialList[i]);
+            //    }
+            //}
             $scope.SaveSalesOrder();
             if (baseService.isUndefinedOrNull($scope.message_DiffArticleconfirmation)) {
                 $scope.CloseRecipeMaterialPopUp();
@@ -514,8 +518,13 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     $scope.PRObj = {};
     $scope.GetPacketRegistrationPOP = function (data) {
         $scope.PRObj = data.data;
-        $scope.GetPackingSKUData($scope.PRObj.Id);
-        angular.element(document.querySelector('#PRPopUp')).modal('show');
+        if ($scope.PRObj.PackingCategory == "CartonPack") {
+            $scope.GetPackingSKUData($scope.PRObj.Id);
+            angular.element(document.querySelector('#CartonPackPopUp')).modal('show');
+        } else {
+
+            angular.element(document.querySelector('#PRPopUp')).modal('show');
+        }
     }
 
     $scope.calculate = function (obj) {
@@ -550,6 +559,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     }
 
     $scope.ClosePR = function () {
+        angular.element(document.querySelector('#CartonPackPopUp')).modal('hide');
         angular.element(document.querySelector('#PRPopUp')).modal('hide');
     }
 
@@ -672,7 +682,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     $scope.pdfdownloadgriddataUrl = 'GridReports/DownloadPdf';
     $scope.FN = null;
-    $scope.QRCodeGenerateModel = { LineItemReference: null, SKUColor: null, Qty: null};
+    $scope.QRCodeGenerateModel = { LineItemReference: null, SKUColor: null, Qty: null };
     $scope.generateQRCode_ = function (obj) {
         try {
             $scope.QRCodeGenerateModel.LineItemReference = obj.data.LineItemReference;
@@ -713,7 +723,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     }
 
 
-   
+
     $scope.generateQRCode = function (obj) {
         try {
             $scope.QRCodeGenerateModel.LineItemReference = obj.data.LineItemReference;
@@ -721,7 +731,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
             $scope.QRCodeGenerateModel.SKUSize = obj.data.SKUSize;
             $scope.QRCodeGenerateModel.Qty = obj.data.Qty;
             $scope.QRCodeGenerateModel.PacketRegistrationId = obj.data.Id;
-            $scope.fileName = "QRCode_" + $scope.QRCodeGenerateModel.PacketRegistrationId+".pdf"; // was "QRCode.pptx" — fix extension too
+            $scope.fileName = "QRCode_" + $scope.QRCodeGenerateModel.PacketRegistrationId + ".pdf"; // was "QRCode.pptx" — fix extension too
 
             $http({
                 method: 'POST',
@@ -739,7 +749,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                     //$window.open($scope.FN + "&fileName=" + $scope.fileName);
                     //$rootScope.report($scope.pdfdownloadgriddataUrl + "?FileName=" + response.data.FileName);
                     //ShowResult(response.data.Message, 'success');
-                    $window.open($scope.pdfdownloadgriddataUrl + "?FileName="  + $scope.fileName);
+                    $window.open($scope.pdfdownloadgriddataUrl + "?FileName=" + $scope.fileName);
                 }
             }, function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
