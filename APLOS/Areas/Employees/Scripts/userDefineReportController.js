@@ -18,7 +18,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
     $scope.HrefList = [];
     $scope.UINameList = [];
 
-    $scope.WorkDate = null;
+    $scope.WrkDate = null;
 
     $scope.downloadgriddataPDFUrl = 'GridReports/DownloadPdf';
     $scope.downloadgriddataUrl = 'GridReports/Download';
@@ -31,7 +31,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
             gridObj.refreshContent(true);
             gridObj.refreshTemplate();
 
-            if (baseService.isUndefinedOrNull($scope.WorkDate)) {
+            if (baseService.isUndefinedOrNull($scope.WrkDate)) {
                 throw "Work Date is required.";
             }
             $http({
@@ -70,7 +70,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
 
     $scope.getFiltersData = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.WorkDate)) {
+            if (baseService.isUndefinedOrNull($scope.WrkDate)) {
                 throw "Work Date is required.";
             }
             $http({
@@ -263,7 +263,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
     $scope.DailyHRReportList = [];
     $scope.GetDailyReportData = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.WorkDate)) {
+            if (baseService.isUndefinedOrNull($scope.WrkDate)) {
                 throw "Work Date is required.";
             }
 
@@ -273,7 +273,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
             $http({
                 method: 'POST',
                 url: "Employees/EmployeeInFoReport/GetDailyReportData",
-                data: { 'parameters': $scope.parameters, 'date': $scope.WorkDate },
+                data: { 'parameters': $scope.parameters, 'date': $scope.WrkDate },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -292,7 +292,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
 
     $scope._GetDailyReport = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.WorkDate)) {
+            if (baseService.isUndefinedOrNull($scope.WrkDate)) {
                 throw "Work Date is required.";
             }
 
@@ -301,7 +301,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
             $http({
                 method: 'POST',
                 url: "Employees/EmployeeInFoReport/GetDailyReport",
-                data: { 'parameters': $scope.parameters, 'date': $scope.WorkDate },
+                data: { 'parameters': $scope.parameters, 'date': $scope.WrkDate },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -338,7 +338,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
             $http({
                 method: 'POST',
                 url: "Employees/EmployeeInFoReport/GetDailyReport",
-                data: { 'reportFileName': $scope.fileName, 'data': dataList, 'date': $scope.WorkDate },
+                data: { 'reportFileName': $scope.fileName, 'data': dataList, 'date': $scope.WrkDate },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -358,7 +358,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
     $scope.DailyHRAttdnReportList = [];
     $scope.GetDailyAttdnReportData = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.WorkDate)) {
+            if (baseService.isUndefinedOrNull($scope.WrkDate)) {
                 throw "Work Date is required.";
             }
 
@@ -368,7 +368,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
             $http({
                 method: 'POST',
                 url: "Employees/EmployeeInFoReport/GetDailyAttdnReportData",
-                data: { 'date': $scope.WorkDate },
+                data: { 'date': $scope.WrkDate },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -386,40 +386,38 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
     }
 
    
+
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
     $scope.GetDailyAttdnReport = function () {
-        try {
-            var dataList = [];
-            var g = $("#GridAttdnEmp").data("ejGrid");
-            dataList = g.getFilteredRecords();
+        var dataListUnDisbursed = [];
+        var gUnDisbursed = $("#GridAttdnEmp").data("ejGrid");
+        dataListUnDisbursed = gUnDisbursed.getFilteredRecords();
 
-            if (dataList.length == 0) {
-                dataList = $scope.DailyHRAttdnReportList;
-            }
-
-            if (dataList.length == 0) {
-                throw "First click on View button.";
-            }
-
-            $scope.fileName = "AttdnDailyReport.xlsx";
-
-            $http({
-                method: 'POST',
-                url: "Employees/EmployeeInFoReport/GetDailyReport",
-                data: { 'reportFileName': $scope.fileName, 'data': dataList, 'date': $scope.WorkDate },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error == true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-                }
-            }, function errorCallback(response) {
-                ShowResult(response.data.Message, 'failure');
-            });
-        } catch (e) {
-            ShowResult(e, 'failure');
+        if (dataListUnDisbursed.length == 0) {
+            dataListUnDisbursed = $scope.DailyHRAttdnReportList;
         }
-    }
+        $scope.fileName = 'DailyAttdnReport';
+        $http({
+            method: "POST",
+            url: $scope.exportgriddataUrl,
+            data: {
+                'data': dataListUnDisbursed,
+                'reportFileName': $scope.fileName
+            },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
 
 }

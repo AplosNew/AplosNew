@@ -7515,7 +7515,10 @@ LEFT JOIN MST.ManpowerBudget mb ON mb.Id = e.BudgetCode
             bc.SubSectionID = GetValue(dic, "SubSectionId");
             bc.UnitID = GetValue(dic, "UnitId");
             bc.DesignationSystemID = GetValue(dic, "DesignationId");
-            bc.EmploymentType = GetValue(dic, "EmploymentType");
+            if (string.IsNullOrEmpty(bc.EmploymentType))
+            {
+                bc.EmploymentType = GetValue(dic, "EmploymentType"); 
+            }
             bc.DesignationGroupID = GetDesignationGroup(bc.DesignationSystemID);
 
         }
