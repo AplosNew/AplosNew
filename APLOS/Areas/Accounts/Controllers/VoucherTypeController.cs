@@ -249,6 +249,35 @@ namespace Aplos.Areas.Accounts.Controllers
                     _unitOfWork.Rollback();
             }
         }
+
+        public ActionResult UpdateVoucherNo(string existingVoucherNo, string newVoucherNo)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var rdBuilder = new System.Text.StringBuilder();
+                var voucherSql = @"UPDATE TRN.Voucher SET VoucherNo='" + newVoucherNo + "' WHERE VoucherNo='" + existingVoucherNo + "'";
+                rdBuilder.Append(voucherSql);
+
+                _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+                return Json(new { Message = " Successfully Updated" });
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
         #endregion
     }
 }

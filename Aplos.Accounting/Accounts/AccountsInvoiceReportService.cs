@@ -4650,15 +4650,15 @@ namespace Library.Accounting.Accounts
             worksheet.Range[HEADER_ROW, 1, HEADER_ROW, END_COL].BorderAround(ExcelLineStyle.Dashed);
             worksheet.Range[HEADER_ROW, 1, HEADER_ROW, END_COL].BorderInside(ExcelLineStyle.Thin);
 
-            worksheet.SetColumnWidth(COL_R_DATE, 10);
-            worksheet.SetColumnWidth(COL_R_VNO, 16);
-            worksheet.SetColumnWidth(COL_R_DESC, 32);
-            worksheet.SetColumnWidth(COL_R_SubAMT, 14);
-            worksheet.SetColumnWidth(COL_R_AMT, 14);
-            worksheet.SetColumnWidth(COL_E_DATE, 10);
-            worksheet.SetColumnWidth(COL_E_VNO, 16);
-            worksheet.SetColumnWidth(COL_E_DESC, 40);
-            worksheet.SetColumnWidth(COL_E_AMT, 14);
+            worksheet.SetColumnWidth(COL_R_DATE, 8);
+            worksheet.SetColumnWidth(COL_R_VNO, 12);
+            worksheet.SetColumnWidth(COL_R_DESC, 25);
+            worksheet.SetColumnWidth(COL_R_SubAMT, 10);
+            worksheet.SetColumnWidth(COL_R_AMT, 10);
+            worksheet.SetColumnWidth(COL_E_DATE, 8);
+            worksheet.SetColumnWidth(COL_E_VNO, 12);
+            worksheet.SetColumnWidth(COL_E_DESC, 25);
+            worksheet.SetColumnWidth(COL_E_AMT, 10);
 
             // ---- Expense block (right side) --------------------------------------------
             int expRow = HEADER_ROW + 1;
@@ -4777,7 +4777,7 @@ namespace Library.Accounting.Accounts
             string to = toDate.ToString("yyyy-MM-dd");
 
             ReportUtility reportUtility = new ReportUtility();
-            reportUtility.PlantHeader(ref worksheet, END_COL, " WEEKLY STATEMENT OF "+ from + " TO " +to, identity.PlantId);
+            reportUtility.PlantHeader(ref worksheet, END_COL, " WEEKLY EXPENDITURE STATEMENT OF "+ from + " TO " +to, identity.PlantId);
             reportUtility.PageSetup(ref worksheet, HEADER_ROW, ExcelPageOrientation.Landscape);
 
             worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;

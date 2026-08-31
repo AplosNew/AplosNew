@@ -3,11 +3,13 @@ VoucherMaxNumberUpdateController.$inject = ['cboService', 'commonMessage', '$sco
 function VoucherMaxNumberUpdateController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Voucher MaxNumberUpdate';
     $scope.Action = 'Save';
+    $scope.VoucherUpdateAction = 'Update';
     $scope.index = -1;
     $scope.voucherTypeConfigList = [];
     $scope.path = 'accounts/VoucherType/';
     //$scope.getVouchetTypeConfigListUrl = $scope.path + 'GetVoucherTypeConfigList';
     $scope.saveUrl = $scope.path + 'UpdateMaxNumber';
+    $scope.voucherNoUpdateUrl = $scope.path + 'UpdateVoucherNo';
 
     $scope.voucherTypeConfig = {
         Id: null,
@@ -17,6 +19,8 @@ function VoucherMaxNumberUpdateController(cboService, commonMessage, $scope, $ro
         MaxNumber: null,
         NewMaxNumber:null
     };
+
+    
 
     $scope.voucherTypeList = [];
     cboService.getCboVoucherType(function (result) {
@@ -71,9 +75,40 @@ function VoucherMaxNumberUpdateController(cboService, commonMessage, $scope, $ro
         }
     };
 
-    $scope.Clear = function () {
-        $scope.Action = 'Save';
-        $scope.voucherTypeConfig = {
+    $scope.voucherNoUpdate = {
+        Id: null,
+        PlantId: null,
+        ExistingVoucherNo: null,
+        NewVoucherNo: null,
+    };
+    $scope.VoucherNoUpdate = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.voucherTypeConfigForm.$valid) {
+            if ($scope.VoucherUpdateAction === 'Update') {
+                $http({
+                    method: 'POST',
+                    url: $scope.voucherNoUpdateUrl,
+                    data: { 'existingVoucherNo': $scope.voucherNoUpdate.ExistingVoucherNo, 'newVoucherNo': $scope.voucherNoUpdate.NewVoucherNo },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.VoucherNoClear();
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, 'failure');
+                });
+                return true;
+            }
+        }
+    };
+
+    $scope.VoucherNoClear = function () {
+        $scope.VoucherUpdateAction = 'Update';
+        $scope.voucherNoUpdate = {
         };
     };
 }

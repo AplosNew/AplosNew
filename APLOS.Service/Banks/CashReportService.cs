@@ -569,17 +569,24 @@ namespace Library.Service.Banks
             sheet.Range[row, colVoucherDate].VerticalAlignment = ExcelVAlign.VAlignTop;
             xlsCol++;//7
             int colVoucherDateValue = xlsCol;
-            reportUtility.SetText(ref sheet, row, colVoucherDateValue, header["VoucherDate"].ToString());
+            reportUtility.SetText(ref sheet, row, colVoucherDateValue, header["PostingDate"].ToString());
             sheet.Range[row, colVoucherDateValue].VerticalAlignment = ExcelVAlign.VAlignTop;
             row++;
 
-            int colPostingDate = colVoucherNo;
-            reportUtility.SetMasterHeaderText(ref sheet, row, colPostingDate, "Posting Date");
-            sheet.Range[row, colPostingDate].VerticalAlignment = ExcelVAlign.VAlignTop;
+            //int colPostingDate = colVoucherNo;
+            //reportUtility.SetMasterHeaderText(ref sheet, row, colPostingDate, "Posting Date");
+            //sheet.Range[row, colPostingDate].VerticalAlignment = ExcelVAlign.VAlignTop;
 
-            int colPostingDateValue = colVoucherNoValue;
-            reportUtility.SetText(ref sheet, row, colPostingDateValue, header["PostingDate"].ToString());
-            sheet.Range[row, colPostingDateValue].VerticalAlignment = ExcelVAlign.VAlignTop;
+            //int colPostingDateValue = colVoucherNoValue;
+            //reportUtility.SetText(ref sheet, row, colPostingDateValue, header["PostingDate"].ToString());
+            //sheet.Range[row, colPostingDateValue].VerticalAlignment = ExcelVAlign.VAlignTop;
+            int colDocRef = colVoucherNo;
+            reportUtility.SetMasterHeaderText(ref sheet, row, colDocRef, "Doc Ref");
+            sheet.Range[row, colDocRef].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            int colDocRefValue = colVoucherNoValue;
+            reportUtility.SetText(ref sheet, row, colDocRefValue, header["DocRefNo"].ToString());
+            sheet.Range[row, colDocRefValue].VerticalAlignment = ExcelVAlign.VAlignTop;
 
             int colDocDate = colVoucherDate;
             reportUtility.SetMasterHeaderText(ref sheet, row, colDocDate, "DocDate");
@@ -620,14 +627,7 @@ namespace Library.Service.Banks
 
 
 
-            int colDocRef = colVoucherDate;
-            reportUtility.SetMasterHeaderText(ref sheet, row, colDocRef, "Doc Ref");
-            sheet.Range[row, colDocRef].VerticalAlignment = ExcelVAlign.VAlignTop;
-
-            int colDocRefValue = colVoucherDateValue;
-            reportUtility.SetText(ref sheet, row, colDocRefValue, header["DocRefNo"].ToString());
-            sheet.Range[row, colDocRefValue].VerticalAlignment = ExcelVAlign.VAlignTop;
-            row++;
+            
 
             //int colNaration = colVoucherNo;
             //reportUtility.SetMasterHeaderText(ref sheet, row, colNaration, "Narration");
@@ -906,12 +906,12 @@ namespace Library.Service.Banks
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Voucher No");
             reportUtility.SetText(ref sheet, row, 2, header["VoucherNo"].ToString());
             reportUtility.SetMasterHeaderText(ref sheet, row, 3, "Voucher Date");
-            reportUtility.SetText(ref sheet, row, 4, header["VoucherDate"].ToString());
+            reportUtility.SetText(ref sheet, row, 4, header["PostingDate"].ToString());
             sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
             row++;
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");
-            reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());
+            //reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");
+            //reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());
             reportUtility.SetMasterHeaderText(ref sheet, row, 3, "Doc Date");
             reportUtility.SetText(ref sheet, row, 4, header["DocDate"].ToString());
 
