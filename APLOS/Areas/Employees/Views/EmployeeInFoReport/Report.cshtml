@@ -86,15 +86,27 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!--<div class="col-md-3">
-                            <div class="common-btn">
-                                <ul class="list-inline text-left">
-                                    <li> <button ng-click="getFiltersData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Go </button></li>-->
-                                    @*<li> <button ng-click="getClearFiltersData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Clear Filter</button></li>*@
-                                <!--</ul>
+                        <div class="col-md-4">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label"> Employee Category<sup>*</sup></label>
+                                <div class="col-sm-8  show-message">
+                                    <div class="select-style">
+                                        <select ng-model="EmpCat">
+                                            <option value="">Select All</option>
+                                            <option ng-repeat="option in docEmployeeCategoryList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
-                        </div>-->
+                        </div>
+                        <!--<div class="col-md-3">
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li> <button ng-click="getFiltersData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Go </button></li>-->
+                        @*<li> <button ng-click="getClearFiltersData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Clear Filter</button></li>*@
+                        <!--</ul>
+        </div>
+    </div>-->
                     </div>
                     <div class="col-xs-12">
                         <div class="common-btn">
@@ -104,34 +116,51 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="col-xs-12" ng-show="DailyHRAttdnReportList.length>0">
-                        <div id="GridAttdnEmp" ng-init="chkinit()" ej-grid e-datasource="DailyHRAttdnReportList"
+                    <div class="col-xs-12" @*ng-show="DailyHRAttdnReportList.length>0"*@>
+                        <div id="GridAttdnEmp" ng-if="gridColumns.length > 0" ng-init="chkinit()" ej-grid
+                             e-datasource="DailyHRAttdnReportList"
+                             e-columns="gridColumns"
                              e-allowscrolling="true" e-minwidth="450" e-minheight="400"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-enabletouch="false" e-responsive="true"
                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                            <div e-columns>
-                                <div e-column e-field="WorkDate" e-headertext="WorkDate" e-width="80"></div>
-                                <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
-                                <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
-                                <div e-column e-textalign="right" e-field="Deployment" e-headertext="Deployment" e-width="50"></div>
-                                <div e-column e-textalign="right" e-field="WeekOff" e-headertext="WeekOff" e-width="50"></div>
-                                <div e-column e-textalign="right" e-field="A Shift" e-headertext="A Shift" e-width="50"></div>
-                                <div e-column e-textalign="right" e-field="B Shift" e-headertext="B Shift" e-width="50"></div>
-                                <div e-column e-textalign="right" e-field="C Shift" e-headertext="C Shift" e-width="50"></div>
-                                <div e-column e-textalign="right" e-field="D Shift" e-headertext="D Shift" e-width="50"></div>
-                                <div e-column e-textalign="right" e-field="E Shift" e-headertext="E Shift" e-width="50"></div>
-                                <div e-column e-textalign="right" e-field="G Shift" e-headertext="G Shift" e-width="50"></div>
-                                <div e-column e-textalign="right" e-field="SkilledPresent" e-headertext="SkilledPresent" e-width="50"></div>
-                                <div e-column e-textalign="right" e-field="Gap" e-headertext="Gap" e-width="50"></div>
-                                <div e-column e-textalign="right" e-field="Contractor" e-headertext="Contractor" e-width="50"></div>
-                                <div e-column e-textalign="right" e-field="Trainee_Above45" e-headertext="Trainee_Above45" e-width="50"></div>
-                                <div e-column e-textalign="right" e-field="Trainee_22to45" e-headertext="Trainee_22to45" e-width="50"></div>
-                                <div e-column e-textalign="right" e-field="Trainee_Below21" e-headertext="Trainee_Below21" e-width="50"></div>
-                                <div e-column e-textalign="right" e-field="TotalTrainee" e-headertext="TotalTrainee" e-width="50"></div>
-                                <div e-column e-textalign="right" e-field="Trainee_Below21" e-headertext="Trainee_Below21" e-width="50"></div>
-                                <div e-column e-textalign="right" e-field="TotalPresent" e-headertext="TotalPresent" e-width="50"></div>
-                            </div>
                         </div>
+                        @*<div id="GridAttdnEmp" ng-init="chkinit()" ej-grid
+             e-datasource="DailyHRAttdnReportList"
+             e-columns="gridColumns"
+             e-allowscrolling="true" e-minwidth="450" e-minheight="400"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+             e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        </div>*@
+
+                        @*<div id="GridAttdnEmp" ng-init="chkinit()" ej-grid e-datasource="DailyHRAttdnReportList"
+             e-allowscrolling="true" e-minwidth="450" e-minheight="400"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+                <div e-column e-field="WorkDate" e-headertext="WorkDate" e-width="80"></div>
+                <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                <div e-column e-textalign="right" e-field="Deployment" e-headertext="Deployment" e-width="50"></div>
+                <div e-column e-textalign="right" e-field="WeekOff" e-headertext="WeekOff" e-width="50"></div>
+                <div e-column e-textalign="right" e-field="A Shift" e-headertext="A Shift" e-width="50"></div>
+                <div e-column e-textalign="right" e-field="B Shift" e-headertext="B Shift" e-width="50"></div>
+                <div e-column e-textalign="right" e-field="C Shift" e-headertext="C Shift" e-width="50"></div>
+                <div e-column e-textalign="right" e-field="D Shift" e-headertext="D Shift" e-width="50"></div>
+                <div e-column e-textalign="right" e-field="E Shift" e-headertext="E Shift" e-width="50"></div>
+                <div e-column e-textalign="right" e-field="G Shift" e-headertext="G Shift" e-width="50"></div>
+                <div e-column e-textalign="right" e-field="SkilledPresent" e-headertext="SkilledPresent" e-width="50"></div>
+                <div e-column e-textalign="right" e-field="Gap" e-headertext="Gap" e-width="50"></div>
+                <div e-column e-textalign="right" e-field="Contractor" e-headertext="Contractor" e-width="50"></div>
+                <div e-column e-textalign="right" e-field="Trainee_Above45" e-headertext="Trainee_Above45" e-width="50"></div>
+                <div e-column e-textalign="right" e-field="Trainee_22to45" e-headertext="Trainee_22to45" e-width="50"></div>
+                <div e-column e-textalign="right" e-field="Trainee_Below21" e-headertext="Trainee_Below21" e-width="50"></div>
+                <div e-column e-textalign="right" e-field="TotalTrainee" e-headertext="TotalTrainee" e-width="50"></div>
+                <div e-column e-textalign="right" e-field="Trainee_Below21" e-headertext="Trainee_Below21" e-width="50"></div>
+                <div e-column e-textalign="right" e-field="TotalPresent" e-headertext="TotalPresent" e-width="50"></div>
+            </div>
+        </div>*@
                     </div>
                 </div>
             </div>

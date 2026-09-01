@@ -330,10 +330,10 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                             throw "Selecting different articles are not allowed";
 
                     }
+                    $scope.recipeMaterialListSelected = [];
+                    $scope.recipeMaterialListSelected.push($scope.recipeMaterialList[i]);
+                    break;
                 }
-                $scope.recipeMaterialListSelected = [];
-                $scope.recipeMaterialListSelected.push($scope.recipeMaterialList[i]);
-                break;
             }
 
             //$scope.recipeMaterialListSelected = [];

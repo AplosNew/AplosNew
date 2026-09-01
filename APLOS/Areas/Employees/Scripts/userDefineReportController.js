@@ -7,7 +7,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
 
     $scope.Action = 'Save';
 
-    $scope.tab = 1;
+    $scope.tab = 2;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
     };
@@ -355,11 +355,43 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
         }
     }
     //-----------------------------------
+
+    $scope.docEmployeeCategoryList = [];
+    cboService.getCboEmployeeCategoryGroupByCompanyGroup(null, function (result) {
+        $scope.docEmployeeCategoryList = result;
+    });
+
+
+    $scope.gridColumns = [];
+
+    function buildColumnsFromData(data) {
+        if (!data || data.length === 0) return [];
+
+        var firstRow = data[0];
+        var columns = [];
+
+        angular.forEach(firstRow, function (value, key) {
+            columns.push({
+                field: key,
+                headerText: key,
+                width: 80,
+                textAlign: (typeof value === 'number') ? 'right' : 'left'
+            });
+        });
+
+        return columns;
+    }
+
+  
+    $scope.EmpCat = null;
     $scope.DailyHRAttdnReportList = [];
     $scope.GetDailyAttdnReportData = function () {
         try {
             if (baseService.isUndefinedOrNull($scope.WrkDate)) {
                 throw "Work Date is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.EmpCat)) {
+                throw "Employee Category is required.";
             }
 
             $scope.DailyHRAttdnReportList = [];
@@ -368,7 +400,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
             $http({
                 method: 'POST',
                 url: "Employees/EmployeeInFoReport/GetDailyAttdnReportData",
-                data: { 'date': $scope.WrkDate },
+                data: { 'date': $scope.WrkDate, 'empCatId': $scope.EmpCat},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -376,6 +408,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
                 }
                 else {
                     $scope.DailyHRAttdnReportList = response.data;
+                    $scope.gridColumns = buildColumnsFromData(response.data);
                 }
             }, function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');

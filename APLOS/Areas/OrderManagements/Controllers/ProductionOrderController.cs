@@ -4561,7 +4561,7 @@ ORDER BY P.SortOrder;";
                 throw;
             }
         }
-
+        [Authorize]
         public ActionResult GenerateQRCode(Dictionary<string, object> data)
         {
             try
