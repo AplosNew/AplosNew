@@ -3800,11 +3800,13 @@ SELECT
     Flag = CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),P.PackingCategory,D.Id,D.PacketRegistrationMasterId,D.PackingTypeId,
     NoOfUnitPerPack =CASE WHEN D.Id IS NULL AND P.PackingCategory = 'Individual' THEN 1 ELSE D.NoOfUnitPerPack END,
     NoOfPack =(SO.Qty * CM.PlanPercentage / 100) + SO.Qty,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,PT.UserName PackType
+    ,LineItemReference = COALESCE(D.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo)
 FROM PackingCategory P
 LEFT JOIN PacketRegistrationType D ON D.PackingCategory = P.PackingCategory AND D.PacketRegistrationMasterId = @PacketRegistrationMasterId
 LEFT JOIN PacketRegistrationDetail PD ON PD.PacketRegistrationMasterId = @PacketRegistrationMasterId
 LEFT JOIN PacketRegistrationMaster CM ON CM.Id = PD.PacketRegistrationMasterId
 LEFT JOIN TRN.SalesOrder SO ON SO.Id = PD.SalesOrderId
+LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId
 LEFT JOIN HKP.PackingType PT ON PT.Id=D.PackingTypeId
 ORDER BY P.SortOrder;";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -3900,11 +3902,13 @@ ORDER BY P.SortOrder;";
                         dr["SKU2Id"] = packregilist[i]["SKU2Id"];
                         dr["UnitPerPack"] = packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"];
                         dr["NoOfUnit"] = packregilist[i]["NoOfUnit"];
-                        if (packregilist[i]["UnitPerPack"] != null)
-                        {
-                            dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
-                        }
+                        //if (packregilist[i]["UnitPerPack"] != null)
+                        //{
+                        //    dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
+                        //}
+                        dr["NoOfPack"] = packregilist[i]["NoOfPack"];
                         dr["LineItemReference"] = packregilist[i]["LineItemReference"];
+                        dr["ComboRefNo"] = packregilist[i]["ComboRefNo"];
                         dr["BarCode"] = packregilist[i]["BarCode"];
                         dr["QRCode"] = packregilist[i]["QRCode"];
                         dr["RFID"] = packregilist[i]["RFID"];
@@ -3922,10 +3926,12 @@ ORDER BY P.SortOrder;";
                         dr.BeginEdit();
                         dr["UnitPerPack"] = packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"];
                         dr["NoOfUnit"] = packregilist[i]["NoOfUnit"];
-                        if (packregilist[i]["UnitPerPack"] != null)
-                        {
-                            dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
-                        }
+                        //if (packregilist[i]["UnitPerPack"] != null)
+                        //{
+                        //    dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
+                        //}
+                        dr["NoOfPack"] = packregilist[i]["NoOfPack"];
+                        dr["ComboRefNo"] = packregilist[i]["ComboRefNo"];
                         dr["BarCode"] = packregilist[i]["BarCode"];
                         dr["QRCode"] = packregilist[i]["QRCode"];
                         dr["RFID"] = packregilist[i]["RFID"];
@@ -3950,6 +3956,15 @@ ORDER BY P.SortOrder;";
         }
 
         [HttpPost, Authorize]
+        public ActionResult GetComboData(string soId, string packetRegistrationTypeId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetComboData(soId, packetRegistrationTypeId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
         public ActionResult GetPackingSKUData(string soId, string packetRegistrationTypeId)
         {
             Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
@@ -3963,6 +3978,15 @@ ORDER BY P.SortOrder;";
         {
             Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
             var jsondata = Json(order.GetCartonList(masterId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetComboCartonList(string masterId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetComboCartonList(masterId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
@@ -4603,7 +4627,7 @@ ORDER BY P.SortOrder;";
 
             const float cellPadding = 4f;
             const float qrSize = 95f;
-            const float textFontSize = 5f;
+            const float textFontSize = 8f;
             const float textLineHeight = textFontSize + 3f;
             float pageWidth = cellPadding + qrSize + cellPadding;   // content-sized width
           
@@ -4632,7 +4656,7 @@ ORDER BY P.SortOrder;";
                     {
                         string[] rawLines =
                         {
-                $"{item.PackingName}_{item.Customer}_{item.SOId}",
+                $"{item.PackingName}",
                 $"{item.Color}_{item.Size}",
                 $"{item.NoOfPcs}_{item.CartonNo}"
             };

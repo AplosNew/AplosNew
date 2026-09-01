@@ -293,7 +293,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     $scope.addRecipeMaterial = function (obj) {
 
         try {
-            
+
             var id = "";
             var productid = "";
             var groupid = "";
@@ -451,10 +451,31 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         });
     }
 
+    $scope.selectSinglePackingCategory = function (selectedItem) {
+        try {
+            if (selectedItem.Flag) {
+                var alreadySelected = false;
+                angular.forEach($scope.packingCategoryList, function (item) {
+                    if (item !== selectedItem && item.Flag) {
+                        alreadySelected = true;
+                    }
+                });
+
+                if (alreadySelected) {
+                    selectedItem.Flag = false; // revert the new click
+                    throw "Please uncheck the previously selected Packing Category first.";
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'failure')
+        }
+    };
+
     $scope.SavePackingCategory = function () {
         try {
             if ($scope.packingCategoryList.length > 0) {
                 var tempList = [];
+
                 for (var i = 0; i < $scope.packingCategoryList.length; i++) {
                     if ($scope.packingCategoryList[i].Flag) {
                         if (baseService.isUndefinedOrNull($scope.packingCategoryList[i].PackingTypeId)) {
@@ -462,6 +483,9 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                         }
                         else if (baseService.isUndefinedOrNull($scope.packingCategoryList[i].NoOfUnitPerPack)) {
                             throw "No Of Unit Per Pack is required.";
+                        }
+                        else if (baseService.isUndefinedOrNull($scope.packingCategoryList[i].LineItemReference)) {
+                            throw "Line Item Reference is required.";
                         } else {
                             tempList.push($scope.packingCategoryList[i]);
                         }
@@ -517,19 +541,113 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     $scope.PRObj = {};
     $scope.GetPacketRegistrationPOP = function (data) {
-        $scope.PRObj = data.data;
-        if ($scope.PRObj.PackingCategory == "CartonPack") {
-            $scope.GetPackingSKUData($scope.PRObj.Id);
+        $scope.PRObj = data;
+        $scope.GetPackingSKUData($scope.PRObj.Id);
+        if ($scope.PRObj.PackingCategory == "CartonPack" && $scope.PRObj.PackType == "Solid Color & Solid Size") {
             angular.element(document.querySelector('#CartonPackPopUp')).modal('show');
         } else {
-
             angular.element(document.querySelector('#PRPopUp')).modal('show');
         }
+    }
+
+    $scope.comboList = []
+    $scope.GetComboData = function () {
+        var typemasterId = null;
+        for (var i = 0; i < $scope.packingCategoryList.length; i++) {
+            if (!baseService.isUndefinedOrNull($scope.packingCategoryList[i].Id)) {
+                typemasterId = $scope.packingCategoryList[i].Id;
+                break;
+            }
+        }
+
+        $scope.idList = [];
+        for (var di = 0; di < $scope.recipeMaterialListSelected.length; di++) {
+            $scope.idList.push($scope.recipeMaterialListSelected[di]);
+        }
+
+        if ($scope.idList.length > 0) {
+            var uniqueSalesOrderId = removeDuplicates($scope.idList, 'SalesOrderId');
+            var wcsoId = "";
+            if (uniqueSalesOrderId.length > 0) {
+                wcsoId = "IN(";
+                wcsoId += Array.prototype.map.call(uniqueSalesOrderId, function (item) { return "'" + item.SalesOrderId + "'"; }).join(",") + ")";
+            }
+            $scope.sqlsoId = wcsoId;
+        }
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/ProductionOrder/GetComboData?soId=' + $scope.sqlsoId + '&packetRegistrationTypeId=' + typemasterId
+        }).then(function successCallback(response) {
+            $scope.comboList = response.data;
+        });
     }
 
     $scope.calculate = function (obj) {
         obj.data.NoOfPack = Math.ceil(obj.data.NoOfUnit / obj.data.UnitPerPack);
     };
+
+    $scope.calculateNoOfPack = function () {
+        // Step 1: find min UnitPerPack for each ComboRefNo group
+        var minUnitPackByCombo = {};
+        angular.forEach($scope.skuList, function (obj) {
+            if (obj.ComboRefNo) { // only group rows that have a ComboRefNo
+                if (
+                    !minUnitPackByCombo.hasOwnProperty(obj.ComboRefNo) ||
+                    obj.UnitPerPack < minUnitPackByCombo[obj.ComboRefNo]
+                ) {
+                    minUnitPackByCombo[obj.ComboRefNo] = obj.UnitPerPack;
+                }
+            }
+        });
+
+        // Step 2: calculate NoOfPack using group's min UnitPerPack (if combo exists)
+        angular.forEach($scope.skuList, function (obj) {
+            var effectiveUnitPerPack = obj.ComboRefNo
+                ? minUnitPackByCombo[obj.ComboRefNo]
+                : obj.UnitPerPack;
+
+            obj.NoOfPack = Math.ceil(obj.NoOfUnit / effectiveUnitPerPack);
+        });
+
+
+        var gridObj = $("#GridPRSKU").data("ejGrid");
+        gridObj.refreshContent(true);
+        gridObj.refreshTemplate();
+    }
+
+    $scope.SaveComboPR = function () {
+        try {
+            if ($scope.skuList.length > 0) {
+                var tempList = [];
+                for (var i = 0; i < $scope.skuList.length; i++) {
+                    if (!baseService.isUndefinedOrNull($scope.skuList[i].ComboRefNo)) {
+                        tempList.push($scope.skuList[i]);
+                    }
+                }
+
+
+                $http({
+                    method: 'POST',
+                    url: "OrderManagements/ProductionOrder/SavePacketRegistration",
+                    data: { 'packregilist': tempList, 'masterId': $scope.PRObj.Id },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error == true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetPackingSKUData($scope.PRObj.Id);
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.data.Message, 'failure');
+                });
+
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
     $scope.SavePR = function () {
         try {
@@ -642,12 +760,25 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
             angular.element(document.querySelector('#CartonPopUp')).modal('show');
         });
     }
+
+    $scope.ComboCartonList = [];
+    $scope.GetComboCartonList = function (data) {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/ProductionOrder/GetComboCartonList?masterId=' + data.data.Id
+        }).then(function successCallback(response) {
+            $scope.ComboCartonList = response.data;
+            angular.element(document.querySelector('#ComboCartonPopUp')).modal('show');
+        });
+    }
+
     $scope.CloseCG = function () {
         angular.element(document.querySelector('#CartonPopUp')).modal('hide');
+        angular.element(document.querySelector('#ComboCartonPopUp')).modal('hide');
     }
 
     $scope.downloadgriddataUrl = 'GridReports/Download';
-    //$scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+
     $scope.exportgriddataUrl = 'GridReports/ViewExcelExportUpd';
     $scope.CartonReportExcel = function () {
         var dataListUnDisbursed = [];
@@ -661,6 +792,39 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         $http({
             method: "POST",
             url: $scope.exportgriddataUrl,
+            data: {
+                'data': dataListUnDisbursed,
+                'reportFileName': $scope.fileName
+            },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+
+    $scope.exportcombogriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.ComboReportExcel = function () {
+        var dataListUnDisbursed = [];
+        var gUnDisbursed = $("#GridCC").data("ejGrid");
+        dataListUnDisbursed = gUnDisbursed.getFilteredRecords();
+
+        if (dataListUnDisbursed.length == 0) {
+            dataListUnDisbursed = $scope.ComboCartonList;
+        }
+        $scope.fileName = 'ComboCartonList';
+        $http({
+            method: "POST",
+            url: $scope.exportcombogriddataUrl,
             data: {
                 'data': dataListUnDisbursed,
                 'reportFileName': $scope.fileName
