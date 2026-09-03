@@ -3799,7 +3799,7 @@ WITH PackingCategory AS
 SELECT
     Flag = CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),P.PackingCategory,D.Id,D.PacketRegistrationMasterId,D.PackingTypeId,
     NoOfUnitPerPack =CASE WHEN D.Id IS NULL AND P.PackingCategory = 'Individual' THEN 1 ELSE D.NoOfUnitPerPack END,
-    NoOfPack =(SO.Qty * CM.PlanPercentage / 100) + SO.Qty,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,PT.UserName PackType
+    NoOfPack =(SO.Qty * CM.PlanPercentage / 100) + SO.Qty,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,PT.PackingType
     ,LineItemReference = COALESCE(D.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo)
 FROM PackingCategory P
 LEFT JOIN PacketRegistrationType D ON D.PackingCategory = P.PackingCategory AND D.PacketRegistrationMasterId = @PacketRegistrationMasterId
@@ -3956,6 +3956,136 @@ ORDER BY P.SortOrder;";
         }
 
         [HttpPost, Authorize]
+        public JsonResult SaveComboPacketRegistration(List<Dictionary<string, object>> packregilist, string masterId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dspackCat, dspcsku, dspcr = null;
+                string sql = "SELECT * FROM [dbo].[PacketRegistration] where PacketRegistrationTypeId='" + masterId + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
+                string pcr = @"select * from PackingComboReference Where PacketRegistrationId IN(select  Id from [dbo].[PacketRegistration] where PacketRegistrationTypeId='" + masterId + "')";
+                objCon.OpenDataSetThroughAdapter(sql, out dspcr, false, "1");
+
+                string pcsku = @"select * from PackingComboSKUDetail Where PacketRegistrationId IN(select  Id from [dbo].[PacketRegistration] where PacketRegistrationTypeId='" + masterId + "')";
+                objCon.OpenDataSetThroughAdapter(sql, out dspcsku, false, "1");
+
+                string prmasterId = null;
+
+                for (int i = 0; i < packregilist.Count; i++)
+                {
+                    dspackCat.Tables[0].DefaultView.RowFilter = "Id ='" + packregilist[i]["Id"] + "'";
+                    if (dspackCat.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dspackCat.Tables[0].NewRow();
+
+                        dr["Id"] = masterId + "-" + (i + 1).ToString();
+                        prmasterId= masterId + "-" + (i + 1).ToString();
+                        dr["PacketRegistrationTypeId"] = masterId;
+                        dr["SalesOrderId"] = packregilist[i]["SalesOrderId"];
+                        dr["SKU1Id"] = packregilist[i]["SKU1Id"];
+                        dr["SKU2Id"] = packregilist[i]["SKU2Id"];
+                        dr["UnitPerPack"] = packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"];
+                        dr["NoOfUnit"] = packregilist[i]["NoOfUnit"];
+                        //if (packregilist[i]["UnitPerPack"] != null)
+                        //{
+                        //    dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
+                        //}
+                        dr["NoOfPack"] = packregilist[i]["NoOfPack"];
+                        dr["LineItemReference"] = packregilist[i]["LineItemReference"];
+                        dr["ComboRefNo"] = packregilist[i]["ComboRefNo"];
+                        dr["BarCode"] = packregilist[i]["BarCode"];
+                        dr["QRCode"] = packregilist[i]["QRCode"];
+                        dr["RFID"] = packregilist[i]["RFID"];
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+
+                        dspackCat.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        DataRow dr = dspackCat.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        prmasterId = packregilist[i]["Id"].ToString();
+                        dr["UnitPerPack"] = packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"];
+                        dr["NoOfUnit"] = packregilist[i]["NoOfUnit"];
+                        //if (packregilist[i]["UnitPerPack"] != null)
+                        //{
+                        //    dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
+                        //}
+                        dr["NoOfPack"] = packregilist[i]["NoOfPack"];
+                        dr["ComboRefNo"] = packregilist[i]["ComboRefNo"];
+                        dr["BarCode"] = packregilist[i]["BarCode"];
+                        dr["QRCode"] = packregilist[i]["QRCode"];
+                        dr["RFID"] = packregilist[i]["RFID"];
+                        dr["LineItemReference"] = packregilist[i]["LineItemReference"];
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+                    }
+
+                    dspcr.Tables[0].DefaultView.RowFilter = "PacketRegistrationId ='" + prmasterId + "'";
+                    if (dspcr.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dspcr.Tables[0].NewRow();
+
+                        dr["PacketRegistrationId"] = prmasterId;
+                        dr["NoOfPack"] = packregilist[i]["NoOfPack"];
+                        dr["ComboRefNo"] = packregilist[i]["ComboRefNo"];
+                        dr["ComboQty"] = packregilist[i]["ComboQty"];
+                        dr["BarCode"] = packregilist[i]["BarCode"];
+                        dr["QRCode"] = packregilist[i]["QRCode"];
+                        dr["RFID"] = packregilist[i]["RFID"];
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+
+                        dspcr.Tables[0].Rows.Add(dr);
+                    }
+
+                    dspcsku.Tables[0].DefaultView.RowFilter = "PacketRegistrationId ='" + prmasterId + "'";
+                    if (dspcsku.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dspcr.Tables[0].NewRow();
+
+                        dr["PacketRegistrationId"] = prmasterId;
+                        dr["SalesOrderId"] = packregilist[i]["SalesOrderId"];
+                        dr["SKU1Id"] = packregilist[i]["SKU1Id"];
+                        dr["SKU2Id"] = packregilist[i]["SKU2Id"];
+                        dr["ComboRefNo"] = packregilist[i]["ComboRefNo"];
+                        dr["Qty"] = packregilist[i]["Qty"];
+                        dr["ComboPlanQty"] = packregilist[i]["ComboQty"];
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+
+                        dspcsku.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dspackCat, dspcr, dspcsku);
+                return Json(new { Error = false, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
         public ActionResult GetComboData(string soId, string packetRegistrationTypeId)
         {
             Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
@@ -3965,10 +4095,19 @@ ORDER BY P.SortOrder;";
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetPackingSKUData(string soId, string packetRegistrationTypeId)
+        public ActionResult GetComboPackingSKUData(string soId, string packetRegistrationTypeId)
         {
             Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
-            var jsondata = Json(order.GetPackingSKUData(soId, packetRegistrationTypeId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(order.GetComboPackingSKUData(soId, packetRegistrationTypeId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetPackingResigtationSKUData(string soId, string packetRegistrationTypeId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetPackingResigtationSKUData(soId, packetRegistrationTypeId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
@@ -4630,7 +4769,96 @@ ORDER BY P.SortOrder;";
             const float textFontSize = 8f;
             const float textLineHeight = textFontSize + 3f;
             float pageWidth = cellPadding + qrSize + cellPadding;   // content-sized width
-          
+
+            #region QRCodePerPage
+            //using (PdfDocument document = new PdfDocument())
+            //{
+            //    const float cellPadding = 4f;
+            //    const float qrSize = 95f;
+            //    const float textFontSize = 8f;
+            //    const float textLineHeight = textFontSize + 3f;
+            //    const int reservedLineCount = 3;   // fixed — matches your physical label height
+
+            //    float pageWidth = cellPadding + qrSize + cellPadding;
+
+            //    // ---- fixed height, same for every page, matches the physical sticker size ----
+            //    float pageHeight =
+            //        cellPadding + qrSize + 3f + (textLineHeight * reservedLineCount) + cellPadding;
+
+            //    PdfFont font = new PdfStandardFont(PdfFontFamily.Courier, textFontSize, PdfFontStyle.Bold);
+            //    PdfBrush brush = PdfBrushes.Black;
+
+            //    PdfStringFormat leftFormat = new PdfStringFormat
+            //    {
+            //        Alignment = PdfTextAlignment.Left,
+            //        LineAlignment = PdfVerticalAlignment.Top
+            //    };
+
+            //    float textAreaWidth = pageWidth - (cellPadding * 2);
+
+            //    foreach (QRCodeItem item in qrCodeItems)
+            //    {
+            //        string qrData = string.Concat(item.CartonNo);
+
+            //        string[] rawLines =
+            //            {
+            //    $"{item.PackingName}",
+            //    $"{item.Color}_{item.Size}",
+            //    $"{item.NoOfPcs}_{item.CartonNo}"
+            //    };
+
+            //        List<string> wrappedLines = new List<string>();
+            //        foreach (string raw in rawLines)
+            //        {
+            //            wrappedLines.AddRange(WrapTextToWidth(raw, font, textAreaWidth));
+            //        }
+
+            //        // If this item genuinely needs MORE lines than reserved, it will still overflow —
+            //        // that's a data problem (label text too long for the sticker), not a layout bug.
+            //        // Consider truncating or shrinking font for these specific outliers if it happens often.
+
+            //        PdfSection section = document.Sections.Add();
+            //        section.PageSettings.Size = new SizeF(pageWidth, pageHeight);   // same every time
+            //        section.PageSettings.Margins.All = 0;
+
+            //        PdfPage page = section.Pages.Add();
+            //        PdfGraphics g = page.Graphics;
+
+            //        CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
+
+            //        using (Image barcodeImg = qrCode.Draw(qrData, 200, 2))
+            //        using (MemoryStream imgStream = new MemoryStream())
+            //        {
+            //            barcodeImg.Save(imgStream, ImageFormat.Png);
+            //            imgStream.Position = 0;
+
+            //            PdfBitmap pdfImage = new PdfBitmap(imgStream);
+
+            //            float qrX = cellPadding;
+            //            float qrY = cellPadding;
+            //            g.DrawImage(pdfImage, qrX, qrY, qrSize, qrSize);
+
+            //            float textAreaX = cellPadding;
+            //            float textY = qrY + qrSize + 3f;
+
+            //            for (int li = 0; li < wrappedLines.Count; li++)
+            //            {
+            //                RectangleF textRect = new RectangleF(
+            //                    textAreaX, textY + li * textLineHeight, textAreaWidth, textLineHeight);
+
+            //                g.DrawString(wrappedLines[li], font, brush, textRect, leftFormat);
+            //            }
+            //        }
+            //    }
+
+            //    using (MemoryStream output = new MemoryStream())
+            //    {
+            //        document.Save(output);
+            //        return output.ToArray();
+            //    }
+            //} 
+            #endregion
+
             using (PdfDocument document = new PdfDocument())
             {
 
@@ -4658,7 +4886,8 @@ ORDER BY P.SortOrder;";
                         {
                 $"{item.PackingName}",
                 $"{item.Color}_{item.Size}",
-                $"{item.NoOfPcs}_{item.CartonNo}"
+                $"{item.NoOfPcs}_{item.CartonNo}",
+                $""
             };
 
                         List<string> wrappedLines = new List<string>();
@@ -4727,7 +4956,7 @@ ORDER BY P.SortOrder;";
                     document.Save(output);
                     return output.ToArray();
                 }
-            }
+            } 
 
 
         }

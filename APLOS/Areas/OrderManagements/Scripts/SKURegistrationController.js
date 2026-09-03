@@ -451,6 +451,16 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         });
     }
 
+    
+    $scope.GetPackingType=function (obj) {
+        for (var i = 0; i < $scope.packingTypeList.length; i++) {
+            if (obj.data.PackingTypeId == $scope.packingTypeList[i].Value) {
+                obj.data.PackingType = $scope.packingTypeList[i].PackingType;
+                break;
+            }
+        }
+    }
+
     $scope.selectSinglePackingCategory = function (selectedItem) {
         try {
             if (selectedItem.Flag) {
@@ -533,7 +543,30 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         }
         $http({
             method: 'POST',
-            url: 'OrderManagements/ProductionOrder/GetPackingSKUData?soId=' + $scope.sqlsoId + '&packetRegistrationTypeId=' + typemasterId
+            url: 'OrderManagements/ProductionOrder/GetComboPackingSKUData?soId=' + $scope.sqlsoId + '&packetRegistrationTypeId=' + typemasterId
+        }).then(function successCallback(response) {
+            $scope.skuList = response.data;
+        });
+    }
+
+    $scope.GetPackingResigtationSKUData = function (typemasterId) {
+        $scope.idList = [];
+        for (var di = 0; di < $scope.recipeMaterialListSelected.length; di++) {
+            $scope.idList.push($scope.recipeMaterialListSelected[di]);
+        }
+
+        if ($scope.idList.length > 0) {
+            var uniqueSalesOrderId = removeDuplicates($scope.idList, 'SalesOrderId');
+            var wcsoId = "";
+            if (uniqueSalesOrderId.length > 0) {
+                wcsoId = "IN(";
+                wcsoId += Array.prototype.map.call(uniqueSalesOrderId, function (item) { return "'" + item.SalesOrderId + "'"; }).join(",") + ")";
+            }
+            $scope.sqlsoId = wcsoId;
+        }
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/ProductionOrder/GetPackingResigtationSKUData?soId=' + $scope.sqlsoId + '&packetRegistrationTypeId=' + typemasterId
         }).then(function successCallback(response) {
             $scope.skuList = response.data;
         });
@@ -542,10 +575,11 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     $scope.PRObj = {};
     $scope.GetPacketRegistrationPOP = function (data) {
         $scope.PRObj = data;
-        $scope.GetPackingSKUData($scope.PRObj.Id);
-        if ($scope.PRObj.PackingCategory == "CartonPack" && $scope.PRObj.PackType == "Solid Color & Solid Size") {
+        if ($scope.PRObj.PackingType == "SolidSolid") {
+            $scope.GetPackingResigtationSKUData($scope.PRObj.Id);
             angular.element(document.querySelector('#CartonPackPopUp')).modal('show');
         } else {
+            $scope.GetPackingSKUData($scope.PRObj.Id);
             angular.element(document.querySelector('#PRPopUp')).modal('show');
         }
     }
@@ -586,33 +620,57 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         obj.data.NoOfPack = Math.ceil(obj.data.NoOfUnit / obj.data.UnitPerPack);
     };
 
-    $scope.calculateNoOfPack = function () {
-        // Step 1: find min UnitPerPack for each ComboRefNo group
-        var minUnitPackByCombo = {};
-        angular.forEach($scope.skuList, function (obj) {
-            if (obj.ComboRefNo) { // only group rows that have a ComboRefNo
-                if (
-                    !minUnitPackByCombo.hasOwnProperty(obj.ComboRefNo) ||
-                    obj.UnitPerPack < minUnitPackByCombo[obj.ComboRefNo]
-                ) {
-                    minUnitPackByCombo[obj.ComboRefNo] = obj.UnitPerPack;
-                }
+    $scope.combocalculate = function (obj) {
+        try {
+            if (baseService.isUndefinedOrNull(obj.ComboRefNo)) {
+                throw "Combo Ref No is required.";
             }
-        });
-
-        // Step 2: calculate NoOfPack using group's min UnitPerPack (if combo exists)
-        angular.forEach($scope.skuList, function (obj) {
-            var effectiveUnitPerPack = obj.ComboRefNo
-                ? minUnitPackByCombo[obj.ComboRefNo]
-                : obj.UnitPerPack;
-
-            obj.NoOfPack = Math.ceil(obj.NoOfUnit / effectiveUnitPerPack);
-        });
+            obj.NoOfPack = Math.ceil(obj.BalanceToPlan / obj.UnitPerPack);
+            $scope.calculateNoOfPack(obj);
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 
 
-        var gridObj = $("#GridPRSKU").data("ejGrid");
-        gridObj.refreshContent(true);
-        gridObj.refreshTemplate();
+    $scope.calculateNoOfPack = function (row) {
+        try {
+            if (row.BalanceToPlan < 0) {
+                throw "Combo Ref No allow to enter if balance Qty is greater than 0";
+            }
+
+            // Step 1: calculate each row's own PlanPack independently
+            angular.forEach($scope.skuList, function (obj) {
+                obj.OwnPlanPack = Math.ceil(obj.NoOfUnit / obj.UnitPerPack);
+            });
+
+            // Step 2: find minimum OwnPlanPack per ComboRefNo group
+            var minPlanPackByCombo = {};
+            angular.forEach($scope.skuList, function (obj) {
+                if (obj.ComboRefNo) {
+                    if (!minPlanPackByCombo.hasOwnProperty(obj.ComboRefNo) ||
+                        obj.OwnPlanPack < minPlanPackByCombo[obj.ComboRefNo]) {
+                        minPlanPackByCombo[obj.ComboRefNo] = obj.OwnPlanPack;
+                    }
+                }
+            });
+
+            // Step 3: assign final PlanPack — combo min, or 0 if no ComboRefNo
+            angular.forEach($scope.skuList, function (obj) {
+                obj.PlanPack = obj.ComboRefNo
+                    ? minPlanPackByCombo[obj.ComboRefNo]
+                    : 0;
+
+                obj.ComboQty = (obj.ComboRefNo ? minPlanPackByCombo[obj.ComboRefNo] : 0) * obj.UnitPerPack;
+                obj.BalanceToPlan = obj.NoOfUnit - ((obj.ComboRefNo ? minPlanPackByCombo[obj.ComboRefNo] : 0) * obj.UnitPerPack);
+            });
+
+            var gridObj = $("#GridPRSKU").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
     $scope.SaveComboPR = function () {
@@ -628,7 +686,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
                 $http({
                     method: 'POST',
-                    url: "OrderManagements/ProductionOrder/SavePacketRegistration",
+                    url: "OrderManagements/ProductionOrder/SaveComboPacketRegistration",
                     data: { 'packregilist': tempList, 'masterId': $scope.PRObj.Id },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {

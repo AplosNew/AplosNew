@@ -165,7 +165,7 @@
                         </script>
                         <script type="text/template" id="PackingType">
                             <div class="select-style">
-                                <select name="PackingType" class="form-control" ng-model="data.PackingTypeId"
+                                <select name="PackingType" class="form-control" ng-model="data.PackingTypeId" ng-change="$parent.GetPackingType(this);"
                                         ng-options="item.Value as item.Text for item in $parent.packingTypeList" tabindex="4">
                                     <option value=""></option>
                                 </select>
@@ -389,7 +389,7 @@
     </div>
 </div>
 
-<div class="modal fade site-modal in" id="PRPopUp" role="dialog" data-backdrop="static">
+<div class="modal fade site-modal in" id="_PRPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
             <div class="modal-header">Carton <button type="button" class="close" data-dismiss="modal">&times;</button></div>
@@ -433,7 +433,7 @@
                         </script>
                         <script type="text/template" id="ComboRefNo">
                             <div class="col-sm-10" style="padding:0px; width:70px;">
-                                <input type="text" ng-model="data.ComboRefNo" only-numbers  ng-blur="$parent.calculateNoOfPack()" style="color:black;" class="form-control" />
+                                <input type="text" ng-model="data.ComboRefNo" only-numbers  ng-blur="$parent.calculateNoOfPack(data)" style="color:black;" class="form-control" />
                             </div>
                         </script>
                         <script type="text/template" id="BarCode">
@@ -486,6 +486,124 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade site-modal in" id="PRPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Combo Carton <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="col-xs-12">
+                    <div style="color:black;" id="GridPRSKU" ej-grid e-datasource="skuList" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            @*<div e-column e-headertext="" e-template="#checkboxTemplateQR" e-textalign="center" e-width="30"></div>*@
+                            <div e-column e-template="#GenPRCarton" e-headertext="Actions" e-width="140" style="height: 20px;"></div>
+                            <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SKUColor" e-headertext="Color" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SKUSize" e-headertext="Size" e-width="80"></div>
+                            <div e-column e-template="#Qty" e-headertext="Qty" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-type="string" e-template="#NoOfUnit" e-headertext="NoOfUnit" e-width="80"></div>
+                            <div e-column e-template="#ComboQty" e-headertext="ComboQty" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#BalanceToPlan" e-headertext="BalanceToPlan" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-type="string" e-template="#ComboRefNo" e-headertext="ComboRefNo" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#ComboUnitPerPack" e-headertext="Unit/Pack" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#NoOfPack" e-headertext="NoOfPack" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#PlanPack" e-headertext="PlanPack" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#BarCode" e-headertext="BarCode" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#QRCode" e-headertext="QRCode" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#RFID" e-headertext="RFID" e-width="80"></div>
+                            <div e-column e-template="#LineItemReference" e-headertext="LineItemReference" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#Remark" e-headertext="Remark" e-width="100" style="height: 20px;"></div>
+                        </div>
+                        <script type="text/template" id="Qty">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.Qty" disabled n-decimals="2" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="NoOfUnit">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.NoOfUnit" disabled n-decimals="2" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="ComboQty">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.ComboQty" disabled n-decimals="2" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="BalanceToPlan">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.BalanceToPlan" disabled n-decimals="2" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="ComboUnitPerPack">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.UnitPerPack" n-decimals="2" ng-blur="$parent.combocalculate(data)" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+
+                        <script type="text/template" id="NoOfPack">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.NoOfPack" disabled n-decimals="2" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="ComboRefNo">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.ComboRefNo" only-numbers ng-blur="$parent.calculateNoOfPack(data)" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="PlanPack">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.PlanPack" only-numbers style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="BarCode">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" class="form-control" ng-model="data.BarCode" ng-keydown="barcodeKeyDown($event)" placeholder="Scan Barcode" autofocus />
+                            </div>
+                        </script>
+                        <script type="text/template" id="QRCode">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.QRCode" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="RFID">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.RFID" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="Remark">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.Remark" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+
+                        <script type="text/template" id="LineItemReference">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.LineItemReference" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="GenPRCarton">
+                            <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                                <button ng-click="$parent.GenerateCarton(this);" title="Generate Carton" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
+                                @*<button ng-click="$parent.generateQRCode(this);" title="Generate QR" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="fa fa-qrcode"></i></button>*@
+                                <button ng-click="$parent.GetComboCartonList(this);" title="Carton List" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-eye-open"></i></button>
+                            </div>
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        @*<li> <button ng-click="calculateNoOfPack();" class="btn"><i class="fa fa-calculator"></i> Calculate</button></li>*@
+                        <li> <button ng-click="SaveComboPR();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        <li> <button ng-click="ClosePR();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade site-modal in" id="CartonPackPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
