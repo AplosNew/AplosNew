@@ -1201,82 +1201,68 @@ ORDER BY ComboRefNo;";
             try
             {
 
-                string sql = @";WITH BaseData AS
+                string sql = @"SELECT SC.SalesOrderId,FC.CharacteristicsValueId AS SKU1Id,SC.CharacteristicsValueId AS SKU2Id,FCV.UserName AS SKUColor,SCV.UserName AS SKUSize,
+    CEILING((SUM(SC.Qty) * CM.PlanPercentage / 100.0) + SUM(SC.Qty)) AS PlanQty,SUM(SC.Qty) AS OrderQty
+    ,ISNULL(PCR.ComboQty,0) ComboQty
+    ,BalanceToAllot = (CEILING((SUM(SC.Qty) * CM.PlanPercentage / 100.0) + SUM(SC.Qty))) - ISNULL(PCR.ComboQty,0)
+    , '' UnitPerPack,'' NoOfPack,'' PlanPack,'' BarCode,'' QRCode,'' RFID,'' Remark
+FROM TRN.SecondCharacteristics SC
+LEFT JOIN TRN.FirstCharacteristics FC ON FC.Id = SC.FirstCharacteristicsId
+LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = FC.CharacteristicsValueId
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = SC.CharacteristicsValueId
+LEFT JOIN dbo.PacketRegistrationType PT ON PT.Id = '" + packetRegistrationTypeId + @"'
+LEFT JOIN dbo.PacketRegistrationMaster CM ON CM.Id = PT.PacketRegistrationMasterId
+LEFT JOIN (SELECT SUM(PCR.PackRefQty) ComboQty, PCR.PacketRegistrationTypeId,PD.SKU1Id,PD.SKU2Id FROM PackingComboReference PCR
+LEFT JOIN [dbo].[PackingComboSKUDetail] PD ON PD.PackingComboReferenceId=PCR.Id  
+GROUP BY PCR.PacketRegistrationTypeId,PD.SKU1Id,PD.SKU2Id) PCR ON PCR.PacketRegistrationTypeId = PT.Id AND FC.CharacteristicsValueId = PCR.SKU1Id AND SC.CharacteristicsValueId = PCR.SKU2Id
+WHERE SC.SalesOrderId " + soId + @"
+GROUP BY SC.SalesOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName,SCV.UserName,CM.PlanPercentage,PCR.ComboQty
+HAVING SUM(SC.Qty) <> 0
+Order By SCV.UserName";
+
+               string   _sql = @";WITH BaseData AS
 (
     SELECT PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId AS SKU1Id,SC.CharacteristicsValueId AS SKU2Id,
         FCV.UserName AS SKUColor,SCV.UserName AS SKUSize,
         CEILING((SUM(SC.Qty) * CM.PlanPercentage / 100.0) + SUM(SC.Qty)) AS NoOfUnit,
         SUM(SC.Qty) AS Qty,
-        UnitPerPack = ISNULL(PR.UnitPerPack,PT.NoOfUnitPerPack),PR.NoOfPack AS PR_NoOfPack,PR.ComboRefNo,
+        UnitPerPack = ISNULL(PR.UnitPerPack,PT.NoOfUnitPerPack),
         PR.BarCode,PR.QRCode,PR.RFID,PR.Remark,
-        LineItemReference = COALESCE(PR.LineItemReference,CM.LineItemReference),ISNULL(PCR.ComboQty,0) ComboQty,
-        BalanceToPlan = (CEILING((SUM(SC.Qty) * CM.PlanPercentage / 100.0) + SUM(SC.Qty))) - ISNULL(PCR.ComboQty,0),
-        NoOfPack = CEILING(ISNULL(PR.NoOfPack,((SUM(SC.Qty) * CM.PlanPercentage / 100.0)+ SUM(SC.Qty))/ ISNULL(PR.UnitPerPack,PT.NoOfUnitPerPack)))
+        PR.ComboRefNo,
+        PR.NoOfPack AS PR_NoOfPack,
+        LineItemReference = COALESCE(PR.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo)
     FROM TRN.SecondCharacteristics SC
     LEFT JOIN TRN.FirstCharacteristics FC ON FC.Id = SC.FirstCharacteristicsId
     LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = FC.CharacteristicsValueId
     LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = SC.CharacteristicsValueId
+    LEFT JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId = SC.SalesOrderId
     LEFT JOIN dbo.PacketRegistration PR ON PR.SalesOrderId = SC.SalesOrderId 
         AND FC.CharacteristicsValueId = PR.SKU1Id AND SC.CharacteristicsValueId = PR.SKU2Id
-        AND PR.PacketRegistrationTypeId = '" + packetRegistrationTypeId + @"'   
-    LEFT JOIN (SELECT SUM(ComboQty) ComboQty, PacketRegistrationId FROM PackingComboReference GROUP BY PacketRegistrationId) PCR 
-        ON PCR.PacketRegistrationId = PR.Id
+        AND PR.PacketRegistrationTypeId = '" + packetRegistrationTypeId + @"'
     LEFT JOIN dbo.PacketRegistrationType PT ON PT.Id = '" + packetRegistrationTypeId + @"'
     LEFT JOIN dbo.PacketRegistrationMaster CM ON CM.Id = PT.PacketRegistrationMasterId
-    WHERE SC.SalesOrderId  " + soId + @"
+    LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id = (SELECT MasterOrderItemId FROM TRN.SalesOrder WHERE Id " + soId + @")
+    WHERE SC.SalesOrderId " + soId + @"
     GROUP BY PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName,SCV.UserName,
         PR.UnitPerPack,PT.NoOfUnitPerPack,PR.BarCode,PR.QRCode,PR.RFID,PR.Remark,CM.PlanPercentage,
-        PR.NoOfPack,PR.LineItemReference,CM.LineItemReference,PR.ComboRefNo,PCR.ComboQty
+        PR.NoOfPack,PR.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo,PR.ComboRefNo
     HAVING SUM(SC.Qty) <> 0
-),
-WithOwnPlanPack AS
-(
-    -- each row's own PlanPack, computed independently first
-    SELECT *,
-        OwnPlanPack = CEILING(NoOfUnit * 1.0 / UnitPerPack)
-    FROM BaseData
 )
-SELECT Id,SalesOrderId,SKU1Id,SKU2Id,SKUColor,SKUSize,NoOfUnit,Qty,UnitPerPack,BarCode,QRCode,RFID,Remark,ComboRefNo,NoOfPack,
-    PlanPack = CASE 
-                    WHEN ComboRefNo IS NOT NULL 
-                    THEN MIN(OwnPlanPack) OVER (PARTITION BY ComboRefNo)
-                    ELSE 0
-               END,
-    LineItemReference,ComboQty,BalanceToPlan
-FROM WithOwnPlanPack
+SELECT Id,SalesOrderId,SKU1Id,SKU2Id,SKUColor,SKUSize,NoOfUnit,Qty,UnitPerPack,BarCode,QRCode,RFID,Remark,ComboRefNo,
+    NoOfPack = CEILING(
+        ISNULL(
+            PR_NoOfPack,
+            NoOfUnit * 1.0 /
+            CASE 
+                WHEN ComboRefNo IS NOT NULL 
+                THEN MIN(UnitPerPack) OVER (PARTITION BY ComboRefNo)
+                ELSE UnitPerPack
+            END
+        )
+    ),
+    LineItemReference
+FROM BaseData
 ORDER BY SKUSize;";
-
-//                sql = @";WITH BaseData AS
-//(
-//    SELECT PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId AS SKU1Id,SC.CharacteristicsValueId AS SKU2Id,
-//        FCV.UserName AS SKUColor,SCV.UserName AS SKUSize,
-//        CEILING((SUM(SC.Qty) * CM.PlanPercentage / 100.0) + SUM(SC.Qty)) AS NoOfUnit,
-//        SUM(SC.Qty) AS Qty,
-//        UnitPerPack = ISNULL(PR.UnitPerPack,PT.NoOfUnitPerPack),PR.NoOfPack AS PR_NoOfPack,PR.ComboRefNo,
-//        PR.BarCode,PR.QRCode,PR.RFID,PR.Remark,                
-//        LineItemReference = COALESCE(PR.LineItemReference,CM.LineItemReference),ISNULL(PCR.ComboQty,0) ComboQty,BalanceToPlan=(CEILING((SUM(SC.Qty) * CM.PlanPercentage / 100.0) + SUM(SC.Qty)))-ISNULL(PCR.ComboQty,0)
-//        ,NoOfPack =CEILING(ISNULL(PR.NoOfPack,((SUM(SC.Qty) * CM.PlanPercentage / 100.0)+ SUM(SC.Qty))/ ISNULL(PR.UnitPerPack,PT.NoOfUnitPerPack)))
-//    FROM TRN.SecondCharacteristics SC
-//    LEFT JOIN TRN.FirstCharacteristics FC ON FC.Id = SC.FirstCharacteristicsId
-//    LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = FC.CharacteristicsValueId
-//    LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = SC.CharacteristicsValueId
-//    LEFT JOIN dbo.PacketRegistration PR ON PR.SalesOrderId = SC.SalesOrderId 
-//        AND FC.CharacteristicsValueId = PR.SKU1Id AND SC.CharacteristicsValueId = PR.SKU2Id
-//        AND PR.PacketRegistrationTypeId = '" + packetRegistrationTypeId + @"'    
-//    LEFT JOIN (select SUM(ComboQty)ComboQty,PacketRegistrationId from PackingComboReference Group By PacketRegistrationId) PCR ON PCR.PacketRegistrationId=PR.Id
-//    LEFT JOIN dbo.PacketRegistrationType PT ON PT.Id = '" + packetRegistrationTypeId + @"'
-//    LEFT JOIN dbo.PacketRegistrationMaster CM ON CM.Id = PT.PacketRegistrationMasterId
-//    WHERE SC.SalesOrderId  " + soId + @"
-//    GROUP BY PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName,SCV.UserName,
-//        PR.UnitPerPack,PT.NoOfUnitPerPack,PR.BarCode,PR.QRCode,PR.RFID,PR.Remark,CM.PlanPercentage,
-//        PR.NoOfPack,PR.LineItemReference,CM.LineItemReference,PR.ComboRefNo,PCR.ComboQty
-//    HAVING SUM(SC.Qty) <> 0
-//)
-//SELECT Id,SalesOrderId,SKU1Id,SKU2Id,SKUColor,SKUSize,NoOfUnit,Qty,UnitPerPack,BarCode,QRCode,RFID,Remark,ComboRefNo, NoOfPack,
-//    PlanPack = CEILING(ISNULL(NoOfPack,NoOfUnit * 1.0 / CASE WHEN ComboRefNo IS NOT NULL THEN MIN(UnitPerPack) OVER (PARTITION BY ComboRefNo) ELSE UnitPerPack END)),   
-//    LineItemReference,ComboQty,BalanceToPlan
-//FROM BaseData
-//ORDER BY SKUSize;";
 
                 return _sqlRepository.GetDataCollection(sql);
             }

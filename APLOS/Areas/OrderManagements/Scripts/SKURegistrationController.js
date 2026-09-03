@@ -1,6 +1,6 @@
 ﻿'use strict';
-SKURegistrationController.$inject = ['cboService', '$window', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller'];
-function SKURegistrationController(cboService, $window, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
+SKURegistrationController.$inject = ['cboService', '$window', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller','$timeout'];
+function SKURegistrationController(cboService, $window, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, $timeout) {
     $rootScope.title = "Packing Definition";
     $scope.Action = 'Save';
     $scope.ModelList = [];
@@ -451,8 +451,8 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         });
     }
 
-    
-    $scope.GetPackingType=function (obj) {
+
+    $scope.GetPackingType = function (obj) {
         for (var i = 0; i < $scope.packingTypeList.length; i++) {
             if (obj.data.PackingTypeId == $scope.packingTypeList[i].Value) {
                 obj.data.PackingType = $scope.packingTypeList[i].PackingType;
@@ -620,34 +620,33 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         obj.data.NoOfPack = Math.ceil(obj.data.NoOfUnit / obj.data.UnitPerPack);
     };
 
-    $scope.combocalculate = function (obj) {
-        try {
-            if (baseService.isUndefinedOrNull(obj.ComboRefNo)) {
-                throw "Combo Ref No is required.";
-            }
-            obj.NoOfPack = Math.ceil(obj.BalanceToPlan / obj.UnitPerPack);
-            $scope.calculateNoOfPack(obj);
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
+    $scope.calculateCombo = function (obj) {
+        obj.NoOfPack = Math.ceil(obj.PlanQty / obj.UnitPerPack);
     };
 
 
     $scope.calculateNoOfPack = function (row) {
         try {
-            if (row.BalanceToPlan < 0) {
-                throw "Combo Ref No allow to enter if balance Qty is greater than 0";
+            if (baseService.isUndefinedOrNull(row.UnitPerPack) || row.UnitPerPack <= 0) {
+                return;
+            }
+            if (baseService.isUndefinedOrNull(row.ComboRefNo) || row.ComboRefNo === '') {
+                return;
             }
 
-            // Step 1: calculate each row's own PlanPack independently
+            // Step 1: each row's own PlanPack, only for rows with valid PlanQty & UnitPerPack
             angular.forEach($scope.skuList, function (obj) {
-                obj.OwnPlanPack = Math.ceil(obj.NoOfUnit / obj.UnitPerPack);
+                var planQty = parseFloat(obj.PlanQty);
+                var unitPerPack = parseFloat(obj.UnitPerPack);
+                obj.OwnPlanPack = (unitPerPack > 0 && !isNaN(planQty))
+                    ? Math.ceil(planQty / unitPerPack)
+                    : null;
             });
 
-            // Step 2: find minimum OwnPlanPack per ComboRefNo group
+            // Step 2: minimum OwnPlanPack per ComboRefNo group
             var minPlanPackByCombo = {};
             angular.forEach($scope.skuList, function (obj) {
-                if (obj.ComboRefNo) {
+                if (obj.ComboRefNo && obj.OwnPlanPack != null && !isNaN(obj.OwnPlanPack)) {
                     if (!minPlanPackByCombo.hasOwnProperty(obj.ComboRefNo) ||
                         obj.OwnPlanPack < minPlanPackByCombo[obj.ComboRefNo]) {
                         minPlanPackByCombo[obj.ComboRefNo] = obj.OwnPlanPack;
@@ -655,23 +654,34 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                 }
             });
 
-            // Step 3: assign final PlanPack — combo min, or 0 if no ComboRefNo
+            // Step 3: apply group minimum, recompute ComboQty and BalanceToAllot — using NEW values
             angular.forEach($scope.skuList, function (obj) {
-                obj.PlanPack = obj.ComboRefNo
-                    ? minPlanPackByCombo[obj.ComboRefNo]
-                    : 0;
-
-                obj.ComboQty = (obj.ComboRefNo ? minPlanPackByCombo[obj.ComboRefNo] : 0) * obj.UnitPerPack;
-                obj.BalanceToPlan = obj.NoOfUnit - ((obj.ComboRefNo ? minPlanPackByCombo[obj.ComboRefNo] : 0) * obj.UnitPerPack);
+                if (obj.ComboRefNo && minPlanPackByCombo.hasOwnProperty(obj.ComboRefNo) && obj.UnitPerPack > 0) {
+                    obj.PlanPack = minPlanPackByCombo[obj.ComboRefNo];
+                    obj.NoOfPack = obj.NoOfPack;
+                    obj.ComboQty = obj.UnitPerPack * obj.PlanPack;
+                    obj.BalanceToAllot = obj.PlanQty - obj.ComboQty;
+                } else if (!obj.ComboRefNo) {
+                    obj.PlanPack = 0;
+                    obj.ComboQty = 0;
+                    obj.BalanceToAllot = obj.PlanQty;
+                }
             });
 
             var gridObj = $("#GridPRSKU").data("ejGrid");
             gridObj.refreshContent(true);
             gridObj.refreshTemplate();
+
+            // Validate AFTER recalculating with the new value — warn, but don't block the edit
+            //if (row.BalanceToAllot < 0) {
+            //    ShowResult("Balance Qty is negative — please reduce Unit/Pack or check Combo Ref No.", 'failure');
+            //}
         } catch (e) {
             ShowResult(e, 'failure');
         }
     }
+
+   
 
     $scope.SaveComboPR = function () {
         try {
@@ -722,7 +732,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.GetPackingSKUData($scope.PRObj.Id);
+                        $scope.GetPackingResigtationSKUData($scope.PRObj.Id);
                     }
                 }, function errorCallback(response) {
                     ShowResult(response.data.Message, 'failure');
