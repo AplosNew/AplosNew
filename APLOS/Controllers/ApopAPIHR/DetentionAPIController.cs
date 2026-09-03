@@ -3516,7 +3516,7 @@ where apd.Daystatus = 'A' and x.UserName = '" + category + "' and  mb.lineid = '
                 return Json(_sqlRepository.GetDataTable(@"select Ei.Systemid ,Ei.EmployeeCode,APd.WorkDate,Apd.DayStatus, APd.InTime,APd.OutTime,APd.OTHr from AttdnProcessData as APd
 Left join EmployeeInformation as EI on EI.SystemID=APD.EmpSystemId
 left join org.plant PT on PT.Id = EI.PlantId
-where  EI.EmployeeCode='" + Empcode + "' and format(APd.WorkDate,'MMMM') = '" + month + "' and PT.Id = '" + PlantId + "'  and APd.PlantID = '20252' AND APd.WorkDate < CAST(GETDATE() AS DATE) order by APd.WorkDate desc"));
+where  EI.EmployeeCode='" + Empcode + "' and format(APd.WorkDate,'MMMM') = '" + month + "' and APd.PlantID = '" + PlantId + "'  AND APd.WorkDate < CAST(GETDATE() AS DATE)  AND YEAR(APd.WorkDate) = YEAR(GETDATE()) order by APd.WorkDate desc"));
             }
             catch (Exception ex)
             {
