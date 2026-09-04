@@ -3760,6 +3760,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND  TEMP.Sales
             }
         }
 
+        [HttpPost, Authorize]
         public ActionResult DeleteSO(string id)
         {
             try
@@ -4035,6 +4036,28 @@ ORDER BY P.SortOrder;";
             {
 
                 throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult DeleteCombo(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from PackingComboSKUDetail where PackingComboReferenceId='" + id + "'");
+                con.executeQuery("delete from PackingComboReference where id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
 

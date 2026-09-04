@@ -1214,9 +1214,9 @@ LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = FC.CharacteristicsValueId
 LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = SC.CharacteristicsValueId
 LEFT JOIN dbo.PacketRegistrationType PT ON PT.Id = '" + packetRegistrationTypeId + @"'
 LEFT JOIN dbo.PacketRegistrationMaster CM ON CM.Id = PT.PacketRegistrationMasterId
-LEFT JOIN (SELECT PD.ComboQty, PCR.PacketRegistrationTypeId,PD.SKU1Id,PD.SKU2Id FROM PackingComboReference PCR
+LEFT JOIN (SELECT SUM(PD.ComboQty)ComboQty, PCR.PacketRegistrationTypeId,PD.SKU1Id,PD.SKU2Id FROM PackingComboReference PCR
 LEFT JOIN [dbo].[PackingComboSKUDetail] PD ON PD.PackingComboReferenceId=PCR.Id  
-GROUP BY PCR.PacketRegistrationTypeId,PD.SKU1Id,PD.SKU2Id,PD.ComboQty) PCR ON PCR.PacketRegistrationTypeId = PT.Id AND FC.CharacteristicsValueId = PCR.SKU1Id AND SC.CharacteristicsValueId = PCR.SKU2Id
+GROUP BY PCR.PacketRegistrationTypeId,PD.SKU1Id,PD.SKU2Id) PCR ON PCR.PacketRegistrationTypeId = PT.Id AND FC.CharacteristicsValueId = PCR.SKU1Id AND SC.CharacteristicsValueId = PCR.SKU2Id
 WHERE SC.SalesOrderId " + soId + @"
 GROUP BY SC.SalesOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName,SCV.UserName,CM.PlanPercentage,PCR.ComboQty,PT.Id
 HAVING SUM(SC.Qty) <> 0

@@ -219,6 +219,7 @@
                                     <button ng-click="$parent.GenerateComboCarton(this);" title="Generate Carton" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
                                     <button ng-click="$parent.generateComboQRCode(this);" title="Generate QR" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="fa fa-qrcode"></i></button>
                                     @*<button ng-click="$parent.GetComboCartonList(this);" title="Carton List" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-eye-open"></i></button>*@
+                                    <button ng-click="$parent.removeCombo(this);" title="Delete Combo" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
                                 </div>
                             </script>
                         </div>
@@ -651,3 +652,4 @@
 </div>
 
 <confirm-archive-generic modalid="confirmSODelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteSO();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmComboDelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteCombo();"></confirm-archive-generic>

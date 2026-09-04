@@ -872,6 +872,34 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         angular.element(document.querySelector('#ComboCartonPopUp')).modal('hide');
     }
 
+    $scope.removeCombo = function (data) {
+        $scope.SOobj = data.data;
+        $scope.message_confirmation = 'Are you sure want to delete [ ' + $scope.SOobj.Id + ' ]';
+        angular.element(document.querySelector('#confirmComboDelPopUp')).modal('show');
+    };
+    $scope.DeleteCombo = function () {
+        if (!baseService.isUndefinedOrNull($scope.SOobj.Id)) {
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/ProductionOrder/DeleteCombo?id=' + $scope.SOobj.Id
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetComboData();
+                }
+            }, function () {
+                ShowResult(commonMessage.NetworkError, 'failure');
+            }).finally(function () {
+            });
+        }
+
+    };
+
+
+
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
     $scope.exportgriddataUrl = 'GridReports/ViewExcelExportUpd';
