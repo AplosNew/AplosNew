@@ -3956,126 +3956,79 @@ ORDER BY P.SortOrder;";
         }
 
         [HttpPost, Authorize]
-        public JsonResult SaveComboPacketRegistration(List<Dictionary<string, object>> packregilist, string masterId)
+        public JsonResult SaveComboPacketRegistration(Dictionary<string, object> packrdata, List<Dictionary<string, object>> packregilist, string masterId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.DAL.ConManager objCon;
-                DataSet dspackCat, dspcsku, dspcr = null;
-                string sql = "SELECT * FROM [dbo].[PacketRegistration] where PacketRegistrationTypeId='" + masterId + "'";
+                DataSet dspcsku, dspcr, dsPCRID = null;
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
-                string pcr = @"select * from PackingComboReference Where PacketRegistrationId IN(select  Id from [dbo].[PacketRegistration] where PacketRegistrationTypeId='" + masterId + "')";
-                objCon.OpenDataSetThroughAdapter(sql, out dspcr, false, "1");
 
-                string pcsku = @"select * from PackingComboSKUDetail Where PacketRegistrationId IN(select  Id from [dbo].[PacketRegistration] where PacketRegistrationTypeId='" + masterId + "')";
-                objCon.OpenDataSetThroughAdapter(sql, out dspcsku, false, "1");
+                string pcr = @"select * from PackingComboReference Where PacketRegistrationTypeId='" + masterId + "'";
+                objCon.OpenDataSetThroughAdapter(pcr, out dspcr, false, "1");
+
+                objCon.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[PackingComboReference] where PacketRegistrationTypeId='" + masterId + "'", out dsPCRID, false, "1");
+                int pcount = Convert.ToInt32(dsPCRID.Tables[0].Rows[0]["countId"].ToString());
+
+                string pcsku = @"select * from PackingComboSKUDetail Where PackingComboReferenceId='" + packrdata["Id"] + "'";
+                objCon.OpenDataSetThroughAdapter(pcsku, out dspcsku, false, "1");
+
 
                 string prmasterId = null;
 
+                dspcr.Tables[0].DefaultView.RowFilter = "PacketRegistrationTypeId ='" + masterId + "' AND Id ='" + packrdata["Id"] + "'";
+                if (dspcr.Tables[0].DefaultView.Count == 0)
+                {
+                    DataRow dr = dspcr.Tables[0].NewRow();
+
+                    dr["Id"] = masterId + "-" + (pcount + 1).ToString();
+                    prmasterId = masterId + "-" + (pcount + 1).ToString();
+                    dr["PacketRegistrationTypeId"] = masterId;
+
+                    dr["ColorSizeQty"] = packrdata["ColorSizeQty"];
+                    dr["NoOfPack"] = packrdata["NoOfPack"];
+                    dr["ComboRefNo"] = packrdata["ComboRefNo"];
+                    dr["PackRefQty"] = packrdata["PackRefQty"];
+                    dr["ComboQty"] = packrdata["ComboQty"];
+                    dr["BarCode"] = packrdata["BarCode"];
+                    dr["QRCode"] = packrdata["QRCode"];
+                    dr["RFID"] = packrdata["RFID"];
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+
+                    dspcr.Tables[0].Rows.Add(dr);
+                }
+
                 for (int i = 0; i < packregilist.Count; i++)
                 {
-                    dspackCat.Tables[0].DefaultView.RowFilter = "Id ='" + packregilist[i]["Id"] + "'";
-                    if (dspackCat.Tables[0].DefaultView.Count == 0)
-                    {
-                        DataRow dr = dspackCat.Tables[0].NewRow();
 
-                        dr["Id"] = masterId + "-" + (i + 1).ToString();
-                        prmasterId= masterId + "-" + (i + 1).ToString();
-                        dr["PacketRegistrationTypeId"] = masterId;
-                        dr["SalesOrderId"] = packregilist[i]["SalesOrderId"];
-                        dr["SKU1Id"] = packregilist[i]["SKU1Id"];
-                        dr["SKU2Id"] = packregilist[i]["SKU2Id"];
-                        dr["UnitPerPack"] = packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"];
-                        dr["NoOfUnit"] = packregilist[i]["NoOfUnit"];
-                        //if (packregilist[i]["UnitPerPack"] != null)
-                        //{
-                        //    dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
-                        //}
-                        dr["NoOfPack"] = packregilist[i]["NoOfPack"];
-                        dr["LineItemReference"] = packregilist[i]["LineItemReference"];
-                        dr["ComboRefNo"] = packregilist[i]["ComboRefNo"];
-                        dr["BarCode"] = packregilist[i]["BarCode"];
-                        dr["QRCode"] = packregilist[i]["QRCode"];
-                        dr["RFID"] = packregilist[i]["RFID"];
-
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = identity.IPAddress;
-
-
-                        dspackCat.Tables[0].Rows.Add(dr);
-                    }
-                    else
-                    {
-                        DataRow dr = dspackCat.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-                        prmasterId = packregilist[i]["Id"].ToString();
-                        dr["UnitPerPack"] = packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"];
-                        dr["NoOfUnit"] = packregilist[i]["NoOfUnit"];
-                        //if (packregilist[i]["UnitPerPack"] != null)
-                        //{
-                        //    dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
-                        //}
-                        dr["NoOfPack"] = packregilist[i]["NoOfPack"];
-                        dr["ComboRefNo"] = packregilist[i]["ComboRefNo"];
-                        dr["BarCode"] = packregilist[i]["BarCode"];
-                        dr["QRCode"] = packregilist[i]["QRCode"];
-                        dr["RFID"] = packregilist[i]["RFID"];
-                        dr["LineItemReference"] = packregilist[i]["LineItemReference"];
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                        dr["UpdatedFromIP"] = identity.IPAddress;
-
-                        dr.EndEdit();
-                    }
-
-                    dspcr.Tables[0].DefaultView.RowFilter = "PacketRegistrationId ='" + prmasterId + "'";
-                    if (dspcr.Tables[0].DefaultView.Count == 0)
-                    {
-                        DataRow dr = dspcr.Tables[0].NewRow();
-
-                        dr["PacketRegistrationId"] = prmasterId;
-                        dr["NoOfPack"] = packregilist[i]["NoOfPack"];
-                        dr["ComboRefNo"] = packregilist[i]["ComboRefNo"];
-                        dr["ComboQty"] = packregilist[i]["ComboQty"];
-                        dr["BarCode"] = packregilist[i]["BarCode"];
-                        dr["QRCode"] = packregilist[i]["QRCode"];
-                        dr["RFID"] = packregilist[i]["RFID"];
-
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = identity.IPAddress;
-
-
-                        dspcr.Tables[0].Rows.Add(dr);
-                    }
-
-                    dspcsku.Tables[0].DefaultView.RowFilter = "PacketRegistrationId ='" + prmasterId + "'";
+                    dspcsku.Tables[0].DefaultView.RowFilter = "Id =''";
                     if (dspcsku.Tables[0].DefaultView.Count == 0)
                     {
-                        DataRow dr = dspcr.Tables[0].NewRow();
+                        DataRow drc = dspcsku.Tables[0].NewRow();
 
-                        dr["PacketRegistrationId"] = prmasterId;
-                        dr["SalesOrderId"] = packregilist[i]["SalesOrderId"];
-                        dr["SKU1Id"] = packregilist[i]["SKU1Id"];
-                        dr["SKU2Id"] = packregilist[i]["SKU2Id"];
-                        dr["ComboRefNo"] = packregilist[i]["ComboRefNo"];
-                        dr["Qty"] = packregilist[i]["Qty"];
-                        dr["ComboPlanQty"] = packregilist[i]["ComboQty"];
+                        drc["PackingComboReferenceId"] = prmasterId;
+                        drc["SKU1Id"] = packregilist[i]["SKU1Id"];
+                        drc["SKU2Id"] = packregilist[i]["SKU2Id"];
+                        drc["QtyPerPack"] = packregilist[i]["UnitPerPack"];
+                        drc["NoOfPack"] = packregilist[i]["PlanPack"];
+                        drc["ComboQty"] = Convert.ToInt32(packregilist[i]["UnitPerPack"]) * Convert.ToInt32(packregilist[i]["PlanPack"]);
 
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = identity.IPAddress;
+                        drc["AddedBy"] = identity.Name;
+                        drc["AddedDate"] = System.DateTime.Now.ToString();
+                        drc["AddedFromIP"] = identity.IPAddress;
 
 
-                        dspcsku.Tables[0].Rows.Add(dr);
+                        dspcsku.Tables[0].Rows.Add(drc);
                     }
                 }
 
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dspackCat, dspcr, dspcsku);
+                obj.SaveDataSets(dspcr, dspcsku);
                 return Json(new { Error = false, Message = AplosMessage.Success });
             }
             catch (Exception ex)
@@ -4086,13 +4039,33 @@ ORDER BY P.SortOrder;";
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetComboData(string soId, string packetRegistrationTypeId)
+        public ActionResult GetComboData(string packetRegistrationTypeId)
         {
             Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
-            var jsondata = Json(order.GetComboData(soId, packetRegistrationTypeId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(order.GetComboData(packetRegistrationTypeId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetComboRefNo(string comboNo, string packetRegistrationTypeId)
+        {
+            try
+            {
+                string sql = "";
+                if (!string.IsNullOrEmpty(comboNo))
+                {
+                    sql = "select * from PackingComboReference Where ComboRefNo=" + comboNo + " AND PacketRegistrationTypeId='" + packetRegistrationTypeId + "'";
+                }
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         [HttpPost, Authorize]
         public ActionResult GetComboPackingSKUData(string soId, string packetRegistrationTypeId)
@@ -4956,7 +4929,7 @@ ORDER BY P.SortOrder;";
                     document.Save(output);
                     return output.ToArray();
                 }
-            } 
+            }
 
 
         }

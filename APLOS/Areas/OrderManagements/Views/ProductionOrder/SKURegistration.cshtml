@@ -206,9 +206,21 @@
                              e-allowscrolling="true" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                              e-showsummary="true" e-allowselection="true" e-filtersettings-filterType="excel">
                             <div e-columns>
-                                <div e-column e-field="ComboNo" e-headertext="ComboNo" e-width="100" e></div>
-                                <div e-column e-field="Combo" e-headertext="Combo" e-width="100" e></div>
+                                <div e-column e-template="#GenComboCarton" e-headertext="Actions" e-width="140" style="height: 20px;"></div>
+                                <div e-column e-field="ComboRefNo" e-headertext="Combo No" e-width="60" e></div>
+                                <div e-column e-field="NoOfSKU" e-headertext="No Of SKU" e-width="50" e></div>
+                                <div e-column e-field="ComboQty" e-headertext="Combo Qty" e-width="50" e></div>
+                                <div e-column e-field="NoOfPack" e-headertext="No Pack" e-width="50" e></div>
+                                <div e-column e-field="ColorSizeQty" e-headertext="ColorSizeQty" e-width="100" e></div>
+                                <div e-column e-field="PackRefQty" e-headertext="Pack Ref Qty" e-width="50" e></div>
                             </div>
+                            <script type="text/template" id="GenComboCarton">
+                                <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                                    <button ng-click="$parent.GenerateCarton(this);" title="Generate Carton" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
+                                    <button ng-click="$parent.generateQRCode(this);" title="Generate QR" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="fa fa-qrcode"></i></button>
+                                    @*<button ng-click="$parent.GetComboCartonList(this);" title="Carton List" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-eye-open"></i></button>*@
+                                </div>
+                            </script>
                         </div>
                     </div>
                 </div>
@@ -402,7 +414,7 @@
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
                             @*<div e-column e-headertext="" e-template="#checkboxTemplateQR" e-textalign="center" e-width="30"></div>*@
-                            <div e-column e-template="#GenPRCarton" e-headertext="Actions" e-width="140" style="height: 20px;"></div>
+                            @*<div e-column e-template="#GenPRCarton" e-headertext="Actions" e-width="140" style="height: 20px;"></div>*@
                             <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
                             <div e-column e-type="string" e-field="SKUColor" e-headertext="Color" e-width="80"></div>
                             <div e-column e-type="string" e-field="SKUSize" e-headertext="Size" e-width="80"></div>
@@ -410,9 +422,9 @@
                             <div e-column e-type="string" e-template="#PlanQty" e-headertext="Plan Qty" e-width="80"></div>
                             <div e-column e-type="string" e-field="ComboQty" e-headertext="Combo Qty" e-width="80"></div>
                             <div e-column e-type="string" e-field="BalanceToAllot" e-headertext="BalanceToAllot" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#ComboRefNo" e-headertext="ComboRefNo" e-width="80"></div>
                             <div e-column e-type="string" e-template="#ComboUnitPerPack" e-headertext="Unit/Pack" e-width="80"></div>
                             <div e-column e-type="string" e-template="#NoOfPack" e-headertext="NoOfPack" e-width="80"></div>
-                            <div e-column e-type="string" e-template="#ComboRefNo" e-headertext="ComboRefNo" e-width="80"></div>
                             <div e-column e-type="string" e-template="#PlanPack" e-headertext="PlanPack" e-width="80"></div>
                             <div e-column e-type="string" e-template="#BarCode" e-headertext="BarCode" e-width="80"></div>
                             <div e-column e-type="string" e-template="#QRCode" e-headertext="QRCode" e-width="80"></div>
@@ -423,7 +435,7 @@
 
                         <script type="text/template" id="ComboUnitPerPack">
                             <div class="col-sm-10" style="padding:0px; width:70px;">
-                                <input type="text" ng-model="data.UnitPerPack" n-decimals="2" ng-blur="$parent.calculateCombo(data)" style="color:black;" class="form-control" />
+                                <input type="text" ng-model="data.UnitPerPack" n-decimals="2" ng-blur="$parent.calculateNoOfPack(data)" ng-disabled="data.BalanceToAllot <= 0" style="color:black;" class="form-control" />
                             </div>
                         </script>
                         <script type="text/template" id="PlanQty">
@@ -438,12 +450,12 @@
                         </script>
                         <script type="text/template" id="ComboRefNo">
                             <div class="col-sm-10" style="padding:0px; width:70px;">
-                                <input type="text" ng-model="data.ComboRefNo" only-numbers ng-blur="$parent.calculateNoOfPack(data)" style="color:black;" class="form-control" />
+                                <input type="text" ng-model="data.ComboRefNo" only-numbers ng-blur="$parent.calculateNoOfPack(data)" ng-disabled="data.BalanceToAllot <= 0" style="color:black;" class="form-control" />
                             </div>
                         </script>
                         <script type="text/template" id="PlanPack">
                             <div class="col-sm-10" style="padding:0px; width:70px;">
-                                <input type="text" ng-model="data.PlanPack" only-numbers style="color:black;" class="form-control" />
+                                <input type="text" ng-model="data.PlanPack" only-numbers style="color:black;" ng-disabled="data.BalanceToAllot <= 0" class="form-control" />
                             </div>
                         </script>
 
@@ -477,13 +489,13 @@
                                 <input type="text" ng-model="data.LineItemReference" style="color:black;" class="form-control" />
                             </div>
                         </script>
-                        <script type="text/template" id="GenPRCarton">
-                            <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
-                                <button ng-click="$parent.GenerateCarton(this);" title="Generate Carton" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
-                                @*<button ng-click="$parent.generateQRCode(this);" title="Generate QR" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="fa fa-qrcode"></i></button>*@
-                                <button ng-click="$parent.GetComboCartonList(this);" title="Carton List" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-eye-open"></i></button>
-                            </div>
-                        </script>
+                        @*<script type="text/template" id="GenPRCarton">
+                                <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                                    <button ng-click="$parent.GenerateCarton(this);" title="Generate Carton" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
+                                    <button ng-click="$parent.generateQRCode(this);" title="Generate QR" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="fa fa-qrcode"></i></button>
+                                    <button ng-click="$parent.GetComboCartonList(this);" title="Carton List" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-eye-open"></i></button>
+                                </div>
+                            </script>*@
                     </div>
                 </div>
                 <div class="common-btn" style="padding-right: 15px;">
