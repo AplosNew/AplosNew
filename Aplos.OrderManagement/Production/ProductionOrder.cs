@@ -1373,6 +1373,29 @@ ORDER BY S.ComboRefNo, S.PackSeq;";
             }
         }
 
+        public DataTable GetComboQRCodeData(string masterId)
+        {
+            try
+            {
+                string sql = @"SELECT PackingName=COALESCE(T.LineItemReference,M.LineItemReference),P.UserName AS Customer,D.SalesOrderId AS SOId,R.ColorSizeQty,CG.NoOfPcs,CG.Id CartonNo         
+    FROM dbo.PacketRegistrationMaster M
+    LEFT JOIN dbo.PacketRegistrationType T ON T.PacketRegistrationMasterId = M.Id
+    LEFT JOIN dbo.PacketRegistrationDetail D ON D.PacketRegistrationMasterId = M.Id
+    LEFT JOIN TRN.SalesOrder S ON S.Id = D.SalesOrderId
+    LEFT JOIN TRN.MasterOrderItem MI ON MI.Id = S.MasterOrderItemId
+    LEFT JOIN TRN.MasterOrder MO ON MO.Id = MI.MasterOrderId
+    LEFT JOIN HKP.Party P ON P.Id = MO.PartyId
+    LEFT JOIN dbo.PackingComboReference R ON R.PacketRegistrationTypeId = T.Id
+    LEFT JOIN dbo.CartonGeneration CG ON CG.PackingComboReferenceId = R.Id
+    WHERE M.StatusType IN ('Running','Active') AND CG.PackingComboReferenceId = '" + masterId + @"' 
+    Order By CG.CartonNo";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
     }
 

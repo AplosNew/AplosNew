@@ -29,41 +29,6 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     };
 
 
-    //$scope.getFiltersData = function () {
-    //    try {
-
-    //        $http({
-    //            method: 'GET',
-    //            url: 'OrderManagements/ProductionOrder/GetSalesOrderFilterData',
-    //            dataType: 'JSON'
-    //        }).then(function successCallback(response) {
-    //            $scope.filters = response.data;
-    //            var columnList = [
-    //                { field: 'POId', width: 20, headerText: "POId", type: "string" },
-    //                { field: 'SOId', width: 20, headerText: "SOId", type: "string" },
-    //                { field: 'PartyId', width: 20, headerText: "PartyId", type: "string" },
-    //                { field: 'Customer', width: 20, headerText: "Customer", type: "string" }
-    //            ];
-    //            $("#filters").ejGrid({
-    //                dataSource: $scope.filters,
-    //                minWidth: 450, minHeight: 400,
-    //                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
-    //                filterSettings: { filterType: "excel" },
-    //                columns: columnList
-    //            });
-
-    //            var gridObj = $("#filters").data("ejGrid");
-    //            gridObj.refreshContent(true);
-    //            gridObj.refreshTemplate();
-    //            $("#filters").children('.e-pager.e-js.e-pager').hide();
-    //            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
-    //            $("#filters").children('.e-gridcontent').hide();
-    //        });
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //}
-    //$scope.getFiltersData();
 
     $scope.ModelList = [];
     $scope.getData = function () {
@@ -140,27 +105,37 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
 
     $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ModelNewForm.$valid) {
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
+        try {
+            if ($scope.ModelNew.TargetClosingDays == 0) {
+                throw "Target Closing Days is required.";
+            }
+            if ($scope.ModelNew.PlanPercentage == 0) {
+                throw "Plan Percentage is required.";
+            }
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.ModelNewForm.$valid) {
+                $http({
+                    method: 'POST',
+                    url: $scope.saveUrl,
+                    data: { 'data': $scope.ModelNew },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.ModelNew.Id = response.data.Data;
+                        $scope.getData();
+
+                    }
+                }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.ModelNew.Id = response.data.Data;
-                    $scope.getData();
 
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
             }
-
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
     };
 
@@ -594,20 +569,6 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
             }
         }
 
-        //$scope.idList = [];
-        //for (var di = 0; di < $scope.recipeMaterialListSelected.length; di++) {
-        //    $scope.idList.push($scope.recipeMaterialListSelected[di]);
-        //}
-
-        //if ($scope.idList.length > 0) {
-        //    var uniqueSalesOrderId = removeDuplicates($scope.idList, 'SalesOrderId');
-        //    var wcsoId = "";
-        //    if (uniqueSalesOrderId.length > 0) {
-        //        wcsoId = "IN(";
-        //        wcsoId += Array.prototype.map.call(uniqueSalesOrderId, function (item) { return "'" + item.SalesOrderId + "'"; }).join(",") + ")";
-        //    }
-        //    $scope.sqlsoId = wcsoId;
-        //}
         $http({
             method: 'POST',
             url: 'OrderManagements/ProductionOrder/GetComboData?packetRegistrationTypeId=' + typemasterId
@@ -620,77 +581,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         obj.data.NoOfPack = Math.ceil(obj.data.NoOfUnit / obj.data.UnitPerPack);
     };
 
-    //$scope.calculateNoOfPack = function (row) {
-    //    try {
-    //        $http({
-    //            method: 'Get',
-    //            url: 'OrderManagements/ProductionOrder/GetComboRefNo?comboNo=' + row.ComboRefNo + '&packetRegistrationTypeId=' + row.PacketRegistrationTypeId
-    //        }).then(function successCallback(response) {
-    //            if (response.data.length > 0) {
-    //                throw "Combo Ref No " + row.ComboRefNo + " is already exists.";
-    //            }
-    //            else {
-    //                // Validate AFTER recalculating with the new value — warn
-    //                if (row.BalanceToAllot < 0) {
-    //                    throw "Combo Ref No allow to enter if balance Qty is greater than 0";
-    //                }
-    //                if (baseService.isUndefinedOrNull(row.ComboRefNo) || row.ComboRefNo === '') {
-    //                    throw "Combo Ref No is required.";
-    //                }
-
-    //                if (baseService.isUndefinedOrNull(row.UnitPerPack) || row.UnitPerPack <= 0) {
-    //                    throw "Unit Per Pack is required.";
-    //                }
-
-    //                row.NoOfPack = Math.ceil(row.PlanQty / row.UnitPerPack);
-
-    //                // Step 1: each row's own PlanPack, only for rows with valid PlanQty & UnitPerPack
-    //                angular.forEach($scope.skuList, function (obj) {
-    //                    var balanceToAllot = parseFloat(obj.BalanceToAllot);
-    //                    var unitPerPack = parseFloat(obj.UnitPerPack);
-    //                    obj.OwnPlanPack = (unitPerPack > 0 && !isNaN(balanceToAllot))
-    //                        ? Math.ceil(balanceToAllot / unitPerPack)
-    //                        : null;
-    //                });
-
-    //                // Step 2: minimum OwnPlanPack per ComboRefNo group
-    //                var minPlanPackByCombo = {};
-    //                angular.forEach($scope.skuList, function (obj) {
-    //                    if (obj.ComboRefNo && obj.OwnPlanPack != null && !isNaN(obj.OwnPlanPack)) {
-    //                        if (!minPlanPackByCombo.hasOwnProperty(obj.ComboRefNo) ||
-    //                            obj.OwnPlanPack < minPlanPackByCombo[obj.ComboRefNo]) {
-    //                            minPlanPackByCombo[obj.ComboRefNo] = obj.OwnPlanPack;
-    //                        }
-    //                    }
-    //                });
-
-    //                // Step 3: apply group minimum, recompute ComboQty and BalanceToAllot — using NEW values
-    //                angular.forEach($scope.skuList, function (obj) {
-    //                    if (obj.ComboRefNo && minPlanPackByCombo.hasOwnProperty(obj.ComboRefNo) && obj.UnitPerPack > 0) {
-    //                        obj.PlanPack = minPlanPackByCombo[obj.ComboRefNo];
-    //                        obj.NoOfPack = obj.NoOfPack;
-    //                        //obj.ComboQty = obj.UnitPerPack * obj.PlanPack;
-    //                        //obj.BalanceToAllot = obj.PlanQty - obj.ComboQty;
-    //                    }
-    //                    //  else if (!obj.ComboRefNo) {
-    //                    //    obj.PlanPack = 0;
-    //                    //    obj.ComboQty = 0;
-    //                    //    obj.BalanceToAllot = obj.PlanQty;
-    //                    //}
-    //                });
-
-    //                var gridObj = $("#GridPRSKU").data("ejGrid");
-    //                gridObj.refreshContent(true);
-    //                gridObj.refreshTemplate();
-    //            }
-    //        });
-
-
-
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //}
+    
 
     $scope.calculateNoOfPack = function (row) {
         $http({
@@ -918,6 +809,42 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         }
     }
 
+    $scope.GenerateComboCarton = function (data) {
+        try {
+            var obj = {
+                Id: null,
+                PackingComboReferenceId: data.data.Id,
+                NoOfPcs: data.data.ComboQty,
+                NoOfPack: data.data.NoOfPack,
+                CartonNo: 0,
+                AddedBy: null,
+                AddedDate: null,
+                AddedFromIP: null,
+                UpdatedBy: null,
+                UpdatedDate: null,
+                UpdatedFromIP: null
+            }
+            $http({
+                method: 'POST',
+                url: "OrderManagements/ProductionOrder/GenerateComboCarton",
+                data: { 'data': obj },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
     $scope.CartonList = [];
     $scope.GetCartonList = function (data) {
         $http({
@@ -1091,7 +1018,32 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         }
     }
 
+    $scope.generateComboQRCode = function (obj) {
+        try {
+            $scope.QRCodeGenerateModel = obj.data;
+            $scope.fileName = "QRCode_" + $scope.QRCodeGenerateModel.Id + ".pdf"; // was "QRCode.pptx" — fix extension too
 
+            $http({
+                method: 'POST',
+                url: $scope.path + "GenerateComboQRCode",
+                data: {
+                    'data': $scope.QRCodeGenerateModel
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.pdfdownloadgriddataUrl + "?FileName=" + $scope.fileName);
+                }
+            }, function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
 
 

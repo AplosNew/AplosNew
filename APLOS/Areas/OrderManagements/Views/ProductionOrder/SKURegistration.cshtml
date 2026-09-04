@@ -42,11 +42,11 @@
             </div>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group">
+            <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
-                <div class="col-sm-8">
+                <div class="col-sm-8 show-message">
                     <div class="input-group">
-                        <input type="text" name="Responsible Person" ng-model="ModelNew.EmployeeName" class="form-control" readonly>
+                        <input type="text" name="Responsible Person" ng-model="ModelNew.EmployeeName" required class="form-control" readonly>
                         <span class="input-group-btn">
                             <button ng-click="getEmpPopUpData();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
                         </span>
@@ -216,8 +216,8 @@
                             </div>
                             <script type="text/template" id="GenComboCarton">
                                 <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
-                                    <button ng-click="$parent.GenerateCarton(this);" title="Generate Carton" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
-                                    <button ng-click="$parent.generateQRCode(this);" title="Generate QR" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="fa fa-qrcode"></i></button>
+                                    <button ng-click="$parent.GenerateComboCarton(this);" title="Generate Carton" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
+                                    <button ng-click="$parent.generateComboQRCode(this);" title="Generate QR" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="fa fa-qrcode"></i></button>
                                     @*<button ng-click="$parent.GetComboCartonList(this);" title="Carton List" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-eye-open"></i></button>*@
                                 </div>
                             </script>
@@ -263,9 +263,6 @@
         </div>
     </div>
 </div>
-
-
-
 <confirm-modal></confirm-modal>
 <div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -401,8 +398,6 @@
     </div>
 </div>
 
-
-
 <div class="modal fade site-modal in" id="PRPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
@@ -510,8 +505,6 @@
     </div>
 </div>
 
-
-
 <div class="modal fade site-modal in" id="CartonPackPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
@@ -595,6 +588,7 @@
         </div>
     </div>
 </div>
+
 <div class="modal fade site-modal in" id="CartonPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
