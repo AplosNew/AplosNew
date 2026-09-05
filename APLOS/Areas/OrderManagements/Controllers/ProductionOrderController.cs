@@ -3964,6 +3964,12 @@ ORDER BY P.SortOrder;";
                 DataSet dspcsku, dspcr, dsPCRID = null;
                 objCon = new ConnectionManager.DAL.ConManager("1");
 
+               
+
+                objCon.OpenDataSetThroughAdapter("select * from " + TableName + " where ComboRefNo='" + packrdata["ComboRefNo"] + "' AND  Id<>'" + packrdata["Id"] + "'", out dspcr, false, "1");
+                if (dspcr.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same ComboRefNo already exists!!!");
+
                 string pcr = @"select * from PackingComboReference Where PacketRegistrationTypeId='" + masterId + "'";
                 objCon.OpenDataSetThroughAdapter(pcr, out dspcr, false, "1");
 

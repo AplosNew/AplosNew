@@ -692,6 +692,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error == true) {
+                        $scope.GetPackingSKUData($scope.PRObj.Id);
                         ShowResult(response.data.Message, 'failure');
                     }
                     else {
