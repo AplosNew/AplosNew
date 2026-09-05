@@ -607,7 +607,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                     return;
                 }
 
-                row.NoOfPack = Math.ceil(row.PlanQty / row.UnitPerPack);
+                row.NoOfPack = Math.ceil(row.BalanceToAllot / row.UnitPerPack);
 
                 // Step 1: each row's own PlanPack, only for rows with valid values
                 angular.forEach($scope.skuList, function (obj) {
@@ -663,7 +663,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         };
 
         angular.forEach(comboList, function (row) {
-            summary.ComboQty += row.PlanPack;
+            summary.ComboQty += row.UnitPerPack;
             summary.ColorSizeQtyParts.push(row.SKUColor + '-' + row.SKUSize + '-' + row.NoOfPack);
         });
 
@@ -874,7 +874,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     $scope.removeCombo = function (data) {
         $scope.SOobj = data.data;
-        $scope.message_confirmation = 'Are you sure want to delete [ ' + $scope.SOobj.Id + ' ]';
+        $scope.message_confirmation = 'Are you sure want to delete ComboNo [ ' + $scope.SOobj.ComboRefNo + ' ]';
         angular.element(document.querySelector('#confirmComboDelPopUp')).modal('show');
     };
     $scope.DeleteCombo = function () {

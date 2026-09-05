@@ -1294,51 +1294,81 @@ ORDER BY MIN(RowNo);";
         {
             try
             {
-                string sql = @"WITH ComboData AS
-(
-    SELECT 
-        R.ComboRefNo,
-        FCV.UserName AS Color,
-        SCV.UserName AS Size,
-        R.UnitPerPack,
-        CG.CartonNo,
-        CG.NoOfPcs
-    FROM dbo.PacketRegistrationMaster M
-    LEFT JOIN dbo.PacketRegistrationType T ON T.PacketRegistrationMasterId = M.Id
-    LEFT JOIN dbo.PacketRegistrationDetail D ON D.PacketRegistrationMasterId = M.Id
-    LEFT JOIN dbo.PacketRegistration R ON R.PacketRegistrationTypeId = T.Id AND R.SalesOrderId = D.SalesOrderId
-    LEFT JOIN dbo.CartonGeneration CG ON CG.PacketRegistrationId = R.Id
-    LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = R.SKU1Id
-    LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = R.SKU2Id
-    WHERE M.StatusType IN ('Running','Active') 
-        AND CG.PacketRegistrationId = '263-1-1'
-        AND R.ComboRefNo IS NOT NULL
-),
-ComboString AS
-(
-    -- Combo description string, one row per ComboRefNo
-    SELECT ComboRefNo,
-        STRING_AGG(Color + '/' + Size + '-' + CAST(UnitPerPack AS VARCHAR(20)), ' , ') 
-            WITHIN GROUP (ORDER BY Color) AS Combo
-    FROM (SELECT DISTINCT ComboRefNo, Color, Size, UnitPerPack FROM ComboData) X
-    GROUP BY ComboRefNo
-),
-CartonSeq AS
-(
-    -- CartonNo as the actual pack sequence, qty summed per carton across SKUs in the combo
-    SELECT ComboRefNo, CartonNo, SUM(NoOfPcs) AS QtyPerPack,
-        ROW_NUMBER() OVER (PARTITION BY ComboRefNo ORDER BY CAST(CartonNo AS INT)) AS PackSeq
-    FROM ComboData
-    GROUP BY ComboRefNo, CartonNo
-)
-SELECT 
-    S.ComboRefNo AS ComboNo,
-    C.Combo,
-    CAST(S.ComboRefNo AS VARCHAR(10)) + '-' + CAST(S.PackSeq AS VARCHAR(10)) AS [PackNo],
-    S.QtyPerPack
-FROM CartonSeq S
-LEFT JOIN ComboString C ON C.ComboRefNo = S.ComboRefNo
-ORDER BY S.ComboRefNo, S.PackSeq;";
+                //                string sql = @"WITH ComboData AS
+                //(
+                //    SELECT 
+                //        R.ComboRefNo,
+                //        FCV.UserName AS Color,
+                //        SCV.UserName AS Size,
+                //        R.UnitPerPack,
+                //        CG.CartonNo,
+                //        CG.NoOfPcs
+                //    FROM dbo.PacketRegistrationMaster M
+                //    LEFT JOIN dbo.PacketRegistrationType T ON T.PacketRegistrationMasterId = M.Id
+                //    LEFT JOIN dbo.PacketRegistrationDetail D ON D.PacketRegistrationMasterId = M.Id
+                //    LEFT JOIN dbo.PacketRegistration R ON R.PacketRegistrationTypeId = T.Id AND R.SalesOrderId = D.SalesOrderId
+                //    LEFT JOIN dbo.CartonGeneration CG ON CG.PacketRegistrationId = R.Id
+                //    LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = R.SKU1Id
+                //    LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = R.SKU2Id
+                //    WHERE M.StatusType IN ('Running','Active') 
+                //        AND CG.PacketRegistrationId = '263-1-1'
+                //        AND R.ComboRefNo IS NOT NULL
+                //),
+                //ComboString AS
+                //(
+                //    -- Combo description string, one row per ComboRefNo
+                //    SELECT ComboRefNo,
+                //        STRING_AGG(Color + '/' + Size + '-' + CAST(UnitPerPack AS VARCHAR(20)), ' , ') 
+                //            WITHIN GROUP (ORDER BY Color) AS Combo
+                //    FROM (SELECT DISTINCT ComboRefNo, Color, Size, UnitPerPack FROM ComboData) X
+                //    GROUP BY ComboRefNo
+                //),
+                //CartonSeq AS
+                //(
+                //    -- CartonNo as the actual pack sequence, qty summed per carton across SKUs in the combo
+                //    SELECT ComboRefNo, CartonNo, SUM(NoOfPcs) AS QtyPerPack,
+                //        ROW_NUMBER() OVER (PARTITION BY ComboRefNo ORDER BY CAST(CartonNo AS INT)) AS PackSeq
+                //    FROM ComboData
+                //    GROUP BY ComboRefNo, CartonNo
+                //)
+                //SELECT 
+                //    S.ComboRefNo AS ComboNo,
+                //    C.Combo,
+                //    CAST(S.ComboRefNo AS VARCHAR(10)) + '-' + CAST(S.PackSeq AS VARCHAR(10)) AS [PackNo],
+                //    S.QtyPerPack
+                //FROM CartonSeq S
+                //LEFT JOIN ComboString C ON C.ComboRefNo = S.ComboRefNo
+                //ORDER BY S.ComboRefNo, S.PackSeq;";
+
+                string sql = @"SELECT PackingName = M.UserName,
+    SOId = STUFF((
+        SELECT DISTINCT ',' + D2.SalesOrderId
+        FROM dbo.PacketRegistrationDetail D2
+        WHERE D2.PacketRegistrationMasterId = M.Id
+        FOR XML PATH('')
+    ), 1, 1, ''),
+
+    R.ComboRefNo,
+    R.ColorSizeQty,
+    R.NoOfPack,
+    R.ComboQty,
+    R.PackRefQty,
+
+    PackRef = STUFF((
+        SELECT ',' + CG.Id
+        FROM dbo.CartonGeneration CG
+        WHERE CG.PackingComboReferenceId = R.Id
+        ORDER BY CG.CartonNo DESC
+        FOR XML PATH(''), TYPE
+    ).value('.', 'NVARCHAR(MAX)'), 1, 1, '')
+
+FROM dbo.PackingComboReference R
+
+LEFT JOIN dbo.PacketRegistrationType T ON T.Id = R.PacketRegistrationTypeId
+LEFT JOIN dbo.PacketRegistrationMaster M ON T.PacketRegistrationMasterId = M.Id
+LEFT JOIN dbo.PacketRegistrationDetail D ON D.PacketRegistrationMasterId = M.Id
+WHERE M.StatusType IN ('Running','Active') AND R.Id = '" + masterId+"'";
+
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

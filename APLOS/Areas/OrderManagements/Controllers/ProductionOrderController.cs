@@ -3909,7 +3909,6 @@ ORDER BY P.SortOrder;";
                         //}
                         dr["NoOfPack"] = packregilist[i]["NoOfPack"];
                         dr["LineItemReference"] = packregilist[i]["LineItemReference"];
-                        dr["ComboRefNo"] = packregilist[i]["ComboRefNo"];
                         dr["BarCode"] = packregilist[i]["BarCode"];
                         dr["QRCode"] = packregilist[i]["QRCode"];
                         dr["RFID"] = packregilist[i]["RFID"];
@@ -3932,7 +3931,6 @@ ORDER BY P.SortOrder;";
                         //    dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
                         //}
                         dr["NoOfPack"] = packregilist[i]["NoOfPack"];
-                        dr["ComboRefNo"] = packregilist[i]["ComboRefNo"];
                         dr["BarCode"] = packregilist[i]["BarCode"];
                         dr["QRCode"] = packregilist[i]["QRCode"];
                         dr["RFID"] = packregilist[i]["RFID"];

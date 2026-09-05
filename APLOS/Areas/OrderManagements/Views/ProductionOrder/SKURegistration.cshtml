@@ -206,19 +206,20 @@
                              e-allowscrolling="true" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                              e-showsummary="true" e-allowselection="true" e-filtersettings-filterType="excel">
                             <div e-columns>
-                                <div e-column e-template="#GenComboCarton" e-headertext="Actions" e-width="140" style="height: 20px;"></div>
-                                <div e-column e-field="ComboRefNo" e-headertext="Combo No" e-width="60" e></div>
-                                <div e-column e-field="NoOfSKU" e-headertext="No Of SKU" e-width="50" e></div>
-                                <div e-column e-field="ComboQty" e-headertext="Combo Qty" e-width="50" e></div>
-                                <div e-column e-field="NoOfPack" e-headertext="No Pack" e-width="50" e></div>
-                                <div e-column e-field="ColorSizeQty" e-headertext="ColorSizeQty" e-width="100" e></div>
+                                <div e-column e-template="#GenComboCarton" e-headertext="Actions" e-width="90" style="height: 20px;"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="30" e-isprimarykey="true"></div>
+                                <div e-column e-field="ComboRefNo" e-headertext="Combo No" e-width="40" e></div>
+                                <div e-column e-field="NoOfSKU" e-headertext="No Of SKU" e-width="40" e></div>
+                                <div e-column e-field="ComboQty" e-headertext="Combo Qty" e-width="40" e></div>
+                                <div e-column e-field="NoOfPack" e-headertext="No Pack" e-width="40" e></div>
                                 <div e-column e-field="PackRefQty" e-headertext="Pack Ref Qty" e-width="50" e></div>
+                                <div e-column e-field="ColorSizeQty" e-headertext="ColorSizeQty" e-width="100" e></div>
                             </div>
                             <script type="text/template" id="GenComboCarton">
-                                <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                                <div class="col-sm-2 text-left">
                                     <button ng-click="$parent.GenerateComboCarton(this);" title="Generate Carton" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
                                     <button ng-click="$parent.generateComboQRCode(this);" title="Generate QR" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="fa fa-qrcode"></i></button>
-                                    @*<button ng-click="$parent.GetComboCartonList(this);" title="Carton List" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-eye-open"></i></button>*@
+                                    <button ng-click="$parent.GetComboCartonList(this);" title="Carton List" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-eye-open"></i></button>
                                     <button ng-click="$parent.removeCombo(this);" title="Delete Combo" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
                                 </div>
                             </script>
@@ -632,10 +633,13 @@
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
-                            <div e-column e-type="string" e-field="ComboNo" e-headertext="ComboNo" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Combo" e-headertext="Combo" e-width="100"></div>
-                            <div e-column e-type="string" e-field="PackNo" e-headertext="PackNo" e-width="80"></div>
-                            <div e-column e-type="string" e-field="QtyPerPack" e-headertext="Qty/Pack" e-width="80"></div>
+                            <div e-column e-type="string" e-field="PackingName" e-headertext="PackingName" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SOId" e-headertext="SOId" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ComboRefNo" e-headertext="ComboRefNo" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ColorSizeQty" e-headertext="Combo Detail" e-width="80"></div>
+                            <div e-column e-type="string" e-field="PackRefQty" e-headertext="Pack Qty" e-width="80"></div>
+                            <div e-column e-type="string" e-field="NoOfPack" e-headertext="NoOfPack" e-width="80"></div>
+                            <div e-column e-type="string" e-field="PackRef" e-headertext="PackRef" e-width="100"></div>
                         </div>
 
                     </div>
