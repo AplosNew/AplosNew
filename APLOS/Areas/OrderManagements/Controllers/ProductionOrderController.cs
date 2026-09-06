@@ -3966,7 +3966,7 @@ ORDER BY P.SortOrder;";
 
                
 
-                objCon.OpenDataSetThroughAdapter("select * from " + TableName + " where ComboRefNo='" + packrdata["ComboRefNo"] + "' AND  Id<>'" + packrdata["Id"] + "'", out dspcr, false, "1");
+                objCon.OpenDataSetThroughAdapter("select * from PackingComboReference where ComboRefNo='" + packrdata["ComboRefNo"] + "' AND  Id<>'" + packrdata["Id"] + "'", out dspcr, false, "1");
                 if (dspcr.Tables[0].Rows.Count > 0)
                     throw new Exception("Same ComboRefNo already exists!!!");
 

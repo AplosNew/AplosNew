@@ -1366,7 +1366,6 @@ FROM dbo.PackingComboReference R
 
 LEFT JOIN dbo.PacketRegistrationType T ON T.Id = R.PacketRegistrationTypeId
 LEFT JOIN dbo.PacketRegistrationMaster M ON T.PacketRegistrationMasterId = M.Id
-LEFT JOIN dbo.PacketRegistrationDetail D ON D.PacketRegistrationMasterId = M.Id
 WHERE M.StatusType IN ('Running','Active') AND R.Id = '" + masterId+"'";
 
                 return _sqlRepository.GetDataCollection(sql);

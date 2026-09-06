@@ -683,8 +683,18 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                         tempList.push($scope.skuList[i]);
                     }
                 }
-                var obj = $scope.getComboSummary(tempList);
 
+                for (var i = 0; i < tempList.length; i++) {
+                    if (baseService.isUndefinedOrNull(tempList[i].NoOfPack)) {
+                        throw "Please check Combo Ref No.";
+                    }
+                    if (baseService.isUndefinedOrNull(tempList[i].PlanPack)) {
+                        throw "Plan Pack is required.";
+                    }
+                }
+
+                var obj = $scope.getComboSummary(tempList);
+               
                 $http({
                     method: 'POST',
                     url: "OrderManagements/ProductionOrder/SaveComboPacketRegistration",
@@ -692,7 +702,6 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error == true) {
-                        $scope.GetPackingSKUData($scope.PRObj.Id);
                         ShowResult(response.data.Message, 'failure');
                     }
                     else {
