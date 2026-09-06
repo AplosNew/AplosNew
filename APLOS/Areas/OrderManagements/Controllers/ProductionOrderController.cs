@@ -3800,7 +3800,7 @@ WITH PackingCategory AS
 SELECT
     Flag = CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),P.PackingCategory,D.Id,D.PacketRegistrationMasterId,D.PackingTypeId,
     NoOfUnitPerPack =CASE WHEN D.Id IS NULL AND P.PackingCategory = 'Individual' THEN 1 ELSE D.NoOfUnitPerPack END,
-    NoOfPack =(SO.Qty * CM.PlanPercentage / 100) + SO.Qty,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,PT.PackingType
+    NoOfPack =(SUM(SO.Qty) * CM.PlanPercentage / 100) + SUM(SO.Qty),D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,PT.PackingType
     ,LineItemReference = COALESCE(D.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo)
 FROM PackingCategory P
 LEFT JOIN PacketRegistrationType D ON D.PackingCategory = P.PackingCategory AND D.PacketRegistrationMasterId = @PacketRegistrationMasterId
@@ -3809,7 +3809,9 @@ LEFT JOIN PacketRegistrationMaster CM ON CM.Id = PD.PacketRegistrationMasterId
 LEFT JOIN TRN.SalesOrder SO ON SO.Id = PD.SalesOrderId
 LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId
 LEFT JOIN HKP.PackingType PT ON PT.Id=D.PackingTypeId
-ORDER BY P.SortOrder;";
+Group By P.PackingCategory,D.Id,D.PacketRegistrationMasterId,D.PackingTypeId,D.NoOfUnitPerPack,CM.PlanPercentage,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,PT.PackingType
+,D.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo,P.SortOrder
+ORDER BY P.SortOrder";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -3964,9 +3966,9 @@ ORDER BY P.SortOrder;";
                 DataSet dspcsku, dspcr, dsPCRID = null;
                 objCon = new ConnectionManager.DAL.ConManager("1");
 
-               
 
-                objCon.OpenDataSetThroughAdapter("select * from PackingComboReference where ComboRefNo='" + packrdata["ComboRefNo"] + "' AND  Id<>'" + packrdata["Id"] + "'", out dspcr, false, "1");
+                string csql = @"select * from PackingComboReference where ComboRefNo='" + packrdata["ComboRefNo"] + "' AND  Id<>'" + packrdata["Id"] + "' AND PacketRegistrationTypeId='" + masterId + "'";
+                objCon.OpenDataSetThroughAdapter(csql, out dspcr, false, "1");
                 if (dspcr.Tables[0].Rows.Count > 0)
                     throw new Exception("Same ComboRefNo already exists!!!");
 

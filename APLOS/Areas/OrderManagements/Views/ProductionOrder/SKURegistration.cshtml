@@ -324,7 +324,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div id="GridSOItem" ng-init="chkinit()" ej-grid e-datasource="recipeMaterialList" e-recorddoubleclick="addRecipeMaterial"
+                    <div id="GridSOItem" ng-init="chkinit()" ej-grid e-datasource="recipeMaterialList" @*e-recorddoubleclick="addRecipeMaterial"*@
                          e-allowscrolling="true" @*e-minwidth="1000" e-minheight="400" e-scrollsettings-height="200"*@
                          e-rowdatabound="rowDataBound" e-actioncomplete="actionCompleteSearch" e-allowfiltering="true"
                          e-allowpaging="true" e-allowsorting="true"
@@ -332,7 +332,7 @@
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
 
-                            @*<div e-column e-headertext="" e-template="#checkboxTemplateSOSearch" e-textalign="center" e-width="30"></div>*@
+                            <div e-column e-headertext="" e-template="#checkboxTemplateSOSearch" e-textalign="center" e-width="30"></div>
                             <div e-column e-field="OrderType" e-headertext="Order Type" e-width="70"></div>
                             <div e-column e-field="ShipmentFromStock" e-headertext="ShipmentFromStock" e-width="50"></div>
                             <div e-column e-field="ProductName" e-headertext="Product" e-width="180" e></div>
@@ -389,7 +389,7 @@
 
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            @*<li> <button ng-click="addRecipeMaterial();" class="btn">Done</button></li>*@
+                            <li> <button ng-click="addRecipeMaterial();" class="btn">Done</button></li>
                             <li> <button ng-click="CloseRecipeMaterialPopUp();" class="btn">Close</button></li>
                         </ul>
                     </div>
