@@ -4019,6 +4019,7 @@ ORDER BY P.SortOrder";
                         DataRow drc = dspcsku.Tables[0].NewRow();
 
                         drc["PackingComboReferenceId"] = prmasterId;
+                        drc["SalesOrderId"] = packregilist[i]["SalesOrderId"];
                         drc["SKU1Id"] = packregilist[i]["SKU1Id"];
                         drc["SKU2Id"] = packregilist[i]["SKU2Id"];
                         drc["QtyPerPack"] = packregilist[i]["UnitPerPack"];
