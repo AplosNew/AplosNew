@@ -711,7 +711,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
         angular.forEach(comboList, function (row) {
             summary.ComboQty += row.UnitPerPack;
-            summary.ColorSizeQtyParts.push(row.SKUColor + '-' + row.SKUSize + '-' + row.NoOfPack);
+            summary.ColorSizeQtyParts.push(row.SKUColor + '-' + row.SKUSize + '-' + row.UnitPerPack);
         });
 
         summary.PackRefQty = summary.ComboQty * summary.NoOfPack;
@@ -987,7 +987,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     };
 
-    $scope.exportcombogriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.exportcombogriddataUrl = 'GridReports/ExcelExportWithoutAddress';
     $scope.ComboReportExcel = function () {
         var dataListUnDisbursed = [];
         var gUnDisbursed = $("#GridCC").data("ejGrid");

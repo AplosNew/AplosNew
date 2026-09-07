@@ -59,6 +59,18 @@
                     <input type="text" name="Plan Percentage" ng-model="ModelNew.PlanPercentage" n-decimals="2" class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
                 </div>
             </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Net Wt. /Pcs<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Net Wt. /Pcs" ng-model="ModelNew.NetWtPerPcs" n-decimals="2" class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Pack/Carton Wt.<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Pack/Carton Wt." ng-model="ModelNew.PackPerCartonWt" n-decimals="2" class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
+                </div>
+            </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label">Remarks</label>
                 <div class="col-sm-8">
@@ -642,6 +654,7 @@
                             <div e-column e-type="string" e-field="PackRefQty" e-headertext="Pack Qty" e-width="80"></div>
                             <div e-column e-type="string" e-field="NoOfPack" e-headertext="NoOfPack" e-width="80"></div>
                             <div e-column e-type="string" e-field="PackRef" e-headertext="PackRef" e-width="100"></div>
+                            <div e-column e-type="string" e-field="PackSeq" e-headertext="PackSeq" e-width="100"></div>
                         </div>
 
                     </div>

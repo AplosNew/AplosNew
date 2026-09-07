@@ -1342,20 +1342,20 @@ ORDER BY MIN(RowNo);";
 
                 string sql = @"SELECT PackingName = M.UserName,
     SOId = STUFF((
-        SELECT DISTINCT ',' + D2.SalesOrderId
-        FROM dbo.PacketRegistrationDetail D2
-        WHERE D2.PacketRegistrationMasterId = M.Id
-        FOR XML PATH('')
-    ), 1, 1, ''),
+     SELECT DISTINCT ', ' + D2.SalesOrderId
+     FROM dbo.[PackingComboSKUDetail] D2
+     WHERE D2.PackingComboReferenceId = R.Id
+     FOR XML PATH('')
+ ), 1, 1, ''),
 
     R.ComboRefNo,
     R.ColorSizeQty,
     R.NoOfPack,
     R.ComboQty,
     R.PackRefQty,
-
-    PackRef = STUFF((
-        SELECT ',' + CG.Id
+PackRef=R.Id,
+PackSeq = STUFF((
+    SELECT ',' +CAST(CG.CartonNo as varchar(100))
         FROM dbo.CartonGeneration CG
         WHERE CG.PackingComboReferenceId = R.Id
         ORDER BY CG.CartonNo DESC
@@ -1363,7 +1363,6 @@ ORDER BY MIN(RowNo);";
     ).value('.', 'NVARCHAR(MAX)'), 1, 1, '')
 
 FROM dbo.PackingComboReference R
-
 LEFT JOIN dbo.PacketRegistrationType T ON T.Id = R.PacketRegistrationTypeId
 LEFT JOIN dbo.PacketRegistrationMaster M ON T.PacketRegistrationMasterId = M.Id
 WHERE M.StatusType IN ('Running','Active') AND R.Id = '" + masterId+"'";
