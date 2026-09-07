@@ -3161,6 +3161,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.voucher_PaymentTerm = {
         Id: null,
+        InvoiceId: null,
         InventoryReceiveId: null,
         PaymentTermId: null,
         BaseNoOfDays: null,
@@ -3175,15 +3176,16 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         DocDate: null,
         DocRefNo: null,
         Narration: null,
-        Amount: null
+        Amount: null, CompanyCurrencyRate:null
     };
 
     $scope.confirmPaymentTermUpdate = function (data) {
         $scope.voucher_PaymentTerm = data;
-        angular.element(document.querySelector('#PaymentTermUpdatePopUp')).modal('show');
+        getJournalList(data.VoucherId);
+        angular.element(document.querySelector('#InboundInvoiceUpdatePopUp')).modal('show');
     };
     $scope.closePaymentTermUpdatePopUp = function () {
-        angular.element(document.querySelector("#PaymentTermUpdatePopUp")).modal("hide");
+        angular.element(document.querySelector("#InboundInvoiceUpdatePopUp")).modal("hide");
     };
     $scope.changePaymentTerm_Update = function (id) {
         if (!baseService.isUndefinedOrNull(id)) {
@@ -3280,4 +3282,38 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         return true;
     }
 
+    $scope.updateInvoice = function () {
+        if ($scope.voucher_PaymentTerm.EntityId == null || $scope.voucher_PaymentTerm.EntityId == "" || $scope.voucher_PaymentTerm.EntityId == undefined) {
+            ShowResult("Please select Entity First!!", "failure");
+        }
+        $http({
+            method: "POST",
+            url: "accounts/Invoice/UpdateVendorInvoice",
+            data: {
+                "voucherVM": $scope.voucher_PaymentTerm,
+                "voucherDetailVMList": $scope.newJVList
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                if ($scope.tdsId != null) {
+                    //$scope.confirmAutoTDSPost(tdsId, data);
+                    $scope.onClickadditionalTaxPop($scope.voucherdb);
+                }
+                $scope.getData();
+                $scope.Clear();
+                $scope.invoiceId = null;
+                $scope.type = null;
+                angular.element(document.querySelector('#JournalPopUp')).modal('hide');
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+   
 }

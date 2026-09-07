@@ -2735,6 +2735,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 22; int colRemarks = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "WorkCenterIncharge"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colWorkCenterIncharge = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "QCIncharge"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colQCIncharge = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "WorkingHour"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colWorkingHour = xlsCol; xlsCol += 1;
                 //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "WorkCenterMasterId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colWorkCenterId = xlsCol; xlsCol += 1;
 
                  
@@ -2767,6 +2768,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                     sheet1[xlsRow, colRemarks].Text = dtData.Rows[i]["Remarks"].ToString();
                     sheet1[xlsRow, colWorkCenterIncharge].Text = dtData.Rows[i]["WorkCenterIncharge"].ToString();
                     sheet1[xlsRow, colQCIncharge].Text = dtData.Rows[i]["QCIncharge"].ToString();
+                    sheet1[xlsRow, colWorkingHour].Text = dtData.Rows[i]["WorkingHour"].ToString();
                     xlsRow++;
                 }
 
@@ -2810,7 +2812,8 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
         public DataTable GetDailyTargetData(string entityId, string targetDate, string processId, string shiftId)
         {
             var cmdText = @"SELECT DT.TargetDate,DT.TargetQty,DT.SPT,SD.UserName ShiftName,wcm.UserName+'_#'+wcm.Id WorkCenter
-            ,DT.WorkCenterMasterId,P.UserName ProcessName,DT.ProductionOrderId,DT.Operator,DT.Helper,DT.Remarks, DT.ShiftId,DT.ProcessId,WI.EmployeeCode WorkCenterIncharge,QC.EmployeeCode QCIncharge
+            ,DT.WorkCenterMasterId,P.UserName ProcessName,DT.ProductionOrderId,DT.Operator,DT.Helper,DT.Remarks, DT.ShiftId,DT.ProcessId
+,WI.EmployeeCode WorkCenterIncharge,QC.EmployeeCode QCIncharge,DT.WorkingHour
             FROM [dbo].[DailyTarget] DT 
             LEFT JOIN ShiftDefination  SD ON SD.SystemId=DT.ShiftId
             LEFT JOIN [SCS].[WorkCenterMaster] wcm on wcm.Id=DT.WorkCenterMasterId
@@ -2952,6 +2955,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                                 vm.Remarks = dsExcel.Tables[0].Rows[i][9].ToString().Trim();
                                 vm.WorkCenterIncharge = dsWorkCenIncharge.Tables[0].DefaultView[0]["SystemId"].ToString();
                                 vm.QCIncharge = dsQCIncharge.Tables[0].DefaultView[0]["SystemId"].ToString();
+                                vm.WorkingHour = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][12]);
 
                                 data.Add(vm);
                             }
@@ -3006,14 +3010,6 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                 string productionOrderIds = string.Join(",",
                             data.AsEnumerable().Where(row => row["ProductionOrderId"] != DBNull.Value)
                             .Select(row => row["ProductionOrderId"].ToString()));
-               // string workcenterIncharges = string.Join(",",
-               //             data.AsEnumerable().Where(row => row["WorkCenterIncharge"] != DBNull.Value)
-               //             .Select(row => "'" + row["WorkCenterIncharge"].ToString().Replace("'", "''") + "'"));
-
-               // string qcIncharges = string.Join(",",
-               //data.AsEnumerable().Where(row => row["QCIncharge"] != DBNull.Value)
-               //.Select(row => "'" + row["QCIncharge"].ToString().Replace("'", "''") + "'"));
-
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[DailyTarget]  where ShiftId='" + shiftId + "' and ProcessId='" + processId + "' and TargetDate='" + targetDate + @"'", out dsBC, false, "1");
@@ -3021,8 +3017,6 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
             LEFT JOIN trn.ProductionBulletinTemplateMaster pt on pt.ProductionBulletinTemplateId = pb.Id
             LEFT JOIN DBO.ProducitonBulletinCalculation bt on  pt.Id = bt.ProductionBulletinTemplateMasterId
             WHERE pb.ProductionOrderId IN ('"+ productionOrderIds + "') ", out dsPO, false, "1");
-                //objCon.OpenDataSetThroughAdapter("SELECT * FROM [DBO].[EmployeeInformation]  where EmployeeCode in (" + workcenterIncharges + " )", out dsWorkCenIncharge, false, "1");
-                //objCon.OpenDataSetThroughAdapter("SELECT * FROM [DBO].[EmployeeInformation]  where EmployeeCode in (" + qcIncharges + " )", out dsQCIncharge, false, "1");
 
                 if (data != null)
                 {
@@ -3042,14 +3036,6 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                             {
                                 item["SPT"] = Convert.ToDecimal(dsPO.Tables[0].DefaultView[0]["TotalSPT"]).ToString();
                             }
-                            //if (dsWorkCenIncharge.Tables[0].DefaultView.Count > 0)
-                            //{
-                            //    item["WorkCenterInCharge"] = Convert.ToDecimal(dsWorkCenIncharge.Tables[0].DefaultView[0]["SystemId"]).ToString();
-                            //}
-                            //if (dsQCIncharge.Tables[0].DefaultView.Count > 0)
-                            //{
-                            //    item["QCInCharge"] = Convert.ToDecimal(dsQCIncharge.Tables[0].DefaultView[0]["SystemId"]).ToString();
-                            //}
                             item["ShiftId"] = shiftId;
                             item["ProcessId"] = processId;
                             item["TargetDate"] = targetDate;
@@ -3092,6 +3078,82 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetTargetEmployeeList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(GetTargetEmployeeData(), JsonRequestBehavior.AllowGet);
+
+        }
+
+        public IEnumerable<object> GetTargetEmployeeData()
+        {
+            try
+            {
+                var sql = @"SELECT P.UserName ProcessName,WG.UserName WorkGroupName,EM.EmployeeName ,ER.EmployeeName ReportingOfficerName,dte.*
+FROM [dbo].[DailyTargetEmployee] dte 
+LEFT JOIN HKP.Process P ON P.Id=dte.ProcessId
+LEFT JOIN HKP.WorkGroup WG ON WG.Id=dte.WorkGroupId
+LEFT JOIN DBO.EmployeeInformation EM ON EM.SystemId=dte.EmployeeId
+LEFT JOIN DBO.EmployeeInformation ER ON ER.SystemId=dte.ReportingOfficerId";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveDailyTargetEmployeeData(Dictionary<string, object> data)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsBC;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[DailyTargetEmployee]  where Id='" + data["Id"]+  "'", out dsBC, false, "1");
+                if (data != null)
+                {
+                    
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "Id='" + data["Id"] + "'";
+                    
+                    if (dv.Count == 0)
+                    {
+                        //data["Id"] = GetDailyTargetEmployeePK();
+                        AddNewRow(dsBC.Tables[0], data);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, data);
+                    }
+
+                    OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                    obj.SaveDataSets(dsBC);
+                }
+
+                #endregion
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        private string GetDailyTargetEmployeePK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "DailyTargetEmployee", out sID);
+            return sID;
+        }
         public class UploadedDailyTargetViewModel
         {
             public string TargetDate { get; set; }
@@ -3105,6 +3167,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
             public int Operator { get; set; }
             public int Helper { get; set; }
             public string Remarks { get; set; }
+            public decimal WorkingHour { get; set; }
             public string ShiftName { get; set; }
             public string WorkCenter { get; set; }
             public string WorkCenterIncharge { get; set; }

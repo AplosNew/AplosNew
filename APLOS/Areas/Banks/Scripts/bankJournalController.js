@@ -90,7 +90,8 @@ function bankJournalController(bankService, accountService, cboService, commonMe
         BankJournalType: "GL",
         BankJournalId: null,
         IsReverse: false,
-        CompanyCurrencyRate: 1
+        CompanyCurrencyRate: 1,
+        AdditionalInfo: null
     };
 
     $scope.advanceDetailList = [];
@@ -367,6 +368,7 @@ function bankJournalController(bankService, accountService, cboService, commonMe
         $scope.voucher.Amount = null;
         $scope.voucher.VoucherId = null;
         $scope.voucher.Narration = null;
+        $scope.voucher.AdditionalInfo = null;
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucher.CurrencyId = null;
         $scope.voucher.OtherCashMasterId = null;

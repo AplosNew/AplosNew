@@ -14,6 +14,15 @@ function DailyTargetUploadController(cboService, commonMessage, $scope, $rootSco
     $scope.EntityList = [];
     $scope.ProcessList = [];
 
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+
+        return $scope.tab === tabNum;
+    };
+
     $scope.getStartUp = function () {
         $http({
             method: 'POST',
@@ -22,6 +31,7 @@ function DailyTargetUploadController(cboService, commonMessage, $scope, $rootSco
             $scope.EntityList = resp.data;
         });
     }
+
     $scope.getStartUp();
     $scope.getProcess = function () {
             $http({
@@ -156,5 +166,90 @@ function DailyTargetUploadController(cboService, commonMessage, $scope, $rootSco
         }
     };
 
+    $scope.DailyTargetEmployeeData = {
+        Id: null,
+        ProcessId: null,
+        Category: null,
+        WorkGroupId: null,
+        ReportingOfficerId: null,
+        EmployeeId: null,
+        Remark: null,
+        Active: true
+        //EntityId: null
+
+    }
+
+    $scope.employee = [];
+    $scope.getPopUpData = function () {
+        $scope.employee = [];
+        $http({
+            method: 'GET',
+            url: 'Costings/QuickCostingMaster/getemployeelist'
+        }).then(function successCallback(response) {
+            $scope.employee = response.data;
+        });
+    }
+    $scope.getPopUpData();
+
+    $scope.setEmpData = function (obj) {
+        $scope.DailyTargetEmployeeData.EmployeeId = obj.data.SystemID;
+        $scope.EmployeeName = obj.data.EmployeeName;
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    };
+    $scope.setReportingOfficerData = function (obj) {
+        $scope.DailyTargetEmployeeData.ReportingOfficerId = obj.data.SystemID;
+        $scope.ReportingOfficerName = obj.data.EmployeeName;
+        angular.element(document.querySelector('#ReportingOfficerPopUp')).modal('hide');
+    }
+    $scope.WorkGroupList = [];
+    $scope.getWorkGroupCbo = function () {
+        $http({
+            method: 'POST',
+            url: 'HumanResource/WorkGroup/GetCbo'
+        }).then(function succ(resp) {
+            $scope.WorkGroupList = resp.data;
+        });
+    }
+    $scope.getWorkGroupCbo();
+    $scope.DailyTargetEmployeeList = [];
+    $scope.GetTargetEmployee = function () {
+        $scope.DailyTargetEmployeeList = [];
+        $http({
+            method: 'POST',
+            url: 'Employees/EmployeeInformation/GetTargetEmployeeList'
+        }).then(function successCallback(response) {
+            $scope.DailyTargetEmployeeList = response.data;
+        });
+    }
+    $scope.GetTargetEmployee();
+    
+    $scope.SaveDailyTargetEmployee = function () {
+        try {
+             
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveDailyTargetEmployeeData',
+                data: {
+                    'data': $scope.DailyTargetEmployeeData
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetTargetEmployee();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            $scope.ShowSaveBtn = false;
+            ShowResult(e, 'failure');
+
+        }
+    };
 
 }

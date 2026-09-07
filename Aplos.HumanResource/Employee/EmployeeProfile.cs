@@ -3205,4 +3205,6 @@ Where EmpSystemId='" + empId + "'";
         public string SpecialSkill { get; set; }
         public string EmployeeRating { get; set; }
     }
+
+
 }

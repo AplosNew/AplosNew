@@ -4796,7 +4796,6 @@ namespace Library.Service.Invoices
                 invoice.Narration = voucherVM.Narration;
                 invoice.PartyId = voucherVM.PartyId;
                 invoice.PartyPlantId = voucherVM.PartyPlantId;
-                invoice.PartyType = voucherVM.PartyType;
                 invoice.PaymentTermId = voucherVM.PaymentTermId;
                 invoice.SalesTypeId = voucherVM.SalesTypeId;
                 invoice.TaxYearId = voucherVM.TaxYearId;
@@ -4804,7 +4803,8 @@ namespace Library.Service.Invoices
                 invoice.VoucherDate = voucherVM.VoucherDate;
                 invoice.VoucherTypeId = voucherVM.VoucherTypeId;
                 invoice.EntityId = voucherVM.EntityId;
-
+                invoice.Amount = voucherVM.Amount;
+                base.UpdateGraph(invoice);
 
                 // Update INTO Voucher TABLE
                 var voucher = new Voucher();
@@ -4817,6 +4817,7 @@ namespace Library.Service.Invoices
                 voucher.FiscalYearId = voucherVM.FiscalYearId;
                 voucher.FiscalYearPeriodId = voucherVM.FiscalYearPeriodId;
                 voucher.Narration = voucherVM.Narration;
+                voucher.VoucherNo = voucherVM.VoucherNo;
                 voucher.VoucherTypeId = voucherVM.VoucherTypeId;
                 voucher.EntityId = voucherVM.EntityId;
                 _voucherService.UpdateVoucher(voucher);
@@ -4825,112 +4826,42 @@ namespace Library.Service.Invoices
                 var totalAmountCr = 0.0M;
                 var taxDrAmount = 0.0M;
                 var taxCrAmount = 0.0M;
-                if (invoice.PaymentSource == PaymentSource.GL.ToString())
-                {
-                    foreach (var voucherDetailVM in voucherDetailVMList)
+                
+               foreach (var voucherDetailVM in voucherDetailVMList)
                     {
                         // in libility side Dr.
+                        var invoiceDetail = new InvoiceDetail();
+                        if (voucherDetailVM.InvoiceDetailId != null)
+                        {
+                            invoiceDetail = _invoiceDetailRepository.Find(voucherDetailVM.InvoiceDetailId);
+                            invoiceDetail.GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId;
+                            invoiceDetail.BudgetMasterId = voucherDetailVM.BudgetMasterId;
+                            invoiceDetail.ActivityId = voucherDetailVM.ActivityId;
+                            invoiceDetail.Amount = voucherDetailVM.CrAmount;
+                            _invoiceDetailRepository.Update(invoiceDetail);
+                        }
+                        
+
                         var voucherDetailDr = new VoucherDetail();
                         voucherDetailDr = _voucherService.FindVoucherDetail(voucherDetailVM.Id);
                         taxDrAmount = 0.0M;
 
-                        if (null != voucherDetailVM.InvoiceTaxViewModel && voucherDetailVM.InvoiceTaxViewModel.Count > 0)
-                        {
-                            foreach (var invoiceTaxVM in voucherDetailVM.InvoiceTaxViewModel)
-                            {
-                                var invoiceTax = new InvoiceTax();
-                                invoiceTax = _invoiceTaxService.Query(r => r.Id == invoiceTaxVM.InvoiceTaxId).Select().FirstOrDefault();
-                                invoiceTax.TaxAmount = invoiceTaxVM.TaxAmount;
-                                _invoiceTaxService.Update(invoiceTax);
-
-                                var invoiceTaxDetail = new InvoiceTaxDetail();
-                                invoiceTaxDetail = _invoiceTaxDetailRepository.Query(r => r.InvoiceTaxId == invoiceTax.Id).Select().FirstOrDefault();
-                                invoiceTaxDetail.Amount = invoiceTaxVM.TaxAmount;
-                                _invoiceTaxDetailRepository.Update(invoiceTaxDetail);
-
-
-                                var voucherDetail = new VoucherDetail();
-                                voucherDetail = _voucherService.QueryVoucherDetailByInvoiceTaxDetail(invoiceTaxDetail.Id).Select().FirstOrDefault();
-                                if (invoiceTaxVM.AType == "Dr")
-                                {
-                                    voucherDetail.DrAmount = invoiceTaxVM.TaxAmount;
-                                    totalAmountDr += voucherDetail.DrAmount;
-                                    taxDrAmount += invoiceTaxVM.TaxAmount;
-                                }
-                                else
-                                {
-                                    voucherDetail.CrAmount = invoiceTaxVM.TaxAmount;
-                                    totalAmountCr += voucherDetail.CrAmount;
-                                    taxCrAmount += invoiceTaxVM.TaxAmount;
-                                }
-                                _voucherService.UpdateVoucherDetail(voucher, voucherDetail);
-
-                                var voucherDetailCurrency = new VoucherDetailCurrency();
-                                voucherDetailCurrency = _voucherService.GetVoucherDetailCurrencyList(r => r.VoucherId == voucher.Id && r.VoucherDetailId == voucherDetail.Id).Select().FirstOrDefault();
-                                if (invoiceTaxVM.AType == "Dr")
-                                    voucherDetailCurrency.DrAmount = invoiceTaxVM.TaxAmount * voucherDetailCurrency.ToCurrencyRate;
-                                else
-                                    voucherDetailCurrency.CrAmount = invoiceTaxVM.TaxAmount * voucherDetailCurrency.ToCurrencyRate;
-                                _voucherService.UpdateVoucherDetailCompanyCurrency(voucherDetail, voucherDetailCurrency);
-                            }
-
-                        }
-                        voucherDetailDr.DrAmount = voucherDetailVM.TotalAmount - taxDrAmount;
+                        
                         voucherDetailDr.GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId;
                         voucherDetailDr.BudgetMasterId = voucherDetailVM.BudgetMasterId;
                         voucherDetailDr.ActivityId = voucherDetailVM.ActivityId;
+                        voucherDetailDr.DrAmount = voucherDetailVM.DrAmount;
+                        voucherDetailDr.CrAmount = voucherDetailVM.CrAmount;
                         _voucherService.UpdateVoucherDetail(voucher, voucherDetailDr);
+
                         totalAmountDr += voucherDetailDr.DrAmount;
+                        totalAmountCr += voucherDetailDr.DrAmount;
                         var voucherDetailCurrencyDr = new VoucherDetailCurrency();
                         voucherDetailCurrencyDr = _voucherService.GetVoucherDetailCurrencyList(r => r.VoucherId == voucher.Id && r.VoucherDetailId == voucherDetailDr.Id).Select().FirstOrDefault();
-                        voucherDetailCurrencyDr.DrAmount = voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate;
+                        voucherDetailCurrencyDr.DrAmount = voucherDetailVM.DrAmount * voucherVM.CompanyCurrencyRate;
+                        voucherDetailCurrencyDr.CrAmount = voucherDetailVM.CrAmount * voucherVM.CompanyCurrencyRate;
                         _voucherService.UpdateVoucherDetailCompanyCurrency(voucherDetailDr, voucherDetailCurrencyDr);
                     }
-                }
-                else if (invoice.PaymentSource == PaymentSource.Cash.ToString())
-                {
-                    if (string.IsNullOrEmpty(voucherVM.CashMasterId))
-                        throw new CustomException("Cash Id not found!");
-                    var cashMaster = _accountsCommonService.GetCashMaster(voucherVM.CashMasterId);
-
-                    invoice.CashMasterId = voucherVM.CashMasterId;
-
-                    var voucherDetailDr = _voucherService.QueryVoucherDetailByCash(voucherVM.VoucherId, voucherVM.CashMasterId).Select().FirstOrDefault();
-                    voucherDetailDr.DrAmount = voucherVM.Amount;
-                    _voucherService.UpdateVoucherDetail(voucher, voucherDetailDr);
-                    totalAmountDr += voucherDetailDr.DrAmount;
-
-                    var glTransactionDetail = _voucherService.FindGLTransactionDetail(voucherDetailDr.Id);
-                    if (cashMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
-                        glTransactionDetail.DrAmount = voucherDetailDr.DrAmount;
-                    else
-                        glTransactionDetail.DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount;
-                    _voucherService.UpdateGLTransactionDetail(voucherDetailDr, glTransactionDetail);
-
-                    var voucherDetailCurrency = _voucherService.GetVoucherDetailCurrencyList(r => r.VoucherId == voucher.Id && r.VoucherDetailId == voucherDetailDr.Id).Select().FirstOrDefault();
-                    voucherDetailCurrency.DrAmount = voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate;
-                    _voucherService.UpdateVoucherDetailCompanyCurrency(voucherDetailDr, voucherDetailCurrency);
-
-                }
-                var voucherDetailCr = _voucherService.QueryVoucherDetailByParty(voucher.Id, voucherVM.PartyId).Select().FirstOrDefault();
-                var partyType = PartyType.Vendor.ToString();
-                // UPdate INTO InvoiceDetail
-                var invoiceDetail = new InvoiceDetail();
-                invoiceDetail = _invoiceDetailRepository.Find(voucherDetailCr.InvoiceDetailId);
-                invoiceDetail.Amount = voucherVM.Amount - taxCrAmount;
-                _invoiceDetailRepository.Update(invoiceDetail);
-
-                invoice.Amount = voucherVM.Amount - taxCrAmount;
-                base.UpdateGraph(invoice);
-                // Update INTO VoucherDetail
-                voucherDetailCr.CrAmount = voucherVM.Amount - taxCrAmount;
-                _voucherService.UpdateVoucherDetail(voucher, voucherDetailCr);
-                totalAmountCr += voucherDetailCr.CrAmount;
-
-                var voucherDetailCurrencyCr = new VoucherDetailCurrency();
-                voucherDetailCurrencyCr = _voucherService.GetVoucherDetailCurrencyList(r => r.VoucherId == voucher.Id && r.VoucherDetailId == voucherDetailCr.Id).Select().FirstOrDefault();
-                voucherDetailCurrencyCr.CrAmount = voucherDetailCr.CrAmount * voucherVM.CompanyCurrencyRate;
-                _voucherService.UpdateVoucherDetailCompanyCurrency(voucherDetailCr, voucherDetailCurrencyCr);
 
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");

@@ -5149,6 +5149,7 @@
     <Content Include="Areas\OrderManagements\Views\ProductionOrder\PackingBooking.cshtml" />
     <Content Include="Areas\Accounts\Views\VoucherMaxNumberUpdate.cshtml" />
     <Content Include="Areas\OrderManagements\Views\ProductionOrder\PackerCategory.cshtml" />
+    <Content Include="Areas\Accounts\Views\_InboundInvoiceUpdatePopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
