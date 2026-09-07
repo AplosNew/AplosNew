@@ -3405,13 +3405,13 @@ where AC.CreatedDate between DATEADD(dd, DATEDIFF(dd, 0, '" + fromDate + "'), 0)
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetDailyAttdnReportData(string date)
+        public ActionResult GetDailyAttdnReportData(string date, string empCatId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 DataTable dtTask = null;
-                dtTask = GetDailyAttReportData(date, identity.PlantId);
+                dtTask = GetDailyAttReportData(date, identity.PlantId, empCatId);
                 var jsondata = Json(CustomJsonResultService.DataTableToJson(dtTask), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
@@ -3423,7 +3423,7 @@ where AC.CreatedDate between DATEADD(dd, DATEDIFF(dd, 0, '" + fromDate + "'), 0)
             }
         }
 
-        public DataTable GetDailyAttReportData(string date, string plantId)
+        public DataTable GetDailyAttReportData(string date, string plantId, string empCatId)
         {
             string strSql = @"DECLARE @FromDate DATE = DATEADD(DAY, -1, CAST('"+ date + @"' AS DATE));
 DECLARE @ToDate   DATE = CAST(GETDATE() AS DATE);
@@ -3437,7 +3437,7 @@ STUFF
             ', SUM(CASE WHEN A.ShiftName = ''' + X.ShiftName + '''THEN A.SkilledPresent ELSE 0 END) AS ' + QUOTENAME(X.ShiftName)
         FROM
         (
-            SELECT DISTINCT ShiftDefinationName AS ShiftName FROM dbo.ShiftDefination WHERE PlantId = '20253' AND IsActive = 1 AND ShiftDefinationName IS NOT NULL
+            SELECT DISTINCT ShiftDefinationName AS ShiftName FROM dbo.ShiftDefination WHERE PlantId = '" + plantId + @"' AND IsActive = 1 AND ShiftDefinationName IS NOT NULL
         ) X
         ORDER BY X.ShiftName FOR XML PATH(''), TYPE ).value('.', 'NVARCHAR(MAX)'), 1, 1, ''
 );
@@ -3450,24 +3450,26 @@ SET @SQL = N'
         CASE WHEN ISNULL(APD.PresentValue,0) + ISNULL(APD.LateValue,0) > 0 THEN 1 ELSE 0 END AS Present,
         CASE WHEN ISNULL(APD.WeekOffValue,0) > 0 THEN 1 ELSE 0 END AS WeekOff,
         CASE WHEN ISNULL(APD.PresentValue,0)  + ISNULL(APD.LateValue,0) > 0 AND EI.EmploymentType = ''Contractual'' THEN 1 ELSE 0 END AS Contractor,
-        CASE WHEN ISNULL(APD.PresentValue,0) + ISNULL(APD.LateValue,0) > 0 AND EI.LegalDesignationId IN (46,82,83) AND DATEDIFF(DAY, EI.DOJ, APD.WorkDate) > 45 THEN 1 ELSE 0 END AS Trainee_Above45,
-        CASE WHEN ISNULL(APD.PresentValue,0) + ISNULL(APD.LateValue,0) > 0 AND EI.LegalDesignationId IN (46,82,83) AND DATEDIFF(DAY, EI.DOJ, APD.WorkDate) BETWEEN 22 AND 45 THEN 1 ELSE 0 END AS Trainee_22to45,
-        CASE WHEN ISNULL(APD.PresentValue,0) + ISNULL(APD.LateValue,0) > 0 AND EI.LegalDesignationId IN (46,82,83) AND DATEDIFF(DAY, EI.DOJ, APD.WorkDate) <= 21 THEN 1 ELSE 0 END AS Trainee_Below21,
-        CASE WHEN ISNULL(APD.PresentValue,0) + ISNULL(APD.LateValue,0) > 0 AND EI.LegalDesignationId IN (46,82,83) THEN 1 ELSE 0 END AS TotalTrainee,
-        CASE WHEN ISNULL(APD.PresentValue,0) + ISNULL(APD.LateValue,0) > 0 AND ISNULL(EI.EmploymentType,'''') <> ''Contractual'' AND ISNULL(EI.LegalDesignationId,0) NOT IN (46,82,83) THEN 1 ELSE 0 END AS SkilledPresent
+        CASE WHEN ISNULL(APD.PresentValue,0) + ISNULL(APD.LateValue,0) > 0  AND DATEDIFF(DAY, EI.DOJ, APD.WorkDate) > 45 THEN 1 ELSE 0 END AS Trainee_Above45,
+        CASE WHEN ISNULL(APD.PresentValue,0) + ISNULL(APD.LateValue,0) > 0  AND DATEDIFF(DAY, EI.DOJ, APD.WorkDate) BETWEEN 22 AND 45 THEN 1 ELSE 0 END AS Trainee_22to45,
+        CASE WHEN ISNULL(APD.PresentValue,0) + ISNULL(APD.LateValue,0) > 0  AND DATEDIFF(DAY, EI.DOJ, APD.WorkDate) <= 21 THEN 1 ELSE 0 END AS Trainee_Below21,
+        CASE WHEN ISNULL(APD.PresentValue,0) + ISNULL(APD.LateValue,0) > 0  THEN 1 ELSE 0 END AS TotalTrainee,
+        CASE WHEN ISNULL(APD.PresentValue,0) + ISNULL(APD.LateValue,0) > 0 AND ISNULL(EI.EmploymentType,'''') <> ''Contractual'' THEN 1 ELSE 0 END AS SkilledPresent
     FROM dbo.AttdnProcessData APD
     LEFT JOIN MST.ManpowerBudget MB ON APD.BudgetId = MB.Id
     INNER JOIN ORG.Entity E ON MB.EntityId = E.Id AND E.PlantId = APD.PlantId
     LEFT JOIN ORG.Position P ON MB.PositionId = P.Id
     LEFT JOIN ORG.Section S ON P.SectionId = S.Id
     LEFT JOIN EmployeeInformation EI ON APD.EmpSystemId = EI.SystemId
-    WHERE APD.WorkDate >= @FromDate AND APD.WorkDate < DATEADD(DAY,1,@ToDate) AND APD.PlantId = ''20253''
+ LEFT JOIN MST.DesignationMaster DM ON Dm.DesignationId=EI.GivenDesignationId
+ LEFT JOIN HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+    WHERE APD.WorkDate >= @FromDate AND APD.WorkDate < DATEADD(DAY,1,@ToDate) AND APD.PlantId = ''" + plantId + @"'' AND EC.Id=''"+ empCatId+ @"''
 ),
 EMP AS
 (
     SELECT A.WorkDate,A.EmpSystemId,A.EntityId,A.Entity,A.Section,A.Present,A.WeekOff,A.Contractor,A.TotalTrainee,A.SkilledPresent,A.Trainee_Above45,A.Trainee_22to45,A.Trainee_Below21,SD.ShiftDefinationName AS ShiftName
     FROM A
-    LEFT JOIN dbo.ShiftDefination SD ON SD.SystemId = A.ShiftDefinationID AND SD.PlantId = ''20253'' AND SD.IsActive = 1
+    LEFT JOIN dbo.ShiftDefination SD ON SD.SystemId = A.ShiftDefinationID AND SD.PlantId = ''" + plantId + @"'' AND SD.IsActive = 1
 ),
 D AS
 (
@@ -3477,7 +3479,7 @@ D AS
     LEFT JOIN ORG.Position P ON MB.PositionId = P.Id
     LEFT JOIN ORG.Section S ON P.SectionId = S.Id
     INNER JOIN ORG.Division DV ON P.DivisionId = DV.Id
-       AND DV.UserName = ''Yarn'' WHERE MB.Active = 1 AND E.PlantId = ''20253'' 
+       AND DV.UserName = ''Yarn'' WHERE MB.Active = 1 AND E.PlantId = ''" + plantId+@"'' 
        GROUP BY MB.EntityId,S.UserName
 ),
 W AS

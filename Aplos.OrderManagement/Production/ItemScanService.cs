@@ -151,245 +151,357 @@ namespace Library.Service.EmployeeServices
             }
         }
 
-      
+
+
+        /* public string Create(string MId, IEnumerable<ItemScanChildData> DataToSave)
+         {
+             try
+             {
+                 string processId = "";
+                 string inventory = "";
+                 string Booked, IsDespatch, ToLocation, FLoc = ""; bool Inventchk = false;
+                 decimal counter = 0, filter = 0;
+                 DataSet dsMaster;
+                 string TableName = "dbo.ItemScanChild";
+
+                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                 if (DataToSave.Count() == 0)
+                     return "";
+
+                 var items = DataToSave.ToList();
+
+
+                 string PackedBy = "''";
+                 string RefNo = "''";
+                 string LocId = items[0].LocMasterId;
+                 string User = items[0].AddedBy;  /// Can delete later on
+                 foreach (ItemScanChildData item in DataToSave)
+                 {
+                     PackedBy += ",'" + item.PackedBy + "'";
+                     RefNo += ",'" + item.RefNo + "'";
+                 }
+
+
+
+                 var sqly = @"select SystemId as EmpId,EmployeeCode from dbo.EmployeeInformation where EmployeeCode IN(" + PackedBy + ")";
+                 var EmpId = _sqlRepository.GetDataTable(sqly);
+
+                 //getscandata
+                 var sqlscan = @"Select WorkDate,ShiftId,Grade,PurposeId,LocMasterId from dbo.ItemScan Where Id='" + MId + "'";
+                 DataTable dtScan = _sqlRepository.GetDataTable(sqlscan);
+
+                 DateTime WorkDate = Convert.ToDateTime(dtScan.Rows[0]["WorkDate"].ToString());
+                 string ShiftId = dtScan.Rows[0]["ShiftId"].ToString();
+                 string Grade = dtScan.Rows[0]["Grade"].ToString();
+                 string PurposeId = dtScan.Rows[0]["PurposeId"].ToString();
+
+                 //getProcess&Entity
+                 var sqlProcess = @"SELECT ProcessId FROM HKP.MaterialMovementPurpose where Id ='" + PurposeId + "'";
+                 DataTable dtProcess = _sqlRepository.GetDataTable(sqlProcess);
+                 processId = dtProcess.Rows[0]["ProcessId"].ToString();
+
+
+                 // Check repeat Rows 
+                 var sql = @"select * from dbo.ItemScanChild where RefNo IN(" + RefNo + @")";
+                 con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                 // For History
+                 var sqlx = @"select * from dbo.ItemScanChildHistory where 1=2";
+                 con.OpenDataSetThroughAdapter(sqlx, out DataSet DsHistory, false, "1");
+
+
+
+                 // Inventory Check
+                 var _sql = @"select Inventorycheck,EntityId from mst.MaterialMovementMaster where Id ='" + LocId + "'";
+                 var Location = _sqlRepository.GetDataTable(_sql);
+                 Inventchk = bplib.clsWebLib.GetBoolData(Location.Rows[0]["Inventorycheck"].ToString());
+                 string entityId = Location.Rows[0]["EntityId"].ToString();
+
+                 string esql = "select PlantId from ORG.Entity Where Id='" + entityId + "'";
+                 DataTable dtPlant = _sqlRepository.GetDataTable(esql);
+                 string PlantId = dtPlant.Rows[0]["PlantId"].ToString();
+
+                 DataTable ToLocList = new DataTable();
+                 if (Inventchk == true)
+                 {
+                     var _sqlx = @"select FromLocation from mst.MaterialMovementMaster where Id='" + LocId + "'";
+                     var fromloc = _sqlRepository.GetDataTable(_sqlx);
+                     FLoc = fromloc.Rows[0]["FromLocation"].ToString();
+
+                     _sqlx = @"select LocMasterId,ToLocation,Booked,RefNo,IsDespatch from 
+                     dbo.ItemScanChild sc
+                     left join mst.MaterialMovementMaster m on m.Id=sc.LocMasterId
+                     where sc.RefNo IN(" + RefNo + ")";
+
+                     ToLocList = _sqlRepository.GetDataTable(_sqlx);
+                     if (ToLocList.Rows.Count > 0)
+                     {
+                         filter = 1;
+                     }
+                 }
+
+                 int Index = 0;
+                 decimal netWeight = 0;
+                 string POId = string.Empty;
+                 string lotNo = string.Empty;
+                 string _Id = ""; string _Idx = "";
+                 foreach (ItemScanChildData item in DataToSave)
+                 {
+                     //netWeight += Convert.ToDecimal(item.NetWeight);
+                     //POId = item.POId;
+                     //lotNo = item.LotNo;
+
+                     Index++;
+                     object Emp = DBNull.Value;
+                     // Get EmpId
+                     EmpId.DefaultView.RowFilter = "EmployeeCode='" + item.PackedBy + "'";
+                     if (EmpId.DefaultView.Count > 0)
+                     {
+                         Emp = EmpId.DefaultView[0]["EmpId"].ToString();
+                     }
+                     counter = 0;
+                     if (filter == 1)
+                     {
+                         ToLocList.DefaultView.RowFilter = "RefNo='" + item.RefNo + "'";
+                         if (ToLocList.DefaultView.Count > 0)
+                         {
+                             ToLocation = ToLocList.DefaultView[0]["ToLocation"].ToString();
+                             Booked = ToLocList.DefaultView[0]["Booked"].ToString();
+                             IsDespatch = ToLocList.DefaultView[0]["IsDespatch"].ToString();
+
+                             if (ToLocation == FLoc && Booked != "True" && IsDespatch != "True")
+                             {
+                                 counter = 1;
+                             }
+
+                         }
+                     }
+
+                     dsMaster.Tables[0].DefaultView.RowFilter = @"RefNo='" + item.RefNo + "' ";
+
+                     if (dsMaster.Tables[0].DefaultView.Count == 0 && Inventchk != true)
+                     {
+
+                         DataRow dr = dsMaster.Tables[0].NewRow();
+                         if (_Id == "")
+                         {
+                             clsGenID genid = new clsGenID();
+                             genid.GenID(TableName, out _Id);
+                         }
+                         dr["Id"] = "SC" + _Id + "-" + Index;
+                         dr["MasterId"] = MId;
+                         dr["NetWeight"] = item.NetWeight;
+                         dr["GWeight"] = item.GWeight;
+                         dr["PackedBy"] = Emp;
+                         dr["Shade"] = item.Shade;
+                         dr["AddedBy"] = User;
+                         dr["AddedDate"] = DateTime.Now.ToString();
+                         dr["ProductCode"] = item.ProductCode;
+                         dr["POId"] = item.POId;
+                         dr["LotNo"] = item.LotNo;
+                         dr["RefNo"] = item.RefNo;
+                         dr["Cones"] = item.Cones;
+                         dr["LocMasterId"] = item.LocMasterId;
+                         dr["Booked"] = 0;
+                         dr["IsDespatch"] = 0;
+                         dr["IsReturn"] = 0;
+                         dr["PackingId"] = DBNull.Value;
+                         dr["ReturnNetWeight"] = item.ReturnNetWeight;
+                         dsMaster.Tables[0].Rows.Add(dr);
+
+                     }
+
+                     else if (Inventchk == true && counter != 1 && filter == 1)
+                     {
+                         inventory = inventory + item.RefNo + " ";
+
+                     }
+
+                     else if (Inventchk == true && counter != 1 && filter != 1)
+                     {
+                         inventory = inventory + item.RefNo + " ";
+                     }
+                     else
+                     {
+
+                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                         if (item.LocMasterId.ToUpper() != dr["LocMasterId"].ToString().ToUpper())
+                         {
+
+                             if (Inventchk == true && counter == 1 && filter == 1)
+                             {
+
+                                 DataRow drx = DsHistory.Tables[0].NewRow();
+                                 if (_Idx == "")
+                                 {
+                                     clsGenID genid = new clsGenID();
+                                     genid.GenID("ItemScanChildHistory", out _Idx);
+                                 }
+                                 drx["Id"] = _Idx + "-" + Index;
+                                 drx["MasterId"] = dr["MasterId"].ToString();
+                                 drx["NetWeight"] = dr["NetWeight"].ToString();
+                                 drx["GWeight"] = dr["GWeight"].ToString();
+                                 drx["PackedBy"] = dr["PackedBy"].ToString();
+                                 drx["Shade"] = dr["Shade"].ToString();
+                                 drx["AddedBy"] = dr["AddedBy"].ToString();
+                                 drx["AddedDate"] = dr["AddedDate"].ToString();
+                                 string BookingDate = bplib.clsWebLib.RetValidLen(dr["BookedDate"]).ToString();
+                                 if (BookingDate != "")
+                                 {
+                                     drx["BookedDate"] = BookingDate;
+                                 }
+                                 drx["ProductCode"] = dr["ProductCode"].ToString();
+                                 drx["POId"] = dr["POId"].ToString();
+                                 drx["LotNo"] = dr["LotNo"].ToString();
+                                 drx["RefNo"] = dr["RefNo"].ToString();
+                                 drx["Cones"] = dr["Cones"].ToString();
+                                 drx["LocMasterId"] = dr["LocMasterId"].ToString();
+                                 drx["Booked"] = bplib.clsWebLib.GetBoolData(dr["Booked"].ToString());
+                                 drx["IsDespatch"] = bplib.clsWebLib.GetBoolData(dr["IsDespatch"].ToString());
+                                 drx["PackingId"] = dr["PackingId"].ToString();
+                                 DsHistory.Tables[0].Rows.Add(drx);
+
+
+
+                                 dr.BeginEdit();
+                                 dr["MasterId"] = MId;
+                                 dr["UpdatedBy"] = User;
+                                 dr["UpdatedDate"] = DateTime.Now.ToString();
+                                 dr["LocMasterId"] = item.LocMasterId;
+                                 dr.EndEdit();
+
+                             }
+                         }
+
+                     }
+
+                 }
+
+                 clsStaticInfo _info = new clsStaticInfo();
+                 _info.SaveDataSets(dsMaster, DsHistory);
+
+
+
+                 if (inventory != "")
+                 {
+                     return "Inventory not Found of these cartons:- " + inventory;
+                 }
+
+                 return "true";
+
+             }
+             catch (Exception ex)
+             {
+                 return ex.ToString();
+             }
+         }*/
 
         public string Create(string MId, IEnumerable<ItemScanChildData> DataToSave)
         {
             try
             {
-                string processId = "";
-                string inventory = "";
-                string Booked, IsDespatch, ToLocation, FLoc = ""; bool Inventchk = false;
-                decimal counter = 0, filter = 0;
-                DataSet dsMaster;
-                string TableName = "dbo.ItemScanChild";
-
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                if (DataToSave.Count() == 0)
+                if (DataToSave == null || !DataToSave.Any())
                     return "";
 
                 var items = DataToSave.ToList();
 
+                ConnectionManager.DAL.ConManager con =
+                    new ConnectionManager.DAL.ConManager("1");
 
-                string PackedBy = "''";
-                string RefNo = "''";
-                string LocId = items[0].LocMasterId;
-                string User = items[0].AddedBy;  /// Can delete later on
-                foreach (ItemScanChildData item in DataToSave)
-                {
-                    PackedBy += ",'" + item.PackedBy + "'";
-                    RefNo += ",'" + item.RefNo + "'";
-                }
+                string TableName = "dbo.ItemScanChild";
 
+                DataSet dsMaster;
 
+                // Load existing data structure
+                var sql = @"SELECT * FROM dbo.ItemScanChild WHERE 1 = 2";
 
-                var sqly = @"select SystemId as EmpId,EmployeeCode from dbo.EmployeeInformation where EmployeeCode IN(" + PackedBy + ")";
-                var EmpId = _sqlRepository.GetDataTable(sqly);
+                con.OpenDataSetThroughAdapter(
+                    sql,
+                    out dsMaster,
+                    false,
+                    "1"
+                );
 
-                //getscandata
-                var sqlscan = @"Select WorkDate,ShiftId,Grade,PurposeId,LocMasterId from dbo.ItemScan Where Id='" + MId + "'";
-                DataTable dtScan = _sqlRepository.GetDataTable(sqlscan);
-
-                DateTime WorkDate = Convert.ToDateTime(dtScan.Rows[0]["WorkDate"].ToString());
-                string ShiftId = dtScan.Rows[0]["ShiftId"].ToString();
-                string Grade = dtScan.Rows[0]["Grade"].ToString();
-                string PurposeId = dtScan.Rows[0]["PurposeId"].ToString();
-
-                //getProcess&Entity
-                var sqlProcess = @"SELECT ProcessId FROM HKP.MaterialMovementPurpose where Id ='" + PurposeId + "'";
-                DataTable dtProcess = _sqlRepository.GetDataTable(sqlProcess);
-                processId = dtProcess.Rows[0]["ProcessId"].ToString();
-
-
-                // Check repeat Rows 
-                var sql = @"select * from dbo.ItemScanChild where RefNo IN(" + RefNo + @")";
-                con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-
-                // For History
-                var sqlx = @"select * from dbo.ItemScanChildHistory where 1=2";
-                con.OpenDataSetThroughAdapter(sqlx, out DataSet DsHistory, false, "1");
-
-
-
-                // Inventory Check
-                var _sql = @"select Inventorycheck,EntityId from mst.MaterialMovementMaster where Id ='" + LocId + "'";
-                var Location = _sqlRepository.GetDataTable(_sql);
-                Inventchk = bplib.clsWebLib.GetBoolData(Location.Rows[0]["Inventorycheck"].ToString());
-                string entityId = Location.Rows[0]["EntityId"].ToString();
-
-                string esql = "select PlantId from ORG.Entity Where Id='" + entityId + "'";
-                DataTable dtPlant = _sqlRepository.GetDataTable(esql);
-                string PlantId = dtPlant.Rows[0]["PlantId"].ToString();
-
-                DataTable ToLocList = new DataTable();
-                if (Inventchk == true)
-                {
-                    var _sqlx = @"select FromLocation from mst.MaterialMovementMaster where Id='" + LocId + "'";
-                    var fromloc = _sqlRepository.GetDataTable(_sqlx);
-                    FLoc = fromloc.Rows[0]["FromLocation"].ToString();
-
-                    _sqlx = @"select LocMasterId,ToLocation,Booked,RefNo,IsDespatch from 
-                    dbo.ItemScanChild sc
-                    left join mst.MaterialMovementMaster m on m.Id=sc.LocMasterId
-                    where sc.RefNo IN(" + RefNo + ")";
-
-                    ToLocList = _sqlRepository.GetDataTable(_sqlx);
-                    if (ToLocList.Rows.Count > 0)
-                    {
-                        filter = 1;
-                    }
-                }
+                string User = items[0].AddedBy;
 
                 int Index = 0;
-                decimal netWeight = 0;
-                string POId = string.Empty;
-                string lotNo = string.Empty;
-                string _Id = ""; string _Idx = "";
-                foreach (ItemScanChildData item in DataToSave)
+                string _Id = "";
+
+                foreach (ItemScanChildData item in items)
                 {
-                    //netWeight += Convert.ToDecimal(item.NetWeight);
-                    //POId = item.POId;
-                    //lotNo = item.LotNo;
-
                     Index++;
-                    object Emp = DBNull.Value;
-                    // Get EmpId
-                    EmpId.DefaultView.RowFilter = "EmployeeCode='" + item.PackedBy + "'";
-                    if (EmpId.DefaultView.Count > 0)
+
+                    // Check RefNo already exists
+                    string checkSql = @"
+                SELECT *
+                FROM dbo.ItemScanChild
+                WHERE RefNo = '" + item.RefNo.Replace("'", "''") + @"'
+            ";
+
+                    DataTable existingData = _sqlRepository.GetDataTable(checkSql);
+
+                    // =====================================================
+                    // REFNO EXISTS -> UPDATE
+                    // =====================================================
+                    if (existingData.Rows.Count > 0)
                     {
-                        Emp = EmpId.DefaultView[0]["EmpId"].ToString();
+                        string updateSql = @"
+                    UPDATE dbo.ItemScanChild
+                    SET 
+                        LocMasterId = '" + item.LocMasterId.Replace("'", "''") + @"',
+                        UpdatedBy = '" + User.Replace("'", "''") + @"',
+                        UpdatedDate = GETDATE()
+                    WHERE RefNo = '" + item.RefNo.Replace("'", "''") + @"'
+                ";
+
+                        _sqlRepository.ExecuteNonQuery(updateSql);
                     }
-                    counter = 0;
-                    if (filter == 1)
+                    // =====================================================
+                    // REFNO DOES NOT EXIST -> INSERT
+                    // =====================================================
+                    else
                     {
-                        ToLocList.DefaultView.RowFilter = "RefNo='" + item.RefNo + "'";
-                        if (ToLocList.DefaultView.Count > 0)
-                        {
-                            ToLocation = ToLocList.DefaultView[0]["ToLocation"].ToString();
-                            Booked = ToLocList.DefaultView[0]["Booked"].ToString();
-                            IsDespatch = ToLocList.DefaultView[0]["IsDespatch"].ToString();
-
-                            if (ToLocation == FLoc && Booked != "True" && IsDespatch != "True")
-                            {
-                                counter = 1;
-                            }
-
-                        }
-                    }
-
-                    dsMaster.Tables[0].DefaultView.RowFilter = @"RefNo='" + item.RefNo + "' ";
-
-                    if (dsMaster.Tables[0].DefaultView.Count == 0 && Inventchk != true)
-                    {
-
-                        DataRow dr = dsMaster.Tables[0].NewRow();
                         if (_Id == "")
                         {
                             clsGenID genid = new clsGenID();
                             genid.GenID(TableName, out _Id);
                         }
+
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
                         dr["Id"] = "SC" + _Id + "-" + Index;
                         dr["MasterId"] = MId;
-                        dr["NetWeight"] = item.NetWeight;
-                        dr["GWeight"] = item.GWeight;
-                        dr["PackedBy"] = Emp;
-                        dr["Shade"] = item.Shade;
+                        dr["NetWeight"] = DBNull.Value;
+                        dr["GWeight"] = DBNull.Value;
+                        dr["PackedBy"] = DBNull.Value;
+                        dr["Shade"] = DBNull.Value;
                         dr["AddedBy"] = User;
-                        dr["AddedDate"] = DateTime.Now.ToString();
-                        dr["ProductCode"] = item.ProductCode;
-                        dr["POId"] = item.POId;
-                        dr["LotNo"] = item.LotNo;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["ProductCode"] = DBNull.Value;
+                        dr["POId"] = DBNull.Value;
+                        dr["LotNo"] = DBNull.Value;
                         dr["RefNo"] = item.RefNo;
-                        dr["Cones"] = item.Cones;
+                        dr["Cones"] = DBNull.Value;
                         dr["LocMasterId"] = item.LocMasterId;
                         dr["Booked"] = 0;
                         dr["IsDespatch"] = 0;
                         dr["IsReturn"] = 0;
                         dr["PackingId"] = DBNull.Value;
-                        dr["ReturnNetWeight"] = item.ReturnNetWeight;
+                        dr["ReturnNetWeight"] = DBNull.Value;
+
                         dsMaster.Tables[0].Rows.Add(dr);
-
                     }
-
-                    else if (Inventchk == true && counter != 1 && filter == 1)
-                    {
-                        inventory = inventory + item.RefNo + " ";
-
-                    }
-
-                    else if (Inventchk == true && counter != 1 && filter != 1)
-                    {
-                        inventory = inventory + item.RefNo + " ";
-                    }
-                    else
-                    {
-
-                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-
-                        if (item.LocMasterId.ToUpper() != dr["LocMasterId"].ToString().ToUpper())
-                        {
-
-                            if (Inventchk == true && counter == 1 && filter == 1)
-                            {
-
-                                DataRow drx = DsHistory.Tables[0].NewRow();
-                                if (_Idx == "")
-                                {
-                                    clsGenID genid = new clsGenID();
-                                    genid.GenID("ItemScanChildHistory", out _Idx);
-                                }
-                                drx["Id"] = _Idx + "-" + Index;
-                                drx["MasterId"] = dr["MasterId"].ToString();
-                                drx["NetWeight"] = dr["NetWeight"].ToString();
-                                drx["GWeight"] = dr["GWeight"].ToString();
-                                drx["PackedBy"] = dr["PackedBy"].ToString();
-                                drx["Shade"] = dr["Shade"].ToString();
-                                drx["AddedBy"] = dr["AddedBy"].ToString();
-                                drx["AddedDate"] = dr["AddedDate"].ToString();
-                                string BookingDate = bplib.clsWebLib.RetValidLen(dr["BookedDate"]).ToString();
-                                if (BookingDate != "")
-                                {
-                                    drx["BookedDate"] = BookingDate;
-                                }
-                                drx["ProductCode"] = dr["ProductCode"].ToString();
-                                drx["POId"] = dr["POId"].ToString();
-                                drx["LotNo"] = dr["LotNo"].ToString();
-                                drx["RefNo"] = dr["RefNo"].ToString();
-                                drx["Cones"] = dr["Cones"].ToString();
-                                drx["LocMasterId"] = dr["LocMasterId"].ToString();
-                                drx["Booked"] = bplib.clsWebLib.GetBoolData(dr["Booked"].ToString());
-                                drx["IsDespatch"] = bplib.clsWebLib.GetBoolData(dr["IsDespatch"].ToString());
-                                drx["PackingId"] = dr["PackingId"].ToString();
-                                DsHistory.Tables[0].Rows.Add(drx);
-
-
-
-                                dr.BeginEdit();
-                                dr["MasterId"] = MId;
-                                dr["UpdatedBy"] = User;
-                                dr["UpdatedDate"] = DateTime.Now.ToString();
-                                dr["LocMasterId"] = item.LocMasterId;
-                                dr.EndEdit();
-
-                            }
-                        }
-
-                    }
-
                 }
 
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, DsHistory);
-
-                
-
-                if (inventory != "")
+                // Save only newly inserted records
+                if (dsMaster.Tables[0].Rows.Count > 0)
                 {
-                    return "Inventory not Found of these cartons:- " + inventory;
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsMaster);
                 }
 
                 return "true";
-
             }
             catch (Exception ex)
             {

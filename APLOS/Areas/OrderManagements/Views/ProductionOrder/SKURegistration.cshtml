@@ -1,4 +1,4 @@
-﻿<togglable name="Packing Defination"></togglable>
+﻿<togglable name="Packing Definition"></togglable>
 <style>
     .modellgModify {
         width: 1200px;
@@ -42,11 +42,11 @@
             </div>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group">
+            <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
-                <div class="col-sm-8">
+                <div class="col-sm-8 show-message">
                     <div class="input-group">
-                        <input type="text" name="Responsible Person" ng-model="ModelNew.EmployeeName" class="form-control" readonly>
+                        <input type="text" name="Responsible Person" ng-model="ModelNew.EmployeeName" required class="form-control" readonly>
                         <span class="input-group-btn">
                             <button ng-click="getEmpPopUpData();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
                         </span>
@@ -57,6 +57,18 @@
                 <label class="col-sm-4 control-label">Plan Percentage<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <input type="text" name="Plan Percentage" ng-model="ModelNew.PlanPercentage" n-decimals="2" class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Net Wt. /Pcs<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Net Wt. /Pcs" ng-model="ModelNew.NetWtPerPcs" n-decimals="2" class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Pack/Carton Wt.<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Pack/Carton Wt." ng-model="ModelNew.PackPerCartonWt" n-decimals="2" class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
                 </div>
             </div>
             <div class="form-group">
@@ -80,6 +92,7 @@
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">SO Detail</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetPackingData();" href="" aria-controls="general" role="tab" data-toggle="tab">Packing Type</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);GetComboData();" href="" aria-controls="general" role="tab" data-toggle="tab">Combo Pack</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -157,14 +170,14 @@
                         <script type="text/template" id="pcselect">
                             <div class="checkbox-site">
                                 <label>
-                                    <input type="checkbox" ng-model="data.Flag" ng-checked="data.Flag">
+                                    <input type="checkbox" ng-model="data.Flag" ng-checked="data.Flag" ng-change="$parent.selectSinglePackingCategory(data)">
                                     <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                 </label>
                             </div>
                         </script>
                         <script type="text/template" id="PackingType">
                             <div class="select-style">
-                                <select name="PackingType" class="form-control" ng-model="data.PackingTypeId"
+                                <select name="PackingType" class="form-control" ng-model="data.PackingTypeId" ng-change="$parent.GetPackingType(this);"
                                         ng-options="item.Value as item.Text for item in $parent.packingTypeList" tabindex="4">
                                     <option value=""></option>
                                 </select>
@@ -187,7 +200,7 @@
                         </script>
                         <script type="text/template" id="PacketRegistration">
                             <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
-                                <button ng-click="$parent.GetPacketRegistrationPOP(this);" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
+                                <button ng-click="$parent.GetPacketRegistrationPOP(data);" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
                             </div>
                         </script>
                     </div>
@@ -195,6 +208,34 @@
                         <ul class="list-inline text-right">
                             <li> <button ng-click="SavePackingCategory();" ng-disabled="ModelNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
                         </ul>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class="row" ng-form="tabFrom3">
+                    <div class="col-xs-12">
+                        <div id="GridCombo" ej-grid e-datasource="comboList"
+                             e-allowscrolling="true" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-showsummary="true" e-allowselection="true" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-template="#GenComboCarton" e-headertext="Actions" e-width="90" style="height: 20px;"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="30" e-isprimarykey="true"></div>
+                                <div e-column e-field="ComboRefNo" e-headertext="Combo No" e-width="40" e></div>
+                                <div e-column e-field="NoOfSKU" e-headertext="No Of SKU" e-width="40" e></div>
+                                <div e-column e-field="ComboQty" e-headertext="Combo Qty" e-width="40" e></div>
+                                <div e-column e-field="NoOfPack" e-headertext="No Pack" e-width="40" e></div>
+                                <div e-column e-field="PackRefQty" e-headertext="Pack Ref Qty" e-width="50" e></div>
+                                <div e-column e-field="ColorSizeQty" e-headertext="ColorSizeQty" e-width="100" e></div>
+                            </div>
+                            <script type="text/template" id="GenComboCarton">
+                                <div class="col-sm-2 text-left">
+                                    <button ng-click="$parent.GenerateComboCarton(this);" title="Generate Carton" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
+                                    <button ng-click="$parent.generateComboQRCode(this);" title="Generate QR" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="fa fa-qrcode"></i></button>
+                                    <button ng-click="$parent.GetComboCartonList(this);" title="Carton List" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-eye-open"></i></button>
+                                    <button ng-click="$parent.removeCombo(this);" title="Delete Combo" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
+                                </div>
+                            </script>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -236,9 +277,6 @@
         </div>
     </div>
 </div>
-
-
-
 <confirm-modal></confirm-modal>
 <div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -298,7 +336,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div id="GridSOItem" ng-init="chkinit()" ej-grid e-datasource="recipeMaterialList"
+                    <div id="GridSOItem" ng-init="chkinit()" ej-grid e-datasource="recipeMaterialList" @*e-recorddoubleclick="addRecipeMaterial"*@
                          e-allowscrolling="true" @*e-minwidth="1000" e-minheight="400" e-scrollsettings-height="200"*@
                          e-rowdatabound="rowDataBound" e-actioncomplete="actionCompleteSearch" e-allowfiltering="true"
                          e-allowpaging="true" e-allowsorting="true"
@@ -364,6 +402,7 @@
                     <div class="common-btn">
                         <ul class="list-inline text-right">
                             <li> <button ng-click="addRecipeMaterial();" class="btn">Done</button></li>
+                            <li> <button ng-click="CloseRecipeMaterialPopUp();" class="btn">Close</button></li>
                         </ul>
                     </div>
 
@@ -379,34 +418,39 @@
             <div class="modal-header">Carton <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body">
                 <div class="col-xs-12">
-                    <div style="color:black;" id="GridSKU" ej-grid e-datasource="skuList" e-allowscrolling="true"
+                    <div style="color:black;" id="GridPRSKU" ej-grid e-datasource="skuList" e-allowscrolling="true"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
                             @*<div e-column e-headertext="" e-template="#checkboxTemplateQR" e-textalign="center" e-width="30"></div>*@
-                            <div e-column e-template="#GenCarton" e-headertext="Actions" e-width="140" style="height: 20px;"></div>
+                            @*<div e-column e-template="#GenPRCarton" e-headertext="Actions" e-width="140" style="height: 20px;"></div>*@
                             <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SalesOrderId" e-headertext="SOId" e-width="80"></div>
                             <div e-column e-type="string" e-field="SKUColor" e-headertext="Color" e-width="80"></div>
                             <div e-column e-type="string" e-field="SKUSize" e-headertext="Size" e-width="80"></div>
-                            <div e-column e-type="string" e-template="#NoOfUnit" e-headertext="NoOfUnit" e-width="80"></div>
-                            <div e-column e-type="string" e-template="#UnitPerPack" e-headertext="Unit/Pack" e-width="80"></div>
+                            <div e-column e-template="#OrderQty" e-headertext="Order Qty" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-type="string" e-template="#PlanQty" e-headertext="Plan Qty" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ComboQty" e-headertext="Combo Qty" e-width="80"></div>
+                            <div e-column e-type="string" e-field="BalanceToAllot" e-headertext="BalanceToAllot" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#ComboRefNo" e-headertext="ComboRefNo" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#ComboUnitPerPack" e-headertext="Unit/Pack" e-width="80"></div>
                             <div e-column e-type="string" e-template="#NoOfPack" e-headertext="NoOfPack" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#PlanPack" e-headertext="PlanPack" e-width="80"></div>
                             <div e-column e-type="string" e-template="#BarCode" e-headertext="BarCode" e-width="80"></div>
                             <div e-column e-type="string" e-template="#QRCode" e-headertext="QRCode" e-width="80"></div>
                             <div e-column e-type="string" e-template="#RFID" e-headertext="RFID" e-width="80"></div>
-                            <div e-column e-template="#Qty" e-headertext="Qty" e-width="80" style="height: 20px;"></div>
                             <div e-column e-template="#LineItemReference" e-headertext="LineItemReference" e-width="80" style="height: 20px;"></div>
                             <div e-column e-template="#Remark" e-headertext="Remark" e-width="100" style="height: 20px;"></div>
                         </div>
 
-                        <script type="text/template" id="UnitPerPack">
+                        <script type="text/template" id="ComboUnitPerPack">
                             <div class="col-sm-10" style="padding:0px; width:70px;">
-                                <input type="text" ng-model="data.UnitPerPack" n-decimals="2" ng-blur="$parent.calculate(this)" style="color:black;" class="form-control" />
+                                <input type="text" ng-model="data.UnitPerPack" n-decimals="2" ng-blur="$parent.calculateNoOfPack(data)" ng-disabled="data.BalanceToAllot <= 0" style="color:black;" class="form-control" />
                             </div>
                         </script>
-                        <script type="text/template" id="NoOfUnit">
+                        <script type="text/template" id="PlanQty">
                             <div class="col-sm-10" style="padding:0px; width:70px;">
-                                <input type="text" ng-model="data.NoOfUnit" disabled n-decimals="2" style="color:black;" class="form-control" />
+                                <input type="text" ng-model="data.PlanQty" disabled n-decimals="2" style="color:black;" class="form-control" />
                             </div>
                         </script>
                         <script type="text/template" id="NoOfPack">
@@ -414,6 +458,17 @@
                                 <input type="text" ng-model="data.NoOfPack" disabled n-decimals="2" style="color:black;" class="form-control" />
                             </div>
                         </script>
+                        <script type="text/template" id="ComboRefNo">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.ComboRefNo" only-numbers ng-blur="$parent.calculateNoOfPack(data)" ng-disabled="data.BalanceToAllot <= 0" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="PlanPack">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.PlanPack" only-numbers style="color:black;" ng-disabled="data.BalanceToAllot <= 0" class="form-control" />
+                            </div>
+                        </script>
+
                         <script type="text/template" id="BarCode">
                             <div class="col-sm-10" style="padding:0px; width:70px;">
                                 <input type="text" class="form-control" ng-model="data.BarCode" ng-keydown="barcodeKeyDown($event)" placeholder="Scan Barcode" autofocus />
@@ -434,6 +489,82 @@
                                 <input type="text" ng-model="data.Remark" style="color:black;" class="form-control" />
                             </div>
                         </script>
+                        <script type="text/template" id="OrderQty">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.OrderQty" disabled n-decimals="2" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="LineItemReference">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.LineItemReference" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        @*<script type="text/template" id="GenPRCarton">
+                                <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                                    <button ng-click="$parent.GenerateCarton(this);" title="Generate Carton" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
+                                    <button ng-click="$parent.generateQRCode(this);" title="Generate QR" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="fa fa-qrcode"></i></button>
+                                    <button ng-click="$parent.GetComboCartonList(this);" title="Carton List" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-eye-open"></i></button>
+                                </div>
+                            </script>*@
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        @*<li> <button ng-click="calculateNoOfPack();" class="btn"><i class="fa fa-calculator"></i> Calculate</button></li>*@
+                        <li> <button ng-click="SaveComboPR();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        <li> <button ng-click="ClosePR();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="CartonPackPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Carton <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="col-xs-12">
+                    <div style="color:black;" id="GridSKU" ej-grid e-datasource="skuList" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            @*<div e-column e-headertext="" e-template="#checkboxTemplateQR" e-textalign="center" e-width="30"></div>*@
+                            <div e-column e-template="#GenCarton" e-headertext="Actions" e-width="140" style="height: 20px;"></div>
+                            <div e-column e-type="string" e-field="SalesOrderId" e-headertext="SOId" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SKUColor" e-headertext="Color" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SKUSize" e-headertext="Size" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#NoOfUnit" e-headertext="NoOfUnit" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#UnitPerPack" e-headertext="Unit/Pack" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#NoOfPack" e-headertext="NoOfPack" e-width="80"></div>
+                            <div e-column e-template="#Qty" e-headertext="Qty" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#LineItemReference" e-headertext="LineItemReference" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#Remark" e-headertext="Remark" e-width="100" style="height: 20px;"></div>
+                        </div>
+
+                        <script type="text/template" id="UnitPerPack">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.UnitPerPack" n-decimals="2" ng-blur="$parent.calculate(this)" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="NoOfUnit">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.NoOfUnit" disabled n-decimals="2" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="NoOfPack">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.NoOfPack" disabled n-decimals="2" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+
+                        <script type="text/template" id="Remark">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.Remark" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
                         <script type="text/template" id="Qty">
                             <div class="col-sm-10" style="padding:0px; width:70px;">
                                 <input type="text" ng-model="data.Qty" disabled n-decimals="2" style="color:black;" class="form-control" />
@@ -444,10 +575,12 @@
                                 <input type="text" ng-model="data.LineItemReference" style="color:black;" class="form-control" />
                             </div>
                         </script>
-                        @*<script type="text/template" id="checkboxTemplateQR">
+                        @*
+                            <script type="text/template" id="checkboxTemplateQR">
                                 <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Checked" e-checked="data.Checked" />
                             </script>*@
-                        @*<script type="text/x-jsrender" id="headerTemplate">
+                        @*
+                            <script type="text/x-jsrender" id="headerTemplate">
                                 <input type="checkbox" id="headchk" />
                             </script>*@
                         <script type="text/template" id="GenCarton">
@@ -462,7 +595,8 @@
                 <div class="common-btn" style="padding-right: 15px;">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="SavePR();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-                        @*<li> <button ng-click="generateQRCode();" class="btn"><i class="fa fa-qrcode"></i> Generate QR</button></li>*@
+                        @*
+                            <li> <button ng-click="generateQRCode();" class="btn"><i class="fa fa-qrcode"></i> Generate QR</button></li>*@
                         <li> <button ng-click="ClosePR();" class="btn">Close</button></li>
                     </ul>
                 </div>
@@ -503,4 +637,38 @@
     </div>
 </div>
 
+<div class="modal fade site-modal in" id="ComboCartonPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Combo List<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="col-xs-12">
+                    <div style="color:black;" id="GridCC" ej-grid e-datasource="ComboCartonList" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="PackingName" e-headertext="PackingName" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SOId" e-headertext="SOId" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ComboRefNo" e-headertext="ComboRefNo" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ColorSizeQty" e-headertext="Combo Detail" e-width="80"></div>
+                            <div e-column e-type="string" e-field="PackRefQty" e-headertext="Pack Qty" e-width="80"></div>
+                            <div e-column e-type="string" e-field="NoOfPack" e-headertext="NoOfPack" e-width="80"></div>
+                            <div e-column e-type="string" e-field="PackRef" e-headertext="PackRef" e-width="100"></div>
+                            <div e-column e-type="string" e-field="PackSeq" e-headertext="PackSeq" e-width="100"></div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="ComboReportExcel();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
+                        <li> <button ng-click="CloseCG();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <confirm-archive-generic modalid="confirmSODelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteSO();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmComboDelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteCombo();"></confirm-archive-generic>

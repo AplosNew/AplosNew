@@ -31,24 +31,19 @@ using Zen.Barcode;
 using System.Text;
 using Aplos.Areas.Materials.Controllers;
 using System.Drawing;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Web.Mvc;
 using System.Web.Hosting;
+using Syncfusion.Pdf;
+using Syncfusion.Pdf.Graphics;
+
 
 namespace Aplos.Areas.OrderManagements.Controllers
 {
     public class ProductionOrderController : BaseController
     {
         #region Constructor
-        string LineItemReference, SKUColor, SKUSize, Qty, Code = null;
+        string LineItemReference, SKUColor, SKUSize, Qty = null;
         private readonly IProductionOrderService _productionOrderService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
@@ -3711,7 +3706,7 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId) AS TEMP WHERE " 
 							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
 							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
 
-WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"'  ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEMP.ArticleId";
+WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND  TEMP.SalesOrderId IN(Select SalesOrderId from TRN.SecondCharacteristics) ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEMP.ArticleId";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -3765,6 +3760,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"'  ORDER BY  TEMP
             }
         }
 
+        [HttpPost, Authorize]
         public ActionResult DeleteSO(string id)
         {
             try
@@ -3804,13 +3800,18 @@ WITH PackingCategory AS
 SELECT
     Flag = CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),P.PackingCategory,D.Id,D.PacketRegistrationMasterId,D.PackingTypeId,
     NoOfUnitPerPack =CASE WHEN D.Id IS NULL AND P.PackingCategory = 'Individual' THEN 1 ELSE D.NoOfUnitPerPack END,
-    NoOfPack =(SO.Qty * CM.PlanPercentage / 100) + SO.Qty,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP
+    NoOfPack =(SUM(SO.Qty) * CM.PlanPercentage / 100) + SUM(SO.Qty),D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,PT.PackingType
+    ,LineItemReference = COALESCE(D.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo)
 FROM PackingCategory P
 LEFT JOIN PacketRegistrationType D ON D.PackingCategory = P.PackingCategory AND D.PacketRegistrationMasterId = @PacketRegistrationMasterId
 LEFT JOIN PacketRegistrationDetail PD ON PD.PacketRegistrationMasterId = @PacketRegistrationMasterId
 LEFT JOIN PacketRegistrationMaster CM ON CM.Id = PD.PacketRegistrationMasterId
 LEFT JOIN TRN.SalesOrder SO ON SO.Id = PD.SalesOrderId
-ORDER BY P.SortOrder;";
+LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId
+LEFT JOIN HKP.PackingType PT ON PT.Id=D.PackingTypeId
+Group By P.PackingCategory,D.Id,D.PacketRegistrationMasterId,D.PackingTypeId,D.NoOfUnitPerPack,CM.PlanPercentage,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,PT.PackingType
+,D.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo,P.SortOrder
+ORDER BY P.SortOrder";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -3904,10 +3905,11 @@ ORDER BY P.SortOrder;";
                         dr["SKU2Id"] = packregilist[i]["SKU2Id"];
                         dr["UnitPerPack"] = packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"];
                         dr["NoOfUnit"] = packregilist[i]["NoOfUnit"];
-                        if (packregilist[i]["UnitPerPack"] != null)
-                        {
-                            dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
-                        }
+                        //if (packregilist[i]["UnitPerPack"] != null)
+                        //{
+                        //    dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
+                        //}
+                        dr["NoOfPack"] = packregilist[i]["NoOfPack"];
                         dr["LineItemReference"] = packregilist[i]["LineItemReference"];
                         dr["BarCode"] = packregilist[i]["BarCode"];
                         dr["QRCode"] = packregilist[i]["QRCode"];
@@ -3926,10 +3928,11 @@ ORDER BY P.SortOrder;";
                         dr.BeginEdit();
                         dr["UnitPerPack"] = packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"];
                         dr["NoOfUnit"] = packregilist[i]["NoOfUnit"];
-                        if (packregilist[i]["UnitPerPack"] != null)
-                        {
-                            dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
-                        }
+                        //if (packregilist[i]["UnitPerPack"] != null)
+                        //{
+                        //    dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
+                        //}
+                        dr["NoOfPack"] = packregilist[i]["NoOfPack"];
                         dr["BarCode"] = packregilist[i]["BarCode"];
                         dr["QRCode"] = packregilist[i]["QRCode"];
                         dr["RFID"] = packregilist[i]["RFID"];
@@ -3954,10 +3957,160 @@ ORDER BY P.SortOrder;";
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetPackingSKUData(string soId, string packetRegistrationTypeId)
+        public JsonResult SaveComboPacketRegistration(Dictionary<string, object> packrdata, List<Dictionary<string, object>> packregilist, string masterId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dspcsku, dspcr, dsPCRID = null;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+                string csql = @"select * from PackingComboReference where ComboRefNo='" + packrdata["ComboRefNo"] + "' AND  Id<>'" + packrdata["Id"] + "' AND PacketRegistrationTypeId='" + masterId + "'";
+                objCon.OpenDataSetThroughAdapter(csql, out dspcr, false, "1");
+                if (dspcr.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same ComboRefNo already exists!!!");
+
+                string pcr = @"select * from PackingComboReference Where PacketRegistrationTypeId='" + masterId + "'";
+                objCon.OpenDataSetThroughAdapter(pcr, out dspcr, false, "1");
+
+                objCon.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[PackingComboReference] where PacketRegistrationTypeId='" + masterId + "'", out dsPCRID, false, "1");
+                int pcount = Convert.ToInt32(dsPCRID.Tables[0].Rows[0]["countId"].ToString());
+
+                string pcsku = @"select * from PackingComboSKUDetail Where PackingComboReferenceId='" + packrdata["Id"] + "'";
+                objCon.OpenDataSetThroughAdapter(pcsku, out dspcsku, false, "1");
+
+
+                string prmasterId = null;
+
+                dspcr.Tables[0].DefaultView.RowFilter = "PacketRegistrationTypeId ='" + masterId + "' AND Id ='" + packrdata["Id"] + "'";
+                if (dspcr.Tables[0].DefaultView.Count == 0)
+                {
+                    DataRow dr = dspcr.Tables[0].NewRow();
+
+                    dr["Id"] = masterId + "-" + (pcount + 1).ToString();
+                    prmasterId = masterId + "-" + (pcount + 1).ToString();
+                    dr["PacketRegistrationTypeId"] = masterId;
+
+                    dr["ColorSizeQty"] = packrdata["ColorSizeQty"];
+                    dr["NoOfPack"] = packrdata["NoOfPack"];
+                    dr["ComboRefNo"] = packrdata["ComboRefNo"];
+                    dr["PackRefQty"] = packrdata["PackRefQty"];
+                    dr["ComboQty"] = packrdata["ComboQty"];
+                    dr["BarCode"] = packrdata["BarCode"];
+                    dr["QRCode"] = packrdata["QRCode"];
+                    dr["RFID"] = packrdata["RFID"];
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+
+                    dspcr.Tables[0].Rows.Add(dr);
+                }
+
+                for (int i = 0; i < packregilist.Count; i++)
+                {
+
+                    dspcsku.Tables[0].DefaultView.RowFilter = "Id =''";
+                    if (dspcsku.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow drc = dspcsku.Tables[0].NewRow();
+
+                        drc["PackingComboReferenceId"] = prmasterId;
+                        drc["SalesOrderId"] = packregilist[i]["SalesOrderId"];
+                        drc["SKU1Id"] = packregilist[i]["SKU1Id"];
+                        drc["SKU2Id"] = packregilist[i]["SKU2Id"];
+                        drc["QtyPerPack"] = packregilist[i]["UnitPerPack"];
+                        drc["NoOfPack"] = packregilist[i]["PlanPack"];
+                        drc["ComboQty"] = Convert.ToInt32(packregilist[i]["UnitPerPack"]) * Convert.ToInt32(packregilist[i]["PlanPack"]);
+
+                        drc["AddedBy"] = identity.Name;
+                        drc["AddedDate"] = System.DateTime.Now.ToString();
+                        drc["AddedFromIP"] = identity.IPAddress;
+
+
+                        dspcsku.Tables[0].Rows.Add(drc);
+                    }
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dspcr, dspcsku);
+                return Json(new { Error = false, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult DeleteCombo(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from PackingComboSKUDetail where PackingComboReferenceId='" + id + "'");
+                con.executeQuery("delete from PackingComboReference where id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetComboData(string packetRegistrationTypeId)
         {
             Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
-            var jsondata = Json(order.GetPackingSKUData(soId, packetRegistrationTypeId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(order.GetComboData(packetRegistrationTypeId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetComboRefNo(string comboNo, string packetRegistrationTypeId)
+        {
+            try
+            {
+                string sql = "";
+                if (!string.IsNullOrEmpty(comboNo))
+                {
+                    sql = "select * from PackingComboReference Where ComboRefNo=" + comboNo + " AND PacketRegistrationTypeId='" + packetRegistrationTypeId + "'";
+                }
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetComboPackingSKUData(string soId, string packetRegistrationTypeId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetComboPackingSKUData(soId, packetRegistrationTypeId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetPackingResigtationSKUData(string soId, string packetRegistrationTypeId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetPackingResigtationSKUData(soId, packetRegistrationTypeId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
@@ -3967,6 +4120,15 @@ ORDER BY P.SortOrder;";
         {
             Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
             var jsondata = Json(order.GetCartonList(masterId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetComboCartonList(string masterId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetComboCartonList(masterId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
@@ -4018,376 +4180,56 @@ ORDER BY P.SortOrder;";
             }
         }
 
-        private List<QRCodeItem> qrCodeItems = new List<QRCodeItem>();
-        private int currentQRCodeIndex = 0;
-        public ActionResult _GenerateQRCode(Dictionary<string, object> data)
+        [HttpPost, Authorize]
+        public JsonResult GenerateComboCarton(Dictionary<string, object> data)
         {
             try
             {
-                string packetRegistrationId = Convert.ToString(data["PacketRegistrationId"]);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dspackCat = null;
+                string sql = "SELECT * FROM [dbo].[CartonGeneration] where PackingComboReferenceId='" + data["PackingComboReferenceId"] + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
 
-                // -----------------------------------------
-                // Get your SQL DataTable
-                // -----------------------------------------
-                Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
-                DataTable dt = order.GetQRCodeData(packetRegistrationId);
+                int totalCartons = Convert.ToInt32(data["NoOfPack"]);
+                int existingCartons = dspackCat.Tables[0].AsEnumerable().Count(r => r["PackingComboReferenceId"].ToString() == data["PackingComboReferenceId"].ToString());
 
-                if (dt == null || dt.Rows.Count == 0)
+                if (existingCartons < totalCartons)
                 {
-                    return Json(new
+                    for (int i = existingCartons; i < totalCartons; i++)
                     {
-                        Error = true,
-                        Message = "No carton data found."
-                    });
+                        DataRow dr = dspackCat.Tables[0].NewRow();
+
+                        dr["Id"] = data["PackingComboReferenceId"] + "-" + (i + 1);
+                        dr["PackingComboReferenceId"] = data["PackingComboReferenceId"];
+                        dr["NoOfPcs"] = data["NoOfPcs"];
+                        dr["CartonNo"] = i + 1;
+                        dr["Code"] = data["PackingComboReferenceId"] + "-" + (i + 1);
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+                        dspackCat.Tables[0].Rows.Add(dr);
+                    }
                 }
 
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dspackCat);
 
-                // -----------------------------------------
-                // Prepare QR list
-                // -----------------------------------------
-
-                qrCodeItems = new List<QRCodeItem>();
-
-                foreach (DataRow row in dt.Rows)
-                {
-                    qrCodeItems.Add(new QRCodeItem
-                    {
-                        PackingName = Convert.ToString(row["PackingName"]),
-
-                        Customer = Convert.ToString(row["Customer"]),
-
-                        SOId = Convert.ToString(row["SOId"]),
-
-                        Color = Convert.ToString(row["Color"]),
-
-                        Size = Convert.ToString(row["Size"]),
-
-                        NoOfPcs = Convert.ToString(row["NoOfPcs"]),
-
-                        CartonNo = Convert.ToString(row["CartonNo"])
-                    });
-                }
-
-
-                currentQRCodeIndex = 0;
-
-
-                // -----------------------------------------
-                // Print
-                // -----------------------------------------
-
-                var doc = new PrintDocument();
-
-                // A4
-                var paperSize = new PaperSize("A4", 827, 1169);
-
-                doc.DefaultPageSettings.PaperSize = paperSize;
-
-                doc.DefaultPageSettings.Margins = new Margins(10, 10, 10, 10);
-
-                doc.PrintPage += new PrintPageEventHandler(ProvideContent);
-
-                doc.Print();
-
-
-                return Json(new
-                {
-                    Error = false,
-                    Message = "QR Code printed successfully."
-                });
+                return Json(new { Error = false, Message = AplosMessage.Success });
             }
             catch (Exception ex)
             {
-                throw;
-            }
-        }
 
-        public void ProvideContent(object sender, PrintPageEventArgs e)
-        {
-            Graphics graphics = e.Graphics;
-
-            // ============================================
-            // A4 SIZE
-            // ============================================
-
-            int pageWidth = e.PageBounds.Width;
-            int pageHeight = e.PageBounds.Height;
-
-
-            // ============================================
-            // 2 COLUMNS x 4 ROWS
-            // ============================================
-
-            int columns = 2;
-            int rows = 4;
-
-            int labelWidth = pageWidth / columns;
-
-            int labelHeight = pageHeight / rows;
-
-
-            // ============================================
-            // QR SIZE
-            // ============================================
-
-            int qrSize = 130;
-
-
-            using (Font font = new Font(FontFamily.GenericMonospace, 9, FontStyle.Bold))
-
-            using (Brush brush = new SolidBrush(Color.Black))
-
-            using (Pen pen = new Pen(Color.Black, 1))
-            {
-
-                // ============================================
-                // PRINT 8 LABELS
-                // ============================================
-
-                for (int i = 0; i < 8; i++)
-                {
-                    if (currentQRCodeIndex >= qrCodeItems.Count)
-                    {
-                        break;
-                    }
-
-
-                    QRCodeItem item = qrCodeItems[currentQRCodeIndex];
-
-
-                    // ============================================
-                    // POSITION
-                    // ============================================
-
-                    int column = i % 2;
-                    int row = i / 2;
-
-
-                    int startX = column * labelWidth;
-
-                    int startY = row * labelHeight;
-
-
-                    // ============================================
-                    // QR DATA
-                    // ============================================
-
-                    string qrData =
-                        string.Concat(
-                            item.PackingName,
-                            "#",
-                            item.Color,
-                            "#",
-                            item.Size,
-                            "#",
-                            item.NoOfPcs,
-                            "#",
-                            item.CartonNo
-                        );
-
-
-                    // Example:
-                    //
-                    // test#Black Stp.-NN#M#50#20261-1
-
-
-                    // ============================================
-                    // GENERATE QR
-                    // ============================================
-
-                    CodeQrBarcodeDraw qrCode =
-                        BarcodeDrawFactory.CodeQr;
-
-
-                    using (var barcodeImg = qrCode.Draw(qrData, 200, 2))
-                    {
-                        int qrX = startX + labelWidth - qrSize - 20;
-
-                        int qrY = startY + 35;
-
-
-                        Rectangle imgRect = new Rectangle(qrX, qrY, qrSize, qrSize);
-
-
-                        graphics.DrawImage(barcodeImg, imgRect);
-                    }
-
-
-                    // ============================================
-                    // TEXT
-                    // ============================================
-
-                    string printText =
-                        "Packing#: " +
-                        item.PackingName +
-                        "\r\n" +
-
-                        "Customer: " +
-                        item.Customer +
-                        "\r\n" +
-
-                        "SO: " +
-                        item.SOId +
-                        "\r\n" +
-
-                        "Color: " +
-                        item.Color +
-                        "\r\n" +
-
-                        "Size: " +
-                        item.Size +
-                        "\r\n" +
-
-                        "Qty: " +
-                        item.NoOfPcs +
-                        "\r\n" +
-
-                        "CartonNo: " +
-                        item.CartonNo;
-
-
-                    int textX = startX + 5;
-
-                    int textY = startY + 30;
-
-
-                    graphics.DrawString(printText, font, brush, textX, textY);
-
-
-                    // ============================================
-                    // BORDER
-                    // ============================================
-
-                    graphics.DrawRectangle(pen, startX + 2, startY + 2, labelWidth - 4, labelHeight - 4);
-
-
-                    // ============================================
-                    // NEXT CARTON
-                    // ============================================
-
-                    currentQRCodeIndex++;
-                }
-            }
-
-
-            // ============================================
-            // MORE PAGES
-            // ============================================
-
-            if (currentQRCodeIndex < qrCodeItems.Count)
-            {
-                e.HasMorePages = true;
-            }
-            else
-            {
-                e.HasMorePages = false;
-
-                currentQRCodeIndex = 0;
-                qrCodeItems.Clear();
-            }
-        }
-
-        public ActionResult __GenerateQRCode(Dictionary<string, object> data)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            try
-            {
-
-
-                if (!String.IsNullOrEmpty(data["LineItemReference"].ToString()))
-                {
-                    LineItemReference = data["LineItemReference"].ToString();
-                }
-                if (!String.IsNullOrEmpty(data["SKUColor"].ToString()))
-                {
-                    SKUColor = data["SKUColor"].ToString();
-                }
-
-                if (!String.IsNullOrEmpty(data["SKUSize"].ToString()))
-                {
-                    SKUSize = data["SKUSize"].ToString();
-                }
-                if (!String.IsNullOrEmpty(data["Qty"].ToString()))
-                {
-                    Qty = data["Qty"].ToString();
-                }
-
-
-                var doc = new PrintDocument();
-                var paperSize = new PaperSize("Custom", 520, 820);
-                doc.DefaultPageSettings.PaperSize = paperSize;
-
-                // doc.PrintPage += PrintPicture;
-                doc.PrintPage += new PrintPageEventHandler(ProvideContent);
-
-
-                doc.Print();
-
-                return Json(new { Error = false, Message = AplosMessage.Insert });
-            }
-            catch (Exception ex)
-            {
                 throw ex;
             }
         }
-        public void _ProvideContent(object sender, PrintPageEventArgs e)
-        {
 
-            int itemHeight = 0;
-            var curX = e.MarginBounds.X;
-            var curY = e.MarginBounds.Y;
-
-
-            string concatdata = Convert.ToString(
-                    string.Concat(
-                     LineItemReference, "#"
-                    , SKUColor, "#"
-                    , SKUSize, "#"
-                    , Qty, "#"
-                    ));
-
-            CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
-            var barcodeImg = qrCode.Draw(concatdata, 200, 2);
-
-            //ConvertImagePNGToBMP(concatdata);
-
-            var sb = new StringBuilder();
-
-            sb.AppendLine(($"LineItem#: {LineItemReference}"));
-            sb.AppendLine(($"Color: {SKUColor} "));
-            sb.AppendLine(($"Size: {SKUSize} "));
-            sb.AppendLine(($"Qty: {Qty} "));
-            sb.AppendLine(($"CartonNo: "));
-
-
-            var printText = new PrintText(sb.ToString(), new Font(System.Drawing.FontFamily.GenericSansSerif, 9, System.Drawing.FontStyle.Bold));
-            Graphics graphics = e.Graphics;
-
-            using (var fontNormal = new Font("Arial", 9))
-            using (var sf = new StringFormat())
-            {
-                sf.Alignment = sf.LineAlignment = StringAlignment.Far;
-                itemHeight = (int)fontNormal.GetHeight(e.Graphics) + 10;
-
-
-                var imgRect = new Rectangle(150, 50, 90, 90);
-                //var labelRect = new Rectangle(150, 50, imgRect.Width, itemHeight);
-
-                using (var qrImage = barcodeImg)
-                    e.Graphics.DrawImage(qrImage, imgRect);
-
-            }
-
-
-            int startX = 0;
-            int startY = 0;
-            int Offset = 20;
-
-            graphics.DrawString(printText.Text, new Font(System.Drawing.FontFamily.GenericMonospace, 9, System.Drawing.FontStyle.Bold),
-                                new SolidBrush(System.Drawing.Color.Black), startX, startY + Offset);
-            Offset = Offset + 20;
-        }
+        private List<QRCodeItem> qrCodeItems = new List<QRCodeItem>();
+        private int currentQRCodeIndex = 0;
+          
         #endregion
 
         #region PackerCategory
@@ -4505,43 +4347,8 @@ ORDER BY P.SortOrder;";
         #endregion
 
         #region QRCode
-
-        public ActionResult GenerateQRCode_(Dictionary<string, object> data)
-        {
-            try
-            {
-                string packetRegistrationId = Convert.ToString(data["PacketRegistrationId"]);
-
-                Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
-                DataTable dt = order.GetQRCodeData(packetRegistrationId);
-
-                if (dt == null || dt.Rows.Count == 0)
-                {
-                    return Json(new { Error = true, Message = "No carton data found." });
-                }
-
-                List<QRCodeItem> qrCodeItems = dt.AsEnumerable().Select(row => new QRCodeItem
-                {
-                    PackingName = Convert.ToString(row["PackingName"]),
-                    Customer = Convert.ToString(row["Customer"]),
-                    SOId = Convert.ToString(row["SOId"]),
-                    Color = Convert.ToString(row["Color"]),
-                    Size = Convert.ToString(row["Size"]),
-                    NoOfPcs = Convert.ToString(row["NoOfPcs"]),
-                    CartonNo = Convert.ToString(row["CartonNo"])
-                }).ToList();
-
-                byte[] pdfBytes = BuildQRCodePdf(qrCodeItems);
-                string fileName = $"QRCode_{packetRegistrationId}.pdf";
-
-                return File(pdfBytes, "application/pdf", fileName);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
-
+      
+        [Authorize]
         public ActionResult GenerateQRCode(Dictionary<string, object> data)
         {
             try
@@ -4580,7 +4387,57 @@ ORDER BY P.SortOrder;";
                 //{
                 //    Directory.CreateDirectory(folderPath);
                 //}
-               // string fullPath = Path.Combine(folderPath, fileName);
+                // string fullPath = Path.Combine(folderPath, fileName);
+                //save the file to server temp folder
+                string fullPath = Path.Combine(HostingEnvironment.MapPath("~/") + fileName);
+                System.IO.File.WriteAllBytes(fullPath, pdfBytes);
+
+                return Json(new
+                {
+                    Error = false,
+                    Message = "QR Code generated successfully.",
+                    FileName = fullPath   // matches response.data.FileName your JS already expects
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [Authorize]
+        public ActionResult GenerateComboQRCode(Dictionary<string, object> data)
+        {
+            try
+            {
+                string Id = Convert.ToString(data["Id"]);
+
+                Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+                DataTable dt = order.GetComboQRCodeData(Id);
+
+                if (dt == null || dt.Rows.Count == 0)
+                {
+                    return Json(new { Error = true, Message = "No carton data found." });
+                }
+
+                List<QRCodeItem> qrCodeItems = dt.AsEnumerable().Select(row => new QRCodeItem
+                {
+                    PackingName = Convert.ToString(row["PackingName"]),
+                    Customer = Convert.ToString(row["Customer"]),
+                    ColorSizeQty = Convert.ToString(row["ColorSizeQty"]),
+                    NoOfPcs = Convert.ToString(row["NoOfPcs"]),
+                    CartonNo = Convert.ToString(row["CartonNo"])
+                }).ToList();
+
+                byte[] pdfBytes = BuildComboQRCodePdf(qrCodeItems);
+
+                // -----------------------------------------
+                // Save to a temp folder on the server, same
+                // way your other download-generating actions do
+                // -----------------------------------------
+                //string fileName = $"QRCode_{packetRegistrationId}_{DateTime.Now:yyyyMMddHHmmss}.pdf";
+                string fileName = $"QRCode_{Id}.pdf";
+               
                 //save the file to server temp folder
                 string fullPath = Path.Combine(HostingEnvironment.MapPath("~/") + fileName);
                 System.IO.File.WriteAllBytes(fullPath, pdfBytes);
@@ -4600,104 +4457,355 @@ ORDER BY P.SortOrder;";
 
         private byte[] BuildQRCodePdf(List<QRCodeItem> qrCodeItems)
         {
-            const int columns = 2;
-            const int rows = 4;
-            const int perPage = columns * rows;
+            //const float pageWidth = 4f * 72f;    // 288pt (4in wide)
+            //const float cellPadding = 4f;        // small inner padding, not a margin
+            //const float qrSize = 95f;            // was 110f — a bit smaller
+            //const float textFontSize = 5f;
+            //const float textLineHeight = textFontSize + 3f;
 
-            // A4 in points
-            const double pageWidth = 595.0;
-            const double pageHeight = 842.0;
-            const double labelWidth = pageWidth / columns;
-            const double labelHeight = pageHeight / rows;
-            const double qrSize = 90;
-            const double fontSize = 9;
-            const double lineHeight = fontSize + 2;
+            const float cellPadding = 4f;
+            const float qrSize = 95f;
+            const float textFontSize = 8f;
+            const float textLineHeight = textFontSize + 3f;
+            float pageWidth = cellPadding + qrSize + cellPadding;   // content-sized width
 
-            var pdf = new MinimalPdfBuilder(pageWidth, pageHeight);
+            #region QRCodePerPage
+            //using (PdfDocument document = new PdfDocument())
+            //{
+            //    const float cellPadding = 4f;
+            //    const float qrSize = 95f;
+            //    const float textFontSize = 8f;
+            //    const float textLineHeight = textFontSize + 3f;
+            //    const int reservedLineCount = 3;   // fixed — matches your physical label height
 
-            int index = 0;
-            while (index < qrCodeItems.Count)
+            //    float pageWidth = cellPadding + qrSize + cellPadding;
+
+            //    // ---- fixed height, same for every page, matches the physical sticker size ----
+            //    float pageHeight =
+            //        cellPadding + qrSize + 3f + (textLineHeight * reservedLineCount) + cellPadding;
+
+            //    PdfFont font = new PdfStandardFont(PdfFontFamily.Courier, textFontSize, PdfFontStyle.Bold);
+            //    PdfBrush brush = PdfBrushes.Black;
+
+            //    PdfStringFormat leftFormat = new PdfStringFormat
+            //    {
+            //        Alignment = PdfTextAlignment.Left,
+            //        LineAlignment = PdfVerticalAlignment.Top
+            //    };
+
+            //    float textAreaWidth = pageWidth - (cellPadding * 2);
+
+            //    foreach (QRCodeItem item in qrCodeItems)
+            //    {
+            //        string qrData = string.Concat(item.CartonNo);
+
+            //        string[] rawLines =
+            //            {
+            //    $"{item.PackingName}",
+            //    $"{item.Color}_{item.Size}",
+            //    $"{item.NoOfPcs}_{item.CartonNo}"
+            //    };
+
+            //        List<string> wrappedLines = new List<string>();
+            //        foreach (string raw in rawLines)
+            //        {
+            //            wrappedLines.AddRange(WrapTextToWidth(raw, font, textAreaWidth));
+            //        }
+
+            //        // If this item genuinely needs MORE lines than reserved, it will still overflow —
+            //        // that's a data problem (label text too long for the sticker), not a layout bug.
+            //        // Consider truncating or shrinking font for these specific outliers if it happens often.
+
+            //        PdfSection section = document.Sections.Add();
+            //        section.PageSettings.Size = new SizeF(pageWidth, pageHeight);   // same every time
+            //        section.PageSettings.Margins.All = 0;
+
+            //        PdfPage page = section.Pages.Add();
+            //        PdfGraphics g = page.Graphics;
+
+            //        CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
+
+            //        using (Image barcodeImg = qrCode.Draw(qrData, 200, 2))
+            //        using (MemoryStream imgStream = new MemoryStream())
+            //        {
+            //            barcodeImg.Save(imgStream, ImageFormat.Png);
+            //            imgStream.Position = 0;
+
+            //            PdfBitmap pdfImage = new PdfBitmap(imgStream);
+
+            //            float qrX = cellPadding;
+            //            float qrY = cellPadding;
+            //            g.DrawImage(pdfImage, qrX, qrY, qrSize, qrSize);
+
+            //            float textAreaX = cellPadding;
+            //            float textY = qrY + qrSize + 3f;
+
+            //            for (int li = 0; li < wrappedLines.Count; li++)
+            //            {
+            //                RectangleF textRect = new RectangleF(
+            //                    textAreaX, textY + li * textLineHeight, textAreaWidth, textLineHeight);
+
+            //                g.DrawString(wrappedLines[li], font, brush, textRect, leftFormat);
+            //            }
+            //        }
+            //    }
+
+            //    using (MemoryStream output = new MemoryStream())
+            //    {
+            //        document.Save(output);
+            //        return output.ToArray();
+            //    }
+            //} 
+            #endregion
+
+            using (PdfDocument document = new PdfDocument())
             {
-                var sb = new StringBuilder();
-                var imageResources = new Dictionary<string, int>();
-                int imgCounter = 0;
 
-                sb.AppendLine("0 0 0 rg 0 0 0 RG 1 w");
+                PdfFont font = new PdfStandardFont(PdfFontFamily.Courier, textFontSize, PdfFontStyle.Bold);
+                PdfBrush brush = PdfBrushes.Black;
 
-                for (int i = 0; i < perPage && index < qrCodeItems.Count; i++, index++)
+                PdfStringFormat leftFormat = new PdfStringFormat
                 {
-                    QRCodeItem item = qrCodeItems[index];
+                    Alignment = PdfTextAlignment.Left,
+                    LineAlignment = PdfVerticalAlignment.Top
+                };
 
-                    int column = i % columns;
-                    int row = i / columns;
+                float textAreaWidth = pageWidth - (cellPadding * 2);   // now == qrSize
 
-                    double startX = column * labelWidth;
-                    double startYTopDown = row * labelHeight;
+                for (int pairStart = 0; pairStart < qrCodeItems.Count; pairStart += 2)
+                {
+                    List<QRCodeItem> pair = qrCodeItems.Skip(pairStart).Take(2).ToList();
 
-                    // ---- QR DATA ----
-                    string qrData = string.Concat(
-                        item.PackingName, "#", item.Color, "#", item.Size, "#",
-                        item.NoOfPcs, "#", item.CartonNo);
+                    List<List<string>> wrappedLinesPerItem = new List<List<string>>();
+                    List<float> blockHeights = new List<float>();
 
-                    // ---- GENERATE QR (existing barcode lib, unchanged) ----
-                    CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
-
-                    using (Image barcodeImg = qrCode.Draw(qrData, 200, 2))
-                    using (var jpegStream = new MemoryStream())
+                    foreach (QRCodeItem item in pair)
                     {
-                        barcodeImg.Save(jpegStream, ImageFormat.Jpeg);
-                        byte[] jpegBytes = jpegStream.ToArray();
-
-                        int imgObj = pdf.AddJpegImage(jpegBytes, barcodeImg.Width, barcodeImg.Height);
-                        imgCounter++;
-                        string imgName = "Im" + imgCounter;
-                        imageResources[imgName] = imgObj;
-
-                        double qrX = startX + labelWidth - qrSize - 20;
-                        double qrYTopDown = startYTopDown + 35;
-                        double qrYPdf = pageHeight - qrYTopDown - qrSize;
-
-                        sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
-                            "q {0} 0 0 {1} {2} {3} cm /{4} Do Q",
-                            qrSize, qrSize, qrX, qrYPdf, imgName));
-                    }
-
-                    // ---- TEXT ----
-                    string[] lines =
-                    {
-                $"{item.PackingName}_{item.Customer}",
-                $"{item.SOId}_{item.Color}_{item.Size}",
-                $"{item.NoOfPcs}_{item.CartonNo}"
+                        string[] rawLines =
+                        {
+                $"{item.PackingName}",
+                $"{item.Color}_{item.Size}",
+                $"{item.NoOfPcs}_{item.CartonNo}",
+                $""
             };
 
-                    double textX = startX + 5;
-                    double firstLineTopDown = startYTopDown + 30;
+                        List<string> wrappedLines = new List<string>();
+                        foreach (string raw in rawLines)
+                        {
+                            wrappedLines.AddRange(WrapTextToWidth(raw, font, textAreaWidth));
+                        }
+                        wrappedLinesPerItem.Add(wrappedLines);
 
-                    sb.AppendLine("BT /F1 " + fontSize.ToString(CultureInfo.InvariantCulture) + " Tf");
-                    for (int li = 0; li < lines.Length; li++)
-                    {
-                        double lineTopDown = firstLineTopDown + li * lineHeight;
-                        double lineYPdf = pageHeight - lineTopDown - fontSize;
-                        sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
-                            "1 0 0 1 {0} {1} Tm ({2}) Tj",
-                            textX, lineYPdf, EscapePdfText(lines[li])));
+                        float blockHeight =
+                            cellPadding + qrSize + 3f + (textLineHeight * wrappedLines.Count) + cellPadding;
+
+                        blockHeights.Add(blockHeight);
                     }
-                    sb.AppendLine("ET");
 
-                    // ---- BORDER ----
-                    double rectX = startX + 2;
-                    double rectYPdf = pageHeight - (startYTopDown + 2) - (labelHeight - 4);
-                    double rectW = labelWidth - 4;
-                    double rectH = labelHeight - 4;
+                    float pageHeight = blockHeights.Sum();
 
-                    sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
-                        "{0} {1} {2} {3} re S", rectX, rectYPdf, rectW, rectH));
+                    PdfSection section = document.Sections.Add();
+                    section.PageSettings.Size = new SizeF(pageWidth, pageHeight);
+                    section.PageSettings.Margins.All = 0;
+
+                    PdfPage page = section.Pages.Add();
+                    PdfGraphics g = page.Graphics;
+
+                    float cursorY = 0f;
+
+                    for (int p = 0; p < pair.Count; p++)
+                    {
+                        QRCodeItem item = pair[p];
+                        List<string> wrappedLines = wrappedLinesPerItem[p];
+
+                        string qrData = string.Concat(item.CartonNo);
+
+                        CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
+
+                        using (Image barcodeImg = qrCode.Draw(qrData, 200, 2))
+                        using (MemoryStream imgStream = new MemoryStream())
+                        {
+                            barcodeImg.Save(imgStream, ImageFormat.Png);
+                            imgStream.Position = 0;
+
+                            PdfBitmap pdfImage = new PdfBitmap(imgStream);
+
+                            float qrX = cellPadding;
+                            float qrY = cursorY + cellPadding;
+                            g.DrawImage(pdfImage, qrX, qrY, qrSize, qrSize);
+
+                            float textAreaX = cellPadding;
+                            float textY = qrY + qrSize + 3f;
+
+                            for (int li = 0; li < wrappedLines.Count; li++)
+                            {
+                                RectangleF textRect = new RectangleF(
+                                    textAreaX, textY + li * textLineHeight, textAreaWidth, textLineHeight);
+
+                                g.DrawString(wrappedLines[li], font, brush, textRect, leftFormat);
+                            }
+                        }
+
+                        cursorY += blockHeights[p];
+                    }
                 }
 
-                pdf.AddPage(sb.ToString(), imageResources);
+                using (MemoryStream output = new MemoryStream())
+                {
+                    document.Save(output);
+                    return output.ToArray();
+                }
             }
 
-            return pdf.Build();
+
+        }
+
+        private byte[] BuildComboQRCodePdf(List<QRCodeItem> qrCodeItems)
+        {
+
+            const float cellPadding = 4f;
+            const float qrSize = 95f;
+            const float textFontSize = 8f;
+            const float textLineHeight = textFontSize + 3f;
+            float pageWidth = cellPadding + qrSize + cellPadding;   // content-sized width
+                       
+
+            using (PdfDocument document = new PdfDocument())
+            {
+
+                PdfFont font = new PdfStandardFont(PdfFontFamily.Courier, textFontSize, PdfFontStyle.Bold);
+                PdfBrush brush = PdfBrushes.Black;
+
+                PdfStringFormat leftFormat = new PdfStringFormat
+                {
+                    Alignment = PdfTextAlignment.Left,
+                    LineAlignment = PdfVerticalAlignment.Top
+                };
+
+                float textAreaWidth = pageWidth - (cellPadding * 2);   // now == qrSize
+
+                for (int pairStart = 0; pairStart < qrCodeItems.Count; pairStart += 2)
+                {
+                    List<QRCodeItem> pair = qrCodeItems.Skip(pairStart).Take(2).ToList();
+
+                    List<List<string>> wrappedLinesPerItem = new List<List<string>>();
+                    List<float> blockHeights = new List<float>();
+
+                    foreach (QRCodeItem item in pair)
+                    {
+                        string[] rawLines =
+                        {
+                $"{item.PackingName}",
+                $"{item.ColorSizeQty}",
+                $"{item.NoOfPcs}_{item.CartonNo}",
+                $""
+            };
+
+                        List<string> wrappedLines = new List<string>();
+                        foreach (string raw in rawLines)
+                        {
+                            wrappedLines.AddRange(WrapTextToWidth(raw, font, textAreaWidth));
+                        }
+                        wrappedLinesPerItem.Add(wrappedLines);
+
+                        float blockHeight =
+                            cellPadding + qrSize + 3f + (textLineHeight * wrappedLines.Count) + cellPadding;
+
+                        blockHeights.Add(blockHeight);
+                    }
+
+                    float pageHeight = blockHeights.Sum();
+
+                    PdfSection section = document.Sections.Add();
+                    section.PageSettings.Size = new SizeF(pageWidth, pageHeight);
+                    section.PageSettings.Margins.All = 0;
+
+                    PdfPage page = section.Pages.Add();
+                    PdfGraphics g = page.Graphics;
+
+                    float cursorY = 0f;
+
+                    for (int p = 0; p < pair.Count; p++)
+                    {
+                        QRCodeItem item = pair[p];
+                        List<string> wrappedLines = wrappedLinesPerItem[p];
+
+                        string qrData = string.Concat(item.CartonNo);
+
+                        CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
+
+                        using (Image barcodeImg = qrCode.Draw(qrData, 200, 2))
+                        using (MemoryStream imgStream = new MemoryStream())
+                        {
+                            barcodeImg.Save(imgStream, ImageFormat.Png);
+                            imgStream.Position = 0;
+
+                            PdfBitmap pdfImage = new PdfBitmap(imgStream);
+
+                            float qrX = cellPadding;
+                            float qrY = cursorY + cellPadding;
+                            g.DrawImage(pdfImage, qrX, qrY, qrSize, qrSize);
+
+                            float textAreaX = cellPadding;
+                            float textY = qrY + qrSize + 3f;
+
+                            for (int li = 0; li < wrappedLines.Count; li++)
+                            {
+                                RectangleF textRect = new RectangleF(
+                                    textAreaX, textY + li * textLineHeight, textAreaWidth, textLineHeight);
+
+                                g.DrawString(wrappedLines[li], font, brush, textRect, leftFormat);
+                            }
+                        }
+
+                        cursorY += blockHeights[p];
+                    }
+                }
+
+                using (MemoryStream output = new MemoryStream())
+                {
+                    document.Save(output);
+                    return output.ToArray();
+                }
+            }
+
+
+        }
+
+        private List<string> WrapTextToWidth(string text, PdfFont font, float maxWidth)
+        {
+            List<string> lines = new List<string>();
+            if (string.IsNullOrEmpty(text))
+            {
+                lines.Add(string.Empty);
+                return lines;
+            }
+
+            string[] words = text.Split(' ');
+            string currentLine = string.Empty;
+
+            foreach (string word in words)
+            {
+                string candidate = currentLine.Length == 0 ? word : currentLine + " " + word;
+                SizeF size = font.MeasureString(candidate);
+
+                if (size.Width <= maxWidth || currentLine.Length == 0)
+                {
+                    currentLine = candidate;
+                }
+                else
+                {
+                    lines.Add(currentLine);
+                    currentLine = word;
+                }
+            }
+
+            if (currentLine.Length > 0)
+            {
+                lines.Add(currentLine);
+            }
+
+            return lines;
         }
 
         private static string EscapePdfText(string text)
@@ -4718,6 +4826,7 @@ ORDER BY P.SortOrder;";
 public class QRCodeItem
 {
     public string PackingName { get; set; }
+    public string ColorSizeQty { get; set; }
     public string Customer { get; set; }
     public string SOId { get; set; }
     public string Color { get; set; }
@@ -4761,7 +4870,7 @@ public class MinimalPdfBuilder
         return _objects.Count;
     }
 
-   
+
     public int AddJpegImage(byte[] jpegBytes, int widthPx, int heightPx)
     {
         string dict = string.Format(CultureInfo.InvariantCulture,

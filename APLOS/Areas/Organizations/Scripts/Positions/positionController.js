@@ -126,6 +126,24 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
         $scope.PerformanceGroupList = result;
     });
 
+    $scope.SKType = null;
+    $scope.Get = function (id) {
+        $http.get('Organizations/Position/GetById?id=' + id)
+            .then(function (response) {
+                $scope.companyStructureSetup = response.data;
+                $scope.SKType = $scope.companyStructureSetup.SkillType;
+
+                $scope.getCompanyStructurerRelation($scope.companyStructureSetup);
+                //$scope.getAllowanceData();
+                //$scope.getPRJobDescription(id);
+                if (!$rootScope.isCollapsed) {
+                    $rootScope.toggle();
+                    $scope.Action = 'Update';
+                }
+            });
+    };
+
+
     //JobList for modal
     $scope.popUpParameters = {
         limit: 10,
@@ -232,6 +250,7 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
         $http.get('Organizations/Position/GetPositionJobDescriptionList?positionId=' + id)
             .then(function (response) {
                 $scope.jobDescriptionSelectedList = response.data.Rows;
+                $scope.companyStructureSetup.SkillType = $scope.SKType;
                 if ($scope.jobDescriptionSelectedList.length > 0) {
                     $scope.tableShow = true;
                 }
@@ -298,19 +317,6 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
             });
     };
 
-    $scope.Get = function (id) {
-        $http.get('Organizations/Position/GetById?id=' + id)
-            .then(function (response) {
-                $scope.companyStructureSetup = response.data;
-                $scope.getCompanyStructurerRelation($scope.companyStructureSetup);
-                //$scope.getAllowanceData();
-                //$scope.getPRJobDescription(id);
-                if (!$rootScope.isCollapsed) {
-                    $rootScope.toggle();
-                    $scope.Action = 'Update';
-                }
-            });
-    };
 
     $scope.Save = function () {
         try {

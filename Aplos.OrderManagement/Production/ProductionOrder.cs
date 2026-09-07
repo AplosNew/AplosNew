@@ -1147,7 +1147,87 @@ Where SO.OrderStatusId NOT IN('Closed,Cancelled')";
             }
         }
 
-        public IEnumerable<object> GetPackingSKUData(string soId,string packetRegistrationTypeId)
+        public IEnumerable<object> GetComboData(string packetRegistrationTypeId)
+        {
+            try
+            {
+//                string sql = @";WITH BaseData AS
+//(
+//    SELECT PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId AS SKU1Id,SC.CharacteristicsValueId AS SKU2Id,
+//        FCV.UserName AS SKUColor,SCV.UserName AS SKUSize,
+//        CEILING((SUM(SC.Qty) * CM.PlanPercentage / 100.0) + SUM(SC.Qty)) AS NoOfUnit,
+//        SUM(SC.Qty) AS Qty,
+//        UnitPerPack = ISNULL(PR.UnitPerPack,PT.NoOfUnitPerPack),
+//        PR.BarCode,PR.QRCode,PR.RFID,PR.Remark,
+//        PR.ComboRefNo,
+//        NoOfPack = CEILING(ISNULL(PR.NoOfPack,((SUM(SC.Qty) * CM.PlanPercentage / 100.0)+ SUM(SC.Qty))/ ISNULL(PR.UnitPerPack,PT.NoOfUnitPerPack))),
+//        LineItemReference = COALESCE(PR.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo)
+//    FROM TRN.SecondCharacteristics SC
+//    LEFT JOIN TRN.FirstCharacteristics FC ON FC.Id = SC.FirstCharacteristicsId
+//    LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = FC.CharacteristicsValueId
+//    LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = SC.CharacteristicsValueId
+//    LEFT JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId = SC.SalesOrderId
+//    LEFT JOIN dbo.PacketRegistration PR ON PR.SalesOrderId = SC.SalesOrderId 
+//        AND FC.CharacteristicsValueId = PR.SKU1Id AND SC.CharacteristicsValueId = PR.SKU2Id
+//        AND PR.PacketRegistrationTypeId =  '" + packetRegistrationTypeId + @"'
+//    LEFT JOIN dbo.PacketRegistrationType PT ON PT.Id =  '" + packetRegistrationTypeId + @"'
+//    LEFT JOIN dbo.PacketRegistrationMaster CM ON CM.Id = PT.PacketRegistrationMasterId
+//    LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id = (SELECT MasterOrderItemId FROM TRN.SalesOrder WHERE Id " + soId + @")
+//    WHERE SC.SalesOrderId " + soId + @"
+//    GROUP BY PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName,SCV.UserName,
+//        PR.UnitPerPack,PT.NoOfUnitPerPack,PR.BarCode,PR.QRCode,PR.RFID,PR.Remark,CM.PlanPercentage,
+//        PR.NoOfPack,PR.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo,PR.ComboRefNo
+//    HAVING SUM(SC.Qty) <> 0
+//)
+//SELECT 
+//    ComboRefNo AS [ComboNo],
+//    STRING_AGG(SKUColor + '/' + SKUSize + '-' + CAST(NoOfPack AS VARCHAR(20)), ' , ') 
+//        WITHIN GROUP (ORDER BY SKUColor) AS [Combo]
+//FROM BaseData
+//WHERE ComboRefNo IS NOT NULL
+//GROUP BY ComboRefNo
+//ORDER BY ComboRefNo;";
+
+               string sql = @"select P.*,NoOfSKU=(select Count(Id) from PackingComboSKUDetail Where PackingComboReferenceId=P.Id) from PackingComboReference P Where PacketRegistrationTypeId= '" + packetRegistrationTypeId + @"'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public IEnumerable<object> GetComboPackingSKUData(string soId,string packetRegistrationTypeId)
+        {
+            try
+            {
+
+                string sql = @"SELECT '' Id,PT.Id PacketRegistrationTypeId,SC.SalesOrderId,FC.CharacteristicsValueId AS SKU1Id,SC.CharacteristicsValueId AS SKU2Id,FCV.UserName AS SKUColor,SCV.UserName AS SKUSize,
+    CEILING((SUM(SC.Qty) * CM.PlanPercentage / 100.0) + SUM(SC.Qty)) AS PlanQty,SUM(SC.Qty) AS OrderQty
+    ,ISNULL(PCR.ComboQty,0) ComboQty
+    ,BalanceToAllot = (CEILING((SUM(SC.Qty) * CM.PlanPercentage / 100.0) + SUM(SC.Qty))) - ISNULL(PCR.ComboQty,0)
+    , '' UnitPerPack,'' NoOfPack,'' PlanPack,'' BarCode,'' QRCode,'' RFID,'' Remark,'' ComboRefNo
+FROM TRN.SecondCharacteristics SC
+LEFT JOIN TRN.FirstCharacteristics FC ON FC.Id = SC.FirstCharacteristicsId
+LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = FC.CharacteristicsValueId
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = SC.CharacteristicsValueId
+LEFT JOIN dbo.PacketRegistrationType PT ON PT.Id = '" + packetRegistrationTypeId + @"'
+LEFT JOIN dbo.PacketRegistrationMaster CM ON CM.Id = PT.PacketRegistrationMasterId
+LEFT JOIN (SELECT SUM(PD.ComboQty)ComboQty, PCR.PacketRegistrationTypeId,PD.SalesOrderId,PD.SKU1Id,PD.SKU2Id FROM PackingComboReference PCR
+LEFT JOIN [dbo].[PackingComboSKUDetail] PD ON PD.PackingComboReferenceId=PCR.Id  
+GROUP BY PCR.PacketRegistrationTypeId,PD.SalesOrderId,PD.SKU1Id,PD.SKU2Id) PCR ON PCR.PacketRegistrationTypeId = PT.Id AND FC.CharacteristicsValueId = PCR.SKU1Id AND SC.CharacteristicsValueId = PCR.SKU2Id
+WHERE SC.SalesOrderId " + soId + @"
+GROUP BY SC.SalesOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName,SCV.UserName,CM.PlanPercentage,PCR.ComboQty,PT.Id
+HAVING SUM(SC.Qty) <> 0
+Order By SCV.UserName";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex) { throw ex; }
+        }
+
+        public IEnumerable<object> GetPackingResigtationSKUData(string soId, string packetRegistrationTypeId)
         {
             try
             {
@@ -1156,19 +1236,17 @@ Where SO.OrderStatusId NOT IN('Closed,Cancelled')";
     CEILING((SUM(SC.Qty) * CM.PlanPercentage / 100.0) + SUM(SC.Qty)) AS NoOfUnit,SUM(SC.Qty) AS Qty,
     UnitPerPack = ISNULL(PR.UnitPerPack,PT.NoOfUnitPerPack),PR.BarCode,PR.QRCode,PR.RFID,PR.Remark,
     NoOfPack =CEILING(ISNULL(PR.NoOfPack,((SUM(SC.Qty) * CM.PlanPercentage / 100.0)+ SUM(SC.Qty))/ ISNULL(PR.UnitPerPack,PT.NoOfUnitPerPack)))
-    ,LineItemReference = COALESCE(PR.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo)
+    ,LineItemReference = COALESCE(PR.LineItemReference,CM.LineItemReference)
 FROM TRN.SecondCharacteristics SC
 LEFT JOIN TRN.FirstCharacteristics FC ON FC.Id = SC.FirstCharacteristicsId
 LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = FC.CharacteristicsValueId
 LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = SC.CharacteristicsValueId
-LEFT JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId = SC.SalesOrderId
 LEFT JOIN dbo.PacketRegistration PR ON PR.SalesOrderId = SC.SalesOrderId AND FC.CharacteristicsValueId = PR.SKU1Id AND SC.CharacteristicsValueId = PR.SKU2Id
     AND PR.PacketRegistrationTypeId = '" + packetRegistrationTypeId + @"'   -- IMPORTANT
 LEFT JOIN dbo.PacketRegistrationType PT ON PT.Id = '" + packetRegistrationTypeId + @"'
 LEFT JOIN dbo.PacketRegistrationMaster CM ON CM.Id = PT.PacketRegistrationMasterId
-LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=(Select MasterOrderItemId From TRN.SalesOrder Where Id " + soId + @")
 WHERE SC.SalesOrderId " + soId + @"
-GROUP BY PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName,SCV.UserName,PR.UnitPerPack,PT.NoOfUnitPerPack,PR.BarCode,PR.QRCode,PR.RFID,PR.Remark,CM.PlanPercentage,PR.NoOfPack,PR.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo
+GROUP BY PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName,SCV.UserName,PR.UnitPerPack,PT.NoOfUnitPerPack,PR.BarCode,PR.QRCode,PR.RFID,PR.Remark,CM.PlanPercentage,PR.NoOfPack,PR.LineItemReference,CM.LineItemReference
 HAVING SUM(SC.Qty) <> 0;";
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -1212,11 +1290,96 @@ ORDER BY MIN(RowNo);";
             }
         }
 
+        public IEnumerable<object> GetComboCartonList(string masterId)
+        {
+            try
+            {
+                //                string sql = @"WITH ComboData AS
+                //(
+                //    SELECT 
+                //        R.ComboRefNo,
+                //        FCV.UserName AS Color,
+                //        SCV.UserName AS Size,
+                //        R.UnitPerPack,
+                //        CG.CartonNo,
+                //        CG.NoOfPcs
+                //    FROM dbo.PacketRegistrationMaster M
+                //    LEFT JOIN dbo.PacketRegistrationType T ON T.PacketRegistrationMasterId = M.Id
+                //    LEFT JOIN dbo.PacketRegistrationDetail D ON D.PacketRegistrationMasterId = M.Id
+                //    LEFT JOIN dbo.PacketRegistration R ON R.PacketRegistrationTypeId = T.Id AND R.SalesOrderId = D.SalesOrderId
+                //    LEFT JOIN dbo.CartonGeneration CG ON CG.PacketRegistrationId = R.Id
+                //    LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = R.SKU1Id
+                //    LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = R.SKU2Id
+                //    WHERE M.StatusType IN ('Running','Active') 
+                //        AND CG.PacketRegistrationId = '263-1-1'
+                //        AND R.ComboRefNo IS NOT NULL
+                //),
+                //ComboString AS
+                //(
+                //    -- Combo description string, one row per ComboRefNo
+                //    SELECT ComboRefNo,
+                //        STRING_AGG(Color + '/' + Size + '-' + CAST(UnitPerPack AS VARCHAR(20)), ' , ') 
+                //            WITHIN GROUP (ORDER BY Color) AS Combo
+                //    FROM (SELECT DISTINCT ComboRefNo, Color, Size, UnitPerPack FROM ComboData) X
+                //    GROUP BY ComboRefNo
+                //),
+                //CartonSeq AS
+                //(
+                //    -- CartonNo as the actual pack sequence, qty summed per carton across SKUs in the combo
+                //    SELECT ComboRefNo, CartonNo, SUM(NoOfPcs) AS QtyPerPack,
+                //        ROW_NUMBER() OVER (PARTITION BY ComboRefNo ORDER BY CAST(CartonNo AS INT)) AS PackSeq
+                //    FROM ComboData
+                //    GROUP BY ComboRefNo, CartonNo
+                //)
+                //SELECT 
+                //    S.ComboRefNo AS ComboNo,
+                //    C.Combo,
+                //    CAST(S.ComboRefNo AS VARCHAR(10)) + '-' + CAST(S.PackSeq AS VARCHAR(10)) AS [PackNo],
+                //    S.QtyPerPack
+                //FROM CartonSeq S
+                //LEFT JOIN ComboString C ON C.ComboRefNo = S.ComboRefNo
+                //ORDER BY S.ComboRefNo, S.PackSeq;";
+
+                string sql = @"SELECT PackingName = M.UserName,
+    SOId = STUFF((
+     SELECT DISTINCT ', ' + D2.SalesOrderId
+     FROM dbo.[PackingComboSKUDetail] D2
+     WHERE D2.PackingComboReferenceId = R.Id
+     FOR XML PATH('')
+ ), 1, 1, ''),
+
+    R.ComboRefNo,
+    R.ColorSizeQty,
+    R.NoOfPack,
+    R.ComboQty,
+    R.PackRefQty,
+PackRef=R.Id,
+PackSeq = STUFF((
+    SELECT ',' +CAST(CG.CartonNo as varchar(100))
+        FROM dbo.CartonGeneration CG
+        WHERE CG.PackingComboReferenceId = R.Id
+        ORDER BY CG.CartonNo DESC
+        FOR XML PATH(''), TYPE
+    ).value('.', 'NVARCHAR(MAX)'), 1, 1, '')
+
+FROM dbo.PackingComboReference R
+LEFT JOIN dbo.PacketRegistrationType T ON T.Id = R.PacketRegistrationTypeId
+LEFT JOIN dbo.PacketRegistrationMaster M ON T.PacketRegistrationMasterId = M.Id
+WHERE M.StatusType IN ('Running','Active') AND R.Id = '" + masterId+"'";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public DataTable GetQRCodeData(string masterId)
         {
             try
             {
-                string sql = @"SELECT M.UserName AS PackingName,P.UserName AS Customer,D.SalesOrderId AS SOId,FCV.UserName AS Color,SCV.UserName AS Size,CG.NoOfPcs,CG.Id CartonNo        
+                string sql = @"SELECT PackingName=COALESCE(R.LineItemReference,T.LineItemReference,M.LineItemReference),P.UserName AS Customer,D.SalesOrderId AS SOId,FCV.UserName AS Color,SCV.UserName AS Size,CG.NoOfPcs,CG.Id CartonNo         
     FROM dbo.PacketRegistrationMaster M
     LEFT JOIN dbo.PacketRegistrationType T ON T.PacketRegistrationMasterId = M.Id
     LEFT JOIN dbo.PacketRegistrationDetail D ON D.PacketRegistrationMasterId = M.Id
@@ -1228,7 +1391,7 @@ ORDER BY MIN(RowNo);";
     LEFT JOIN dbo.CartonGeneration CG ON CG.PacketRegistrationId = R.Id
     LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = R.SKU1Id
     LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = R.SKU2Id
-    WHERE M.StatusType IN ('Running','Active') AND CG.PacketRegistrationId = '"+ masterId +@"' 
+    WHERE M.StatusType IN ('Running','Active') AND CG.PacketRegistrationId = '" + masterId +@"' 
     Order By CG.CartonNo";
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -1238,6 +1401,29 @@ ORDER BY MIN(RowNo);";
             }
         }
 
+        public DataTable GetComboQRCodeData(string masterId)
+        {
+            try
+            {
+                string sql = @"SELECT PackingName=COALESCE(T.LineItemReference,M.LineItemReference),P.UserName AS Customer,D.SalesOrderId AS SOId,R.ColorSizeQty,CG.NoOfPcs,CG.Id CartonNo         
+    FROM dbo.PacketRegistrationMaster M
+    LEFT JOIN dbo.PacketRegistrationType T ON T.PacketRegistrationMasterId = M.Id
+    LEFT JOIN dbo.PacketRegistrationDetail D ON D.PacketRegistrationMasterId = M.Id
+    LEFT JOIN TRN.SalesOrder S ON S.Id = D.SalesOrderId
+    LEFT JOIN TRN.MasterOrderItem MI ON MI.Id = S.MasterOrderItemId
+    LEFT JOIN TRN.MasterOrder MO ON MO.Id = MI.MasterOrderId
+    LEFT JOIN HKP.Party P ON P.Id = MO.PartyId
+    LEFT JOIN dbo.PackingComboReference R ON R.PacketRegistrationTypeId = T.Id
+    LEFT JOIN dbo.CartonGeneration CG ON CG.PackingComboReferenceId = R.Id
+    WHERE M.StatusType IN ('Running','Active') AND CG.PackingComboReferenceId = '" + masterId + @"' 
+    Order By CG.CartonNo";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
     }
 

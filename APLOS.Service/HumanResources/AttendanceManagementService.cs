@@ -2941,13 +2941,30 @@ namespace Library.Service.HumanResources
                                 {
                                     sheet1.Range[xlsRow, iDayStatus].CellStyle.Font.Color = ExcelKnownColors.Grey_80_percent;
 
-                                    sheet1.Range[xlsRow, iOutTime].Text = "";
-                                    sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                    sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    //sheet1.Range[xlsRow, iOutTime].Text = "";
+                                    //sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    //sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    sheet1.Range[xlsRow, iInTime].Text = "";
-                                    sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                    sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    if (dvBioDvAC[i]["InTimeShow"].ToString() != "")
+                                    {
+                                        sheet1.Range[xlsRow, iInTime].NumberFormat = "hh:mm AM/PM";
+                                        sheet1.Range[xlsRow, iInTime].DateTime = Convert.ToDateTime(dvBioDvAC[i]["InTimeShow"].ToString());
+                                        sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                        sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    }
+
+                                    if (dvBioDvAC[i]["OutTimeShow"].ToString() != "")
+                                    {
+                                        sheet1.Range[xlsRow, iOutTime].NumberFormat = "hh:mm AM/PM";
+                                        sheet1.Range[xlsRow, iOutTime].DateTime = Convert.ToDateTime(dvBioDvAC[i]["OutTimeShow"].ToString());
+                                        sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                        sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    }
+                                    //sheet1.Range[xlsRow, iInTime].Text = "";
+                                    //sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    //sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, iLateBy].Text = "";
                                     sheet1.Range[xlsRow, iLateBy].HorizontalAlignment = ExcelHAlign.HAlignCenter;
