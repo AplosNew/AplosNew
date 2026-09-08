@@ -711,15 +711,16 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
         angular.forEach(comboList, function (row) {
             summary.ComboQty += row.UnitPerPack;
-            summary.ColorSizeQtyParts.push(row.SKUColor + '-' + row.SKUSize + '-' + row.UnitPerPack);
+            summary.ColorSizeQtyParts.push(row.SKUColor + '-' + row.SKUSize + '-' + row.UnitPerPack); // use row's own value, not the running total
         });
 
         summary.PackRefQty = summary.ComboQty * summary.NoOfPack;
         summary.ColorSizeQty = summary.ColorSizeQtyParts.join(' / ');
-        delete summary.ColorSizeQtyParts; // clean up the temp array
+        delete summary.ColorSizeQtyParts;
 
         return summary;
     };
+
 
     $scope.SaveComboPR = function () {
         try {
