@@ -43,7 +43,8 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
         ActivityCode: null,
         ActivityName: null,
         FinancingTypeId: null,
-        BankJournalType: "CashExpense"
+        BankJournalType: "CashExpense",
+        AdditionalInfo:null
     };
 
     $scope.voucherDetail = {
@@ -262,6 +263,7 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.voucher.VoucherId = null;
         $scope.voucher.Active = true;
         $scope.voucher.Narration = null;
+        $scope.voucher.AdditionalInfo = null;
         $scope.voucher.DocRefNo = null;
         $scope.voucher.Amount = null;
         //$scope.voucher.CashMasterId = null;

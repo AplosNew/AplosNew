@@ -916,7 +916,9 @@ WITH base_prod AS (
         OP.OperationMasterId,
         owe.ProductionOrderId,
         APD.EmpSystemID EmployeeId,PO.OrderLevel,
-        (ISNULL(APD.ShiftFullDayDuration,0)+ISNULL(APD.OTHr,0)) AS AvailableMinute,
+        AvailableMinute= CASE when apd.DayStatus in ('HDP','HDPL','HDCL','HDLWP') THEN (ISNULL(APD.ShiftFullDayDuration,0)+ISNULL(APD.OTHr,0))/2
+			 when apd.DayStatus in ('SDP','SDPL','SDCL','SDLWP') THEN (ISNULL(APD.ShiftFullDayDuration,0)+ISNULL(APD.OTHr,0))*3/4
+		ELSE (ISNULL(APD.ShiftFullDayDuration,0)+ISNULL(APD.OTHr,0)) END,
         BasicProduceMin = ROUND(SUM(ISNULL(owe.Qty,0)) * ISNULL(bt.TotalSPT,0),1),
 
         DENSE_RANK() OVER (
@@ -1371,7 +1373,9 @@ WITH base_prod AS (
         owe.ProductionOrderId,
         APD.EmpSystemID EmployeeId,APD.DayStatus,
         BasicProduceMin = ROUND(SUM(ISNULL(owe.Qty,0)) * ISNULL(bt.TotalSPT,0),1),
-		(ISNULL(APD.ShiftFullDayDuration,0)+ISNULL(APD.OTHr,0)) AS AvailableMinute,
+		AvailableMinute= CASE when apd.DayStatus in ('HDP','HDPL','HDCL','HDLWP') THEN (ISNULL(APD.ShiftFullDayDuration,0)+ISNULL(APD.OTHr,0))/2
+			 when apd.DayStatus in ('SDP','SDPL','SDCL','SDLWP') THEN (ISNULL(APD.ShiftFullDayDuration,0)+ISNULL(APD.OTHr,0))*3/4
+		ELSE (ISNULL(APD.ShiftFullDayDuration,0)+ISNULL(APD.OTHr,0)) END,
         DENSE_RANK() OVER (
             PARTITION BY owe.EmployeeId, owe.[Date],wcm.UserName,OP.OperationMasterId,owe.ProductionOrderId,OM.UserName ,EO.EmployeeRating,EO.SpecialSkill
             ORDER BY ROUND(SUM(ISNULL(owe.Qty,0)) * ISNULL(bt.TotalSPT,0),1) DESC
