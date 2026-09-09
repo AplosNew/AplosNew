@@ -957,6 +957,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.exportgriddataUrl = 'GridReports/ViewExcelExportUpd';
+    $scope.exportcombogriddataUrl = 'GridReports/ExcelExportWithoutAddress';
     $scope.CartonReportExcel = function () {
         var dataListUnDisbursed = [];
         var gUnDisbursed = $("#GridC").data("ejGrid");
@@ -968,7 +969,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         $scope.fileName = 'CartonList';
         $http({
             method: "POST",
-            url: $scope.exportgriddataUrl,
+            url: $scope.exportcombogriddataUrl,
             data: {
                 'data': dataListUnDisbursed,
                 'reportFileName': $scope.fileName
@@ -988,7 +989,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     };
 
-    $scope.exportcombogriddataUrl = 'GridReports/ExcelExportWithoutAddress';
+   
     $scope.ComboReportExcel = function () {
         var dataListUnDisbursed = [];
         var gUnDisbursed = $("#GridCC").data("ejGrid");
