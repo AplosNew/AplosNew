@@ -81,7 +81,7 @@ namespace OTSBD
                 GetTenureByEmpId(sEmpSystemId, out dsTenure);
                 TotalTenureDays = Convert.ToDecimal(dsTenure.Tables[0].Rows[0]["TenureInDays"].ToString());
                 var nd = 0;
-                var ExtraDays = 0;
+                decimal ExtraDays = 0.0m;
                 var monthName = "";
                 var doj = Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOJ"]).ToString("dd-MMM-yyyy");
                 DateTime edoj = Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOJ"]);
@@ -110,7 +110,7 @@ namespace OTSBD
                 GetExtraDaysforServicePeriod(sEmpSystemId, fromDate.ToString(), Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("dd-MMM-yyyy"), out dsExtraDays);
                 if (dsExtraDays.Tables[0].Rows.Count > 0)
                 {
-                    ExtraDays = Convert.ToInt32(dsExtraDays.Tables[0].Rows[0]["PresentDays"].ToString());
+                    ExtraDays = Convert.ToDecimal(dsExtraDays.Tables[0].Rows[0]["ExtraBenefitDays"].ToString());
                 }
                 //all head and Salary info
                 GetSalaryHead(out dsSalHd);
@@ -1185,8 +1185,8 @@ namespace OTSBD
                 strSQL = @"SELECT COUNT(A.EmpSystemID)PD,PresentDays=
 									CASE WHEN DATEDIFF(Year,E.DOJ,E.DOS)<9.9 THEN
 									(CASE 
-									WHEN COUNT(A.EmpSystemID) between 120 AND 240 THEN 7 
-									WHEN COUNT(A.EmpSystemID)>240 THEN 14 
+									WHEN COUNT(A.EmpSystemID) between 120 AND 240 THEN 7.5 
+									WHEN COUNT(A.EmpSystemID)>240 THEN 7 
 									ELSE 0 END) 
 									ELSE 
 									(CASE 
@@ -1198,6 +1198,45 @@ namespace OTSBD
 									Where A.EmpSystemID=" + EmployeeId + @" AND A.DayStatus !='A' 
 									AND A.WorkDate between '" + fromDate + @"' AND '" + toDate + @"'
 									GROUP BY E.DOJ,E.DOS";
+
+                strSQL = @";WITH AttendanceCTE AS (
+    SELECT 
+        A.EmpSystemID,
+        COUNT(*) AS PresentDays
+    FROM dbo.AttdnProcessData A
+    WHERE A.EmpSystemID = " + EmployeeId + @"
+      AND A.DayStatus != 'A'
+      AND A.WorkDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"'
+    GROUP BY A.EmpSystemID
+),
+ServiceCTE AS (
+    SELECT 
+        E.SystemId,
+        E.DOJ,
+        E.DOS,
+        -- exact full years of service (accounts for anniversary date, not just calendar year)
+        CASE 
+            WHEN DATEADD(YEAR, DATEDIFF(YEAR, E.DOJ, E.DOS), E.DOJ) > E.DOS 
+                 THEN DATEDIFF(YEAR, E.DOJ, E.DOS) - 1 
+            ELSE DATEDIFF(YEAR, E.DOJ, E.DOS) 
+        END AS ServiceYears
+    FROM dbo.EmployeeInformation E
+    WHERE E.SystemId = " + EmployeeId + @"
+)
+SELECT 
+    S.SystemId,
+    ISNULL(AC.PresentDays, 0) AS PresentDays,
+    S.ServiceYears,
+    CASE 
+        WHEN S.ServiceYears > 10 THEN 30
+        WHEN S.ServiceYears > 4 AND AC.PresentDays >= 240 THEN 15
+        WHEN S.ServiceYears > 4 AND AC.PresentDays >= 120 THEN 7.5
+        WHEN AC.PresentDays >= 240 THEN 7
+        WHEN AC.PresentDays >= 120 THEN 3.5
+        ELSE 0
+    END AS ExtraBenefitDays
+FROM ServiceCTE S
+LEFT JOIN AttendanceCTE AC ON AC.EmpSystemID = S.SystemId;";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
