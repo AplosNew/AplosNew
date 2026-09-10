@@ -4,7 +4,9 @@ function WeeklyReceiptAndPaymentStatementController($scope, $rootScope, bankServ
     $rootScope.title = "Weekly Receipt And Payment Statement";
     $scope.report = {
         FromDate: $filter("dateFiltering")(Date.now()),
-        ToDate: $filter("dateFiltering")(Date.now())
+        ToDate: $filter("dateFiltering")(Date.now()),
+        CashMasterId: $filter("dateFiltering")(Date.now()),
+        IsDocRefNo:false
     };
     $scope.cashMasterList = [];
     bankService.getCashMasterCboListByEntity(null, function (result) {
@@ -23,9 +25,13 @@ function WeeklyReceiptAndPaymentStatementController($scope, $rootScope, bankServ
         else if (new Date($scope.report.ToDate) < new Date($scope.report.FromDate)) {
             manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
         }
-        else {
-             var url = "Accounts/VoucherReport/GetWeeklyReceiptAndPaymentStatement?reportFormat=Excel" + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&cashMasterId=" + $scope.report.CashMasterId;
-            //var url = "Banks/CashReport/GetCashBookReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&cashMasterId=" + $scope.report.CashMasterId;
+         else {
+             if ($scope.report.IsDocRefNo)
+                 var url = "Accounts/VoucherReport/GetWeeklyReceiptAndPaymentStatementWithDocRefNo?reportFormat=Excel" + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&cashMasterId=" + $scope.report.CashMasterId;
+             else {
+                 var url = "Accounts/VoucherReport/GetWeeklyReceiptAndPaymentStatement?reportFormat=Excel" + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&cashMasterId=" + $scope.report.CashMasterId;
+             }
+             //var url = "Banks/CashReport/GetCashBookReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&cashMasterId=" + $scope.report.CashMasterId;
             $window.open(url, "_blank");
         }
     };

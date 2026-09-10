@@ -2927,21 +2927,21 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                                 dsBC.Tables[0].DefaultView.RowFilter = "Id='" + dsExcel.Tables[0].Rows[i][4].ToString().Trim()+"'";
                                 dsWorkCenIncharge.Tables[0].DefaultView.RowFilter = "EmployeeCode='" + dsExcel.Tables[0].Rows[i][10].ToString().Trim()+"'";
 
-                                if (dsBC.Tables[0].DefaultView.Count == 0)
-                                {
-                                    throw  new Exception("ProductionOrder no '"+ dsExcel.Tables[0].Rows[i][4].ToString().Trim() + "' not valid PO. Please check !!");
+                                //if (dsBC.Tables[0].DefaultView.Count == 0)
+                                //{
+                                //    throw  new Exception("ProductionOrder no '"+ dsExcel.Tables[0].Rows[i][4].ToString().Trim() + "' not valid PO. Please check !!");
                                 
-                                }
-                                if (dsWorkCenIncharge.Tables[0].DefaultView.Count == 0)
-                                {
-                                    throw new Exception("WorkcenterIncharge '" + dsExcel.Tables[0].Rows[i][10].ToString().Trim() + "' not valid Code. Please check !!");
+                                //}
+                                //if (dsWorkCenIncharge.Tables[0].DefaultView.Count == 0)
+                                //{
+                                //    throw new Exception("WorkcenterIncharge '" + dsExcel.Tables[0].Rows[i][10].ToString().Trim() + "' not valid Code. Please check !!");
 
-                                }
-                                if (dsQCIncharge.Tables[0].DefaultView.Count == 0)
-                                {
-                                    throw new Exception("QCIncharge '" + dsExcel.Tables[0].Rows[i][11].ToString().Trim() + "' not valid Code. Please check !!");
+                                //}
+                                //if (dsQCIncharge.Tables[0].DefaultView.Count == 0)
+                                //{
+                                //    throw new Exception("QCIncharge '" + dsExcel.Tables[0].Rows[i][11].ToString().Trim() + "' not valid Code. Please check !!");
 
-                                }
+                                //}
 
                                 vm.TargetDate = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
                                 vm.ShiftName = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
@@ -2953,8 +2953,8 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                                 vm.Helper = Convert.ToInt16( dsExcel.Tables[0].Rows[i][7]);
                                 vm.SPT = Convert.ToDecimal( dsExcel.Tables[0].Rows[i][8]);
                                 vm.Remarks = dsExcel.Tables[0].Rows[i][9].ToString().Trim();
-                                vm.WorkCenterIncharge = dsWorkCenIncharge.Tables[0].DefaultView[0]["SystemId"].ToString();
-                                vm.QCIncharge = dsQCIncharge.Tables[0].DefaultView[0]["SystemId"].ToString();
+                                //vm.WorkCenterIncharge = dsWorkCenIncharge.Tables[0].DefaultView[0]["SystemId"].ToString();
+                                //vm.QCIncharge = dsQCIncharge.Tables[0].DefaultView[0]["SystemId"].ToString();
                                 vm.WorkingHour = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][12]);
 
                                 data.Add(vm);

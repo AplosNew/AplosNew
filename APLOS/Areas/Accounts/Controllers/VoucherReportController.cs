@@ -603,6 +603,26 @@ namespace Aplos.Areas.Accounts.Controllers
                     return View();
             }
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetWeeklyReceiptAndPaymentStatementWithDocRefNo(ReportFormat reportFormat, DateTime fromdate, DateTime todate, string cashMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsInvoiceReportService _accountsInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository);
+            var workbook = _accountsInvoiceReportService.GetWeeklyReceiptAndPaymnetWithDocRefNoWorkBook(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromdate, todate, cashMasterId, null);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
+
     }
 
 
