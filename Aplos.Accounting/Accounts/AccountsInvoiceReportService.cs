@@ -4611,14 +4611,12 @@ namespace Library.Accounting.Accounts
             // ---- Column layout ---------------------------------------------------------
             // 1=DATE(R) 2=VoucherNo(R) 3=RECEIPTS 4=AMOUNT(R) 5=DATE(E) 6=VoucherNo(E) 7=EXPENSES 8=AMOUNT(E)
             const int COL_R_DATE = 1;
-            //const int COL_R_VNO = 2;
             const int COL_R_DESC = 2;
             const int COL_R_SubAMT = 3;
             const int COL_R_AMT = 4;
             const int COL_E_DATE = 5;
-            const int COL_E_VNO = 6;
-            const int COL_E_DESC = 7;
-            const int COL_E_AMT = 8;
+            const int COL_E_DESC = 6;
+            const int COL_E_AMT = 7;
             const int END_COL = COL_E_AMT;
 
             // ---- Title rows --------------------------------------------------------
@@ -4642,7 +4640,6 @@ namespace Library.Accounting.Accounts
             worksheet[HEADER_ROW, COL_R_SubAMT].Text = "SubAmount";
             worksheet[HEADER_ROW, COL_R_AMT].Text = "AMOUNT";
             worksheet[HEADER_ROW, COL_E_DATE].Text = "DATE";
-            worksheet[HEADER_ROW, COL_E_VNO].Text = "Doc Ref No";
             worksheet[HEADER_ROW, COL_E_DESC].Text = "EXPENSES";
             worksheet[HEADER_ROW, COL_E_AMT].Text = "AMOUNT";
 
@@ -4656,7 +4653,6 @@ namespace Library.Accounting.Accounts
             worksheet.SetColumnWidth(COL_R_SubAMT, 10);
             worksheet.SetColumnWidth(COL_R_AMT, 10);
             worksheet.SetColumnWidth(COL_E_DATE, 8);
-            worksheet.SetColumnWidth(COL_E_VNO, 8);
             worksheet.SetColumnWidth(COL_E_DESC, 20);
             worksheet.SetColumnWidth(COL_E_AMT, 10);
 
@@ -4675,7 +4671,6 @@ namespace Library.Accounting.Accounts
                 if (!sameAsPrevious)
                 {
                     worksheet[expRow, COL_E_DATE].Text = dateText;
-                    worksheet[expRow, COL_E_VNO].Text = line.VoucherNo;
                 }
                 worksheet[expRow, COL_E_DESC].Text = line.Description;
 
@@ -4798,6 +4793,8 @@ namespace Library.Accounting.Accounts
             //worksheet.Range[totalRow, COL_E_DESC, totalRow, COL_E_AMT].BorderAround(ExcelLineStyle.Dashed);
             worksheet.Range[totalRow, COL_E_AMT].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
             worksheet.Range[totalRow, COL_E_AMT].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Double;
+            worksheet.Range[HEADER_ROW, COL_R_AMT, totalRow, COL_R_AMT]
+                .Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Medium;
             // ---- Cosmetics / page setup, matching your existing report style ----------
             worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
             worksheet.UsedRange.CellStyle.Font.Size = 9f;
@@ -4812,6 +4809,277 @@ namespace Library.Accounting.Accounts
 
             worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
             worksheet.IsGridLinesVisible = false;
+
+            #region Freeze Panes
+            worksheet.IsDisplayZeros = false;
+            worksheet.UsedRange["A" + (HEADER_ROW + 1)].FreezePanes();
+            worksheet.FirstVisibleColumn = 1;
+            worksheet.FirstVisibleRow = HEADER_ROW + 1;
+            #endregion
+
+            return workbook;
+        }
+
+        public IWorkbook GetWeeklyReceiptAndPaymnetWithDocRefNoWorkBook(
+         out string reportFileName,
+         string companyGroupId,
+         string companyId,
+         string plantId,
+         string plantName,
+         DateTime fromDate,
+         DateTime toDate, string cashMasterId,
+         IEnumerable<int> dashedSeparatorAfterRowIndices = null)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var separatorRows = new HashSet<int>(dashedSeparatorAfterRowIndices ?? new int[0]);
+
+            ExcelEngine excelEngine = new ExcelEngine();
+            IApplication application = excelEngine.Excel;
+            application.DefaultVersion = ExcelVersion.Excel2013;
+
+            IWorkbook workbook = application.Workbooks.Create(1);
+            IWorksheet worksheet = workbook.Worksheets[0];
+            worksheet.Name = "WEEKLY RECEIPT AND EXPENSES STATEMENT";
+            reportFileName = "WEEKLY RECEIPT AND EXPENSES STATEMENT " + toDate.ToString("dd-MMM-yyyy");
+
+            // ---- Pull + split data -----------------------------------------------------
+            DataTable dtCombined = GetCombinedStatementData(plantId, fromDate, toDate, cashMasterId);
+            DataTable dtSumOfExp = GetSumOfExpensesData(plantId, fromDate, toDate, cashMasterId);
+
+            List<ReceiptLine> receiptRows;
+            List<ExpenseLine> expenseRows;
+            SplitCombinedData(dtCombined, out receiptRows, out expenseRows);
+
+            // ---- Column layout ---------------------------------------------------------
+            // 1=DATE(R) 2=VoucherNo(R) 3=RECEIPTS 4=AMOUNT(R) 5=DATE(E) 6=VoucherNo(E) 7=EXPENSES 8=AMOUNT(E)
+            const int COL_R_DATE = 1;
+            //const int COL_R_VNO = 2;
+            const int COL_R_DESC = 2;
+            const int COL_R_SubAMT = 3;
+            const int COL_R_AMT = 4;
+            const int COL_E_DATE = 5;
+            const int COL_E_VNO = 6;
+            const int COL_E_DESC = 7;
+            const int COL_E_AMT = 8;
+            const int END_COL = COL_E_AMT;
+
+            // ---- Title rows --------------------------------------------------------
+            worksheet.Range[1, 1, 1, END_COL].Merge();
+            worksheet.Range[1, 1].Text = identity.CompanyName;
+            worksheet.Range[1, 1].CellStyle.Font.Bold = true;
+            worksheet.Range[1, 1].CellStyle.Font.Size = 14f;
+            worksheet.Range[1, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+            worksheet.Range[2, 1, 2, END_COL].Merge();
+            worksheet.Range[2, 1].Text = "EXPENDITURE STATEMENT FROM "
+                + fromDate.ToString("dd.MM.yyyy") + " to " + toDate.ToString("dd.MM.yyyy");
+            worksheet.Range[2, 1].CellStyle.Font.Bold = true;
+            worksheet.Range[2, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+            // ---- Header row ----------------------------------------------------------
+            const int HEADER_ROW = 4;
+            worksheet[HEADER_ROW, COL_R_DATE].Text = "DATE";
+            //worksheet[HEADER_ROW, COL_R_VNO].Text = "VoucherNo";
+            worksheet[HEADER_ROW, COL_R_DESC].Text = "RECEIPTS";
+            worksheet[HEADER_ROW, COL_R_SubAMT].Text = "SubAmount";
+            worksheet[HEADER_ROW, COL_R_AMT].Text = "AMOUNT";
+            worksheet[HEADER_ROW, COL_E_DATE].Text = "DATE";
+            worksheet[HEADER_ROW, COL_E_VNO].Text = "Doc Ref No";
+            worksheet[HEADER_ROW, COL_E_DESC].Text = "EXPENSES";
+            worksheet[HEADER_ROW, COL_E_AMT].Text = "AMOUNT";
+
+            worksheet.Range[HEADER_ROW, 1, HEADER_ROW, END_COL].CellStyle.Font.Bold = true;
+            worksheet.Range[HEADER_ROW, 1, HEADER_ROW, END_COL].BorderAround(ExcelLineStyle.Dashed);
+            worksheet.Range[HEADER_ROW, 1, HEADER_ROW, END_COL].BorderInside(ExcelLineStyle.Thin);
+
+            worksheet.SetColumnWidth(COL_R_DATE, 8);
+            // worksheet.SetColumnWidth(COL_R_VNO, 12);
+            worksheet.SetColumnWidth(COL_R_DESC, 20);
+            worksheet.SetColumnWidth(COL_R_SubAMT, 10);
+            worksheet.SetColumnWidth(COL_R_AMT, 10);
+            worksheet.SetColumnWidth(COL_E_DATE, 8);
+            worksheet.SetColumnWidth(COL_E_VNO, 8);
+            worksheet.SetColumnWidth(COL_E_DESC, 20);
+            worksheet.SetColumnWidth(COL_E_AMT, 10);
+
+            // ---- Expense block (right side) --------------------------------------------
+            int expRow = HEADER_ROW + 1;
+            decimal totalExpenseLines = 0;
+            string prevExpDate = null;
+            string prevExpVoucher = null;
+
+            for (int i = 0; i < expenseRows.Count; i++)
+            {
+                ExpenseLine line = expenseRows[i];
+                string dateText = line.PostingDate.ToString("dd.MM.yy");
+                bool sameAsPrevious = dateText == prevExpDate && line.VoucherNo == prevExpVoucher;
+
+                if (!sameAsPrevious)
+                {
+                    worksheet[expRow, COL_E_DATE].Text = dateText;
+                    worksheet[expRow, COL_E_VNO].Text = line.VoucherNo;
+                }
+                worksheet[expRow, COL_E_DESC].Text = line.Description;
+
+                worksheet[expRow, COL_E_AMT].Number = (double)line.Amount;
+                worksheet[expRow, COL_E_AMT].NumberFormat = "#,##0.00";
+
+                if (separatorRows.Contains(i))
+                {
+                    worksheet.Range[expRow, COL_E_DATE, expRow, COL_E_AMT].CellStyle.Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Dashed;
+                    worksheet.Range[expRow, COL_E_DATE, expRow, COL_E_AMT].CellStyle.Borders[ExcelBordersIndex.EdgeBottom].Color = ExcelKnownColors.Blue;
+                }
+
+                totalExpenseLines += line.Amount;
+                prevExpDate = dateText;
+                prevExpVoucher = line.VoucherNo;
+                expRow++;
+            }
+
+            int expenseBlockEndRow = expRow - 1;
+
+            // ---- Receipts block (left side, top-aligned with Expenses) -----------------
+            int recRow = HEADER_ROW + 1;
+            decimal openingBalance = 0;
+            decimal totalOtherReceipts = 0;
+            double totalSummaryExpenses = 0;
+
+            foreach (ReceiptLine line in receiptRows)
+            {
+                bool isOpeningBalance = string.Equals(line.Description, OPENING_BALANCE_LABEL, StringComparison.OrdinalIgnoreCase);
+
+                if (isOpeningBalance)
+                {
+                    worksheet[recRow, COL_R_DESC].Text = "OPENING BALANCE";
+                    worksheet[recRow, COL_R_DESC].CellStyle.Font.Bold = true;
+                    // worksheet[recRow, COL_R_VNO].CellStyle.Font.Bold = true;
+                    worksheet[recRow, COL_R_SubAMT].CellStyle.Font.Bold = true;
+                    worksheet[recRow, COL_R_AMT].CellStyle.Font.Bold = true;
+                    openingBalance = line.Amount;
+                    // no date/voucher printed for Opening Balance
+                }
+                else
+                {
+                    worksheet[recRow, COL_R_DATE].Text = line.PostingDate.ToString("dd.MM.yy");
+                    //  worksheet[recRow, COL_R_VNO].Text = line.VoucherNo;
+                    worksheet[recRow, COL_R_DESC].Text = line.Description;
+                    worksheet[recRow, COL_R_SubAMT].Number = (double)line.SubAmount;
+                    totalOtherReceipts += line.Amount;
+                }
+                worksheet[recRow, COL_R_SubAMT].Number = (double)line.SubAmount;
+                worksheet[recRow, COL_R_SubAMT].NumberFormat = "#,##0.00";
+
+                worksheet[recRow, COL_R_AMT].Number = (double)line.Amount;
+                worksheet[recRow, COL_R_AMT].NumberFormat = "#,##0.00";
+
+                recRow++;
+            }
+
+
+            recRow++; recRow++;
+            worksheet[recRow, COL_R_DESC].Text = "SUMMARY :";
+            worksheet[recRow, COL_R_DESC].CellStyle.Font.Bold = true;
+
+            recRow++;
+            for (int i = 0; i < dtSumOfExp.Rows.Count; i++)
+            {
+
+                worksheet[recRow, COL_R_DESC].Text = dtSumOfExp.Rows[i]["TotalExpenses"].ToString();
+
+                worksheet[recRow, COL_R_SubAMT].Number = Convert.ToDouble(dtSumOfExp.Rows[i]["SubAmount"]);
+                worksheet[recRow, COL_R_SubAMT].NumberFormat = "#,##0.00";
+                totalSummaryExpenses += Convert.ToDouble(dtSumOfExp.Rows[i]["SubAmount"]);
+                recRow++;
+            }
+            int receiptBlockEndRow = recRow - 1;
+            // ---- Cash In Hand (balancing figure) = Total Receipts - Total Expenses -----
+            decimal totalReceipts = openingBalance + totalOtherReceipts;
+            decimal cashInHand = totalReceipts - totalExpenseLines;
+
+            
+            int summaryRow = Math.Max(receiptBlockEndRow, expenseBlockEndRow) + 2; // one blank row gap
+
+            worksheet[summaryRow, COL_R_DESC].Text = "Total Sub Amount:";
+            worksheet[summaryRow, COL_R_DESC].CellStyle.Font.Bold = true;
+            worksheet[summaryRow, COL_R_SubAMT].Number = (double)totalSummaryExpenses;
+            worksheet[summaryRow, COL_R_SubAMT].NumberFormat = "#,##0.00";
+            worksheet[summaryRow, COL_R_SubAMT].CellStyle.Font.Bold = true;
+            worksheet.Range[summaryRow, COL_R_SubAMT].BorderAround(ExcelLineStyle.Thin); 
+            
+            worksheet[summaryRow, COL_E_DESC].Text = "Total Expenses";
+            worksheet[summaryRow, COL_E_DESC].CellStyle.Font.Bold = true;
+            worksheet[summaryRow, COL_E_AMT].Number = (double)totalExpenseLines;
+            worksheet[summaryRow, COL_E_AMT].NumberFormat = "#,##0.00";
+            worksheet[summaryRow, COL_E_AMT].CellStyle.Font.Bold = true;
+            worksheet.Range[summaryRow, COL_E_AMT].BorderAround(ExcelLineStyle.Thin); 
+
+            int cashInHandRow = summaryRow + 2; // one blank row gap
+            worksheet[cashInHandRow, COL_E_DESC].Text = "CASH IN HAND";
+            worksheet[cashInHandRow, COL_E_DESC].CellStyle.Font.Bold = true;
+            worksheet[cashInHandRow, COL_E_AMT].Number = (double)cashInHand;
+            worksheet[cashInHandRow, COL_E_AMT].NumberFormat = "#,##0.00";
+            worksheet[cashInHandRow, COL_E_AMT].CellStyle.Font.Bold = true;
+
+            // ---- TOTAL boxes on both sides, aligned on the same row --------------------
+            int totalRow = cashInHandRow + 2; // one blank row gap
+            decimal totalExpensesGrand = totalExpenseLines + cashInHand; // == totalReceipts by construction
+
+            worksheet[totalRow, COL_R_DESC].Text = "TOTAL";
+            worksheet[totalRow, COL_R_DESC].CellStyle.Font.Bold = true;
+            worksheet[totalRow, COL_R_AMT].Number = (double)totalReceipts;
+            worksheet[totalRow, COL_R_AMT].NumberFormat = "#,##0.00";
+            worksheet[totalRow, COL_R_AMT].CellStyle.Font.Bold = true;
+            worksheet.Range[totalRow, COL_R_AMT].BorderAround(ExcelLineStyle.Thin);
+
+            worksheet[totalRow, COL_E_DESC].Text = "TOTAL";
+            worksheet[totalRow, COL_E_DESC].CellStyle.Font.Bold = true;
+            worksheet[totalRow, COL_E_AMT].Number = (double)totalExpensesGrand;
+            worksheet[totalRow, COL_E_AMT].NumberFormat = "#,##0.00";
+            worksheet[totalRow, COL_E_AMT].CellStyle.Font.Bold = true;
+            //worksheet.Range[totalRow, COL_E_DESC, totalRow, COL_E_AMT].BorderAround(ExcelLineStyle.Dashed);
+            worksheet.Range[totalRow, COL_E_AMT].BorderAround(ExcelLineStyle.Thin);
+
+            // ---- Signature line ---------------------------------------------------
+            int signatureLineRow = totalRow + 4; // a few blank rows below TOTAL
+            worksheet.Range[signatureLineRow, COL_E_VNO, signatureLineRow, COL_E_AMT]
+                .Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Thin;
+            // ---- Outer border around the full report body ------------------------
+            worksheet.Range[HEADER_ROW, 1, totalRow, END_COL].BorderAround(ExcelLineStyle.Thin);
+
+            int signatureLabelRow = signatureLineRow + 1;
+            worksheet.Range[signatureLabelRow, COL_E_VNO, signatureLabelRow, COL_E_AMT].Merge();
+            worksheet.Range[signatureLabelRow, COL_E_VNO].Text = "Authorized Signature";
+            worksheet.Range[signatureLabelRow, COL_E_VNO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            worksheet.Range[signatureLabelRow, COL_E_VNO].CellStyle.Font.Bold = true;
+            // ---- Vertical divider between Receipts and Expenses blocks -----------
+            worksheet.Range[HEADER_ROW, COL_R_AMT, totalRow, COL_R_AMT]
+                .Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Medium;
+            // ---- Cosmetics / page setup, matching your existing report style ----------
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.CellStyle.Font.Size = 10f;
+            worksheet.Range[1, 1].CellStyle.Font.Size = 14f;
+
+            string from = fromDate.ToString("yyyy-MM-dd");
+            string to = toDate.ToString("yyyy-MM-dd");
+
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.CompanyHeader(ref worksheet, END_COL, " WEEKLY EXPENDITURE STATEMENT OF " + from + " TO " + to, identity.CompanyId);
+            reportUtility.PageSetup(ref worksheet, HEADER_ROW, ExcelPageOrientation.Portrait);
+
+            // Force-center whatever CompanyHeader wrote into rows above the column header row
+            for (int r = 1; r < HEADER_ROW; r++)
+            {
+                worksheet.Range[r, 1, r, END_COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            }
+
+            // Page margins
+            worksheet.PageSetup.LeftMargin = 0.3;
+            worksheet.PageSetup.RightMargin = 0.3;
+            worksheet.PageSetup.TopMargin = 0.5;
+            worksheet.PageSetup.BottomMargin = 0.5;
+
+            worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //worksheet.IsGridLinesVisible = false;
 
             #region Freeze Panes
             worksheet.IsDisplayZeros = false;

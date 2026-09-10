@@ -549,18 +549,20 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
         });
     };
 
-    $scope.Get = function (id, index) {
-        $scope.index = index;
-        $scope.voucher = $scope.cashJournalList[$scope.index];
-        $scope.voucherDetailList.push($scope.voucher);
-        $scope.voucherDetailCurrencyList.push($scope.voucher);
-        $scope.voucherDetail = {};
-        $scope.getcashJournalDetailList($scope.voucher.VoucherId, $scope.voucher.VoucherDetailId);
-        $scope.Action = "Update";
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
-    };
+    //$scope.Get = function (id, index) {
+    //    $scope.index = index;
+    //    $scope.voucher = $scope.cashJournalList[$scope.index];
+    //    $scope.voucherDetailList.push($scope.voucher);
+    //    $scope.voucherDetailCurrencyList.push($scope.voucher);
+    //    $scope.updateGetEntityForBankCash($scope.voucher.EntityId);
+    //    $scope.voucherDetail = {};
+    //    $scope.getcashJournalDetailList($scope.voucher.VoucherId, $scope.voucher.VoucherDetailId);
+    //    $scope.Action = "Update";
+    //    $scope.actionIsDisable = false;
+    //    if (!$rootScope.isCollapsed) {
+    //        $rootScope.toggle();
+    //    }
+    //};
 
     $scope.getCboVoucherTypeCashJournalList = function () {
         bankService.getCboVoucherTypeCashJournalList(function (result) {
@@ -598,7 +600,15 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
             $scope.cashMasterList = result;
         });
     };
+    $scope.updateGetEntityForBankCash = function (entityId,cashMasterId,BankMasterId) {
+        bankService.getBankMasterHouseBankCboListByEntity(entityId, function (result) {
+            $scope.bankMasterList = result;
+        });
 
+        bankService.getCashMasterCboListByEntity(entityId, function (result) {
+            $scope.cashMasterList = result;
+        });
+    };
     $scope.onCashChange = function (cashMasterId) {
         var cash = $.grep($scope.cashMasterList, function (item) {
             return item.Id === cashMasterId;
@@ -612,7 +622,9 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.voucher.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
         $scope.voucher.VoucherDate = $filter("dateFiltering")($scope.voucher.VoucherDate);
         $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucher.PostingDate);
+        $scope.updateGetEntityForBankCash($scope.voucher.EntityId);
         $scope.Action = "Update";
+        $scope.actionIsDisable = false;
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }

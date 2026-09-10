@@ -4852,6 +4852,7 @@ namespace Library.Service.Invoices
                         voucherDetailDr.ActivityId = voucherDetailVM.ActivityId;
                         voucherDetailDr.DrAmount = voucherDetailVM.DrAmount;
                         voucherDetailDr.CrAmount = voucherDetailVM.CrAmount;
+                        voucherDetailDr.Narration = voucherVM.Narration;
                         _voucherService.UpdateVoucherDetail(voucher, voucherDetailDr);
 
                         totalAmountDr += voucherDetailDr.DrAmount;

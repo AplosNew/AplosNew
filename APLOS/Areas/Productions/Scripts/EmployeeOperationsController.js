@@ -466,10 +466,10 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
             
 
+            $scope.reportdata = [];
             //var gridObj = $("#summaryGrid").data("ejGrid");
-            //gridObj.refreshContent(true);
+            ////gridObj.refreshContent(true);
             //gridObj.refreshTemplate();
-
             $scope.reportdata = response.data.Data;
 
             if ($scope.reportdata.length > 0) {
@@ -484,7 +484,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             $("#summaryGrid").ejGrid({
                 dataSource: $scope.reportdata,
                 minWidth: 550, minHeight: 400,
-                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowSelection: true, allowTextWrap: true, allowScrolling: true,
+                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowSelection: true, allowTextWrap: true, allowScrolling: true, actionComplete:"refreshPage",
                 filterSettings: { filterType: "excel" },
                 columns: $scope.reportcolumns
             });
