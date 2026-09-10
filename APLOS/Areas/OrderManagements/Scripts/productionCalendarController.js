@@ -145,12 +145,15 @@ function ProductionCalendarController(cboService, commonMessage, $scope, $rootSc
             var date = $scope.contextmenuargs.targetInfo.startTime.getDate();
             var month = $scope.contextmenuargs.targetInfo.startTime.getMonth();
             var year = $scope.contextmenuargs.targetInfo.startTime.getFullYear();
-            fromdate = new Date(year, month, date);
+            //fromdate = new Date(year, month, date);
+            fromdate = $filter('dateFiltering')(new Date(year, month, date), 'dd-MM-yyyy');
 
             date = $scope.contextmenuargs.targetInfo.endTime.getDate();
             month = $scope.contextmenuargs.targetInfo.endTime.getMonth();
             year = $scope.contextmenuargs.targetInfo.endTime.getFullYear();
-            todate = new Date(year, month, date);
+           // todate = new Date(year, month, date);
+
+            todate = $filter('dateFiltering')(new Date(year, month, date), 'dd-MM-yyyy');
         }
 
         //var dt = $scope.contextmenuargs.targetInfo.ProductionDate;
