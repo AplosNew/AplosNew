@@ -279,14 +279,16 @@ namespace Aplos.Areas.Accounts.Controllers
         [Authorize, HttpGet]
         public ActionResult GetAllGLBudgetActivityByCompnay(GridParameter parameters, string companyId)
         {
+            AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_glGeneralInfoService.GetAllGLBudgetActivityPostingAutomaticOnly(parameters, identity.CompanyGroupId, companyId), JsonRequestBehavior.AllowGet);
+            return Json(_accountsGLService.GetAllGLBudgetActivityPostingAutomaticOnly(parameters, identity.CompanyGroupId, companyId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public ActionResult GetAllGLBudgetActivityPostingAutomaticOnly(GridParameter parameters)
         {
+            AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_glGeneralInfoService.GetAllGLBudgetActivityPostingAutomaticOnly(parameters, identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+            return Json(_accountsGLService.GetAllGLBudgetActivityPostingAutomaticOnly(parameters, identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -317,6 +319,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_glGeneralInfoService.GetGLBudgetActivityList(parameters, identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        
         }
 
         [Authorize, HttpGet]
