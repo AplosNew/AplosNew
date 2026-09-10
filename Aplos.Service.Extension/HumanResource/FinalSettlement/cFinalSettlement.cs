@@ -172,22 +172,41 @@ LEFT JOIN [HKP].[SeparationType] SY ON SY.Id=efs.SeparationTypeId
 LEFT JOIN EmployeeInformation E ON E.SystemId=efs.EmpSystemID
 Left join AttdnProcessData APD ON CONCAT(apd.WorkDate,'-',APD.EmpSystemId)=(select top 1 CONCAT(WorkDate,'-',EmpSystemId) from AttdnProcessData where EmpSystemID='" + SystemId + @"' and PayDayValue=1 and WorkDate <= E.DOS order by workdate desc ) 
 left join (select top 1 * from SalaryProceAttdnData where empsystemId='" + SystemId + @"' order by FromDate Desc) SPAD on SPAD.EmpSystemID=efs.EmpSystemID
-LEFT JOIN(SELECT A.EmpSystemID,PresentDays=
-									CASE WHEN DATEDIFF(Year,E.DOJ,E.DOS)<9.9 THEN
-									(CASE 
-									WHEN COUNT(A.EmpSystemID) between 120 AND 240 THEN 7 
-									WHEN COUNT(A.EmpSystemID)>240 THEN 14 
-									ELSE 0 END) 
-									ELSE 
-									(CASE 
-									WHEN COUNT(A.EmpSystemID) between 120 AND 240 THEN 15 
-									WHEN COUNT(A.EmpSystemID)>240 THEN 30 
-									ELSE 0 END) END
-									from dbo.AttdnProcessData A
-									LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=A.EmpSystemID
-									Where A.EmpSystemID='" + SystemId + @"' AND A.DayStatus !='A' 
-									AND A.WorkDate between '" + fromDate + @"' AND '" + toDate + @"'
-									GROUP BY A.EmpSystemID,E.DOJ,E.DOS)S ON S.EmpSystemID= efs.EmpSystemId
+LEFT JOIN (
+    SELECT 
+        S.SystemId,
+        CASE 
+            WHEN S.ServiceYears >= 10 THEN 30
+            WHEN S.ServiceYears >= 4 AND AC.PresentDays >= 240 THEN 15
+            WHEN S.ServiceYears >= 4 AND AC.PresentDays >= 120 THEN 7.5
+            WHEN AC.PresentDays >= 240 THEN 7
+            WHEN AC.PresentDays >= 120 THEN 3.5
+            ELSE 0
+        END AS PresentDays
+    FROM (
+        SELECT 
+            E.SystemId,
+            E.DOJ,
+            E.DOS,
+            CASE 
+                WHEN DATEADD(YEAR, DATEDIFF(YEAR, E.DOJ, E.DOS), E.DOJ) > E.DOS 
+                     THEN DATEDIFF(YEAR, E.DOJ, E.DOS) - 1 
+                ELSE DATEDIFF(YEAR, E.DOJ, E.DOS) 
+            END AS ServiceYears
+        FROM dbo.EmployeeInformation E
+        WHERE E.SystemId = '" + SystemId + @"'
+    ) S
+    LEFT JOIN (
+        SELECT 
+            A.EmpSystemID,
+            COUNT(*) AS PresentDays
+        FROM dbo.AttdnProcessData A
+        WHERE A.EmpSystemID = '" + SystemId + @"'
+          AND A.DayStatus != 'A'
+          AND A.WorkDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"'
+        GROUP BY A.EmpSystemID
+    ) AC ON AC.EmpSystemID = S.SystemId
+) S ON S.SystemID = efs.EmpSystemId
 Where efs.EmpSystemId='" + SystemId + @"'";
                 return _sqlRepository.GetDataTable(sql);
             }

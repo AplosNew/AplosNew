@@ -1356,9 +1356,9 @@ ORDER BY PackingName, Customer, SOId, Color, Size;";
     R.NoOfPack,
     R.ComboQty,
     R.PackRefQty,
-PackRef=R.Id,
+PackRef=R.Id+'-',
 PackSeq = STUFF((
-    SELECT ',' +CAST(CG.CartonNo as varchar(100))
+    SELECT ', ' +CAST(CG.CartonNo as varchar(100))
         FROM dbo.CartonGeneration CG
         WHERE CG.PackingComboReferenceId = R.Id
         ORDER BY CG.CartonNo DESC
@@ -1408,18 +1408,31 @@ WHERE M.StatusType IN ('Running','Active') AND R.Id = '" + masterId+"'";
         {
             try
             {
-                string sql = @"SELECT PackingName=COALESCE(T.LineItemReference,M.LineItemReference),P.UserName AS Customer,D.SalesOrderId AS SOId,R.ColorSizeQty,CG.NoOfPcs,CG.Id CartonNo         
-    FROM dbo.PacketRegistrationMaster M
-    LEFT JOIN dbo.PacketRegistrationType T ON T.PacketRegistrationMasterId = M.Id
-    LEFT JOIN dbo.PacketRegistrationDetail D ON D.PacketRegistrationMasterId = M.Id
-    LEFT JOIN TRN.SalesOrder S ON S.Id = D.SalesOrderId
+                string sql = @"SELECT PackingName=COALESCE(T.LineItemReference,M.LineItemReference),
+SOId = STUFF((
+     SELECT DISTINCT ', ' + D2.SalesOrderId
+     FROM dbo.[PackingComboSKUDetail] D2
+     WHERE D2.PackingComboReferenceId = R.Id
+     FOR XML PATH('')
+ ), 1, 1, ''),
+ Customer = STUFF((
+     SELECT DISTINCT ', ' + P.UserName
+     FROM dbo.[PackingComboSKUDetail] D2
+     LEFT JOIN TRN.SalesOrder S ON S.Id = D2.SalesOrderId
     LEFT JOIN TRN.MasterOrderItem MI ON MI.Id = S.MasterOrderItemId
     LEFT JOIN TRN.MasterOrder MO ON MO.Id = MI.MasterOrderId
     LEFT JOIN HKP.Party P ON P.Id = MO.PartyId
+     WHERE D2.PackingComboReferenceId = R.Id
+     FOR XML PATH('')
+ ), 1, 1, '')
+,R.ColorSizeQty,CG.NoOfPcs,CG.Id CartonNo 
+
+    FROM dbo.PacketRegistrationMaster M
+    LEFT JOIN dbo.PacketRegistrationType T ON T.PacketRegistrationMasterId = M.Id
     LEFT JOIN dbo.PackingComboReference R ON R.PacketRegistrationTypeId = T.Id
     LEFT JOIN dbo.CartonGeneration CG ON CG.PackingComboReferenceId = R.Id
     WHERE M.StatusType IN ('Running','Active') AND CG.PackingComboReferenceId = '" + masterId + @"' 
-    Order By CG.CartonNo";
+    Order By CG.CartonNo DESC";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)

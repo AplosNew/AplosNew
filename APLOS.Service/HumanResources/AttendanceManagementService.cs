@@ -31009,7 +31009,8 @@ Where efs.EmpSystemId='" + empSystemId + @"'";
                                 LEFT OUTER JOIN HKP.Designation edsg on edsg.id=PR.DesignationID
                                 left join HKP.DesignationGroup egdsg on egdsg.id=e.GivenDesignationId
                                 LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=e.LegalDesignationId
-                                where ep.Id='" + plantId + @"' and efs.EmpSystemId in (select EmpSystemId from [dbo].[EmployeeFinalSettlement])";
+                                where ep.Id='" + plantId + @"' and efs.EmpSystemId in (select EmpSystemId from [dbo].[EmployeeFinalSettlement])
+order by efs.FinalSettlementDate desc";
 
                 return _sqlRepository.GetDataCollection(cmdText);
             }

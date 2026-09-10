@@ -202,6 +202,7 @@ namespace OTSBD
                     obj.EmpDOS = dsTenure.Tables[0].Rows[0]["DOS"].ToString();
 
                     //Count Days
+
                     if (years > 0)
                     {
                         dvSeparationTypeDetails.RowFilter = "Yearno='" + years + "'";
@@ -236,20 +237,8 @@ namespace OTSBD
                             }
                             else
                             {
-                                int NOY = years;
-                                int MonthNo =int.Parse(obj.TenureMonthNo.ToString());
-                                decimal tenure = NOY + (MonthNo / 12m);
                                 NumberOfYears = years;
-                                if (tenure > 9)
-                                {
-                                    NumberOfDays = 30;
-                                }
-                                else
-                                {
-
-                                    NumberOfDays = Convert.ToInt32(dvSeparationTypeDetails[0]["DayNo"]);
-                                }
-
+                                NumberOfDays = Convert.ToInt32(dvSeparationTypeDetails[0]["DayNo"]);
                             }
                         }
                         else
@@ -258,6 +247,64 @@ namespace OTSBD
                             sFormulaResult = "0";
                         }
                     }
+
+
+                    //if (years > 0)
+                    //{
+                    //    dvSeparationTypeDetails.RowFilter = "Yearno='" + years + "'";
+                    //    if (dvSeparationTypeDetails.Count > 0)
+                    //    {
+                    //        if (Convert.ToBoolean(dvSeparationTypeDetails[0]["RoundUp"]) == true)
+                    //        {
+
+                    //            if (month > 6)
+                    //            {
+                    //                NumberOfYears = years + 1;
+                    //            }
+                    //            else if (month == 6 && days > 0)
+                    //            {
+                    //                NumberOfYears = years + 1;
+                    //            }
+                    //            else
+                    //            {
+                    //                NumberOfYears = years;
+                    //            }
+                    //            dvSeparationTypeDetails.RowFilter = null;
+                    //            dvSeparationTypeDetails.RowFilter = "Yearno='" + NumberOfYears + "'";
+                    //            if (dvSeparationTypeDetails.Count > 0)
+                    //            {
+                    //                NumberOfDays = Convert.ToInt32(dvSeparationTypeDetails[0]["DayNo"]);
+                    //            }
+                    //            else
+                    //            {
+                    //                throw new Exception("Policy  was not defined for this year.");
+                    //            }
+
+                    //        }
+                    //        //else
+                    //        //{
+                    //        //    int NOY = years;
+                    //        //    int MonthNo =int.Parse(obj.TenureMonthNo.ToString());
+                    //        //    decimal tenure = NOY + (MonthNo / 12m);
+                    //        //    NumberOfYears = years;
+                    //        //    if (tenure > 9)
+                    //        //    {
+                    //        //        NumberOfDays = 30;
+                    //        //    }
+                    //        //    else
+                    //        //    {
+
+                    //        //        NumberOfDays = Convert.ToInt32(dvSeparationTypeDetails[0]["DayNo"]);
+                    //        //    }
+
+                    //        //}
+                    //    }
+                    //    else
+                    //    {
+                    //        //throw new Exception("Policy  was not defined for this year.");
+                    //        sFormulaResult = "0";
+                    //    }
+                    //}
                     // calculate total
                     var totaldays = (NumberOfDays * NumberOfYears) + ExtraDays;
                     //sTotalAmount = (Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult))) * NumberOfDays * NumberOfYears;
@@ -1227,13 +1274,13 @@ SELECT
     S.SystemId,
     ISNULL(AC.PresentDays, 0) AS PresentDays,
     S.ServiceYears,
-    CASE 
-        WHEN S.ServiceYears > 10 THEN 30
-        WHEN S.ServiceYears > 4 AND AC.PresentDays >= 240 THEN 15
-        WHEN S.ServiceYears > 4 AND AC.PresentDays >= 120 THEN 7.5
-        WHEN AC.PresentDays >= 240 THEN 7
-        WHEN AC.PresentDays >= 120 THEN 3.5
-        ELSE 0
+     CASE 
+ WHEN S.ServiceYears >= 10 THEN 30
+ WHEN S.ServiceYears >= 4 AND AC.PresentDays >= 240 THEN 15
+ WHEN S.ServiceYears >= 4 AND AC.PresentDays >= 120 THEN 7.5
+ WHEN AC.PresentDays >= 240 THEN 7
+ WHEN AC.PresentDays >= 120 THEN 3.5
+ ELSE 0
     END AS ExtraBenefitDays
 FROM ServiceCTE S
 LEFT JOIN AttendanceCTE AC ON AC.EmpSystemID = S.SystemId;";
