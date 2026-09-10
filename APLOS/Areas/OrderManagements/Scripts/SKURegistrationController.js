@@ -711,15 +711,16 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
         angular.forEach(comboList, function (row) {
             summary.ComboQty += row.UnitPerPack;
-            summary.ColorSizeQtyParts.push(row.SKUColor + '-' + row.SKUSize + '-' + row.UnitPerPack);
+            summary.ColorSizeQtyParts.push(row.SKUColor + '-' + row.SKUSize + '-' + row.UnitPerPack); // use row's own value, not the running total
         });
 
         summary.PackRefQty = summary.ComboQty * summary.NoOfPack;
         summary.ColorSizeQty = summary.ColorSizeQtyParts.join(' / ');
-        delete summary.ColorSizeQtyParts; // clean up the temp array
+        delete summary.ColorSizeQtyParts;
 
         return summary;
     };
+
 
     $scope.SaveComboPR = function () {
         try {
@@ -956,6 +957,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.exportgriddataUrl = 'GridReports/ViewExcelExportUpd';
+    $scope.exportcombogriddataUrl = 'GridReports/ExcelExportWithoutAddress';
     $scope.CartonReportExcel = function () {
         var dataListUnDisbursed = [];
         var gUnDisbursed = $("#GridC").data("ejGrid");
@@ -967,7 +969,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         $scope.fileName = 'CartonList';
         $http({
             method: "POST",
-            url: $scope.exportgriddataUrl,
+            url: $scope.exportcombogriddataUrl,
             data: {
                 'data': dataListUnDisbursed,
                 'reportFileName': $scope.fileName
@@ -987,7 +989,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     };
 
-    $scope.exportcombogriddataUrl = 'GridReports/ExcelExportWithoutAddress';
+   
     $scope.ComboReportExcel = function () {
         var dataListUnDisbursed = [];
         var gUnDisbursed = $("#GridCC").data("ejGrid");
