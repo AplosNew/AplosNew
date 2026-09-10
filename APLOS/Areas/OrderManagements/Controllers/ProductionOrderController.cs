@@ -4132,6 +4132,14 @@ ORDER BY P.SortOrder";
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
+        [HttpPost, Authorize]
+        public ActionResult GetAllComboCartonList(string masterId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetAllComboCartonList(masterId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
 
         [HttpPost, Authorize]
         public JsonResult GenerateCarton(Dictionary<string, object> data)
