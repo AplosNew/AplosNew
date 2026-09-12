@@ -990,6 +990,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     };
 
+    $scope.exportcomboPackgriddataUrl = 'GridReports/ExcelExportComboWithoutAddress';
 
     $scope.ComboReportExcel = function () {
         var dataListUnDisbursed = [];
@@ -1002,7 +1003,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         $scope.fileName = 'ComboCartonList';
         $http({
             method: "POST",
-            url: $scope.exportcombogriddataUrl,
+            url: $scope.exportcomboPackgriddataUrl,
             data: {
                 'data': dataListUnDisbursed,
                 'reportFileName': $scope.fileName
@@ -1022,16 +1023,18 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     };
 
+
+   
     $scope.AllComboReportExcel = function () {
         $http({
             method: 'POST',
             url: 'OrderManagements/ProductionOrder/GetAllComboCartonList?masterId=' + $scope.ModelNew.Id
         }).then(function successCallback(response) {
             if (baseService.arrayLength(response.data) >= 0) {
-                $scope.fileName = 'CartonList';
+                $scope.fileName = 'ComboCartonList';
                 $http({
                     method: "POST",
-                    url: $scope.exportcombogriddataUrl,
+                    url: $scope.exportcomboPackgriddataUrl,
                     data: {
                         'data': response.data,
                         'reportFileName': $scope.fileName
