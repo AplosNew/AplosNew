@@ -992,6 +992,38 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     $scope.exportcomboPackgriddataUrl = 'GridReports/ExcelExportComboWithoutAddress';
 
+
+    $scope.AllCartonReportExcel = function () {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/ProductionOrder/GetAllCartonList?masterId=' + $scope.PRObj.Id
+        }).then(function successCallback(response) {
+            if (baseService.arrayLength(response.data) >= 0) {
+                $scope.fileName = 'CartonList';
+                $http({
+                    method: "POST",
+                    url: $scope.exportcombogriddataUrl,
+                    data: {
+                        'data': response.data,
+                        'reportFileName': $scope.fileName
+                    },
+                    dataType: 'JSON',
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.data.Message, 'failure');
+                });
+            }
+
+        });
+    }
+
     $scope.ComboReportExcel = function () {
         var dataListUnDisbursed = [];
         var gUnDisbursed = $("#GridCC").data("ejGrid");
@@ -1022,8 +1054,6 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         });
 
     };
-
-
    
     $scope.AllComboReportExcel = function () {
         $http({
@@ -1059,45 +1089,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     $scope.pdfdownloadgriddataUrl = 'GridReports/DownloadPdf';
     $scope.FN = null;
     $scope.QRCodeGenerateModel = { LineItemReference: null, SKUColor: null, Qty: null };
-    $scope.generateQRCode_ = function (obj) {
-        try {
-            $scope.QRCodeGenerateModel.LineItemReference = obj.data.LineItemReference;
-            $scope.QRCodeGenerateModel.SKUColor = obj.data.SKUColor;
-            $scope.QRCodeGenerateModel.SKUSize = obj.data.SKUSize;
-            $scope.QRCodeGenerateModel.Qty = obj.data.Qty;
-            $scope.QRCodeGenerateModel.PacketRegistrationId = obj.data.Id;
-
-            $scope.fileName = "QRCode.pptx";
-            $http({
-                method: 'POST',
-                url: $scope.path + "GenerateQRCode",
-                data: {
-                    'data': $scope.QRCodeGenerateModel
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-
-                    //$rootScope.report($scope.downloadgriddataUrlPath + "?FileName=" + response.data.FileName);//downloadgriddataUrlPath
-                    // $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-                    $scope.FN = $scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName;
-                    ShowResult(response.data.Message, 'success');
-                }
-
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-
-            }
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-
-
-    }
-
+   
     $scope.generateQRCode = function (obj) {
         try {
             $scope.QRCodeGenerateModel.LineItemReference = obj.data.LineItemReference;
