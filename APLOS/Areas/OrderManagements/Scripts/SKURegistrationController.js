@@ -742,7 +742,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                 }
 
                 var obj = $scope.getComboSummary(tempList);
-               
+
                 $http({
                     method: 'POST',
                     url: "OrderManagements/ProductionOrder/SaveComboPacketRegistration",
@@ -924,6 +924,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         });
     }
 
+
     $scope.CloseCG = function () {
         angular.element(document.querySelector('#CartonPopUp')).modal('hide');
         angular.element(document.querySelector('#ComboCartonPopUp')).modal('hide');
@@ -989,7 +990,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     };
 
-   
+
     $scope.ComboReportExcel = function () {
         var dataListUnDisbursed = [];
         var gUnDisbursed = $("#GridCC").data("ejGrid");
@@ -1020,6 +1021,37 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         });
 
     };
+
+    $scope.AllComboReportExcel = function () {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/ProductionOrder/GetAllComboCartonList?masterId=' + $scope.ModelNew.Id
+        }).then(function successCallback(response) {
+            if (baseService.arrayLength(response.data) >= 0) {
+                $scope.fileName = 'CartonList';
+                $http({
+                    method: "POST",
+                    url: $scope.exportcombogriddataUrl,
+                    data: {
+                        'data': response.data,
+                        'reportFileName': $scope.fileName
+                    },
+                    dataType: 'JSON',
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.data.Message, 'failure');
+                });
+            }
+
+        });
+    }
 
     $scope.pdfdownloadgriddataUrl = 'GridReports/DownloadPdf';
     $scope.FN = null;
