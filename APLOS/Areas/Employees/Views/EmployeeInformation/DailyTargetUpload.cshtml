@@ -154,7 +154,7 @@
                         <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="input-group">
-                                <input type="text" name="Employee" ng-model="EmployeeName" required @*style="width:200px;"*@ class="form-control" readonly>
+                                <input type="text" name="Employee" ng-model="DailyTargetEmployeeData.EmployeeName" required @*style="width:200px;"*@ class="form-control" readonly>
                                 <span class="input-group-btn">
                                     <button name="submit" ng-click="openPopupAngular('employeeNewPopUp')" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                 </span>
@@ -201,7 +201,7 @@
                         <label class="col-sm-4 control-label">Reporting Officer<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="input-group">
-                                <input type="text" name="Employee" ng-model="ReportingOfficerName" required @*style="width:200px;"*@ class="form-control" readonly>
+                                <input type="text" name="Employee" ng-model="DailyTargetEmployeeData.ReportingOfficerName" required @*style="width:200px;"*@ class="form-control" readonly>
                                 <span class="input-group-btn">
                                     <button name="submit" ng-click="openPopupAngular('ReportingOfficerPopUp')" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                 </span>
@@ -211,13 +211,13 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Remark<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <textarea rows="1" type="text" name="Remark" tabindex="8" class="form-control" ng-model="DailyTargetEmployeeData.Remark" maxlength="500" required capitalize></textarea>
+                            <textarea rows="1" type="text" name="Remark" tabindex="8" class="form-control" ng-model="DailyTargetEmployeeData.Remarks" maxlength="500" required capitalize></textarea>
                         </div>
                     </div>
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li><button ng-click="SaveDailyTargetEmployee();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Save </button></li>
+                        <li><button ng-click="SaveDailyTargetEmployee();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> {{Action}} </button></li>
                     </ul>
                 </div>
 
@@ -247,7 +247,7 @@
                 <div class="content-container-fluid" style="color:black;">
                     <div style="color:black;" id="GridPrint" ej-grid e-datasource="DailyTargetEmployeeList" e-allowfiltering="true" e-allowpaging="true"
                          e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
-                         e-allowscrolling="true" e-showstackedheader="true">
+                         e-recorddoubleclick="GetEmployee" e-allowscrolling="true" e-showstackedheader="true">
                         <div e-columns>
                             <div e-column e-field="ProcessName" e-headertext="Process" e-width="60" e-filter="false"></div>
                             <div e-column e-field="Category" e-headertext="Category" e-width="80"></div>

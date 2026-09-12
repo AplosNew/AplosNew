@@ -251,5 +251,13 @@ function DailyTargetUploadController(cboService, commonMessage, $scope, $rootSco
 
         }
     };
-
+    $scope.GetEmployee = function (obj) {
+        $scope.DailyTargetEmployeeData = obj.data;
+        $scope.EntityId = obj.data.EntityId;
+        $scope.getProcess();
+        $scope.Action = "Update";
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
 }

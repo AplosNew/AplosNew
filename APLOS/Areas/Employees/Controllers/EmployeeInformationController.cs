@@ -3090,12 +3090,13 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
         {
             try
             {
-                var sql = @"SELECT P.UserName ProcessName,WG.UserName WorkGroupName,EM.EmployeeName ,ER.EmployeeName ReportingOfficerName,dte.*
+                var sql = @"SELECT P.UserName ProcessName,ept.EntityId,WG.UserName WorkGroupName,EM.EmployeeName ,ER.EmployeeName ReportingOfficerName,dte.*
 FROM [dbo].[DailyTargetEmployee] dte 
 LEFT JOIN HKP.Process P ON P.Id=dte.ProcessId
 LEFT JOIN HKP.WorkGroup WG ON WG.Id=dte.WorkGroupId
 LEFT JOIN DBO.EmployeeInformation EM ON EM.SystemId=dte.EmployeeId
-LEFT JOIN DBO.EmployeeInformation ER ON ER.SystemId=dte.ReportingOfficerId";
+LEFT JOIN DBO.EmployeeInformation ER ON ER.SystemId=dte.ReportingOfficerId
+left join hkp.EntityProcessTag ept on ept.ProcessId = p.Id";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
