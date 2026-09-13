@@ -905,10 +905,8 @@ function InvestmentSettelmentController(accountService, bankService, cboService,
     };
 
     $scope.GetCOAICodeList = function () {
-        if ($scope.voucher.TransactionType =='LoanTaken')
-            $scope.GLUrl1 = "Accounts/glitem/GetExpenseGLBudgetActivity";
-        else 
-            $scope.GLUrl1 = "Accounts/glitem/GetRevenueGLBudgetActivity";
+       
+        $scope.GLUrl1 = "Accounts/glitem/GetAllGLBudgetActivityPostingAutomaticOnly";
         $scope.GetCOAICodeListData = function (pageno) {
             baseService.paginationBase($scope.GLUrl1, pageno, $scope.glListParameters)
                 .then(function (result) {
@@ -1427,4 +1425,7 @@ function InvestmentSettelmentController(accountService, bankService, cboService,
     $scope.removeRowML = function (index) {
         $scope.ExistingLoanList.splice(index, 1);
     }
+
+   
+   
 }

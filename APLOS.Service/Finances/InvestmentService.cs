@@ -572,9 +572,6 @@ namespace Library.Service.Finances
                 var voucherExpenses = new VoucherDetail
                 {
                     PartyType = PartyType.GL.ToString(),
-                    GLGeneralInfoId = voucherVM.GLGeneralInfoId,
-                    BudgetMasterId = voucherVM.BudgetMasterId,
-                    ActivityId = voucherVM.ActivityId,
                 };
 
                 var exchangeloss = new VoucherDetail
@@ -632,6 +629,15 @@ namespace Library.Service.Finances
                         voucherDetailTo.BudgetMasterId = cashMaster["BudgetMasterId"].ToString();
                         voucherDetailTo.ActivityId = cashMaster["ActivityId"].ToString();
                         voucherDetailTo.TrnNature = TransactionNature.Bank.ToString();
+
+                    }
+                    else if (voucherVM.PaymentSource == PaymentSource.GL.ToString())
+                    {
+
+                        voucherDetailTo.GLGeneralInfoId = voucherVM.GLGeneralInfoId;
+                        voucherDetailTo.BudgetMasterId = voucherVM.BudgetMasterId;
+                        voucherDetailTo.ActivityId = voucherVM.ActivityId;
+                        voucherDetailTo.TrnNature = TransactionNature.ToGL.ToString();
 
                     }
                     else
@@ -979,7 +985,7 @@ namespace Library.Service.Finances
                     totalCurrencyAmountCr += voucherVM.ExchangeAmount;
                 }
                 //***********************Income *****************************************
-                if (!string.IsNullOrEmpty(voucherVM.GLGeneralInfoId) && financing.TransactionType == TransactionType.InvestmentGiven.ToString())
+                if (!string.IsNullOrEmpty(voucherExpenses.GLGeneralInfoId) && financing.TransactionType == TransactionType.InvestmentGiven.ToString())
                 {
                     voucherExpenses.CrAmount = voucherVM.ExpenseAmount;
                     currentVoucherDetailId++;

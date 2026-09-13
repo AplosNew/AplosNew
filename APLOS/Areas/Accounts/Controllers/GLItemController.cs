@@ -475,7 +475,9 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             if (string.IsNullOrEmpty(companyId))
                 companyId = identity.CompanyId;
-            return Json(_glGeneralInfoService.GetPartyDRGLAccountCode(parameters, identity.CompanyGroupId, companyId, ReconcileAccountEnum.Vendor, AccountTypeEnum.Liability), JsonRequestBehavior.AllowGet);
+            AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);
+
+            return Json(_accountsGLService.GetPartyDRGLAccountCode(parameters, identity.CompanyGroupId, companyId, ReconcileAccountEnum.Vendor, AccountTypeEnum.Liability), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]

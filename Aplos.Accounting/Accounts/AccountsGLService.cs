@@ -723,6 +723,33 @@ AND BMA.Active=1";
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public GridModel GetPartyDRGLAccountCode(GridParameter parameters, string companyGroupId, string companyId, ReconcileAccountEnum reconcileAccount, AccountTypeEnum accountType)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT GLGI.COAId, C.UserName AS COAName, GLGI.AccountGroupId, AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                                        , BM.Id AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, A.Id AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
+                                        FROM [HKP].[GLGeneralInfo] AS GLGI
+                                        JOIN [HKP].[GLCompanyInfo] AS GLCI ON GLCI.GLGeneralInfoId=GLGI.Id
+                                        JOIN [HKP].[GLCompanyGroup] AS GLCG ON GLCG.GLGeneralInfoId=GLGI.Id
+                                        LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
+                                        LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
+                                        LEFT JOIN [HKP].[GLAccountType] AS GLAT ON GLAT.GLGeneralInfoId=GLGI.Id
+                                        LEFT JOIN [HKP].[COA] AS C ON C.Id=GLGI.COAId
+                                        LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.GLGeneralInfoId=GLGI.Id
+                                        LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                        LEFT JOIN [MST].[BudgetMasterActivity] AS BMA ON BMA.BudgetMasterId=BM.Id
+                                        LEFT JOIN [HKP].[Activity] AS A ON A.Id=BMA.ActivityId
+                                        WHERE GLGI.Active=1 AND GLGI.Archive=0 AND GLCG.CompanyGroupId='" + companyGroupId + "' AND GLCI.CompanyId='" + companyId + "' AND ACT.Id='" + accountType + "' AND GLAT.AccountType='" + reconcileAccount + "'";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
 
         public GridModel GetReconeGLPartyAccountGroup(GridParameter parameters, string coaId, AccountTypeEnum accountType, ReconcileAccountEnum glAccountType)
         {
