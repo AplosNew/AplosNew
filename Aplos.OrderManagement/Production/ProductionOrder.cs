@@ -1472,6 +1472,31 @@ SOId = STUFF((
             }
         }
 
+        public IEnumerable<object> GetSKUDetailList(string masterId,string packId)
+        {
+            try
+            {
+                string sql = @"SELECT PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId AS SKU1Id,SC.CharacteristicsValueId AS SKU2Id,FCV.UserName AS SKUColor,SCV.UserName AS SKUSize
+    ,SUM(SC.Qty) AS OrderQty,PR.Qty
+FROM TRN.SecondCharacteristics SC
+LEFT JOIN TRN.FirstCharacteristics FC ON FC.Id = SC.FirstCharacteristicsId
+LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = FC.CharacteristicsValueId
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = SC.CharacteristicsValueId
+LEFT JOIN dbo.PacketDispatchChild PR ON PR.SalesOrderId = SC.SalesOrderId AND FC.CharacteristicsValueId = PR.SKU1Id AND SC.CharacteristicsValueId = PR.SKU2Id
+    AND PR.PacketDispatchMasterId = '" + masterId + @"'   -- IMPORTANT
+LEFT JOIN dbo.PacketDispatchMaster PT ON PT.Id =PR.PacketDispatchMasterId
+WHERE SC.SalesOrderId IN(Select SalesOrderId From [dbo].[PacketRegistrationDetail] Where PacketRegistrationMasterId ='"+ packId + @"')
+GROUP BY PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName,SCV.UserName,PR.Qty
+HAVING SUM(SC.Qty) <> 0;";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 
 

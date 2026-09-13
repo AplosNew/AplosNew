@@ -3558,6 +3558,13 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId) AS TEMP WHERE " 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetPRMCbo()
+        {
+            string sql = @"select Id,UserName from dbo.PacketRegistrationMaster";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
 
         [HttpPost]
         public JsonResult CreatePacketRegistrationMaster(Dictionary<string, object> data)
@@ -4251,7 +4258,7 @@ ORDER BY P.SortOrder";
 
         private List<QRCodeItem> qrCodeItems = new List<QRCodeItem>();
         private int currentQRCodeIndex = 0;
-          
+
         #endregion
 
         #region PackerCategory
@@ -4369,7 +4376,7 @@ ORDER BY P.SortOrder";
         #endregion
 
         #region QRCode
-      
+
         [Authorize]
         public ActionResult GenerateQRCode(Dictionary<string, object> data)
         {
@@ -4459,7 +4466,7 @@ ORDER BY P.SortOrder";
                 // -----------------------------------------
                 //string fileName = $"QRCode_{packetRegistrationId}_{DateTime.Now:yyyyMMddHHmmss}.pdf";
                 string fileName = $"QRCode_{Id}.pdf";
-               
+
                 //save the file to server temp folder
                 string fullPath = Path.Combine(HostingEnvironment.MapPath("~/") + fileName);
                 System.IO.File.WriteAllBytes(fullPath, pdfBytes);
@@ -4690,7 +4697,7 @@ ORDER BY P.SortOrder";
             const float textFontSize = 8f;
             const float textLineHeight = textFontSize + 3f;
             float pageWidth = cellPadding + qrSize + cellPadding;   // content-sized width
-                       
+
 
             using (PdfDocument document = new PdfDocument())
             {
@@ -4841,6 +4848,148 @@ ORDER BY P.SortOrder";
 
         #region Dispatch
 
+        [HttpPost, Authorize]
+        public ActionResult GetDispatch(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT Top 100 * from (SELECT * FROM dbo.PacketDispatchMaster) AS TEMP WHERE " + strkey + "";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSKUDetailList(string masterId, string packId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetSKUDetailList(masterId, packId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost]
+        public JsonResult CreateDispatch(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from dbo.PacketDispatchMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("PacketDispatchMaster", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        public ActionResult DeleteDispatch(string id)
+        {
+
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.PacketDispatchMaster where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveDispatchChild(List<Dictionary<string, object>> skulist, string masterId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsChild = null;
+                string sql = "SELECT * FROM [dbo].[PacketDispatchChild] where PacketDispatchMasterId='" + masterId + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsChild, false, "1");
+
+                for (int i = 0; i < skulist.Count; i++)
+                {
+                    dsChild.Tables[0].DefaultView.RowFilter = "Id='" + skulist[i]["Id"] + "'";
+                    if (dsChild.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsChild.Tables[0].NewRow();
+
+                        dr["Id"] = masterId + "-" + (i + 1).ToString();
+                        dr["PacketDispatchMasterId"] = masterId;
+                        dr["SalesOrderId"] = skulist[i]["SalesOrderId"];
+                        dr["SKU1Id"] = skulist[i]["SKU1Id"];
+                        dr["SKU2Id"] = skulist[i]["SKU2Id"];
+                        dr["Qty"] = skulist[i]["Qty"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+
+                        dsChild.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        DataRow dr = dsChild.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["Qty"] = skulist[i]["Qty"];
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr.EndEdit();
+                    }
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsChild);
+                return Json(new { Error = false, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
 
 
         #endregion
