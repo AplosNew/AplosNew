@@ -5234,11 +5234,11 @@ SELECT
     LEFT JOIN HKP.AccountGroup AG ON AG.Id = GL.AccountGroupId
     LEFT JOIN MST.CashMaster CM ON CM.Id = VD.CashMasterId
 	LEFT JOIN (SELECT CashMasterId,VoucherId FROM TRN.VoucherDetail where CrAmount>0 and CashMasterId='1' )XVD ON XVD.VoucherId=V.Id
-	LEFT JOIN (SELECT Id,StartDate FROM SCS.FiscalYearPeriod) FYP ON FYP.StartDate < '" + from + @"'
+    LEFT JOIN HKP.PreviousMonthAdvanceControl PMAC ON PMAC.TargetDate <  '" + from + @"' 
     WHERE V.PlantId = '" + plantId + @"' AND AG.AccountTypeId IN ('Liability')
         AND VD.DrAmount > 0
         AND VD.CashMasterId IS NULL
-        AND V.SourceType <> 'OpeningBalance'  AND xVD.CashMasterId='" + cashMasterId + @"' AND V.FiscalYearPeriodId=(FYP.Id-1)
+        AND V.SourceType <> 'OpeningBalance'  AND xVD.CashMasterId='" + cashMasterId + @"' AND  PMAC.FiscalYearPeriodId=V.FiscalYearPeriodId
 UNION ALL 
  SELECT 0 ReceiptAmount, SUM(VD.DrAmount) AS ExAmountAmount
     FROM TRN.VoucherDetail VD

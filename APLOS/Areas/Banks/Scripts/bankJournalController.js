@@ -410,6 +410,9 @@ function bankJournalController(bankService, accountService, cboService, commonMe
 
     $scope.actionIsDisable = false;
     $scope.save = function () {
+        if (!baseService.isUndefinedOrNull($scope.voucher.CompanyCurrencyRate) && $scope.voucher.CurrencyId == $scope.companyCurrencyId) {
+            $scope.voucher.CompanyCurrencyRate = 1;
+        }
         $scope.$broadcast("show-errors-check-validity");
         $scope.checkDocDateValidation();
         $scope.checkPostingDateValidation();
