@@ -1,5 +1,6 @@
 ﻿using Aplos.Helpers;
 using Library.Crosscutting.Security;
+using Library.Service.Helpers;
 using OTSBD;
 using Syncfusion.Pdf.Parsing;
 using Syncfusion.Presentation;
@@ -268,6 +269,255 @@ namespace Aplos.Controllers
             {
 
             }
+            return fileName;
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult ExcelExportComboWithoutAddress(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                if (data == null || data.Count == 0)
+                    throw new Exception("No data found");
+
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+                    if (item.Equals("PackSeq", StringComparison.OrdinalIgnoreCase))
+                        continue; // handled separately as its own merged row
+
+                    dt.Columns.Add(item);
+                }
+
+                List<string> packSeqValues = new List<string>();
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+                        if (item.Equals("PackSeq", StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        dr[item] = data[i][item];
+                    }
+                    dt.Rows.Add(dr);
+
+                    object packSeqVal = data[i].ContainsKey("PackSeq") ? data[i]["PackSeq"] : null;
+                    packSeqValues.Add(packSeqVal?.ToString() ?? "");
+                }
+
+                string filename = ComboCartonGridToExcelReportWithoutAddress(dt, "", reportFileName, packSeqValues);
+
+                return Json(new { FileName = filename, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        private string ComboCartonGridToExcelReportWithoutAddress(DataTable data, string ReportHeader, string reportFileName, List<string> packSeqValues)
+        {
+            string fileName = reportFileName + ".xlsx";
+            string FactoryName = "";
+            DataSet dsCmp = null;
+            DataSet dsFactory = null;
+            string CmpName = "";
+            string FactoryAddress = string.Empty;
+            clsReport objRpt = null;
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            objRpt = new clsReport();
+            objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
+
+            objRpt.SelectedPlant(identity.PlantId, out dsFactory);
+            //save the file to server temp folder
+            string fullPath = Path.Combine(HostingEnvironment.MapPath("~/") + fileName);
+            var report = new ReportUtility();
+            using (ExcelEngine excelEngine = new ExcelEngine())
+            {
+                IApplication application = excelEngine.Excel;
+                application.DefaultVersion = ExcelVersion.Excel2013;
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet sheet = workbook.Worksheets[0];
+
+                int ROW = 3;
+                sheet[ROW, 1].Text = ReportHeader;
+                sheet[ROW, 1, ROW, data.Columns.Count].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, 1, ROW, data.Columns.Count].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet[ROW, 1].CellStyle.Font.Bold = true;
+                ROW++;
+                int COL = 1;
+                int colCount = data.Columns.Count;
+                int headerRow = ROW;
+
+                // ---- Header row (written manually now, not via ImportDataTable) ----
+                report.SetHeaderText(ref sheet, ROW, COL, "Packing Name", 20, ExcelHAlign.HAlignLeft);
+                int ColPackingName = COL;
+                COL++;
+                report.SetHeaderText(ref sheet, ROW, COL, "SOId", 20, ExcelHAlign.HAlignLeft);
+                int ColSOId = COL;
+                COL++;
+                report.SetHeaderText(ref sheet, ROW, COL, "ComboRefNo", 15, ExcelHAlign.HAlignLeft);
+                int ColComboRefNo = COL;
+                COL++;
+                report.SetHeaderText(ref sheet, ROW, COL, "ColorSizeQty", 35, ExcelHAlign.HAlignLeft);
+                int ColColorSizeQty = COL;
+                COL++;
+                report.SetHeaderText(ref sheet, ROW, COL, "NoOfPack", 20, ExcelHAlign.HAlignLeft);
+                int ColNoOfPack = COL;
+                COL++;
+                report.SetHeaderText(ref sheet, ROW, COL, "PackRefQty", 20, ExcelHAlign.HAlignLeft);
+                int ColPackRefQty = COL;
+                COL++;
+                report.SetHeaderText(ref sheet, ROW, COL, "PackRef", 20, ExcelHAlign.HAlignLeft);
+                int ColPackRef = COL;
+                
+
+                for (int c = 0; c < colCount; c++)
+                    sheet[headerRow, c + 1].Text = data.Columns[c].ColumnName;
+
+                sheet[headerRow, 1, headerRow, colCount].ColumnWidth = 20;
+                sheet[headerRow, 1, headerRow, colCount].WrapText = true;
+                sheet[headerRow, 1, headerRow, colCount].BorderAround(ExcelLineStyle.Hair);
+                sheet[headerRow, 1, headerRow, colCount].BorderInside(ExcelLineStyle.Hair);
+                
+                sheet.Range[headerRow, 1, headerRow, colCount].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[headerRow, 1, headerRow, colCount].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet[headerRow, 1, headerRow, colCount].CellStyle.Font.Bold = true;
+                sheet.AutoFilters.FilterRange = sheet.Range[headerRow, 1, headerRow, colCount];
+
+                int currentRow = headerRow + 1;
+
+                // ---- Data rows, each followed by a merged PackSeq row ----
+                for (int r = 0; r < data.Rows.Count; r++)
+                {
+                    for (int c = 0; c < colCount; c++)
+                        sheet[currentRow, c + 1].Value2 = data.Rows[r][c]?.ToString();
+
+                    sheet[currentRow, 1, currentRow, colCount].BorderAround(ExcelLineStyle.Hair);
+                    sheet[currentRow, 1, currentRow, colCount].BorderInside(ExcelLineStyle.Hair);
+                    currentRow++;
+
+                    string packSeq = (r < packSeqValues.Count) ? packSeqValues[r] : "";
+                    if (!string.IsNullOrEmpty(packSeq))
+                    {
+                        sheet.Range[currentRow, 1, currentRow, colCount].Merge();
+                        sheet[currentRow, 1].Text = packSeq;
+                        sheet.Range[currentRow, 1, currentRow, colCount].WrapText = true;
+                        sheet.Range[headerRow, 1].RowHeight = 40;
+                        sheet.Range[currentRow, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet.Range[currentRow, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+                        sheet.Range[currentRow, 1, currentRow, colCount].BorderAround(ExcelLineStyle.Hair);
+                        currentRow++;
+                    }
+                }
+
+                // ... Report Header block (CmpName/FactoryName/reportFileName) stays exactly as before ...
+
+               
+
+                #region ******************Report Header******************
+                int endXlsCol = data.Columns.Count;
+                int xlsRow = 1, xlsCol = 1;
+                FactoryName = string.Empty;
+
+                if (dsCmp.Tables[0].Rows.Count > 0)
+                {
+                    CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                }
+                else
+                {
+                    CmpName = "";
+                }
+                sheet.Range[xlsRow, xlsCol].Text = CmpName;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                sheet.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet.Range[xlsRow, xlsCol].CellStyle.Font.Size = 12;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 17;
+                sheet.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                if (dsFactory.Tables[0].Rows.Count > 0)
+                {
+                    FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
+                }
+                else
+                {
+                    FactoryName = "";
+                }
+                sheet.Range[xlsRow, xlsCol].Text = FactoryName;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                sheet.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 18;
+                sheet.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                sheet.Range[xlsRow, xlsCol].Text = reportFileName;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                sheet.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+                sheet.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                sheet.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                #endregion ******************Report Header******************
+
+                #region Freeze Panes
+
+                sheet.IsDisplayZeros = false;
+                //sheet.UsedRange["A7"].FreezePanes();
+                //sheet.FirstVisibleColumn = 1;
+                //sheet.FirstVisibleRow = 6;
+
+                #endregion Freeze Panes
+
+                #region UsedRange Alignment
+                sheet.IsDisplayZeros = false;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                sheet.UsedRange.AutofitRows();   // <-- important: expands each PackSeq row to fit wrapped text
+
+
+                //sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                //sheet.IsDisplayZeros = false;
+                //sheet.UsedRange.WrapText = true;
+                //sheet.Range["A1"].CellStyle.Font.Size = 14;
+                //sheet.Range["A2"].CellStyle.Font.Size = 10;
+                //sheet.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet.PageSetup.TopMargin = 0.5;
+                sheet.PageSetup.BottomMargin = 0.7;
+                sheet.PageSetup.PrintTitleRows = "$1:$5";
+                sheet.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + identity.Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet.PageSetup.LeftMargin = 0.5;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.IsDisplayZeros = false;
+                sheet.Name = reportFileName;
+                #endregion Page Setup
+
+                workbook.SaveAs(fullPath);
+            }
+
             return fileName;
         }
 

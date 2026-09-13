@@ -111,6 +111,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return View();
         }
 
+        public ActionResult Dispatch()
+        {
+            return View();
+        }
+
         #endregion
 
         #region -- Operations
@@ -4125,6 +4130,15 @@ ORDER BY P.SortOrder";
         }
 
         [HttpPost, Authorize]
+        public ActionResult GetAllCartonList(string masterId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetAllCartonList(masterId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
         public ActionResult GetComboCartonList(string masterId)
         {
             Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
@@ -4821,6 +4835,13 @@ ORDER BY P.SortOrder";
             if (string.IsNullOrEmpty(text)) return string.Empty;
             return text.Replace("\\", "\\\\").Replace("(", "\\(").Replace(")", "\\)");
         }
+
+        #endregion
+
+
+        #region Dispatch
+
+
 
         #endregion
 

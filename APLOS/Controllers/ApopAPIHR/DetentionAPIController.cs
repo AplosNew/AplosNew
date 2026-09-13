@@ -2313,7 +2313,7 @@ left join hkp.process pc on pc.id = ITP.ProcessId"));
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"Declare  @SO varchar(100) = '" + SO + "' , @SKU1 varchar(100) = '" + SKU1 + "',@SKU2  varchar(100) = '" + SKU2 +" ' , @InspectionTypeId varchar(100) = '" + InspectionTypeId + @"';
+                return Json(_sqlRepository.GetDataTable(@"Declare  @SO varchar(100) = '" + SO + "' , @SKU1 varchar(100) = '" + SKU1 + "',@SKU2  varchar(100) = '" + SKU2 +"' , @InspectionTypeId varchar(100) = '" + InspectionTypeId + @"';
 
 SELECT
     TRN.SalesOrderId,
@@ -2351,7 +2351,7 @@ SELECT
         WHERE CONVERT(date, ITG2.AddedDate) = CONVERT(date, GETDATE())
           AND TRN2.SalesOrderId = TRN.SalesOrderId
           AND TRN2.SKU1Id = TRN.SKU1Id
-          AND TRN2.SKU2Id = TRN.SKU2Id  and ITEL2.InspectionTypeId =  ITY.Id
+          AND TRN2.SKU2Id = TRN.SKU2Id  and ITEL2.InspectionTypeId =  '1'
     ) AS RecheckQty,
 
     (
@@ -2963,6 +2963,40 @@ Select 'AQL-LotAudit' Value , 'AQL-LotAudit' Name"));
             try
             {
                 return Json(_sqlRepository.GetDataTable(@"Select Id , FromLotSize , ToLotSize,SampleSize , AQLLevel,Accept,Reject from [HKP].[AQLMaster]"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetQRHistory()
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select QRCODE , wcm.UserName LineNum ,So.Id SOId , SO.LineItemReference Salesorder , Ch.UserName Color , chv.UserName Size , ity.UserName Section 
+,itgc.Qty AlterQty , itgc.RecheckQty 
+from InspectionTranGrandChild itgc 
+left join TRN.InspectionTranChild itc on itc.id = itgc.InspectionTranChildId
+left join trn.Inspection it on it.id = itc.InspectionId 
+left join TRN.FirstCharacteristics FC  on fc.Id = itc.SKU1Id and fc.SalesOrderId = itc.SalesOrderId
+left join TRN.SecondCharacteristics SC on SC.id = itc.SKU2Id and sc.SalesOrderId = itc.SalesOrderId
+left join [HKP].[Characteristics] Ch on Ch.Id = FC.CharacteristicsId 
+left join [HKP].[CharacteristicsValue]  Chv on Chv.Id = SC.CharacteristicsValueId
+left join scs.WorkCenterMaster wcm on wcm.id = it.WorkCenterMasterId 
+left join trn.SalesOrder so on so.id = itc.SalesOrderId 
+left join InspectionType ity on ity.id = it.InspectionTypeId  
+where QRCODE is not null and ISResolve = 0 "));
 
             }
             catch (Exception ex)

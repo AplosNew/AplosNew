@@ -1293,6 +1293,44 @@ ORDER BY PackingName, Customer, SOId, Color, Size;";
             }
         }
 
+        public IEnumerable<object> GetAllCartonList(string masterId)
+        {
+            try
+            {
+                string sql = @"WITH CartonData AS
+(
+    SELECT 
+        M.UserName AS PackingName, P.UserName AS Customer, D.SalesOrderId AS SOId, 
+        FCV.UserName AS Color, SCV.UserName AS Size, CG.CartonNo, CG.NoOfPcs
+    FROM dbo.PacketRegistrationMaster M
+    LEFT JOIN dbo.PacketRegistrationType T ON T.PacketRegistrationMasterId = M.Id
+    LEFT JOIN dbo.PacketRegistrationDetail D ON D.PacketRegistrationMasterId = M.Id
+    LEFT JOIN TRN.SalesOrder S ON S.Id = D.SalesOrderId
+    LEFT JOIN TRN.MasterOrderItem MI ON MI.Id = S.MasterOrderItemId
+    LEFT JOIN TRN.MasterOrder MO ON MO.Id = MI.MasterOrderId
+    LEFT JOIN HKP.Party P ON P.Id = MO.PartyId
+    LEFT JOIN dbo.PacketRegistration R ON R.PacketRegistrationTypeId = T.Id AND R.SalesOrderId = D.SalesOrderId
+    LEFT JOIN dbo.CartonGeneration CG ON CG.PacketRegistrationId = R.Id
+    LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = R.SKU1Id
+    LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = R.SKU2Id
+    WHERE M.StatusType IN ('Running','Active') AND CG.CartonNo<>'' AND T.Id = '" + masterId + @"'
+)
+SELECT 
+    PackingName, Customer, SOId, Color, Size,
+    STRING_AGG(CAST(CartonNo AS VARCHAR(MAX)), ', ') 
+        WITHIN GROUP (ORDER BY CAST(CartonNo AS INT) DESC) AS CartonNo,
+    SUM(NoOfPcs) AS NoOfPcs
+FROM CartonData
+GROUP BY PackingName, Customer, SOId, Color, Size
+ORDER BY PackingName, Customer, SOId, Color, Size;";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> GetComboCartonList(string masterId)
         {
             try

@@ -333,7 +333,10 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/ProductionOrder/PackerCategory',
             controller: 'PackerCategoryController'
         })
-
+        .when('/pack-dispatch', {
+            templateUrl: 'OrderManagements/ProductionOrder/Dispatch',
+            controller: 'DispatchController'
+        })
        
 
         ;
