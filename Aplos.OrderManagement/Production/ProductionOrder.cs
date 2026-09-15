@@ -1516,6 +1516,23 @@ Where CG.PacketRegistrationId = '"+ masterId + "' Order By CartonNo";
             }
         }
 
+        public IEnumerable<object> GetComboCartons(string masterId)
+        {
+            try
+            {
+                string sql = @"SELECT CG.Id CartonId,CG.CartonNo,R.ColorSizeQty,AC.Id,AC.ActualQty FROM dbo.CartonGeneration CG
+LEFT JOIN dbo.PackingComboReference R ON R.Id=CG.PackingComboReferenceId
+LEFT JOIN dbo.ActualCatronQty AC ON AC.CartonId=CG.Id
+Where CG.PackingComboReferenceId = '"+masterId+"' Order By CartonNo";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 
 

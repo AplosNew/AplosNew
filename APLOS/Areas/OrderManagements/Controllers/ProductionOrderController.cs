@@ -4273,6 +4273,15 @@ ORDER BY P.SortOrder";
             return jsondata;
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetComboCartons(string masterId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetComboCartons(masterId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
         [HttpPost, Authorize]
         public JsonResult SaveCartonQty(List<Dictionary<string, object>> data)
         {
