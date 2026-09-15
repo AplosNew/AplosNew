@@ -2274,7 +2274,7 @@ where US.UserId = '" + Userid + "'"));
 
         }
 
-        public IHttpActionResult GetInspectionTypeDetail()
+        public IHttpActionResult GetInspectionTypeDetail(string InspectionTypeId , string EntityId)
         {
             /* clsDataContext clsData = new clsDataContext();
              clsData.GetTNAReport(out List<TNAGetSet> activelists);
@@ -2282,16 +2282,18 @@ where US.UserId = '" + Userid + "'"));
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"Select  IT.Id InspectionTypeId ,IT.UserName InspectionType , ITE.Id InspectionTypeEnteryLevelId, ITE.InspectionTypeId ITEITID , ITE.Grade Grade , ITE.UserName ITEUsername
-,ITE.LineItem , ITE.ProductCode , ITE.ProductionOrder , ITE.SalesOrder , ITE.SKU1 , ITE.SKU2 , ITE.SKU3 , ITE.MaxQty , ITE.Picture , ITE.Operation , ITE.Defect 
-,ITP.ProcessId , IE.EntityId , IEA.EmployeeId , IUA.BudgetId,pc.UserName ProcessName
+                return Json(_sqlRepository.GetDataTable(@"Select Distinct  IT.Id InspectionTypeId ,IT.UserName InspectionType , ITE.Id InspectionTypeEnteryLevelId, ITE.InspectionTypeId ITEITID , ITE.Grade Grade , ITE.UserName ITEUsername
+,ITE.LineItem , ITE.ProductCode , ITE.ProductionOrder , ITE.SalesOrder , ITE.SKU1 , ITE.SKU2 , ITE.SKU3 , 
+Case when IE.EntityId = '6'  then ITE.MaxQty else 1 end  MaxQty , ITE.Picture , ITE.Operation , ITE.Defect 
+,ITP.ProcessId , IE.EntityId , '' EmployeeId , IUA.BudgetId,pc.UserName ProcessName
 from InspectionType IT
 left join InspectionTypeEnteryLevel ITE on ITE.InspectionTypeId = IT.Id
 left join InspectionTypeProcess ITP  on ITP.InspectionTypeId = IT.Id
 left join InspectionEntity IE on IE.InspectionTypeId = IT.Id
 left join InspectionEmployeeApplicable IEA on IEA.InspectionTypeId = IT.Id
 left join InspectionUserApplicable IUA on IUA.InspectionTypeId = IT.Id
-left join hkp.process pc on pc.id = ITP.ProcessId"));
+left join hkp.process pc on pc.id = ITP.ProcessId
+where IT.Id = '" + InspectionTypeId + "' and IE.Entityid = '" + EntityId + "'"));
 
             }
             catch (Exception ex)
@@ -2976,7 +2978,7 @@ Select 'AQL-LotAudit' Value , 'AQL-LotAudit' Name"));
 
         }
 
-        public IHttpActionResult GetQRHistory()
+        public IHttpActionResult GetQRHistory(string EntityId)
         {
             /* clsDataContext clsData = new clsDataContext();
              clsData.GetTNAReport(out List<TNAGetSet> activelists);
@@ -2996,7 +2998,7 @@ left join [HKP].[CharacteristicsValue]  Chv on Chv.Id = SC.CharacteristicsValueI
 left join scs.WorkCenterMaster wcm on wcm.id = it.WorkCenterMasterId 
 left join trn.SalesOrder so on so.id = itc.SalesOrderId 
 left join InspectionType ity on ity.id = it.InspectionTypeId  
-where QRCODE is not null and ISResolve = 0 "));
+where QRCODE is not null and ISResolve = 0 and it.EntityId = '" + EntityId + "'"));
 
             }
             catch (Exception ex)
