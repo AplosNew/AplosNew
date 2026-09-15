@@ -389,12 +389,13 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
     $scope.inputChanged = function (str) {
         $scope.voucherDetail.GLGeneralInfoId = str;
     };
-
+    $scope.voucherNOIsManually = false;
     $scope.getCboVoucherTypeBanksPaymentList = function () {
         cboService.getCboVoucherTypeBanksReceiptList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
+                $scope.voucherNOIsManually = $scope.voucherTypeList[0].IsManually;
                 $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 $scope.voucher.DocDate = $scope.voucher.PostingDate;
                 $scope.getTaxCodeByTaxYear($scope.voucher.PostingDate);
@@ -860,6 +861,14 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
     $scope.validation = function () {
         if (baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
             ShowResult("Please select Currency!", "failure");
+            return true;
+        }
+        if ($scope.voucherNOIsManually == true && $scope.voucher.VoucherNo == null) {
+            ShowResult("Please Input Voucher No!", "failure");
+            return true;
+        }
+        if ($scope.Action === "Update" && $scope.voucher.VoucherNo == null) {
+            ShowResult("Please Input Voucher No!", "failure");
             return true;
         }
         if (baseService.isUndefinedOrNull($scope.voucher.CompanyCurrencyRate)) {

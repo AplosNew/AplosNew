@@ -28,6 +28,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         PartyName: null,
         PartyType: "Customer",
         CurrencyId: null,
+        LoanVoucherNo:null,
         VoucherNo: null,
         VoucherDate: $filter("dateFiltering")(Date.now()),
         PostingDate: null,
@@ -145,12 +146,13 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
             $scope.entityList = result;
         });
     });
-
+    $scope.voucherNOIsManually = false;
     $scope.getCboVoucherTypeLoanList = function () {
         accountService.getCboVoucherTypeLoanPaymentList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
+                $scope.voucherNOIsManually = $scope.voucherTypeList[0].IsManually;
                 $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 $scope.voucher.DocDate = $scope.voucher.PostingDate;
             }
@@ -411,6 +413,14 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         $scope.loanBankList = response.data;
     });
     $scope.validation = function () {
+        if ($scope.voucherNOIsManually == true && $scope.voucher.VoucherNo == null) {
+            ShowResult("Please Input Voucher No!", "failure");
+            return true;
+        }
+        if ($scope.Action === "Update" && $scope.voucher.VoucherNo == null) {
+            ShowResult("Please Input Voucher No!", "failure");
+            return true;
+        }
         if (new Date($scope.voucher.PostingDate) < new Date($scope.voucher.LoanPostingDate)) {
             ShowResult("Posting date must be below or equal to Loan PostingDate!", "failure");;
             return true;
@@ -679,7 +689,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         $scope.voucher.FinancingId = data.FinancingId;
         $scope.voucher.FinancingDetailId = data.FinancingDetailId;
         $scope.voucher.FinancingTypeId = data.FinancingTypeId;
-        $scope.voucher.VoucherNo = data.VoucherNo;
+        $scope.voucher.LoanVoucherNo = data.VoucherNo;
         $scope.voucher.PartyName = data.Particulars;
         $scope.voucher.PartyId = data.PartyId;
         $scope.voucher.PartyType = data.PartyType;

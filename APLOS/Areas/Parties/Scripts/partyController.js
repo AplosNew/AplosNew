@@ -1131,7 +1131,7 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
             $scope.GLUrl = 'accounts/glitem/';
             if ($scope.partyAccountType === 'Vendor') {
                 if ($scope.party.PartyGLType === 'ReconciliationGL' || $scope.party.PartyGLType === 'AdditionalGL') {
-                    $scope.GLUrl += 'getpartycreditglaccountcode?companyId=' + $scope.companyId;
+                    $scope.GLUrl += 'GetPartyAccountGroupGL?companyId=' + $scope.companyId + '&partyAccountGroupId=' + $scope.currentClickedPartyAccountGroupId;
                 }
                 else if ($scope.party.PartyGLType === 'DownPaymentGL' || $scope.party.PartyGLType === 'SuspenseGL') {
                     $scope.GLUrl += 'getvendordownpaymentgl?companyId=' + $scope.companyId;

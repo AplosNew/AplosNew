@@ -163,7 +163,8 @@ namespace Aplos.Areas.Accounts.Controllers
         [HttpGet, Authorize]
         public JsonResult GetJournalVoucherDetailList(string voucherId)
         {
-            return Json(_voucharService.GetJournalVoucherDetailList(voucherId), JsonRequestBehavior.AllowGet);
+            AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);
+            return Json(_accountsGLService.GetJournalVoucherDetailList(voucherId), JsonRequestBehavior.AllowGet);
         }
 
        

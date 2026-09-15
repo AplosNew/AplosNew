@@ -384,6 +384,14 @@ function customerInvoiceController(cboService, commonMessage, $scope, $rootScope
             ShowResult("Please select Currency!", "failure");
             return true;
         }
+        if ($scope.voucherNOIsManually == true && $scope.voucher.VoucherNo == null) {
+            ShowResult("Please Input Voucher No!", "failure");
+            return true;
+        }
+        if ($scope.Action === "Update" && $scope.voucher.VoucherNo == null) {
+            ShowResult("Please Input Voucher No!", "failure");
+            return true;
+        }
         if ($scope.partyType === "Customer") {
             if (baseService.isUndefinedOrNull($scope.voucher.PartyId)) {
                 ShowResult("Please select Customer!", "failure");
@@ -613,12 +621,13 @@ function customerInvoiceController(cboService, commonMessage, $scope, $rootScope
         clearVoucherDetail();
     };
 
-
+    $scope.voucherNOIsManually = false;
     $scope.getCboVoucherTypeAccountReceivableList = function () {
         cboService.getCboVoucherTypeAccountReceivableList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
+                $scope.voucherNOIsManually = $scope.voucherTypeList[0].IsManually;
                 if ($scope.voucherTypeList[0].LastPostingDate != null) {
                     $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 }

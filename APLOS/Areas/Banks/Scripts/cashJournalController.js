@@ -261,6 +261,7 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.Action = "Save";
         $scope.actionIsDisable = false;
         $scope.voucher.VoucherId = null;
+        $scope.voucher.VoucherNo = null;
         $scope.voucher.Active = true;
         $scope.voucher.Narration = null;
         $scope.voucher.AdditionalInfo = null;
@@ -277,6 +278,14 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
     };
 
     $scope.validation = function () {
+        if ($scope.voucherNOIsManually == true && $scope.voucher.VoucherNo == null) {
+            ShowResult("Please Input Voucher No!", "failure");
+            return true;
+        }
+        if ($scope.Action === "Update" && $scope.voucher.VoucherNo == null) {
+            ShowResult("Please Input Voucher No!", "failure");
+            return true;
+        }
         if ($scope.approvedByList.length > 0 && $scope.voucher.ApprovedById == null) {
             ShowResult("Please select Approved By!", "failure");
             return true;
@@ -563,12 +572,13 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
     //        $rootScope.toggle();
     //    }
     //};
-
+    $scope.voucherNOIsManually = false;
     $scope.getCboVoucherTypeCashJournalList = function () {
         bankService.getCboVoucherTypeCashJournalList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
+                $scope.voucherNOIsManually = $scope.voucherTypeList[0].IsManually;
                 $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 $scope.voucher.BankTransactionDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 $scope.voucher.DocDate = $scope.voucher.PostingDate;

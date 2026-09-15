@@ -106,6 +106,7 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
+                $scope.voucherNOIsManually = $scope.voucherTypeList[0].IsManually;
                 $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 $scope.voucher.DocDate = $scope.voucher.PostingDate;
                 $scope.GetCurrencyExchangeRateList();
@@ -146,13 +147,14 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
 
     $scope.Get = function (data) {
         $scope.voucher.Id = data.Id;
-        $scope.voucher.PostingDate = data.PostingDate;
-        $scope.voucher.DocDate = data.DocDate;
         $scope.voucher.DocRefNo = data.DocRefNo;
+        $scope.voucher.VoucherNo = data.VoucherNo;
         $scope.voucher.Narration = data.Narration;
         $scope.voucher.CurrencyId = data.CurrencyId;
         $scope.voucher.EntityId = data.EntityId;
         $scope.GetCurrencyExchangeRateList();
+        $scope.voucher.DocDate = data.DocDate;
+        $scope.voucher.PostingDate = data.PostingDate;
         $scope.currencyDisable = true;
         $scope.Action = "Update";
         if (!$rootScope.isCollapsed) {
@@ -353,6 +355,10 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
     };
 
     $scope.validation = function () {
+        if ($scope.voucherNOIsManually == true && $scope.voucher.VoucherNo == null) {
+            ShowResult("Please Input Voucher No!", "failure");
+            return true;
+        }
         for (var i = 0; i < $scope.voucherDetailList.length; i++) {
             var getRow = $filter("filter")($scope.voucherDetailList, { "BudgetMasterId": $scope.voucherDetailList[i].BudgetMasterId, "ActivityId": $scope.voucherDetailList[i].ActivityId, "EntityId": $scope.voucherDetailList[i].EntityId });
             if (!baseService.isUndefinedOrNull(getRow) && getRow.length > 1 ) {

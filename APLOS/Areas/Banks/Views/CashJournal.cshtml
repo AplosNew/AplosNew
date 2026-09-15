@@ -155,7 +155,7 @@
                 <input type="text" id="AdditionalInfo" name="AdditionalInfo" ng-model="voucher.AdditionalInfo" class="form-control text-right" tabindex="5" autocomplete="off">
             </div>
         </div>
-        <div class="form-group" ng-show="Action=='Update'">
+        <div class="form-group" ng-show="Action=='Update'||voucherNOIsManually==true">
             <label class="col-sm-3 control-label">VoucherNo<sup>*</sup></label>
             <div class="col-sm-9 show-message">
                 <input type="text" id="VoucherNo" name="VoucherNo" ng-model="voucher.VoucherNo" class="form-control text-right" tabindex="5" autocomplete="off">

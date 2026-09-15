@@ -131,6 +131,12 @@
                 <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off" ng-disabled="voucher.CurrencyId==companyCurrencyId">
             </div>
         </div>
+        <div class="form-group" ng-show="Action=='Update'||voucherNOIsManually==true">
+            <label class="col-sm-4 control-label">VoucherNo<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="15" name="VoucherNo" tabindex="8" class="form-control" ng-model="voucher.VoucherNo">
+            </div>
+        </div>
         <div class="form-group" ng-show="voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.Cash.ToString()'">
             <label class="col-sm-4 control-label">Cash<sup>*</sup></label>
             <div class="col-sm-8 show-message">
