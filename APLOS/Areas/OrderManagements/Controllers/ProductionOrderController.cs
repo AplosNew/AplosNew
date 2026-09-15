@@ -4265,25 +4265,17 @@ ORDER BY P.SortOrder";
         private int currentQRCodeIndex = 0;
 
         [HttpGet, Authorize]
-        public ActionResult GetCartons(string masterId)
+        public ActionResult GetCartons(string Id)
         {
             Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
-            var jsondata = Json(order.GetCartons(masterId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(order.GetCartons(Id), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
 
-        [HttpGet, Authorize]
-        public ActionResult GetComboCartons(string masterId)
-        {
-            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
-            var jsondata = Json(order.GetComboCartons(masterId), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
-        }
 
         [HttpPost, Authorize]
-        public JsonResult SaveCartonQty(List<Dictionary<string, object>> data)
+        public JsonResult SaveCartonQty(Dictionary<string, object> data)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
@@ -4293,28 +4285,22 @@ ORDER BY P.SortOrder";
                
                 #region Entity 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ActualCatronQty", out dsEntity, false, "1");
-                //for (int i = 0; i < dsEntity.Tables[0].Rows.Count; i++)
-                //{
-                //    dsEntity.Tables[0].Rows[i].Delete();
-                //}
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ActualCatronQty Where CartonId='"+data["CartonId"] +"'", out dsEntity, false, "1");
+                
 
                 if (data != null)
                 {
-                    foreach (var item in data)
+                    DataView dv = new DataView(dsEntity.Tables[0]);
+                    dv.RowFilter = "Id='" + Convert.ToInt64(data["Id"]) + "'";
+
+                    if (dv.Count == 0)
                     {
-                        DataView dv = new DataView(dsEntity.Tables[0]);
-                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
-                        
-                        if (dv.Count == 0)
-                        {
-                            AddNewRow(dsEntity.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drmo = dv[0].Row;
-                            EditRow(drmo, item);
-                        }
+                        AddNewRow(dsEntity.Tables[0], data);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, data);
                     }
                 }
 

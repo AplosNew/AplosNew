@@ -1093,66 +1093,8 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     }
 
 
-    $scope.ActualCartonList = [];
-    $scope.GetCartons = function () {
-        $http({
-            method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetCartons?masterId=' + $scope.CartonMasterId
-        }).then(function successCallback(response) {
-            $scope.ActualCartonList = response.data;
-            angular.element(document.querySelector('#ActualCartonPopUp')).modal('show');
-        });
-    }
 
-    $scope.GetSavedCartons = function () {
-        $http({
-            method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetCartons?masterId=' + $scope.CartonMasterId
-        }).then(function successCallback(response) {
-            $scope.ActualCartonList = response.data;
-        });
-    }
-
-    $scope.CloseAC = function () {
-        angular.element(document.querySelector('#ActualCartonPopUp')).modal('hide');
-    }
-
-    $scope.SaveCartonQty = function () {
-        try {
-            if ($scope.ActualCartonList.length > 0) {
-                var tempList = [];
-
-                for (var i = 0; i < $scope.ActualCartonList.length; i++) {
-                    if (!baseService.isUndefinedOrNull($scope.ActualCartonList[i].ActualQty) || $scope.ActualCartonList[i].ActualQty > 0) {
-                        if (baseService.isUndefinedOrNull($scope.ActualCartonList[i].Id)) {
-                            $scope.ActualCartonList[i].Id=-(Math.floor(Math.random() * 100) + 1);
-                        }
-                        tempList.push($scope.ActualCartonList[i]);
-                    }
-
-                }
-                $http({
-                    method: 'POST',
-                    url: "OrderManagements/ProductionOrder/SaveCartonQty",
-                    data: { 'data': tempList },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error == true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.GetSavedCartons();
-                    }
-                }, function errorCallback(response) {
-                    ShowResult(response.data.Message, 'failure');
-                });
-
-            }
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    }
+  
 
 
 }

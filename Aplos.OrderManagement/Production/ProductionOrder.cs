@@ -1501,29 +1501,31 @@ HAVING SUM(SC.Qty) <> 0;";
         {
             try
             {
-                string sql = @"SELECT CG.Id CartonId,CG.CartonNo,PR.SKU1Id,FCV.UserName AS SKUColor,PR.SKU2Id,SCV.UserName AS SKUSize,AC.Id,AC.ActualQty FROM dbo.CartonGeneration CG
+                string sql = @"SELECT CG.Id CartonId,CG.CartonNo,AC.Id,AC.ActualQty,'' ComboRefNo,FCV.UserName AS SKUColor,SCV.UserName AS SKUSize,PR.UnitPerPack PlanQty,AC.Remarks
+FROM dbo.CartonGeneration CG
 LEFT JOIN dbo.PacketRegistration PR ON PR.Id=CG.PacketRegistrationId
 LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = PR.SKU1Id
 LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = PR.SKU2Id
 LEFT JOIN dbo.ActualCatronQty AC ON AC.CartonId=CG.Id
-Where CG.PacketRegistrationId = '"+ masterId + "' Order By CartonNo";
-
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public IEnumerable<object> GetComboCartons(string masterId)
-        {
-            try
-            {
-                string sql = @"SELECT CG.Id CartonId,CG.CartonNo,R.ColorSizeQty,AC.Id,AC.ActualQty FROM dbo.CartonGeneration CG
+WHERE CG.Id = '" + masterId + @"' AND CG.PackingComboReferenceId IS NULL      -- << only non-combo cartons
+UNION ALL
+SELECT CG.Id CartonId,CG.CartonNo,AC.Id,AC.ActualQty,R.ComboRefNo,
+SKUColor=STUFF((SELECT DISTINCT ', ' + FCV.UserName
+     FROM dbo.[PackingComboSKUDetail] D2
+     LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = D2.SKU1Id
+     WHERE D2.PackingComboReferenceId = R.Id
+     FOR XML PATH('')
+ ), 1, 1, ''),
+ SKUSize=STUFF((SELECT DISTINCT ', ' + SCV.UserName
+     FROM dbo.[PackingComboSKUDetail] D2
+     LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = D2.SKU2Id
+     WHERE D2.PackingComboReferenceId = R.Id
+     FOR XML PATH('')
+ ), 1, 1, ''),R.ComboQty PlanQty,AC.Remarks
+FROM dbo.CartonGeneration CG
 LEFT JOIN dbo.PackingComboReference R ON R.Id=CG.PackingComboReferenceId
 LEFT JOIN dbo.ActualCatronQty AC ON AC.CartonId=CG.Id
-Where CG.PackingComboReferenceId = '"+masterId+"' Order By CartonNo";
+WHERE CG.Id = '" + masterId + @"' AND CG.PackingComboReferenceId IS NOT NULL   -- << only combo cartons";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -1532,6 +1534,8 @@ Where CG.PackingComboReferenceId = '"+masterId+"' Order By CartonNo";
                 throw ex;
             }
         }
+
+     
 
     }
 
