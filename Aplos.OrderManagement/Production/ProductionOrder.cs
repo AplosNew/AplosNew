@@ -1535,7 +1535,37 @@ WHERE CG.Id = '" + masterId + @"' AND CG.PackingComboReferenceId IS NOT NULL   -
             }
         }
 
-     
+        public IEnumerable<object> GetPackerEmployee(string masterId)
+        {
+            try
+            {
+
+                string CmdText = @"SELECT SSU.Id,SSU.EmpSystemId,EI.EmployeeName,EI.CompanyId,EI.PlantId,EI.GroupId,EI.EmployeeCode
+                                      ,EI.BudgetCode,E.UserName EntityName,D.UserName Designation,
+                                      PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,SS.UserName SubSection
+                                      ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,EI.EmpPicPath,EI.EmployeeStatus,C.UserName Company
+									  FROM dbo.PackerCategoryEmployee SSU
+									  LEFT JOIN dbo.EmployeeInformation EI on ei.SystemId=ssu.EmpSystemId
+                                      LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                                      LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                      LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                      LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                      LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
+                                      LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
+                                      LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                      LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
+                                      LEFT JOIN ORG.Company C ON C.Id=EI.CompanyId
+                                      LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
+                                      LEFT JOIN HKP.Designation DEG ON EI.GivenDesignationId=DEG.Id
+                                      LEFT JOIN HKP.LegalDesignation LDEG ON EI.LegalDesignationId=LDEG.Id
+									  Where PackerCategoryId='" + masterId + "' ORDER BY EI.EmployeeStatus";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
     }
 
