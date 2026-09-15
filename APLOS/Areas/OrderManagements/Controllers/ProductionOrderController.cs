@@ -116,6 +116,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return View();
         }
 
+        public ActionResult CartonUpdate()
+        {
+            return View();
+        }
+
         #endregion
 
         #region -- Operations
@@ -4174,7 +4179,7 @@ ORDER BY P.SortOrder";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
 
-                int totalCartons = Convert.ToInt32(data["NoOfPack"]);
+                int totalCartons = Convert.ToInt32(data["NoOfPack"])+1;
                 int existingCartons = dspackCat.Tables[0].AsEnumerable().Count(r => r["PacketRegistrationId"].ToString() == data["PacketRegistrationId"].ToString());
 
                 if (existingCartons < totalCartons)
@@ -4221,7 +4226,7 @@ ORDER BY P.SortOrder";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
 
-                int totalCartons = Convert.ToInt32(data["NoOfPack"]);
+                int totalCartons = Convert.ToInt32(data["NoOfPack"])+1;
                 int existingCartons = dspackCat.Tables[0].AsEnumerable().Count(r => r["PackingComboReferenceId"].ToString() == data["PackingComboReferenceId"].ToString());
 
                 if (existingCartons < totalCartons)
@@ -4258,6 +4263,67 @@ ORDER BY P.SortOrder";
 
         private List<QRCodeItem> qrCodeItems = new List<QRCodeItem>();
         private int currentQRCodeIndex = 0;
+
+        [HttpGet, Authorize]
+        public ActionResult GetCartons(string masterId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetCartons(masterId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveCartonQty(List<Dictionary<string, object>> data)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsEntity;
+            try
+            {
+               
+                #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ActualCatronQty", out dsEntity, false, "1");
+                //for (int i = 0; i < dsEntity.Tables[0].Rows.Count; i++)
+                //{
+                //    dsEntity.Tables[0].Rows[i].Delete();
+                //}
+
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsEntity.Tables[0]);
+                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
+                        
+                        if (dv.Count == 0)
+                        {
+                            AddNewRow(dsEntity.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsEntity);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
 
         #endregion
 

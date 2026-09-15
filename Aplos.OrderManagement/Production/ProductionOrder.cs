@@ -1497,6 +1497,25 @@ HAVING SUM(SC.Qty) <> 0;";
             }
         }
 
+        public IEnumerable<object> GetCartons(string masterId)
+        {
+            try
+            {
+                string sql = @"SELECT CG.Id CartonId,CG.CartonNo,PR.SKU1Id,FCV.UserName AS SKUColor,PR.SKU2Id,SCV.UserName AS SKUSize,AC.Id,AC.ActualQty FROM dbo.CartonGeneration CG
+LEFT JOIN dbo.PacketRegistration PR ON PR.Id=CG.PacketRegistrationId
+LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = PR.SKU1Id
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = PR.SKU2Id
+LEFT JOIN dbo.ActualCatronQty AC ON AC.CartonId=CG.Id
+Where CG.PacketRegistrationId = '"+ masterId + "' Order By CartonNo";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 
 

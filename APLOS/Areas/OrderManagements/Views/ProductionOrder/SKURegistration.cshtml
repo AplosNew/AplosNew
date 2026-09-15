@@ -619,6 +619,7 @@
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
+                            <div e-column e-template="#Car" e-headertext="Actions" e-width="40" style="height: 20px;"></div>
                             <div e-column e-type="string" e-field="PackingName" e-headertext="PackingName" e-width="80"></div>
                             <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="100"></div>
                             <div e-column e-type="string" e-field="SOId" e-headertext="SOId" e-width="80"></div>
@@ -627,7 +628,11 @@
                             <div e-column e-type="string" e-field="CartonNo" e-headertext="CartonNo" e-width="80"></div>
                             <div e-column e-type="string" e-field="NoOfPcs" e-headertext="NoOfUnit" e-width="80"></div>
                         </div>
-
+                        <script type="text/template" id="Car">
+                            <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                                <button ng-click="$parent.GetCartons();" title="Carton List" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
+                            </div>
+                        </script>
                     </div>
                 </div>
                 <div class="common-btn" style="padding-right: 15px;">
@@ -651,6 +656,7 @@
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
+                            @*<div e-column e-template="#ComboCar" e-headertext="Actions" e-width="40" style="height: 20px;"></div>*@
                             <div e-column e-type="string" e-field="PackingName" e-headertext="PackingName" e-width="80"></div>
                             <div e-column e-type="string" e-field="SOId" e-headertext="SOId" e-width="80"></div>
                             <div e-column e-type="string" e-field="ComboRefNo" e-headertext="ComboRefNo" e-width="80"></div>
@@ -660,13 +666,56 @@
                             <div e-column e-type="string" e-field="PackRef" e-headertext="PackRef" e-width="100"></div>
                             <div e-column e-type="string" e-field="PackSeq" e-headertext="PackSeq" e-width="100"></div>
                         </div>
-
+                        @*<script type="text/template" id="ComboCar">
+                            <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                                <button ng-click="$parent.GetCartons();" title="Carton List" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
+                            </div>
+                        </script>*@
                     </div>
                 </div>
                 <div class="common-btn" style="padding-right: 15px;">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="ComboReportExcel();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
                         <li> <button ng-click="CloseCG();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="ActualCartonPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Carton List<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="col-xs-12">
+                    <div style="color:black;" id="GridACC" ej-grid e-datasource="ActualCartonList" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="CartonId" e-headertext="CartonId" e-width="80"></div>
+                            <div e-column e-type="string" e-field="CartonNo" e-headertext="CartonNo" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SKUColor" e-headertext="Color" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SKUSize" e-headertext="Size" e-width="80"></div>
+                            <div e-column e-type="string" e-template="#ActualQty" e-headertext="ActualQty" e-width="80"></div>
+                        </div>
+                        <script type="text/template" id="Car">
+                            <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                                <button ng-click="$parent.GetCartons(this);" title="Carton List" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
+                            </div>
+                        </script>
+                        <script type="text/template" id="ActualQty">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.ActualQty" n-decimals="2" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveCartonQty();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        <li> <button ng-click="CloseAC();" class="btn">Close</button></li>
                     </ul>
                 </div>
             </div>

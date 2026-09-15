@@ -1351,6 +1351,7 @@ upanelApp.controller("PackingBookingController", PackingBookingController)
 upanelApp.controller("VoucherMaxNumberUpdateController", VoucherMaxNumberUpdateController)
 upanelApp.controller("PackerCategoryController", PackerCategoryController)
 upanelApp.controller("DispatchController", DispatchController)
+upanelApp.controller("CartonUpdateController", CartonUpdateController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
