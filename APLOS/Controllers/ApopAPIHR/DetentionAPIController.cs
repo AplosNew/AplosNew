@@ -2293,7 +2293,7 @@ left join InspectionEntity IE on IE.InspectionTypeId = IT.Id
 left join InspectionEmployeeApplicable IEA on IEA.InspectionTypeId = IT.Id
 left join InspectionUserApplicable IUA on IUA.InspectionTypeId = IT.Id
 left join hkp.process pc on pc.id = ITP.ProcessId
-where IT.Id = '" + InspectionTypeId + "' and IE.Entityid = '" + EntityId + "'"));
+where IE.Entityid = '" + EntityId + "'"));
 
             }
             catch (Exception ex)
