@@ -73,6 +73,12 @@
                 </div>
             </div>
         </div>
+        <div class="form-group" ng-show="Action=='Update'||voucherNOIsManually==true">
+            <label class="col-sm-4 control-label">VoucherNo<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="15" name="VoucherNo" tabindex="8" class="form-control" ng-model="voucher.VoucherNo">
+            </div>
+        </div>
     </div>
     <div class="col-xs-12 col-sm-4 col-md-4">
         <div class="form-group" show-errors>
@@ -101,8 +107,6 @@
                 <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="6" required autocomplete="off" n-decimals="4" ng-disabled="voucher.CurrencyId==companyCurrencyId">
             </div>
         </div>
-    </div>
-    <div class="col-xs-8 col-sm-8 col-md-8">
         <div class="form-group" show-errors>
             <label class="col-sm-2 control-label">Narration<sup>*</sup></label>
             <div class="col-sm-10 show-message">
@@ -110,6 +114,7 @@
             </div>
         </div>
     </div>
+   
     <div class="clearfix"></div>
     <div class="col-md-6 col-sm-6 col-xs-6">
         <fieldset class="scheduler-border">

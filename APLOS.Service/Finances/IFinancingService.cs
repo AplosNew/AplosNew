@@ -9,7 +9,8 @@ namespace Library.Service.Finances
         Financing Insert(Financing financing);
         void UpdateFinancing(Financing financing);
         void UpdateFinancingDetail(FinancingDetail financingDetail);
-
+        void UpdateFinancingWriteOff(FinancingWriteOff financingWriteOff);
+        void UpdateFinancingDetailWriteOff(FinancingDetailWriteOff financingDetailWriteOff);
         Financing InsertFinancing(Financing financing);
 
         PKGenerator GetMaxNumber();
@@ -25,6 +26,8 @@ namespace Library.Service.Finances
         void DeleteInvestmentPayment(string companyId, string plantId, string voucherId);
         Financing FindFinancing(string financingId);
         FinancingDetail FindFinancingDetail(string financingDetailId);
+        FinancingWriteOff FindFinancingWriteOff(string financingWriteOffId);
+        FinancingDetailWriteOff FindFinancingDetailWriteOff(string financingDetailWriteOffId);
         FinancingWriteOff InsertFinancingWriteOff(FinancingWriteOff invoiceWriteOff);
         void InsertFinancingWriteOffDetail(FinancingWriteOff invoiceWriteOff, FinancingDetailWriteOff invoiceWriteOffDetail, int currentId);
         void PostLoanInterestPayable(string voucherId);

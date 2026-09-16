@@ -25,6 +25,7 @@ using Library.ViewModel.Invoices;
 using Library.ViewModel.Vouchers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Library.Service.Finances
@@ -431,6 +432,126 @@ namespace Library.Service.Finances
                         SourceType = voucherDetailTo.PaymentSource
                     });
                 }
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+                return voucher.VoucherNo;
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
+        public string UpdateInvestment(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            var flag = false;
+            try
+            {
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+
+                // Update INTO Invoice
+
+                var financing = new Financing();
+                financing = _financingService.FindFinancing(voucherVM.Id);
+                financing.Id = voucherVM.Id;
+                financing.Amount = voucherVM.Amount;
+                financing.CurrencyId = voucherVM.CurrencyId;
+                financing.PostingDate = voucherVM.PostingDate;
+                financing.DocDate = voucherVM.DocDate;
+                financing.DocRefNo = voucherVM.DocRefNo;
+                financing.DocRefNo = voucherVM.DocRefNo;
+                financing.FiscalYearId = voucherVM.FiscalYearId;
+                financing.FiscalYearPeriodId = voucherVM.FiscalYearPeriodId;
+                financing.Narration = voucherVM.Narration;
+                financing.PartyId = voucherVM.PartyId;
+                financing.PartyPlantId = voucherVM.PartyPlantId;
+                financing.TaxYearId = voucherVM.TaxYearId;
+                financing.TaxYearPeriodId = voucherVM.TaxYearPeriodId;
+                financing.VoucherDate = voucherVM.VoucherDate;
+                financing.VoucherTypeId = voucherVM.VoucherTypeId;
+                financing.EntityId = voucherVM.EntityId;
+                financing.Amount = voucherVM.Amount;
+                _financingService.UpdateFinancing(financing);
+
+                // Update INTO Voucher TABLE
+                var voucher = new Voucher();
+                voucher = _voucherService.FindVoucher(voucherVM.VoucherId);
+                voucher.CurrencyId = voucherVM.CurrencyId;
+                voucher.PostingDate = voucherVM.PostingDate;
+                voucher.DocDate = voucherVM.DocDate;
+                voucher.DocRefNo = voucherVM.DocRefNo;
+                voucher.FiscalYearId = voucherVM.FiscalYearId;
+                voucher.FiscalYearPeriodId = voucherVM.FiscalYearPeriodId;
+                voucher.Narration = voucherVM.Narration;
+                voucher.VoucherNo = voucherVM.VoucherNo;
+                voucher.VoucherTypeId = voucherVM.VoucherTypeId;
+                voucher.EntityId = voucherVM.EntityId;
+                _voucherService.UpdateVoucher(voucher);
+
+                var totalAmountDr = 0.0M;
+                var totalAmountCr = 0.0M;
+                var taxDrAmount = 0.0M;
+                var taxCrAmount = 0.0M;
+
+                foreach (var voucherDetailVM in voucherDetailVMList)
+                {
+                    // in libility side Dr.
+                    var invoiceDetail = new FinancingDetail();
+                    if (voucherDetailVM.FinancingDetailId != null)
+                    {
+                        invoiceDetail = _financingService.FindFinancingDetail(voucherDetailVM.FinancingDetailId);
+                        invoiceDetail.GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId;
+                        invoiceDetail.BudgetMasterId = voucherDetailVM.BudgetMasterId;
+                        invoiceDetail.ActivityId = voucherDetailVM.ActivityId;
+                        invoiceDetail.Amount = voucherDetailVM.CrAmount;
+                        _financingService.UpdateFinancingDetail(invoiceDetail);
+                    }
+
+
+                    var voucherDetailDr = new VoucherDetail();
+                    voucherDetailDr = _voucherService.FindVoucherDetail(voucherDetailVM.Id);
+                    taxDrAmount = 0.0M;
+
+
+                    voucherDetailDr.GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId;
+                    voucherDetailDr.BudgetMasterId = voucherDetailVM.BudgetMasterId;
+                    voucherDetailDr.ActivityId = voucherDetailVM.ActivityId;
+                    voucherDetailDr.DrAmount = voucherDetailVM.DrAmount;
+                    voucherDetailDr.CrAmount = voucherDetailVM.CrAmount;
+                    voucherDetailDr.Narration = voucherVM.Narration;
+                    _voucherService.UpdateVoucherDetail(voucher, voucherDetailDr);
+
+                    totalAmountDr += voucherDetailDr.DrAmount;
+                    totalAmountCr += voucherDetailDr.DrAmount;
+                    var voucherDetailCurrencyDr = new VoucherDetailCurrency();
+                    voucherDetailCurrencyDr = _voucherService.GetVoucherDetailCurrencyList(r => r.VoucherId == voucher.Id && r.VoucherDetailId == voucherDetailDr.Id).Select().FirstOrDefault();
+                    voucherDetailCurrencyDr.DrAmount = voucherDetailVM.DrAmount * voucherVM.CompanyCurrencyRate;
+                    voucherDetailCurrencyDr.CrAmount = voucherDetailVM.CrAmount * voucherVM.CompanyCurrencyRate;
+                    _voucherService.UpdateVoucherDetailCompanyCurrency(voucherDetailDr, voucherDetailCurrencyDr);
+                }
+
+                if (totalAmountDr != totalAmountCr)
+                    throw new CustomException("Dr and Cr amount is not equal.");
+
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -1105,6 +1226,133 @@ namespace Library.Service.Finances
             }
         }
 
+        public string UpdateInvestmentSetOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            var flag = false;
+            try
+            {
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+
+                // Update INTO Invoice
+                decimal changeAmount = 0;
+                var financing = new FinancingWriteOff();
+                financing = _financingService.FindFinancingWriteOff(voucherVM.Id);
+                if(financing.Amount> voucherVM.Amount)
+                {
+                    changeAmount = financing.Amount - voucherVM.Amount;
+                }
+                if (financing.Amount < voucherVM.Amount)
+                {
+                    changeAmount =  voucherVM.Amount- financing.Amount;
+                }
+                financing.Id = voucherVM.Id;
+                financing.Amount = voucherVM.Amount;
+                financing.CurrencyId = voucherVM.CurrencyId;
+                financing.PostingDate = voucherVM.PostingDate;
+                financing.DocDate = voucherVM.DocDate;
+                financing.DocRefNo = voucherVM.DocRefNo;
+                financing.DocRefNo = voucherVM.DocRefNo;
+                financing.FiscalYearId = voucherVM.FiscalYearId;
+                financing.FiscalYearPeriodId = voucherVM.FiscalYearPeriodId;
+                financing.Narration = voucherVM.Narration;
+                financing.PartyId = voucherVM.PartyId;
+                financing.PartyPlantId = voucherVM.PartyPlantId;
+                financing.TaxYearId = voucherVM.TaxYearId;
+                financing.TaxYearPeriodId = voucherVM.TaxYearPeriodId;
+                financing.VoucherDate = voucherVM.VoucherDate;
+                financing.VoucherTypeId = voucherVM.VoucherTypeId;
+                financing.EntityId = voucherVM.EntityId;
+                financing.Amount = voucherVM.Amount;
+                _financingService.UpdateFinancingWriteOff(financing);
+
+                // Update INTO Voucher TABLE
+                var voucher = new Voucher();
+                voucher = _voucherService.FindVoucher(voucherVM.VoucherId);
+                voucher.CurrencyId = voucherVM.CurrencyId;
+                voucher.PostingDate = voucherVM.PostingDate;
+                voucher.DocDate = voucherVM.DocDate;
+                voucher.DocRefNo = voucherVM.DocRefNo;
+                voucher.FiscalYearId = voucherVM.FiscalYearId;
+                voucher.FiscalYearPeriodId = voucherVM.FiscalYearPeriodId;
+                voucher.Narration = voucherVM.Narration;
+                voucher.VoucherNo = voucherVM.VoucherNo;
+                voucher.VoucherTypeId = voucherVM.VoucherTypeId;
+                voucher.EntityId = voucherVM.EntityId;
+                _voucherService.UpdateVoucher(voucher);
+
+                var totalAmountDr = 0.0M;
+                var totalAmountCr = 0.0M;
+                var taxDrAmount = 0.0M;
+                var taxCrAmount = 0.0M;
+
+                foreach (var voucherDetailVM in voucherDetailVMList)
+                {
+                    // in libility side Dr.
+                    var financingDetailWriteOff = new FinancingDetailWriteOff();
+                    if (voucherDetailVM.FinancingDetailId != null)
+                    {
+                        financingDetailWriteOff = _financingService.FindFinancingDetailWriteOff(voucherDetailVM.FinancingDetailId);
+                        financingDetailWriteOff.GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId;
+                        financingDetailWriteOff.BudgetMasterId = voucherDetailVM.BudgetMasterId;
+                        financingDetailWriteOff.ActivityId = voucherDetailVM.ActivityId;
+                        financingDetailWriteOff.Amount = voucherDetailVM.CrAmount;
+                        _financingService.UpdateFinancingDetailWriteOff(financingDetailWriteOff);
+                    }
+
+
+                    var voucherDetailDr = new VoucherDetail();
+                    voucherDetailDr = _voucherService.FindVoucherDetail(voucherDetailVM.Id);
+                    taxDrAmount = 0.0M;
+
+
+                    voucherDetailDr.GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId;
+                    voucherDetailDr.BudgetMasterId = voucherDetailVM.BudgetMasterId;
+                    voucherDetailDr.ActivityId = voucherDetailVM.ActivityId;
+                    voucherDetailDr.DrAmount = voucherDetailVM.DrAmount;
+                    voucherDetailDr.CrAmount = voucherDetailVM.CrAmount;
+                    voucherDetailDr.Narration = voucherVM.Narration;
+                    _voucherService.UpdateVoucherDetail(voucher, voucherDetailDr);
+
+                    totalAmountDr += voucherDetailDr.DrAmount;
+                    totalAmountCr += voucherDetailDr.DrAmount;
+                    var voucherDetailCurrencyDr = new VoucherDetailCurrency();
+                    voucherDetailCurrencyDr = _voucherService.GetVoucherDetailCurrencyList(r => r.VoucherId == voucher.Id && r.VoucherDetailId == voucherDetailDr.Id).Select().FirstOrDefault();
+                    voucherDetailCurrencyDr.DrAmount = voucherDetailVM.DrAmount * voucherVM.CompanyCurrencyRate;
+                    voucherDetailCurrencyDr.CrAmount = voucherDetailVM.CrAmount * voucherVM.CompanyCurrencyRate;
+                    _voucherService.UpdateVoucherDetailCompanyCurrency(voucherDetailDr, voucherDetailCurrencyDr);
+                }
+
+                if (totalAmountDr != totalAmountCr)
+                    throw new CustomException("Dr and Cr amount is not equal.");
+
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+                return voucher.VoucherNo;
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
         private string GetInvestmentInterestReceivablePK()
         {
             return _pkGeneratorService.GetAutoNumber("FinancingSubsequentTransaction", PKGeneratorEnum.Auto, null, DateTime.Now);

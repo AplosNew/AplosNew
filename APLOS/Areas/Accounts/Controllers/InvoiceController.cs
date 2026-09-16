@@ -503,6 +503,8 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceService.UpdateVendorInvoice(voucherVM, voucherDetailVMList)) });
         }
 
+       
+
         [HttpPost]
         public ActionResult PostVendorInvoice(string invoiceId, string type)
         {

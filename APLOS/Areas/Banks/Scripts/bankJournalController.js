@@ -406,6 +406,10 @@ function bankJournalController(bankService, accountService, cboService, commonMe
             ShowResult("Please Input Voucher No!", "failure");
             return true;
         }
+        if ($scope.Action === "Update" && $scope.voucher.VoucherNo == null) {
+            ShowResult("Please Input Voucher No!", "failure");
+            return true;
+        }
         if ($scope.approvedByList.length > 0 && $scope.voucher.ApprovedById == null) {
             ShowResult("Please select Approved By!", "failure");
             return true;

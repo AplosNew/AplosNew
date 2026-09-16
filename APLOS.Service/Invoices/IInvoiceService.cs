@@ -45,6 +45,7 @@ namespace Library.Service.Invoices
         string InsertDirectorRemunaretion(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
             , IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<MachineMasterAssetSeviceDistribution> machineMasterAssetSeviceDistributionList);
         string UpdateVendorInvoice(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
+       
         string InsertIncentiveReceivableInvoice(VoucherViewModel voucherVM, IEnumerable<IncentiveReceivableMap> incentiveReceivableMapList);
 
         void InsertMultipleVendorAvailableApproved(IEnumerable<MultipleVendorIdViewModel> partyIdList, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList);

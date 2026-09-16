@@ -14,6 +14,7 @@ namespace Library.Service.Finances
         string InsertInvestment(VoucherViewModel voucherVM);
         string InsertInvestmentSetOff(VoucherViewModel voucherVM);
         Dictionary<string, object> GetById(string id);
+        string UpdateInvestment(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
         string InsertInvestmentInterestReceivable(VoucherViewModel voucherVM, IEnumerable<FinancingScheduleViewModel> financingScheduleVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList);
     }
 }
