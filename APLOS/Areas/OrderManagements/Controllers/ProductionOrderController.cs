@@ -4489,6 +4489,33 @@ ORDER BY P.SortOrder";
             return jsondata;
         }
 
+        [HttpPost, Authorize]
+        public ActionResult DeleteEmployee(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [dbo].[PackerCategoryEmployee] where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+
         #endregion
 
         #region QRCode

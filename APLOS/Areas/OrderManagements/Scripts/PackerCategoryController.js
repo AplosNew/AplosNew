@@ -248,5 +248,31 @@ function PackerCategoryController(cboService, commonMessage, $scope, $rootScope,
 
     };
 
+    $scope.message_confirmation = "";
+    $scope.removeEmp = function (data) {
+        $scope.runobj = data.data;
+        $scope.message_confirmation = 'Are you sure want to delete [ ' + $scope.runobj.EmployeeCode + ' ]';
+        angular.element(document.querySelector('#confirmRunDelPopUp')).modal('show');
+    };
+    $scope.DeleteEmployee = function () {
+        if (!baseService.isUndefinedOrNull($scope.runobj.Id)) {
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/ProductionOrder/DeleteEmployee?id=' + $scope.runobj.Id
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getSavedEmpData();
+                }
+            }, function () {
+                ShowResult(commonMessage.NetworkError, 'failure');
+            }).finally(function () {
+            });
+        }
+
+    };
 
 }
