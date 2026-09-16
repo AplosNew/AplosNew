@@ -2284,7 +2284,7 @@ where US.UserId = '" + Userid + "'"));
             {
                 return Json(_sqlRepository.GetDataTable(@"Select Distinct  IT.Id InspectionTypeId ,IT.UserName InspectionType , ITE.Id InspectionTypeEnteryLevelId, ITE.InspectionTypeId ITEITID , ITE.Grade Grade , ITE.UserName ITEUsername
 ,ITE.LineItem , ITE.ProductCode , ITE.ProductionOrder , ITE.SalesOrder , ITE.SKU1 , ITE.SKU2 , ITE.SKU3 , 
-Case when IE.EntityId = '6'  then ITE.MaxQty else 1 end  MaxQty , ITE.Picture , ITE.Operation , ITE.Defect 
+Case when IE.EntityId = '5' and  IT.Id = '21' then 1 else  ITE.MaxQty  end  MaxQty , ITE.Picture , ITE.Operation , ITE.Defect 
 ,ITP.ProcessId , IE.EntityId , '' EmployeeId , IUA.BudgetId,pc.UserName ProcessName
 from InspectionType IT
 left join InspectionTypeEnteryLevel ITE on ITE.InspectionTypeId = IT.Id
