@@ -1472,6 +1472,101 @@ SOId = STUFF((
             }
         }
 
+        public IEnumerable<object> GetSKUDetailList(string masterId,string packId)
+        {
+            try
+            {
+                string sql = @"SELECT PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId AS SKU1Id,SC.CharacteristicsValueId AS SKU2Id,FCV.UserName AS SKUColor,SCV.UserName AS SKUSize
+    ,SUM(SC.Qty) AS OrderQty,PR.Qty
+FROM TRN.SecondCharacteristics SC
+LEFT JOIN TRN.FirstCharacteristics FC ON FC.Id = SC.FirstCharacteristicsId
+LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = FC.CharacteristicsValueId
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = SC.CharacteristicsValueId
+LEFT JOIN dbo.PacketDispatchChild PR ON PR.SalesOrderId = SC.SalesOrderId AND FC.CharacteristicsValueId = PR.SKU1Id AND SC.CharacteristicsValueId = PR.SKU2Id
+    AND PR.PacketDispatchMasterId = '" + masterId + @"'   -- IMPORTANT
+LEFT JOIN dbo.PacketDispatchMaster PT ON PT.Id =PR.PacketDispatchMasterId
+WHERE SC.SalesOrderId IN(Select SalesOrderId From [dbo].[PacketRegistrationDetail] Where PacketRegistrationMasterId ='"+ packId + @"')
+GROUP BY PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName,SCV.UserName,PR.Qty
+HAVING SUM(SC.Qty) <> 0;";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetCartons(string masterId)
+        {
+            try
+            {
+                string sql = @"SELECT CG.Id CartonId,CG.CartonNo,AC.Id,AC.ActualQty,'' ComboRefNo,FCV.UserName AS SKUColor,SCV.UserName AS SKUSize,PR.UnitPerPack PlanQty,AC.Remarks
+FROM dbo.CartonGeneration CG
+LEFT JOIN dbo.PacketRegistration PR ON PR.Id=CG.PacketRegistrationId
+LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = PR.SKU1Id
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = PR.SKU2Id
+LEFT JOIN dbo.ActualCatronQty AC ON AC.CartonId=CG.Id
+WHERE CG.Id = '" + masterId + @"' AND CG.PackingComboReferenceId IS NULL      -- << only non-combo cartons
+UNION ALL
+SELECT CG.Id CartonId,CG.CartonNo,AC.Id,AC.ActualQty,R.ComboRefNo,
+SKUColor=STUFF((SELECT DISTINCT ', ' + FCV.UserName
+     FROM dbo.[PackingComboSKUDetail] D2
+     LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = D2.SKU1Id
+     WHERE D2.PackingComboReferenceId = R.Id
+     FOR XML PATH('')
+ ), 1, 1, ''),
+ SKUSize=STUFF((SELECT DISTINCT ', ' + SCV.UserName
+     FROM dbo.[PackingComboSKUDetail] D2
+     LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = D2.SKU2Id
+     WHERE D2.PackingComboReferenceId = R.Id
+     FOR XML PATH('')
+ ), 1, 1, ''),R.ComboQty PlanQty,AC.Remarks
+FROM dbo.CartonGeneration CG
+LEFT JOIN dbo.PackingComboReference R ON R.Id=CG.PackingComboReferenceId
+LEFT JOIN dbo.ActualCatronQty AC ON AC.CartonId=CG.Id
+WHERE CG.Id = '" + masterId + @"' AND CG.PackingComboReferenceId IS NOT NULL   -- << only combo cartons";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetPackerEmployee(string masterId)
+        {
+            try
+            {
+
+                string CmdText = @"SELECT SSU.Id,SSU.EmpSystemId,EI.EmployeeName,EI.CompanyId,EI.PlantId,EI.GroupId,EI.EmployeeCode
+                                      ,EI.BudgetCode,E.UserName EntityName,D.UserName Designation,
+                                      PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,SS.UserName SubSection
+                                      ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,EI.EmpPicPath,EI.EmployeeStatus,C.UserName Company
+									  FROM dbo.PackerCategoryEmployee SSU
+									  LEFT JOIN dbo.EmployeeInformation EI on ei.SystemId=ssu.EmpSystemId
+                                      LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                                      LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                      LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                      LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                      LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
+                                      LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
+                                      LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                      LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
+                                      LEFT JOIN ORG.Company C ON C.Id=EI.CompanyId
+                                      LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
+                                      LEFT JOIN HKP.Designation DEG ON EI.GivenDesignationId=DEG.Id
+                                      LEFT JOIN HKP.LegalDesignation LDEG ON EI.LegalDesignationId=LDEG.Id
+									  Where PackerCategoryId='" + masterId + "' ORDER BY EI.EmployeeStatus";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 
 

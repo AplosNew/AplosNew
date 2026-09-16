@@ -316,67 +316,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
             ShowResult(e, 'failure', 'recipeMaterialPopUp');
         }
     };
-    $scope._addRecipeMaterial = function () {
-
-        try {
-
-            var id = "";
-            var productid = "";
-            var groupid = "";
-            for (var i = 0; i < $scope.recipeMaterialList.length; i++) {
-                if ($scope.recipeMaterialList[i].SalesOrderId == obj.data.SalesOrderId) {
-
-                    if (baseService.isUndefinedOrNull($scope.recipeMaterialList[i].ArticleId)
-                        || $scope.recipeMaterialList[i].ArticleId == "") {
-                        throw "Sales order items without product are not allowed";
-                    }
-
-                    if (id == "")
-                        id = $scope.recipeMaterialList[i].ArticleId;
-
-                    if (productid == "")
-                        productid = $scope.recipeMaterialList[i].ProductID;
-
-                    if (groupid == "")
-                        groupid = $scope.recipeMaterialList[i].ProductionGrouping;
-
-                    if (!baseService.isUndefinedOrNull($scope.recipeMaterialList[i].ProductionGrouping)) {
-                        if ($scope.recipeMaterialList[i].ProductionGrouping != groupid) {
-                            throw "Selecting different group materials are not allowed";
-                        }
-                        else {
-                            if ($scope.recipeMaterialList[i].ArticleId != id) {
-                                $scope.message_DiffArticleconfirmation = 'You are going to add different articles. Are you sure?';
-                                angular.element(document.querySelector('#confirmDiffArticlePopUp')).modal('show');
-                            }
-                        }
-
-                    } else {
-                        if ($scope.recipeMaterialList[i].ArticleId != id)
-                            throw "Selecting different articles are not allowed";
-
-                    }
-                    $scope.recipeMaterialListSelected = [];
-                    $scope.recipeMaterialListSelected.push($scope.recipeMaterialList[i]);
-                    break;
-                }
-            }
-
-            $scope.recipeMaterialListSelected = [];
-            for (var i = 0; i < $scope.recipeMaterialList.length; i++) {
-                if ($scope.recipeMaterialList[i].Checked == true) {
-                    $scope.recipeMaterialListSelected.push($scope.recipeMaterialList[i]);
-                }
-            }
-            $scope.SaveSalesOrder();
-            if (baseService.isUndefinedOrNull($scope.message_DiffArticleconfirmation)) {
-                $scope.CloseRecipeMaterialPopUp();
-            }
-        } catch (e) {
-            ShowResult(e, 'failure', 'recipeMaterialPopUp');
-        }
-    };
-
+  
     $scope.message_DiffArticleconfirmation = null;
     $scope.message_DiffArticle1confirmation = null;
 
@@ -721,7 +661,6 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         return summary;
     };
 
-
     $scope.SaveComboPR = function () {
         try {
             if ($scope.skuList.length > 0) {
@@ -903,7 +842,9 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     }
 
     $scope.CartonList = [];
+    $scope.CartonMasterId = null;
     $scope.GetCartonList = function (data) {
+        $scope.CartonMasterId = data.data.Id;
         $http({
             method: 'POST',
             url: 'OrderManagements/ProductionOrder/GetCartonList?masterId=' + data.data.Id
@@ -915,6 +856,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     $scope.ComboCartonList = [];
     $scope.GetComboCartonList = function (data) {
+        $scope.CartonMasterId = data.data.Id;
         $http({
             method: 'POST',
             url: 'OrderManagements/ProductionOrder/GetComboCartonList?masterId=' + data.data.Id
@@ -923,7 +865,6 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
             angular.element(document.querySelector('#ComboCartonPopUp')).modal('show');
         });
     }
-
 
     $scope.CloseCG = function () {
         angular.element(document.querySelector('#CartonPopUp')).modal('hide');
@@ -991,7 +932,6 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     };
 
     $scope.exportcomboPackgriddataUrl = 'GridReports/ExcelExportComboWithoutAddress';
-
 
     $scope.AllCartonReportExcel = function () {
         $http({
@@ -1151,5 +1091,10 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
             ShowResult(e, 'failure');
         }
     }
+
+
+
+  
+
 
 }

@@ -337,6 +337,10 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/ProductionOrder/Dispatch',
             controller: 'DispatchController'
         })
+        .when('/carton-update', {
+            templateUrl: 'OrderManagements/ProductionOrder/CartonUpdate',
+            controller: 'CartonUpdateController'
+        })
        
 
         ;
